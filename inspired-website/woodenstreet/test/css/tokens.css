@@ -1,0 +1,122 @@
+/* ============================================================
+   WoodenStreet Design Tokens — sourced from design.md
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&family=Roboto:wght@400;500&display=swap');
+
+:root {
+
+  /* --------------------------------------------------
+     PRIMARY — Brand Orange
+  -------------------------------------------------- */
+  --primary-bg:        #E37A34;
+  --primary-400:       #F9763A;
+  --primary-600:       #E85B1A;
+  --primary-active:    #E85B1A;
+  --primary-300:       #FA8D5E;
+  --primary-200:       #FCAC8C;
+  --primary-100:       #FAE9E6;
+  --primary-hover:     #E57200;
+
+  /* --------------------------------------------------
+     SECONDARY — Neutral Gray Scale
+  -------------------------------------------------- */
+  --secondary-200:     #E7E7E7;
+  --secondary-300:     #D1D1D1;
+  --secondary-400:     #ACACAC;
+  --secondary-500:     #8B8B8B;
+  --secondary-600:     #646464;
+  --secondary-700:     #515151;
+  --secondary-text:    #515151;
+  --dark-color:        #202020;
+
+  /* --------------------------------------------------
+     SEMANTIC
+  -------------------------------------------------- */
+  --success-color:     #4CAF4F;
+  --danger-color:      #F23433;
+  --light-gray:        #F5F5F5;
+  --promo-pink:        #FFF2F2;
+
+  /* --------------------------------------------------
+     BACKGROUNDS
+  -------------------------------------------------- */
+  --bg-page:           #FFFFFF;
+  --bg-header:         #FFFFFF;
+  --bg-submenu:        #FFFFFF;
+  --bg-submenu-even:   #F9F9F9;
+
+  /* --------------------------------------------------
+     TYPOGRAPHY
+  -------------------------------------------------- */
+  --font-primary:   'Red Hat Display', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+
+  /* Sizes */
+  --text-10: 10px;
+  --text-11: 11px;
+  --text-12: 12px;
+  --text-13: 13px;
+  --text-14: 14px;  /* text-sm */
+  --text-16: 16px;  /* text-base */
+  --text-18: 18px;  /* text-lg */
+  --text-19: 19px;
+  --text-24: 24px;  /* text-2xl */
+  --text-36: 36px;  /* text-4xl */
+
+  /* --------------------------------------------------
+     SPACING — 4px base scale
+  -------------------------------------------------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+
+  /* --------------------------------------------------
+     BORDER RADIUS
+  -------------------------------------------------- */
+  --radius-2:   2px;
+  --radius-3:   3px;
+  --radius-4:   4px;   /* card small */
+  --radius-6:   6px;
+  --radius-8:   8px;   /* rounded-lg — images */
+  --radius-10:  10px;  /* submenu images */
+  --radius-12:  30px;  /* pill-like */
+  --radius-14:  50px;  /* very rounded */
+  --radius-pill: 24px; /* CTA buttons */
+  --radius-full: 9999px;
+
+  /* --------------------------------------------------
+     SHADOWS
+  -------------------------------------------------- */
+  --shadow-card:    0 2px 8px rgba(0,0,0,0.10);
+  --shadow-profile: 0 0 6px rgba(0,0,0,0.20);
+  --shadow-megamenu: 0 4px 7.28px 0.72px rgba(0,0,0,0.20);
+  --shadow-usp:     0 1px 4px rgba(0,0,0,0.08);
+
+  /* --------------------------------------------------
+     Z-INDEX LAYERS
+  -------------------------------------------------- */
+  --z-base:       0;
+  --z-sticky:     30;
+  --z-header:     39;
+  --z-megamenu:   9999;
+  --z-modal:      1000;
+  --z-overlay:    999999;
+
+  /* --------------------------------------------------
+     TRANSITIONS
+  -------------------------------------------------- */
+  --transition-fast:   all 0.2s ease;
+  --transition-normal: all 0.3s ease;
+
+  /* --------------------------------------------------
+     LAYOUT
+  -------------------------------------------------- */
+  --container-max: 1240px;
+  --header-padding-v: 18px;
+}

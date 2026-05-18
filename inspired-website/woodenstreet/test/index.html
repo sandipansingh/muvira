@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>WoodenStreet — India's Finest Online Furniture Brand | Buy Furniture Online</title>
+  <meta name="description" content="Shop premium furniture online at WoodenStreet. 20 Lakh+ happy customers, 81+ experience stores, 3-year warranty. Discover sofas, beds, dining tables & more." />
+  <meta name="keywords" content="furniture online, buy sofa online, wooden furniture, bed furniture, dining table, WoodenStreet" />
+  <meta property="og:title" content="WoodenStreet — Premium Furniture Online" />
+  <meta property="og:description" content="India's finest online furniture brand with 20 Lakh+ customers." />
+  <meta property="og:type" content="website" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/navigation.css" />
+  <link rel="stylesheet" href="css/components.css" />
+
+  <style>
+    /* Hero slide placeholder gradients */
+    .hero-slide:nth-child(1) { background: linear-gradient(135deg, #f8e8d4 0%, #e8c4a0 100%); }
+    .hero-slide:nth-child(2) { background: linear-gradient(135deg, #d4e8f0 0%, #a0c4d8 100%); }
+    .hero-slide:nth-child(3) { background: linear-gradient(135deg, #f0d4e8 0%, #d8a0c4 100%); }
+    .hero-slide:nth-child(4) { background: linear-gradient(135deg, #d4f0d4 0%, #a0d8a0 100%); }
+
+    .hero-slide-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px 48px;
+      z-index: 2;
+    }
+
+    .hero-slide-content .tag {
+      display: inline-flex;
+      align-items: center;
+      background: var(--primary-bg);
+      color: #fff;
+      font-size: var(--text-11);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      margin-bottom: 14px;
+      width: fit-content;
+    }
+
+    .hero-slide-content h2 {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--dark-color);
+      line-height: 1.2;
+      margin-bottom: 10px;
+      max-width: 400px;
+    }
+
+    .hero-slide-content p {
+      font-size: var(--text-14);
+      color: var(--secondary-600);
+      margin-bottom: 24px;
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .hero-slide-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-bg);
+      color: #fff;
+      font-size: var(--text-14);
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: var(--radius-pill);
+      width: fit-content;
+      transition: background 0.2s;
+      font-family: var(--font-primary);
+      letter-spacing: 0.04em;
+    }
+    .hero-slide-cta:hover { background: var(--primary-600); color: #fff; }
+
+    /* Hero banner placeholders */
+    .hero-banner-card:nth-child(1) { background: linear-gradient(160deg, #fcebd4 0%, #f5c89e 100%); }
+    .hero-banner-card:nth-child(2) { background: linear-gradient(160deg, #d4eaf5 0%, #9ecaf5 100%); }
+
+    .hero-banner-card-content {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+    }
+
+    .hero-banner-card-content h3 {
+      font-size: var(--text-18);
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 6px;
+    }
+
+    .hero-banner-card-content a {
+      font-size: var(--text-13);
+      color: var(--primary-bg);
+      font-weight: 500;
+      text-decoration: underline;
+    }
+
+    /* Section spacing helpers */
+    .section-gap { padding: 48px 0; }
+    .section-gap--sm { padding: 32px 0; }
+
+    /* Category placeholder images */
+    .cat-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+
+    /* Mid banner placeholders */
+    .mid-banner:nth-child(1) { background: linear-gradient(120deg, #fff0e6 0%, #ffd4b5 100%); }
+    .mid-banner:nth-child(2) { background: linear-gradient(120deg, #e6f0ff 0%, #b5d4ff 100%); }
+    .mid-banner:nth-child(3) { background: linear-gradient(120deg, #e6ffe6 0%, #b5ffb5 100%); }
+
+    .mid-banner-placeholder {
+      width: 100%; height: 220px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mid-banner-placeholder span { font-size: 36px; }
+    .mid-banner-placeholder p {
+      font-size: var(--text-16);
+      font-weight: 600;
+      color: var(--secondary-700);
+    }
+
+    /* Video card placeholder */
+    .video-card__media-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px;
+      background: linear-gradient(160deg, #f0e8e0 0%, #e0d0c0 100%);
+    }
+
+    /* Promo section placeholder */
+    .promo-img-placeholder {
+      width: 100%; height: 350px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px;
+      background: linear-gradient(135deg, #ffe0cc 0%, #ffb380 100%);
+      border-radius: var(--radius-12);
+    }
+
+    /* Store video placeholder */
+    .store-video-placeholder {
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, #2a2a2a 0%, #4a4a4a 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 64px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+  UTILITY BAR (Level 1)
+============================================================ -->
+<div class="utility-bar" role="banner">
+  <div class="utility-bar__left">
+    <a href="#">Track Order</a>
+    <span class="utility-bar__divider"></span>
+    <a href="#">Store Locator</a>
+    <span class="utility-bar__divider"></span>
+    <a href="#">EMI Options</a>
+  </div>
+  <div class="utility-bar__center">
+    🎉 &nbsp;Get 10% OFF on your first order — Use code: <strong>FIRST10</strong>
+  </div>
+  <div class="utility-bar__right">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.41 2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+    <a href="tel:1800-1200">1800-1200</a>
+  </div>
+</div>
+
+<!-- ============================================================
+  MAIN HEADER (Level 2)
+============================================================ -->
+<header class="site-header" role="navigation" aria-label="Main navigation">
+  <div class="header-inner">
+
+    <!-- Logo -->
+    <a href="index.html" class="header-logo" aria-label="WoodenStreet Home">
+      <div class="logo-text">Wooden<span>Street</span></div>
+    </a>
+
+    <!-- Search -->
+    <div class="header-search" role="search">
+      <div class="header-search__input-wrap">
+        <input
+          class="header-search__input"
+          type="search"
+          id="siteSearch"
+          placeholder="Search for sofas, beds, wardrobes..."
+          autocomplete="off"
+          aria-label="Search products"
+        />
+        <button class="header-search__btn" aria-label="Submit search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+      <div class="header-search__dropdown" role="listbox" aria-label="Search suggestions">
+        <p class="search-dropdown__label">Trending Searches</p>
+        <div class="search-dropdown__tags">
+          <span class="search-tag" role="option">Sofa Set</span>
+          <span class="search-tag" role="option">Wooden Bed</span>
+          <span class="search-tag" role="option">Dining Table</span>
+          <span class="search-tag" role="option">Wardrobe</span>
+          <span class="search-tag" role="option">Recliner</span>
+          <span class="search-tag" role="option">Coffee Table</span>
+          <span class="search-tag" role="option">Study Chair</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav Icons -->
+    <nav class="header-nav-icons" aria-label="Quick actions">
+
+      <!-- Stores -->
+      <a href="#" class="nav-icon-btn nav-icon-btn--stores" aria-label="Find a store">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span class="nav-icon-btn__label">Stores</span>
+      </a>
+
+      <!-- Profile -->
+      <div class="profile-dropdown-wrap">
+        <a href="#" class="nav-icon-btn" aria-label="Account">
+          <svg width="23" height="23" viewBox="0 0 24 24" fill="#4a4a4a">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#4a4a4a" stroke-width="1.5" fill="none"/>
+            <circle cx="12" cy="7" r="4" stroke="#4a4a4a" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="nav-icon-btn__label">Profile</span>
+        </a>
+
+        <div class="profile-dropdown" role="dialog" aria-label="Profile menu">
+          <div class="profile-dropdown__header">
+            <p>Sign in to view your account</p>
+            <a href="#" class="signin-btn" id="signInBtn">Sign In / Sign Up</a>
+          </div>
+          <div class="profile-dropdown__links">
+            <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>My Orders</a>
+            <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Wishlist</a>
+            <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Track Order</a>
+            <a href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41M20 12h-2M6 12H4M19.07 19.07l-1.41-1.41M6.34 6.34L4.93 4.93"/></svg>Settings</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wishlist -->
+      <a href="#" class="nav-icon-btn" aria-label="Wishlist" id="navWishlistBtn">
+        <svg width="22" height="21" viewBox="0 0 24 24" fill="#4a4a4a">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="#4a4a4a" stroke-width="1.5" fill="none"/>
+        </svg>
+        <span class="nav-icon-btn__label">Wishlist</span>
+      </a>
+
+      <!-- Cart -->
+      <a href="#" class="nav-icon-btn" aria-label="Cart" id="navCartBtn">
+        <div style="position:relative;">
+          <svg width="22" height="21" viewBox="0 0 24 24" fill="#4a4a4a">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" stroke="#4a4a4a" stroke-width="1.5" fill="none"/><line x1="3" y1="6" x2="21" y2="6" stroke="#4a4a4a" stroke-width="1.5"/><path d="M16 10a4 4 0 0 1-8 0" stroke="#4a4a4a" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="cart-badge">0</span>
+        </div>
+        <span class="nav-icon-btn__label">Cart (0)</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============================================================
+  MEGA MENU (Level 3)
+============================================================ -->
+<nav class="mega-menu-bar" aria-label="Category navigation">
+  <ul class="mega-menu-list" role="menubar">
+
+    <!-- Sofas -->
+    <li class="mega-menu-item" role="none">
+      <button class="mega-menu-item__trigger" role="menuitem" aria-haspopup="true">
+        Sofas
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="mega-dropdown" role="menu">
+        <div class="mega-dropdown__inner">
+          <div class="submenu-col">
+            <p class="submenu-col__heading">By Type</p>
+            <a class="submenu-col__link" href="#">All Sofas</a>
+            <a class="submenu-col__link" href="#">Sofa Set</a>
+            <a class="submenu-col__link" href="#">Sofa Cum Bed</a>
+            <a class="submenu-col__link" href="#">Recliners</a>
+            <a class="submenu-col__link" href="#">Lounge Chairs</a>
+            <a class="submenu-col__link" href="#">Ottoman</a>
+          </div>
+          <div class="submenu-col">
+            <p class="submenu-col__heading">By Material</p>
+            <a class="submenu-col__link" href="#">Fabric Sofa</a>
+            <a class="submenu-col__link" href="#">Leather Sofa</a>
+            <a class="submenu-col__link" href="#">Wooden Sofa</a>
+            <a class="submenu-col__link" href="#">L-Shape Sofa</a>
+            <a class="submenu-col__link" href="#">Modular Sofa</a>
+          </div>
+          <div class="submenu-col">
+            <p class="submenu-col__heading">By Seating</p>
+            <a class="submenu-col__link" href="#">1 Seater</a>
+            <a class="submenu-col__link" href="#">2 Seater</a>
+            <a class="submenu-col__link" href="#">3 Seater</a>
+            <a class="submenu-col__link" href="#">3+2 Seater</a>
+            <a class="submenu-col__link" href="#">Corner Sofa</a>
+          </div>
+          <div class="submenu-col submenu-col--image">
+            <div style="background:linear-gradient(135deg,#fcebd4,#e8c4a0);width:100%;height:280px;border-radius:var(--radius-10);display:flex;align-items:center;justify-content:center;font-size:64px;">🛋️</div>
+          </div>
+        </div>
+      </div>
+    </li>
+
+    <!-- Bedroom -->
+    <li class="mega-menu-item" role="none">
+      <button class="mega-menu-item__trigger" role="menuitem" aria-haspopup="true">
+        Bedroom
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="mega-dropdown" role="menu">
+        <div class="mega-dropdown__inner">
+          <div class="submenu-col">
+            <p class="submenu-col__heading">Beds</p>
+            <a class="submenu-col__link" href="#">All Beds</a>
+            <a class="submenu-col__link" href="#">Queen Size Beds</a>
+            <a class="submenu-col__link" href="#">King Size Beds</a>
+            <a class="submenu-col__link" href="#">Single Beds</a>
+            <a class="submenu-col__link" href="#">Bunk Beds</a>
+            <a class="submenu-col__link" href="#">Storage Beds</a>
+          </div>
+          <div class="submenu-col">
+            <p class="submenu-col__heading">Storage</p>
+            <a class="submenu-col__link" href="#">Wardrobes</a>
+            <a class="submenu-col__link" href="#">Chest of Drawers</a>
+            <a class="submenu-col__link" href="#">Bedside Tables</a>
+            <a class="submenu-col__link" href="#">Dressing Tables</a>
+          </div>
+          <div class="submenu-col">
+            <p class="submenu-col__heading">Mattresses</p>
+            <a class="submenu-col__link" href="#">All Mattresses</a>
+            <a class="submenu-col__link" href="#">Memory Foam</a>
+            <a class="submenu-col__link" href="#">Orthopaedic</a>
+            <a class="submenu-col__link" href="#">Coir Mattress</a>
+          </div>
+          <div class="submenu-col submenu-col--image">
+            <div style="background:linear-gradient(135deg,#d4eaf5,#9ecaf5);width:100%;height:280px;border-radius:var(--radius-10);display:flex;align-items:center;justify-content:center;font-size:64px;">🛏️</div>
+          </div>
+        </div>
+      </div>
+    </li>
+
+    <!-- Dining -->
+    <li class="mega-menu-item" role="none">
+      <button class="mega-menu-item__trigger" role="menuitem" aria-haspopup="true">
+        Dining
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="mega-dropdown" role="menu">
+        <div class="mega-dropdown__inner">
+          <div class="submenu-col">
+            <p class="submenu-col__heading">Dining Sets</p>
+            <a class="submenu-col__link" href="#">4 Seater Dining</a>
+            <a class="submenu-col__link" href="#">6 Seater Dining</a>
+            <a class="submenu-col__link" href="#">8 Seater Dining</a>
+            <a class="submenu-col__link" href="#">Folding Dining</a>
+          </div>
+          <div class="submenu-col">
+            <p class="submenu-col__heading">Tables &amp; Chairs</p>
+            <a class="submenu-col__link" href="#">Dining Tables</a>
+            <a class="submenu-col__link" href="#">Dining Chairs</a>
+            <a class="submenu-col__link" href="#">Bar Stools</a>
+            <a class="submenu-col__link" href="#">Bar Furniture</a>
+          </div>
+          <div class="submenu-col">
+            <p class="submenu-col__heading">Kitchen</p>
+            <a class="submenu-col__link" href="#">Kitchen Cabinets</a>
+            <a class="submenu-col__link" href="#">Kitchen Islands</a>
+            <a class="submenu-col__link" href="#">Crockery Units</a>
+          </div>
+          <div class="submenu-col submenu-col--image">
+            <div style="background:linear-gradient(135deg,#d4f0d4,#a0d8a0);width:100%;height:280px;border-radius:var(--radius-10);display:flex;align-items:center;justify-content:center;font-size:64px;">🍽️</div>
+          </div>
+        </div>
+      </div>
+    </li>
+
+    <!-- Living -->
+    <li class="mega-menu-item" role="none">
+      <button class="mega-menu-item__trigger" role="menuitem">Living</button>
+    </li>
+
+    <!-- Storage -->
+    <li class="mega-menu-item" role="none">
+      <button class="mega-menu-item__trigger" role="menuitem" aria-haspopup="true">
+        Storage
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="mega-dropdown" role="menu">
+        <div class="mega-dropdown__inner">
+          <div class="submenu-col">
+            <p class="submenu-col__heading">TV &amp; Entertainment</p>
+            <a class="submenu-col__link" href="#">TV Units</a>
+            <a class="submenu-col__link" href="#">TV Cabinets</a>
+            <a class="submenu-col__link" href="#">Entertainment Units</a>
+          </div>
+          <div class="submenu-col">
+            <p class="submenu-col__heading">Storage</p>
+            <a class="submenu-col__link" href="#">Wardrobes</a>
+            <a class="submenu-col__link" href="#">Shoe Racks</a>
+            <a class="submenu-col__link" href="#">Bookshelves</a>
+            <a class="submenu-col__link" href="#">Filing Cabinets</a>
+          </div>
+          <div class="submenu-col submenu-col--image">
+            <div style="background:linear-gradient(135deg,#f0d4e8,#d8a0c4);width:100%;height:280px;border-radius:var(--radius-10);display:flex;align-items:center;justify-content:center;font-size:64px;">📦</div>
+          </div>
+        </div>
+      </div>
+    </li>
+
+    <li class="mega-menu-item" role="none"><button class="mega-menu-item__trigger" role="menuitem">Kids</button></li>
+    <li class="mega-menu-item" role="none"><button class="mega-menu-item__trigger" role="menuitem">Study</button></li>
+    <li class="mega-menu-item" role="none"><button class="mega-menu-item__trigger" role="menuitem">Outdoor</button></li>
+    <li class="mega-menu-item" role="none">
+      <button class="mega-menu-item__trigger" role="menuitem" style="color:var(--danger-color);font-weight:700;">
+        🔥 Sale
+      </button>
+    </li>
+    <li class="mega-menu-item" role="none">
+      <button class="mega-menu-item__trigger" role="menuitem" style="color:var(--success-color);font-weight:700;">
+        ✨ New Arrivals
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<!-- ============================================================
+  MOBILE HEADER
+============================================================ -->
+<header class="mobile-header" aria-label="Mobile navigation">
+  <div class="mobile-header__top">
+    <button id="mobileMenuBtn" aria-label="Open menu" style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--dark-color);">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <a href="index.html" class="logo-text" style="font-size:20px;">Wooden<span>Street</span></a>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <a href="#" aria-label="Wishlist" style="color:#4a4a4a;position:relative;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </a>
+      <a href="#" aria-label="Cart" style="color:#4a4a4a;position:relative;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge">0</span>
+      </a>
+    </div>
+  </div>
+  <div class="mobile-header__search">
+    <div class="header-search" style="max-width:100%;">
+      <div class="header-search__input-wrap">
+        <input class="header-search__input" type="search" placeholder="Search furniture..." aria-label="Search" />
+        <button class="header-search__btn" aria-label="Search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Drawer -->
+<div class="mobile-drawer-overlay" id="mobileDrawerOverlay" aria-hidden="true"></div>
+<nav class="mobile-drawer" id="mobileDrawer" aria-label="Mobile menu">
+  <div class="mobile-drawer__header">
+    <div class="logo-text">Wooden<span>Street</span></div>
+    <button class="mobile-drawer__close" id="mobileDrawerClose" aria-label="Close menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="mobile-drawer__nav">
+    <a href="#">🛋️ Sofas</a>
+    <a href="#">🛏️ Bedroom</a>
+    <a href="#">🍽️ Dining</a>
+    <a href="#">🛁 Living</a>
+    <a href="#">📦 Storage</a>
+    <a href="#">👶 Kids</a>
+    <a href="#">📚 Study</a>
+    <a href="#">🌿 Outdoor</a>
+    <a href="#" style="color:var(--danger-color);">🔥 Sale</a>
+    <a href="#" style="color:var(--success-color);">✨ New Arrivals</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+  MAIN CONTENT
+============================================================ -->
+<main id="main-content">
+
+  <!-- --------------------------------------------------------
+    HERO SECTION
+  -------------------------------------------------------- -->
+  <section class="page-section page-section--white" aria-label="Featured promotions">
+    <div class="hero-section">
+
+      <!-- Left: Slider -->
+      <div class="hero-slider-wrap">
+        <div class="hero-slider" role="region" aria-label="Hero banner" aria-live="polite">
+
+          <!-- Slide 1 -->
+          <div class="hero-slide active" role="group" aria-label="Slide 1 of 4">
+            <div class="hero-slide-content">
+              <span class="tag">Summer Sale · Up to 55% OFF</span>
+              <h2>Redefine Your<br/>Living Room</h2>
+              <p>Handcrafted sofas from sustainably sourced wood — built for decades, loved forever.</p>
+              <a href="#" class="hero-slide-cta">
+                Shop Sofas
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Slide 2 -->
+          <div class="hero-slide" role="group" aria-label="Slide 2 of 4">
+            <div class="hero-slide-content">
+              <span class="tag">New Collection 2026</span>
+              <h2>Dream Bedroom<br/>Sets Await</h2>
+              <p>Premium sheesham wood beds with 3-year warranty. Free installation across India.</p>
+              <a href="#" class="hero-slide-cta">Explore Beds</a>
+            </div>
+          </div>
+
+          <!-- Slide 3 -->
+          <div class="hero-slide" role="group" aria-label="Slide 3 of 4">
+            <div class="hero-slide-content">
+              <span class="tag">Best Sellers</span>
+              <h2>Dining Tables for<br/>Every Home</h2>
+              <p>6-seater to 10-seater dining sets. Solid wood, glass, and marble top options available.</p>
+              <a href="#" class="hero-slide-cta">Shop Dining</a>
+            </div>
+          </div>
+
+          <!-- Slide 4 -->
+          <div class="hero-slide" role="group" aria-label="Slide 4 of 4">
+            <div class="hero-slide-content">
+              <span class="tag">Exclusive Offer</span>
+              <h2>Smart Storage<br/>Solutions</h2>
+              <p>Wardrobes, TV units, shoe racks — organize your home beautifully.</p>
+              <a href="#" class="hero-slide-cta">Shop Storage</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Arrows -->
+        <button class="hero-arrow hero-arrow--prev" aria-label="Previous slide">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="hero-arrow hero-arrow--next" aria-label="Next slide">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <!-- Indicators -->
+        <div class="hero-indicators" role="tablist" aria-label="Slide controls">
+          <button class="hero-indicator active" role="tab" aria-label="Go to slide 1" aria-selected="true">
+            <div class="hero-indicator__progress"></div>
+          </button>
+          <button class="hero-indicator" role="tab" aria-label="Go to slide 2" aria-selected="false">
+            <div class="hero-indicator__progress"></div>
+          </button>
+          <button class="hero-indicator" role="tab" aria-label="Go to slide 3" aria-selected="false">
+            <div class="hero-indicator__progress"></div>
+          </button>
+          <button class="hero-indicator" role="tab" aria-label="Go to slide 4" aria-selected="false">
+            <div class="hero-indicator__progress"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Stacked Banners -->
+      <div class="hero-banners" aria-label="Promotional banners">
+        <a class="hero-banner-card" href="#" style="flex:1;min-height:220px;">
+          <div style="width:100%;height:100%;min-height:220px;display:flex;align-items:flex-end;padding:20px;background:linear-gradient(160deg,#fcebd4 0%,#f5c89e 100%);">
+            <div class="hero-banner-card-content" style="position:relative;bottom:auto;left:auto;right:auto;">
+              <h3>The Recliner Edit</h3>
+              <a href="#">Shop Now →</a>
+            </div>
+          </div>
+        </a>
+        <a class="hero-banner-card" href="#" style="flex:1;min-height:220px;">
+          <div style="width:100%;height:100%;min-height:220px;display:flex;align-items:flex-end;padding:20px;background:linear-gradient(160deg,#d4eaf5 0%,#9ecaf5 100%);">
+            <div class="hero-banner-card-content" style="position:relative;bottom:auto;left:auto;right:auto;">
+              <h3>Wardrobe Sale 40% OFF</h3>
+              <a href="#">View Collection →</a>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    USP BAR
+  -------------------------------------------------------- -->
+  <section class="usp-bar" aria-label="Why choose WoodenStreet">
+    <div class="usp-bar__inner">
+      <!-- Stats -->
+      <div class="usp-bar__left">
+        <div class="usp-bar__stat">
+          <div class="usp-bar__stat-number">20L+</div>
+          <div class="usp-bar__stat-label">Happy Customers</div>
+        </div>
+        <div class="usp-bar__stat-divider"></div>
+        <div class="usp-bar__stat">
+          <div class="usp-bar__stat-number">81+</div>
+          <div class="usp-bar__stat-label">Experience Stores</div>
+        </div>
+        <div class="usp-bar__stat-divider"></div>
+        <div class="usp-bar__stat">
+          <div class="usp-bar__stat-number">4.8★</div>
+          <div class="usp-bar__stat-label">Average Rating</div>
+        </div>
+        <div class="usp-bar__stat-divider"></div>
+        <div class="usp-bar__stat">
+          <div class="usp-bar__stat-number">35K+</div>
+          <div class="usp-bar__stat-label">Products</div>
+        </div>
+      </div>
+      <!-- USP Items -->
+      <div class="usp-bar__right">
+        <div class="usp-item">
+          <svg width="45" height="45" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#FAE9E6"/><path d="M16 32l4-8 6 4 6-10" stroke="#E37A34" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span class="usp-item__text">3 Year<br/>Warranty</span>
+        </div>
+        <div class="usp-item">
+          <svg width="45" height="45" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#FAE9E6"/><rect x="12" y="18" width="24" height="16" rx="2" stroke="#E37A34" stroke-width="2.5"/><path d="M18 18v-4a6 6 0 0 1 12 0v4" stroke="#E37A34" stroke-width="2.5"/></svg>
+          <span class="usp-item__text">Secure<br/>Payments</span>
+        </div>
+        <div class="usp-item">
+          <svg width="45" height="45" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#FAE9E6"/><path d="M12 24h24M24 12v24" stroke="#E37A34" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span class="usp-item__text">Free<br/>Delivery</span>
+        </div>
+        <div class="usp-item">
+          <svg width="45" height="45" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="20" fill="#FAE9E6"/><path d="M24 14v10l6 4" stroke="#E37A34" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <span class="usp-item__text">EMI from<br/>₹999/month</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    CATEGORY TABS
+  -------------------------------------------------------- -->
+  <section class="category-section" aria-label="Shop by room">
+    <div class="section-header">
+      <div>
+        <p class="section-header__title">Shop by Room</p>
+        <p class="section-header__subtitle">Find the perfect furniture for every space</p>
+      </div>
+      <a href="#" class="btn-view-all">
+        View All
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="category-tabs" role="tablist" aria-label="Room categories">
+      <button class="category-tab active" role="tab" data-tab="all" aria-selected="true">All</button>
+      <button class="category-tab" role="tab" data-tab="living" aria-selected="false">Living Room</button>
+      <button class="category-tab" role="tab" data-tab="bedroom" aria-selected="false">Bedroom</button>
+      <button class="category-tab" role="tab" data-tab="dining" aria-selected="false">Dining</button>
+      <button class="category-tab" role="tab" data-tab="storage" aria-selected="false">Storage</button>
+      <button class="category-tab" role="tab" data-tab="study" aria-selected="false">Study</button>
+      <button class="category-tab" role="tab" data-tab="outdoor" aria-selected="false">Outdoor</button>
+    </div>
+
+    <!-- Category Grid -->
+    <div class="category-grid category-tab-content" data-tab-content="all">
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">🛋️</div></div>
+        <span class="category-card__label">Sofas</span>
+      </a>
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">🛏️</div></div>
+        <span class="category-card__label">Beds</span>
+      </a>
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">🪑</div></div>
+        <span class="category-card__label">Chairs</span>
+      </a>
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">🍽️</div></div>
+        <span class="category-card__label">Dining Sets</span>
+      </a>
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">📺</div></div>
+        <span class="category-card__label">TV Units</span>
+      </a>
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">🪞</div></div>
+        <span class="category-card__label">Wardrobes</span>
+      </a>
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">☕</div></div>
+        <span class="category-card__label">Coffee Tables</span>
+      </a>
+      <a class="category-card" href="#">
+        <div class="category-card__img-wrap"><div class="cat-img-placeholder">📚</div></div>
+        <span class="category-card__label">Bookshelves</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    NEW ARRIVALS — Product Carousel
+  -------------------------------------------------------- -->
+  <section class="page-section page-section--gray section-gap" aria-label="New arrivals">
+    <div class="page-section__inner">
+      <div class="section-header">
+        <div>
+          <p class="section-header__title">Discover What's New</p>
+          <p class="section-header__subtitle">Fresh designs, handpicked for modern Indian homes</p>
+        </div>
+        <a href="#" class="btn-view-all">
+          View All
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+      <div class="product-carousel-wrap">
+        <button class="carousel-arrow carousel-arrow--prev" aria-label="Scroll left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="product-carousel" role="list">
+          <!-- Card 1 -->
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="product-card__badge product-card__badge--new">New</span>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#fcebd4,#f0c8a0);display:flex;align-items:center;justify-content:center;font-size:56px;">🛋️</div>
+            <p class="product-card__title line-clamp-2">Lumina 3-Seater Fabric Sofa in Premium Velvet — Warm Beige</p>
+            <div class="product-card__rating">
+              <div class="rating-stars" aria-label="4.5 out of 5 stars">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="half-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77" fill="#E27A34"/><path d="M12 17.77L5.82 21.02 7 14.14 2 9.27l8.91-1.01L12 2" fill="white"/></svg>
+              </div>
+              <span class="rating-count">(2,847)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="price-current">₹32,499</span>
+              <span class="price-original">₹54,999</span>
+              <span class="price-discount">41% OFF</span>
+            </div>
+            <button class="product-card__cart" aria-label="Add to cart">Add to Cart</button>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="product-card__badge product-card__badge--sale">Sale</span>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#d4eaf5,#a8cce8);display:flex;align-items:center;justify-content:center;font-size:56px;">🛏️</div>
+            <p class="product-card__title line-clamp-2">Manjiri Queen Size Sheesham Wood Bed with Storage</p>
+            <div class="product-card__rating">
+              <div class="rating-stars" aria-label="5 out of 5 stars">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <span class="rating-count">(1,204)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="price-current">₹45,999</span>
+              <span class="price-original">₹79,999</span>
+              <span class="price-discount">43% OFF</span>
+            </div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#d4f0d4,#a0d8a0);display:flex;align-items:center;justify-content:center;font-size:56px;">🪑</div>
+            <p class="product-card__title line-clamp-2">Ergo Pro Ergonomic Study Chair with Lumbar Support</p>
+            <div class="product-card__rating">
+              <div class="rating-stars" aria-label="4 out of 5 stars">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#E27A34" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <span class="rating-count">(689)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="price-current">₹18,999</span>
+              <span class="price-original">₹28,999</span>
+              <span class="price-discount">35% OFF</span>
+            </div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+
+          <!-- Card 4 -->
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <span class="product-card__badge product-card__badge--hot">Hot</span>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#f0d4e8,#d8a0c4);display:flex;align-items:center;justify-content:center;font-size:56px;">☕</div>
+            <p class="product-card__title line-clamp-2">Nordic Round Coffee Table in Solid Teak — White Finish</p>
+            <div class="product-card__rating">
+              <div class="rating-stars" aria-label="4.5 out of 5 stars">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg class="half-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77" fill="#E27A34"/><path d="M12 17.77L5.82 21.02 7 14.14 2 9.27l8.91-1.01L12 2" fill="white"/></svg>
+              </div>
+              <span class="rating-count">(423)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="price-current">₹12,499</span>
+              <span class="price-original">₹18,999</span>
+              <span class="price-discount">34% OFF</span>
+            </div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+
+          <!-- Card 5 -->
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#ffe8cc,#ffd4a0);display:flex;align-items:center;justify-content:center;font-size:56px;">🍽️</div>
+            <p class="product-card__title line-clamp-2">Heritage 6-Seater Sheesham Dining Set with Cushioned Chairs</p>
+            <div class="product-card__rating">
+              <div class="rating-stars" aria-label="5 out of 5 stars">
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <span class="rating-count">(1,891)</span>
+            </div>
+            <div class="product-card__price">
+              <span class="price-current">₹58,999</span>
+              <span class="price-original">₹89,999</span>
+              <span class="price-discount">34% OFF</span>
+            </div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+        </div>
+
+        <button class="carousel-arrow carousel-arrow--next" aria-label="Scroll right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    TOP RATED — Product Carousel
+  -------------------------------------------------------- -->
+  <section class="page-section page-section--white section-gap" aria-label="Top rated products">
+    <div class="page-section__inner">
+      <div class="section-header">
+        <div>
+          <p class="section-header__title">Top-Rated by Indian Homes</p>
+          <p class="section-header__subtitle">Loved by 20 Lakh+ customers nationwide</p>
+        </div>
+        <a href="#" class="btn-view-all">
+          View All
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+
+      <div class="product-carousel-wrap">
+        <button class="carousel-arrow carousel-arrow--prev" aria-label="Scroll left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+
+        <div class="product-carousel" role="list">
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#e8d5c4,#c4a882);display:flex;align-items:center;justify-content:center;font-size:56px;">📺</div>
+            <p class="product-card__title line-clamp-2">Horizon 65" TV Unit in Dark Walnut Finish — Wall Mount</p>
+            <div class="product-card__rating">
+              <div class="rating-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+              <span class="rating-count">(3,102)</span>
+            </div>
+            <div class="product-card__price"><span class="price-current">₹22,499</span><span class="price-original">₹38,999</span><span class="price-discount">42% OFF</span></div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#c4d8e8,#a0b8cc);display:flex;align-items:center;justify-content:center;font-size:56px;">🪞</div>
+            <p class="product-card__title line-clamp-2">Cascade 4-Door Sliding Wardrobe with Mirror Panel</p>
+            <div class="product-card__rating">
+              <div class="rating-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg class="half-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77" fill="#E27A34"/><path d="M12 17.77L5.82 21.02 7 14.14 2 9.27l8.91-1.01L12 2" fill="white"/></svg></div>
+              <span class="rating-count">(876)</span>
+            </div>
+            <div class="product-card__price"><span class="price-current">₹62,999</span><span class="price-original">₹95,000</span><span class="price-discount">34% OFF</span></div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#d8e8d4,#b0cca8);display:flex;align-items:center;justify-content:center;font-size:56px;">🪑</div>
+            <p class="product-card__title line-clamp-2">Luxe Power Recliner Sofa with USB Charging & Cup Holder</p>
+            <div class="product-card__rating">
+              <div class="rating-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+              <span class="rating-count">(2,341)</span>
+            </div>
+            <div class="product-card__price"><span class="price-current">₹41,999</span><span class="price-original">₹72,000</span><span class="price-discount">42% OFF</span></div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+
+          <article class="product-card" role="listitem">
+            <button class="product-card__wishlist" aria-label="Add to wishlist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+            <div class="product-card__media" style="background:linear-gradient(135deg,#e8d4c4,#d4a882);display:flex;align-items:center;justify-content:center;font-size:56px;">📚</div>
+            <p class="product-card__title line-clamp-2">Atlas 5-Shelf Solid Wood Bookshelf in Natural Finish</p>
+            <div class="product-card__rating">
+              <div class="rating-stars"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><svg class="half-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77" fill="#E27A34"/><path d="M12 17.77L5.82 21.02 7 14.14 2 9.27l8.91-1.01L12 2" fill="white"/></svg></div>
+              <span class="rating-count">(534)</span>
+            </div>
+            <div class="product-card__price"><span class="price-current">₹14,999</span><span class="price-original">₹22,999</span><span class="price-discount">35% OFF</span></div>
+            <button class="product-card__cart">Add to Cart</button>
+          </article>
+        </div>
+
+        <button class="carousel-arrow carousel-arrow--next" aria-label="Scroll right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    EXPERIENCE STORES
+  -------------------------------------------------------- -->
+  <section class="page-section section-gap" aria-label="Experience stores">
+    <div class="page-section__inner">
+      <div class="stores-section">
+        <div class="stores-section__inner">
+          <!-- Store video -->
+          <div class="stores-section__video">
+            <div class="store-video-placeholder">🏪</div>
+            <div class="stores-section__video-play">
+              <div class="play-btn" role="button" aria-label="Play store tour video" tabindex="0">
+                <svg viewBox="0 0 24 24" fill="var(--primary-bg)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="stores-section__content">
+            <h2>Experience Stores Across India</h2>
+            <p>Visit one of our 81+ showrooms to touch, feel, and experience our furniture before you buy. Our design experts will help you create your dream home.</p>
+
+            <div class="stores-city-grid">
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Delhi</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Mumbai</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Bengaluru</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Hyderabad</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Pune</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Chennai</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Kolkata</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Ahmedabad</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Jaipur</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Lucknow</a>
+              <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Chandigarh</a>
+              <a href="#" style="color:var(--primary-bg);font-weight:600;">+ 70 more cities →</a>
+            </div>
+
+            <div class="stores-cta-row">
+              <a href="#" class="btn-outline-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Visit Nearest Store
+              </a>
+              <a href="#" class="btn-outline-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Book an Appointment
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    BRAND COPY / SEO SECTION (with h1)
+  -------------------------------------------------------- -->
+  <section class="brand-copy-section" aria-label="About WoodenStreet">
+    <div class="brand-copy-section__inner">
+      <h1 class="brand-copy__headline">
+        India's Finest <span>Online Furniture</span> Brand —
+        Crafting Homes with Passion Since 2015
+      </h1>
+      <div class="brand-copy__text" id="brandCopyText">
+        WoodenStreet is India's leading online furniture store, trusted by over 20 Lakh+ happy customers across the country.
+        We specialize in handcrafted, solid wood furniture that blends timeless craftsmanship with modern design sensibilities.
+        From sheesham wood beds to premium fabric sofas, every piece is built to last a lifetime. Our furniture is made by
+        master artisans from Jodhpur, Saharanpur, and other heritage craft hubs, ensuring authentic quality you can feel.
+        With 81+ experience stores across India, free delivery, professional installation, and a 3-year warranty on all products,
+        WoodenStreet makes buying furniture online a truly confident and joyful experience.
+      </div>
+      <button class="brand-copy__more" id="brandCopyMore">More</button>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    MID BANNERS
+  -------------------------------------------------------- -->
+  <section class="page-section page-section--gray section-gap--sm" aria-label="Category highlights">
+    <div class="page-section__inner">
+      <div class="mid-banner-row">
+        <a class="mid-banner" href="#">
+          <div class="mid-banner-placeholder"><span>🛋️</span><p>Sofa Specials</p></div>
+          <span class="mid-banner__label">Up to 55% OFF</span>
+        </a>
+        <a class="mid-banner" href="#">
+          <div class="mid-banner-placeholder"><span>🛏️</span><p>Bedroom Deals</p></div>
+          <span class="mid-banner__label">New Collection</span>
+        </a>
+        <a class="mid-banner" href="#">
+          <div class="mid-banner-placeholder"><span>🍽️</span><p>Dining Sets</p></div>
+          <span class="mid-banner__label">Starting ₹12,999</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    PROMOTIONAL SECTION
+  -------------------------------------------------------- -->
+  <section class="promo-section section-gap" aria-label="Special promotion">
+    <div class="promo-section__inner">
+      <div class="promo-section__content">
+        <h2>Transform Your<br/><span>Home This Season</span></h2>
+        <p>Get premium furniture at unbeatable prices. Free delivery on all orders above ₹10,000. Professional installation included. EMI available from just ₹999/month.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="#" class="btn-outline-primary">Shop Now</a>
+          <a href="#" style="display:inline-flex;align-items:center;gap:6px;font-size:var(--text-14);color:var(--secondary-600);font-weight:500;padding:9px 0;">
+            View Offers
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="promo-section__image">
+        <div class="promo-img-placeholder">🏠</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    VIDEO STORIES — "Stories Behind the Style"
+  -------------------------------------------------------- -->
+  <section class="page-section page-section--white section-gap" aria-label="Style stories">
+    <div class="page-section__inner">
+      <div class="section-header">
+        <div>
+          <p class="section-header__title">Stories Behind the Style</p>
+          <p class="section-header__subtitle">See how real customers transformed their homes</p>
+        </div>
+        <a href="#" class="btn-view-all">View All</a>
+      </div>
+
+      <div class="video-stories-grid" role="list">
+        <div class="video-card" role="listitem">
+          <div class="video-card__media">
+            <div class="video-card__media-placeholder">🏠</div>
+            <div class="video-card__play" aria-label="Play video"><svg viewBox="0 0 24 24" fill="var(--primary-bg)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="video-card__info">
+            <p class="video-card__title">Modern Living Room Makeover with Lumina Sofa</p>
+            <div class="product-card__price video-card__price"><span class="price-current">₹32,499</span><span class="price-discount">41% OFF</span></div>
+          </div>
+        </div>
+
+        <div class="video-card" role="listitem">
+          <div class="video-card__media" style="background:linear-gradient(135deg,#d4eaf5,#9ecaf5);">
+            <div class="video-card__media-placeholder" style="background:transparent;">🛏️</div>
+            <div class="video-card__play" aria-label="Play video"><svg viewBox="0 0 24 24" fill="var(--primary-bg)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="video-card__info">
+            <p class="video-card__title">Master Bedroom Transformation — Before & After</p>
+            <div class="product-card__price video-card__price"><span class="price-current">₹45,999</span><span class="price-discount">43% OFF</span></div>
+          </div>
+        </div>
+
+        <div class="video-card" role="listitem">
+          <div class="video-card__media" style="background:linear-gradient(135deg,#d4f0d4,#a0d8a0);">
+            <div class="video-card__media-placeholder" style="background:transparent;">🍽️</div>
+            <div class="video-card__play" aria-label="Play video"><svg viewBox="0 0 24 24" fill="var(--primary-bg)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="video-card__info">
+            <p class="video-card__title">Dining Room Setup for a Family of 6 — Full Tour</p>
+            <div class="product-card__price video-card__price"><span class="price-current">₹58,999</span><span class="price-discount">34% OFF</span></div>
+          </div>
+        </div>
+
+        <div class="video-card" role="listitem">
+          <div class="video-card__media" style="background:linear-gradient(135deg,#f0d4e8,#d8a0c4);">
+            <div class="video-card__media-placeholder" style="background:transparent;">📚</div>
+            <div class="video-card__play" aria-label="Play video"><svg viewBox="0 0 24 24" fill="var(--primary-bg)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+          </div>
+          <div class="video-card__info">
+            <p class="video-card__title">Home Office Setup on a Budget — Study Zone Reveal</p>
+            <div class="product-card__price video-card__price"><span class="price-current">₹18,999</span><span class="price-discount">35% OFF</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- --------------------------------------------------------
+    NEWSLETTER STRIP
+  -------------------------------------------------------- -->
+  <div class="newsletter-strip">
+    <div class="newsletter-strip__inner">
+      <div>
+        <h3>Get 10% OFF Your First Order</h3>
+        <p>Subscribe for exclusive deals, new arrivals, and home decor inspiration</p>
+      </div>
+      <form class="newsletter-form" id="newsletterForm" aria-label="Newsletter signup">
+        <input type="email" placeholder="Enter your email address" aria-label="Email address" required />
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============================================================
+  FOOTER
+============================================================ -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="footer-grid">
+
+      <!-- Brand column -->
+      <div>
+        <div class="footer-brand__logo">Wooden<span>Street</span></div>
+        <p class="footer-brand__desc">India's finest online furniture brand, crafting beautiful homes with premium quality furniture since 2015.</p>
+        <div class="footer-brand__social">
+          <a href="#" class="social-icon" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" class="social-icon" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="social-icon" aria-label="Pinterest">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+          </a>
+          <a href="#" class="social-icon" aria-label="YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#1A1A1A"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <p class="footer-col__heading">Quick Links</p>
+        <div class="footer-col__links">
+          <a href="#">About Us</a>
+          <a href="#">Our Stores</a>
+          <a href="#">Careers</a>
+          <a href="#">Press</a>
+          <a href="#">Blog</a>
+          <a href="#">Franchise</a>
+        </div>
+      </div>
+
+      <!-- Customer Care -->
+      <div>
+        <p class="footer-col__heading">Customer Care</p>
+        <div class="footer-col__links">
+          <a href="#">Track My Order</a>
+          <a href="#">Return &amp; Exchange</a>
+          <a href="#">Warranty Policy</a>
+          <a href="#">EMI Options</a>
+          <a href="#">Help Centre</a>
+          <a href="#">Contact Us</a>
+        </div>
+      </div>
+
+      <!-- Shop By -->
+      <div>
+        <p class="footer-col__heading">Shop By</p>
+        <div class="footer-col__links">
+          <a href="#">Sofas</a>
+          <a href="#">Beds</a>
+          <a href="#">Dining Sets</a>
+          <a href="#">Wardrobes</a>
+          <a href="#">TV Units</a>
+          <a href="#">Sale</a>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <p class="footer-col__heading">Get in Touch</p>
+        <div class="footer-col__links">
+          <a href="tel:1800-1200">📞 1800-1200 (Toll Free)</a>
+          <a href="mailto:support@woodenstreet.com">✉ support@woodenstreet.com</a>
+          <a href="#">⏰ Mon–Sun 9am–8pm</a>
+        </div>
+        <p style="font-size:var(--text-12);color:rgba(255,255,255,0.4);margin-top:16px;">Download Our App</p>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <a href="#" style="background:rgba(255,255,255,0.08);border-radius:6px;padding:6px 12px;font-size:var(--text-12);color:rgba(255,255,255,0.7);">App Store</a>
+          <a href="#" style="background:rgba(255,255,255,0.08);border-radius:6px;padding:6px 12px;font-size:var(--text-12);color:rgba(255,255,255,0.7);">Play Store</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <p>© 2026 WoodenStreet Furniture Pvt. Ltd. All rights reserved.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <a href="#" style="color:rgba(255,255,255,0.35);">Privacy Policy</a>
+        <a href="#" style="color:rgba(255,255,255,0.35);">Terms of Service</a>
+        <a href="#" style="color:rgba(255,255,255,0.35);">Cookie Policy</a>
+      </div>
+      <div class="footer-bottom__payment">
+        <span class="payment-icon">VISA</span>
+        <span class="payment-icon">MC</span>
+        <span class="payment-icon">RuPay</span>
+        <span class="payment-icon">UPI</span>
+        <span class="payment-icon">EMI</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<!-- JS -->
+<script src="js/main.js"></script>
+
+</body>
+</html>
