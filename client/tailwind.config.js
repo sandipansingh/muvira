@@ -1,0 +1,61 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primaryBg: '#E37A34',
+        primaryHover: '#E57200',
+        primary400: '#F9763A',
+        primary600: '#E85B1A',
+        primaryActive: '#E85B1A',
+        primary200: '#FCAC8C',
+        primary300: '#FA8D5E',
+        primary100: '#FAE9E6',
+        secondary200: '#E7E7E7',
+        secondary300: '#D1D1D1',
+        secondary400: '#ACACAC',
+        secondary500: '#8B8B8B',
+        secondary600: '#646464',
+        secondary700: '#515151',
+        secondarytext: '#515151',
+        darkColor: '#202020',
+        successColor: '#4CAF4F',
+        dangerColor: '#F23433',
+        lightgrayColor: '#F5F5F5',
+      },
+      fontFamily: {
+        redhat: ['"Red Hat Display"', 'sans-serif'],
+        roboto: ['Roboto', 'sans-serif'],
+      },
+      borderRadius: {
+        'xs': 'calc(0.5rem - 4px)',
+        'sm': 'calc(0.5rem - 4px)',
+        'md': 'calc(0.5rem - 2px)',
+        'lg': '0.5rem',
+        'xl': '12px',
+        '2xl': '16px',
+        '3xl': '24px',
+        'radius2': '2px',
+        'radius3': '3px',
+        'radius4': '4px',
+        'radius5': '5px',
+        'radius6': '6px',
+        'radius7': '7px',
+        'radius8': '8px',
+        'radius10': '10px',
+        'radius12': '30px',
+        'radius14': '50px',
+        'radius15': '100px',
+      },
+      boxShadow: {
+        'card': '0 0 6px rgba(0,0,0,0.2)',
+        'megamenu': '0 4px 7.28px 0.72px rgba(0,0,0,0.2)',
+      }
+    },
+  },
+  plugins: [],
+}

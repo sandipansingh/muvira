@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-secondarytext font-redhat antialiased;
+  }
+}
+
+/* Custom indicator progress animation for hero banner */
+@keyframes progressAnimation {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.progress-fill {
+  animation: progressAnimation 8000ms linear forwards;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Hide scrollbars but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
