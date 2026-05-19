@@ -320,7 +320,7 @@ export const ProductForm: React.FC = () => {
                   required
                 />
                 <Input
-                  label="Sale Price (₹) (Optional)"
+                  label="Sale Price (₹)"
                   type="number"
                   step="0.01"
                   value={salePriceRupees}
