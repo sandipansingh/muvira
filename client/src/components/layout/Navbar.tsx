@@ -49,19 +49,19 @@ export const Navbar: React.FC = () => {
   return (
     <header className="relative z-[39] bg-white border-b border-secondary200">
       {/* 1. TOP UTILITY BAR (Desktop only) */}
-      <div className="hidden md:block bg-darkColor text-[#D1D1D1] text-[11px] font-roboto font-normal border-b border-secondary600/20 py-2">
+      <div className="hidden md:block bg-white text-secondary600 text-[11px] font-roboto font-normal border-b border-secondary200 py-2">
         <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="text-primaryBg font-medium">NEW DEALS:</span>
             <span>Diwali Festival Sale is active! Save 20% off with coupon <b>DIWALI20</b></span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="tel:+919876543210" className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Phone className="w-3.5 h-3.5" />
+            <a href="tel:+919876543210" className="flex items-center gap-1.5 hover:text-primaryBg transition-colors">
+              <Phone className="w-3.5 h-3.5 shrink-0" />
               <span>Call Us: +91 98765 43210</span>
             </a>
-            <Link to="/orders" className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Truck className="w-3.5 h-3.5" />
+            <Link to="/orders" className="flex items-center gap-1.5 hover:text-primaryBg transition-colors">
+              <Truck className="w-3.5 h-3.5 shrink-0" />
               <span>Track Order</span>
             </Link>
           </div>
@@ -80,7 +80,7 @@ export const Navbar: React.FC = () => {
 
         {/* Store Logo */}
         <Link to="/" className="flex items-center">
-          <span className="text-xl md:text-2xl font-bold tracking-wider text-darkColor uppercase">
+          <span className="text-xl md:text-2xl font-bold tracking-wider text-darkColor uppercase font-montserrat">
             {STORE_NAME}
             <span className="text-primaryBg font-extrabold font-pangrambold">.</span>
           </span>
@@ -109,7 +109,12 @@ export const Navbar: React.FC = () => {
                 >
                   <User className="w-[23.6px] h-[23.5px]" />
                   <span className="text-[12px] tracking-wide mt-1 flex items-center gap-0.5">
-                    Account <ChevronDown className="w-3 h-3 shrink-0" />
+                    {(() => {
+                      const firstName = user?.fullName ? user.fullName.trim().split(/\s+/)[0] : '';
+                      const greetingName = firstName.length > 7 ? `${firstName.slice(0, 6)}...` : firstName;
+                      return `Hi, ${greetingName}`;
+                    })()}
+                    <ChevronDown className="w-3 h-3 shrink-0" />
                   </span>
                 </button>
 

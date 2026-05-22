@@ -12,7 +12,7 @@ import Select from '../../components/ui/Select';
 import Pagination from '../../components/ui/Pagination';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
-import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
+import { Search, Plus, Pencil, Trash } from 'lucide-react';
 import { categoriesMockService } from '../../mocks/categories.mock';
 import type { Category } from '../../types/category';
 
@@ -196,7 +196,7 @@ export const ProductsList: React.FC = () => {
 
                       {/* Info */}
                       <TableCell>
-                        <p className="font-semibold text-darkColor leading-none truncate max-w-[180px]">{prod.name}</p>
+                        <p className="font-medium text-darkColor leading-none truncate max-w-[180px]">{prod.name}</p>
                         <p className="text-[10px] text-secondary500 font-medium font-roboto mt-1 uppercase tracking-wider">
                           SKU: {prod.sku}
                         </p>
@@ -208,10 +208,10 @@ export const ProductsList: React.FC = () => {
                       </TableCell>
 
                       {/* Price */}
-                      <TableCell className="font-semibold text-secondary700">
+                      <TableCell className="font-medium text-secondary700">
                         {formatPrice(currentPrice)}
                         {hasDiscount && (
-                          <span className="text-[10px] text-emerald-600 block leading-none mt-1">
+                          <span className="text-[10px] text-secondary500 block leading-none mt-1 font-medium">
                             Discount active
                           </span>
                         )}
@@ -219,11 +219,11 @@ export const ProductsList: React.FC = () => {
 
                       {/* Stock */}
                       <TableCell>
-                        <span className={`text-xs font-semibold ${prod.stock <= 5 ? 'text-amber-600' : 'text-secondary600'}`}>
+                        <span className="text-xs font-medium text-secondary700">
                           {prod.stock} units
                         </span>
                         {prod.stock === 0 && (
-                          <span className="text-[9px] font-bold text-dangerColor uppercase block mt-1 leading-none">
+                          <span className="text-[9px] font-medium text-secondary500 uppercase block mt-1 leading-none">
                             Out of stock
                           </span>
                         )}
@@ -238,28 +238,22 @@ export const ProductsList: React.FC = () => {
 
                       {/* Actions */}
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            pill={true}
+                        <div className="flex justify-end gap-3.5">
+                          <button
                             onClick={() => navigate(`/admin/products/${prod.id}/edit`)}
-                            className="text-secondary600 hover:text-primaryBg p-1.5"
+                            className="text-secondary500 hover:text-darkColor p-1 transition-colors focus:outline-none"
                             title="Edit Product"
                           >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            pill={true}
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleDelete(prod.id, prod.name)}
                             disabled={!prod.isActive}
-                            className="text-secondary500 hover:text-rose-600 p-1.5 disabled:opacity-30"
+                            className="text-secondary500 hover:text-darkColor p-1 disabled:opacity-30 transition-colors focus:outline-none"
                             title="Soft Delete"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                            <Trash className="w-4 h-4" />
+                          </button>
                         </div>
                       </TableCell>
                     </TableRow>

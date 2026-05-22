@@ -10,7 +10,7 @@ import Input from '../../components/ui/Input';
 import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import LoadingSpinner from '../../components/shared/LoadingSpinner';
 import ErrorState from '../../components/shared/ErrorState';
-import { ArrowLeft, User, Phone, Mail, MapPin, FileText } from 'lucide-react';
+import { ArrowLeft, Phone, Mail } from 'lucide-react';
 
 export const AdminOrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -144,7 +144,7 @@ export const AdminOrderDetail: React.FC = () => {
           <ArrowLeft className="w-4.5 h-4.5 text-secondary700" />
         </Link>
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor">
+          <h2 className="text-xl md:text-2xl font-medium tracking-wide text-darkColor">
             Fulfill Order {order.orderNumber}
           </h2>
           <p className="text-xs text-secondary500 tracking-wide mt-0.5">
@@ -173,14 +173,14 @@ export const AdminOrderDetail: React.FC = () => {
                     onChange={(e) => setOrderStatus(e.target.value as any)}
                   />
                 </div>
-                <Button onClick={handleUpdateStatus} loading={saving} className="w-full sm:w-auto text-xs py-2.5 px-4 font-semibold shrink-0">
+                <Button onClick={handleUpdateStatus} loading={saving} className="w-full sm:w-auto text-xs py-2.5 px-4 font-medium shrink-0">
                   Update Order State
                 </Button>
               </div>
 
               {/* Courier Fulfillment */}
               <div className="space-y-4 pt-1">
-                <h4 className="text-xs font-bold text-secondary700 uppercase tracking-widest pl-0.5">
+                <h4 className="text-xs font-medium text-secondary700 uppercase tracking-widest pl-0.5">
                   Shipment & Tracking Assignment
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -207,7 +207,7 @@ export const AdminOrderDetail: React.FC = () => {
                   <Button
                     onClick={handleUpdateFulfillment}
                     loading={saving}
-                    className="w-full sm:w-auto text-xs py-2.5 px-4 font-semibold"
+                    className="w-full sm:w-auto text-xs py-2.5 px-4 font-medium"
                   >
                     Save Fulfillment Details
                   </Button>
@@ -219,8 +219,7 @@ export const AdminOrderDetail: React.FC = () => {
           {/* Order Items Table */}
           <Card className="border border-secondary200">
             <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
-              <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">
-                <FileText className="w-4.5 h-4.5 text-primaryBg" />
+              <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest flex items-center gap-2">
                 Products Log
               </h3>
             </div>
@@ -233,16 +232,16 @@ export const AdminOrderDetail: React.FC = () => {
                     </div>
                     <div className="flex-grow flex items-center justify-between text-left gap-4">
                       <div>
-                        <h4 className="text-xs md:text-sm font-semibold text-darkColor leading-snug">
+                        <h4 className="text-xs md:text-sm font-medium text-darkColor leading-snug">
                           {item.productName}
                         </h4>
-                        <span className="text-[10px] text-secondary500 font-semibold block mt-1 uppercase tracking-widest font-roboto">
+                        <span className="text-[10px] text-secondary500 font-normal block mt-1 uppercase tracking-widest font-roboto">
                           Unit price: {formatPrice(item.unitPrice)}
                         </span>
                       </div>
                       <div className="text-right whitespace-nowrap">
-                        <p className="text-xs font-semibold text-secondary600">Qty: {item.quantity}</p>
-                        <p className="text-xs font-bold text-darkColor mt-0.5">{formatPrice(item.totalPrice)}</p>
+                        <p className="text-xs font-normal text-secondary600">Qty: {item.quantity}</p>
+                        <p className="text-xs font-medium text-darkColor mt-0.5">{formatPrice(item.totalPrice)}</p>
                       </div>
                     </div>
                   </div>
@@ -257,22 +256,21 @@ export const AdminOrderDetail: React.FC = () => {
           {/* Customer Card */}
           <Card className="border border-secondary200">
             <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
-              <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">
-                <User className="w-4.5 h-4.5 text-primaryBg" />
+              <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest flex items-center gap-2">
                 Customer Identity
               </h3>
             </div>
             <CardContent className="p-5 text-xs md:text-sm text-left space-y-3 font-roboto">
               <div>
                 <span className="text-secondary500 block">Contact Name</span>
-                <span className="font-semibold text-darkColor">{order.customer?.fullName}</span>
+                <span className="font-medium text-darkColor">{order.customer?.fullName}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-primaryBg shrink-0" />
+                <Phone className="w-4 h-4 text-secondary400 shrink-0" />
                 <span className="font-medium text-secondary700">{order.customer?.phone}</span>
               </div>
               <div className="flex items-center gap-2 truncate">
-                <Mail className="w-4 h-4 text-primaryBg shrink-0" />
+                <Mail className="w-4 h-4 text-secondary400 shrink-0" />
                 <span className="font-medium text-secondary700 truncate">{order.customer?.email}</span>
               </div>
             </CardContent>
@@ -281,25 +279,24 @@ export const AdminOrderDetail: React.FC = () => {
           {/* Delivery destination */}
           <Card className="border border-secondary200">
             <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
-              <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">
-                <MapPin className="w-4.5 h-4.5 text-primaryBg" />
+              <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest flex items-center gap-2">
                 Shipping Destination
               </h3>
             </div>
             <CardContent className="p-5 text-left text-xs md:text-sm">
-              <p className="font-bold text-darkColor mb-1">{order.shippingAddress.fullName}</p>
+              <p className="font-medium text-darkColor mb-1">{order.shippingAddress.fullName}</p>
               <p className="text-secondary600 mb-1 leading-snug">
                 {order.shippingAddress.line1}, {order.shippingAddress.line2 && `${order.shippingAddress.line2}, `}
                 {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
               </p>
-              <p className="font-semibold text-secondary700 font-roboto">{order.shippingAddress.phone}</p>
+              <p className="font-normal text-secondary700 font-roboto">{order.shippingAddress.phone}</p>
             </CardContent>
           </Card>
 
           {/* INTERNAL NOTES LOGGER */}
           <Card className="border border-secondary200">
             <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
-              <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest">
+              <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest">
                 Internal Logs & Notes
               </h3>
             </div>
@@ -314,7 +311,7 @@ export const AdminOrderDetail: React.FC = () => {
                   order.adminNotes.map((note) => (
                     <div key={note.id} className="p-2.5 bg-lightgrayColor border border-secondary200 rounded-lg text-xs">
                       <p className="text-secondary700 leading-normal">{note.note}</p>
-                      <div className="flex justify-between items-center text-[9px] text-secondary500 font-semibold tracking-wider uppercase mt-2">
+                      <div className="flex justify-between items-center text-[9px] text-secondary500 font-medium tracking-wider uppercase mt-2">
                         <span>By: {note.createdBy}</span>
                         <span>{formatDate(note.createdAt)}</span>
                       </div>
@@ -333,7 +330,7 @@ export const AdminOrderDetail: React.FC = () => {
                   className="w-full text-xs p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:border-primaryBg"
                   disabled={saving}
                 />
-                <Button type="submit" variant="secondary" size="sm" loading={saving} className="w-full text-xs font-semibold">
+                <Button type="submit" variant="secondary" size="sm" loading={saving} className="w-full text-xs font-medium">
                   Add Internal Note
                 </Button>
               </form>

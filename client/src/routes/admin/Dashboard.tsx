@@ -71,7 +71,7 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-6 font-redhat">
       {/* Title Header */}
       <div className="text-left">
-        <h2 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor">
+        <h2 className="text-xl md:text-2xl font-medium tracking-wide text-darkColor">
           Administrative Dashboard
         </h2>
         <p className="text-xs text-secondary500 tracking-wide mt-1">
@@ -95,18 +95,18 @@ export const Dashboard: React.FC = () => {
             <Card className="border border-secondary200">
               <CardContent className="p-5 flex items-center justify-between text-left">
                 <div className="space-y-1">
-                  <span className="text-[10px] md:text-xs font-bold text-secondary500 uppercase tracking-wider block">
+                  <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Total Revenue
                   </span>
-                  <span className="text-sm md:text-lg font-bold text-darkColor block">
+                  <span className="text-sm md:text-lg font-medium text-darkColor block">
                     {formatPrice(stats.totalRevenue)}
                   </span>
-                  <span className="text-[9px] font-semibold text-emerald-600 flex items-center gap-0.5 mt-1 leading-none">
-                    <TrendingUp className="w-3 h-3" /> Live confirmed
+                  <span className="text-[9px] font-medium text-secondary500 flex items-center gap-0.5 mt-1 leading-none">
+                    <TrendingUp className="w-3 h-3 text-secondary400" /> Live confirmed
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center border border-emerald-100 shrink-0">
-                  <DollarSign className="w-5 h-5" />
+                <div className="text-secondary600 shrink-0">
+                  <DollarSign className="w-6 h-6" />
                 </div>
               </CardContent>
             </Card>
@@ -115,18 +115,18 @@ export const Dashboard: React.FC = () => {
             <Card className="border border-secondary200">
               <CardContent className="p-5 flex items-center justify-between text-left">
                 <div className="space-y-1">
-                  <span className="text-[10px] md:text-xs font-bold text-secondary500 uppercase tracking-wider block">
+                  <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Total Orders
                   </span>
-                  <span className="text-sm md:text-lg font-bold text-darkColor block">
+                  <span className="text-sm md:text-lg font-medium text-darkColor block">
                     {stats.totalOrders}
                   </span>
                   <span className="text-[9px] font-medium text-secondary500 block mt-1 leading-none">
                     All user accounts combined
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-primary100 text-primaryBg rounded-lg flex items-center justify-center border border-primary200 shrink-0">
-                  <ShoppingBag className="w-5 h-5" />
+                <div className="text-secondary600 shrink-0">
+                  <ShoppingBag className="w-6 h-6" />
                 </div>
               </CardContent>
             </Card>
@@ -135,51 +135,47 @@ export const Dashboard: React.FC = () => {
             <Card className="border border-secondary200">
               <CardContent className="p-5 flex items-center justify-between text-left">
                 <div className="space-y-1">
-                  <span className="text-[10px] md:text-xs font-bold text-secondary500 uppercase tracking-wider block">
+                  <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Designs / Catalog
                   </span>
-                  <span className="text-sm md:text-lg font-bold text-darkColor block">
+                  <span className="text-sm md:text-lg font-medium text-darkColor block">
                     {stats.totalProducts}
                   </span>
-                  <span className="text-[9px] font-semibold text-secondary600 flex items-center gap-1 mt-1 leading-none">
-                    <FolderTree className="w-3 h-3 text-secondary500" /> {stats.totalCategories} Categories
+                  <span className="text-[9px] font-medium text-secondary500 flex items-center gap-1 mt-1 leading-none">
+                    <FolderTree className="w-3 h-3 text-secondary400" /> {stats.totalCategories} Categories
                   </span>
                 </div>
-                <div className="w-10 h-10 bg-sky-50 text-[#3399FF] rounded-lg flex items-center justify-center border border-sky-100 shrink-0">
-                  <Box className="w-5 h-5" />
+                <div className="text-secondary600 shrink-0">
+                  <Box className="w-6 h-6" />
                 </div>
               </CardContent>
             </Card>
 
             {/* Low stock alerts */}
-            <Card className={`border ${stats.lowStockCount > 0 ? 'border-amber-200 bg-amber-50/10' : 'border-secondary200'}`}>
+            <Card className="border border-secondary200">
               <CardContent className="p-5 flex items-center justify-between text-left">
                 <div className="space-y-1">
-                  <span className="text-[10px] md:text-xs font-bold text-secondary500 uppercase tracking-wider block">
+                  <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Low Stock Alerts
                   </span>
-                  <span className={`text-sm md:text-lg font-bold block ${stats.lowStockCount > 0 ? 'text-amber-700' : 'text-darkColor'}`}>
+                  <span className="text-sm md:text-lg font-medium text-darkColor block">
                     {stats.lowStockCount}
                   </span>
                   {stats.lowStockCount > 0 ? (
                     <Link
                       to="/admin/inventory"
-                      className="text-[9px] font-semibold text-amber-600 hover:text-amber-800 flex items-center gap-0.5 mt-1 leading-none hover:underline animate-pulse"
+                      className="text-[9px] font-medium text-secondary500 hover:text-darkColor flex items-center gap-0.5 mt-1 leading-none hover:underline"
                     >
-                      <AlertTriangle className="w-3 h-3" /> Restock catalog
+                      <AlertTriangle className="w-3 h-3 text-secondary400" /> Restock catalog
                     </Link>
                   ) : (
-                    <span className="text-[9px] font-medium text-emerald-700 block mt-1 leading-none">
+                    <span className="text-[9px] font-medium text-secondary500 block mt-1 leading-none">
                       All inventory optimal
                     </span>
                   )}
                 </div>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center border shrink-0 ${
-                  stats.lowStockCount > 0
-                    ? 'bg-amber-100 border-amber-200 text-amber-700'
-                    : 'bg-gray-100 border-gray-200 text-gray-400'
-                }`}>
-                  <AlertTriangle className="w-5 h-5" />
+                <div className="shrink-0 text-secondary400">
+                  <AlertTriangle className="w-6 h-6" />
                 </div>
               </CardContent>
             </Card>
@@ -231,16 +227,16 @@ export const Dashboard: React.FC = () => {
               <TableBody>
                 {recentOrders.map((ord) => (
                   <TableRow key={ord.id}>
-                    <TableCell className="font-bold text-darkColor font-roboto">
+                    <TableCell className="font-medium text-secondary700 font-roboto">
                       {ord.orderNumber}
                     </TableCell>
                     <TableCell>
-                      <p className="font-semibold text-darkColor leading-none">{ord.customer?.fullName}</p>
+                      <p className="font-medium text-darkColor leading-none">{ord.customer?.fullName}</p>
                       <p className="text-[10px] text-secondary500 font-medium font-roboto mt-1">
                         {ord.customer?.phone}
                       </p>
                     </TableCell>
-                    <TableCell className="font-semibold text-secondary700">
+                    <TableCell className="font-medium text-secondary700">
                       {formatPrice(ord.totalAmount)}
                     </TableCell>
                     <TableCell>
@@ -252,14 +248,12 @@ export const Dashboard: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
                         onClick={() => navigate(`/admin/orders/${ord.id}`)}
-                        className="text-xs text-primaryBg font-bold py-1 px-2 hover:bg-primary100/50"
+                        className="text-xs text-secondary600 hover:text-darkColor font-medium py-1 px-2 transition-colors"
                       >
                         View Details
-                      </Button>
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))}

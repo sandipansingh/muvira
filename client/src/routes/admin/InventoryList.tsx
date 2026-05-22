@@ -10,7 +10,7 @@ import Input from '../../components/ui/Input';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
-import { Edit2, AlertTriangle } from 'lucide-react';
+import { Pencil, AlertTriangle } from 'lucide-react';
 
 export const InventoryList: React.FC = () => {
   const { showToast } = useToast();
@@ -131,11 +131,11 @@ export const InventoryList: React.FC = () => {
               <TableBody>
                 {inventory.map((item) => (
                   <TableRow key={item.productId}>
-                    <TableCell className="font-semibold text-darkColor">{item.productName}</TableCell>
-                    <TableCell className="text-xs font-semibold text-secondary600 font-roboto uppercase tracking-wider">
+                    <TableCell className="font-medium text-darkColor">{item.productName}</TableCell>
+                    <TableCell className="text-xs font-normal text-secondary500 font-roboto uppercase tracking-wider">
                       {item.sku}
                     </TableCell>
-                    <TableCell className="font-semibold text-secondary700 font-roboto">
+                    <TableCell className="font-medium text-secondary700 font-roboto">
                       {item.stock} units
                     </TableCell>
                     <TableCell>
@@ -144,17 +144,13 @@ export const InventoryList: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        pill={true}
+                      <button
                         onClick={() => handleOpenEdit(item)}
-                        className="text-primaryBg hover:bg-primary100/50 p-1.5 flex items-center gap-1 text-[10px] ml-auto"
+                        className="text-secondary500 hover:text-darkColor transition-colors p-1.5 inline-flex items-center"
                         title="Adjust Stock"
                       >
-                        <Edit2 className="w-3.5 h-3.5 shrink-0" />
-                        Adjust Stock
-                      </Button>
+                        <Pencil className="w-4 h-4" />
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))}

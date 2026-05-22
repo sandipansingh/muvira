@@ -164,7 +164,7 @@ export const ProductDetail: React.FC = () => {
               </div>
 
               {/* Product Title */}
-              <h1 className="text-xl md:text-3xl font-bold tracking-wide text-darkColor mb-3 leading-tight">
+              <h1 className="text-xl md:text-3xl font-bold tracking-wide text-darkColor mb-2 leading-tight font-montserrat">
                 {product.name}
               </h1>
 
@@ -291,7 +291,7 @@ export const ProductDetail: React.FC = () => {
             <div className="border-t border-secondary200 mt-16 pt-12">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg md:text-2xl tracking-wide font-redhatMedium text-secondarytext">
+                  <h2 className="text-lg md:text-2xl tracking-wide font-bold text-darkColor font-montserrat">
                     Discover More Designs
                   </h2>
                   <p className="hidden md:block text-secondary600 tracking-wide text-xs md:text-sm mt-1">

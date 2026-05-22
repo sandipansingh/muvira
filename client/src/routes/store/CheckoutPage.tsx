@@ -222,28 +222,26 @@ export const CheckoutPage: React.FC = () => {
                     <div
                       key={addr.id}
                       onClick={() => setSelectedAddressId(addr.id)}
-                      className={`p-4 rounded-xl border-2 text-left cursor-pointer transition-all ${
+                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
                         selectedAddressId === addr.id
-                          ? 'border-primaryBg bg-primary100/10'
-                          : 'border-secondary200 hover:border-secondary400'
+                          ? 'border-darkColor bg-secondary50/30'
+                          : 'border-secondary200 hover:border-secondary300'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="bg-secondary200 text-secondary700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        <span className="border border-secondary300 text-secondary600 text-[10px] font-medium px-2 py-0.5 rounded uppercase tracking-wider">
                           {addr.label}
                         </span>
                         {selectedAddressId === addr.id && (
-                          <span className="w-5 h-5 bg-primaryBg text-white rounded-full flex items-center justify-center">
-                            <Check className="w-3 h-3" />
-                          </span>
+                          <Check className="w-4 h-4 text-darkColor" />
                         )}
                       </div>
-                      <p className="text-sm font-bold text-darkColor mb-1">{addr.fullName}</p>
+                      <p className="text-sm font-medium text-darkColor mb-1">{addr.fullName}</p>
                       <p className="text-xs text-secondary600 mb-1 leading-snug">
                         {addr.line1}, {addr.line2 && `${addr.line2}, `}
                         {addr.city}, {addr.state} - {addr.pincode}
                       </p>
-                      <p className="text-xs font-semibold text-secondary700 font-roboto">{addr.phone}</p>
+                      <p className="text-xs font-normal text-secondary600 font-roboto">{addr.phone}</p>
                     </div>
                   ))}
                 </div>
@@ -256,7 +254,7 @@ export const CheckoutPage: React.FC = () => {
             <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
               <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">
                 <Truck className="w-4.5 h-4.5 text-primaryBg" />
-                Delivery Instructions (Optional)
+                Delivery Instructions
               </h3>
             </div>
             <CardContent className="p-5">
@@ -393,7 +391,7 @@ export const CheckoutPage: React.FC = () => {
           />
 
           <Input
-            label="Address Line 2 (Optional)"
+            label="Address Line 2"
             value={newLine2}
             onChange={(e) => setNewLine2(e.target.value)}
             placeholder="Landmark, Sector, Suite"
