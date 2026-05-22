@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminMockService } from '../../mocks/admin.mock';
+import { adminApiService } from '../../lib/api/admin';
 import type { Campaign } from '../../types/campaign';
 import { useToast } from '../../hooks/useToast';
 import { formatDate } from '../../lib/format';
@@ -41,7 +41,7 @@ export const CampaignsList: React.FC = () => {
   const fetchCampaigns = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminMockService.getCampaigns();
+    const res = await adminApiService.getCampaigns();
     if (res.success) {
       setCampaigns(res.data);
     } else {
@@ -108,9 +108,9 @@ export const CampaignsList: React.FC = () => {
 
     let res;
     if (editId) {
-      res = await adminMockService.updateCampaign(editId, payload);
+      res = await adminApiService.updateCampaign(editId, payload);
     } else {
-      res = await adminMockService.createCampaign(payload);
+      res = await adminApiService.createCampaign(payload);
     }
     setSaving(false);
 
@@ -125,7 +125,7 @@ export const CampaignsList: React.FC = () => {
 
   const handleToggle = async (id: string, nameStr: string) => {
     setSaving(true);
-    const res = await adminMockService.toggleCampaign(id);
+    const res = await adminApiService.toggleCampaign(id);
     setSaving(false);
 
     if (res.success) {

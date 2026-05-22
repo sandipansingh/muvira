@@ -1,22 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { campaignsMockService } from '../../mocks/campaigns.mock';
-import { productsMockService } from '../../mocks/products.mock';
-import { categoriesMockService } from '../../mocks/categories.mock';
-import type { Category } from '../../types/category';
-import type { ProductListItem } from '../../types/product';
-import type { Campaign } from '../../types/campaign';
-import ProductCard from '../../components/product/ProductCard';
-import Skeleton from '../../components/ui/Skeleton';
-import Button from '../../components/ui/Button';
-import { ChevronLeft, ChevronRight, Truck, Award, ShieldAlert, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { campaignsApiService } from "../../lib/api/campaigns";
+import { productsApiService } from "../../lib/api/products";
+import { categoriesApiService } from "../../lib/api/categories";
+import type { Category } from "../../types/category";
+import type { ProductListItem } from "../../types/product";
+import type { Campaign } from "../../types/campaign";
+import ProductCard from "../../components/product/ProductCard";
+import Skeleton from "../../components/ui/Skeleton";
+import Button from "../../components/ui/Button";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Truck,
+  Award,
+  ShieldAlert,
+  Sparkles,
+} from "lucide-react";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [featured, setFeatured] = useState<ProductListItem[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -24,24 +31,27 @@ export const Home: React.FC = () => {
   const heroSlides = [
     {
       id: 1,
-      title: 'Festival Furniture Bonanza',
-      subtitle: 'Up to 30% Off Sheesham Wood Craftsmanship',
-      imageUrl: 'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&auto=format&fit=crop&q=80',
-      link: '/categories/solid-wood-furniture',
+      title: "Festival Furniture Bonanza",
+      subtitle: "Up to 30% Off Sheesham Wood Craftsmanship",
+      imageUrl:
+        "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&auto=format&fit=crop&q=80",
+      link: "/categories/solid-wood-furniture",
     },
     {
       id: 2,
-      title: 'Handloom apparel & Kurtas',
-      subtitle: 'Organic block-print cotton kurtas from Jaipur weavers',
-      imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&auto=format&fit=crop&q=80',
-      link: '/categories/kurtas-apparel',
+      title: "Handloom apparel & Kurtas",
+      subtitle: "Organic block-print cotton kurtas from Jaipur weavers",
+      imageUrl:
+        "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&auto=format&fit=crop&q=80",
+      link: "/categories/kurtas-apparel",
     },
     {
       id: 3,
-      title: 'Bespoke cushions & rugs',
-      subtitle: 'Jaipur vegetable dye home coordinates to match your sofas',
-      imageUrl: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=1200&auto=format&fit=crop&q=80',
-      link: '/categories/home-decor',
+      title: "Bespoke cushions & rugs",
+      subtitle: "Jaipur vegetable dye home coordinates to match your sofas",
+      imageUrl:
+        "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=1200&auto=format&fit=crop&q=80",
+      link: "/categories/home-decor",
     },
   ];
 
@@ -60,9 +70,9 @@ export const Home: React.FC = () => {
   const fetchHomepageData = async () => {
     setLoading(true);
     const [catsRes, prodRes, campRes] = await Promise.all([
-      categoriesMockService.getCategories(),
-      productsMockService.getProducts({ sort: 'popularity', limit: 4 }),
-      campaignsMockService.getActiveCampaigns(),
+      categoriesApiService.getCategories(),
+      productsApiService.getProducts({ sort: "popularity", limit: 4 }),
+      campaignsApiService.getActiveCampaigns(),
     ]);
 
     if (catsRes.success) setCategories(catsRes.data);
@@ -76,25 +86,29 @@ export const Home: React.FC = () => {
   };
 
   const handlePrevSlide = () => {
-    setActiveSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    setActiveSlide(
+      (prev) => (prev - 1 + heroSlides.length) % heroSlides.length,
+    );
   };
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left space-y-12">
-      
       {/* 1. HERO BANNER SECTION (Desktop split vs Mobile full width) */}
       <div className="flex flex-col md:flex-row gap-4 h-[350px] md:h-[470px]">
-        
         {/* Left Slider: 63% basis */}
         <div className="flex-1 md:flex-[0.63] bg-lightgrayColor rounded-xl overflow-hidden relative group border border-secondary200">
           {heroSlides.map((slide, idx) => (
             <div
               key={slide.id}
               className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                activeSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                activeSlide === idx ? "opacity-100 z-10" : "opacity-0 z-0"
               }`}
             >
-              <img src={slide.imageUrl} alt={slide.title} className="w-full h-full object-cover" />
+              <img
+                src={slide.imageUrl}
+                alt={slide.title}
+                className="w-full h-full object-cover"
+              />
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-12 text-left text-white">
                 <span className="bg-primaryBg text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-2 self-start">
                   Festival Sale
@@ -137,7 +151,7 @@ export const Home: React.FC = () => {
                 key={idx}
                 onClick={() => setActiveSlide(idx)}
                 className={`h-1.5 rounded-full overflow-hidden transition-all duration-300 ${
-                  activeSlide === idx ? 'w-8 bg-primaryBg' : 'w-4 bg-white/60'
+                  activeSlide === idx ? "w-8 bg-primaryBg" : "w-4 bg-white/60"
                 }`}
               >
                 {activeSlide === idx && (
@@ -179,7 +193,6 @@ export const Home: React.FC = () => {
             </Link>
           </div>
         </div>
-
       </div>
 
       {/* 2. USP TRUST SIGNALS BAR */}
@@ -187,7 +200,9 @@ export const Home: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center gap-3">
           <Truck className="w-10 h-10 text-primaryBg shrink-0" />
           <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">Free Shipping</h5>
+            <h5 className="text-sm font-bold text-darkColor tracking-wide">
+              Free Shipping
+            </h5>
             <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
               Free courier delivery on all orders across India
             </p>
@@ -196,7 +211,9 @@ export const Home: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center gap-3">
           <Award className="w-10 h-10 text-primaryBg shrink-0" />
           <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">Premium Craftsmanship</h5>
+            <h5 className="text-sm font-bold text-darkColor tracking-wide">
+              Premium Craftsmanship
+            </h5>
             <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
               Handcrafted in seasoned wood and traditional loom techniques
             </p>
@@ -205,7 +222,9 @@ export const Home: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center gap-3">
           <ShieldAlert className="w-10 h-10 text-primaryBg shrink-0" />
           <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">Secure Payments</h5>
+            <h5 className="text-sm font-bold text-darkColor tracking-wide">
+              Secure Payments
+            </h5>
             <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
               Secured Razorpay sandbox API checkout integrations
             </p>
@@ -214,7 +233,9 @@ export const Home: React.FC = () => {
         <div className="flex flex-col md:flex-row items-center gap-3">
           <Sparkles className="w-10 h-10 text-primaryBg shrink-0" />
           <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">Jaipur Block-Prints</h5>
+            <h5 className="text-sm font-bold text-darkColor tracking-wide">
+              Jaipur Block-Prints
+            </h5>
             <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
               Authentic hand blockprinted coordinates dyed organically
             </p>
@@ -242,27 +263,29 @@ export const Home: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-44 rounded-xl" />
-            ))
-          ) : (
-            categories.slice(0, 4).map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/categories/${cat.slug}`}
-                className="group relative h-40 rounded-xl overflow-hidden border border-secondary200 shadow-xs block"
-              >
-                <img src={cat.imageUrl} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/55 transition-colors" />
-                <div className="absolute bottom-4 left-4 text-white">
-                  <h4 className="text-sm font-bold uppercase tracking-wider leading-none">
-                    {cat.name}
-                  </h4>
-                </div>
-              </Link>
-            ))
-          )}
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-44 rounded-xl" />
+              ))
+            : categories.slice(0, 4).map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={`/categories/${cat.slug}`}
+                  className="group relative h-40 rounded-xl overflow-hidden border border-secondary200 shadow-xs block"
+                >
+                  <img
+                    src={cat.imageUrl}
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/55 transition-colors" />
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <h4 className="text-sm font-bold uppercase tracking-wider leading-none">
+                      {cat.name}
+                    </h4>
+                  </div>
+                </Link>
+              ))}
         </div>
       </div>
 
@@ -278,12 +301,16 @@ export const Home: React.FC = () => {
               {campaigns[0].name}
             </h2>
             <p className="text-xs md:text-sm text-rose-800 leading-relaxed tracking-wide">
-              {campaigns[0].description} Apply coupon code <b className="bg-rose-200/50 px-1.5 py-0.5 rounded text-rose-950 font-bold font-roboto">DIWALI20</b> during checkout to get 20% off items.
+              {campaigns[0].description} Apply coupon code{" "}
+              <b className="bg-rose-200/50 px-1.5 py-0.5 rounded text-rose-950 font-bold font-roboto">
+                DIWALI20
+              </b>{" "}
+              during checkout to get 20% off items.
             </p>
           </div>
           <Button
             variant="danger"
-            onClick={() => navigate('/products')}
+            onClick={() => navigate("/products")}
             className="w-full md:w-auto px-6 py-3"
           >
             Explore Sale Catalog
@@ -311,20 +338,21 @@ export const Home: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {loading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex flex-col gap-2.5 p-2 bg-white border border-secondary200 rounded-lg">
-                <Skeleton className="aspect-square w-full rounded-md" />
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-40" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-            ))
-          ) : (
-            featured.map((prod) => (
-              <ProductCard key={prod.id} product={prod} />
-            ))
-          )}
+          {loading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col gap-2.5 p-2 bg-white border border-secondary200 rounded-lg"
+                >
+                  <Skeleton className="aspect-square w-full rounded-md" />
+                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              ))
+            : featured.map((prod) => (
+                <ProductCard key={prod.id} product={prod} />
+              ))}
         </div>
       </div>
 
@@ -371,7 +399,6 @@ export const Home: React.FC = () => {
           </a>
         </div>
       </div>
-
     </div>
   );
 };

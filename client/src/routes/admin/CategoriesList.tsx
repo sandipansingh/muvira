@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminMockService } from '../../mocks/admin.mock';
+import { adminApiService } from '../../lib/api/admin';
 import type { Category } from '../../types/category';
 import { useToast } from '../../hooks/useToast';
 import Card, { CardContent } from '../../components/ui/Card';
@@ -36,7 +36,7 @@ export const CategoriesList: React.FC = () => {
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminMockService.getCategoriesList();
+    const res = await adminApiService.getCategoriesList();
     if (res.success) {
       setCategories(res.data);
     } else {
@@ -83,9 +83,9 @@ export const CategoriesList: React.FC = () => {
     };
 
     if (editId) {
-      res = await adminMockService.updateCategory(editId, payload);
+      res = await adminApiService.updateCategory(editId, payload);
     } else {
-      res = await adminMockService.createCategory(payload);
+      res = await adminApiService.createCategory(payload);
     }
     setSaving(false);
 
@@ -101,7 +101,7 @@ export const CategoriesList: React.FC = () => {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete category "${name}"?`)) return;
 
-    const res = await adminMockService.deleteCategory(id);
+    const res = await adminApiService.deleteCategory(id);
     if (res.success) {
       showToast(`Category "${name}" deleted.`, 'success');
       fetchCategories();

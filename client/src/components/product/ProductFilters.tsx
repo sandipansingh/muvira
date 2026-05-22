@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { categoriesMockService } from '../../mocks/categories.mock';
-import type { Category } from '../../types/category';
-import Button from '../ui/Button';
-import Input from '../ui/Input';
-import { SlidersHorizontal, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { categoriesApiService } from "../../lib/api/categories";
+import type { Category } from "../../types/category";
+import Button from "../ui/Button";
+import Input from "../ui/Input";
+import { SlidersHorizontal, RotateCcw } from "lucide-react";
 
 interface ProductFiltersProps {
   selectedCategory: string;
@@ -32,7 +32,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   useEffect(() => {
     const fetchCats = async () => {
-      const res = await categoriesMockService.getCategories();
+      const res = await categoriesApiService.getCategories();
       if (res.success) {
         setCategories(res.data);
       }
@@ -64,8 +64,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         </h3>
         <button
           onClick={() => {
-            setMinInput('');
-            setMaxInput('');
+            setMinInput("");
+            setMaxInput("");
             onClear();
           }}
           className="text-xs font-semibold text-secondary500 hover:text-primaryBg flex items-center gap-1.5 transition-colors"
@@ -82,11 +82,11 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
         </h4>
         <div className="flex flex-col gap-1 text-sm">
           <button
-            onClick={() => onCategoryChange('')}
+            onClick={() => onCategoryChange("")}
             className={`px-3 py-2 text-left rounded-lg transition-colors font-medium ${
-              selectedCategory === ''
-                ? 'bg-primary100 text-primaryBg font-semibold'
-                : 'text-secondary600 hover:bg-lightgrayColor hover:text-darkColor'
+              selectedCategory === ""
+                ? "bg-primary100 text-primaryBg font-semibold"
+                : "text-secondary600 hover:bg-lightgrayColor hover:text-darkColor"
             }`}
           >
             All Collections
@@ -97,8 +97,8 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
               onClick={() => onCategoryChange(cat.slug)}
               className={`px-3 py-2 text-left rounded-lg transition-colors font-medium ${
                 selectedCategory === cat.slug
-                  ? 'bg-primary100 text-primaryBg font-semibold'
-                  : 'text-secondary600 hover:bg-lightgrayColor hover:text-darkColor'
+                  ? "bg-primary100 text-primaryBg font-semibold"
+                  : "text-secondary600 hover:bg-lightgrayColor hover:text-darkColor"
               }`}
             >
               {cat.name}
@@ -129,7 +129,12 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
               className="px-2.5 py-1.5"
             />
           </div>
-          <Button type="submit" variant="secondary" size="sm" className="w-full text-xs">
+          <Button
+            type="submit"
+            variant="secondary"
+            size="sm"
+            className="w-full text-xs"
+          >
             Apply Price
           </Button>
         </form>

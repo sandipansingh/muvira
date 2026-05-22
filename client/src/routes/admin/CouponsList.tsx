@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminMockService } from '../../mocks/admin.mock';
+import { adminApiService } from '../../lib/api/admin';
 import type { Coupon } from '../../types/coupon';
 import { useToast } from '../../hooks/useToast';
 import { formatPrice, formatDate } from '../../lib/format';
@@ -39,7 +39,7 @@ export const CouponsList: React.FC = () => {
   const fetchCoupons = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminMockService.getCoupons();
+    const res = await adminApiService.getCoupons();
     if (res.success) {
       setCoupons(res.data);
     } else {
@@ -80,7 +80,7 @@ export const CouponsList: React.FC = () => {
     const minAmount = minOrderAmount ? Math.round(parseFloat(minOrderAmount) * 100) : 0;
     const maxAmount = maxDiscountAmount ? Math.round(parseFloat(maxDiscountAmount) * 100) : 0;
 
-    const res = await adminMockService.createCoupon({
+    const res = await adminApiService.createCoupon({
       code: code.trim().toUpperCase(),
       discountType,
       discountValue: valAmount,
@@ -105,7 +105,7 @@ export const CouponsList: React.FC = () => {
     if (!confirm(`Are you sure you want to deactivate coupon "${codeStr}"?`)) return;
 
     setSaving(true);
-    const res = await adminMockService.deactivateCoupon(id);
+    const res = await adminApiService.deactivateCoupon(id);
     setSaving(false);
 
     if (res.success) {

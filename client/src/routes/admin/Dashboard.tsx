@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { adminMockService } from '../../mocks/admin.mock';
+import { adminApiService } from '../../lib/api/admin';
 import type { DashboardStats } from '../../types/dashboard';
 import type { OrderDetail } from '../../types/order';
 import { formatPrice } from '../../lib/format';
@@ -35,8 +35,8 @@ export const Dashboard: React.FC = () => {
     setLoading(true);
     setError(null);
     const [statsRes, ordersRes] = await Promise.all([
-      adminMockService.getDashboardStats(),
-      adminMockService.getOrders({ page: 1, limit: 5 }),
+      adminApiService.getDashboardStats(),
+      adminApiService.getOrders({ page: 1, limit: 5 }),
     ]);
 
     if (statsRes.success && ordersRes.success) {
