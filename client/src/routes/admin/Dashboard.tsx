@@ -11,9 +11,6 @@ import Button from '../../components/ui/Button';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
 import {
-  DollarSign,
-  ShoppingBag,
-  Box,
   AlertTriangle,
   ArrowRight,
   TrendingUp,
@@ -93,7 +90,7 @@ export const Dashboard: React.FC = () => {
             
             {/* Revenue */}
             <Card className="border border-secondary200">
-              <CardContent className="p-5 flex items-center justify-between text-left">
+              <CardContent className="p-5 text-left">
                 <div className="space-y-1">
                   <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Total Revenue
@@ -105,15 +102,12 @@ export const Dashboard: React.FC = () => {
                     <TrendingUp className="w-3 h-3 text-secondary400" /> Live confirmed
                   </span>
                 </div>
-                <div className="text-secondary600 shrink-0">
-                  <DollarSign className="w-6 h-6" />
-                </div>
               </CardContent>
             </Card>
 
             {/* Orders */}
             <Card className="border border-secondary200">
-              <CardContent className="p-5 flex items-center justify-between text-left">
+              <CardContent className="p-5 text-left">
                 <div className="space-y-1">
                   <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Total Orders
@@ -125,15 +119,12 @@ export const Dashboard: React.FC = () => {
                     All user accounts combined
                   </span>
                 </div>
-                <div className="text-secondary600 shrink-0">
-                  <ShoppingBag className="w-6 h-6" />
-                </div>
               </CardContent>
             </Card>
 
             {/* Products */}
             <Card className="border border-secondary200">
-              <CardContent className="p-5 flex items-center justify-between text-left">
+              <CardContent className="p-5 text-left">
                 <div className="space-y-1">
                   <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Designs / Catalog
@@ -145,15 +136,12 @@ export const Dashboard: React.FC = () => {
                     <FolderTree className="w-3 h-3 text-secondary400" /> {stats.totalCategories} Categories
                   </span>
                 </div>
-                <div className="text-secondary600 shrink-0">
-                  <Box className="w-6 h-6" />
-                </div>
               </CardContent>
             </Card>
 
             {/* Low stock alerts */}
             <Card className="border border-secondary200">
-              <CardContent className="p-5 flex items-center justify-between text-left">
+              <CardContent className="p-5 text-left">
                 <div className="space-y-1">
                   <span className="text-[10px] md:text-xs font-medium text-secondary500 uppercase tracking-wider block">
                     Low Stock Alerts
@@ -173,9 +161,6 @@ export const Dashboard: React.FC = () => {
                       All inventory optimal
                     </span>
                   )}
-                </div>
-                <div className="shrink-0 text-secondary400">
-                  <AlertTriangle className="w-6 h-6" />
                 </div>
               </CardContent>
             </Card>
