@@ -13,7 +13,8 @@ import Textarea from '../../components/ui/Textarea';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
-import { Plus, Pencil, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Pencil, ToggleLeft, ToggleRight, Upload } from 'lucide-react';
+import { uploadImage } from '../../lib/storage';
 
 export const CampaignsList: React.FC = () => {
   const { showToast } = useToast();
@@ -33,6 +34,7 @@ export const CampaignsList: React.FC = () => {
   const [endDate, setEndDate] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchCampaigns();
@@ -80,6 +82,24 @@ export const CampaignsList: React.FC = () => {
     setEndDate(new Date(camp.endDate).toISOString().substring(0, 16));
     setIsActive(camp.isActive);
     setModalOpen(true);
+  };
+
+  // Upload campaign banner from device via Supabase Storage
+  const handleBannerImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const result = await uploadImage(file, 'campaigns');
+      setBannerImageUrl(result.url);
+      showToast('Banner uploaded', 'success');
+    } catch (err: any) {
+      showToast(err?.message || 'Upload failed', 'error');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -266,13 +286,33 @@ export const CampaignsList: React.FC = () => {
             required
           />
 
-          <Input
-            label="Banner Image URL *"
-            value={bannerImageUrl}
-            onChange={(e) => setBannerImageUrl(e.target.value)}
-            placeholder="https://images.unsplash.com/..."
-            required
-          />
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-secondary700">Banner Image *</label>
+              <label className="cursor-pointer inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border border-secondary300 hover:bg-lightgrayColor text-secondary700">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBannerImageUpload}
+                  disabled={uploading || saving}
+                  className="hidden"
+                />
+                <Upload className="w-3.5 h-3.5" />
+                {uploading ? 'Uploading...' : 'Upload from device'}
+              </label>
+            </div>
+            <Input
+              value={bannerImageUrl}
+              onChange={(e) => setBannerImageUrl(e.target.value)}
+              placeholder="https://... (or upload above)"
+              required
+            />
+            {bannerImageUrl && (
+              <div className="w-full h-20 mt-1 rounded border border-secondary200 overflow-hidden bg-lightgrayColor">
+                <img src={bannerImageUrl} alt="banner preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <Select
@@ -331,7 +371,7 @@ export const CampaignsList: React.FC = () => {
             <span className="text-xs font-semibold text-secondary600">Campaign is Active</span>
           </label>
 
-          <Button type="submit" loading={saving} className="w-full py-2.5">
+          <Button type="submit" loading={saving || uploading} disabled={uploading} className="w-full py-2.5">
             {editId ? 'Save Adjustments' : 'Create Campaign'}
           </Button>
         </form>

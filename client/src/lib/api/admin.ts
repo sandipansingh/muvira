@@ -12,6 +12,7 @@ import {
   mapDashboardStats,
   mapInventoryItem,
 } from "./adapters";
+import { slugify } from "../slug";
 import type { ProductDetail } from "../../types/product";
 import type { Category } from "../../types/category";
 import type { Coupon } from "../../types/coupon";
@@ -130,9 +131,10 @@ export const adminApiService = {
 
   async createProduct(data: AnyRecord): Promise<ApiResponse<ProductDetail>> {
     // Convert camelCase frontend fields to snake_case server fields
+    const name = data["name"] as string;
     const body: AnyRecord = {
-      name: data["name"],
-      slug: data["slug"],
+      name,
+      slug: data["slug"] || slugify(name || ""),
       description: data["description"],
       short_description: data["shortDescription"] ?? data["short_description"],
       category_id: data["categoryId"] ?? data["category_id"],
@@ -303,9 +305,10 @@ export const adminApiService = {
   },
 
   async createCategory(data: AnyRecord): Promise<ApiResponse<Category>> {
+    const name = data["name"] as string;
     const body = {
-      name: data["name"],
-      slug: data["slug"],
+      name,
+      slug: data["slug"] || slugify(name || ""),
       description: data["description"],
       image_url: data["imageUrl"] ?? data["image_url"],
       is_active: data["isActive"] ?? data["is_active"] ?? true,

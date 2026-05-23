@@ -11,7 +11,9 @@ import Textarea from '../../components/ui/Textarea';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
-import { Plus, Pencil, Trash } from 'lucide-react';
+import { Plus, Pencil, Trash, Upload } from 'lucide-react';
+import { uploadImage, deleteStorageFile } from '../../lib/storage';
+import { slugify } from '../../lib/slug';
 
 export const CategoriesList: React.FC = () => {
   const { showToast } = useToast();
@@ -23,11 +25,14 @@ export const CategoriesList: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [sortOrder, setSortOrder] = useState('0');
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -48,6 +53,8 @@ export const CategoriesList: React.FC = () => {
   const handleOpenAdd = () => {
     setEditId(null);
     setName('');
+    setSlug('');
+    setSlugTouched(false);
     setDescription('');
     setImageUrl('');
     setSortOrder(categories.length.toString());
@@ -58,6 +65,8 @@ export const CategoriesList: React.FC = () => {
   const handleOpenEdit = (cat: Category) => {
     setEditId(cat.id);
     setName(cat.name);
+    setSlug(cat.slug || '');
+    setSlugTouched(true);
     setDescription(cat.description);
     setImageUrl(cat.imageUrl);
     setSortOrder(cat.sortOrder.toString());
@@ -65,9 +74,31 @@ export const CategoriesList: React.FC = () => {
     setModalOpen(true);
   };
 
+  // Upload category tile image from device
+  const handleCategoryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const result = await uploadImage(file, 'categories');
+      setImageUrl(result.url);
+      showToast('Image uploaded', 'success');
+    } catch (err: any) {
+      showToast(err?.message || 'Upload failed', 'error');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !description || !imageUrl) {
+
+    // Ensure we always have a valid slug for create (and allow updating on edit)
+    const finalSlug = (slug || slugify(name)).trim();
+
+    if (!name || !finalSlug || !description || !imageUrl) {
       showToast('Please fill in all mandatory fields.', 'error');
       return;
     }
@@ -76,6 +107,7 @@ export const CategoriesList: React.FC = () => {
     let res;
     const payload = {
       name,
+      slug: finalSlug,
       description,
       imageUrl,
       sortOrder: parseInt(sortOrder, 10),
@@ -100,6 +132,12 @@ export const CategoriesList: React.FC = () => {
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete category "${name}"?`)) return;
+
+    // Find the category to clean storage (best effort)
+    const catToDelete = categories.find((c) => c.id === id);
+    if (catToDelete?.imageUrl) {
+      deleteStorageFile(catToDelete.imageUrl).catch(() => {});
+    }
 
     const res = await adminApiService.deleteCategory(id);
     if (res.success) {
@@ -221,18 +259,55 @@ export const CategoriesList: React.FC = () => {
           <Input
             label="Category Name *"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setName(val);
+              if (!editId && !slugTouched) {
+                setSlug(slugify(val));
+              }
+            }}
             placeholder="E.g. Solid Wood Furniture"
             required
           />
 
           <Input
-            label="Image URL Tile *"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://images.unsplash.com/..."
+            label="Slug *"
+            value={slug}
+            onChange={(e) => {
+              setSlug(e.target.value);
+              if (!editId) setSlugTouched(true);
+            }}
+            placeholder="solid-wood-furniture"
             required
           />
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-secondary700">Category Tile Image *</label>
+              <label className="cursor-pointer inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full border border-secondary300 hover:bg-lightgrayColor text-secondary700">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCategoryImageUpload}
+                  disabled={uploading || saving}
+                  className="hidden"
+                />
+                <Upload className="w-3.5 h-3.5" />
+                {uploading ? 'Uploading...' : 'Upload from device'}
+              </label>
+            </div>
+            <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://... (or upload above)"
+              required
+            />
+            {imageUrl && (
+              <div className="w-16 h-16 mt-1 rounded border border-secondary200 overflow-hidden bg-lightgrayColor">
+                <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
 
           <Input
             label="Sort Order Value *"
@@ -262,7 +337,7 @@ export const CategoriesList: React.FC = () => {
             <span className="text-xs font-semibold text-secondary600">Category is Active</span>
           </label>
 
-          <Button type="submit" loading={saving} className="w-full py-2.5">
+          <Button type="submit" loading={saving || uploading} disabled={uploading} className="w-full py-2.5">
             {editId ? 'Save Changes' : 'Create Category Collection'}
           </Button>
         </form>
