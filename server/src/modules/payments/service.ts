@@ -165,7 +165,6 @@ async function capturePayment(
   // Do NOT await — email failure must not block the response
   sendOrderConfirmationEmail({
     order: order as Order,
-    customerEmail: order.user_id, // We'll fetch email in email service; passing userId for now
     customerName: order.shipping_full_name,
   }).catch((err: unknown) => {
     logger.error(
