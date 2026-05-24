@@ -26,7 +26,7 @@ const CouponBaseObject = z
     discount_type: z.enum(["percentage", "fixed"]),
     discount_value: z.number().int().positive(),
     min_order_amount_paisa: z.number().int().min(0).default(0),
-    max_discount_paisa: z.number().int().positive().optional(),
+    max_discount_paisa: z.number().int().min(0).nullable().optional(),
     max_uses: z.number().int().positive().optional(),
     is_active: z.boolean().default(true),
     valid_from: z.string().datetime().optional(),

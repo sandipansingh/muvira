@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS coupons (
   discount_type           TEXT        NOT NULL CHECK (discount_type IN ('percentage', 'fixed')),
   discount_value          INT         NOT NULL CHECK (discount_value > 0),
   min_order_amount_paisa  INT         NOT NULL DEFAULT 0 CHECK (min_order_amount_paisa >= 0),
-  max_discount_paisa      INT         CHECK (max_discount_paisa > 0),  -- cap for percentage discounts
+  max_discount_paisa      INT         CHECK (max_discount_paisa IS NULL OR max_discount_paisa >= 0),  -- 0 or NULL = no cap for % coupons
   max_uses                INT         CHECK (max_uses > 0),
   times_used              INT         NOT NULL DEFAULT 0 CHECK (times_used >= 0),
   is_active               BOOLEAN     NOT NULL DEFAULT TRUE,
