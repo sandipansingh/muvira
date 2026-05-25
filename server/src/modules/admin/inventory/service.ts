@@ -12,6 +12,23 @@ interface InventoryItem {
   category: { id: string; name: string } | null;
 }
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+async function resolveCategoryToId(
+  category: string | undefined,
+): Promise<string | undefined> {
+  if (!category) return undefined;
+  if (UUID_REGEX.test(category)) return category;
+
+  const { data } = await adminSupabase
+    .from('categories')
+    .select('id')
+    .eq('slug', category)
+    .single();
+  return data?.id ?? undefined;
+}
+
 export async function getInventory(query: InventoryQuery): Promise<{
   items: InventoryItem[];
   total: number;
@@ -22,6 +39,8 @@ export async function getInventory(query: InventoryQuery): Promise<{
   const { page, limit, low_stock_only, category } = query;
   const offset = (page - 1) * limit;
 
+  const categoryId = await resolveCategoryToId(category);
+
   let dbQuery = adminSupabase
     .from('products')
     .select(
@@ -31,7 +50,13 @@ export async function getInventory(query: InventoryQuery): Promise<{
     .order('stock', { ascending: true });
 
   if (low_stock_only === 'true') dbQuery = dbQuery.lte('stock', 10);
-  if (category) dbQuery = dbQuery.eq('category_id', category);
+  if (category) {
+    if (categoryId) {
+      dbQuery = dbQuery.eq('category_id', categoryId);
+    } else {
+      dbQuery = dbQuery.eq('category_id', '00000000-0000-0000-0000-000000000000');
+    }
+  }
 
   dbQuery = dbQuery.range(offset, offset + limit - 1);
 

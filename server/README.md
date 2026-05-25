@@ -93,7 +93,7 @@ Client flow:
 
 ```
 GET  /api/health
-GET  /api/products?page=1&limit=20&category=<uuid>&minPrice=0&maxPrice=50000&inStock=true&sort=price_asc&q=search
+GET  /api/products?page=1&limit=20&category=doll&minPrice=0&maxPrice=50000&inStock=true&sort=price_asc&q=search
 GET  /api/products/:slug
 GET  /api/products/:id/related
 GET  /api/categories

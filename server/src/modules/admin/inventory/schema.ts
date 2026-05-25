@@ -4,7 +4,7 @@ export const InventoryQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).default('1'),
   limit: z.string().regex(/^\d+$/).transform(Number).default('50'),
   low_stock_only: z.enum(['true', 'false']).default('false'),
-  category: z.string().uuid().optional(),
+  category: z.string().min(1).max(300).optional(),
 });
 
 export const UpdateStockSchema = z
