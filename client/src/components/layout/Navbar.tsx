@@ -47,20 +47,20 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="relative z-[39] bg-white border-b border-secondary200">
+    <header className="relative z-[39] bg-[var(--surface)] border-b border-[var(--border)]">
       {/* 1. TOP UTILITY BAR (Desktop only) */}
-      <div className="hidden md:block bg-white text-secondary600 text-[11px] font-roboto font-normal border-b border-secondary200 py-2">
+      <div className="hidden md:block bg-[var(--surface)] text-[var(--text-muted)] text-[11px] font-instrument font-normal border-b border-[var(--border)] py-2">
         <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-primaryBg font-medium">NEW DEALS:</span>
+            <span className="text-[var(--accent)] font-medium tracking-wider">NEW DEALS:</span>
             <span>Diwali Festival Sale is active! Save 20% off with coupon <b>DIWALI20</b></span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="tel:+919876543210" className="flex items-center gap-1.5 hover:text-primaryBg transition-colors">
+            <a href="tel:+919876543210" className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
               <Phone className="w-3.5 h-3.5 shrink-0" />
               <span>Call Us: +91 98765 43210</span>
             </a>
-            <Link to="/orders" className="flex items-center gap-1.5 hover:text-primaryBg transition-colors">
+            <Link to="/orders" className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
               <Truck className="w-3.5 h-3.5 shrink-0" />
               <span>Track Order</span>
             </Link>
@@ -80,9 +80,9 @@ export const Navbar: React.FC = () => {
 
         {/* Store Logo */}
         <Link to="/" className="flex items-center">
-          <span className="text-xl md:text-2xl font-bold tracking-wider text-darkColor uppercase font-montserrat">
+          <span className="text-[21px] md:text-[24px] font-semibold tracking-[-0.2px] text-[var(--text)] uppercase font-playfair">
             {STORE_NAME}
-            <span className="text-primaryBg font-extrabold font-pangrambold">.</span>
+            <span className="text-[var(--accent)] font-medium">.</span>
           </span>
         </Link>
 
@@ -196,20 +196,20 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* 4. MEGA NAVIGATION MENU STRIP (Desktop only) */}
-      <div className="hidden md:block bg-lightgrayColor/50 border-t border-secondary200 font-redhat font-medium">
+      <div className="hidden md:block bg-[var(--surface-2)] border-t border-[var(--border)] font-instrument font-medium">
         <div className="max-w-[1240px] mx-auto px-6">
-          <nav className="flex items-center gap-6 py-2.5">
-            <Link to="/" className="text-secondary700 hover:text-primaryBg hover:underline transition-all duration-200">
+          <nav className="flex items-center gap-7 py-2.5 text-[13px]">
+            <Link to="/" className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
               Home
             </Link>
-            <Link to="/products" className="text-secondary700 hover:text-primaryBg hover:underline transition-all duration-200">
+            <Link to="/products" className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
               All Products
             </Link>
             {categoriesList.map((cat) => (
               <Link
                 key={cat.slug}
                 to={`/categories/${cat.slug}`}
-                className="text-secondary700 hover:text-primaryBg hover:underline transition-all duration-200"
+                className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
               >
                 {cat.name}
               </Link>

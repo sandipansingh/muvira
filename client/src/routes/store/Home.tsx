@@ -92,11 +92,11 @@ export const Home: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left space-y-12">
-      {/* 1. HERO BANNER SECTION (Desktop split vs Mobile full width) */}
-      <div className="flex flex-col md:flex-row gap-4 h-[350px] md:h-[470px]">
-        {/* Left Slider: 63% basis */}
-        <div className="flex-1 md:flex-[0.63] bg-lightgrayColor rounded-xl overflow-hidden relative group border border-secondary200">
+    <div className="max-w-[1240px] mx-auto px-6 py-10 font-instrument text-left space-y-16">
+      {/* 1. HERO BANNER SECTION — elevated with rich typography and atmosphere */}
+      <div className="flex flex-col md:flex-row gap-4 h-[370px] md:h-[510px] animate-stagger stagger-1">
+        {/* Left Slider: 63% */}
+        <div className="flex-1 md:flex-[0.63] bg-[#f4ede3] rounded-2xl overflow-hidden relative group border border-[var(--border)] shadow-sm">
           {heroSlides.map((slide, idx) => (
             <div
               key={slide.id}
@@ -109,20 +109,25 @@ export const Home: React.FC = () => {
                 alt={slide.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-12 text-left text-white">
-                <span className="bg-primaryBg text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-2 self-start">
-                  Festival Sale
-                </span>
-                <h2 className="text-xl md:text-3xl font-bold tracking-wide mb-2 leading-tight font-montserrat">
+              {/* Rich atmospheric overlay — deeper, more sophisticated */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#2c2724]/80 via-[#2c2724]/45 to-[#2c2724]/10 flex flex-col justify-end p-7 md:p-14 text-left text-white">
+                <div className="mb-3">
+                  <span className="inline-block bg-[var(--accent)] text-white text-[10px] font-semibold tracking-[2px] px-3 py-px rounded-sm uppercase">
+                    Festival Edit
+                  </span>
+                </div>
+
+                <h1 className="text-[29px] md:text-[44px] leading-[1.05] font-medium tracking-[-0.015em] mb-3.5 font-playfair max-w-[28ch]">
                   {slide.title}
-                </h2>
-                <p className="text-xs md:text-sm text-[#E7E7E7] font-medium tracking-wide mb-6">
+                </h1>
+                <p className="text-[13px] md:text-[15px] text-[#e8e0d4] tracking-wide font-light max-w-[38ch] mb-8">
                   {slide.subtitle}
                 </p>
+
                 <Button
                   variant="primary"
                   onClick={() => navigate(slide.link)}
-                  className="self-start text-xs md:text-sm py-2 px-5"
+                  className="self-start text-sm px-7 py-2.5 tracking-wide"
                 >
                   Shop the Collection
                 </Button>
@@ -130,157 +135,136 @@ export const Home: React.FC = () => {
             </div>
           ))}
 
-          {/* Left/Right navigation arrows (Desktop only) */}
+          {/* Navigation arrows */}
           <button
             onClick={handlePrevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/60 hover:bg-white/80 p-2 rounded-full z-20 text-darkColor transition-colors focus:outline-none hidden md:block"
+            className="absolute left-5 top-1/2 -translate-y-1/2 bg-white/75 hover:bg-white p-2.5 rounded-full z-20 text-[var(--text)] transition-all focus:outline-none hidden md:block hover:scale-105"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={handleNextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/60 hover:bg-white/80 p-2 rounded-full z-20 text-darkColor transition-colors focus:outline-none hidden md:block"
+            className="absolute right-5 top-1/2 -translate-y-1/2 bg-white/75 hover:bg-white p-2.5 rounded-full z-20 text-[var(--text)] transition-all focus:outline-none hidden md:block hover:scale-105"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
-          {/* Slide dots with progress animation */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+          {/* Refined slide indicators */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2.5 z-20">
             {heroSlides.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveSlide(idx)}
-                className={`h-1.5 rounded-full overflow-hidden transition-all duration-300 ${
-                  activeSlide === idx ? "w-8 bg-primaryBg" : "w-4 bg-white/60"
+                className={`h-[3px] rounded-full overflow-hidden transition-all duration-300 ${
+                  activeSlide === idx ? "w-9 bg-[var(--accent)]" : "w-4 bg-white/50"
                 }`}
               >
                 {activeSlide === idx && (
-                  <div className="h-full bg-primaryHover progress-fill" />
+                  <div className="h-full bg-[var(--accent-gold)] progress-fill" />
                 )}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Right Stacked Promo Banners: 37% basis (Hidden on mobile) */}
+        {/* Right Stacked Promos — richer, more atmospheric */}
         <div className="hidden md:flex md:flex-[0.37] flex-col gap-4">
-          <div className="flex-1 bg-[#FAE9E6] border border-primary200 rounded-xl overflow-hidden relative flex flex-col justify-end p-6 text-left">
-            <h3 className="text-sm font-bold text-primaryBg uppercase tracking-widest mb-1.5">
-              Organic Coordinates
-            </h3>
-            <h4 className="text-lg font-bold text-darkColor leading-snug mb-3 font-montserrat">
-              Blockprinted Cushions & Bedspreads
-            </h4>
-            <Link
-              to="/categories/home-decor"
-              className="text-xs font-bold text-primaryBg hover:text-primaryHover"
-            >
-              Explore Cushion Covers →
-            </Link>
+          <div className="flex-1 relative rounded-2xl overflow-hidden border border-[var(--border)] flex flex-col justify-end p-7 bg-gradient-to-br from-[#f4ede3] via-[#f4ede3] to-[#e9e0d3]">
+            <div className="absolute inset-0 pattern-block" />
+            <div className="relative">
+              <div className="uppercase tracking-[2.5px] text-[10px] font-semibold text-[var(--accent)] mb-2.5">Organic Coordinates</div>
+              <h3 className="text-[22px] leading-[1.1] font-medium text-[var(--text)] tracking-[-0.01em] font-playfair mb-5">
+                Blockprinted Cushions<br /> &amp; Bedspreads
+              </h3>
+              <Link
+                to="/categories/home-decor"
+                className="inline-flex text-[12px] font-semibold tracking-widest text-[var(--accent)] hover:text-[var(--accent-dark)] items-center gap-1 transition-colors group"
+              >
+                EXPLORE CUSHION COVERS <span className="transition group-hover:translate-x-0.5">→</span>
+              </Link>
+            </div>
           </div>
-          <div className="flex-1 bg-lightgrayColor border border-secondary200 rounded-xl overflow-hidden relative flex flex-col justify-end p-6 text-left">
-            <h3 className="text-sm font-bold text-secondary700 uppercase tracking-widest mb-1.5">
-              Classic Living
-            </h3>
-            <h4 className="text-lg font-bold text-darkColor leading-snug mb-3 font-montserrat">
-              Sheesham Wood Coffee Tables & Sofas
-            </h4>
-            <Link
-              to="/categories/solid-wood-furniture"
-              className="text-xs font-bold text-primaryBg hover:text-primaryHover"
-            >
-              Shop Solid Wood →
-            </Link>
+
+          <div className="flex-1 relative rounded-2xl overflow-hidden border border-[var(--border)] flex flex-col justify-end p-7 bg-gradient-to-br from-[#2c2724] to-[#3a322d] text-[#e8e0d4]">
+            <div className="relative">
+              <div className="uppercase tracking-[2.5px] text-[10px] font-semibold text-[var(--accent-gold-light)] mb-2.5">Classic Living</div>
+              <h3 className="text-[22px] leading-[1.1] font-medium text-white tracking-[-0.01em] font-playfair mb-5">
+                Sheesham Wood Coffee<br />Tables &amp; Sofas
+              </h3>
+              <Link
+                to="/categories/solid-wood-furniture"
+                className="inline-flex text-[12px] font-semibold tracking-widest text-[var(--accent-gold-light)] hover:text-white items-center gap-1 transition-colors group"
+              >
+                SHOP SOLID WOOD <span className="transition group-hover:translate-x-0.5">→</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 2. USP TRUST SIGNALS BAR */}
-      <div className="bg-[#F5F5F5] border border-secondary200 rounded-xl p-6 grid grid-cols-1 md:grid-cols-4 gap-6 text-center md:text-left select-none">
-        <div className="flex flex-col md:flex-row items-center gap-3">
-          <Truck className="w-10 h-10 text-primaryBg shrink-0" />
-          <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">
-              Free Shipping
-            </h5>
-            <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
-              Free courier delivery on all orders across India
-            </p>
+      {/* 2. USP TRUST SIGNALS — refined with atmosphere and sharp accent icons */}
+      <div className="border border-[var(--border)] bg-[var(--surface)] rounded-2xl py-7 px-6 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-x-6 gap-y-7 text-left select-none animate-stagger stagger-2">
+        {[
+          { icon: Truck, title: "Free Shipping", desc: "Complimentary courier delivery across India" },
+          { icon: Award, title: "Premium Craftsmanship", desc: "Seasoned Sheesham & traditional loom techniques" },
+          { icon: ShieldAlert, title: "Secure Payments", desc: "Razorpay-protected checkout on every order" },
+          { icon: Sparkles, title: "Jaipur Block-Prints", desc: "Hand blockprinted with organic vegetable dyes" },
+        ].map((item, index) => (
+          <div key={index} className="flex flex-col md:flex-row items-start md:items-center gap-3.5 group">
+            <div className="shrink-0 text-[var(--accent)]">
+              <item.icon className="w-9 h-9" />
+            </div>
+            <div>
+              <h5 className="text-[13px] font-semibold tracking-[0.3px] text-[var(--text)]">
+                {item.title}
+              </h5>
+              <p className="text-[11.5px] text-[var(--text-muted)] leading-snug tracking-wide mt-px">
+                {item.desc}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col md:flex-row items-center gap-3">
-          <Award className="w-10 h-10 text-primaryBg shrink-0" />
-          <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">
-              Premium Craftsmanship
-            </h5>
-            <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
-              Handcrafted in seasoned wood and traditional loom techniques
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row items-center gap-3">
-          <ShieldAlert className="w-10 h-10 text-primaryBg shrink-0" />
-          <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">
-              Secure Payments
-            </h5>
-            <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
-              Secured Razorpay sandbox API checkout integrations
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col md:flex-row items-center gap-3">
-          <Sparkles className="w-10 h-10 text-primaryBg shrink-0" />
-          <div>
-            <h5 className="text-sm font-bold text-darkColor tracking-wide">
-              Jaipur Block-Prints
-            </h5>
-            <p className="text-[11px] text-secondary600 tracking-wide mt-0.5 leading-snug">
-              Authentic hand blockprinted coordinates dyed organically
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* 3. CATEGORIES TABS/GRID SECTION */}
-      <div className="space-y-6">
-        <div className="flex justify-between items-end border-b border-secondary200 pb-3">
+      {/* 3. CATEGORIES — distinctive presentation */}
+      <div className="space-y-6 animate-stagger stagger-3">
+        <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-lg md:text-2xl font-semibold tracking-wide text-darkColor font-montserrat">
-              Shop by Room & Category
+            <div className="uppercase text-[10px] tracking-[2px] text-[var(--accent)] font-medium mb-1">Curated Collections</div>
+            <h2 className="text-[26px] md:text-[30px] tracking-[-0.01em] leading-none font-medium font-playfair text-[var(--text)]">
+              Shop by Room &amp; Category
             </h2>
-            <p className="text-xs md:text-sm text-secondary600 tracking-wide mt-1">
-              Find premium coordinates tailored for every lifestyle context
-            </p>
           </div>
           <Link
             to="/categories"
-            className="text-xs font-bold text-primaryBg hover:text-primaryHover uppercase tracking-wider hover:underline"
+            className="hidden md:inline text-xs font-semibold tracking-[1.5px] uppercase text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors"
           >
-            All Categories →
+            View All →
           </Link>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-44 rounded-xl" />
+                <Skeleton key={i} className="h-[176px] rounded-2xl" />
               ))
-            : categories.slice(0, 4).map((cat) => (
+            : categories.slice(0, 4).map((cat, index) => (
                 <Link
                   key={cat.id}
                   to={`/categories/${cat.slug}`}
-                  className="group relative h-40 rounded-xl overflow-hidden border border-secondary200 shadow-xs block"
+                  className={`group relative h-[172px] rounded-2xl overflow-hidden border border-[var(--border)] block hover-lift animate-stagger stagger-${Math.min(index + 4, 8)}`}
                 >
                   <img
                     src={cat.imageUrl}
                     alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover transition-all duration-[650ms] group-hover:scale-[1.07]"
                   />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/55 transition-colors" />
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <h4 className="text-sm font-bold uppercase tracking-wider leading-none">
+                  {/* Layered overlay for depth */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/35 to-black/70" />
+                  <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#2c2724]/85 to-transparent" />
+                  <div className="absolute bottom-5 left-5 right-5 text-white">
+                    <div className="text-[11px] font-medium tracking-[2px] text-[var(--accent-gold-light)] mb-1.5">COLLECTION</div>
+                    <h4 className="text-[17px] font-medium tracking-[-0.2px] leading-[1.05] font-playfair">
                       {cat.name}
                     </h4>
                   </div>
@@ -289,112 +273,100 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. FESTIVAL SALE BANNER (Pink promo background) */}
+      {/* 4. LIMITED EDITION CAMPAIGN — heritage dominant palette */}
       {campaigns.length > 0 && (
-        <div className="bg-[#FFF2F2] border border-[#f5dedd] rounded-xl p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-left space-y-2 max-w-xl">
-            <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest flex items-center gap-1.5 font-montserrat">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shrink-0" />
-              Limited Time Coupon Alert
-            </span>
-            <h2 className="text-xl md:text-3xl font-bold text-rose-950 tracking-wide font-montserrat">
+        <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--text)] text-[#f1e9de] px-8 md:px-12 py-9 md:py-11 flex flex-col md:flex-row md:items-center gap-8 animate-stagger stagger-4">
+          {/* Subtle geometric atmosphere */}
+          <div className="absolute inset-0 pattern-block opacity-10" />
+
+          <div className="relative max-w-xl">
+            <div className="flex items-center gap-2 text-[10px] tracking-[3px] uppercase font-medium text-[var(--accent-gold-light)] mb-3">
+              <span className="inline-block w-px h-3.5 bg-[var(--accent-gold)]" /> LIMITED OFFER
+            </div>
+            <h2 className="font-playfair text-[26px] md:text-[34px] leading-none tracking-[-0.4px] mb-4 text-white">
               {campaigns[0].name}
             </h2>
-            <p className="text-xs md:text-sm text-rose-800 leading-relaxed tracking-wide">
-              {campaigns[0].description} Apply coupon code{" "}
-              <b className="bg-rose-200/50 px-1.5 py-0.5 rounded text-rose-950 font-bold font-roboto">
-                DIWALI20
-              </b>{" "}
-              during checkout to get 20% off items.
+            <p className="text-[13px] leading-relaxed tracking-wide text-[#d9cebf]">
+              {campaigns[0].description} Use code{" "}
+              <span className="font-medium text-[var(--accent-gold-light)] tracking-[1px]">DIWALI20</span> at checkout for 20% off.
             </p>
           </div>
-          <Button
-            variant="danger"
-            onClick={() => navigate("/products")}
-            className="w-full md:w-auto px-6 py-3"
-          >
-            Explore Sale Catalog
-          </Button>
+
+          <div className="md:ml-auto">
+            <Button
+              variant="primary"
+              onClick={() => navigate("/products")}
+              className="w-full md:w-auto px-9 py-3 text-base tracking-[0.5px] border-0 bg-[var(--accent)] hover:bg-[var(--accent-dark)]"
+            >
+              Shop the Sale
+            </Button>
+          </div>
         </div>
       )}
 
-      {/* 5. BEST SELLERS / FEATURED PRODUCTS */}
-      <div className="space-y-6">
-        <div className="flex justify-between items-end border-b border-secondary200 pb-3">
+      {/* 5. FEATURED BEST SELLERS — elevated product presentation */}
+      <div className="space-y-6 animate-stagger stagger-5">
+        <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-lg md:text-2xl font-semibold tracking-wide text-darkColor font-montserrat">
-              Featured Best Sellers
-            </h2>
-            <p className="text-xs md:text-sm text-secondary600 tracking-wide mt-1">
-              Top rated designs preferred by Indian homes
-            </p>
+            <div className="uppercase tracking-[2px] text-[10px] text-[var(--accent)] font-medium mb-1">Editor’s Picks</div>
+            <h2 className="text-[26px] md:text-[30px] tracking-[-0.01em] font-medium text-[var(--text)] font-playfair">Featured Best Sellers</h2>
           </div>
           <Link
             to="/products"
-            className="text-xs font-bold text-primaryBg hover:text-primaryHover uppercase tracking-wider hover:underline"
+            className="hidden md:block text-xs uppercase tracking-[1.5px] font-semibold text-[var(--accent)] hover:text-[var(--accent-dark)] transition-colors"
           >
-            View All Designs →
+            Discover All →
           </Link>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {loading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex flex-col gap-2.5 p-2 bg-white border border-secondary200 rounded-lg"
-                >
-                  <Skeleton className="aspect-square w-full rounded-md" />
-                  <Skeleton className="h-4 w-16" />
-                  <Skeleton className="h-4 w-40" />
-                  <Skeleton className="h-4 w-24" />
+                <div key={i} className="rounded-2xl border border-[var(--border)] p-3 bg-[var(--surface)]">
+                  <Skeleton className="aspect-square w-full rounded-xl" />
+                  <div className="pt-4 space-y-2.5">
+                    <Skeleton className="h-3 w-12" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
                 </div>
               ))
-            : featured.map((prod) => (
-                <ProductCard key={prod.id} product={prod} />
+            : featured.map((prod, idx) => (
+                <div key={prod.id} className={`animate-stagger stagger-${Math.min(idx + 6, 8)}`}>
+                  <ProductCard product={prod} />
+                </div>
               ))}
         </div>
       </div>
 
-      {/* 6. ALSO AVAILABLE AT SECTION */}
-      <div className="border-t border-secondary200 pt-10 pb-8 text-center space-y-6">
-        <h3 className="text-sm md:text-base font-semibold uppercase tracking-wider text-secondary600 font-montserrat">
-          We are also available at
-        </h3>
-        <div className="flex justify-center items-center gap-16 md:gap-24">
-          {/* Amazon Logo */}
+      {/* 6. ALSO AVAILABLE AT — refined, atmospheric treatment */}
+      <div className="pt-4 pb-6 border-t border-[var(--border)]">
+        <div className="text-center mb-8">
+          <div className="uppercase text-[10px] tracking-[2.5px] font-medium text-[var(--text-muted)]">Also available at</div>
+        </div>
+
+        <div className="flex flex-wrap justify-center items-center gap-x-20 gap-y-9 opacity-90">
           <a
             href="https://amazon.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center gap-3 focus:outline-none"
+            className="flex flex-col items-center group"
           >
-            <img
-              src="/amazon.webp"
-              alt="Amazon"
-              className="h-10 md:h-12 w-auto object-contain"
-            />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-secondary500 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-              Live
+            <img src="/amazon.webp" alt="Amazon" className="h-9 md:h-[46px] w-auto object-contain transition-all group-hover:opacity-80" />
+            <span className="mt-3 text-[10px] tracking-[3px] uppercase font-medium text-[var(--text-muted)] flex items-center gap-1.5">
+              <span className="h-px w-4 bg-[var(--accent-gold)]" /> LIVE ON AMAZON
             </span>
           </a>
 
-          {/* Flipkart Logo */}
           <a
             href="https://flipkart.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center gap-3 focus:outline-none"
+            className="flex flex-col items-center group"
           >
-            <img
-              src="/flipkart.webp"
-              alt="Flipkart"
-              className="h-10 md:h-12 w-auto object-contain"
-            />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-secondary500 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-              Live
+            <img src="/flipkart.webp" alt="Flipkart" className="h-9 md:h-[46px] w-auto object-contain transition-all group-hover:opacity-80" />
+            <span className="mt-3 text-[10px] tracking-[3px] uppercase font-medium text-[var(--text-muted)] flex items-center gap-1.5">
+              <span className="h-px w-4 bg-[var(--accent-gold)]" /> LIVE ON FLIPKART
             </span>
           </a>
         </div>

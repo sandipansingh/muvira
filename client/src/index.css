@@ -1,13 +1,111 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100..900;1,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Warm heritage craft palette — dominant rich tones + sharp accents */
+  --bg: #f9f5ef;
+  --surface: #ffffff;
+  --surface-2: #f4ede3;
+  --text: #2c2724;
+  --text-muted: #665f59;
+  --border: #e6dfd5;
+  --accent: #c65c30;         /* dominant rich terracotta */
+  --accent-dark: #a74b26;
+  --accent-gold: #a77f4f;    /* sharp burnished brass accent */
+  --accent-gold-light: #c5a26f;
+
+  /* Fallbacks for legacy tokens (gradually migrate) */
+  --primary: #c65c30;
+}
+
 @layer base {
   body {
-    @apply bg-white text-secondarytext font-lato antialiased;
+    @apply bg-[var(--bg)] text-[var(--text)] antialiased;
+    font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
   }
+
+  h1, h2, h3, h4, .heading {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Distinctive atmospheric patterns */
+.pattern-block {
+  background-image:
+    linear-gradient(var(--border) 0.8px, transparent 0.8px),
+    linear-gradient(90deg, var(--border) 0.8px, transparent 0.8px);
+  background-size: 22px 22px;
+  opacity: 0.35;
+}
+
+.section-gradient {
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+}
+
+/* Refined staggered page load animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-stagger {
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 140ms; }
+.stagger-3 { animation-delay: 220ms; }
+.stagger-4 { animation-delay: 300ms; }
+.stagger-5 { animation-delay: 380ms; }
+.stagger-6 { animation-delay: 460ms; }
+.stagger-7 { animation-delay: 540ms; }
+.stagger-8 { animation-delay: 620ms; }
+
+/* Elegant micro interactions */
+.hover-lift {
+  transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.12);
+}
+
+/* Hero progress */
+.progress-fill {
+  animation: progressAnimation 8000ms linear forwards;
+}
+
+@keyframes progressAnimation {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.23, 1.0, 0.32, 1);
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Custom indicator progress animation for hero banner */
