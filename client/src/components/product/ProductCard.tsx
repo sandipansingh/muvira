@@ -11,11 +11,15 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const [adding, setAdding] = React.useState(false);
 
   const handleQuickAdd = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (adding) return;
+    setAdding(true);
     await addToCart(product.id, 1);
+    setAdding(false);
   };
 
   const hasDiscount = product.salePrice !== null && product.salePrice < product.price;
@@ -23,14 +27,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link
       to={`/products/${product.slug}`}
-      className="group bg-[var(--surface)] rounded-2xl border border-[var(--border)] p-2.5 flex flex-col relative w-full text-left hover-lift transition-smooth"
+      className="group bg-[var(--surface)] rounded-xl border border-[var(--border)] p-2.5 flex flex-col relative w-full text-left"
     >
       {/* Product Image Cover */}
       <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-[var(--surface-2)] shrink-0">
         <img
           src={product.primaryImageUrl}
           alt={product.name}
-          className="w-full h-full object-cover transition-all duration-[620ms] group-hover:scale-[1.065]"
+          className="w-full h-full object-cover"
           loading="lazy"
         />
 
@@ -45,10 +49,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {product.stock > 0 && (
           <button
             onClick={handleQuickAdd}
-            className="absolute bottom-3 right-3 bg-white/95 text-[var(--accent)] p-2 rounded-full shadow-sm border border-[var(--border)] hover:bg-[var(--accent)] hover:text-white hover:border-[var(--accent)] transition-all transform translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 focus:outline-none"
+            disabled={adding}
+            className="absolute bottom-3 right-3 bg-white/95 text-[var(--accent)] p-2 rounded-full shadow-sm border border-[var(--border)] hover:bg-[var(--accent)] hover:text-white hover:border-[var(--accent)] transition-all focus:outline-none disabled:opacity-60"
             title="Add to Cart"
           >
-            <ShoppingCart className="w-3.5 h-3.5" />
+            {adding ? (
+              <span className="block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <ShoppingCart className="w-3.5 h-3.5" />
+            )}
           </button>
         )}
       </div>
@@ -60,7 +69,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </span>
 
         {/* Title — elegant Playfair */}
-        <h3 className="font-playfair text-[15px] md:text-[16px] leading-tight tracking-[-0.1px] text-[var(--text)] group-hover:text-[var(--accent)] transition-colors line-clamp-2 mb-2 min-h-[42px]">
+        <h3 className="font-playfair text-[15px] md:text-[16px] leading-tight tracking-[-0.1px] text-[var(--text)] line-clamp-2 mb-2 min-h-[42px]">
           {product.name}
         </h3>
 
@@ -69,7 +78,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {Array.from({ length: 5 }).map((_, idx) => (
             <Star key={idx} className="w-[13px] h-[13px] fill-current" strokeWidth={0.5} />
           ))}
-          <span className="ml-1 text-[10px] text-[var(--text-muted)] tracking-wide font-medium">42</span>
         </div>
 
         <div className="mt-auto">

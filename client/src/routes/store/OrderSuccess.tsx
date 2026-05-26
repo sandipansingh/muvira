@@ -15,7 +15,7 @@ export const OrderSuccess: React.FC = () => {
   const totalAmount = location.state?.totalAmount || 0;
 
   return (
-    <div className="min-h-[75vh] flex items-center justify-center py-12 px-6 font-redhat text-center">
+    <div className="min-h-[75vh] flex items-center justify-center py-12 px-6 font-instrument text-center">
       <Card className="w-full max-w-md border border-emerald-100 shadow-xl overflow-hidden bg-white">
         <div className="bg-emerald-50 py-10 px-6 border-b border-emerald-100 flex flex-col items-center">
           <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4 animate-bounce" />
@@ -29,7 +29,7 @@ export const OrderSuccess: React.FC = () => {
 
         <CardContent className="p-6 space-y-6 text-left">
           {/* Billing Info */}
-          <div className="bg-lightgrayColor rounded-xl border border-secondary200 p-4 space-y-3 font-roboto">
+          <div className="bg-lightgrayColor rounded-xl border border-secondary200 p-4 space-y-3 font-instrument">
             <div className="flex justify-between items-center text-xs">
               <span className="text-secondary500 font-semibold uppercase tracking-wider">Order Reference</span>
               <span className="font-bold text-darkColor text-sm">{orderNumber}</span>

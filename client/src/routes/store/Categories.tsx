@@ -36,7 +36,7 @@ export const Categories: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb items={[{ label: "Categories" }]} />
 
       <div className="my-6">
@@ -66,17 +66,17 @@ export const Categories: React.FC = () => {
             <Link
               key={cat.id}
               to={`/categories/${cat.slug}`}
-              className="group flex flex-col bg-white border border-secondary200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+              className="group flex flex-col bg-white border border-secondary200 rounded-xl overflow-hidden shadow-sm"
             >
               {/* Image container */}
               <div className="h-64 overflow-hidden bg-gray-100 relative">
                 <img
                   src={cat.imageUrl}
                   alt={cat.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
                 <span className="absolute bottom-4 left-4 text-white font-bold text-base md:text-lg tracking-wider">
                   {cat.name}
                 </span>
@@ -87,7 +87,7 @@ export const Categories: React.FC = () => {
                 <p className="text-xs md:text-sm text-secondary600 tracking-wide line-clamp-2">
                   {cat.description}
                 </p>
-                <span className="text-xs font-semibold text-primaryBg group-hover:text-primaryHover mt-auto pt-4 flex items-center gap-1">
+                <span className="text-xs font-semibold text-primaryBg mt-auto pt-4 flex items-center gap-1">
                   Explore Products →
                 </span>
               </div>

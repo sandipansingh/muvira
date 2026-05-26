@@ -14,17 +14,7 @@ export const Footer: React.FC = () => {
           <p className="text-xs md:text-sm text-[#b6ab9e] leading-relaxed tracking-wide">
             Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.
           </p>
-          <div className="flex items-center gap-3.5 mt-2">
-            <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors" aria-label="Facebook">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/></svg>
-            </a>
-            <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors" aria-label="Twitter">
-              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-            </a>
-            <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors" aria-label="Instagram">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-            </a>
-          </div>
+          {/* Social profiles intentionally omitted — add real brand links when available */}
         </div>
 
         {/* Customer Support */}
@@ -39,19 +29,13 @@ export const Footer: React.FC = () => {
               </Link>
             </li>
             <li>
-              <a href="#" className="hover:text-primaryBg transition-colors">
-                Shipping Policy
-              </a>
+              <span className="text-secondary400">Shipping Policy</span>
             </li>
             <li>
-              <a href="#" className="hover:text-primaryBg transition-colors">
-                Cancellation & Returns
-              </a>
+              <span className="text-secondary400">Cancellation &amp; Returns</span>
             </li>
             <li>
-              <a href="#" className="hover:text-primaryBg transition-colors">
-                FAQs
-              </a>
+              <span className="text-secondary400">FAQs</span>
             </li>
           </ul>
         </div>
@@ -110,7 +94,7 @@ export const Footer: React.FC = () => {
       {/* Bottom section: copyright */}
       <div className="border-t border-[#463f38] bg-black/40 py-6 text-center text-xs text-[#91857a]">
         <div className="max-w-[1240px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} {STORE_NAME} Retail Pvt Ltd. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {STORE_NAME}. All rights reserved.</p>
           <div className="flex items-center gap-4 text-[11px] uppercase tracking-wider">
             <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors">Privacy Policy</a>
             <span>•</span>

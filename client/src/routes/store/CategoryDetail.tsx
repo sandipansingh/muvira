@@ -123,7 +123,7 @@ export const CategoryDetail: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb
         items={[
           { label: "Categories", path: "/categories" },
@@ -137,16 +137,7 @@ export const CategoryDetail: React.FC = () => {
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-full max-w-xl" />
         </div>
-      ) : (
-        <div className="my-6 p-6 md:p-8 bg-primary100 rounded-xl border border-primary200 flex flex-col gap-2">
-          <h1 className="text-xl md:text-3xl font-semibold tracking-wide text-darkColor">
-            {category?.name}
-          </h1>
-          <p className="text-xs md:text-sm text-secondary700 tracking-wide max-w-2xl leading-relaxed">
-            {category?.description}
-          </p>
-        </div>
-      )}
+      ) : null}
 
       <div className="flex flex-col md:flex-row gap-6 mt-8">
         {/* Filters */}

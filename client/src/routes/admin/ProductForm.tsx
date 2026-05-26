@@ -357,7 +357,7 @@ export const ProductForm: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-redhat text-left max-w-4xl mx-auto">
+    <div className="space-y-6 font-instrument text-left max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link
@@ -565,7 +565,7 @@ export const ProductForm: React.FC = () => {
                       disabled={uploading || saving}
                       className="hidden"
                     />
-                    <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-2xl px-4 py-3 text-center cursor-pointer text-xs flex flex-col items-center gap-1 text-secondary700 hover:bg-lightgrayColor transition-colors">
+                    <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-xl px-4 py-3 text-center cursor-pointer text-xs flex flex-col items-center gap-1 text-secondary700 hover:bg-lightgrayColor transition-colors">
                       <Upload className="w-4 h-4" />
                       <span className="font-medium">{uploading ? "Uploading..." : "Click to select images (multiple supported)"}</span>
                       <span className="text-[10px] text-secondary500">JPG, PNG, WEBP up to 8MB</span>

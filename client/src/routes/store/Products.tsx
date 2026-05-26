@@ -98,7 +98,7 @@ export const Products: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb items={[{ label: "Products Catalog" }]} />
 
       <div className="flex flex-col md:flex-row gap-6 mt-6">

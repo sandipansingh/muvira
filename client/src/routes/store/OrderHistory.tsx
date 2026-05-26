@@ -78,7 +78,7 @@ export const OrderHistory: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb items={[{ label: "Order History" }]} />
 
       <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor my-6">
@@ -118,7 +118,7 @@ export const OrderHistory: React.FC = () => {
             {orders.map((ord) => (
               <Card
                 key={ord.id}
-                className="border border-secondary200 shadow-xs hover:border-secondary400 transition-colors"
+                className="border border-secondary200 shadow-xs"
               >
                 <CardContent className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-5 text-left">
                   {/* Summary */}

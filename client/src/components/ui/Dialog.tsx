@@ -48,7 +48,7 @@ export const Dialog: React.FC<DialogProps> = ({
 
       {/* Modal Content */}
       <div
-        className={`relative bg-white rounded-2xl w-full ${widthClasses[maxWidth]} shadow-2xl overflow-hidden z-10 transition-transform duration-300`}
+        className={`relative bg-white rounded-xl w-full ${widthClasses[maxWidth]} shadow-2xl overflow-hidden z-10 transition-transform duration-300`}
         style={{
           animation: 'modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         }}

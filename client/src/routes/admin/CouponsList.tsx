@@ -117,7 +117,7 @@ export const CouponsList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-redhat text-left">
+    <div className="space-y-6 font-instrument text-left">
       {/* Title */}
       <div className="flex justify-between items-center gap-4">
         <div>
@@ -178,19 +178,19 @@ export const CouponsList: React.FC = () => {
 
                   return (
                     <TableRow key={c.id}>
-                      <TableCell className="font-medium text-darkColor font-roboto tracking-wider uppercase">
+                      <TableCell className="font-medium text-darkColor font-instrument tracking-wider uppercase">
                         {c.code}
                       </TableCell>
                       <TableCell className="font-medium text-secondary700">
                         {valDisplay}
                       </TableCell>
-                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-instrument">
                         {c.minOrderAmount > 0 ? formatPrice(c.minOrderAmount) : '₹0 (No Min)'}
                       </TableCell>
-                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-instrument">
                         {c.maxDiscountAmount > 0 ? formatPrice(c.maxDiscountAmount) : 'No Cap'}
                       </TableCell>
-                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-instrument">
                         {c.usageLimit} times
                       </TableCell>
                       <TableCell className="text-[10px] font-medium text-secondary600 leading-snug">

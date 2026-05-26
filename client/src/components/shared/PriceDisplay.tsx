@@ -26,7 +26,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       discount: 'text-[10px] px-1.5 py-0.2 font-instrument',
     },
     md: {
-      current: 'text-base font-medium md:text-font19 font-instrument',
+      current: 'text-base font-medium md:text-[19px] font-instrument',
       original: 'text-xs md:text-sm font-instrument',
       discount: 'text-xs px-2 py-0.5 font-instrument',
     },

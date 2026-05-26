@@ -83,7 +83,7 @@ export const ProductDetail: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       {/* Breadcrumb trail */}
       {!loading && product && (
         <Breadcrumb
@@ -115,7 +115,7 @@ export const ProductDetail: React.FC = () => {
             <Skeleton className="h-12 w-64 animate-pulse" />
             <Skeleton className="h-8 w-24" />
             <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-12 w-48 rounded-3xl" />
+            <Skeleton className="h-12 w-48 rounded-full" />
           </div>
         </div>
       ) : !product ? (
@@ -172,13 +172,13 @@ export const ProductDetail: React.FC = () => {
                   {product.category.name}
                 </Link>
                 <span className="text-secondary300">•</span>
-                <span className="text-xs font-medium text-secondary500 uppercase tracking-widest font-roboto">
+                <span className="text-xs font-medium text-secondary500 uppercase tracking-widest font-instrument">
                   SKU: {product.sku}
                 </span>
               </div>
 
               {/* Product Title */}
-              <h1 className="text-xl md:text-3xl font-bold tracking-wide text-darkColor mb-2 leading-tight font-montserrat">
+              <h1 className="text-xl md:text-3xl font-bold tracking-wide text-darkColor mb-2 leading-tight font-playfair">
                 {product.name}
               </h1>
 
@@ -193,8 +193,8 @@ export const ProductDetail: React.FC = () => {
                     />
                   ))}
                 </div>
-                <span className="text-xs font-medium text-secondary600 mt-0.5 font-redhat">
-                  4.8 / 5.0 (42 reviews)
+                <span className="text-xs font-medium text-secondary600 mt-0.5 font-instrument">
+                  4.8 / 5.0
                 </span>
               </div>
 
@@ -226,7 +226,7 @@ export const ProductDetail: React.FC = () => {
               {product.stock > 0 ? (
                 <div className="flex items-center gap-4 mb-8">
                   {/* Quantity selector buttons */}
-                  <div className="flex items-center border border-secondary300 rounded-3xl bg-white p-1">
+                  <div className="flex items-center border border-secondary300 rounded-full bg-white p-1">
                     <button
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       disabled={quantity <= 1 || addingToCart}
@@ -274,7 +274,7 @@ export const ProductDetail: React.FC = () => {
                   <h4 className="text-xs font-bold text-secondary700 uppercase tracking-widest mb-3.5 pl-0.5">
                     Specifications
                   </h4>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-roboto">
+                  <div className="grid grid-cols-2 gap-4 text-xs font-instrument">
                     {Object.entries(product.metadata).map(([key, val]) => (
                       <div key={key} className="flex flex-col gap-0.5">
                         <span className="text-secondary500 capitalize tracking-wide">
@@ -316,7 +316,7 @@ export const ProductDetail: React.FC = () => {
             <div className="border-t border-secondary200 mt-16 pt-12">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg md:text-2xl tracking-wide font-bold text-darkColor font-montserrat">
+                  <h2 className="text-lg md:text-2xl tracking-wide font-bold text-darkColor font-playfair">
                     Discover More Designs
                   </h2>
                   <p className="hidden md:block text-secondary600 tracking-wide text-xs md:text-sm mt-1">
@@ -325,7 +325,7 @@ export const ProductDetail: React.FC = () => {
                 </div>
                 <Link
                   to={`/categories/${product.category.slug}`}
-                  className="rounded-3xl bg-white border border-secondary400 px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-secondary600 hover:text-primaryBg hover:border-primaryBg transition-all"
+                  className="rounded-full bg-white border border-secondary400 px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-secondary600 hover:text-primaryBg hover:border-primaryBg transition-all"
                 >
                   View All Related
                 </Link>

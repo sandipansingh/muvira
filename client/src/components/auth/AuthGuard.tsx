@@ -45,7 +45,7 @@ export const RequireAdmin: React.FC<GuardProps> = ({ children }) => {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-lightgrayColor font-redhat text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-lightgrayColor font-instrument text-center">
         <div className="bg-white p-8 md:p-12 border border-secondary200 rounded-xl max-w-md w-full shadow-lg">
           <span className="text-4xl text-rose-500 font-extrabold uppercase animate-pulse">403</span>
           <h2 className="text-lg font-bold text-darkColor mt-4 mb-2 tracking-wide">
