@@ -1,9 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { STORE_NAME } from '../../lib/constants';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { Mail, Phone, MapPin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const { settings } = useSiteSettings();
+  const { contactInfo } = settings;
+
   return (
     <footer className="bg-[var(--text)] text-[#d9d0c5] border-t border-[#463f38]">
       {/* Top section: Main links */}
@@ -77,15 +81,15 @@ export const Footer: React.FC = () => {
           <ul className="flex flex-col gap-3.5 text-xs md:text-sm text-secondary400">
             <li className="flex items-start gap-2.5">
               <MapPin className="w-5 h-5 text-[var(--accent-gold)] shrink-0" />
-              <span>12 Park Street, Flat 4B, Kolkata, West Bengal, 700016</span>
+              <span>{contactInfo.address}</span>
             </li>
             <li className="flex items-center gap-2.5">
               <Phone className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
-              <span>+91 98765 43210</span>
+              <span>{contactInfo.phone}</span>
             </li>
             <li className="flex items-center gap-2.5">
               <Mail className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
-              <span>support@muvira.com</span>
+              <span>{contactInfo.email}</span>
             </li>
           </ul>
         </div>

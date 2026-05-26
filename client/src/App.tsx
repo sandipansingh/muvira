@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { SiteSettingsProvider } from './context/SiteSettingsContext';
 
 // Guards
 import { RequireAuth, RequireAdmin } from './components/auth/AuthGuard';
@@ -47,6 +48,7 @@ import AdminOrderDetail from './routes/admin/AdminOrderDetail';
 import CouponsList from './routes/admin/CouponsList';
 import CampaignsList from './routes/admin/CampaignsList';
 import InventoryList from './routes/admin/InventoryList';
+import SiteSettings from './routes/admin/SiteSettings';
 
 // CUSTOMER PAGES LAYOUT WRAPPER
 const CustomerLayout: React.FC = () => {
@@ -98,6 +100,7 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <SiteSettingsProvider>
       <ToastProvider>
         <AuthProvider>
           <CartProvider>
@@ -136,11 +139,13 @@ export const App: React.FC = () => {
                 <Route path="coupons" element={<CouponsList />} />
                 <Route path="campaigns" element={<CampaignsList />} />
                 <Route path="inventory" element={<InventoryList />} />
+                <Route path="settings" element={<SiteSettings />} />
               </Route>
             </Routes>
           </CartProvider>
         </AuthProvider>
       </ToastProvider>
+      </SiteSettingsProvider>
     </BrowserRouter>
   );
 };
