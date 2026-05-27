@@ -3,7 +3,7 @@ import { settingsApiService } from '../../lib/api/settings';
 import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { useToast } from '../../hooks/useToast';
 import { uploadImage } from '../../lib/storage';
-import type { SiteSettings, HeroSlide } from '../../types/settings';
+import type { HeroSlide } from '../../types/settings';
 import Card, { CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -18,7 +18,7 @@ const emptySlide = (): HeroSlide => ({
   link: '',
 });
 
-export const SiteSettings: React.FC = () => {
+export const SiteSettingsPage: React.FC = () => {
   const { settings, refresh } = useSiteSettings();
   const { showToast } = useToast();
 
@@ -173,14 +173,16 @@ export const SiteSettings: React.FC = () => {
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
               placeholder="support@example.com"
+              maxLength={255}
             />
           </div>
           <div>
             <label className="block text-xs font-medium text-secondary600 mb-1">Phone</label>
             <Input
               value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value)}
+              onChange={(e) => setContactPhone(e.target.value.replace(/[^\d+()\s-]/g, '').slice(0, 50))}
               placeholder="+91 98765 43210"
+              maxLength={50}
             />
           </div>
           <div>
@@ -190,6 +192,7 @@ export const SiteSettings: React.FC = () => {
               onChange={(e) => setContactAddress(e.target.value)}
               placeholder="Street, City, State, PIN"
               rows={2}
+              maxLength={500}
             />
           </div>
           <div className="flex justify-end">
@@ -221,6 +224,7 @@ export const SiteSettings: React.FC = () => {
               value={annBadge}
               onChange={(e) => setAnnBadge(e.target.value)}
               placeholder="e.g. NEW DEALS"
+              maxLength={100}
             />
           </div>
           <div>
@@ -230,6 +234,7 @@ export const SiteSettings: React.FC = () => {
               onChange={(e) => setAnnMessage(e.target.value)}
               placeholder="Diwali Festival Sale is active! Save 20% off with coupon DIWALI20"
               rows={2}
+              maxLength={500}
             />
           </div>
           <div className="flex justify-end">
@@ -292,8 +297,9 @@ export const SiteSettings: React.FC = () => {
                   <label className="block text-xs font-medium text-secondary600 mb-1">Title</label>
                   <Input
                     value={slide.title}
-                    onChange={(e) => updateSlide(idx, 'title', e.target.value)}
+                    onChange={(e) => updateSlide(idx, 'title', e.target.value.slice(0, 200))}
                     placeholder="Festival Furniture Bonanza"
+                    maxLength={200}
                   />
                 </div>
 
@@ -302,8 +308,9 @@ export const SiteSettings: React.FC = () => {
                   <label className="block text-xs font-medium text-secondary600 mb-1">Subtitle</label>
                   <Input
                     value={slide.subtitle}
-                    onChange={(e) => updateSlide(idx, 'subtitle', e.target.value)}
+                    onChange={(e) => updateSlide(idx, 'subtitle', e.target.value.slice(0, 500))}
                     placeholder="Up to 30% Off Sheesham Wood Craftsmanship"
+                    maxLength={500}
                   />
                 </div>
 
@@ -332,8 +339,9 @@ export const SiteSettings: React.FC = () => {
                   {/* URL input */}
                   <Input
                     value={slide.imageUrl}
-                    onChange={(e) => updateSlide(idx, 'imageUrl', e.target.value)}
+                    onChange={(e) => updateSlide(idx, 'imageUrl', e.target.value.slice(0, 2048))}
                     placeholder="Or paste image URL: https://…"
+                    maxLength={2048}
                   />
 
                   {/* Preview */}
@@ -351,8 +359,9 @@ export const SiteSettings: React.FC = () => {
                   <label className="block text-xs font-medium text-secondary600 mb-1">Link</label>
                   <Input
                     value={slide.link}
-                    onChange={(e) => updateSlide(idx, 'link', e.target.value)}
+                    onChange={(e) => updateSlide(idx, 'link', e.target.value.slice(0, 2048))}
                     placeholder="/categories/solid-wood-furniture"
+                    maxLength={2048}
                   />
                 </div>
               </div>
@@ -370,4 +379,4 @@ export const SiteSettings: React.FC = () => {
   );
 };
 
-export default SiteSettings;
+export default SiteSettingsPage;

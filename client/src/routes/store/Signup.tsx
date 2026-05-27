@@ -71,6 +71,7 @@ export const Signup: React.FC = () => {
                 placeholder="Asha Roy"
                 className="pl-10"
                 disabled={loading}
+                maxLength={200}
               />
             </div>
 
@@ -84,6 +85,7 @@ export const Signup: React.FC = () => {
                 placeholder="asha@example.com"
                 className="pl-10"
                 disabled={loading}
+                maxLength={255}
               />
             </div>
 
@@ -93,10 +95,11 @@ export const Signup: React.FC = () => {
                 type="tel"
                 label="Phone Number"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+919876543210"
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="9876543210"
                 className="pl-10"
                 disabled={loading}
+                maxLength={10}
               />
             </div>
 

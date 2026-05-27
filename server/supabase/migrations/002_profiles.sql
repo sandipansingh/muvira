@@ -54,10 +54,12 @@ SECURITY DEFINER         -- runs as the function owner, not the calling role
 SET search_path = public  -- prevents search-path injection
 AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, role)
+  INSERT INTO public.profiles (id, email, full_name, phone, role)
   VALUES (
     NEW.id,
     NEW.email,
+    NEW.raw_user_meta_data ->> 'full_name',
+    NEW.raw_user_meta_data ->> 'phone',
     'user'
   )
   ON CONFLICT (id) DO NOTHING;  -- idempotent: re-running migrations is safe

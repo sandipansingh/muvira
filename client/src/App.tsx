@@ -48,7 +48,7 @@ import AdminOrderDetail from './routes/admin/AdminOrderDetail';
 import CouponsList from './routes/admin/CouponsList';
 import CampaignsList from './routes/admin/CampaignsList';
 import InventoryList from './routes/admin/InventoryList';
-import SiteSettings from './routes/admin/SiteSettings';
+import SiteSettingsPage from './routes/admin/SiteSettings';
 
 // CUSTOMER PAGES LAYOUT WRAPPER
 const CustomerLayout: React.FC = () => {
@@ -139,7 +139,7 @@ export const App: React.FC = () => {
                 <Route path="coupons" element={<CouponsList />} />
                 <Route path="campaigns" element={<CampaignsList />} />
                 <Route path="inventory" element={<InventoryList />} />
-                <Route path="settings" element={<SiteSettings />} />
+                <Route path="settings" element={<SiteSettingsPage />} />
               </Route>
             </Routes>
           </CartProvider>

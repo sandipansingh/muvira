@@ -212,12 +212,14 @@ export const AdminOrderDetail: React.FC = () => {
                     placeholder="E.g. Bluedart"
                     value={carrierName}
                     onChange={(e) => setCarrierName(e.target.value)}
+                    maxLength={200}
                   />
                   <Input
                     label="Tracking ID"
                     placeholder="E.g. BD123456789"
                     value={trackingId}
                     onChange={(e) => setTrackingId(e.target.value)}
+                    maxLength={200}
                   />
                 </div>
                 <div className="flex justify-end pt-2">
@@ -372,6 +374,7 @@ export const AdminOrderDetail: React.FC = () => {
                   rows={2}
                   className="w-full text-xs p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:border-primaryBg"
                   disabled={saving}
+                  maxLength={2000}
                 />
                 <Button
                   type="submit"

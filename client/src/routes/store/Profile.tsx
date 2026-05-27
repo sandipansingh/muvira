@@ -209,6 +209,7 @@ export const Profile: React.FC = () => {
                     className="pl-10 text-xs md:text-sm"
                     required
                     disabled={loading}
+                    maxLength={200}
                   />
                 </div>
 
@@ -228,10 +229,11 @@ export const Profile: React.FC = () => {
                   <Input
                     label="Phone Number"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className="pl-10 text-xs md:text-sm"
                     required
                     disabled={loading}
+                    maxLength={10}
                   />
                 </div>
 
@@ -394,13 +396,15 @@ export const Profile: React.FC = () => {
             value={newFullName}
             onChange={(e) => setNewFullName(e.target.value)}
             placeholder="Asha Roy"
+            maxLength={200}
           />
 
           <Input
             label="Phone Number *"
             value={newPhone}
-            onChange={(e) => setNewPhone(e.target.value)}
-            placeholder="+919876543210"
+            onChange={(e) => setNewPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+            placeholder="9876543210"
+            maxLength={10}
           />
 
           <Input
@@ -408,6 +412,7 @@ export const Profile: React.FC = () => {
             value={newLine1}
             onChange={(e) => setNewLine1(e.target.value)}
             placeholder="Flat/House No., Street name"
+            maxLength={500}
           />
 
           <Input
@@ -415,6 +420,7 @@ export const Profile: React.FC = () => {
             value={newLine2}
             onChange={(e) => setNewLine2(e.target.value)}
             placeholder="Landmark, Sector"
+            maxLength={500}
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -423,20 +429,23 @@ export const Profile: React.FC = () => {
               value={newCity}
               onChange={(e) => setNewCity(e.target.value)}
               placeholder="Kolkata"
+              maxLength={200}
             />
             <Input
               label="State *"
               value={newState}
               onChange={(e) => setNewState(e.target.value)}
               placeholder="West Bengal"
+              maxLength={100}
             />
           </div>
 
           <Input
             label="Pincode *"
             value={newPincode}
-            onChange={(e) => setNewPincode(e.target.value)}
+            onChange={(e) => setNewPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
             placeholder="700016"
+            maxLength={6}
           />
 
           <label className="flex items-center gap-2 cursor-pointer py-1">

@@ -260,25 +260,27 @@ export const CategoriesList: React.FC = () => {
             label="Category Name *"
             value={name}
             onChange={(e) => {
-              const val = e.target.value;
+              const val = e.target.value.slice(0, 200);
               setName(val);
               if (!editId && !slugTouched) {
-                setSlug(slugify(val));
+                setSlug(slugify(val).slice(0, 200));
               }
             }}
             placeholder="E.g. Solid Wood Furniture"
             required
+            maxLength={200}
           />
 
           <Input
             label="Slug *"
             value={slug}
             onChange={(e) => {
-              setSlug(e.target.value);
+              setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 200));
               if (!editId) setSlugTouched(true);
             }}
             placeholder="solid-wood-furniture"
             required
+            maxLength={200}
           />
 
           <div className="space-y-1.5">
@@ -325,6 +327,7 @@ export const CategoriesList: React.FC = () => {
             placeholder="Brief tagline description..."
             rows={3}
             required
+            maxLength={2000}
           />
 
           <label className="flex items-center gap-2 cursor-pointer py-1">

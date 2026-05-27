@@ -238,10 +238,11 @@ export const CouponsList: React.FC = () => {
           <Input
             label="Promo Coupon Code *"
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice(0, 50))}
             placeholder="E.g. DIWALI30"
             className="uppercase"
             required
+            maxLength={50}
           />
 
           <div className="grid grid-cols-2 gap-4">

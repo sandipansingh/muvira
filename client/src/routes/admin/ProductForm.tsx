@@ -390,6 +390,7 @@ export const ProductForm: React.FC = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Sheesham Wood Sofa, Indigo Cotton Kurta..."
                 required
+                maxLength={500}
               />
 
               <div className="grid grid-cols-2 gap-4">
@@ -406,6 +407,7 @@ export const ProductForm: React.FC = () => {
                   onChange={(e) => setSku(e.target.value)}
                   placeholder="MUV-KUR-100"
                   required
+                  maxLength={100}
                 />
               </div>
 
@@ -442,6 +444,7 @@ export const ProductForm: React.FC = () => {
                 value={shortDescription}
                 onChange={(e) => setShortDescription(e.target.value)}
                 placeholder="Jaipur blockprinted cotton kurta"
+                maxLength={500}
               />
 
               <Textarea
@@ -450,6 +453,7 @@ export const ProductForm: React.FC = () => {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={5}
                 placeholder="Full detail description here..."
+                maxLength={10000}
               />
 
               <div className="flex gap-6 py-2.5">
