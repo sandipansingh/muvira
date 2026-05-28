@@ -41,6 +41,12 @@ const envSchema = z.object({
   // Store config
   ORDER_PREFIX: z.string().min(1).max(10).default("MUV"),
   STORE_NAME: z.string().min(1).default("Muvira"),
+
+  // Cache
+  // Set CACHE_ENABLED=false to bypass the in-memory cache entirely (e.g. CI, debug)
+  CACHE_ENABLED: z.enum(["true", "false"]).default("true"),
+  // Set CACHE_DEBUG=true to log every HIT / MISS / SET / DELETE
+  CACHE_DEBUG: z.enum(["true", "false"]).default("false"),
 });
 
 const parsed = envSchema.safeParse(process.env);

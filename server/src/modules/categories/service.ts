@@ -72,6 +72,24 @@ export async function updateCategory(
   return data as Category;
 }
 
+/**
+ * getCategoryById — Fetch a single category by primary key.
+ *
+ * Used by adminDeleteCategory to retrieve the slug BEFORE the row is
+ * soft-deleted so the correct cache bucket can be evicted.
+ */
+export async function getCategoryById(id: string): Promise<Category> {
+  const { data, error } = await adminSupabase
+    .from("categories")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !data)
+    throw new AppError(404, "CATEGORY_NOT_FOUND", "Category not found");
+  return data as Category;
+}
+
 export async function deleteCategory(id: string): Promise<void> {
   // Soft-delete by deactivating
   const { error } = await adminSupabase
