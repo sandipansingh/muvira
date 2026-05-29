@@ -54,11 +54,19 @@ const cache = new NodeCache({
   useClones: false,
 });
 
+// Print once at startup so you can confirm the cache module loaded correctly
+// regardless of pino log level. Remove in production if noisy.
+console.log(
+  `[CACHE] Initialized — enabled=${CACHE_ENABLED} debug=${CACHE_DEBUG} stdTTL=300s`,
+);
+
 // ─── Debug Logging ───────────────────────────────────────────────────────────
 
 function debugLog(action: string, key: string, meta?: object): void {
   if (!CACHE_DEBUG) return;
-  logger.debug({ cacheAction: action, cacheKey: key, ...meta }, `[CACHE] ${action}: ${key}`);
+  // Use INFO level (not debug) so these always appear when CACHE_DEBUG=true,
+  // even when LOG_LEVEL is left at its default "info".
+  logger.info({ cacheAction: action, cacheKey: key, ...meta }, `[CACHE] ${action}: ${key}`);
 }
 
 // ─── Exported Helpers ─────────────────────────────────────────────────────────
