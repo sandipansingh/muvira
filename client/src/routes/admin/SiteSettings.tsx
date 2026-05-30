@@ -41,6 +41,7 @@ export const SiteSettingsPage: React.FC = () => {
   const dragOverIdx = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!settings) return;
     setContactEmail(settings.contactInfo.email);
     setContactPhone(settings.contactInfo.phone);
     setContactAddress(settings.contactInfo.address);

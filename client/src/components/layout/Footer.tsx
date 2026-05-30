@@ -6,7 +6,7 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { settings } = useSiteSettings();
-  const { contactInfo } = settings;
+  const contactInfo = settings?.contactInfo;
 
   return (
     <footer className="bg-[var(--text)] text-[#d9d0c5] border-t border-[#463f38]">
@@ -79,18 +79,24 @@ export const Footer: React.FC = () => {
             Contact Us
           </h3>
           <ul className="flex flex-col gap-3.5 text-xs md:text-sm text-secondary400">
-            <li className="flex items-start gap-2.5">
-              <MapPin className="w-5 h-5 text-[var(--accent-gold)] shrink-0" />
-              <span>{contactInfo.address}</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <Phone className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
-              <span>{contactInfo.phone}</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <Mail className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
-              <span>{contactInfo.email}</span>
-            </li>
+            {contactInfo ? (
+              <>
+                <li className="flex items-start gap-2.5">
+                  <MapPin className="w-5 h-5 text-[var(--accent-gold)] shrink-0" />
+                  <span>{contactInfo.address}</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <Phone className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
+                  <span>{contactInfo.phone}</span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <Mail className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
+                  <span>{contactInfo.email}</span>
+                </li>
+              </>
+            ) : (
+              <li className="text-[#6b6460] text-xs italic">Loading…</li>
+            )}
           </ul>
         </div>
       </div>
