@@ -6,4 +6,5 @@ export interface Category {
   imageUrl: string;
   sortOrder: number;
   isActive?: boolean;
+  showInNavbar?: boolean;
 }

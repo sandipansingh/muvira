@@ -93,6 +93,7 @@ export interface Category {
   parent_id: string | null;
   is_active: boolean;
   sort_order: number;
+  show_in_navbar: boolean;
   created_at: string;
   updated_at: string;
 }

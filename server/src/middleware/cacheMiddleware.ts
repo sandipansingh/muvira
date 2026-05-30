@@ -106,7 +106,7 @@ export function cacheMiddleware(ttl: number): RequestHandler {
 
       res.setHeader("X-Cache", "HIT");
       res.setHeader("X-Cache-Age", `${ageSeconds}s`);
-      res.setHeader("Cache-Control", `public, max-age=${ttl}`);
+      res.setHeader("Cache-Control", "no-cache");
 
       logger.info(
         { cacheKey, ageSeconds },
@@ -120,7 +120,7 @@ export function cacheMiddleware(ttl: number): RequestHandler {
 
     // ── MISS — intercept res.json() to capture & store the response ──────────
     res.setHeader("X-Cache", "MISS");
-    res.setHeader("Cache-Control", `public, max-age=${ttl}`);
+    res.setHeader("Cache-Control", "no-cache");
 
     // Keep a reference to Express's real res.json before patching
     // eslint-disable-next-line @typescript-eslint/unbound-method

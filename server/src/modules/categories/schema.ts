@@ -21,6 +21,7 @@ export const CreateCategorySchema = z
     parent_id: z.string().uuid().optional(),
     is_active: z.boolean().default(true),
     sort_order: z.number().int().min(0).default(0),
+    show_in_navbar: z.boolean().default(false),
   })
   .strict();
 

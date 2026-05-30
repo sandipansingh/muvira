@@ -124,6 +124,7 @@ export function mapCategory(raw: Record<string, unknown>): Category {
     imageUrl: (raw['image_url'] as string | null) ?? '',
     sortOrder: (raw['sort_order'] as number) ?? 0,
     isActive: raw['is_active'] as boolean,
+    showInNavbar: raw['show_in_navbar'] as boolean | undefined,
   };
 }
 
