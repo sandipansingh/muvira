@@ -346,5 +346,6 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       imageUrl: s['imageUrl'] as string,
       link: s['link'] as string,
     })),
+    storeDescription: (raw['store_description'] as string) ?? 'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
   };
 }

@@ -22,4 +22,5 @@ export interface SiteSettings {
   contactInfo: ContactInfo;
   announcementBar: AnnouncementBar;
   heroSlides: HeroSlide[];
+  storeDescription: string;
 }

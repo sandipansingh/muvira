@@ -4,7 +4,9 @@ import { useToast } from "../../hooks/useToast";
 import { addressesApiService } from "../../lib/api/addresses";
 import type { Address } from "../../types/cart";
 import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
+import { INDIAN_STATES } from "../../lib/constants";
 import Card, {
   CardContent,
   CardHeader,
@@ -431,12 +433,11 @@ export const Profile: React.FC = () => {
               placeholder="Kolkata"
               maxLength={200}
             />
-            <Input
+            <Select
               label="State *"
               value={newState}
               onChange={(e) => setNewState(e.target.value)}
-              placeholder="West Bengal"
-              maxLength={100}
+              options={[{ value: "", label: "Select State" }, ...INDIAN_STATES]}
             />
           </div>
 

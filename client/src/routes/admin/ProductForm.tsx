@@ -23,6 +23,7 @@ import {
   ArrowDown,
   Upload,
   Sparkles,
+  GripVertical,
 } from "lucide-react";
 import { uploadImage, deleteStorageFile } from "../../lib/storage";
 
@@ -57,6 +58,7 @@ export const ProductForm: React.FC = () => {
   const [images, setImages] = useState<ProductDetail["images"]>([]);
   const [uploadUrl, setUploadUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -232,37 +234,39 @@ export const ProductForm: React.FC = () => {
     }
   };
 
-  const handleImageReorder = async (
-    imgId: string,
-    direction: "up" | "down",
-  ) => {
-    const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
-    const index = sorted.findIndex((img) => img.id === imgId);
-    if (index === -1) return;
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
 
-    if (direction === "up" && index > 0) {
-      const temp = sorted[index];
-      sorted[index] = sorted[index - 1];
-      sorted[index - 1] = temp;
-    } else if (direction === "down" && index < sorted.length - 1) {
-      const temp = sorted[index];
-      sorted[index] = sorted[index + 1];
-      sorted[index + 1] = temp;
-    }
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
 
-    // Remap sortOrders
-    const remapped = sorted.map((img, idx) => ({
+    const items = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+    const draggedItem = items[draggedIndex];
+    items.splice(draggedIndex, 1);
+    items.splice(index, 0, draggedItem);
+
+    const remapped = items.map((img, idx) => ({
       ...img,
       sortOrder: idx,
       isPrimary: idx === 0,
     }));
-    setImages(remapped);
 
-    if (isEdit) {
+    setImages(remapped);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = async () => {
+    setDraggedIndex(null);
+    if (isEdit && id) {
+      const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
       setSaving(true);
       await adminApiService.reorderProductImages(
         id,
-        remapped.map((i) => i.id),
+        sorted.map((i) => i.id),
       );
       setSaving(false);
     }
@@ -617,17 +621,31 @@ export const ProductForm: React.FC = () => {
                       .map((img, index) => (
                         <div
                           key={img.id}
-                          className="flex items-center gap-3 p-2 bg-lightgrayColor border border-secondary200 rounded-xl justify-between"
+                          draggable={!saving && !uploading}
+                          onDragStart={(e) => handleDragStart(e, index)}
+                          onDragOver={(e) => handleDragOver(e, index)}
+                          onDragEnd={handleDragEnd}
+                          className={`flex items-center gap-3 p-2 bg-lightgrayColor border border-secondary200 rounded-xl justify-between transition-all duration-200 ${
+                            draggedIndex === index
+                              ? "opacity-40 border-dashed border-primary400 scale-[0.98]"
+                              : "hover:border-secondary300"
+                          }`}
                         >
                           <div className="flex items-center gap-2.5">
+                            <div
+                              className="cursor-grab active:cursor-grabbing p-1 text-secondary400 hover:text-secondary700"
+                              title="Drag to reorder"
+                            >
+                              <GripVertical className="w-4 h-4 shrink-0" />
+                            </div>
                             <div className="w-10 h-10 bg-white rounded overflow-hidden border border-secondary200 shrink-0">
                               <img
                                 src={img.url}
                                 alt="angle"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover select-none pointer-events-none"
                               />
                             </div>
-                            <span className="text-[10px] text-secondary600 font-medium">
+                            <span className="text-[10px] text-secondary600 font-medium select-none">
                               {index === 0
                                 ? "Primary Cover"
                                 : `Angle #${index}`}
@@ -635,24 +653,6 @@ export const ProductForm: React.FC = () => {
                           </div>
 
                           <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleImageReorder(img.id, "up")}
-                              disabled={index === 0 || saving || uploading}
-                              className="text-secondary500 hover:text-darkColor p-1 disabled:opacity-30"
-                              title="Move Up"
-                            >
-                              <ArrowUp className="w-4.5 h-4.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleImageReorder(img.id, "down")}
-                              disabled={index === images.length - 1 || saving || uploading}
-                              className="text-secondary500 hover:text-darkColor p-1 disabled:opacity-30"
-                              title="Move Down"
-                            >
-                              <ArrowDown className="w-4.5 h-4.5" />
-                            </button>
                             <button
                               type="button"
                               onClick={() => handleImageDelete(img.id)}

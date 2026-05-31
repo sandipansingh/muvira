@@ -25,6 +25,7 @@ export const UpdateSettingsSchema = z
     contact_info: ContactInfoSchema.optional(),
     announcement_bar: AnnouncementBarSchema.optional(),
     hero_slides: z.array(HeroSlideSchema).min(1).max(10).optional(),
+    store_description: z.string().max(1000).optional(),
   })
   .strict();
 

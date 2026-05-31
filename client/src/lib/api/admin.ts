@@ -276,14 +276,24 @@ export const adminApiService = {
   },
 
   async reorderProductImages(
-    _productId: string,
-    _order: unknown[],
+    productId: string,
+    imageIds: string[],
   ): Promise<ApiResponse<ProductDetail>> {
-    // Not supported by the server API — no-op
-    return {
-      success: false,
-      error: { code: "NOT_SUPPORTED", message: "Image reorder not supported" },
-    };
+    const res = await adminPatch<{
+      success: boolean;
+      data?: AnyRecord;
+      error?: AnyRecord;
+    }>(`/api/admin/products/${productId}/images/reorder`, { imageIds });
+
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
+          code: string;
+          message: string;
+        },
+      };
+    return { success: true, data: mapProductDetail(res.data) };
   },
 
   // ── Categories ─────────────────────────────────────────────────────────────
