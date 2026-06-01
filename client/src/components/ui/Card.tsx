@@ -6,7 +6,7 @@ export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`bg-white rounded-xl border border-secondary200 shadow-sm overflow-hidden ${className}`} {...props}>
+    <div className={`bg-transparent rounded-xl overflow-hidden ${className}`} {...props}>
       {children}
     </div>
   );
@@ -66,7 +66,7 @@ export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`px-5 py-4 border-t border-secondary200 bg-lightgrayColor/50 flex items-center justify-end gap-2.5 ${className}`} {...props}>
+    <div className={`px-5 py-4 border-t border-secondary200 bg-transparent flex items-center justify-end gap-2.5 ${className}`} {...props}>
       {children}
     </div>
   );

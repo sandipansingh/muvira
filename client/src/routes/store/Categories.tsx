@@ -66,7 +66,7 @@ export const Categories: React.FC = () => {
             <Link
               key={cat.id}
               to={`/categories/${cat.slug}`}
-              className="group flex flex-col bg-white border border-secondary200 rounded-xl overflow-hidden shadow-sm"
+              className="group flex flex-col bg-transparent rounded-xl overflow-hidden"
             >
               {/* Image container */}
               <div className="h-64 overflow-hidden bg-gray-100 relative">

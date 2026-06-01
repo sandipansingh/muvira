@@ -164,7 +164,7 @@ export const CategoryDetail: React.FC = () => {
         </div>
 
         {/* Mobile controls */}
-        <div className="md:hidden flex items-center justify-between w-full border border-secondary200 bg-white p-3.5 rounded-xl">
+        <div className="md:hidden flex items-center justify-between w-full bg-transparent p-3.5 rounded-xl">
           <span className="text-xs font-semibold text-secondary600">
             Showing {pagination.total} product
             {pagination.total === 1 ? "" : "s"}
@@ -244,7 +244,7 @@ export const CategoryDetail: React.FC = () => {
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex flex-col gap-2.5 p-2 bg-white border border-secondary200 rounded-lg"
+                  className="flex flex-col gap-2.5 p-2 bg-transparent rounded-lg"
                 >
                   <Skeleton className="aspect-square w-full rounded-md" />
                   <Skeleton className="h-4 w-16" />
