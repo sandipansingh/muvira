@@ -108,7 +108,7 @@ export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
       slug: cat['slug'] as string,
     },
     images: images.map(mapProductImage),
-    metadata: {},
+    metadata: (raw['metadata'] as Record<string, string> | null) ?? {},
     createdAt: raw['created_at'] as string,
   };
 }

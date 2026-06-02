@@ -50,6 +50,7 @@ export const CreateProductSchema = z
     tags: z.array(z.string().max(100)).max(20).optional(),
     meta_title: z.string().max(200).optional(),
     meta_description: z.string().max(500).optional(),
+    metadata: z.record(z.string()).optional(),
   })
   .strict();
 

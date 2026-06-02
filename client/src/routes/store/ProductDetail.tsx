@@ -123,7 +123,7 @@ export const ProductDetail: React.FC = () => {
       ) : (
         <div className="my-6">
           {/* Main Layout Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,450px)_1fr] gap-8 lg:gap-12">
             {/* LEFT COLUMN: Gallery */}
             <div className="flex flex-col gap-4">
               {/* Primary large image preview */}
@@ -294,19 +294,36 @@ export const ProductDetail: React.FC = () => {
                 <h4 className="text-xs font-bold text-secondary700 uppercase tracking-widest mb-2.5">
                   Description
                 </h4>
-                <div
-                  className={`text-xs md:text-sm text-secondary600 tracking-wide leading-relaxed overflow-hidden transition-all duration-300 ${
-                    isDescExpanded ? "max-h-[1000px]" : "max-h-20 line-clamp-3"
-                  }`}
-                >
-                  {product.description}
-                </div>
-                <button
-                  onClick={() => setIsDescExpanded(!isDescExpanded)}
-                  className="mt-2 text-xs font-semibold text-primaryBg hover:text-primaryHover focus:outline-none"
-                >
-                  {isDescExpanded ? "Read Less ▲" : "Read More ▼"}
-                </button>
+                {(() => {
+                  const isLongDescription =
+                    product.description &&
+                    (product.description.length > 160 ||
+                      product.description.split("\n").length > 3);
+
+                  return (
+                    <>
+                      <div
+                        className={`text-xs md:text-sm text-secondary600 tracking-wide leading-relaxed overflow-hidden transition-all duration-300 ${
+                          isLongDescription
+                            ? isDescExpanded
+                              ? "max-h-[1000px]"
+                              : "max-h-20 line-clamp-3"
+                            : ""
+                        }`}
+                      >
+                        {product.description}
+                      </div>
+                      {isLongDescription && (
+                        <button
+                          onClick={() => setIsDescExpanded(!isDescExpanded)}
+                          className="mt-2 text-xs font-semibold text-primaryBg hover:text-primaryHover focus:outline-none"
+                        >
+                          {isDescExpanded ? "Read Less ▲" : "Read More ▼"}
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>

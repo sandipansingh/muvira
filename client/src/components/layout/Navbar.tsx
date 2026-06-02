@@ -58,6 +58,25 @@ export const Navbar: React.FC = () => {
   const contactInfo = settings?.contactInfo;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node)
+      ) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    if (profileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
 
   const [categoriesList, setCategoriesList] = useState<{ name: string; slug: string }[]>(readCategoriesCache);
 
@@ -160,7 +179,7 @@ export const Navbar: React.FC = () => {
           {/* User Account / Profile */}
           <div className="relative">
             {isAuthenticated ? (
-              <div className="relative">
+              <div className="relative" ref={profileDropdownRef}>
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                   className="flex flex-col items-center justify-center min-w-[40px] text-secondary700 hover:text-primaryBg transition-colors focus:outline-none"
