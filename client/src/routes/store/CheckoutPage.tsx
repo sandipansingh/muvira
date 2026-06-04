@@ -21,11 +21,13 @@ import {
   Truck,
 } from "lucide-react";
 import { STORE_NAME, INDIAN_STATES } from "../../lib/constants";
+import { useAuth } from "../../hooks/useAuth";
 
 export const CheckoutPage: React.FC = () => {
   const { cart, coupon, shippingAmount, totalAmount, clearCartState } = useCart();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
@@ -157,6 +159,8 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
+    const activeAddress = addresses.find((a) => a.id === selectedAddressId);
+
     const rzp = new RazorpayConstructor({
       key: razorpayKeyId,
       amount,
@@ -164,6 +168,11 @@ export const CheckoutPage: React.FC = () => {
       order_id: razorpayOrderId,
       name: STORE_NAME,
       description: `Order ${orderNumber}`,
+      prefill: {
+        name: user?.fullName || activeAddress?.fullName || "",
+        email: user?.email || "",
+        contact: user?.phone || activeAddress?.phone || "",
+      },
       handler: async (response: {
         razorpay_order_id: string;
         razorpay_payment_id: string;
