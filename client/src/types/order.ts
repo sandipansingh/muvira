@@ -50,7 +50,6 @@ export interface OrderDetail {
   subtotal: number;
   discountAmount: number;
   shippingAmount: number;
-  taxAmount: number;
   totalAmount: number;
   couponCode: string | null;
   shippingAddress: OrderAddress;

@@ -34,10 +34,14 @@ export const SiteSettingsPage: React.FC = () => {
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const [storeDescription, setStoreDescription] = useState('');
 
+  const [shippingCharge, setShippingCharge] = useState('0');
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState('0');
+
   const [savingContact, setSavingContact] = useState(false);
   const [savingAnn, setSavingAnn] = useState(false);
   const [savingSlides, setSavingSlides] = useState(false);
   const [savingDescription, setSavingDescription] = useState(false);
+  const [savingShipping, setSavingShipping] = useState(false);
 
   const dragIdx = useRef<number | null>(null);
   const dragOverIdx = useRef<number | null>(null);
@@ -52,6 +56,10 @@ export const SiteSettingsPage: React.FC = () => {
     setAnnMessage(settings.announcementBar.message);
     setSlides(settings.heroSlides.length > 0 ? settings.heroSlides : [emptySlide()]);
     setStoreDescription(settings.storeDescription || '');
+    if (settings.shippingRules) {
+      setShippingCharge((settings.shippingRules.shippingChargePaisa / 100).toString());
+      setFreeShippingThreshold((settings.shippingRules.freeShippingThresholdPaisa / 100).toString());
+    }
   }, [settings]);
 
   const handleSaveContact = async () => {
@@ -105,6 +113,32 @@ export const SiteSettingsPage: React.FC = () => {
       showToast('Announcement bar saved.', 'success');
     } else {
       showToast(res.error.message || 'Failed to save.', 'error');
+    }
+  };
+
+  const handleSaveShipping = async () => {
+    const chargeVal = parseFloat(shippingCharge);
+    const thresholdVal = parseFloat(freeShippingThreshold);
+
+    if (isNaN(chargeVal) || chargeVal < 0 || isNaN(thresholdVal) || thresholdVal < 0) {
+      showToast('Please enter valid numeric amounts for shipping rates.', 'error');
+      return;
+    }
+
+    setSavingShipping(true);
+    const res = await settingsApiService.adminUpdateSettings({
+      shipping_rules: {
+        shipping_charge_paisa: Math.round(chargeVal * 100),
+        free_shipping_threshold_paisa: Math.round(thresholdVal * 100),
+      },
+    });
+    setSavingShipping(false);
+
+    if (res.success) {
+      await refresh();
+      showToast('Shipping rules saved.', 'success');
+    } else {
+      showToast(res.error.message || 'Failed to save shipping rules.', 'error');
     }
   };
 
@@ -284,6 +318,46 @@ export const SiteSettingsPage: React.FC = () => {
           <div className="flex justify-end">
             <Button variant="primary" size="sm" onClick={handleSaveAnnouncement} disabled={savingAnn}>
               {savingAnn ? 'Saving…' : 'Save Announcement'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Shipping Configuration ── */}
+      <Card>
+        <CardContent className="space-y-4 pt-6">
+          <h2 className="text-base font-semibold text-[var(--text)]">Shipping Rules</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-secondary600 mb-1">
+                Flat Shipping Charge (₹)
+              </label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={shippingCharge}
+                onChange={(e) => setShippingCharge(e.target.value)}
+                placeholder="e.g. 150"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-secondary600 mb-1">
+                Free Shipping Threshold (₹)
+              </label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={freeShippingThreshold}
+                onChange={(e) => setFreeShippingThreshold(e.target.value)}
+                placeholder="e.g. 1000"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button variant="primary" size="sm" onClick={handleSaveShipping} disabled={savingShipping}>
+              {savingShipping ? 'Saving…' : 'Save Shipping Rules'}
             </Button>
           </div>
         </CardContent>

@@ -13,7 +13,6 @@ interface CreateOrderResult {
   subtotal: number;
   discountAmount: number;
   shippingAmount: number;
-  taxAmount: number;
   totalAmount: number;
 }
 
@@ -63,7 +62,6 @@ export const ordersApiService = {
         subtotal: (orderData?.["subtotal_paisa"] as number) ?? 0,
         discountAmount: (orderData?.["discount_amount_paisa"] as number) ?? 0,
         shippingAmount: (orderData?.["shipping_amount_paisa"] as number) ?? 0,
-        taxAmount: (orderData?.["tax_amount_paisa"] as number) ?? 0,
         totalAmount: d["amount_paisa"] as number,
       },
     };
