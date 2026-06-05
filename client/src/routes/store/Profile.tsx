@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { addressesApiService } from "../../lib/api/addresses";
+import { ordersApiService } from "../../lib/api/orders";
+import { formatPrice } from "../../lib/format";
 import type { Address } from "../../types/cart";
+import type { OrderListItem } from "../../types/order";
+import OrderStatusTracker from "../../components/shared/OrderStatusTracker";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
@@ -26,6 +31,8 @@ import {
   Building,
   CheckCircle2,
   Pencil,
+  ArrowRight,
+  History,
 } from "lucide-react";
 
 export const Profile: React.FC = () => {
@@ -53,8 +60,11 @@ export const Profile: React.FC = () => {
   const [newIsDefault, setNewIsDefault] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
 
+  const [latestOrder, setLatestOrder] = useState<OrderListItem | null>(null);
+
   useEffect(() => {
     fetchAddresses();
+    fetchLatestOrder();
   }, []);
 
   useEffect(() => {
@@ -71,6 +81,13 @@ export const Profile: React.FC = () => {
       setAddresses(res.data);
     }
     setLoadingAddresses(false);
+  };
+
+  const fetchLatestOrder = async () => {
+    const res = await ordersApiService.getOrders(1, 1);
+    if (res.success && res.data && res.data.length > 0) {
+      setLatestOrder(res.data[0]);
+    }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -252,7 +269,56 @@ export const Profile: React.FC = () => {
         </div>
 
         {/* ADDRESSES BOOK */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Recent Order Tracker */}
+          {latestOrder && (
+            <Card className="border border-secondary200 shadow-sm">
+              <div className="p-5 border-b border-secondary200 flex justify-between items-center bg-lightgrayColor/30">
+                <div className="flex items-center gap-2">
+                  <History className="w-4 h-4 text-primaryBg" />
+                  <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest">
+                    Recent Order Tracker
+                  </h3>
+                </div>
+                <Link
+                  to={`/orders/${latestOrder.id}`}
+                  className="text-xs font-semibold text-primaryBg hover:underline flex items-center gap-1"
+                >
+                  View Details
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+              <CardContent className="p-5 space-y-4">
+                <div className="flex justify-between items-center text-xs md:text-sm">
+                  <div>
+                    <span className="text-secondary500 mr-2">Order Reference:</span>
+                    <span className="font-bold text-darkColor">{latestOrder.orderNumber}</span>
+                  </div>
+                  <div>
+                    <span className="text-secondary500 mr-2">Total Amount:</span>
+                    <span className="font-bold text-[var(--accent)]">{formatPrice(latestOrder.totalAmount)}</span>
+                  </div>
+                </div>
+
+                {latestOrder.status !== "cancelled" ? (
+                  <div className="pt-2 border-t border-secondary200/50">
+                    <OrderStatusTracker status={latestOrder.status} layout="horizontal" />
+                  </div>
+                ) : (
+                  <div className="pt-3 border-t border-secondary200/50 flex items-center gap-2">
+                    <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">
+                      Cancelled
+                    </span>
+                    <p className="text-xs text-secondary500 font-instrument">
+                      This order has been cancelled and cannot be tracked.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ADDRESSES BOOK */}
           <Card className="border border-secondary200">
             <div className="p-5 border-b border-secondary200 flex justify-between items-center bg-lightgrayColor/30">
               <div>

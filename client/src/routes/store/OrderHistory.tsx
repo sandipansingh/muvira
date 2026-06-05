@@ -12,6 +12,7 @@ import Breadcrumb from "../../components/layout/Breadcrumb";
 import EmptyState from "../../components/shared/EmptyState";
 import ErrorState from "../../components/shared/ErrorState";
 import { History, ArrowRight } from "lucide-react";
+import OrderStatusTracker from "../../components/shared/OrderStatusTracker";
 
 export const OrderHistory: React.FC = () => {
   const navigate = useNavigate();
@@ -120,59 +121,76 @@ export const OrderHistory: React.FC = () => {
                 key={ord.id}
                 className="border border-secondary200 shadow-xs"
               >
-                <CardContent className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-5 text-left">
-                  {/* Summary */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <Link
-                        to={`/orders/${ord.id}`}
-                        className="text-sm font-bold text-darkColor hover:text-primaryBg hover:underline"
+                <CardContent className="p-5 space-y-4 text-left">
+                  {/* Top Row: Summary & Button */}
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <Link
+                          to={`/orders/${ord.id}`}
+                          className="text-sm font-bold text-darkColor hover:text-primaryBg hover:underline"
+                        >
+                          {ord.orderNumber}
+                        </Link>
+                        <span className="text-xs text-secondary500 font-medium">
+                          {formatDate(ord.createdAt)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-xs font-medium text-secondary600">
+                        <span>
+                          Items: <b>{ord.itemCount}</b>
+                        </span>
+                        <span>
+                          Total:{" "}
+                          <b className="text-darkColor">
+                            {formatPrice(ord.totalAmount)}
+                          </b>
+                        </span>
+                      </div>
+
+                      {/* Status badges */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <Badge variant={getStatusVariant(ord.status)}>
+                          {ord.status}
+                        </Badge>
+                        <Badge variant={getPaymentVariant(ord.paymentStatus)}>
+                          Payment: {ord.paymentStatus}
+                        </Badge>
+                        {ord.fulfillmentStatus !== "unfulfilled" && (
+                          <Badge variant="neutral">{ord.fulfillmentStatus}</Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/orders/${ord.id}`)}
+                        className="w-full md:w-auto text-xs py-1.5 flex items-center justify-center gap-1 bg-white"
                       >
-                        {ord.orderNumber}
-                      </Link>
-                      <span className="text-xs text-secondary500 font-medium">
-                        {formatDate(ord.createdAt)}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs font-medium text-secondary600">
-                      <span>
-                        Items: <b>{ord.itemCount}</b>
-                      </span>
-                      <span>
-                        Total:{" "}
-                        <b className="text-darkColor">
-                          {formatPrice(ord.totalAmount)}
-                        </b>
-                      </span>
-                    </div>
-
-                    {/* Status badges */}
-                    <div className="flex items-center gap-2 pt-1">
-                      <Badge variant={getStatusVariant(ord.status)}>
-                        {ord.status}
-                      </Badge>
-                      <Badge variant={getPaymentVariant(ord.paymentStatus)}>
-                        Payment: {ord.paymentStatus}
-                      </Badge>
-                      {ord.fulfillmentStatus !== "unfulfilled" && (
-                        <Badge variant="neutral">{ord.fulfillmentStatus}</Badge>
-                      )}
+                        View Details
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                   </div>
 
-                  {/* CTA button */}
-                  <div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate(`/orders/${ord.id}`)}
-                      className="w-full md:w-auto text-xs py-1.5 flex items-center justify-center gap-1 bg-white"
-                    >
-                      View Details
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
+                  {/* Horizontal Tracker Row */}
+                  {ord.status !== "cancelled" ? (
+                    <div className="pt-2 border-t border-secondary200/50">
+                      <OrderStatusTracker status={ord.status} layout="horizontal" />
+                    </div>
+                  ) : (
+                    <div className="pt-3 border-t border-secondary200/50 flex items-center gap-2">
+                      <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">
+                        Cancelled
+                      </span>
+                      <p className="text-xs text-secondary500 font-instrument">
+                        This order has been cancelled and cannot be tracked.
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}

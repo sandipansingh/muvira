@@ -5,18 +5,15 @@ import Button from '../../components/ui/Button';
 import { ordersApiService } from '../../lib/api/orders';
 import type { OrderDetail } from '../../types/order';
 import { 
-  Check, 
   ShoppingBag, 
   ClipboardList, 
   MapPin, 
   CreditCard, 
   ShieldCheck,
-  Truck,
-  Package,
-  Clock
+  Package
 } from 'lucide-react';
-import { STORE_NAME } from '../../lib/constants';
 import Skeleton from '../../components/ui/Skeleton';
+import OrderStatusTracker from '../../components/shared/OrderStatusTracker';
 
 export const OrderSuccess: React.FC = () => {
   const location = useLocation();
@@ -156,36 +153,6 @@ export const OrderSuccess: React.FC = () => {
   const totalAmount = order?.totalAmount || totalAmountFromState || 0;
   const status = order?.status || 'confirmed';
 
-  // Milestone timeline definitions
-  const timelineSteps = [
-    {
-      title: 'Order Paid & Verified',
-      desc: 'Payment successfully captured via secure gateway.',
-      icon: ShieldCheck,
-      isCompleted: true,
-    },
-    {
-      title: 'Order Confirmed',
-      desc: `Accepted by workshop at ${STORE_NAME}.`,
-      icon: Check,
-      isCompleted: true,
-    },
-    {
-      title: 'Workshop Preparation',
-      desc: 'Our artisans are preparing and polishing your heritage pieces.',
-      icon: Clock,
-      isCompleted: ['processing', 'shipped', 'delivered'].includes(status),
-      isActive: status === 'confirmed',
-    },
-    {
-      title: 'Dispatched & Delivery',
-      desc: 'Shipped via premium tracking service. Delivery expected soon.',
-      icon: Truck,
-      isCompleted: ['shipped', 'delivered'].includes(status),
-      isActive: status === 'shipped',
-    }
-  ];
-
   return (
     <div className="min-h-[85vh] relative py-12 md:py-20 px-6 overflow-hidden bg-transparent">
       {/* Heritage grid pattern background */}
@@ -248,49 +215,7 @@ export const OrderSuccess: React.FC = () => {
                 Delivery Milestones
               </h3>
               
-              <div className="relative pl-1">
-                {/* Vertical Timeline Bar */}
-                <div className="absolute left-[11px] top-2 bottom-2 w-[1.5px] bg-[#e6dfd5] pointer-events-none" />
-
-                <div className="space-y-8">
-                  {timelineSteps.map((step, idx) => {
-                    const Icon = step.icon;
-                    const isCompleted = step.isCompleted;
-                    const isActive = step.isActive;
-                    
-                    return (
-                      <div key={idx} className="relative pl-10 flex items-start text-left">
-                        {/* Timeline node */}
-                        <span className={`absolute left-0 top-0.5 flex items-center justify-center w-6 h-6 rounded-full border transition-smooth ${
-                          isCompleted 
-                            ? 'bg-[var(--accent)] border-[var(--accent)] text-white shadow-sm' 
-                            : isActive 
-                              ? 'bg-white border-[var(--accent-gold)] text-[var(--accent-gold)] shadow-md animate-pulse scale-105'
-                              : 'bg-[var(--bg)] border-[#e6dfd5] text-secondary400'
-                        }`}>
-                          {isCompleted ? (
-                            <Check className="w-3.5 h-3.5" strokeWidth={3} />
-                          ) : (
-                            <Icon className="w-3 h-3" />
-                          )}
-                        </span>
-                        
-                        {/* Text Content */}
-                        <div className="space-y-1">
-                          <h4 className={`text-sm font-semibold tracking-wide ${
-                            isCompleted || isActive ? 'text-darkColor' : 'text-secondary500'
-                          }`}>
-                            {step.title}
-                          </h4>
-                          <p className="text-xs text-secondary500 leading-relaxed font-instrument max-w-lg">
-                            {step.desc}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <OrderStatusTracker status={status} />
             </div>
 
             {/* Navigation Actions */}
