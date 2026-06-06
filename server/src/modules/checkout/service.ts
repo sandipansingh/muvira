@@ -55,7 +55,7 @@ interface CreateOrderResult {
  */
 export async function createCheckoutOrder(
   userId: string,
-  input: { address_id: string; coupon_code?: string },
+  input: { address_id: string; coupon_code?: string; notes?: string },
 ): Promise<CreateOrderResult> {
   // 1. Fetch and validate cart
   const { data: cartItems, error: cartError } = await adminSupabase
@@ -221,6 +221,7 @@ export async function createCheckoutOrder(
     coupon_id: couponData?.id ?? null,
     coupon_code: couponData?.code ?? null,
     coupon_discount_paisa: discountAmountPaisa,
+    notes: input.notes ?? null,
   };
 
   const { data: order, error: orderError } = await adminSupabase

@@ -28,9 +28,11 @@ export const ordersApiService = {
   async createOrder(
     addressId: string,
     couponCode: string | null,
+    notes: string | null = null,
   ): Promise<ApiResponse<CreateOrderResult>> {
     const body: Record<string, unknown> = { address_id: addressId };
     if (couponCode) body["coupon_code"] = couponCode;
+    if (notes) body["notes"] = notes;
 
     const res = await api.post<{
       success: boolean;

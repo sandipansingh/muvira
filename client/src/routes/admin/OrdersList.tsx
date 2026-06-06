@@ -237,7 +237,7 @@ export const OrdersList: React.FC = () => {
                         onClick={() => navigate(`/admin/orders/${ord.id}`)}
                         className="text-xs text-secondary600 hover:text-darkColor font-medium py-1 px-2 transition-colors"
                       >
-                        Fulfill / View
+                        Fulfill
                       </button>
                     </TableCell>
                   </TableRow>
