@@ -10,7 +10,8 @@ import Select from '../../components/ui/Select';
 import Pagination from '../../components/ui/Pagination';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
-import { Search } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
+import { useToast } from '../../hooks/useToast';
 
 export const OrdersList: React.FC = () => {
   const navigate = useNavigate();
@@ -19,7 +20,25 @@ export const OrdersList: React.FC = () => {
   const [orders, setOrders] = useState<OrderDetail[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { showToast } = useToast();
+
+  const handleSyncTracking = async () => {
+    setSyncing(true);
+    const res = await adminApiService.syncTrackingOrders();
+    setSyncing(false);
+    if (res.success) {
+      showToast(
+        `Sync completed. Checked ${res.data.totalChecked} active shipments, updated ${res.data.totalUpdated} statuses.`,
+        'success'
+      );
+      fetchOrders();
+    } else {
+      showToast(res.error.message || 'Tracking sync failed.', 'error');
+    }
+  };
 
   // Sync inputs with URL params
   const q = searchParams.get('q') || '';
@@ -50,6 +69,24 @@ export const OrdersList: React.FC = () => {
     if (res.success) {
       setOrders(res.data);
       setPagination(res.pagination);
+
+      // Silent background tracking sync for any active/transit shipments on this page
+      const activeOrders = res.data.filter(
+        (o) => o.awbCode && o.status !== 'delivered' && o.status !== 'cancelled'
+      );
+      if (activeOrders.length > 0) {
+        adminApiService.syncTrackingOrders().then((syncRes) => {
+          if (syncRes.success && syncRes.data.totalUpdated > 0) {
+            // Re-fetch list silently since some statuses were updated
+            adminApiService.getOrders(queryParams).then((reRes) => {
+              if (reRes.success) {
+                setOrders(reRes.data);
+                setPagination(reRes.pagination);
+              }
+            });
+          }
+        });
+      }
     } else {
       setError(res.error.message || 'Failed to load orders list.');
     }
@@ -123,13 +160,23 @@ export const OrdersList: React.FC = () => {
   return (
     <div className="space-y-6 font-instrument text-left">
       {/* Title */}
-      <div>
-        <h2 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor">
-          Order Management
-        </h2>
-        <p className="text-xs text-secondary500 tracking-wide mt-1">
-          Fulfill order packages, assign carriers tracking details, and moderate custom request notes.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor">
+            Order Management
+          </h2>
+          <p className="text-xs text-secondary500 tracking-wide mt-1">
+            Fulfill order packages, assign carriers tracking details, and moderate custom request notes.
+          </p>
+        </div>
+        <button
+          onClick={handleSyncTracking}
+          disabled={syncing}
+          className="shrink-0 text-xs py-2 px-4 rounded-lg bg-darkColor text-white font-medium hover:bg-opacity-90 disabled:opacity-50 transition-all flex items-center gap-2 justify-center"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Syncing...' : 'Sync Tracking'}
+        </button>
       </div>
 
       {/* Filters */}

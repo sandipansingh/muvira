@@ -53,6 +53,8 @@ import { adminDashboardRouter } from "./modules/admin/dashboard/routes";
 import { adminInventoryRouter } from "./modules/admin/inventory/routes";
 import { settingsRouter, adminSettingsRouter } from "./modules/settings/routes";
 import { adminCacheRouter } from "./modules/admin/cache/routes";
+import { trackingRouter } from "./modules/tracking/routes";
+
 
 export function createApp() {
   const app = express();
@@ -137,6 +139,8 @@ export function createApp() {
   app.use("/api/categories", categoriesRouter);
   app.use("/api/campaigns", campaignsRouter);
   app.use("/api/settings", settingsRouter);
+  app.use("/api/tracking", trackingRouter);
+
 
   // Authenticated user routes
   app.use("/api/profile", profileRouter);

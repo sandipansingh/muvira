@@ -39,6 +39,35 @@ export async function listAllCategories(): Promise<Category[]> {
   return (data as Category[]) ?? [];
 }
 
+export async function listAllCategoriesPaginated(
+  page: number,
+  limit: number,
+  q?: string,
+): Promise<{ data: Category[]; total: number; page: number; limit: number; totalPages: number }> {
+  const offset = (page - 1) * limit;
+
+  let query = adminSupabase
+    .from("categories")
+    .select("*", { count: "exact" })
+    .order("sort_order", { ascending: true })
+    .range(offset, offset + limit - 1);
+
+  if (q) {
+    query = query.ilike("name", `%${q}%`);
+  }
+
+  const { data, error, count } = await query;
+
+  if (error) throw new AppError(500, "DB_ERROR", "Failed to fetch categories");
+  return {
+    data: (data as Category[]) ?? [],
+    total: count ?? 0,
+    page,
+    limit,
+    totalPages: Math.ceil((count ?? 0) / limit),
+  };
+}
+
 export async function createCategory(
   input: CreateCategoryInput,
 ): Promise<Category> {

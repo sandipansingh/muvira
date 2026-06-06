@@ -9,8 +9,9 @@ import Card, { CardContent } from "../../components/ui/Card";
 import Skeleton from "../../components/ui/Skeleton";
 import Breadcrumb from "../../components/layout/Breadcrumb";
 import ErrorState from "../../components/shared/ErrorState";
+import ShiprocketTracker from "../../components/shared/ShiprocketTracker";
 import { MapPin, Truck, ArrowLeft, FileText } from "lucide-react";
-import OrderStatusTracker from "../../components/shared/OrderStatusTracker";
+
 
 export const OrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -158,56 +159,19 @@ export const OrderDetail: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Shipment Status & Tracking */}
+            {/* Shipment Tracking — Live via Shiprocket */}
             <Card className="border border-secondary200">
               <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
                 <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">
                   <Truck className="w-4.5 h-4.5 text-primaryBg" />
-                  Shipment & Logistics
+                  Live Shipment Tracking
                 </h3>
               </div>
-              <CardContent className="p-5 text-left space-y-6">
-                <div className="grid grid-cols-2 gap-4 text-xs md:text-sm pb-4 border-b border-secondary200/50">
-                  <div>
-                    <span className="text-secondary500 block">
-                      Fulfillment Status
-                    </span>
-                    <span className="font-semibold text-darkColor capitalize">
-                      {order.fulfillmentStatus}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-secondary500 block">
-                      Delivery Partner
-                    </span>
-                    <span className="font-semibold text-darkColor">
-                      {order.carrierName || "Preparing for Shipping"}
-                    </span>
-                  </div>
-                  {order.trackingId && (
-                    <div className="col-span-2 bg-lightgrayColor p-3.5 border border-secondary200 rounded-xl space-y-1">
-                      <span className="text-secondary500 text-[10px] uppercase font-bold tracking-widest">
-                        Tracking Number
-                      </span>
-                      <p className="text-sm font-bold text-primaryBg font-instrument leading-none">
-                        {order.trackingId}
-                      </p>
-                      <p className="text-[10px] text-secondary500 mt-1 leading-snug">
-                        Use the tracking ID on {order.carrierName}'s website to
-                        monitor your packages.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-secondary600 font-instrument">
-                    Delivery Milestones
-                  </h4>
-                  <OrderStatusTracker status={order.status} />
-                </div>
+              <CardContent className="p-5">
+                <ShiprocketTracker awbCode={order.awbCode} />
               </CardContent>
             </Card>
+
           </div>
 
           {/* RIGHT: BILLING BREAKDOWN & ADDRESS */}

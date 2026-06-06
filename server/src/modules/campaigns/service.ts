@@ -27,6 +27,28 @@ export async function adminListCampaigns(): Promise<SalesCampaign[]> {
   return (data as SalesCampaign[]) ?? [];
 }
 
+export async function adminListCampaignsPaginated(
+  page: number,
+  limit: number,
+): Promise<{ data: SalesCampaign[]; total: number; page: number; limit: number; totalPages: number }> {
+  const offset = (page - 1) * limit;
+
+  const { data, error, count } = await adminSupabase
+    .from('sales_campaigns')
+    .select('*', { count: 'exact' })
+    .order('starts_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch campaigns');
+  return {
+    data: (data as SalesCampaign[]) ?? [],
+    total: count ?? 0,
+    page,
+    limit,
+    totalPages: Math.ceil((count ?? 0) / limit),
+  };
+}
+
 export async function createCampaign(input: CreateCampaignInput): Promise<SalesCampaign> {
   const { data, error } = await adminSupabase
     .from('sales_campaigns')

@@ -1,6 +1,8 @@
 import { adminSupabase } from "../../lib/supabase/admin";
 import { AppError } from "../../types";
 import type { Order } from "../../types";
+import { invalidateOn } from "../../services/cacheInvalidation";
+import { trackBulk } from "../../services/shiprocket";
 import type {
   ListOrdersQuery,
   AdminListOrdersQuery,
@@ -103,13 +105,14 @@ export async function adminListOrders(query: AdminListOrdersQuery): Promise<{
       subtotal_paisa, discount_amount_paisa, shipping_amount_paisa, tax_amount_paisa, total_amount_paisa,
       coupon_code, coupon_discount_paisa,
       shipping_full_name, shipping_phone, shipping_city, shipping_state, shipping_pincode,
-      carrier_name, tracking_id, notes,
+      awb_code, notes,
       created_at, updated_at,
       profiles ( email, full_name, phone )
     `,
       { count: "exact" },
     )
     .order("created_at", { ascending: false });
+
 
   if (status) dbQuery = dbQuery.eq("status", status);
   if (payment_status) dbQuery = dbQuery.eq("payment_status", payment_status);
@@ -166,37 +169,34 @@ export async function adminUpdateOrderStatus(
 
   if (error || !data)
     throw new AppError(404, "ORDER_NOT_FOUND", "Order not found");
-  return data as Order;
+  return adminGetOrder(orderId);
 }
 
 export async function adminUpdateFulfillment(
   orderId: string,
   input: UpdateFulfillmentInput,
 ): Promise<Order> {
-  // Build update object with only provided fields
-  const update: Partial<{
-    fulfillment_status: string;
-    carrier_name: string;
-    tracking_id: string;
-  }> = {};
-
-  if (input.fulfillment_status !== undefined)
-    update.fulfillment_status = input.fulfillment_status;
-  if (input.carrier_name !== undefined)
-    update.carrier_name = input.carrier_name;
-  if (input.tracking_id !== undefined) update.tracking_id = input.tracking_id;
+  // When an AWB is set, mark as fulfilled; when cleared, revert to unfulfilled
+  const fulfillment_status =
+    input.awb_code != null && input.awb_code.trim() !== ""
+      ? "fulfilled"
+      : "unfulfilled";
 
   const { data, error } = await adminSupabase
     .from("orders")
-    .update(update)
+    .update({
+      awb_code: input.awb_code ?? null,
+      fulfillment_status,
+    })
     .eq("id", orderId)
     .select()
     .single();
 
   if (error || !data)
     throw new AppError(404, "ORDER_NOT_FOUND", "Order not found");
-  return data as Order;
+  return adminGetOrder(orderId);
 }
+
 
 export async function adminAddOrderNote(
   orderId: string,
@@ -225,5 +225,120 @@ export async function adminAddOrderNote(
     .single();
 
   if (error || !data) throw new AppError(500, "DB_ERROR", "Failed to add note");
-  return data as Order;
+  return adminGetOrder(orderId);
+}
+
+export async function updateOrderStatusByAwb(
+  awbCode: string,
+  status: string,
+): Promise<Order | null> {
+  const { data: order, error: fetchError } = await adminSupabase
+    .from("orders")
+    .select("id, user_id, status")
+    .eq("awb_code", awbCode)
+    .maybeSingle();
+
+  if (fetchError || !order) return null;
+
+  if (order.status !== status) {
+    // Prevent state downgrades (e.g. if order is marked delivered manually, don't revert to shipped via auto-sync)
+    if (order.status === "delivered" && status === "shipped") {
+      return order as unknown as Order;
+    }
+
+    const { data: updated, error: updateError } = await adminSupabase
+      .from("orders")
+      .update({ status })
+      .eq("id", order.id)
+      .select()
+      .single();
+
+    if (updateError || !updated) return null;
+
+    invalidateOn("ORDER_UPDATED", {
+      id: order.id,
+      userId: order.user_id,
+    });
+
+    return updated as unknown as Order;
+  }
+
+  return order as unknown as Order;
+}
+
+export function mapShiprocketStatusToOrderStatus(shiprocketStatus?: string): string | null {
+  if (!shiprocketStatus) return null;
+  const status = shiprocketStatus.toLowerCase();
+  
+  if (status.includes("delivered")) {
+    return "delivered";
+  }
+  if (
+    status.includes("shipped") ||
+    status.includes("transit") ||
+    status.includes("picked") ||
+    status.includes("pickup") ||
+    status.includes("out for delivery") ||
+    status.includes("reached")
+  ) {
+    return "shipped";
+  }
+  if (status.includes("cancelled") || status.includes("rto")) {
+    return "cancelled";
+  }
+  return null;
+}
+
+export async function adminSyncTrackingOrders(): Promise<{
+  totalChecked: number;
+  totalUpdated: number;
+}> {
+  // 1. Fetch all orders with AWB code that are not delivered or cancelled
+  const { data: orders, error } = await adminSupabase
+    .from("orders")
+    .select("id, awb_code, status")
+    .not("awb_code", "is", null)
+    .not("status", "in", '("delivered","cancelled")');
+
+  if (error || !orders || orders.length === 0) {
+    return { totalChecked: 0, totalUpdated: 0 };
+  }
+
+  const awbs = orders
+    .map((o) => o.awb_code)
+    .filter((awb): awb is string => typeof awb === "string" && awb.trim() !== "");
+
+  if (awbs.length === 0) {
+    return { totalChecked: 0, totalUpdated: 0 };
+  }
+
+  // 2. Fetch tracking info from Shiprocket
+  const trackingData = await trackBulk(awbs);
+
+  let totalUpdated = 0;
+
+  // 3. For each order, check and update its status
+  for (const order of orders) {
+    const awb = order.awb_code;
+    if (!awb) continue;
+
+    const item = trackingData[awb];
+    const trackingInfo = item?.tracking_data?.shipment_track?.[0];
+    if (trackingInfo) {
+      const srStatus = trackingInfo.current_status;
+      const targetStatus = mapShiprocketStatusToOrderStatus(srStatus);
+      if (targetStatus && targetStatus !== order.status) {
+        // Only update if it actually changes status
+        const updated = await updateOrderStatusByAwb(awb, targetStatus);
+        if (updated) {
+          totalUpdated++;
+        }
+      }
+    }
+  }
+
+  return {
+    totalChecked: orders.length,
+    totalUpdated,
+  };
 }
