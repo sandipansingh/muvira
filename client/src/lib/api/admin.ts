@@ -59,13 +59,14 @@ export const adminApiService = {
   async getInventory(
     page = 1,
     limit = 50,
+    lowStockOnly = false,
   ): Promise<ApiPaginatedResponse<InventoryItem>> {
     const res = await adminGet<{
       success: boolean;
       data?: AnyRecord[];
       meta?: AnyRecord;
       error?: AnyRecord;
-    }>(`/api/admin/inventory?page=${page}&limit=${limit}`);
+    }>(`/api/admin/inventory?page=${page}&limit=${limit}&low_stock_only=${lowStockOnly}`);
     if (!res.success || !res.data)
       return {
         success: false,

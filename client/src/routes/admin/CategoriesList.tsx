@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminApiService } from '../../lib/api/admin';
 import type { Category } from '../../types/category';
 import { useToast } from '../../hooks/useToast';
@@ -11,15 +12,21 @@ import Textarea from '../../components/ui/Textarea';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
+import Pagination from '../../components/ui/Pagination';
 import { Plus, Pencil, Trash, Upload } from 'lucide-react';
 import { uploadImage, deleteStorageFile } from '../../lib/storage';
 import { slugify } from '../../lib/slug';
 
 export const CategoriesList: React.FC = () => {
   const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync inputs with URL params
+  const page = parseInt(searchParams.get('page') || '1', 10);
 
   // Modal Dialog states
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,18 +44,29 @@ export const CategoriesList: React.FC = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [page]);
 
   const fetchCategories = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminApiService.getCategoriesList();
+    const res = await adminApiService.getCategories({ page, limit: 20 });
     if (res.success) {
       setCategories(res.data);
+      setPagination(res.pagination);
     } else {
       setError(res.error.message || 'Failed to fetch categories.');
     }
     setLoading(false);
+  };
+
+  const updateParam = (key: string, value: string) => {
+    const updated = new URLSearchParams(searchParams);
+    if (value === '') {
+      updated.delete(key);
+    } else {
+      updated.set(key, value);
+    }
+    setSearchParams(updated);
   };
 
   const handleOpenAdd = () => {
@@ -258,6 +276,12 @@ export const CategoriesList: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <Pagination
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={(pageVal) => updateParam('page', pageVal.toString())}
+      />
 
       {/* DIALOG FOR CREATE/EDIT */}
       <Dialog

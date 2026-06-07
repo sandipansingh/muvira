@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { adminApiService } from "../../lib/api/admin";
 import type { InventoryItem } from "../../types/dashboard";
 import { useToast } from "../../hooks/useToast";
 import Card, { CardContent } from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
+import Pagination from "../../components/ui/Pagination";
 import {
   Table,
   TableHeader,
@@ -21,9 +23,14 @@ import { Pencil, AlertTriangle } from "lucide-react";
 
 export const InventoryList: React.FC = () => {
   const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync inputs with URL params
+  const page = parseInt(searchParams.get('page') || '1', 10);
 
   // Filters
   const [lowStockOnly, setLowStockOnly] = useState(false);
@@ -38,18 +45,29 @@ export const InventoryList: React.FC = () => {
 
   useEffect(() => {
     fetchInventory();
-  }, [lowStockOnly]);
+  }, [lowStockOnly, page]);
 
   const fetchInventory = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminApiService.getInventory(1, lowStockOnly ? 50 : 50);
+    const res = await adminApiService.getInventory(page, 20, lowStockOnly);
     if (res.success) {
       setInventory(res.data);
+      setPagination(res.pagination);
     } else {
       setError(res.error.message || "Failed to fetch inventory reports.");
     }
     setLoading(false);
+  };
+
+  const updateParam = (key: string, value: string) => {
+    const updated = new URLSearchParams(searchParams);
+    if (value === '') {
+      updated.delete(key);
+    } else {
+      updated.set(key, value);
+    }
+    setSearchParams(updated);
   };
 
   const handleOpenEdit = (item: InventoryItem) => {
@@ -103,7 +121,10 @@ export const InventoryList: React.FC = () => {
             <input
               type="checkbox"
               checked={lowStockOnly}
-              onChange={(e) => setLowStockOnly(e.target.checked)}
+              onChange={(e) => {
+                setLowStockOnly(e.target.checked);
+                updateParam('page', '1');
+              }}
               className="w-4.5 h-4.5 accent-amber-500 rounded text-amber-500 cursor-pointer"
             />
             <span className="text-xs font-semibold text-secondary700 flex items-center gap-1.5 hover:text-darkColor transition-colors">
@@ -176,6 +197,12 @@ export const InventoryList: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <Pagination
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={(pageVal) => updateParam('page', pageVal.toString())}
+      />
 
       {/* QUICK EDIT DIALOG */}
       <Dialog

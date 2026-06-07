@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminApiService } from '../../lib/api/admin';
 import type { Campaign } from '../../types/campaign';
 import { useToast } from '../../hooks/useToast';
@@ -13,14 +14,20 @@ import Textarea from '../../components/ui/Textarea';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
+import Pagination from '../../components/ui/Pagination';
 import { Plus, Pencil, ToggleLeft, ToggleRight, Upload } from 'lucide-react';
 import { uploadImage } from '../../lib/storage';
 
 export const CampaignsList: React.FC = () => {
   const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync inputs with URL params
+  const page = parseInt(searchParams.get('page') || '1', 10);
 
   // Dialog modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -38,18 +45,29 @@ export const CampaignsList: React.FC = () => {
 
   useEffect(() => {
     fetchCampaigns();
-  }, []);
+  }, [page]);
 
   const fetchCampaigns = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminApiService.getCampaigns();
+    const res = await adminApiService.getCampaigns({ page, limit: 10 });
     if (res.success) {
       setCampaigns(res.data);
+      setPagination(res.pagination);
     } else {
       setError(res.error.message || 'Failed to load campaigns list.');
     }
     setLoading(false);
+  };
+
+  const updateParam = (key: string, value: string) => {
+    const updated = new URLSearchParams(searchParams);
+    if (value === '') {
+      updated.delete(key);
+    } else {
+      updated.set(key, value);
+    }
+    setSearchParams(updated);
   };
 
   const handleOpenAdd = () => {
@@ -270,6 +288,12 @@ export const CampaignsList: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <Pagination
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={(pageVal) => updateParam('page', pageVal.toString())}
+      />
 
       {/* DIALOG FOR CREATE/EDIT */}
       <Dialog

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminApiService } from '../../lib/api/admin';
 import type { Coupon } from '../../types/coupon';
 import { useToast } from '../../hooks/useToast';
@@ -12,13 +13,19 @@ import Select from '../../components/ui/Select';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
+import Pagination from '../../components/ui/Pagination';
 import { Plus, Ban } from 'lucide-react';
 
 export const CouponsList: React.FC = () => {
   const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync inputs with URL params
+  const page = parseInt(searchParams.get('page') || '1', 10);
 
   // Dialog states
   const [modalOpen, setModalOpen] = useState(false);
@@ -34,18 +41,29 @@ export const CouponsList: React.FC = () => {
 
   useEffect(() => {
     fetchCoupons();
-  }, []);
+  }, [page]);
 
   const fetchCoupons = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminApiService.getCoupons();
+    const res = await adminApiService.getCoupons({ page, limit: 20 });
     if (res.success) {
       setCoupons(res.data);
+      setPagination(res.pagination);
     } else {
       setError(res.error.message || 'Failed to load coupons list.');
     }
     setLoading(false);
+  };
+
+  const updateParam = (key: string, value: string) => {
+    const updated = new URLSearchParams(searchParams);
+    if (value === '') {
+      updated.delete(key);
+    } else {
+      updated.set(key, value);
+    }
+    setSearchParams(updated);
   };
 
   const handleOpenAdd = () => {
@@ -227,6 +245,12 @@ export const CouponsList: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <Pagination
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={(pageVal) => updateParam('page', pageVal.toString())}
+      />
 
       {/* DIALOG FOR CREATE */}
       <Dialog
