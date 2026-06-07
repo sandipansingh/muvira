@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { campaignsApiService } from "../../lib/api/campaigns";
 import { productsApiService } from "../../lib/api/products";
 import { categoriesApiService } from "../../lib/api/categories";
 import { useSiteSettings } from "../../context/SiteSettingsContext";
 import type { Category } from "../../types/category";
 import type { ProductListItem } from "../../types/product";
-import type { Campaign } from "../../types/campaign";
 import ProductCard from "../../components/product/ProductCard";
 import Skeleton from "../../components/ui/Skeleton";
 import Button from "../../components/ui/Button";
@@ -21,14 +19,9 @@ export const Home: React.FC = () => {
   const heroSlides = settings?.heroSlides ?? [];
   const [categories, setCategories] = useState<Category[]>([]);
   const [featured, setFeatured] = useState<ProductListItem[]>([]);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
-
-  useEffect(() => {
-    fetchHomepageData();
-  }, []);
 
   // Slide timer (8 seconds auto-rotation)
   useEffect(() => {
@@ -38,17 +31,19 @@ export const Home: React.FC = () => {
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 
+  useEffect(() => {
+    fetchHomepageData();
+  }, []);
+
   const fetchHomepageData = async () => {
     setLoading(true);
-    const [catsRes, prodRes, campRes] = await Promise.all([
+    const [catsRes, prodRes] = await Promise.all([
       categoriesApiService.getCategories(),
       productsApiService.getProducts({ sort: "popularity", limit: 4 }),
-      campaignsApiService.getActiveCampaigns(),
     ]);
 
     if (catsRes.success) setCategories(catsRes.data);
     if (prodRes.success) setFeatured(prodRes.data);
-    if (campRes.success) setCampaigns(campRes.data);
     setLoading(false);
   };
 
@@ -179,27 +174,7 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. LIMITED EDITION CAMPAIGN — clean messaging */}
-      {campaigns.length > 0 && (
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--text)] text-[#f1e9de] px-8 md:px-12 py-9 md:py-11 flex flex-col md:flex-row md:items-center gap-8">
-          <div className="max-w-xl">
-            <div className="uppercase text-[10px] tracking-[3px] font-medium text-[var(--accent-gold-light)] mb-3">
-              LIMITED OFFER
-            </div>
-            <h2 className="font-playfair text-[26px] md:text-[34px] leading-none tracking-[-0.4px] mb-4 text-white">
-              {campaigns[0].name}
-            </h2>
-            <p className="text-[13px] leading-relaxed tracking-wide text-[#d9cebf]">
-              {campaigns[0].description}
-            </p>
-          </div>
-          <div className="md:ml-auto mt-2 md:mt-0">
-            <Button variant="primary" size="lg" onClick={() => navigate("/products")}>
-              Shop the Sale
-            </Button>
-          </div>
-        </div>
-      )}
+
 
       {/* 5. FEATURED BEST SELLERS — elevated product presentation */}
       <div className="space-y-6 ">

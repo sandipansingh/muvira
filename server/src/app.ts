@@ -38,10 +38,6 @@ import {
   categoriesRouter,
   adminCategoriesRouter,
 } from "./modules/categories/routes";
-import {
-  campaignsRouter,
-  adminCampaignsRouter,
-} from "./modules/campaigns/routes";
 import { profileRouter } from "./modules/profile/routes";
 import { addressesRouter } from "./modules/addresses/routes";
 import { cartRouter } from "./modules/cart/routes";
@@ -137,7 +133,6 @@ export function createApp() {
   app.use("/api/health", healthRouter);
   app.use("/api/products", productsRouter);
   app.use("/api/categories", categoriesRouter);
-  app.use("/api/campaigns", campaignsRouter);
   app.use("/api/settings", settingsRouter);
   app.use("/api/tracking", trackingRouter);
 
@@ -162,7 +157,6 @@ export function createApp() {
 
   adminRouter.use("/products", adminProductsRouter);
   adminRouter.use("/categories", adminCategoriesRouter);
-  adminRouter.use("/campaigns", adminCampaignsRouter);
   adminRouter.use("/coupons", adminCouponsRouter);
   adminRouter.use("/orders", adminOrdersRouter);
   adminRouter.use("/dashboard", adminDashboardRouter);

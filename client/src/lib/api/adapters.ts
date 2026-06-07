@@ -5,7 +5,7 @@
 import type { Profile } from '../../types/auth';
 import type { ProductListItem, ProductDetail, ProductImage } from '../../types/product';
 import type { Category } from '../../types/category';
-import type { Campaign } from '../../types/campaign';
+
 import type { Cart, CartItem, Address } from '../../types/cart';
 import type { OrderListItem, OrderDetail, OrderItem, OrderAddress, AdminNote } from '../../types/order';
 import type { Coupon, CouponPreview } from '../../types/coupon';
@@ -128,22 +128,7 @@ export function mapCategory(raw: Record<string, unknown>): Category {
   };
 }
 
-// ── Campaign ──────────────────────────────────────────────────────────────────
 
-export function mapCampaign(raw: Record<string, unknown>): Campaign {
-  return {
-    id: raw['id'] as string,
-    name: raw['name'] as string,
-    slug: (raw['id'] as string), // server doesn't have slug; use id as fallback
-    description: (raw['description'] as string | null) ?? '',
-    bannerImageUrl: (raw['banner_image_url'] as string | null) ?? '',
-    discountType: 'percentage',
-    discountValue: (raw['discount_percentage'] as number | null) ?? 0,
-    startDate: raw['starts_at'] as string,
-    endDate: raw['ends_at'] as string,
-    isActive: raw['is_active'] as boolean,
-  };
-}
 
 // ── Cart ──────────────────────────────────────────────────────────────────────
 

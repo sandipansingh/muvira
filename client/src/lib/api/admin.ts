@@ -7,7 +7,6 @@ import {
   mapProductDetail,
   mapCategory,
   mapCoupon,
-  mapCampaign,
   mapOrderDetail,
   mapDashboardStats,
   mapInventoryItem,
@@ -16,7 +15,7 @@ import { slugify } from "../slug";
 import type { ProductDetail } from "../../types/product";
 import type { Category } from "../../types/category";
 import type { Coupon } from "../../types/coupon";
-import type { Campaign } from "../../types/campaign";
+
 import type { OrderDetail } from "../../types/order";
 import type { DashboardStats, InventoryItem } from "../../types/dashboard";
 import type { ApiResponse, ApiPaginatedResponse } from "../../types/common";
@@ -550,120 +549,7 @@ export const adminApiService = {
     return { success: true, data: mapCoupon(res.data) };
   },
 
-  // ── Campaigns ──────────────────────────────────────────────────────────────
-  async getCampaigns(
-    params: { page?: number; limit?: number } = {},
-  ): Promise<ApiPaginatedResponse<Campaign>> {
-    const qs = new URLSearchParams();
-    qs.set("page", String(params.page ?? 1));
-    qs.set("limit", String(params.limit ?? 10));
 
-    const res = await adminGet<{
-      success: boolean;
-      data?: AnyRecord[];
-      meta?: AnyRecord;
-      error?: AnyRecord;
-    }>(`/api/admin/campaigns?${qs}`);
-    if (!res.success || !res.data)
-      return {
-        success: false,
-        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
-          code: string;
-          message: string;
-        },
-      };
-    const page = params.page ?? 1;
-    const limit = params.limit ?? 10;
-    return {
-      success: true,
-      data: res.data.map(mapCampaign),
-      pagination: {
-        page,
-        limit,
-        total: (res.meta?.["total"] as number) ?? 0,
-        totalPages: (res.meta?.["totalPages"] as number) ?? 1,
-      },
-    };
-  },
-
-  async createCampaign(data: AnyRecord): Promise<ApiResponse<Campaign>> {
-    const body = {
-      name: data["name"],
-      description: data["description"],
-      banner_image_url: data["bannerImageUrl"] ?? data["banner_image_url"],
-      discount_percentage: data["discountValue"] ?? data["discount_percentage"],
-      is_active: data["isActive"] ?? data["is_active"] ?? false,
-      starts_at: data["startDate"] ?? data["starts_at"],
-      ends_at: data["endDate"] ?? data["ends_at"],
-    };
-    const res = await adminPost<{
-      success: boolean;
-      data?: AnyRecord;
-      error?: AnyRecord;
-    }>("/api/admin/campaigns", body);
-    if (!res.success || !res.data)
-      return {
-        success: false,
-        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
-          code: string;
-          message: string;
-        },
-      };
-    return { success: true, data: mapCampaign(res.data) };
-  },
-
-  async updateCampaign(
-    id: string,
-    data: AnyRecord,
-  ): Promise<ApiResponse<Campaign>> {
-    const body: AnyRecord = {};
-    if (data["name"] !== undefined) body["name"] = data["name"];
-    if (data["description"] !== undefined)
-      body["description"] = data["description"];
-    if (data["bannerImageUrl"] !== undefined)
-      body["banner_image_url"] = data["bannerImageUrl"];
-    if (data["banner_image_url"] !== undefined)
-      body["banner_image_url"] = data["banner_image_url"];
-    if (data["discountValue"] !== undefined)
-      body["discount_percentage"] = data["discountValue"];
-    if (data["discount_percentage"] !== undefined)
-      body["discount_percentage"] = data["discount_percentage"];
-    if (data["isActive"] !== undefined) body["is_active"] = data["isActive"];
-    if (data["startDate"] !== undefined) body["starts_at"] = data["startDate"];
-    if (data["endDate"] !== undefined) body["ends_at"] = data["endDate"];
-
-    const res = await adminPatch<{
-      success: boolean;
-      data?: AnyRecord;
-      error?: AnyRecord;
-    }>(`/api/admin/campaigns/${id}`, body);
-    if (!res.success || !res.data)
-      return {
-        success: false,
-        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
-          code: string;
-          message: string;
-        },
-      };
-    return { success: true, data: mapCampaign(res.data) };
-  },
-
-  async toggleCampaign(id: string): Promise<ApiResponse<Campaign>> {
-    const res = await adminPost<{
-      success: boolean;
-      data?: AnyRecord;
-      error?: AnyRecord;
-    }>(`/api/admin/campaigns/${id}/toggle`);
-    if (!res.success || !res.data)
-      return {
-        success: false,
-        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
-          code: string;
-          message: string;
-        },
-      };
-    return { success: true, data: mapCampaign(res.data) };
-  },
 
   // ── Orders ─────────────────────────────────────────────────────────────────
   async syncTrackingOrders(): Promise<ApiResponse<{ totalChecked: number; totalUpdated: number }>> {

@@ -157,18 +157,6 @@ export interface Coupon {
   updated_at: string;
 }
 
-export interface SalesCampaign {
-  id: string;
-  name: string;
-  description: string | null;
-  banner_image_url: string | null;
-  discount_percentage: number | null;
-  is_active: boolean;
-  starts_at: string;
-  ends_at: string;
-  created_at: string;
-  updated_at: string;
-}
 
 export interface Order {
   id: string;
