@@ -49,6 +49,7 @@ import CouponsList from './routes/admin/CouponsList';
 
 import InventoryList from './routes/admin/InventoryList';
 import SiteSettingsPage from './routes/admin/SiteSettings';
+import WhatsAppButton from './components/shared/WhatsAppButton';
 
 // CUSTOMER PAGES LAYOUT WRAPPER
 const CustomerLayout: React.FC = () => {
@@ -59,6 +60,7 @@ const CustomerLayout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };
