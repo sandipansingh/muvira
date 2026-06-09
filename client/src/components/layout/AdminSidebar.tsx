@@ -8,7 +8,8 @@ import {
   ShoppingBag,
   Ticket,
   Warehouse,
-  Settings
+  Settings,
+  ArrowUpRight
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
@@ -18,7 +19,6 @@ export const AdminSidebar: React.FC = () => {
     { name: 'Categories', path: '/admin/categories', icon: FolderTree },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Coupons', path: '/admin/coupons', icon: Ticket },
-
     { name: 'Inventory', path: '/admin/inventory', icon: Warehouse },
     { name: 'Site Settings', path: '/admin/settings', icon: Settings },
   ];
@@ -29,13 +29,13 @@ export const AdminSidebar: React.FC = () => {
       <div className="h-16 px-6 border-b border-secondary600/20 flex items-center justify-between">
         <Link to="/admin" className="flex items-center">
           <span className="text-lg font-medium text-white tracking-widest uppercase">
-            {STORE_NAME} <span className="text-xs text-secondary400 font-medium lowercase">admin</span>
+            {STORE_NAME} <span className="text-xs text-primary400 font-medium lowercase">admin</span>
           </span>
         </Link>
       </div>
 
       {/* Nav Menu */}
-      <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto no-scrollbar">
+      <nav className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto no-scrollbar">
         <p className="text-[10px] font-medium text-secondary500 uppercase tracking-widest pl-3 mb-2">
           Management
         </p>
@@ -47,12 +47,13 @@ export const AdminSidebar: React.FC = () => {
             className={({ isActive }) =>
               `flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs md:text-sm transition-all duration-200 group ${
                 isActive
-                  ? 'bg-white/10 text-white font-medium'
+                  ? 'bg-white/10 text-white font-semibold'
                   : 'text-secondary400 hover:bg-white/5 hover:text-white'
               }`
             }
           >
             <div className="flex items-center gap-3">
+              <item.icon className="w-4.5 h-4.5 shrink-0 opacity-85 group-hover:opacity-100 transition-opacity" />
               <span>{item.name}</span>
             </div>
           </NavLink>
@@ -63,9 +64,10 @@ export const AdminSidebar: React.FC = () => {
       <div className="p-4 border-t border-secondary600/20">
         <Link
           to="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs md:text-sm text-secondary400 hover:bg-white/5 hover:text-white transition-colors"
+          className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs md:text-sm text-secondary400 hover:bg-white/5 hover:text-white transition-colors"
         >
           <span>Go to Live Store</span>
+          <ArrowUpRight className="w-4 h-4 text-secondary400" />
         </Link>
       </div>
     </aside>

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 export interface SelectOption {
   value: string;
@@ -12,11 +13,12 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 }
 
 export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, options, className = '', id, ...props }, ref) => {
+  ({ label, error, options, className = '', id, onFocus, onBlur, onChange, ...props }, ref) => {
     const selectId = id || Math.random().toString(36).substring(2, 9);
+    const [focused, setFocused] = useState(false);
 
     return (
-      <div className="w-full flex flex-col gap-1.5 text-left">
+      <div className="w-full flex flex-col gap-1.5 text-left font-instrument">
         {label && (
           <label htmlFor={selectId} className="text-xs font-semibold text-secondary700 tracking-wider uppercase">
             {label}
@@ -26,6 +28,18 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           <select
             id={selectId}
             ref={ref}
+            onFocus={(e) => {
+              setFocused(true);
+              onFocus?.(e);
+            }}
+            onBlur={(e) => {
+              setFocused(false);
+              onBlur?.(e);
+            }}
+            onChange={(e) => {
+              setFocused(false);
+              onChange?.(e);
+            }}
             className={`w-full px-4 py-2.5 text-sm text-darkColor bg-white border rounded-lg appearance-none focus:outline-none focus:ring-2 transition-all duration-200 ${
               error
                 ? 'border-dangerColor focus:ring-dangerColor/30'
@@ -40,9 +54,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ))}
           </select>
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-secondary600">
-            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-            </svg>
+            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${focused ? 'rotate-180' : ''}`} />
           </div>
         </div>
         {error && <span className="text-xs font-medium text-dangerColor">{error}</span>}
