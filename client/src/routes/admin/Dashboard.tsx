@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminApiService } from '../../lib/api/admin';
-import type { DashboardStats } from '../../types/dashboard';
+import type { DashboardStats, InventoryItem } from '../../types/dashboard';
 import type { OrderDetail } from '../../types/order';
 import { formatPrice } from '../../lib/format';
 import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
@@ -21,6 +21,7 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<OrderDetail[]>([]);
+  const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,14 +32,16 @@ export const Dashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     setError(null);
-    const [statsRes, ordersRes] = await Promise.all([
+    const [statsRes, ordersRes, inventoryRes] = await Promise.all([
       adminApiService.getDashboardStats(),
       adminApiService.getOrders({ page: 1, limit: 5 }),
+      adminApiService.getInventory(1, 5, true),
     ]);
 
-    if (statsRes.success && ordersRes.success) {
+    if (statsRes.success && ordersRes.success && inventoryRes.success) {
       setStats(statsRes.data);
       setRecentOrders(ordersRes.data);
+      setLowStockItems(inventoryRes.data);
     } else {
       setError('Failed to load dashboard metrics.');
     }

@@ -8,7 +8,7 @@ import Card, { CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Textarea from '../../components/ui/Textarea';
-import { Plus, Trash2, GripVertical, Upload, Mail, Phone, MapPin, Truck, Megaphone, Layers, Info } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Upload, Mail, Phone, MapPin, Truck, Megaphone, Layers, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const emptySlide = (): HeroSlide => ({
   id: Date.now().toString(),
@@ -47,6 +47,17 @@ export const SiteSettingsPage: React.FC = () => {
 
   const dragIdx = useRef<number | null>(null);
   const dragOverIdx = useRef<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 336; // w-80 (320px) + gap-4 (16px)
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   useEffect(() => {
     if (!settings) return;
@@ -453,114 +464,144 @@ export const SiteSettingsPage: React.FC = () => {
                 </div>
 
                 {/* HORIZONTAL CAROUSEL LAYOUT FOR DRAG REORDERING */}
-                <div className="flex flex-row overflow-x-auto gap-4 pb-4 pt-1 snap-x no-scrollbar select-none">
-                  {slides.map((slide, idx) => (
-                    <div
-                      key={slide.id}
-                      draggable
-                      onDragStart={() => handleDragStart(idx)}
-                      onDragEnter={() => handleDragEnter(idx)}
-                      onDragEnd={handleDragEnd}
-                      onDragOver={(e) => e.preventDefault()}
-                      className="w-80 shrink-0 border border-secondary200 rounded-xl p-4 space-y-3 bg-white shadow-sm hover:border-secondary300 transition-all select-none snap-start relative"
+                <div className="relative group/carousel px-1">
+                  {/* Left Scroll Button */}
+                  {slides.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => scrollCarousel('left')}
+                      className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-lightgrayColor border border-secondary200 text-darkColor p-2 rounded-full shadow-md transition-all hover:scale-105 active:scale-95 focus:outline-none"
+                      title="Scroll Left"
                     >
-                      {/* Grip Header Row */}
-                      <div className="flex items-center justify-between border-b border-secondary100 pb-2">
-                        <div
-                          className="flex items-center gap-2 cursor-grab active:cursor-grabbing text-secondary500 hover:text-darkColor"
-                          title="Drag slide horizontally to reorder"
-                        >
-                          <GripVertical className="w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase tracking-wider">
-                            Slide #{idx + 1}
-                          </span>
-                        </div>
-                        {slides.length > 1 && (
-                          <button
-                            onClick={() => removeSlide(idx)}
-                            className="text-rose-500 hover:text-rose-700 transition-colors p-1"
-                            aria-label="Remove slide"
+                      <ChevronLeft className="w-4.5 h-4.5" />
+                    </button>
+                  )}
+
+                  {/* Right Scroll Button */}
+                  {slides.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => scrollCarousel('right')}
+                      className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-lightgrayColor border border-secondary200 text-darkColor p-2 rounded-full shadow-md transition-all hover:scale-105 active:scale-95 focus:outline-none"
+                      title="Scroll Right"
+                    >
+                      <ChevronRight className="w-4.5 h-4.5" />
+                    </button>
+                  )}
+
+                  <div
+                    ref={scrollContainerRef}
+                    className="flex flex-row overflow-x-auto gap-4 pb-4 pt-1 snap-x no-scrollbar select-none scroll-smooth"
+                  >
+                    {slides.map((slide, idx) => (
+                      <div
+                        key={slide.id}
+                        draggable
+                        onDragStart={() => handleDragStart(idx)}
+                        onDragEnter={() => handleDragEnter(idx)}
+                        onDragEnd={handleDragEnd}
+                        onDragOver={(e) => e.preventDefault()}
+                        className="w-80 shrink-0 border border-secondary200 rounded-xl p-4 space-y-3 bg-white shadow-sm hover:border-secondary300 transition-all select-none snap-start relative"
+                      >
+                        {/* Grip Header Row */}
+                        <div className="flex items-center justify-between border-b border-secondary100 pb-2">
+                          <div
+                            className="flex items-center gap-2 cursor-grab active:cursor-grabbing text-secondary500 hover:text-darkColor"
+                            title="Drag slide horizontally to reorder"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Form Details */}
-                      <div className="space-y-2.5 text-xs">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Title</label>
-                          <Input
-                            value={slide.title}
-                            onChange={(e) => updateSlide(idx, 'title', e.target.value.slice(0, 200))}
-                            placeholder="Festival Furniture Sale"
-                            maxLength={200}
-                            className="text-xs !py-1"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Subtitle</label>
-                          <Input
-                            value={slide.subtitle}
-                            onChange={(e) => updateSlide(idx, 'subtitle', e.target.value.slice(0, 500))}
-                            placeholder="Up to 30% Off Sheesham Wood"
-                            maxLength={500}
-                            className="text-xs !py-1"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Image Preview</label>
-                          
-                          {/* File Device Picker */}
-                          <label className="block cursor-pointer mb-1.5">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              disabled={uploadingIdx === idx}
-                              onChange={(e) => handleFileUpload(e, idx)}
-                            />
-                            <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-lg px-2.5 py-1.5 flex items-center justify-center gap-1.5 text-[10px] text-secondary600 hover:bg-lightgrayColor transition-colors">
-                              <Upload className="w-3.5 h-3.5" />
-                              <span>{uploadingIdx === idx ? 'Uploading…' : 'Upload device image'}</span>
-                            </div>
-                          </label>
-
-                          <Input
-                            value={slide.imageUrl}
-                            onChange={(e) => updateSlide(idx, 'imageUrl', e.target.value.slice(0, 2048))}
-                            placeholder="Or paste image URL"
-                            maxLength={2048}
-                            className="text-xs !py-1"
-                          />
-
-                          {/* Render visual image thumbnail */}
-                          {slide.imageUrl && (
-                            <div className="mt-2 h-20 w-full overflow-hidden rounded-lg border border-secondary200 bg-lightgrayColor">
-                              <img
-                                src={slide.imageUrl}
-                                alt={slide.title}
-                                className="w-full h-full object-cover select-none pointer-events-none"
-                              />
-                            </div>
+                            <GripVertical className="w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">
+                              Slide #{idx + 1}
+                            </span>
+                          </div>
+                          {slides.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeSlide(idx)}
+                              className="text-rose-500 hover:text-rose-700 transition-colors p-1"
+                              aria-label="Remove slide"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           )}
                         </div>
 
-                        <div>
-                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Navigation Link</label>
-                          <Input
-                            value={slide.link}
-                            onChange={(e) => updateSlide(idx, 'link', e.target.value.slice(0, 2048))}
-                            placeholder="/categories/wood-furniture"
-                            maxLength={2048}
-                            className="text-xs !py-1"
-                          />
+                        {/* Form Details */}
+                        <div className="space-y-2.5 text-xs">
+                          <div>
+                            <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Title</label>
+                            <Input
+                              value={slide.title}
+                              onChange={(e) => updateSlide(idx, 'title', e.target.value.slice(0, 200))}
+                              placeholder="Festival Furniture Sale"
+                              maxLength={200}
+                              className="text-xs !py-1"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Subtitle</label>
+                            <Input
+                              value={slide.subtitle}
+                              onChange={(e) => updateSlide(idx, 'subtitle', e.target.value.slice(0, 500))}
+                              placeholder="Up to 30% Off Sheesham Wood"
+                              maxLength={500}
+                              className="text-xs !py-1"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Image Preview</label>
+                            
+                            {/* File Device Picker */}
+                            <label className="block cursor-pointer mb-1.5">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                disabled={uploadingIdx === idx}
+                                onChange={(e) => handleFileUpload(e, idx)}
+                              />
+                              <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-lg px-2.5 py-1.5 flex items-center justify-center gap-1.5 text-[10px] text-secondary600 hover:bg-lightgrayColor transition-colors">
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>{uploadingIdx === idx ? 'Uploading…' : 'Upload device image'}</span>
+                              </div>
+                            </label>
+
+                            <Input
+                              value={slide.imageUrl}
+                              onChange={(e) => updateSlide(idx, 'imageUrl', e.target.value.slice(0, 2048))}
+                              placeholder="Or paste image URL"
+                              maxLength={2048}
+                              className="text-xs !py-1"
+                            />
+
+                            {/* Render visual image thumbnail */}
+                            {slide.imageUrl && (
+                              <div className="mt-2 h-20 w-full overflow-hidden rounded-lg border border-secondary200 bg-lightgrayColor">
+                                <img
+                                  src={slide.imageUrl}
+                                  alt={slide.title}
+                                  className="w-full h-full object-cover select-none pointer-events-none"
+                                />
+                              </div>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Navigation Link</label>
+                            <Input
+                              value={slide.link}
+                              onChange={(e) => updateSlide(idx, 'link', e.target.value.slice(0, 2048))}
+                              placeholder="/categories/wood-furniture"
+                              maxLength={2048}
+                              className="text-xs !py-1"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex justify-end pt-3 border-t border-secondary200">
