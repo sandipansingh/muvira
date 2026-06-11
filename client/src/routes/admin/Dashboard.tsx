@@ -1,21 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { adminApiService } from '../../lib/api/admin';
-import type { DashboardStats } from '../../types/dashboard';
-import type { OrderDetail } from '../../types/order';
-import { formatPrice } from '../../lib/format';
-import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
-import Button from '../../components/ui/Button';
-import Skeleton from '../../components/ui/Skeleton';
-import ErrorState from '../../components/shared/ErrorState';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { adminApiService } from "../../lib/api/admin";
+import type { DashboardStats } from "../../types/dashboard";
+import type { OrderDetail } from "../../types/order";
+import { formatPrice } from "../../lib/format";
+import Card, {
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
 import {
-  AlertTriangle,
-  ArrowRight,
-
-  FolderTree
-} from 'lucide-react';
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "../../components/ui/Table";
+import Skeleton from "../../components/ui/Skeleton";
+import ErrorState from "../../components/shared/ErrorState";
+import { AlertTriangle, ArrowRight, FolderTree } from "lucide-react";
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -41,23 +47,23 @@ export const Dashboard: React.FC = () => {
       setStats(statsRes.data);
       setRecentOrders(ordersRes.data);
     } else {
-      setError('Failed to load dashboard metrics.');
+      setError("Failed to load dashboard metrics.");
     }
     setLoading(false);
   };
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'delivered':
-        return 'success';
-      case 'cancelled':
-        return 'danger';
-      case 'shipped':
-      case 'processing':
-      case 'confirmed':
-        return 'primary';
+      case "delivered":
+        return "success";
+      case "cancelled":
+        return "danger";
+      case "shipped":
+      case "processing":
+      case "confirmed":
+        return "primary";
       default:
-        return 'warning';
+        return "warning";
     }
   };
 
@@ -73,7 +79,8 @@ export const Dashboard: React.FC = () => {
           Administrative Dashboard
         </h2>
         <p className="text-xs text-secondary500 tracking-wide mt-1">
-          Real-time metrics, store revenues, order fulfillments, and stock alerts.
+          Real-time metrics, store revenues, order fulfillments, and stock
+          alerts.
         </p>
       </div>
 
@@ -88,7 +95,6 @@ export const Dashboard: React.FC = () => {
         stats && (
           /* STATS CARDS */
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            
             {/* Revenue */}
             <Card className="border border-secondary200">
               <CardContent className="p-5 text-left">
@@ -134,7 +140,8 @@ export const Dashboard: React.FC = () => {
                     {stats.totalProducts}
                   </span>
                   <span className="text-[9px] font-medium text-secondary500 flex items-center gap-1 mt-1 leading-none">
-                    <FolderTree className="w-3 h-3 text-secondary400" /> {stats.totalCategories} Categories
+                    <FolderTree className="w-3 h-3 text-secondary400" />{" "}
+                    {stats.totalCategories} Categories
                   </span>
                 </div>
               </CardContent>
@@ -155,7 +162,8 @@ export const Dashboard: React.FC = () => {
                       to="/admin/inventory"
                       className="text-[9px] font-medium text-secondary500 hover:text-darkColor flex items-center gap-0.5 mt-1 leading-none hover:underline"
                     >
-                      <AlertTriangle className="w-3 h-3 text-secondary400" /> Restock catalog
+                      <AlertTriangle className="w-3 h-3 text-secondary400" />{" "}
+                      Restock catalog
                     </Link>
                   ) : (
                     <span className="text-[9px] font-medium text-secondary500 block mt-1 leading-none">
@@ -165,27 +173,27 @@ export const Dashboard: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
-
           </div>
         )
       )}
 
       {/* RECENT ORDERS TABLE */}
       <Card className="border border-secondary200 shadow-sm text-left">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex items-center justify-between">
           <div>
             <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>Latest 5 transactions placed across the store</CardDescription>
+            <CardDescription>
+              Latest 5 transactions placed across the store
+            </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/admin/orders')}
-            className="text-xs bg-white py-1.5 flex items-center gap-1"
+
+          <Link
+            to="/admin/orders"
+            className="flex items-center gap-1 text-sm font-medium text-secondary600 hover:text-darkColor transition-colors whitespace-nowrap"
           >
             Manage All
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Button>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
@@ -217,7 +225,9 @@ export const Dashboard: React.FC = () => {
                       {ord.orderNumber}
                     </TableCell>
                     <TableCell>
-                      <p className="font-medium text-darkColor leading-none">{ord.customer?.fullName}</p>
+                      <p className="font-medium text-darkColor leading-none">
+                        {ord.customer?.fullName}
+                      </p>
                       <p className="text-[10px] text-secondary500 font-medium font-instrument mt-1">
                         {ord.customer?.phone}
                       </p>
@@ -226,10 +236,16 @@ export const Dashboard: React.FC = () => {
                       {formatPrice(ord.totalAmount)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(ord.status)}>{ord.status}</Badge>
+                      <Badge variant={getStatusVariant(ord.status)}>
+                        {ord.status}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={ord.paymentStatus === 'paid' ? 'success' : 'warning'}>
+                      <Badge
+                        variant={
+                          ord.paymentStatus === "paid" ? "success" : "warning"
+                        }
+                      >
                         {ord.paymentStatus}
                       </Badge>
                     </TableCell>
