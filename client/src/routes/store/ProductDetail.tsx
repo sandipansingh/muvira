@@ -96,7 +96,7 @@ export const ProductDetail: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       {/* Breadcrumb trail */}
       {!loading && product && (
         <Breadcrumb
@@ -185,13 +185,13 @@ export const ProductDetail: React.FC = () => {
                   {product.category.name}
                 </Link>
                 <span className="text-secondary300">•</span>
-                <span className="text-xs font-medium text-secondary500 uppercase tracking-widest font-instrument">
+                <span className="text-xs font-medium text-secondary500 uppercase tracking-widest">
                   SKU: {product.sku}
                 </span>
               </div>
 
               {/* Product Title */}
-              <h1 className="text-xl md:text-3xl font-bold tracking-wide text-darkColor mb-2 leading-tight font-playfair">
+              <h1 className="text-xl md:text-3xl font-bold tracking-wide text-darkColor mb-2 leading-tight font-redhatMedium">
                 {product.name}
               </h1>
 
@@ -206,7 +206,7 @@ export const ProductDetail: React.FC = () => {
                     />
                   ))}
                 </div>
-                <span className="text-xs font-medium text-secondary600 mt-0.5 font-instrument">
+                <span className="text-xs font-medium text-secondary600 mt-0.5">
                   4.8 / 5.0
                 </span>
               </div>
@@ -290,7 +290,7 @@ export const ProductDetail: React.FC = () => {
                     className="w-full flex justify-between items-center text-left py-1.5 focus:outline-none"
                     type="button"
                   >
-                    <span className="text-xs font-bold text-secondary700 uppercase tracking-widest font-instrument">
+                    <span className="text-xs font-bold text-secondary700 uppercase tracking-widest">
                       Description
                     </span>
                     <ChevronDown
@@ -304,7 +304,7 @@ export const ProductDetail: React.FC = () => {
                       openSections.description ? "max-h-[800px] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                     }`}
                   >
-                    <div className="text-xs md:text-sm text-secondary600 tracking-wide leading-relaxed py-1 font-instrument">
+                    <div className="text-xs md:text-sm text-secondary600 tracking-wide leading-relaxed py-1">
                       {(() => {
                         const maxLength = 180;
                         const isLong = product.description && product.description.length > maxLength;
@@ -351,7 +351,7 @@ export const ProductDetail: React.FC = () => {
                       className="w-full flex justify-between items-center text-left py-1.5 focus:outline-none"
                       type="button"
                     >
-                      <span className="text-xs font-bold text-secondary700 uppercase tracking-widest font-instrument">
+                      <span className="text-xs font-bold text-secondary700 uppercase tracking-widest">
                         Specifications
                       </span>
                       <ChevronDown
@@ -365,7 +365,7 @@ export const ProductDetail: React.FC = () => {
                         openSections.specs ? "max-h-[800px] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                       }`}
                     >
-                      <div className="divide-y divide-[#e6dfd5]/40 py-1 font-instrument">
+                      <div className="divide-y divide-[#e6dfd5]/40 py-1">
                         {Object.entries(product.metadata).map(([key, val]) => (
                           <div
                             key={key}
@@ -394,7 +394,7 @@ export const ProductDetail: React.FC = () => {
             <div className="border-t border-secondary200 mt-16 pt-12">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg md:text-2xl tracking-wide font-bold text-darkColor font-playfair">
+                  <h2 className="text-lg md:text-2xl tracking-wide font-bold text-darkColor font-redhatMedium">
                     Discover More Designs
                   </h2>
                   <p className="hidden md:block text-secondary600 tracking-wide text-xs md:text-sm mt-1">

@@ -55,10 +55,10 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   return (
-    <div className="bg-transparent rounded-xl p-5 space-y-6 text-left font-instrument shrink-0">
+    <div className="bg-transparent rounded-xl p-5 space-y-6 text-left shrink-0">
       {/* Title */}
       <div className="flex items-center justify-between border-b border-secondary200 pb-3">
-        <h3 className="text-sm font-bold text-darkColor flex items-center gap-2 tracking-wide">
+        <h3 className="text-sm font-bold text-darkColor flex items-center gap-2 tracking-wide font-redhatMedium">
           <SlidersHorizontal className="w-4 h-4 text-primaryBg" />
           Filter Products
         </h3>
@@ -68,7 +68,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             setMaxInput("");
             onClear();
           }}
-          className="text-xs font-semibold text-secondary500 hover:text-primaryBg flex items-center gap-1.5 transition-colors"
+          className="text-xs font-semibold text-secondary500 hover:text-primaryBg flex items-center gap-1.5 transition-colors font-redhatRegular"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           Reset

@@ -43,7 +43,7 @@ export const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-6 font-instrument">
+    <div className="min-h-[85vh] flex items-center justify-center py-12 px-6">
       <Card className="w-full max-w-md shadow-lg border border-secondary200">
         <CardHeader className="text-center">
           <CardTitle className="text-xl md:text-2xl font-bold tracking-wide">

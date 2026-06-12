@@ -91,7 +91,7 @@ export const OrderHistory: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       <Breadcrumb items={[{ label: "Order History" }]} />
 
       <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor my-6">
@@ -212,7 +212,7 @@ export const OrderHistory: React.FC = () => {
                         <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">
                           Cancelled
                         </span>
-                        <p className="text-xs text-secondary500 font-instrument">
+                        <p className="text-xs text-secondary500">
                           This order has been cancelled and cannot be tracked.
                         </p>
                       </div>

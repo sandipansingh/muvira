@@ -21,19 +21,19 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
 
   const sizeClasses = {
     sm: {
-      current: 'text-sm font-medium font-instrument',
-      original: 'text-xs font-instrument',
-      discount: 'text-[10px] px-1.5 py-0.2 font-instrument',
+      current: 'text-sm font-medium font-redhatMedium',
+      original: 'text-xs font-redhatRegular',
+      discount: 'text-[10px] px-1.5 py-0.2 font-redhatMedium',
     },
     md: {
-      current: 'text-base font-medium md:text-[19px] font-instrument',
-      original: 'text-xs md:text-sm font-instrument',
-      discount: 'text-xs px-2 py-0.5 font-instrument',
+      current: 'text-base font-medium md:text-[19px] font-redhatMedium',
+      original: 'text-xs md:text-sm font-redhatRegular',
+      discount: 'text-xs px-2 py-0.5 font-redhatMedium',
     },
     lg: {
-      current: 'text-xl md:text-2xl font-medium font-instrument',
-      original: 'text-sm md:text-base font-instrument',
-      discount: 'text-sm px-2.5 py-0.5 font-instrument',
+      current: 'text-xl md:text-2xl font-medium font-redhatMedium',
+      original: 'text-sm md:text-base font-redhatRegular',
+      discount: 'text-sm px-2.5 py-0.5 font-redhatMedium',
     },
   };
 
@@ -53,7 +53,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
 
           {/* Discount Text */}
           {discountPercent > 0 && (
-            <span className="text-[var(--text-muted)] font-medium uppercase tracking-wider text-xs md:text-sm font-instrument">
+            <span className="text-[var(--text-muted)] font-medium uppercase tracking-wider text-xs md:text-sm font-redhatMedium">
               ({discountPercent}% OFF)
             </span>
           )}

@@ -131,8 +131,8 @@ export const OrderSuccess: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-secondary200 flex items-center justify-center mx-auto text-secondary600">
             <Package className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-playfair font-bold text-darkColor">Unable to load details</h1>
-          <p className="text-sm text-secondary500 leading-relaxed font-instrument">
+          <h1 className="text-2xl font-redhatMedium font-bold text-darkColor">Unable to load details</h1>
+          <p className="text-sm text-secondary500 leading-relaxed">
             {error}. Don't worry, if your payment was processed, your order is secure. Check your email for confirmation.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row gap-3">
@@ -201,17 +201,17 @@ export const OrderSuccess: React.FC = () => {
                 </div>
               </div>
               
-              <h1 className="text-3xl md:text-4xl font-playfair font-bold text-darkColor leading-tight">
+              <h1 className="text-3xl md:text-4xl font-redhatMedium font-bold text-darkColor leading-tight">
                 Your Order is Confirmed
               </h1>
-              <p className="text-sm md:text-base text-secondary500 leading-relaxed font-instrument max-w-xl">
+              <p className="text-sm md:text-base text-secondary500 leading-relaxed max-w-xl">
                 Thank you for your purchase. We have received your order and are already preparing to handcraft your pieces. A detailed summary has been sent to your email.
               </p>
             </div>
 
             {/* Delivery Milestone Tracker */}
             <div className="space-y-6 pt-4 border-t border-[#e6dfd5]">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-secondary600 font-instrument">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-secondary600">
                 Delivery Milestones
               </h3>
               
@@ -223,7 +223,7 @@ export const OrderSuccess: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={() => navigate('/orders')}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs md:text-sm font-instrument px-8 py-3"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs md:text-sm px-8 py-3"
               >
                 <ClipboardList className="w-4 h-4 shrink-0" />
                 Go to My Orders
@@ -231,7 +231,7 @@ export const OrderSuccess: React.FC = () => {
               <Button
                 variant="primary"
                 onClick={() => navigate('/products')}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs md:text-sm font-instrument px-8 py-3"
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs md:text-sm px-8 py-3"
               >
                 <ShoppingBag className="w-4 h-4 shrink-0" />
                 Continue Shopping
@@ -247,11 +247,11 @@ export const OrderSuccess: React.FC = () => {
               {/* Receipt Header */}
               <div className="pb-4 border-b border-[#e6dfd5] flex justify-between items-center">
                 <div>
-                  <h3 className="text-lg font-playfair font-bold text-darkColor">Receipt</h3>
-                  <p className="text-xs text-secondary500 font-instrument mt-0.5">Reference: {orderNumber}</p>
+                  <h3 className="text-lg font-redhatMedium font-bold text-darkColor">Receipt</h3>
+                  <p className="text-xs text-secondary500 mt-0.5">Reference: {orderNumber}</p>
                 </div>
                 {order?.createdAt && (
-                  <span className="text-right text-[10px] text-secondary500 font-instrument uppercase tracking-wider">
+                  <span className="text-right text-[10px] text-secondary500 uppercase tracking-wider">
                     {formatDate(order.createdAt)}
                   </span>
                 )}
@@ -279,15 +279,15 @@ export const OrderSuccess: React.FC = () => {
                           )}
                         </div>
                         <div className="space-y-0.5">
-                          <h4 className="text-xs font-semibold text-darkColor font-instrument line-clamp-1 leading-snug">
+                          <h4 className="text-xs font-semibold text-darkColor line-clamp-1 leading-snug">
                             {item.productName}
                           </h4>
-                          <p className="text-[11px] text-secondary500 font-instrument">
+                          <p className="text-[11px] text-secondary500">
                             Qty: {item.quantity} × {formatPrice(item.unitPrice)}
                           </p>
                         </div>
                       </div>
-                      <span className="text-xs font-bold text-darkColor font-instrument">
+                      <span className="text-xs font-bold text-darkColor">
                         {formatPrice(item.totalPrice)}
                       </span>
                     </div>
@@ -296,7 +296,7 @@ export const OrderSuccess: React.FC = () => {
                   // Fallback simple list
                   <div className="py-2 flex items-center gap-3">
                     <Package className="w-8 h-8 text-[var(--accent-gold)]" />
-                    <p className="text-xs text-secondary500 font-instrument">
+                    <p className="text-xs text-secondary500">
                       Your handcrafted items are listed under reference {orderNumber}.
                     </p>
                   </div>
@@ -304,7 +304,7 @@ export const OrderSuccess: React.FC = () => {
               </div>
 
               {/* Price Calculation Breakdown */}
-              <div className="border-t border-[#e6dfd5] pt-4 space-y-2.5 font-instrument text-xs">
+              <div className="border-t border-[#e6dfd5] pt-4 space-y-2.5 text-xs">
                 {order ? (
                   <>
                     <div className="flex justify-between text-secondary600">
@@ -331,7 +331,7 @@ export const OrderSuccess: React.FC = () => {
 
                 {/* Total */}
                 <div className="flex justify-between items-center text-sm font-bold text-darkColor border-t border-[#e6dfd5]/60 pt-3">
-                  <span className="font-playfair text-base">Grand Total</span>
+                  <span className="font-redhatMedium text-base">Grand Total</span>
                   <span className="text-base text-[var(--accent)]">
                     {formatPrice(totalAmount)}
                   </span>
@@ -343,7 +343,7 @@ export const OrderSuccess: React.FC = () => {
                 
                 {/* Shipping Details */}
                 {order && order.shippingAddress ? (
-                  <div className="space-y-1.5 font-instrument">
+                  <div className="space-y-1.5">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-secondary600">
                       <MapPin className="w-3.5 h-3.5 text-[var(--accent-gold)] shrink-0" />
                       <span>Delivery Address</span>
@@ -359,7 +359,7 @@ export const OrderSuccess: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-xs text-secondary500 font-instrument">
+                  <div className="flex items-center gap-2 text-xs text-secondary500">
                     <MapPin className="w-4 h-4 text-secondary400 shrink-0" />
                     <span>Shipping and invoice sent to your profile address.</span>
                   </div>
@@ -369,7 +369,7 @@ export const OrderSuccess: React.FC = () => {
                 <div className="bg-transparent border border-[#e6dfd5]/60 rounded-md p-3.5 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <CreditCard className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
-                    <span className="text-xs font-medium text-secondary600 font-instrument">
+                    <span className="text-xs font-medium text-secondary600">
                       Payment Method
                     </span>
                   </div>

@@ -80,8 +80,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {product.categoryName}
         </span>
 
-        {/* Title — elegant Playfair */}
-        <h3 className="font-playfair text-[15px] md:text-[16px] leading-tight tracking-[-0.1px] text-[var(--text)] line-clamp-2 mb-2 min-h-[42px]">
+        {/* Title */}
+        <h3 className="font-redhatRegular text-[15px] md:text-[16px] leading-tight tracking-[-0.1px] text-[var(--text)] line-clamp-2 mb-2 min-h-[42px]">
           {product.name}
         </h3>
 

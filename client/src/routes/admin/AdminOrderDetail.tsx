@@ -138,7 +138,7 @@ export const AdminOrderDetail: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-instrument text-left max-w-5xl mx-auto pb-12">
+    <div className="space-y-6 text-left max-w-5xl mx-auto pb-12">
       {/* Header Title */}
       <div className="flex items-center gap-3">
         <Link
@@ -224,7 +224,7 @@ export const AdminOrderDetail: React.FC = () => {
                       <p className="text-[10px] text-secondary500 uppercase tracking-wider font-medium">
                         Current AWB
                       </p>
-                      <p className="text-sm font-bold text-darkColor font-instrument">
+                      <p className="text-sm font-bold text-darkColor">
                         {order.awbCode}
                       </p>
                     </div>
@@ -267,7 +267,7 @@ export const AdminOrderDetail: React.FC = () => {
                         <h4 className="text-xs md:text-sm font-medium text-darkColor leading-snug">
                           {item.productName}
                         </h4>
-                        <span className="text-[10px] text-secondary500 font-normal block mt-1 uppercase tracking-widest font-instrument">
+                        <span className="text-[10px] text-secondary500 font-normal block mt-1 uppercase tracking-widest">
                           Unit price: {formatPrice(item.unitPrice)}
                         </span>
                       </div>
@@ -296,7 +296,7 @@ export const AdminOrderDetail: React.FC = () => {
                 Customer Identity
               </h3>
             </div>
-            <CardContent className="p-4 text-xs md:text-sm text-left space-y-3 font-instrument">
+            <CardContent className="p-4 text-xs md:text-sm text-left space-y-3">
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-secondary500 block font-semibold mb-0.5">Contact Name</span>
                 <span className="font-semibold text-darkColor">
@@ -335,7 +335,7 @@ export const AdminOrderDetail: React.FC = () => {
                 <br />
                 {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
               </p>
-              <p className="font-medium text-secondary750 text-xs flex items-center gap-1.5 mt-1 font-instrument">
+              <p className="font-medium text-secondary750 text-xs flex items-center gap-1.5 mt-1">
                 <Phone className="w-3.5 h-3.5 text-secondary400" />
                 {order.shippingAddress.phone}
               </p>

@@ -8,7 +8,7 @@ export const OrderFailure: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[75vh] flex items-center justify-center py-12 px-6 font-instrument text-center">
+    <div className="min-h-[75vh] flex items-center justify-center py-12 px-6 text-center">
       <Card className="w-full max-w-md border border-rose-100 shadow-xl overflow-hidden bg-white">
         <div className="bg-rose-50 py-10 px-6 border-b border-rose-100 flex flex-col items-center">
           <AlertCircle className="w-16 h-16 text-rose-500 mb-4 animate-pulse" />

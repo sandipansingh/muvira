@@ -17,7 +17,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyle = 'inline-flex items-center justify-center font-medium tracking-[0.4px] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-50 disabled:pointer-events-none';
+  const baseStyle = 'inline-flex items-center justify-center font-redhatMedium tracking-[0.4px] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-50 disabled:pointer-events-none';
 
   const variants = {
     primary: 'bg-[var(--accent)] text-white hover:bg-[var(--accent-dark)] active:bg-[#8e3c1f] border border-transparent',

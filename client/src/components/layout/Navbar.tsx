@@ -125,7 +125,7 @@ export const Navbar: React.FC = () => {
     <header className="relative z-[39] bg-[var(--surface)] border-b border-[var(--border)]">
       {/* 1. TOP UTILITY BAR (Desktop only) */}
       {announcementBar?.enabled && (
-      <div className="hidden md:block bg-[var(--surface)] text-[var(--text-muted)] text-[11px] font-instrument font-normal border-b border-[var(--border)] py-2">
+      <div className="hidden md:block bg-[var(--surface)] text-[var(--text-muted)] text-[11px] font-normal border-b border-[var(--border)] py-2">
         <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {announcementBar.badge && (
@@ -161,7 +161,7 @@ export const Navbar: React.FC = () => {
 
         {/* Store Logo */}
         <Link to="/" className="flex items-center">
-          <span className="text-[21px] md:text-[24px] font-semibold tracking-[-0.2px] text-[var(--text)] uppercase font-playfair">
+          <span className="text-[21px] md:text-[24px] font-semibold tracking-[-0.2px] text-[var(--text)] uppercase font-redhatMedium">
             {STORE_NAME}
             <span className="text-[var(--accent)] font-medium">.</span>
           </span>
@@ -173,7 +173,7 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Action Navigation Icons */}
-        <div className="flex items-center gap-4 md:gap-6 font-instrument">
+        <div className="flex items-center gap-4 md:gap-6">
           {/* Wishlist intentionally not linked until implemented */}
 
           {/* User Account / Profile */}
@@ -273,7 +273,7 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* 4. MEGA NAVIGATION MENU STRIP (Desktop only) */}
-      <div className="hidden md:block bg-[var(--surface-2)] border-t border-[var(--border)] font-instrument font-medium">
+      <div className="hidden md:block bg-[var(--surface-2)] border-t border-[var(--border)] font-medium">
         <div className="max-w-[1240px] mx-auto px-6">
           <nav className="flex items-center gap-7 py-2.5 text-[13px]">
             <Link to="/" className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
@@ -301,7 +301,7 @@ export const Navbar: React.FC = () => {
         onClose={() => setMobileMenuOpen(false)}
         title="Menu Options"
       >
-        <div className="flex flex-col gap-6 text-left font-instrument">
+        <div className="flex flex-col gap-6 text-left">
           {/* User Section */}
           <div className="bg-lightgrayColor rounded-xl p-4 flex flex-col gap-3">
             {isAuthenticated ? (

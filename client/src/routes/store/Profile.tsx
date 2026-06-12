@@ -202,7 +202,7 @@ export const Profile: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       <Breadcrumb items={[{ label: "Profile Account" }]} />
 
       <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor my-6">
@@ -309,7 +309,7 @@ export const Profile: React.FC = () => {
                     <span className="bg-rose-100 text-rose-800 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase tracking-wider">
                       Cancelled
                     </span>
-                    <p className="text-xs text-secondary500 font-instrument">
+                    <p className="text-xs text-secondary500">
                       This order has been cancelled and cannot be tracked.
                     </p>
                   </div>
@@ -380,7 +380,7 @@ export const Profile: React.FC = () => {
                           {addr.line1}, {addr.line2 && `${addr.line2}, `}
                           {addr.city}, {addr.state} - {addr.pincode}
                         </p>
-                        <p className="text-xs font-normal text-secondary600 font-instrument">
+                        <p className="text-xs font-normal text-secondary600">
                           {addr.phone}
                         </p>
                       </div>

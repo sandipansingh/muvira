@@ -92,7 +92,7 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
           <p className="text-sm font-semibold text-secondary600">
             Awaiting Dispatch
           </p>
-          <p className="text-xs text-secondary400 mt-1 font-instrument">
+          <p className="text-xs text-secondary400 mt-1">
             Tracking will appear once your order is shipped via Shiprocket.
           </p>
         </div>
@@ -124,7 +124,7 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
   if (error || !trackData) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
-        <p className="text-xs text-secondary500 font-instrument">
+        <p className="text-xs text-secondary500">
           {error || "No tracking data available yet."}
         </p>
         <button
@@ -144,7 +144,7 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
     activities[0]?.["sr-status-label"] ?? currentInfo?.current_status ?? "";
 
   return (
-    <div className="space-y-5 font-instrument text-left">
+    <div className="space-y-5 text-left">
       {/* ── Current Status Banner ─────────────────────────────────────────── */}
       <div className="rounded-xl border border-secondary200 bg-lightgrayColor/40 p-4 flex items-start gap-3">
         <div className="w-9 h-9 rounded-full bg-white border border-secondary200 flex items-center justify-center shrink-0 shadow-sm">

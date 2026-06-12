@@ -58,7 +58,7 @@ export const Home: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-10 font-instrument text-left space-y-12">
+    <div className="max-w-[1240px] mx-auto px-6 py-10 text-left space-y-12">
       {/* 1. HERO — clean, single focused message */}
       <div className="relative h-[400px] md:h-[460px] rounded-xl overflow-hidden border border-[var(--border)]">
         {heroSlides.length === 0 ? (
@@ -80,7 +80,7 @@ export const Home: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-[#2c2724]/60 flex items-center">
                   <div className="max-w-[620px] px-8 md:px-14">
-                    <h1 className="text-white text-[34px] md:text-[48px] leading-[1.05] font-medium tracking-[-0.02em] mb-4 font-playfair">
+                    <h1 className="text-white text-[34px] md:text-[48px] leading-[1.05] font-medium tracking-[-0.02em] mb-4 font-redhatMedium">
                       {slide.title}
                     </h1>
                     <p className="text-[#e8e0d4] text-[15px] md:text-[17px] tracking-wide mb-8 max-w-[36ch]">
@@ -89,6 +89,7 @@ export const Home: React.FC = () => {
                     <Button
                       variant="primary"
                       size="lg"
+                      className="font-pangramBold tracking-wide"
                       onClick={() => navigate(slide.link)}
                     >
                       Shop the Collection
@@ -132,7 +133,7 @@ export const Home: React.FC = () => {
         <div className="flex items-end justify-between">
           <div>
             <div className="uppercase text-[10px] tracking-[2px] text-[var(--accent)] font-medium mb-1">Curated Collections</div>
-            <h2 className="text-[26px] md:text-[30px] tracking-[-0.01em] leading-none font-medium font-playfair text-[var(--text)]">
+            <h2 className="text-[26px] md:text-[30px] tracking-[-0.01em] leading-none font-medium font-redhatMedium text-[var(--text)]">
               Shop by Category
             </h2>
           </div>
@@ -165,7 +166,7 @@ export const Home: React.FC = () => {
                   <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#2c2724]/85 to-transparent" />
                   <div className="absolute bottom-5 left-5 right-5 text-white">
                     <div className="text-[11px] font-medium tracking-[2px] text-[var(--accent-gold-light)] mb-1.5">COLLECTION</div>
-                    <h4 className="text-[17px] font-medium tracking-[-0.2px] leading-[1.05] font-playfair">
+                    <h4 className="text-[17px] font-medium tracking-[-0.2px] leading-[1.05] font-redhatMedium">
                       {cat.name}
                     </h4>
                   </div>
@@ -181,7 +182,7 @@ export const Home: React.FC = () => {
         <div className="flex items-end justify-between">
           <div>
             <div className="uppercase tracking-[2px] text-[10px] text-[var(--accent)] font-medium mb-1">Editor’s Picks</div>
-            <h2 className="text-[26px] md:text-[30px] tracking-[-0.01em] font-medium text-[var(--text)] font-playfair">Featured Best Sellers</h2>
+            <h2 className="text-[26px] md:text-[30px] tracking-[-0.01em] font-medium text-[var(--text)] font-redhatMedium">Featured Best Sellers</h2>
           </div>
           <Link
             to="/products"
