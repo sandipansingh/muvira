@@ -52,6 +52,7 @@ export type CacheInvalidationEvent =
   | "ORDER_PLACED"
   | "ORDER_UPDATED"
   | "REVIEW_ADDED"
+  | "REVIEW_DELETED"
   | "CART_UPDATED"
   | "CATEGORY_UPDATED";
 
@@ -143,9 +144,11 @@ export function invalidateOn(
       }
 
       // ── Review events ────────────────────────────────────────────────────
-      case "REVIEW_ADDED": {
+      case "REVIEW_ADDED":
+      case "REVIEW_DELETED": {
         const p = payload as ReviewEventPayload;
         deleteCache(`reviews:product:${p.productId}`);
+        deleteCacheByPattern("GET:/api/products"); // ensure list/detail aggregates refresh
         break;
       }
 

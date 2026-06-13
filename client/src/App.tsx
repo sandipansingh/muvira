@@ -46,6 +46,7 @@ import CategoriesList from './routes/admin/CategoriesList';
 import OrdersList from './routes/admin/OrdersList';
 import AdminOrderDetail from './routes/admin/AdminOrderDetail';
 import CouponsList from './routes/admin/CouponsList';
+import ReviewsList from './routes/admin/ReviewsList';
 
 import InventoryList from './routes/admin/InventoryList';
 import SiteSettingsPage from './routes/admin/SiteSettings';
@@ -139,6 +140,7 @@ export const App: React.FC = () => {
                 <Route path="orders" element={<OrdersList />} />
                 <Route path="orders/:id" element={<AdminOrderDetail />} />
                 <Route path="coupons" element={<CouponsList />} />
+                <Route path="reviews" element={<ReviewsList />} />
 
                 <Route path="inventory" element={<InventoryList />} />
                 <Route path="settings" element={<SiteSettingsPage />} />

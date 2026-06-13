@@ -750,6 +750,7 @@ This is the one place frontend talks to a third party directly (Razorpay's own C
 | `PAYMENT_VERIFICATION_FAILED` | 400 | Razorpay signature didn't match |
 | `RATE_LIMITED` | 429 | Too many requests, retry later |
 | `SERVER_ERROR` | 500 | Unexpected error, show generic message |
+| `NOT_VERIFIED_BUYER` | 403 | Tried to review without a delivered paid order for the product |
 
 ---
 
@@ -760,3 +761,50 @@ This is the one place frontend talks to a third party directly (Razorpay's own C
 - All dates are **ISO 8601 UTC strings** (`2026-06-10T14:22:00Z`) — format/timezone-convert client-side.
 - All list endpoints that support pagination use the same `{ data: [...], pagination: {...} }` envelope.
 - IDs are UUID strings throughout.
+
+---
+
+## 8. Reviews (Product Ratings & Comments)
+
+Only users with a delivered + paid order containing the product may rate/comment.
+
+### Public
+`GET /api/products/:productId/reviews?page=1&limit=20`
+
+Response:
+```json
+{
+  "success": true,
+  "data": {
+    "reviews": [
+      {
+        "id": "uuid",
+        "productId": "uuid",
+        "userId": "uuid",
+        "rating": 5,
+        "comment": "Excellent quality and fast delivery.",
+        "createdAt": "2026-06-20T10:00:00Z",
+        "userName": "Asha Roy"
+      }
+    ],
+    "summary": { "avgRating": 4.7, "totalReviews": 124 }
+  },
+  "meta": { "page": 1, "limit": 20, "total": 124, "totalPages": 7 }
+}
+```
+
+### Authenticated
+`POST /api/products/:productId/reviews`
+```json
+{ "rating": 4, "comment": "Good fit, slightly large." }
+```
+- Returns 201 + `{ review, summary }`
+- 403 with `NOT_VERIFIED_BUYER` if the caller has no delivered order for the product.
+- Calling again updates the existing review (upsert).
+
+### Admin
+`GET /api/admin/reviews?productId=...&rating=5&q=...&page=1&limit=20`
+
+`DELETE /api/admin/reviews/:id` → `{ deleted: true }`
+
+Admin list returns flattened rows including `productName`, `userName`, `userEmail`.

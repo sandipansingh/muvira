@@ -7,6 +7,7 @@ import type {
   UpdateProductInput,
   AddProductImageInput,
 } from "./schema";
+import { getReviewAggregates } from "../reviews/service";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -94,8 +95,21 @@ export async function listProducts(query: ListProductsQuery) {
 
   if (error) throw new AppError(500, "DB_ERROR", "Failed to fetch products");
 
+  const products = (data ?? []) as any[];
+  if (products.length > 0) {
+    const ids = products.map((p) => p.id);
+    const aggregates = await getReviewAggregates(ids);
+    for (const p of products) {
+      const agg = aggregates[p.id];
+      if (agg) {
+        p.rating = agg.rating;
+        p.review_count = agg.reviewCount;
+      }
+    }
+  }
+
   return {
-    products: data ?? [],
+    products,
     total: count ?? 0,
     page,
     limit,
@@ -166,8 +180,21 @@ export async function adminListProducts(query: ListProductsQuery) {
 
   if (error) throw new AppError(500, "DB_ERROR", "Failed to fetch products");
 
+  const products = (data ?? []) as any[];
+  if (products.length > 0) {
+    const ids = products.map((p) => p.id);
+    const aggregates = await getReviewAggregates(ids);
+    for (const p of products) {
+      const agg = aggregates[p.id];
+      if (agg) {
+        p.rating = agg.rating;
+        p.review_count = agg.reviewCount;
+      }
+    }
+  }
+
   return {
-    products: data ?? [],
+    products,
     total: count ?? 0,
     page,
     limit,
@@ -200,7 +227,15 @@ export async function getProductBySlug(slug: string): Promise<
     throw new AppError(404, "PRODUCT_NOT_FOUND", "Product not found");
   }
 
-  return data as Product & {
+  const prod = data as any;
+  const aggregates = await getReviewAggregates([prod.id]);
+  const agg = aggregates[prod.id];
+  if (agg) {
+    prod.rating = agg.rating;
+    prod.review_count = agg.reviewCount;
+  }
+
+  return prod as Product & {
     product_images: ProductImage[];
     category: { id: string; name: string; slug: string } | null;
   };
@@ -348,7 +383,14 @@ export async function getProductById(id: string): Promise<any> {
     throw new AppError(404, "PRODUCT_NOT_FOUND", "Product not found");
   }
 
-  return data;
+  const prod = data as any;
+  const aggregates = await getReviewAggregates([prod.id]);
+  const agg = aggregates[prod.id];
+  if (agg) {
+    prod.rating = agg.rating;
+    prod.review_count = agg.reviewCount;
+  }
+  return prod;
 }
 
 export async function reorderProductImages(

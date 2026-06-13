@@ -11,6 +11,7 @@ import type { OrderListItem, OrderDetail, OrderItem, OrderAddress, AdminNote } f
 import type { Coupon, CouponPreview } from '../../types/coupon';
 import type { DashboardStats, InventoryItem } from '../../types/dashboard';
 import type { SiteSettings } from '../../types/settings';
+import type { ProductReview } from '../../types/product';
 
 // ── Profile ──────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,8 @@ export function mapProductListItem(raw: Record<string, unknown>): ProductListIte
     categoryName: cat ? (cat['name'] as string) : '',
     primaryImageUrl: (primaryImage?.['url'] as string | undefined) ?? '',
     createdAt: raw['created_at'] as string,
+    rating: (raw['rating'] as number | null | undefined) ?? null,
+    reviewCount: (raw['review_count'] as number | undefined) ?? (raw['reviewCount'] as number | undefined) ?? 0,
   };
 }
 
@@ -110,6 +113,8 @@ export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
     images: images.map(mapProductImage),
     metadata: (raw['metadata'] as Record<string, string> | null) ?? {},
     createdAt: raw['created_at'] as string,
+    rating: (raw['rating'] as number | null | undefined) ?? null,
+    reviewCount: (raw['review_count'] as number | undefined) ?? (raw['reviewCount'] as number | undefined) ?? 0,
   };
 }
 
@@ -331,6 +336,21 @@ export function mapInventoryItem(raw: Record<string, unknown>): InventoryItem {
     sku: (raw['sku'] as string | null) ?? '',
     stock: raw['stock'] as number,
     isLowStock: (raw['stock'] as number) <= 10,
+  };
+}
+
+// ── Reviews ──────────────────────────────────────────────────────────────────
+
+export function mapProductReview(raw: Record<string, unknown>): ProductReview {
+  return {
+    id: raw['id'] as string,
+    productId: (raw['product_id'] as string) ?? (raw['productId'] as string) ?? '',
+    userId: (raw['user_id'] as string) ?? (raw['userId'] as string) ?? '',
+    rating: raw['rating'] as number,
+    comment: (raw['comment'] as string) ?? null,
+    createdAt: (raw['created_at'] as string) ?? (raw['createdAt'] as string) ?? '',
+    updatedAt: (raw['updated_at'] as string) ?? (raw['updatedAt'] as string) ?? undefined,
+    userName: (raw['user_name'] as string | null | undefined) ?? (raw['userName'] as string | null | undefined) ?? null,
   };
 }
 

@@ -21,6 +21,8 @@ export interface ProductListItem {
   categoryName: string;
   primaryImageUrl: string;
   createdAt: string;
+  rating?: number | null;
+  reviewCount?: number;
 }
 
 export interface ProductDetail {
@@ -45,6 +47,24 @@ export interface ProductDetail {
   images: ProductImage[];
   metadata: Record<string, string>;
   createdAt: string;
+  rating?: number | null;
+  reviewCount?: number;
+}
+
+export interface ProductReview {
+  id: string;
+  productId: string;
+  userId: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  updatedAt?: string;
+  userName?: string | null;
+}
+
+export interface ReviewSummary {
+  avgRating: number | null;
+  totalReviews: number;
 }
 
 export interface ProductQueryParams {

@@ -50,6 +50,7 @@ import { adminInventoryRouter } from "./modules/admin/inventory/routes";
 import { settingsRouter, adminSettingsRouter } from "./modules/settings/routes";
 import { adminCacheRouter } from "./modules/admin/cache/routes";
 import { trackingRouter } from "./modules/tracking/routes";
+import { reviewsRouter, adminReviewsRouter } from "./modules/reviews/routes";
 
 
 export function createApp() {
@@ -132,6 +133,8 @@ export function createApp() {
   // Public
   app.use("/api/health", healthRouter);
   app.use("/api/products", productsRouter);
+  // Reviews are exposed under products namespace: GET/POST /api/products/:productId/reviews
+  app.use("/api/products", reviewsRouter);
   app.use("/api/categories", categoriesRouter);
   app.use("/api/settings", settingsRouter);
   app.use("/api/tracking", trackingRouter);
@@ -163,6 +166,7 @@ export function createApp() {
   adminRouter.use("/inventory", adminInventoryRouter);
   adminRouter.use("/settings", adminSettingsRouter);
   adminRouter.use("/cache", adminCacheRouter);
+  adminRouter.use("/reviews", adminReviewsRouter);
 
   app.use("/api/admin", adminRouter);
 

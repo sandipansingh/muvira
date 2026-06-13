@@ -689,4 +689,62 @@ export const adminApiService = {
       };
     return { success: true, data: mapOrderDetail(res.data) };
   },
+
+  // ── Reviews (Admin) ────────────────────────────────────────────────────────
+  async getReviews(params: {
+    page?: number;
+    limit?: number;
+    productId?: string;
+    rating?: number;
+    q?: string;
+  } = {}): Promise<ApiPaginatedResponse<any>> {
+    const qs = new URLSearchParams();
+    qs.set("page", String(params.page ?? 1));
+    qs.set("limit", String(params.limit ?? 20));
+    if (params.productId) qs.set("productId", params.productId);
+    if (params.rating) qs.set("rating", String(params.rating));
+    if (params.q) qs.set("q", params.q);
+
+    const res = await adminGet<{
+      success: boolean;
+      data?: AnyRecord[];
+      meta?: AnyRecord;
+      error?: AnyRecord;
+    }>(`/api/admin/reviews?${qs}`);
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
+          code: string;
+          message: string;
+        },
+      };
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    return {
+      success: true,
+      data: res.data,
+      pagination: {
+        page,
+        limit,
+        total: (res.meta?.["total"] as number) ?? 0,
+        totalPages: (res.meta?.["totalPages"] as number) ?? 1,
+      },
+    };
+  },
+
+  async deleteReview(id: string): Promise<ApiResponse<{ deleted: boolean }>> {
+    const res = await adminDelete<{ success: boolean; data?: any; error?: AnyRecord }>(
+      `/api/admin/reviews/${id}`,
+    );
+    if (!res.success)
+      return {
+        success: false,
+        error: (res.error ?? { code: "UNKNOWN", message: "Failed to delete review" }) as {
+          code: string;
+          message: string;
+        },
+      };
+    return { success: true, data: { deleted: true } };
+  },
 };
