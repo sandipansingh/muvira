@@ -1,12 +1,12 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const CategoryParamsSchema = z.object({
   slug: z.string().min(1).max(300),
-});
+})
 
 export const CategoryIdParamsSchema = z.object({
   id: z.string().uuid(),
-});
+})
 
 export const CreateCategorySchema = z
   .object({
@@ -23,9 +23,9 @@ export const CreateCategorySchema = z
     sort_order: z.number().int().min(0).default(0),
     show_in_navbar: z.boolean().default(false),
   })
-  .strict();
+  .strict()
 
-export const UpdateCategorySchema = CreateCategorySchema.partial().strict();
+export const UpdateCategorySchema = CreateCategorySchema.partial().strict()
 
-export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>;
-export type UpdateCategoryInput = z.infer<typeof UpdateCategorySchema>;
+export type CreateCategoryInput = z.infer<typeof CreateCategorySchema>
+export type UpdateCategoryInput = z.infer<typeof UpdateCategorySchema>

@@ -1,25 +1,25 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { LogOut, Menu } from 'lucide-react';
-import Button from '../ui/Button';
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import { LogOut, Menu } from 'lucide-react'
+import Button from '../ui/Button'
 
 interface AdminTopbarProps {
-  onToggleSidebar?: () => void;
-  title?: string;
+  onToggleSidebar?: () => void
+  title?: string
 }
 
 export const AdminTopbar: React.FC<AdminTopbarProps> = ({
   onToggleSidebar,
   title = 'Admin Workspace',
 }) => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/');
-  };
+    await logout()
+    navigate('/')
+  }
 
   return (
     <header className="bg-white border-b border-secondary200 h-16 flex items-center justify-between px-6 sticky top-0 z-30">
@@ -66,7 +66,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
         </Button>
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default AdminTopbar;
+export default AdminTopbar

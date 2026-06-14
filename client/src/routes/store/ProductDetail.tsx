@@ -1,125 +1,123 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { productsApiService } from "../../lib/api/products";
-import { reviewsApiService } from "../../lib/api/reviews";
+import React, { useState, useEffect } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { productsApiService } from '../../lib/api/products'
+import { reviewsApiService } from '../../lib/api/reviews'
 import type {
   ProductDetail as ProductDetailType,
   ProductListItem,
   ProductReview,
   ReviewSummary,
-} from "../../types/product";
-import { useAuth } from "../../hooks/useAuth";
-import PriceDisplay from "../../components/shared/PriceDisplay";
-import StockBadge from "../../components/shared/StockBadge";
-import ProductCard from "../../components/product/ProductCard";
-import { useCart } from "../../hooks/useCart";
-import Button from "../../components/ui/Button";
-import Skeleton from "../../components/ui/Skeleton";
-import Breadcrumb from "../../components/layout/Breadcrumb";
-import ErrorState from "../../components/shared/ErrorState";
-import { Star, ShoppingCart, Info, Minus, Plus, ChevronDown } from "lucide-react";
+} from '../../types/product'
+import { useAuth } from '../../hooks/useAuth'
+import PriceDisplay from '../../components/shared/PriceDisplay'
+import StockBadge from '../../components/shared/StockBadge'
+import ProductCard from '../../components/product/ProductCard'
+import { useCart } from '../../hooks/useCart'
+import Button from '../../components/ui/Button'
+import Skeleton from '../../components/ui/Skeleton'
+import Breadcrumb from '../../components/layout/Breadcrumb'
+import ErrorState from '../../components/shared/ErrorState'
+import { Star, ShoppingCart, Info, Minus, Plus, ChevronDown } from 'lucide-react'
 
 export const ProductDetail: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const { addToCart } = useCart();
+  const { slug } = useParams<{ slug: string }>()
+  const { addToCart } = useCart()
 
-  const [product, setProduct] = useState<ProductDetailType | null>(null);
-  const [related, setRelated] = useState<ProductListItem[]>([]);
-  const [activeImageId, setActiveImageId] = useState<string>("");
+  const [product, setProduct] = useState<ProductDetailType | null>(null)
+  const [related, setRelated] = useState<ProductListItem[]>([])
+  const [activeImageId, setActiveImageId] = useState<string>('')
 
-  const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [addingToCart, setAddingToCart] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1)
+  const [loading, setLoading] = useState(true)
+  const [addingToCart, setAddingToCart] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Reviews
-  const { user } = useAuth();
-  const [reviews, setReviews] = useState<ProductReview[]>([]);
-  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ avgRating: null, totalReviews: 0 });
-  const [reviewsLoading, setReviewsLoading] = useState(false);
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [selectedRating, setSelectedRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState("");
-  const [reviewError, setReviewError] = useState<string | null>(null);
+  const { user } = useAuth()
+  const [reviews, setReviews] = useState<ProductReview[]>([])
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({
+    avgRating: null,
+    totalReviews: 0,
+  })
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [submittingReview, setSubmittingReview] = useState(false)
+  const [selectedRating, setSelectedRating] = useState(5)
+  const [reviewComment, setReviewComment] = useState('')
+  const [reviewError, setReviewError] = useState<string | null>(null)
 
   // Collapsible Accordion sections state
   const [openSections, setOpenSections] = useState({
     description: true,
     specs: true,
     shipping: false,
-  });
+  })
 
-  const toggleSection = (section: "description" | "specs" | "shipping") => {
+  const toggleSection = (section: 'description' | 'specs' | 'shipping') => {
     setOpenSections((prev) => ({
       ...prev,
       [section]: !prev[section],
-    }));
-  };
+    }))
+  }
 
-  const [isDescTextExpanded, setIsDescTextExpanded] = useState(false);
+  const [isDescTextExpanded, setIsDescTextExpanded] = useState(false)
 
   useEffect(() => {
     if (slug) {
-      fetchProductDetails();
+      fetchProductDetails()
     }
-  }, [slug]);
+  }, [slug])
 
   const fetchProductDetails = async () => {
-    setLoading(true);
-    setError(null);
-    setQuantity(1);
+    setLoading(true)
+    setError(null)
+    setQuantity(1)
 
-    const res = await productsApiService.getProductBySlug(slug || "");
+    const res = await productsApiService.getProductBySlug(slug || '')
     if (res.success) {
-      setProduct(res.data);
+      setProduct(res.data)
       // Set primary image active
-      const primary =
-        res.data.images.find((img) => img.isPrimary) || res.data.images[0];
-      setActiveImageId(primary?.id || "");
+      const primary = res.data.images.find((img) => img.isPrimary) || res.data.images[0]
+      setActiveImageId(primary?.id || '')
 
       // Load related items
-      const relatedRes = await productsApiService.getRelatedProducts(
-        res.data.id,
-      );
+      const relatedRes = await productsApiService.getRelatedProducts(res.data.id)
       if (relatedRes.success) {
-        setRelated(relatedRes.data);
+        setRelated(relatedRes.data)
       }
 
       // Load reviews (after product id known)
-      fetchReviews(res.data.id);
+      fetchReviews(res.data.id)
     } else {
-      setError(res.error.message || "Product not found.");
+      setError(res.error.message || 'Product not found.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const fetchReviews = async (prodId: string) => {
-    setReviewsLoading(true);
-    const res = await reviewsApiService.getProductReviews(prodId, 1, 50);
+    setReviewsLoading(true)
+    const res = await reviewsApiService.getProductReviews(prodId, 1, 50)
     if (res.success) {
-      setReviews(res.data);
-      setReviewSummary(res.summary);
+      setReviews(res.data)
+      setReviewSummary(res.summary)
     }
-    setReviewsLoading(false);
-  };
+    setReviewsLoading(false)
+  }
 
   const handleAddToCart = async () => {
-    if (!product) return;
-    setAddingToCart(true);
-    await addToCart(product.id, quantity);
-    setAddingToCart(false);
-  };
+    if (!product) return
+    setAddingToCart(true)
+    await addToCart(product.id, quantity)
+    setAddingToCart(false)
+  }
 
-  const activeImage =
-    product?.images.find((img) => img.id === activeImageId) ||
-    product?.images[0];
+  const activeImage = product?.images.find((img) => img.id === activeImageId) || product?.images[0]
 
   if (error) {
     return (
       <div className="max-w-[1240px] mx-auto px-6 py-8">
         <ErrorState message={error} onRetry={fetchProductDetails} />
       </div>
-    );
+    )
   }
 
   return (
@@ -186,8 +184,8 @@ export const ProductDetail: React.FC = () => {
                         onClick={() => setActiveImageId(img.id)}
                         className={`w-20 h-20 border rounded-lg overflow-hidden shrink-0 transition-all ${
                           activeImageId === img.id
-                            ? "border-primaryBg ring-2 ring-primaryBg/30"
-                            : "border-secondary200 hover:border-secondary400"
+                            ? 'border-primaryBg ring-2 ring-primaryBg/30'
+                            : 'border-secondary200 hover:border-secondary400'
                         }`}
                       >
                         <img
@@ -226,20 +224,20 @@ export const ProductDetail: React.FC = () => {
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex text-primaryBg">
                   {Array.from({ length: 5 }).map((_, i) => {
-                    const avg = reviewSummary.avgRating ?? 0;
-                    const filled = i + 1 <= Math.floor(avg);
-                    const half = !filled && i + 1 <= Math.ceil(avg) && avg % 1 !== 0;
+                    const avg = reviewSummary.avgRating ?? 0
+                    const filled = i + 1 <= Math.floor(avg)
+                    const half = !filled && i + 1 <= Math.ceil(avg) && avg % 1 !== 0
                     return (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${filled || half ? "fill-current" : ""} stroke-current`}
+                        className={`w-4 h-4 ${filled || half ? 'fill-current' : ''} stroke-current`}
                         strokeWidth={1.5}
                       />
-                    );
+                    )
                   })}
                 </div>
                 <span className="text-xs font-medium text-secondary600 mt-0.5">
-                  {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : "—"} / 5.0
+                  {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : '—'} / 5.0
                   {reviewSummary.totalReviews > 0 && (
                     <span className="ml-1 text-secondary400">({reviewSummary.totalReviews})</span>
                   )}
@@ -286,9 +284,7 @@ export const ProductDetail: React.FC = () => {
                       {quantity}
                     </span>
                     <button
-                      onClick={() =>
-                        setQuantity((q) => Math.min(product.stock, q + 1))
-                      }
+                      onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
                       disabled={quantity >= product.stock || addingToCart}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-secondary600 hover:bg-lightgrayColor disabled:opacity-40 transition-colors focus:outline-none"
                     >
@@ -309,9 +305,8 @@ export const ProductDetail: React.FC = () => {
                 <div className="p-4 bg-rose-50/50 border border-rose-100 rounded-xl mb-8 flex items-start gap-2.5">
                   <Info className="w-5 h-5 text-dangerColor shrink-0 mt-0.5" />
                   <div className="text-xs leading-relaxed text-rose-800">
-                    This item is currently out of stock. We are craft-restocking
-                    it soon. Click the store pins to inquire or check similar
-                    designs.
+                    This item is currently out of stock. We are craft-restocking it soon. Click the
+                    store pins to inquire or check similar designs.
                   </div>
                 </div>
               )}
@@ -321,7 +316,7 @@ export const ProductDetail: React.FC = () => {
                 {/* Description Panel */}
                 <div className="py-4">
                   <button
-                    onClick={() => toggleSection("description")}
+                    onClick={() => toggleSection('description')}
                     className="w-full flex justify-between items-center text-left py-1.5 focus:outline-none"
                     type="button"
                   >
@@ -330,26 +325,28 @@ export const ProductDetail: React.FC = () => {
                     </span>
                     <ChevronDown
                       className={`w-4 h-4 text-secondary500 transition-transform duration-300 ${
-                        openSections.description ? "rotate-180" : ""
+                        openSections.description ? 'rotate-180' : ''
                       }`}
                     />
                   </button>
                   <div
                     className={`overflow-hidden transition-all duration-300 ${
-                      openSections.description ? "max-h-[800px] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                      openSections.description
+                        ? 'max-h-[800px] opacity-100 mt-2'
+                        : 'max-h-0 opacity-0 pointer-events-none'
                     }`}
                   >
                     <div className="text-xs md:text-sm text-secondary600 tracking-wide leading-relaxed py-1">
                       {(() => {
-                        const maxLength = 180;
-                        const isLong = product.description && product.description.length > maxLength;
+                        const maxLength = 180
+                        const isLong = product.description && product.description.length > maxLength
 
-                        if (!isLong) return product.description;
+                        if (!isLong) return product.description
 
                         if (isDescTextExpanded) {
                           return (
                             <>
-                              {product.description}{" "}
+                              {product.description}{' '}
                               <button
                                 onClick={() => setIsDescTextExpanded(false)}
                                 className="text-primaryBg font-semibold hover:text-primaryHover focus:outline-none ml-1 inline-block"
@@ -358,12 +355,12 @@ export const ProductDetail: React.FC = () => {
                                 less
                               </button>
                             </>
-                          );
+                          )
                         }
 
                         return (
                           <>
-                            {product.description.substring(0, maxLength)}...{" "}
+                            {product.description.substring(0, maxLength)}...{' '}
                             <button
                               onClick={() => setIsDescTextExpanded(true)}
                               className="text-primaryBg font-semibold hover:text-primaryHover focus:outline-none ml-1 inline-block"
@@ -372,7 +369,7 @@ export const ProductDetail: React.FC = () => {
                               more
                             </button>
                           </>
-                        );
+                        )
                       })()}
                     </div>
                   </div>
@@ -382,7 +379,7 @@ export const ProductDetail: React.FC = () => {
                 {Object.keys(product.metadata).length > 0 && (
                   <div className="py-4">
                     <button
-                      onClick={() => toggleSection("specs")}
+                      onClick={() => toggleSection('specs')}
                       className="w-full flex justify-between items-center text-left py-1.5 focus:outline-none"
                       type="button"
                     >
@@ -391,35 +388,30 @@ export const ProductDetail: React.FC = () => {
                       </span>
                       <ChevronDown
                         className={`w-4 h-4 text-secondary500 transition-transform duration-300 ${
-                          openSections.specs ? "rotate-180" : ""
+                          openSections.specs ? 'rotate-180' : ''
                         }`}
                       />
                     </button>
                     <div
                       className={`overflow-hidden transition-all duration-300 ${
-                        openSections.specs ? "max-h-[800px] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                        openSections.specs
+                          ? 'max-h-[800px] opacity-100 mt-2'
+                          : 'max-h-0 opacity-0 pointer-events-none'
                       }`}
                     >
                       <div className="divide-y divide-[#e6dfd5]/40 py-1">
                         {Object.entries(product.metadata).map(([key, val]) => (
-                          <div
-                            key={key}
-                            className="grid grid-cols-3 gap-4 py-3 text-xs md:text-sm"
-                          >
+                          <div key={key} className="grid grid-cols-3 gap-4 py-3 text-xs md:text-sm">
                             <span className="col-span-1 text-secondary500 capitalize font-medium">
                               {key}
                             </span>
-                            <span className="col-span-2 font-semibold text-darkColor">
-                              {val}
-                            </span>
+                            <span className="col-span-2 font-semibold text-darkColor">{val}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
                 )}
-
-
               </div>
             </div>
           </div>
@@ -460,8 +452,8 @@ export const ProductDetail: React.FC = () => {
               </h2>
               <p className="text-secondary600 text-xs md:text-sm mt-1">
                 {reviewSummary.totalReviews > 0
-                  ? `${reviewSummary.totalReviews} verified review${reviewSummary.totalReviews === 1 ? "" : "s"}`
-                  : "Be the first to review this product"}
+                  ? `${reviewSummary.totalReviews} verified review${reviewSummary.totalReviews === 1 ? '' : 's'}`
+                  : 'Be the first to review this product'}
               </p>
             </div>
 
@@ -471,7 +463,7 @@ export const ProductDetail: React.FC = () => {
               <div className="lg:col-span-2">
                 <div className="flex items-baseline gap-3">
                   <div className="text-4xl font-bold text-darkColor">
-                    {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : "—"}
+                    {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : '—'}
                   </div>
                   <div className="flex text-primaryBg">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -480,7 +472,8 @@ export const ProductDetail: React.FC = () => {
                   </div>
                 </div>
                 <div className="text-xs text-secondary500 mt-1">
-                  Based on {reviewSummary.totalReviews} review{reviewSummary.totalReviews === 1 ? "" : "s"}
+                  Based on {reviewSummary.totalReviews} review
+                  {reviewSummary.totalReviews === 1 ? '' : 's'}
                 </div>
               </div>
 
@@ -489,7 +482,9 @@ export const ProductDetail: React.FC = () => {
                 {user ? (
                   <div className="bg-lightgrayColor/30 border border-secondary200 rounded-xl p-4">
                     <div className="text-xs font-semibold uppercase tracking-widest text-secondary600 mb-2">
-                      {reviews.some((r) => r.userId === user.id) ? "Update your review" : "Write a review"}
+                      {reviews.some((r) => r.userId === user.id)
+                        ? 'Update your review'
+                        : 'Write a review'}
                     </div>
                     <div className="flex gap-1 mb-3">
                       {[1, 2, 3, 4, 5].map((r) => (
@@ -497,9 +492,13 @@ export const ProductDetail: React.FC = () => {
                           key={r}
                           type="button"
                           onClick={() => setSelectedRating(r)}
-                          className={`p-1 transition ${selectedRating >= r ? "text-primaryBg" : "text-secondary300 hover:text-secondary400"}`}
+                          className={`p-1 transition ${selectedRating >= r ? 'text-primaryBg' : 'text-secondary300 hover:text-secondary400'}`}
                         >
-                          <Star className="w-6 h-6" fill={selectedRating >= r ? "currentColor" : "none"} strokeWidth={1.5} />
+                          <Star
+                            className="w-6 h-6"
+                            fill={selectedRating >= r ? 'currentColor' : 'none'}
+                            strokeWidth={1.5}
+                          />
                         </button>
                       ))}
                     </div>
@@ -510,44 +509,48 @@ export const ProductDetail: React.FC = () => {
                       className="w-full rounded-lg border border-secondary300 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primaryBg min-h-[80px] resize-y"
                       maxLength={2000}
                     />
-                    {reviewError && (
-                      <p className="text-xs text-rose-600 mt-1">{reviewError}</p>
-                    )}
+                    {reviewError && <p className="text-xs text-rose-600 mt-1">{reviewError}</p>}
                     <div className="mt-2 text-[10px] text-secondary400">
                       Only verified buyers with delivered orders can submit reviews.
                     </div>
                     <Button
                       onClick={async () => {
-                        if (!product) return;
-                        setSubmittingReview(true);
-                        setReviewError(null);
+                        if (!product) return
+                        setSubmittingReview(true)
+                        setReviewError(null)
                         const res = await reviewsApiService.submitReview(
                           product.id,
                           selectedRating,
-                          reviewComment.trim() || null,
-                        );
-                        setSubmittingReview(false);
+                          reviewComment.trim() || null
+                        )
+                        setSubmittingReview(false)
                         if (res.success) {
-                          setReviewComment("");
+                          setReviewComment('')
                           // Refresh both summary + list
-                          await fetchReviews(product.id);
+                          await fetchReviews(product.id)
                           // Also refresh product in case rating changed on detail object
-                          const pRes = await productsApiService.getProductBySlug(product.slug);
-                          if (pRes.success) setProduct(pRes.data);
+                          const pRes = await productsApiService.getProductBySlug(product.slug)
+                          if (pRes.success) setProduct(pRes.data)
                         } else {
-                          const msg = res.error?.message || "Could not submit review.";
-                          setReviewError(msg);
+                          const msg = res.error?.message || 'Could not submit review.'
+                          setReviewError(msg)
                         }
                       }}
                       loading={submittingReview}
                       className="mt-3"
                     >
-                      {reviews.some((r) => r.userId === user.id) ? "Update Review" : "Submit Review"}
+                      {reviews.some((r) => r.userId === user.id)
+                        ? 'Update Review'
+                        : 'Submit Review'}
                     </Button>
                   </div>
                 ) : (
                   <div className="text-xs text-secondary500">
-                    Please <Link to="/login" className="text-primaryBg underline">log in</Link> to write a review.
+                    Please{' '}
+                    <Link to="/login" className="text-primaryBg underline">
+                      log in
+                    </Link>{' '}
+                    to write a review.
                   </div>
                 )}
               </div>
@@ -573,13 +576,13 @@ export const ProductDetail: React.FC = () => {
                           {Array.from({ length: 5 }).map((_, i) => (
                             <Star
                               key={i}
-                              className={`w-4 h-4 ${i + 1 <= rev.rating ? "fill-current" : ""}`}
+                              className={`w-4 h-4 ${i + 1 <= rev.rating ? 'fill-current' : ''}`}
                               strokeWidth={1}
                             />
                           ))}
                         </div>
                         <span className="text-xs font-medium text-secondary600">
-                          {rev.userName || "Verified Buyer"}
+                          {rev.userName || 'Verified Buyer'}
                         </span>
                       </div>
                       <span className="text-[10px] text-secondary400">
@@ -591,7 +594,9 @@ export const ProductDetail: React.FC = () => {
                         {rev.comment}
                       </p>
                     )}
-                    <div className="text-[10px] mt-2 text-emerald-600 font-medium">Verified purchase</div>
+                    <div className="text-[10px] mt-2 text-emerald-600 font-medium">
+                      Verified purchase
+                    </div>
                   </div>
                 ))}
               </div>
@@ -604,7 +609,7 @@ export const ProductDetail: React.FC = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ProductDetail;
+export default ProductDetail

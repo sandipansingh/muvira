@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect } from 'react'
+import { X } from 'lucide-react'
 
 interface SheetProps {
-  isOpen: boolean;
-  onClose: () => void;
-  side?: 'left' | 'right';
-  title?: string;
-  children: React.ReactNode;
+  isOpen: boolean
+  onClose: () => void
+  side?: 'left' | 'right'
+  title?: string
+  children: React.ReactNode
 }
 
 export const Sheet: React.FC<SheetProps> = ({
@@ -19,23 +19,24 @@ export const Sheet: React.FC<SheetProps> = ({
   // Prevent background scroll
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'unset'
     }
     return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   const sideClasses = {
     left: 'left-0 h-full w-[280px] sm:w-[350px] border-r animate-slide-right',
     right: 'right-0 h-full w-[280px] sm:w-[350px] border-l animate-slide-left',
-  };
+  }
 
-  const anim = side === 'left' ? 'slideRight 0.3s ease-out forwards' : 'slideLeft 0.3s ease-out forwards';
+  const anim =
+    side === 'left' ? 'slideRight 0.3s ease-out forwards' : 'slideLeft 0.3s ease-out forwards'
 
   return (
     <div className="fixed inset-0 z-[99999] flex">
@@ -90,7 +91,7 @@ export const Sheet: React.FC<SheetProps> = ({
         }
       `}</style>
     </div>
-  );
-};
+  )
+}
 
-export default Sheet;
+export default Sheet

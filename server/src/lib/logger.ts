@@ -1,9 +1,5 @@
-/**
- * Structured logger using pino.
- * IMPORTANT: Never log secrets, JWTs, full payment payloads, or card data.
- */
-import pino from 'pino';
-import { env } from '../config/env';
+import pino from 'pino'
+import { env } from '../config/env'
 
 export const logger = pino({
   level: env.LOG_LEVEL,
@@ -25,4 +21,4 @@ export const logger = pino({
     env.NODE_ENV !== 'production'
       ? { target: 'pino-pretty', options: { colorize: true } }
       : undefined,
-});
+})

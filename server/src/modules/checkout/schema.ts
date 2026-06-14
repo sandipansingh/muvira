@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const CreateOrderSchema = z
   .object({
@@ -8,8 +8,8 @@ export const CreateOrderSchema = z
     // SECURITY NOTE: client must NOT send amount, price, total, or discount.
     // Any of those fields will be rejected by .strict() below.
   })
-  .strict(); // .strict() rejects unknown fields — prevents amount/price smuggling
+  .strict() // .strict() rejects unknown fields — prevents amount/price smuggling
 
-export const RemoveCouponSchema = z.object({}).strict();
+export const RemoveCouponSchema = z.object({}).strict()
 
-export type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
+export type CreateOrderInput = z.infer<typeof CreateOrderSchema>

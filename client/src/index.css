@@ -50,8 +50,9 @@
 
 @font-face {
   font-family: 'pangramregular';
-  src: url('/fonts/pangram_regular.woff2') format('woff2'),
-       url('/fonts/pangram_regular.otf') format('opentype');
+  src:
+    url('/fonts/pangram_regular.woff2') format('woff2'),
+    url('/fonts/pangram_regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -59,8 +60,9 @@
 
 @font-face {
   font-family: 'pangrambold';
-  src: url('/fonts/pangram_bold.woff2') format('woff2'),
-       url('/fonts/pangram_bold.otf') format('opentype');
+  src:
+    url('/fonts/pangram_bold.woff2') format('woff2'),
+    url('/fonts/pangram_bold.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -90,9 +92,9 @@
   --text: #2c2724;
   --text-muted: #665f59;
   --border: #e6dfd5;
-  --accent: #c65c30;         /* dominant rich terracotta */
+  --accent: #c65c30; /* dominant rich terracotta */
   --accent-dark: #a74b26;
-  --accent-gold: #a77f4f;    /* sharp burnished brass accent */
+  --accent-gold: #a77f4f; /* sharp burnished brass accent */
   --accent-gold-light: #c5a26f;
 
   /* Fallbacks for legacy tokens (gradually migrate) */
@@ -102,10 +104,20 @@
 @layer base {
   body {
     @apply bg-[var(--bg)] text-[var(--text)] antialiased;
-    font-family: robotoregular, system-ui, -apple-system, sans-serif;
+    font-family:
+      robotoregular,
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
-  h1, h2, h3, h4, .heading, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  .heading,
+  h5,
+  h6 {
     font-family: red_hat_displaymedium, system-ui, sans-serif;
   }
 }
@@ -136,22 +148,42 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-stagger {
   animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.stagger-1 { animation-delay: 60ms; }
-.stagger-2 { animation-delay: 140ms; }
-.stagger-3 { animation-delay: 220ms; }
-.stagger-4 { animation-delay: 300ms; }
-.stagger-5 { animation-delay: 380ms; }
-.stagger-6 { animation-delay: 460ms; }
-.stagger-7 { animation-delay: 540ms; }
-.stagger-8 { animation-delay: 620ms; }
+.stagger-1 {
+  animation-delay: 60ms;
+}
+.stagger-2 {
+  animation-delay: 140ms;
+}
+.stagger-3 {
+  animation-delay: 220ms;
+}
+.stagger-4 {
+  animation-delay: 300ms;
+}
+.stagger-5 {
+  animation-delay: 380ms;
+}
+.stagger-6 {
+  animation-delay: 460ms;
+}
+.stagger-7 {
+  animation-delay: 540ms;
+}
+.stagger-8 {
+  animation-delay: 620ms;
+}
 
 /* Hero progress */
 .progress-fill {
@@ -159,13 +191,17 @@
 }
 
 @keyframes progressAnimation {
-  0% { width: 0%; }
-  100% { width: 100%; }
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
 }
 
 /* Smooth transitions */
 .transition-smooth {
-  transition: all 0.3s cubic-bezier(0.23, 1.0, 0.32, 1);
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Hide scrollbars */
@@ -176,5 +212,3 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-
-

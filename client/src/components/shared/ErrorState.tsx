@@ -1,10 +1,10 @@
-import React from 'react';
-import { AlertCircle } from 'lucide-react';
-import Button from '../ui/Button';
+import React from 'react'
+import { AlertCircle } from 'lucide-react'
+import Button from '../ui/Button'
 
 interface ErrorStateProps {
-  message?: string;
-  onRetry?: () => void;
+  message?: string
+  onRetry?: () => void
 }
 
 export const ErrorState: React.FC<ErrorStateProps> = ({
@@ -17,16 +17,14 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       <h3 className="text-sm md:text-base font-semibold tracking-wide text-rose-900 mb-1">
         Unable to load data
       </h3>
-      <p className="text-xs md:text-sm text-rose-700 tracking-wide mb-5">
-        {message}
-      </p>
+      <p className="text-xs md:text-sm text-rose-700 tracking-wide mb-5">{message}</p>
       {onRetry && (
         <Button variant="danger" size="sm" onClick={onRetry}>
           Try Again
         </Button>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ErrorState;
+export default ErrorState

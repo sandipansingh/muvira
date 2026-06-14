@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+*.lock
+package-lock.json
+*.md
+supabase/migrations
+client/dist
+server/dist
+.git

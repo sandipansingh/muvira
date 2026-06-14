@@ -1,46 +1,38 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import LoadingSpinner from '../shared/LoadingSpinner';
+import React from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import LoadingSpinner from '../shared/LoadingSpinner'
 
 interface GuardProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
-/**
- * Gatekeeper component requiring a user to be authenticated.
- * Redirects unauthorized users to /login.
- */
 export const RequireAuth: React.FC<GuardProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  const location = useLocation();
+  const { isAuthenticated, loading } = useAuth()
+  const location = useLocation()
 
   if (loading) {
-    return <LoadingSpinner fullPage={true} />;
+    return <LoadingSpinner fullPage={true} />
   }
 
   if (!isAuthenticated) {
     // Save location to redirect back after login
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  return <>{children}</>;
-};
+  return <>{children}</>
+}
 
-/**
- * Gatekeeper component requiring a user to have the admin role.
- * Displays a clean 403 Forbidden page if unauthorized.
- */
 export const RequireAdmin: React.FC<GuardProps> = ({ children }) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
-  const location = useLocation();
+  const { isAuthenticated, isAdmin, loading } = useAuth()
+  const location = useLocation()
 
   if (loading) {
-    return <LoadingSpinner fullPage={true} />;
+    return <LoadingSpinner fullPage={true} />
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
   if (!isAdmin) {
@@ -52,15 +44,16 @@ export const RequireAdmin: React.FC<GuardProps> = ({ children }) => {
             Access Denied
           </h2>
           <p className="text-xs md:text-sm text-secondary600 tracking-wide mb-6 leading-relaxed">
-            You do not have the required administrative permissions to access this page. If you are an admin, please verify your login.
+            You do not have the required administrative permissions to access this page. If you are
+            an admin, please verify your login.
           </p>
           <Navigate to="/" replace />
         </div>
       </div>
-    );
+    )
   }
 
-  return <>{children}</>;
-};
+  return <>{children}</>
+}
 
-export default RequireAuth;
+export default RequireAuth

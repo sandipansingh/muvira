@@ -1,27 +1,25 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 // Public query schema
 
 export const ListProductsQuerySchema = z.object({
-  page: z.string().regex(/^\d+$/).transform(Number).default("1"),
-  limit: z.string().regex(/^\d+$/).transform(Number).default("20"),
+  page: z.string().regex(/^\d+$/).transform(Number).default('1'),
+  limit: z.string().regex(/^\d+$/).transform(Number).default('20'),
   category: z.string().min(1).max(300).optional(),
   minPrice: z.string().regex(/^\d+$/).transform(Number).optional(),
   maxPrice: z.string().regex(/^\d+$/).transform(Number).optional(),
-  inStock: z.enum(["true", "false"]).optional(),
-  sort: z
-    .enum(["price_asc", "price_desc", "newest", "popularity"])
-    .default("newest"),
+  inStock: z.enum(['true', 'false']).optional(),
+  sort: z.enum(['price_asc', 'price_desc', 'newest', 'popularity']).default('newest'),
   q: z.string().max(200).optional(),
-});
+})
 
 export const ProductParamsSchema = z.object({
   slug: z.string().min(1).max(300),
-});
+})
 
 export const ProductIdParamsSchema = z.object({
   id: z.string().uuid(),
-});
+})
 
 // Admin schemas (strict — rejects unknown fields)
 
@@ -32,10 +30,7 @@ export const CreateProductSchema = z
       .string()
       .min(1)
       .max(300)
-      .regex(
-        /^[a-z0-9-]+$/,
-        "slug must be lowercase alphanumeric with hyphens",
-      ),
+      .regex(/^[a-z0-9-]+$/, 'slug must be lowercase alphanumeric with hyphens'),
     description: z.string().max(10000).optional(),
     short_description: z.string().max(500).optional(),
     category_id: z.string().uuid(),
@@ -52,9 +47,9 @@ export const CreateProductSchema = z
     meta_description: z.string().max(500).optional(),
     metadata: z.record(z.string()).optional(),
   })
-  .strict();
+  .strict()
 
-export const UpdateProductSchema = CreateProductSchema.partial().strict();
+export const UpdateProductSchema = CreateProductSchema.partial().strict()
 
 export const AddProductImageSchema = z
   .object({
@@ -63,9 +58,9 @@ export const AddProductImageSchema = z
     sort_order: z.number().int().min(0).default(0),
     is_primary: z.boolean().default(false),
   })
-  .strict();
+  .strict()
 
-export type ListProductsQuery = z.infer<typeof ListProductsQuerySchema>;
-export type CreateProductInput = z.infer<typeof CreateProductSchema>;
-export type UpdateProductInput = z.infer<typeof UpdateProductSchema>;
-export type AddProductImageInput = z.infer<typeof AddProductImageSchema>;
+export type ListProductsQuery = z.infer<typeof ListProductsQuerySchema>
+export type CreateProductInput = z.infer<typeof CreateProductSchema>
+export type UpdateProductInput = z.infer<typeof UpdateProductSchema>
+export type AddProductImageInput = z.infer<typeof AddProductImageSchema>

@@ -1,21 +1,13 @@
-import type { Request, Response, NextFunction } from "express";
-import * as service from "./service";
-import type {
-  ProductReviewsQuery,
-  CreateReviewInput,
-  AdminReviewsQuery,
-} from "./schema";
+import type { Request, Response, NextFunction } from 'express'
+import * as service from './service'
+import type { ProductReviewsQuery, CreateReviewInput, AdminReviewsQuery } from './schema'
 
 // Public: GET /api/products/:productId/reviews
-export async function listReviews(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function listReviews(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const productId = req.params["productId"] as string;
-    const query = req.query as unknown as ProductReviewsQuery;
-    const result = await service.listProductReviews(productId, query);
+    const productId = req.params['productId'] as string
+    const query = req.query as unknown as ProductReviewsQuery
+    const result = await service.listProductReviews(productId, query)
 
     res.json({
       success: true,
@@ -29,28 +21,24 @@ export async function listReviews(
         total: result.total,
         totalPages: result.totalPages,
       },
-    });
+    })
   } catch (err) {
-    next(err);
+    next(err)
   }
 }
 
 // Authenticated user: POST /api/products/:productId/reviews
 // Creates or updates the caller's review for the product
-export async function submitReview(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function submitReview(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const productId = req.params["productId"] as string;
-    const userId = req.user!.id;
-    const input = req.body as CreateReviewInput;
+    const productId = req.params['productId'] as string
+    const userId = req.user!.id
+    const input = req.body as CreateReviewInput
 
-    const review = await service.createOrUpdateReview(productId, userId, input);
+    const review = await service.createOrUpdateReview(productId, userId, input)
 
     // Also return the fresh summary
-    const fresh = await service.listProductReviews(productId, { page: 1, limit: 1 });
+    const fresh = await service.listProductReviews(productId, { page: 1, limit: 1 })
 
     res.status(201).json({
       success: true,
@@ -58,9 +46,9 @@ export async function submitReview(
         review,
         summary: fresh.summary,
       },
-    });
+    })
   } catch (err) {
-    next(err);
+    next(err)
   }
 }
 
@@ -68,11 +56,11 @@ export async function submitReview(
 export async function adminListReviews(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> {
   try {
-    const query = req.query as unknown as AdminReviewsQuery;
-    const result = await service.adminListReviews(query);
+    const query = req.query as unknown as AdminReviewsQuery
+    const result = await service.adminListReviews(query)
     res.json({
       success: true,
       data: result.reviews,
@@ -82,9 +70,9 @@ export async function adminListReviews(
         total: result.total,
         totalPages: result.totalPages,
       },
-    });
+    })
   } catch (err) {
-    next(err);
+    next(err)
   }
 }
 
@@ -92,12 +80,12 @@ export async function adminListReviews(
 export async function adminDeleteReview(
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> {
   try {
-    await service.adminDeleteReview(req.params["id"] as string);
-    res.json({ success: true, data: { deleted: true } });
+    await service.adminDeleteReview(req.params['id'] as string)
+    res.json({ success: true, data: { deleted: true } })
   } catch (err) {
-    next(err);
+    next(err)
   }
 }

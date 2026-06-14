@@ -1,36 +1,39 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import React, { createContext, useContext, useState, useCallback } from 'react'
+import { X, CheckCircle, AlertCircle, Info } from 'lucide-react'
 
 export interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-  duration?: number;
+  id: string
+  message: string
+  type: 'success' | 'error' | 'info'
+  duration?: number
 }
 
 interface ToastContextType {
-  toasts: Toast[];
-  showToast: (message: string, type: Toast['type'], duration?: number) => void;
-  dismissToast: (id: string) => void;
+  toasts: Toast[]
+  showToast: (message: string, type: Toast['type'], duration?: number) => void
+  dismissToast: (id: string) => void
 }
 
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
+const ToastContext = createContext<ToastContextType | undefined>(undefined)
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, setToasts] = useState<Toast[]>([])
 
   const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }, [])
 
-  const showToast = useCallback((message: string, type: Toast['type'], duration = 4000) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type, duration }]);
+  const showToast = useCallback(
+    (message: string, type: Toast['type'], duration = 4000) => {
+      const id = Math.random().toString(36).substring(2, 9)
+      setToasts((prev) => [...prev, { id, message, type, duration }])
 
-    setTimeout(() => {
-      dismissToast(id);
-    }, duration);
-  }, [dismissToast]);
+      setTimeout(() => {
+        dismissToast(id)
+      }, duration)
+    },
+    [dismissToast]
+  )
 
   return (
     <ToastContext.Provider value={{ toasts, showToast, dismissToast }}>
@@ -45,15 +48,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               toast.type === 'success'
                 ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 : toast.type === 'error'
-                ? 'bg-rose-50 border-rose-200 text-rose-800'
-                : 'bg-amber-50 border-amber-200 text-amber-800'
+                  ? 'bg-rose-50 border-rose-200 text-rose-800'
+                  : 'bg-amber-50 border-amber-200 text-amber-800'
             }`}
             style={{
               animation: 'slideIn 0.25s ease-out forwards',
             }}
           >
             <div className="flex items-center gap-2.5">
-              {toast.type === 'success' && <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />}
+              {toast.type === 'success' && (
+                <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
+              )}
               {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />}
               {toast.type === 'info' && <Info className="w-5 h-5 text-amber-600 shrink-0" />}
               <span className="text-sm font-medium tracking-wide">{toast.message}</span>
@@ -82,13 +87,13 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       `}</style>
     </ToastContext.Provider>
-  );
-};
+  )
+}
 
 export const useToast = () => {
-  const context = useContext(ToastContext);
+  const context = useContext(ToastContext)
   if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
+    throw new Error('useToast must be used within a ToastProvider')
   }
-  return context;
-};
+  return context
+}

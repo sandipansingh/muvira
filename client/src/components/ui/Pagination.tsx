@@ -1,29 +1,25 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Button from './Button';
+import React from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import Button from './Button'
 
 interface PaginationProps {
-  page: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
 }
 
-export const Pagination: React.FC<PaginationProps> = ({
-  page,
-  totalPages,
-  onPageChange,
-}) => {
-  if (totalPages <= 1) return null;
+export const Pagination: React.FC<PaginationProps> = ({ page, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null
 
   const renderPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
-    let endPage = startPage + maxVisiblePages - 1;
+    const pages = []
+    const maxVisiblePages = 5
+    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2))
+    let endPage = startPage + maxVisiblePages - 1
 
     if (endPage > totalPages) {
-      endPage = totalPages;
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      endPage = totalPages
+      startPage = Math.max(1, endPage - maxVisiblePages + 1)
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -42,10 +38,10 @@ export const Pagination: React.FC<PaginationProps> = ({
         >
           {i}
         </Button>
-      );
+      )
     }
-    return pages;
-  };
+    return pages
+  }
 
   return (
     <div className="flex items-center justify-center gap-2 mt-8 py-4">
@@ -76,7 +72,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         <ChevronRight className="w-5 h-5" />
       </Button>
     </div>
-  );
-};
+  )
+}
 
-export default Pagination;
+export default Pagination

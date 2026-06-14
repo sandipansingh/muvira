@@ -1,140 +1,128 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { adminApiService } from "../../lib/api/admin";
-import type {
-  OrderDetail,
-  OrderStatus,
-} from "../../types/order";
-import { formatPrice, formatDate } from "../../lib/format";
-import { useToast } from "../../hooks/useToast";
-import Button from "../../components/ui/Button";
-import Select from "../../components/ui/Select";
-import Input from "../../components/ui/Input";
-import Card, {
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/Card";
-import LoadingSpinner from "../../components/shared/LoadingSpinner";
-import ErrorState from "../../components/shared/ErrorState";
-import ShiprocketTracker from "../../components/shared/ShiprocketTracker";
-import { ArrowLeft, Phone, Mail, Package } from "lucide-react";
+import React, { useState, useEffect } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { adminApiService } from '../../lib/api/admin'
+import type { OrderDetail, OrderStatus } from '../../types/order'
+import { formatPrice, formatDate } from '../../lib/format'
+import { useToast } from '../../hooks/useToast'
+import Button from '../../components/ui/Button'
+import Select from '../../components/ui/Select'
+import Input from '../../components/ui/Input'
+import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
+import LoadingSpinner from '../../components/shared/LoadingSpinner'
+import ErrorState from '../../components/shared/ErrorState'
+import ShiprocketTracker from '../../components/shared/ShiprocketTracker'
+import { ArrowLeft, Phone, Mail, Package } from 'lucide-react'
 
 export const AdminOrderDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const { showToast } = useToast();
+  const { id } = useParams<{ id: string }>()
+  const { showToast } = useToast()
 
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [savingAwb, setSavingAwb] = useState(false);
-  const [addingNote, setAddingNote] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [order, setOrder] = useState<OrderDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [savingAwb, setSavingAwb] = useState(false)
+  const [addingNote, setAddingNote] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Status update
-  const [orderStatus, setOrderStatus] = useState<OrderStatus>("pending");
+  const [orderStatus, setOrderStatus] = useState<OrderStatus>('pending')
 
   // AWB code field
-  const [awbCode, setAwbCode] = useState("");
+  const [awbCode, setAwbCode] = useState('')
 
   // Admin notes state
-  const [noteText, setNoteText] = useState("");
+  const [noteText, setNoteText] = useState('')
 
   useEffect(() => {
     if (id) {
-      fetchOrderDetails();
+      fetchOrderDetails()
     }
-  }, [id]);
+  }, [id])
 
   const fetchOrderDetails = async () => {
-    if (!id) return;
-    setLoading(true);
-    setError(null);
-    const res = await adminApiService.getOrderById(id);
+    if (!id) return
+    setLoading(true)
+    setError(null)
+    const res = await adminApiService.getOrderById(id)
     if (res.success) {
-      setOrder(res.data);
-      setOrderStatus(res.data.status);
-      setAwbCode(res.data.awbCode || "");
+      setOrder(res.data)
+      setOrderStatus(res.data.status)
+      setAwbCode(res.data.awbCode || '')
     } else {
-      setError(res.error.message || "Failed to fetch order.");
+      setError(res.error.message || 'Failed to fetch order.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const handleUpdateStatus = async () => {
-    if (!order) return;
-    setUpdatingStatus(true);
-    const res = await adminApiService.updateOrderStatus(order.id, orderStatus);
-    setUpdatingStatus(false);
+    if (!order) return
+    setUpdatingStatus(true)
+    const res = await adminApiService.updateOrderStatus(order.id, orderStatus)
+    setUpdatingStatus(false)
 
     if (res.success) {
-      showToast("Order status updated successfully.", "success");
-      setOrder(res.data);
+      showToast('Order status updated successfully.', 'success')
+      setOrder(res.data)
     } else {
-      showToast(res.error.message || "Status update failed.", "error");
+      showToast(res.error.message || 'Status update failed.', 'error')
     }
-  };
+  }
 
   const handleSaveAwb = async () => {
-    if (!order) return;
-    setSavingAwb(true);
+    if (!order) return
+    setSavingAwb(true)
     const res = await adminApiService.updateOrderFulfillment(order.id, {
       awbCode: awbCode.trim() || null,
-    });
-    setSavingAwb(false);
+    })
+    setSavingAwb(false)
 
     if (res.success) {
       showToast(
-        awbCode.trim()
-          ? "AWB code saved. Order marked as fulfilled."
-          : "AWB code cleared.",
-        "success",
-      );
-      setOrder(res.data);
+        awbCode.trim() ? 'AWB code saved. Order marked as fulfilled.' : 'AWB code cleared.',
+        'success'
+      )
+      setOrder(res.data)
     } else {
-      showToast(res.error.message || "Failed to save AWB code.", "error");
+      showToast(res.error.message || 'Failed to save AWB code.', 'error')
     }
-  };
+  }
 
   const handleAddNote = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!noteText.trim() || !order) return;
+    e.preventDefault()
+    if (!noteText.trim() || !order) return
 
-    setAddingNote(true);
-    const res = await adminApiService.addOrderNote(order.id, noteText.trim());
-    setAddingNote(false);
+    setAddingNote(true)
+    const res = await adminApiService.addOrderNote(order.id, noteText.trim())
+    setAddingNote(false)
 
     if (res.success) {
-      showToast("Internal note added.", "success");
-      setNoteText("");
-      setOrder(res.data);
+      showToast('Internal note added.', 'success')
+      setNoteText('')
+      setOrder(res.data)
     } else {
-      showToast(res.error.message || "Failed to save note.", "error");
+      showToast(res.error.message || 'Failed to save note.', 'error')
     }
-  };
+  }
 
   const orderStatusOptions = [
-    { value: "pending", label: "Pending" },
-    { value: "confirmed", label: "Confirmed" },
-    { value: "processing", label: "Processing" },
-    { value: "shipped", label: "Shipped" },
-    { value: "delivered", label: "Delivered" },
-    { value: "cancelled", label: "Cancelled" },
-  ];
+    { value: 'pending', label: 'Pending' },
+    { value: 'confirmed', label: 'Confirmed' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'shipped', label: 'Shipped' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'cancelled', label: 'Cancelled' },
+  ]
 
   if (loading) {
-    return <LoadingSpinner fullPage={true} />;
+    return <LoadingSpinner fullPage={true} />
   }
 
   if (error || !order) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <ErrorState
-          message={error || "Order not found."}
-          onRetry={fetchOrderDetails}
-        />
+        <ErrorState message={error || 'Order not found.'} onRetry={fetchOrderDetails} />
       </div>
-    );
+    )
   }
 
   return (
@@ -193,8 +181,8 @@ export const AdminOrderDetail: React.FC = () => {
                     Shiprocket AWB Code
                   </h4>
                   <p className="text-[11px] text-secondary400 leading-snug">
-                    Create the shipment in Shiprocket, then paste the AWB code
-                    here. Live tracking will be activated automatically.
+                    Create the shipment in Shiprocket, then paste the AWB code here. Live tracking
+                    will be activated automatically.
                   </p>
                 </div>
                 <div className="flex gap-3 items-end">
@@ -224,9 +212,7 @@ export const AdminOrderDetail: React.FC = () => {
                       <p className="text-[10px] text-secondary500 uppercase tracking-wider font-medium">
                         Current AWB
                       </p>
-                      <p className="text-sm font-bold text-darkColor">
-                        {order.awbCode}
-                      </p>
+                      <p className="text-sm font-bold text-darkColor">{order.awbCode}</p>
                     </div>
                   </div>
                 )}
@@ -298,16 +284,14 @@ export const AdminOrderDetail: React.FC = () => {
             </div>
             <CardContent className="p-4 text-xs md:text-sm text-left space-y-3">
               <div>
-                <span className="text-[10px] uppercase tracking-wider text-secondary500 block font-semibold mb-0.5">Contact Name</span>
-                <span className="font-semibold text-darkColor">
-                  {order.customer?.fullName}
+                <span className="text-[10px] uppercase tracking-wider text-secondary500 block font-semibold mb-0.5">
+                  Contact Name
                 </span>
+                <span className="font-semibold text-darkColor">{order.customer?.fullName}</span>
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <Phone className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-medium text-secondary700">
-                  {order.customer?.phone}
-                </span>
+                <span className="font-medium text-secondary700">{order.customer?.phone}</span>
               </div>
               <div className="flex items-center gap-2 text-xs truncate">
                 <Mail className="w-4 h-4 text-secondary400 shrink-0" />
@@ -326,14 +310,13 @@ export const AdminOrderDetail: React.FC = () => {
               </h3>
             </div>
             <CardContent className="p-4 text-left text-xs md:text-sm space-y-2">
-              <p className="font-semibold text-darkColor">
-                {order.shippingAddress.fullName}
-              </p>
+              <p className="font-semibold text-darkColor">{order.shippingAddress.fullName}</p>
               <p className="text-secondary600 text-xs leading-relaxed">
                 {order.shippingAddress.line1}
                 {order.shippingAddress.line2 && `, ${order.shippingAddress.line2}`}
                 <br />
-                {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
+                {order.shippingAddress.pincode}
               </p>
               <p className="font-medium text-secondary750 text-xs flex items-center gap-1.5 mt-1">
                 <Phone className="w-3.5 h-3.5 text-secondary400" />
@@ -341,7 +324,9 @@ export const AdminOrderDetail: React.FC = () => {
               </p>
               {order.deliveryInstructions && (
                 <div className="mt-3 pt-3 border-t border-secondary200/50">
-                  <span className="text-secondary500 block mb-1 text-[9px] uppercase tracking-wider font-semibold">Delivery Instructions</span>
+                  <span className="text-secondary500 block mb-1 text-[9px] uppercase tracking-wider font-semibold">
+                    Delivery Instructions
+                  </span>
                   <p className="font-normal text-secondary700 text-xs italic bg-lightgrayColor/40 p-2.5 rounded-lg border border-secondary200/50 leading-relaxed">
                     "{order.deliveryInstructions}"
                   </p>
@@ -412,7 +397,7 @@ export const AdminOrderDetail: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AdminOrderDetail;
+export default AdminOrderDetail

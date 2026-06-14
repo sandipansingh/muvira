@@ -1,85 +1,77 @@
-/**
- * ShiprocketTracker.tsx
- *
- * Live shipment tracking component powered by Shiprocket.
- * Fetches real-time activity from the server proxy and renders
- * a vertical timeline of shipment events.
- */
-
-import React, { useState, useEffect } from "react";
-import { Truck, MapPin, Package, RefreshCw, ExternalLink } from "lucide-react";
-import { trackingApiService } from "../../lib/api/tracking";
-import type { ShiprocketTrackData } from "../../types/order";
+import React, { useState, useEffect } from 'react'
+import { Truck, MapPin, Package, RefreshCw, ExternalLink } from 'lucide-react'
+import { trackingApiService } from '../../lib/api/tracking'
+import type { ShiprocketTrackData } from '../../types/order'
 
 interface ShiprocketTrackerProps {
-  awbCode: string | null;
+  awbCode: string | null
 }
 
 // Map Shiprocket sr-status-label to a colour class
 function getStatusColor(label?: string): string {
-  if (!label) return "text-secondary500";
-  const l = label.toUpperCase();
-  if (l.includes("DELIVERED")) return "text-emerald-600";
-  if (l.includes("OUT FOR DELIVERY")) return "text-blue-600";
-  if (l.includes("TRANSIT") || l.includes("IN TRANSIT")) return "text-blue-500";
-  if (l.includes("PICKED") || l.includes("PICKUP")) return "text-indigo-500";
-  if (l.includes("CANCELLED") || l.includes("RTO")) return "text-rose-600";
-  if (l.includes("SHIPPED")) return "text-purple-600";
-  return "text-secondary600";
+  if (!label) return 'text-secondary500'
+  const l = label.toUpperCase()
+  if (l.includes('DELIVERED')) return 'text-emerald-600'
+  if (l.includes('OUT FOR DELIVERY')) return 'text-blue-600'
+  if (l.includes('TRANSIT') || l.includes('IN TRANSIT')) return 'text-blue-500'
+  if (l.includes('PICKED') || l.includes('PICKUP')) return 'text-indigo-500'
+  if (l.includes('CANCELLED') || l.includes('RTO')) return 'text-rose-600'
+  if (l.includes('SHIPPED')) return 'text-purple-600'
+  return 'text-secondary600'
 }
 
 function getStatusDotColor(label?: string): string {
-  if (!label) return "bg-secondary300";
-  const l = label.toUpperCase();
-  if (l.includes("DELIVERED")) return "bg-emerald-500";
-  if (l.includes("OUT FOR DELIVERY")) return "bg-blue-500";
-  if (l.includes("TRANSIT") || l.includes("IN TRANSIT")) return "bg-blue-400";
-  if (l.includes("PICKED") || l.includes("PICKUP")) return "bg-indigo-500";
-  if (l.includes("CANCELLED") || l.includes("RTO")) return "bg-rose-500";
-  if (l.includes("SHIPPED")) return "bg-purple-500";
-  return "bg-secondary400";
+  if (!label) return 'bg-secondary300'
+  const l = label.toUpperCase()
+  if (l.includes('DELIVERED')) return 'bg-emerald-500'
+  if (l.includes('OUT FOR DELIVERY')) return 'bg-blue-500'
+  if (l.includes('TRANSIT') || l.includes('IN TRANSIT')) return 'bg-blue-400'
+  if (l.includes('PICKED') || l.includes('PICKUP')) return 'bg-indigo-500'
+  if (l.includes('CANCELLED') || l.includes('RTO')) return 'bg-rose-500'
+  if (l.includes('SHIPPED')) return 'bg-purple-500'
+  return 'bg-secondary400'
 }
 
 function formatTrackDate(dateStr: string): { date: string; time: string } {
   try {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr)
     return {
-      date: d.toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
+      date: d.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
       }),
-      time: d.toLocaleTimeString("en-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
+      time: d.toLocaleTimeString('en-IN', {
+        hour: '2-digit',
+        minute: '2-digit',
       }),
-    };
+    }
   } catch {
-    return { date: dateStr, time: "" };
+    return { date: dateStr, time: '' }
   }
 }
 
 const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
-  const [trackData, setTrackData] = useState<ShiprocketTrackData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [trackData, setTrackData] = useState<ShiprocketTrackData | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchTracking = async () => {
-    if (!awbCode) return;
-    setLoading(true);
-    setError(null);
-    const data = await trackingApiService.trackSingle(awbCode);
+    if (!awbCode) return
+    setLoading(true)
+    setError(null)
+    const data = await trackingApiService.trackSingle(awbCode)
     if (data) {
-      setTrackData(data);
+      setTrackData(data)
     } else {
-      setError("Could not fetch live tracking. Try again shortly.");
+      setError('Could not fetch live tracking. Try again shortly.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   useEffect(() => {
-    fetchTracking();
-  }, [awbCode]);
+    fetchTracking()
+  }, [awbCode])
 
   // ── No AWB ───────────────────────────────────────────────────────────────────
   if (!awbCode) {
@@ -89,15 +81,13 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
           <Package className="w-5 h-5 text-secondary400" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-secondary600">
-            Awaiting Dispatch
-          </p>
+          <p className="text-sm font-semibold text-secondary600">Awaiting Dispatch</p>
           <p className="text-xs text-secondary400 mt-1">
             Tracking will appear once your order is shipped via Shiprocket.
           </p>
         </div>
       </div>
-    );
+    )
   }
 
   // ── Loading ──────────────────────────────────────────────────────────────────
@@ -117,16 +107,14 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
           </div>
         ))}
       </div>
-    );
+    )
   }
 
   // ── Error ────────────────────────────────────────────────────────────────────
   if (error || !trackData) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
-        <p className="text-xs text-secondary500">
-          {error || "No tracking data available yet."}
-        </p>
+        <p className="text-xs text-secondary500">{error || 'No tracking data available yet.'}</p>
         <button
           onClick={fetchTracking}
           className="flex items-center gap-1.5 text-xs text-primaryBg font-semibold hover:underline"
@@ -135,13 +123,12 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
           Retry
         </button>
       </div>
-    );
+    )
   }
 
-  const currentInfo = trackData.shipment_track?.[0];
-  const activities = trackData.shipment_track_activities ?? [];
-  const currentStatusLabel =
-    activities[0]?.["sr-status-label"] ?? currentInfo?.current_status ?? "";
+  const currentInfo = trackData.shipment_track?.[0]
+  const activities = trackData.shipment_track_activities ?? []
+  const currentStatusLabel = activities[0]?.['sr-status-label'] ?? currentInfo?.current_status ?? ''
 
   return (
     <div className="space-y-5 text-left">
@@ -155,7 +142,7 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
             <span
               className={`text-sm font-bold tracking-wide ${getStatusColor(currentStatusLabel)}`}
             >
-              {currentStatusLabel || currentInfo?.current_status || "In Progress"}
+              {currentStatusLabel || currentInfo?.current_status || 'In Progress'}
             </span>
             {currentInfo?.courier_name && (
               <span className="text-[10px] font-medium text-secondary500 bg-white border border-secondary200 px-2 py-0.5 rounded-full uppercase tracking-wide">
@@ -205,29 +192,25 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
 
             <div className="space-y-5">
               {activities.map((act, idx) => {
-                const { date, time } = formatTrackDate(act.date);
-                const srLabel = act["sr-status-label"];
-                const isFirst = idx === 0;
+                const { date, time } = formatTrackDate(act.date)
+                const srLabel = act['sr-status-label']
+                const isFirst = idx === 0
 
                 return (
                   <div key={idx} className="relative flex gap-3 items-start">
                     {/* Dot */}
                     <span
                       className={`absolute -left-5 top-1 w-3 h-3 rounded-full border-2 border-white z-10 shadow-sm ${
-                        isFirst
-                          ? getStatusDotColor(srLabel) + " scale-125"
-                          : "bg-secondary300"
+                        isFirst ? getStatusDotColor(srLabel) + ' scale-125' : 'bg-secondary300'
                       }`}
                     />
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      {srLabel && srLabel !== "NA" && (
+                      {srLabel && srLabel !== 'NA' && (
                         <span
                           className={`text-[10px] font-bold uppercase tracking-widest block mb-0.5 ${
-                            isFirst
-                              ? getStatusColor(srLabel)
-                              : "text-secondary400"
+                            isFirst ? getStatusColor(srLabel) : 'text-secondary400'
                           }`}
                         >
                           {srLabel}
@@ -235,14 +218,12 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
                       )}
                       <p
                         className={`text-xs leading-snug ${
-                          isFirst
-                            ? "text-darkColor font-medium"
-                            : "text-secondary600"
+                          isFirst ? 'text-darkColor font-medium' : 'text-secondary600'
                         }`}
                       >
                         {act.activity}
                       </p>
-                      {act.location && act.location !== "NA" && (
+                      {act.location && act.location !== 'NA' && (
                         <div className="flex items-center gap-1 mt-1">
                           <MapPin className="w-3 h-3 text-secondary400 shrink-0" />
                           <span className="text-[10px] text-secondary400 capitalize">
@@ -257,14 +238,10 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
                       <span className="text-[10px] text-secondary500 font-medium block">
                         {date}
                       </span>
-                      {time && (
-                        <span className="text-[10px] text-secondary400 block">
-                          {time}
-                        </span>
-                      )}
+                      {time && <span className="text-[10px] text-secondary400 block">{time}</span>}
                     </div>
                   </div>
-                );
+                )
               })}
             </div>
           </div>
@@ -278,12 +255,12 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
           disabled={loading}
           className="flex items-center gap-1.5 text-[10px] text-secondary400 hover:text-primaryBg transition-colors font-medium uppercase tracking-wider"
         >
-          <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ShiprocketTracker;
+export default ShiprocketTracker

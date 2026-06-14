@@ -1,46 +1,46 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { User, Mail, Phone, Lock } from 'lucide-react';
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import Input from '../../components/ui/Input'
+import Button from '../../components/ui/Button'
+import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card'
+import { User, Mail, Phone, Lock } from 'lucide-react'
 
 export const Signup: React.FC = () => {
-  const { signup, loading } = useAuth();
-  const navigate = useNavigate();
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { signup, loading } = useAuth()
+  const navigate = useNavigate()
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
     // Basic Validation
     if (!fullName || !email || !phone || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
-      return;
+      setError('Please fill in all fields.')
+      return
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
+      setError('Passwords do not match.')
+      return
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
+      setError('Password must be at least 6 characters.')
+      return
     }
 
-    const success = await signup(email, password, fullName, phone);
+    const success = await signup(email, password, fullName, phone)
     if (success) {
-      navigate('/');
+      navigate('/')
     }
-  };
+  }
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-6">
@@ -146,7 +146,7 @@ export const Signup: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Signup;
+export default Signup

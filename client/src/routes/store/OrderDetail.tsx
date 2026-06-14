@@ -1,83 +1,82 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ordersApiService } from "../../lib/api/orders";
-import type { OrderDetail as OrderDetailType } from "../../types/order";
-import { formatPrice, formatDate } from "../../lib/format";
-import Button from "../../components/ui/Button";
-import Badge from "../../components/ui/Badge";
-import Card, { CardContent } from "../../components/ui/Card";
-import Skeleton from "../../components/ui/Skeleton";
-import Breadcrumb from "../../components/layout/Breadcrumb";
-import ErrorState from "../../components/shared/ErrorState";
-import ShiprocketTracker from "../../components/shared/ShiprocketTracker";
-import { MapPin, Truck, ArrowLeft, FileText } from "lucide-react";
-
+import React, { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { ordersApiService } from '../../lib/api/orders'
+import type { OrderDetail as OrderDetailType } from '../../types/order'
+import { formatPrice, formatDate } from '../../lib/format'
+import Button from '../../components/ui/Button'
+import Badge from '../../components/ui/Badge'
+import Card, { CardContent } from '../../components/ui/Card'
+import Skeleton from '../../components/ui/Skeleton'
+import Breadcrumb from '../../components/layout/Breadcrumb'
+import ErrorState from '../../components/shared/ErrorState'
+import ShiprocketTracker from '../../components/shared/ShiprocketTracker'
+import { MapPin, Truck, ArrowLeft, FileText } from 'lucide-react'
 
 export const OrderDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [order, setOrder] = useState<OrderDetailType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const [order, setOrder] = useState<OrderDetailType | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (id) {
-      fetchOrderDetails();
+      fetchOrderDetails()
     }
-  }, [id]);
+  }, [id])
 
   const fetchOrderDetails = async () => {
-    setLoading(true);
-    setError(null);
-    const res = await ordersApiService.getOrderById(id || "");
+    setLoading(true)
+    setError(null)
+    const res = await ordersApiService.getOrderById(id || '')
     if (res.success) {
-      setOrder(res.data);
+      setOrder(res.data)
     } else {
-      setError(res.error.message || "Order not found.");
+      setError(res.error.message || 'Order not found.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case "delivered":
-        return "success";
-      case "cancelled":
-        return "danger";
-      case "shipped":
-      case "processing":
-      case "confirmed":
-        return "primary";
+      case 'delivered':
+        return 'success'
+      case 'cancelled':
+        return 'danger'
+      case 'shipped':
+      case 'processing':
+      case 'confirmed':
+        return 'primary'
       default:
-        return "warning";
+        return 'warning'
     }
-  };
+  }
 
   const getPaymentVariant = (pStatus: string) => {
     switch (pStatus) {
-      case "paid":
-        return "success";
-      case "failed":
-        return "danger";
+      case 'paid':
+        return 'success'
+      case 'failed':
+        return 'danger'
       default:
-        return "warning";
+        return 'warning'
     }
-  };
+  }
 
   if (error) {
     return (
       <div className="max-w-[1240px] mx-auto px-6 py-8">
         <ErrorState message={error} onRetry={fetchOrderDetails} />
       </div>
-    );
+    )
   }
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       <Breadcrumb
         items={[
-          { label: "Order History", path: "/orders" },
-          { label: order?.orderNumber || "Order Details" },
+          { label: 'Order History', path: '/orders' },
+          { label: order?.orderNumber || 'Order Details' },
         ]}
       />
 
@@ -86,7 +85,7 @@ export const OrderDetail: React.FC = () => {
           variant="ghost"
           size="sm"
           pill={true}
-          onClick={() => navigate("/orders")}
+          onClick={() => navigate('/orders')}
           className="border border-secondary300 bg-white p-2"
         >
           <ArrowLeft className="w-4.5 h-4.5" />
@@ -125,10 +124,7 @@ export const OrderDetail: React.FC = () => {
               </div>
               <CardContent className="p-5 divide-y divide-secondary200/50 space-y-4">
                 {order.items.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    className={`flex gap-4 ${idx > 0 ? "pt-4" : ""}`}
-                  >
+                  <div key={item.id} className={`flex gap-4 ${idx > 0 ? 'pt-4' : ''}`}>
                     <div className="w-16 h-16 md:w-20 md:h-20 bg-lightgrayColor rounded-lg border border-secondary200 overflow-hidden shrink-0">
                       <img
                         src={item.productImage}
@@ -171,9 +167,6 @@ export const OrderDetail: React.FC = () => {
                 <ShiprocketTracker awbCode={order.awbCode} />
               </CardContent>
             </Card>
-
-
-
           </div>
 
           {/* RIGHT: BILLING BREAKDOWN & ADDRESS */}
@@ -202,17 +195,13 @@ export const OrderDetail: React.FC = () => {
                   )}
                   <div className="flex justify-between text-secondary600">
                     <span>Shipping Charges</span>
-                    <span className="text-emerald-700 font-semibold uppercase">
-                      Free
-                    </span>
+                    <span className="text-emerald-700 font-semibold uppercase">Free</span>
                   </div>
                 </div>
 
                 {/* Final Total */}
                 <div className="flex justify-between items-center text-darkColor font-bold py-1">
-                  <span className="text-sm uppercase tracking-wider">
-                    Total Amount
-                  </span>
+                  <span className="text-sm uppercase tracking-wider">Total Amount</span>
                   <span className="text-sm md:text-lg text-primaryBg">
                     {formatPrice(order.totalAmount)}
                   </span>
@@ -220,9 +209,7 @@ export const OrderDetail: React.FC = () => {
 
                 {/* Payment Status Badges */}
                 <div className="border-t border-secondary200 pt-4 flex gap-2 justify-center">
-                  <Badge variant={getStatusVariant(order.status)}>
-                    {order.status}
-                  </Badge>
+                  <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
                   <Badge variant={getPaymentVariant(order.paymentStatus)}>
                     {order.paymentStatus}
                   </Badge>
@@ -239,26 +226,21 @@ export const OrderDetail: React.FC = () => {
                 </h3>
               </div>
               <CardContent className="p-5 text-left text-xs md:text-sm">
-                <p className="font-bold text-darkColor mb-1">
-                  {order.shippingAddress.fullName}
-                </p>
+                <p className="font-bold text-darkColor mb-1">{order.shippingAddress.fullName}</p>
                 <p className="text-secondary600 mb-1.5 leading-snug">
-                  {order.shippingAddress.line1},{" "}
-                  {order.shippingAddress.line2 &&
-                    `${order.shippingAddress.line2}, `}
-                  {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
+                  {order.shippingAddress.line1},{' '}
+                  {order.shippingAddress.line2 && `${order.shippingAddress.line2}, `}
+                  {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
                   {order.shippingAddress.pincode}
                 </p>
-                <p className="font-semibold text-secondary700">
-                  {order.shippingAddress.phone}
-                </p>
+                <p className="font-semibold text-secondary700">{order.shippingAddress.phone}</p>
               </CardContent>
             </Card>
           </div>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default OrderDetail;
+export default OrderDetail

@@ -1,25 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { useToast } from "../../hooks/useToast";
-import { addressesApiService } from "../../lib/api/addresses";
-import { ordersApiService } from "../../lib/api/orders";
-import { formatPrice } from "../../lib/format";
-import type { Address } from "../../types/cart";
-import type { OrderListItem } from "../../types/order";
-import OrderStatusTracker from "../../components/shared/OrderStatusTracker";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Button from "../../components/ui/Button";
-import { INDIAN_STATES } from "../../lib/constants";
-import Card, {
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../../components/ui/Card";
-import Dialog from "../../components/ui/Dialog";
-import Breadcrumb from "../../components/layout/Breadcrumb";
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import { useToast } from '../../hooks/useToast'
+import { addressesApiService } from '../../lib/api/addresses'
+import { ordersApiService } from '../../lib/api/orders'
+import { formatPrice } from '../../lib/format'
+import type { Address } from '../../types/cart'
+import type { OrderListItem } from '../../types/order'
+import OrderStatusTracker from '../../components/shared/OrderStatusTracker'
+import Input from '../../components/ui/Input'
+import Select from '../../components/ui/Select'
+import Button from '../../components/ui/Button'
+import { INDIAN_STATES } from '../../lib/constants'
+import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card'
+import Dialog from '../../components/ui/Dialog'
+import Breadcrumb from '../../components/layout/Breadcrumb'
 import {
   User,
   Phone,
@@ -33,116 +28,109 @@ import {
   Pencil,
   ArrowRight,
   History,
-} from "lucide-react";
+} from 'lucide-react'
 
 export const Profile: React.FC = () => {
-  const { user, updateProfile } = useAuth();
-  const { showToast } = useToast();
+  const { user, updateProfile } = useAuth()
+  const { showToast } = useToast()
 
-  const [fullName, setFullName] = useState(user?.fullName || "");
-  const [phone, setPhone] = useState(user?.phone || "");
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [fullName, setFullName] = useState(user?.fullName || '')
+  const [phone, setPhone] = useState(user?.phone || '')
+  const [addresses, setAddresses] = useState<Address[]>([])
 
-  const [loading, setLoading] = useState(false);
-  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [loadingAddresses, setLoadingAddresses] = useState(false)
 
   // Address edit modal state
-  const [addressModalOpen, setAddressModalOpen] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [newLabel, setNewLabel] = useState("home");
-  const [newFullName, setNewFullName] = useState("");
-  const [newPhone, setNewPhone] = useState("");
-  const [newLine1, setNewLine1] = useState("");
-  const [newLine2, setNewLine2] = useState("");
-  const [newCity, setNewCity] = useState("");
-  const [newState, setNewState] = useState("");
-  const [newPincode, setNewPincode] = useState("");
-  const [newIsDefault, setNewIsDefault] = useState(false);
-  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressModalOpen, setAddressModalOpen] = useState(false)
+  const [editId, setEditId] = useState<string | null>(null)
+  const [newLabel, setNewLabel] = useState('home')
+  const [newFullName, setNewFullName] = useState('')
+  const [newPhone, setNewPhone] = useState('')
+  const [newLine1, setNewLine1] = useState('')
+  const [newLine2, setNewLine2] = useState('')
+  const [newCity, setNewCity] = useState('')
+  const [newState, setNewState] = useState('')
+  const [newPincode, setNewPincode] = useState('')
+  const [newIsDefault, setNewIsDefault] = useState(false)
+  const [savingAddress, setSavingAddress] = useState(false)
 
-  const [latestOrder, setLatestOrder] = useState<OrderListItem | null>(null);
+  const [latestOrder, setLatestOrder] = useState<OrderListItem | null>(null)
 
   useEffect(() => {
-    fetchAddresses();
-    fetchLatestOrder();
-  }, []);
+    fetchAddresses()
+    fetchLatestOrder()
+  }, [])
 
   useEffect(() => {
     if (user) {
-      setFullName(user.fullName);
-      setPhone(user.phone);
+      setFullName(user.fullName)
+      setPhone(user.phone)
     }
-  }, [user]);
+  }, [user])
 
   const fetchAddresses = async () => {
-    setLoadingAddresses(true);
-    const res = await addressesApiService.getAddresses();
+    setLoadingAddresses(true)
+    const res = await addressesApiService.getAddresses()
     if (res.success) {
-      setAddresses(res.data);
+      setAddresses(res.data)
     }
-    setLoadingAddresses(false);
-  };
+    setLoadingAddresses(false)
+  }
 
   const fetchLatestOrder = async () => {
-    const res = await ordersApiService.getOrders(1, 1);
+    const res = await ordersApiService.getOrders(1, 1)
     if (res.success && res.data && res.data.length > 0) {
-      setLatestOrder(res.data[0]);
+      setLatestOrder(res.data[0])
     }
-  };
+  }
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!fullName || !phone) return;
+    e.preventDefault()
+    if (!fullName || !phone) return
 
-    setLoading(true);
-    await updateProfile(fullName, phone);
-    setLoading(false);
-  };
+    setLoading(true)
+    await updateProfile(fullName, phone)
+    setLoading(false)
+  }
 
   const handleOpenAddAddress = () => {
-    setEditId(null);
-    setNewLabel("home");
-    setNewFullName("");
-    setNewPhone("");
-    setNewLine1("");
-    setNewLine2("");
-    setNewCity("");
-    setNewState("");
-    setNewPincode("");
-    setNewIsDefault(false);
-    setAddressModalOpen(true);
-  };
+    setEditId(null)
+    setNewLabel('home')
+    setNewFullName('')
+    setNewPhone('')
+    setNewLine1('')
+    setNewLine2('')
+    setNewCity('')
+    setNewState('')
+    setNewPincode('')
+    setNewIsDefault(false)
+    setAddressModalOpen(true)
+  }
 
   const handleOpenEditAddress = (addr: Address) => {
-    setEditId(addr.id);
-    setNewLabel(addr.label);
-    setNewFullName(addr.fullName);
-    setNewPhone(addr.phone);
-    setNewLine1(addr.line1);
-    setNewLine2(addr.line2 || "");
-    setNewCity(addr.city);
-    setNewState(addr.state);
-    setNewPincode(addr.pincode);
-    setNewIsDefault(addr.isDefault);
-    setAddressModalOpen(true);
-  };
+    setEditId(addr.id)
+    setNewLabel(addr.label)
+    setNewFullName(addr.fullName)
+    setNewPhone(addr.phone)
+    setNewLine1(addr.line1)
+    setNewLine2(addr.line2 || '')
+    setNewCity(addr.city)
+    setNewState(addr.state)
+    setNewPincode(addr.pincode)
+    setNewIsDefault(addr.isDefault)
+    setAddressModalOpen(true)
+  }
 
   const handleSaveAddress = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !newFullName ||
-      !newPhone ||
-      !newLine1 ||
-      !newCity ||
-      !newState ||
-      !newPincode
-    ) {
-      showToast("Please fill in all mandatory fields.", "error");
-      return;
+    e.preventDefault()
+    if (!newFullName || !newPhone || !newLine1 || !newCity || !newState || !newPincode) {
+      showToast('Please fill in all mandatory fields.', 'error')
+      return
     }
 
-    setSavingAddress(true);
-    let res;
+    setSavingAddress(true)
+    let res
     if (editId) {
       res = await addressesApiService.updateAddress(editId, {
         label: newLabel,
@@ -154,7 +142,7 @@ export const Profile: React.FC = () => {
         state: newState,
         pincode: newPincode,
         isDefault: newIsDefault,
-      });
+      })
     } else {
       res = await addressesApiService.createAddress({
         label: newLabel,
@@ -165,45 +153,45 @@ export const Profile: React.FC = () => {
         city: newCity,
         state: newState,
         pincode: newPincode,
-        country: "India",
+        country: 'India',
         isDefault: newIsDefault,
-      });
+      })
     }
-    setSavingAddress(false);
+    setSavingAddress(false)
 
     if (res.success) {
-      showToast(editId ? "Address updated" : "Address added", "success");
-      setAddressModalOpen(false);
-      fetchAddresses();
+      showToast(editId ? 'Address updated' : 'Address added', 'success')
+      setAddressModalOpen(false)
+      fetchAddresses()
     } else {
-      showToast(res.error.message || "Failed to save address", "error");
+      showToast(res.error.message || 'Failed to save address', 'error')
     }
-  };
+  }
 
   const handleDeleteAddress = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this address?")) return;
-    const res = await addressesApiService.deleteAddress(id);
+    if (!confirm('Are you sure you want to delete this address?')) return
+    const res = await addressesApiService.deleteAddress(id)
     if (res.success) {
-      showToast("Address deleted successfully", "success");
-      fetchAddresses();
+      showToast('Address deleted successfully', 'success')
+      fetchAddresses()
     } else {
-      showToast(res.error.message || "Failed to delete address", "error");
+      showToast(res.error.message || 'Failed to delete address', 'error')
     }
-  };
+  }
 
   const handleSetDefault = async (id: string) => {
-    const res = await addressesApiService.setDefaultAddress(id);
+    const res = await addressesApiService.setDefaultAddress(id)
     if (res.success) {
-      showToast("Default address updated", "success");
-      fetchAddresses();
+      showToast('Default address updated', 'success')
+      fetchAddresses()
     } else {
-      showToast(res.error.message || "Failed to set default address", "error");
+      showToast(res.error.message || 'Failed to set default address', 'error')
     }
-  };
+  }
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
-      <Breadcrumb items={[{ label: "Profile Account" }]} />
+      <Breadcrumb items={[{ label: 'Profile Account' }]} />
 
       <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor my-6">
         My Account Settings
@@ -236,7 +224,7 @@ export const Profile: React.FC = () => {
                   <Mail className="absolute left-3.5 top-[38px] -translate-y-1/2 w-4 h-4 text-secondary400 z-10" />
                   <Input
                     label="Email Address"
-                    value={user?.email || ""}
+                    value={user?.email || ''}
                     className="pl-10 text-xs md:text-sm bg-lightgrayColor cursor-not-allowed opacity-75"
                     readOnly
                     disabled={true}
@@ -256,11 +244,7 @@ export const Profile: React.FC = () => {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  loading={loading}
-                  className="w-full mt-2 text-xs md:text-sm"
-                >
+                <Button type="submit" loading={loading} className="w-full mt-2 text-xs md:text-sm">
                   Save Settings
                 </Button>
               </form>
@@ -296,11 +280,13 @@ export const Profile: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-secondary500 mr-2">Total Amount:</span>
-                    <span className="font-bold text-[var(--accent)]">{formatPrice(latestOrder.totalAmount)}</span>
+                    <span className="font-bold text-[var(--accent)]">
+                      {formatPrice(latestOrder.totalAmount)}
+                    </span>
                   </div>
                 </div>
 
-                {latestOrder.status !== "cancelled" ? (
+                {latestOrder.status !== 'cancelled' ? (
                   <div className="pt-2 border-t border-secondary200/50">
                     <OrderStatusTracker status={latestOrder.status} layout="horizontal" />
                   </div>
@@ -345,8 +331,7 @@ export const Profile: React.FC = () => {
                 </div>
               ) : addresses.length === 0 ? (
                 <div className="text-center py-6 text-xs text-secondary500 leading-relaxed">
-                  No addresses saved. Press 'Add Address' to set up shipping
-                  locations.
+                  No addresses saved. Press 'Add Address' to set up shipping locations.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -358,31 +343,23 @@ export const Profile: React.FC = () => {
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <span className="border border-secondary300 text-secondary600 text-[10px] font-medium px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
-                            {addr.label === "home" && (
-                              <Home className="w-3 h-3" />
-                            )}
-                            {addr.label === "office" && (
-                              <Building className="w-3 h-3" />
-                            )}
+                            {addr.label === 'home' && <Home className="w-3 h-3" />}
+                            {addr.label === 'office' && <Building className="w-3 h-3" />}
                             {addr.label}
                           </span>
                           {addr.isDefault && (
                             <span className="text-secondary500 border border-secondary300 text-[9px] font-medium px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-0.5">
-                              <CheckCircle2 className="w-3 h-3 shrink-0 text-secondary400" />{" "}
+                              <CheckCircle2 className="w-3 h-3 shrink-0 text-secondary400" />{' '}
                               Default
                             </span>
                           )}
                         </div>
-                        <p className="text-sm font-medium text-darkColor mb-1">
-                          {addr.fullName}
-                        </p>
+                        <p className="text-sm font-medium text-darkColor mb-1">{addr.fullName}</p>
                         <p className="text-xs text-secondary600 mb-1 leading-snug">
                           {addr.line1}, {addr.line2 && `${addr.line2}, `}
                           {addr.city}, {addr.state} - {addr.pincode}
                         </p>
-                        <p className="text-xs font-normal text-secondary600">
-                          {addr.phone}
-                        </p>
+                        <p className="text-xs font-normal text-secondary600">{addr.phone}</p>
                       </div>
 
                       <div className="border-t border-secondary200/50 mt-4 pt-3.5 flex items-center justify-between">
@@ -426,33 +403,33 @@ export const Profile: React.FC = () => {
       <Dialog
         isOpen={addressModalOpen}
         onClose={() => setAddressModalOpen(false)}
-        title={editId ? "Edit Address" : "Add New Address"}
+        title={editId ? 'Edit Address' : 'Add New Address'}
       >
         <form onSubmit={handleSaveAddress} className="space-y-4">
           <div className="grid grid-cols-3 gap-2">
             <Button
               type="button"
-              variant={newLabel === "home" ? "primary" : "secondary"}
+              variant={newLabel === 'home' ? 'primary' : 'secondary'}
               size="sm"
-              onClick={() => setNewLabel("home")}
+              onClick={() => setNewLabel('home')}
               className="py-2 text-xs"
             >
               Home
             </Button>
             <Button
               type="button"
-              variant={newLabel === "office" ? "primary" : "secondary"}
+              variant={newLabel === 'office' ? 'primary' : 'secondary'}
               size="sm"
-              onClick={() => setNewLabel("office")}
+              onClick={() => setNewLabel('office')}
               className="py-2 text-xs"
             >
               Office
             </Button>
             <Button
               type="button"
-              variant={newLabel === "other" ? "primary" : "secondary"}
+              variant={newLabel === 'other' ? 'primary' : 'secondary'}
               size="sm"
-              onClick={() => setNewLabel("other")}
+              onClick={() => setNewLabel('other')}
               className="py-2 text-xs"
             >
               Other
@@ -503,7 +480,7 @@ export const Profile: React.FC = () => {
               label="State *"
               value={newState}
               onChange={(e) => setNewState(e.target.value)}
-              options={[{ value: "", label: "Select State" }, ...INDIAN_STATES]}
+              options={[{ value: '', label: 'Select State' }, ...INDIAN_STATES]}
             />
           </div>
 
@@ -522,22 +499,16 @@ export const Profile: React.FC = () => {
               onChange={(e) => setNewIsDefault(e.target.checked)}
               className="w-4 h-4 accent-primaryBg"
             />
-            <span className="text-xs font-semibold text-secondary600">
-              Set as default address
-            </span>
+            <span className="text-xs font-semibold text-secondary600">Set as default address</span>
           </label>
 
-          <Button
-            type="submit"
-            loading={savingAddress}
-            className="w-full py-2.5"
-          >
-            {editId ? "Save Address" : "Add Shipping Location"}
+          <Button type="submit" loading={savingAddress} className="w-full py-2.5">
+            {editId ? 'Save Address' : 'Add Shipping Location'}
           </Button>
         </form>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile

@@ -1,102 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { adminApiService } from '../../lib/api/admin';
-import type { Coupon } from '../../types/coupon';
-import { useToast } from '../../hooks/useToast';
-import { formatPrice, formatDate } from '../../lib/format';
-import Card, { CardContent } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import Dialog from '../../components/ui/Dialog';
-import Skeleton from '../../components/ui/Skeleton';
-import ErrorState from '../../components/shared/ErrorState';
-import Pagination from '../../components/ui/Pagination';
-import { Plus, Ban } from 'lucide-react';
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { adminApiService } from '../../lib/api/admin'
+import type { Coupon } from '../../types/coupon'
+import { useToast } from '../../hooks/useToast'
+import { formatPrice, formatDate } from '../../lib/format'
+import Card, { CardContent } from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../components/ui/Table'
+import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
+import Select from '../../components/ui/Select'
+import Dialog from '../../components/ui/Dialog'
+import Skeleton from '../../components/ui/Skeleton'
+import ErrorState from '../../components/shared/ErrorState'
+import Pagination from '../../components/ui/Pagination'
+import { Plus, Ban } from 'lucide-react'
 
 export const CouponsList: React.FC = () => {
-  const { showToast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [coupons, setCoupons] = useState<Coupon[]>([])
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Sync inputs with URL params
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const page = parseInt(searchParams.get('page') || '1', 10)
 
   // Dialog states
-  const [modalOpen, setModalOpen] = useState(false);
-  const [code, setCode] = useState('');
-  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
-  const [discountValue, setDiscountValue] = useState('');
-  const [minOrderAmount, setMinOrderAmount] = useState('');
-  const [maxDiscountAmount, setMaxDiscountAmount] = useState('');
-  const [usageLimit, setUsageLimit] = useState('100');
-  const [validFrom, setValidFrom] = useState('');
-  const [validUntil, setValidUntil] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false)
+  const [code, setCode] = useState('')
+  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage')
+  const [discountValue, setDiscountValue] = useState('')
+  const [minOrderAmount, setMinOrderAmount] = useState('')
+  const [maxDiscountAmount, setMaxDiscountAmount] = useState('')
+  const [usageLimit, setUsageLimit] = useState('100')
+  const [validFrom, setValidFrom] = useState('')
+  const [validUntil, setValidUntil] = useState('')
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    fetchCoupons();
-  }, [page]);
+    fetchCoupons()
+  }, [page])
 
   const fetchCoupons = async () => {
-    setLoading(true);
-    setError(null);
-    const res = await adminApiService.getCoupons({ page, limit: 20 });
+    setLoading(true)
+    setError(null)
+    const res = await adminApiService.getCoupons({ page, limit: 20 })
     if (res.success) {
-      setCoupons(res.data);
-      setPagination(res.pagination);
+      setCoupons(res.data)
+      setPagination(res.pagination)
     } else {
-      setError(res.error.message || 'Failed to load coupons list.');
+      setError(res.error.message || 'Failed to load coupons list.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const updateParam = (key: string, value: string) => {
-    const updated = new URLSearchParams(searchParams);
+    const updated = new URLSearchParams(searchParams)
     if (value === '') {
-      updated.delete(key);
+      updated.delete(key)
     } else {
-      updated.set(key, value);
+      updated.set(key, value)
     }
-    setSearchParams(updated);
-  };
+    setSearchParams(updated)
+  }
 
   const handleOpenAdd = () => {
-    setCode('');
-    setDiscountType('percentage');
-    setDiscountValue('');
-    setMinOrderAmount('0');
-    setMaxDiscountAmount('0');
-    setUsageLimit('100');
+    setCode('')
+    setDiscountType('percentage')
+    setDiscountValue('')
+    setMinOrderAmount('0')
+    setMaxDiscountAmount('0')
+    setUsageLimit('100')
     // Default dates: today and one month from today in local datetime format
-    const today = new Date();
-    const nextMonth = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
-    setValidFrom(today.toISOString().substring(0, 16));
-    setValidUntil(nextMonth.toISOString().substring(0, 16));
-    
-    setModalOpen(true);
-  };
+    const today = new Date()
+    const nextMonth = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
+    setValidFrom(today.toISOString().substring(0, 16))
+    setValidUntil(nextMonth.toISOString().substring(0, 16))
+
+    setModalOpen(true)
+  }
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (!code || !discountValue || !validFrom || !validUntil) {
-      showToast('Please fill in all mandatory fields.', 'error');
-      return;
+      showToast('Please fill in all mandatory fields.', 'error')
+      return
     }
 
-    setSaving(true);
+    setSaving(true)
     // Convert inputs: Rupees -> Paisa
-    const valAmount = discountType === 'fixed'
-      ? Math.round(parseFloat(discountValue) * 100)
-      : parseInt(discountValue, 10);
+    const valAmount =
+      discountType === 'fixed'
+        ? Math.round(parseFloat(discountValue) * 100)
+        : parseInt(discountValue, 10)
 
-    const minAmount = minOrderAmount ? Math.round(parseFloat(minOrderAmount) * 100) : 0;
-    const maxAmount = maxDiscountAmount ? Math.round(parseFloat(maxDiscountAmount) * 100) : 0;
+    const minAmount = minOrderAmount ? Math.round(parseFloat(minOrderAmount) * 100) : 0
+    const maxAmount = maxDiscountAmount ? Math.round(parseFloat(maxDiscountAmount) * 100) : 0
 
     const res = await adminApiService.createCoupon({
       code: code.trim().toUpperCase(),
@@ -107,32 +115,32 @@ export const CouponsList: React.FC = () => {
       usageLimit: parseInt(usageLimit, 10),
       validFrom: new Date(validFrom).toISOString(),
       validUntil: new Date(validUntil).toISOString(),
-    });
-    setSaving(false);
+    })
+    setSaving(false)
 
     if (res.success) {
-      showToast(`Coupon "${code.toUpperCase()}" created successfully.`, 'success');
-      setModalOpen(false);
-      fetchCoupons();
+      showToast(`Coupon "${code.toUpperCase()}" created successfully.`, 'success')
+      setModalOpen(false)
+      fetchCoupons()
     } else {
-      showToast(res.error.message || 'Failed to create coupon.', 'error');
+      showToast(res.error.message || 'Failed to create coupon.', 'error')
     }
-  };
+  }
 
   const handleDeactivate = async (id: string, codeStr: string) => {
-    if (!confirm(`Are you sure you want to deactivate coupon "${codeStr}"?`)) return;
+    if (!confirm(`Are you sure you want to deactivate coupon "${codeStr}"?`)) return
 
-    setSaving(true);
-    const res = await adminApiService.deactivateCoupon(id);
-    setSaving(false);
+    setSaving(true)
+    const res = await adminApiService.deactivateCoupon(id)
+    setSaving(false)
 
     if (res.success) {
-      showToast(`Coupon "${codeStr}" deactivated.`, 'success');
-      fetchCoupons();
+      showToast(`Coupon "${codeStr}" deactivated.`, 'success')
+      fetchCoupons()
     } else {
-      showToast(res.error.message || 'Deactivation failed.', 'error');
+      showToast(res.error.message || 'Deactivation failed.', 'error')
     }
-  };
+  }
 
   return (
     <div className="space-y-6 text-left">
@@ -186,22 +194,21 @@ export const CouponsList: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {coupons.map((c) => {
-                  const valDisplay = c.discountType === 'percentage'
-                    ? `${c.discountValue}%`
-                    : formatPrice(c.discountValue);
+                  const valDisplay =
+                    c.discountType === 'percentage'
+                      ? `${c.discountValue}%`
+                      : formatPrice(c.discountValue)
 
-                  const now = new Date();
-                  const until = new Date(c.validUntil);
-                  const isExpired = now > until;
+                  const now = new Date()
+                  const until = new Date(c.validUntil)
+                  const isExpired = now > until
 
                   return (
                     <TableRow key={c.id}>
                       <TableCell className="font-medium text-darkColor tracking-wider uppercase">
                         {c.code}
                       </TableCell>
-                      <TableCell className="font-medium text-secondary700">
-                        {valDisplay}
-                      </TableCell>
+                      <TableCell className="font-medium text-secondary700">{valDisplay}</TableCell>
                       <TableCell className="text-xs font-normal text-secondary600">
                         {c.minOrderAmount > 0 ? formatPrice(c.minOrderAmount) : '₹0 (No Min)'}
                       </TableCell>
@@ -238,7 +245,7 @@ export const CouponsList: React.FC = () => {
                         )}
                       </TableCell>
                     </TableRow>
-                  );
+                  )
                 })}
               </TableBody>
             </Table>
@@ -253,16 +260,19 @@ export const CouponsList: React.FC = () => {
       />
 
       {/* DIALOG FOR CREATE */}
-      <Dialog
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Add Promo Coupon Code"
-      >
+      <Dialog isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add Promo Coupon Code">
         <form onSubmit={handleSave} className="space-y-4">
           <Input
             label="Promo Coupon Code *"
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice(0, 50))}
+            onChange={(e) =>
+              setCode(
+                e.target.value
+                  .toUpperCase()
+                  .replace(/[^A-Z0-9_-]/g, '')
+                  .slice(0, 50)
+              )
+            }
             placeholder="E.g. DIWALI30"
             className="uppercase"
             required
@@ -343,7 +353,7 @@ export const CouponsList: React.FC = () => {
         </form>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default CouponsList;
+export default CouponsList

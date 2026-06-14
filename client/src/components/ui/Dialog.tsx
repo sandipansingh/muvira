@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect } from 'react'
+import { X } from 'lucide-react'
 
 interface DialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  isOpen: boolean
+  onClose: () => void
+  title?: string
+  children: React.ReactNode
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'
 }
 
 export const Dialog: React.FC<DialogProps> = ({
@@ -19,16 +19,16 @@ export const Dialog: React.FC<DialogProps> = ({
   // Prevent background scroll when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'unset'
     }
     return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   const widthClasses = {
     sm: 'max-w-sm',
@@ -36,7 +36,7 @@ export const Dialog: React.FC<DialogProps> = ({
     lg: 'max-w-lg',
     xl: 'max-w-xl',
     '2xl': 'max-w-2xl',
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
@@ -86,7 +86,7 @@ export const Dialog: React.FC<DialogProps> = ({
         }
       `}</style>
     </div>
-  );
-};
+  )
+}
 
-export default Dialog;
+export default Dialog

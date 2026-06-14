@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 export const Table: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
   children,
@@ -11,8 +11,8 @@ export const Table: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
         {children}
       </table>
     </div>
-  );
-};
+  )
+}
 
 export const TableHeader: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({
   children,
@@ -23,8 +23,8 @@ export const TableHeader: React.FC<React.HTMLAttributes<HTMLTableSectionElement>
     <thead className={`bg-lightgrayColor border-b border-secondary200 ${className}`} {...props}>
       {children}
     </thead>
-  );
-};
+  )
+}
 
 export const TableBody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({
   children,
@@ -35,8 +35,8 @@ export const TableBody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> 
     <tbody className={`divide-y divide-secondary200 ${className}`} {...props}>
       {children}
     </tbody>
-  );
-};
+  )
+}
 
 export const TableRow: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = ({
   children,
@@ -47,8 +47,8 @@ export const TableRow: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = ({
     <tr className={`hover:bg-lightgrayColor/50 transition-colors ${className}`} {...props}>
       {children}
     </tr>
-  );
-};
+  )
+}
 
 export const TableHead: React.FC<React.ThHTMLAttributes<HTMLTableCellElement>> = ({
   children,
@@ -62,8 +62,8 @@ export const TableHead: React.FC<React.ThHTMLAttributes<HTMLTableCellElement>> =
     >
       {children}
     </th>
-  );
-};
+  )
+}
 
 export const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = ({
   children,
@@ -74,5 +74,5 @@ export const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> =
     <td className={`px-6 py-4 text-sm text-secondary700 ${className}`} {...props}>
       {children}
     </td>
-  );
-};
+  )
+}

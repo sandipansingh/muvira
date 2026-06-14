@@ -1,100 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { adminApiService } from '../../lib/api/admin';
-import type { ProductDetail } from '../../types/product';
-import { formatPrice } from '../../lib/format';
-import { useToast } from '../../hooks/useToast';
-import Card, { CardContent } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
-import Button from '../../components/ui/Button';
-import Select from '../../components/ui/Select';
-import Pagination from '../../components/ui/Pagination';
-import Skeleton from '../../components/ui/Skeleton';
-import ErrorState from '../../components/shared/ErrorState';
-import { Search, Plus, Pencil, Trash } from 'lucide-react';
-import { categoriesApiService } from '../../lib/api/categories';
-import type { Category } from '../../types/category';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { adminApiService } from '../../lib/api/admin'
+import type { ProductDetail } from '../../types/product'
+import { formatPrice } from '../../lib/format'
+import { useToast } from '../../hooks/useToast'
+import Card, { CardContent } from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../components/ui/Table'
+import Button from '../../components/ui/Button'
+import Select from '../../components/ui/Select'
+import Pagination from '../../components/ui/Pagination'
+import Skeleton from '../../components/ui/Skeleton'
+import ErrorState from '../../components/shared/ErrorState'
+import { Search, Plus, Pencil, Trash } from 'lucide-react'
+import { categoriesApiService } from '../../lib/api/categories'
+import type { Category } from '../../types/category'
 
 export const ProductsList: React.FC = () => {
-  const navigate = useNavigate();
-  const { showToast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate()
+  const { showToast } = useToast()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [products, setProducts] = useState<ProductDetail[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [products, setProducts] = useState<ProductDetail[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Sync inputs with URL params
-  const q = searchParams.get('q') || '';
-  const categoryId = searchParams.get('category') || '';
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const q = searchParams.get('q') || ''
+  const categoryId = searchParams.get('category') || ''
+  const page = parseInt(searchParams.get('page') || '1', 10)
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategories()
+  }, [])
 
   useEffect(() => {
-    fetchProducts();
-  }, [q, categoryId, page]);
+    fetchProducts()
+  }, [q, categoryId, page])
 
   const fetchCategories = async () => {
-    const res = await categoriesApiService.getCategories();
+    const res = await categoriesApiService.getCategories()
     if (res.success) {
-      setCategories(res.data);
+      setCategories(res.data)
     }
-  };
+  }
 
   const fetchProducts = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     const res = await adminApiService.getProducts({
       page,
       limit: 10,
       q,
       category: categoryId,
-    });
+    })
 
     if (res.success) {
-      setProducts(res.data);
-      setPagination(res.pagination);
+      setProducts(res.data)
+      setPagination(res.pagination)
     } else {
-      setError(res.error.message || 'Failed to fetch catalog.');
+      setError(res.error.message || 'Failed to fetch catalog.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const updateParam = (key: string, value: string) => {
-    const updated = new URLSearchParams(searchParams);
+    const updated = new URLSearchParams(searchParams)
     if (value === '') {
-      updated.delete(key);
+      updated.delete(key)
     } else {
-      updated.set(key, value);
+      updated.set(key, value)
     }
     if (key !== 'page') {
-      updated.delete('page');
+      updated.delete('page')
     }
-    setSearchParams(updated);
-  };
+    setSearchParams(updated)
+  }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to deactivate/soft-delete "${name}"?`)) return;
+    if (!confirm(`Are you sure you want to deactivate/soft-delete "${name}"?`)) return
 
-    const res = await adminApiService.deleteProduct(id);
+    const res = await adminApiService.deleteProduct(id)
     if (res.success) {
-      showToast(`Product "${name}" soft-deleted successfully (isActive = false).`, 'success');
-      fetchProducts();
+      showToast(`Product "${name}" soft-deleted successfully (isActive = false).`, 'success')
+      fetchProducts()
     } else {
-      showToast(res.error.message || 'Failed to delete product.', 'error');
+      showToast(res.error.message || 'Failed to delete product.', 'error')
     }
-  };
+  }
 
   const categoryOptions = [
     { value: '', label: 'All Categories' },
     ...categories.map((c) => ({ value: c.id, label: c.name })),
-  ];
+  ]
 
   return (
     <div className="space-y-6 text-left">
@@ -175,9 +182,10 @@ export const ProductsList: React.FC = () => {
               </TableHeader>
               <TableBody>
                 {products.map((prod) => {
-                  const hasDiscount = prod.salePrice !== null;
-                  const currentPrice = hasDiscount && prod.salePrice !== null ? prod.salePrice : prod.price;
-                  const primaryImg = prod.images.find((img) => img.isPrimary) || prod.images[0];
+                  const hasDiscount = prod.salePrice !== null
+                  const currentPrice =
+                    hasDiscount && prod.salePrice !== null ? prod.salePrice : prod.price
+                  const primaryImg = prod.images.find((img) => img.isPrimary) || prod.images[0]
 
                   return (
                     <TableRow key={prod.id}>
@@ -185,7 +193,11 @@ export const ProductsList: React.FC = () => {
                       <TableCell>
                         <div className="w-12 h-12 bg-lightgrayColor border border-secondary200 rounded overflow-hidden shrink-0">
                           {primaryImg?.url ? (
-                            <img src={primaryImg.url} alt={prod.name} className="w-full h-full object-cover" />
+                            <img
+                              src={primaryImg.url}
+                              alt={prod.name}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-xs font-bold text-secondary400">
                               No image
@@ -196,7 +208,9 @@ export const ProductsList: React.FC = () => {
 
                       {/* Info */}
                       <TableCell>
-                        <p className="font-medium text-darkColor leading-none truncate max-w-[180px]">{prod.name}</p>
+                        <p className="font-medium text-darkColor leading-none truncate max-w-[180px]">
+                          {prod.name}
+                        </p>
                         <p className="text-[10px] text-secondary500 font-medium mt-1 uppercase tracking-wider">
                           SKU: {prod.sku}
                         </p>
@@ -257,7 +271,7 @@ export const ProductsList: React.FC = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  );
+                  )
                 })}
               </TableBody>
             </Table>
@@ -271,7 +285,7 @@ export const ProductsList: React.FC = () => {
         onPageChange={(pageVal) => updateParam('page', pageVal.toString())}
       />
     </div>
-  );
-};
+  )
+}
 
-export default ProductsList;
+export default ProductsList
