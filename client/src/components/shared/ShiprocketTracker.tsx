@@ -92,9 +92,7 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
   if (loading) {
     return (
       <div className="space-y-4 animate-pulse">
-        {/* Current status skeleton */}
         <div className="h-16 rounded-xl bg-lightgrayColor border border-secondary200" />
-        {/* Activity items skeleton */}
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex gap-3 pl-2">
             <div className="w-3 h-3 rounded-full bg-secondary200 mt-1 shrink-0" />

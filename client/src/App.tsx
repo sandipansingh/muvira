@@ -72,12 +72,11 @@ const AdminLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-lightgrayColor flex">
-      {/* Desktop Sidebar */}
       <div className="hidden lg:block w-64 shrink-0">
         <AdminSidebar />
       </div>
 
-      {/* Mobile Drawer Sidebar */}
+      {/* Mobile drawer */}
       <Sheet
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
@@ -88,7 +87,6 @@ const AdminLayout: React.FC = () => {
         </div>
       </Sheet>
 
-      {/* Main Container */}
       <div className="flex-grow flex flex-col min-w-0 min-h-screen">
         <AdminTopbar onToggleSidebar={() => setMobileMenuOpen(true)} />
         <main className="flex-grow p-6 md:p-8">
@@ -108,7 +106,6 @@ export const App: React.FC = () => {
           <AuthProvider>
             <CartProvider>
               <Routes>
-                {/* Customer Routes */}
                 <Route path="/" element={<CustomerLayout />}>
                   <Route index element={<Home />} />
                   <Route path="products" element={<Products />} />
@@ -121,7 +118,6 @@ export const App: React.FC = () => {
                   <Route path="signup" element={<Signup />} />
                   <Route path="forgot-password" element={<ForgotPassword />} />
 
-                  {/* Protected Customer Routes */}
                   <Route
                     path="checkout"
                     element={
@@ -172,7 +168,6 @@ export const App: React.FC = () => {
                   />
                 </Route>
 
-                {/* Admin Dashboard Routes */}
                 <Route
                   path="/admin"
                   element={

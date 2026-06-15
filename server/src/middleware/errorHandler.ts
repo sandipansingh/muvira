@@ -12,7 +12,6 @@ export function errorHandler(
 ): void {
   const requestId = req.requestId ?? 'unknown'
 
-  // Known application errors — safe to expose message + code
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       success: false,
@@ -26,7 +25,6 @@ export function errorHandler(
     return
   }
 
-  // Unknown / unexpected errors
   const isProduction = env.NODE_ENV === 'production'
 
   logger.error(
