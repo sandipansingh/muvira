@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { productsApiService } from '../../lib/api/products'
 import type { ProductListItem } from '../../types/product'
@@ -35,19 +35,14 @@ export const SearchResults: React.FC = () => {
   const sort = searchParams.get('sort') || 'popularity'
   const page = parseInt(searchParams.get('page') || '1', 10)
 
-  useEffect(() => {
-    fetchResults()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [category, q, minPrice, maxPrice, inStock, sort, page])
-
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     setLoading(true)
     setError(null)
 
-    const queryParams: any = {
+    const queryParams: Record<string, string | number | boolean> = {
       page,
       limit: 12,
-      sort,
+      sort: sort as 'price_asc' | 'price_desc' | 'newest' | 'popularity',
       q,
     }
 
@@ -65,7 +60,12 @@ export const SearchResults: React.FC = () => {
       setError(res.error.message || 'Failed to load search results')
     }
     setLoading(false)
-  }
+  }, [page, q, category, minPrice, maxPrice, inStock, sort])
+
+  useEffect(() => {
+    fetchResults()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [fetchResults])
 
   const updateParam = (key: string, value: string | boolean | number) => {
     const updated = new URLSearchParams(searchParams)

@@ -2,16 +2,12 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express'
 import { getCache, setCache } from '../config/cache'
 import { logger } from '../lib/logger'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface CachedResponse {
   status: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any
   cachedAt: number // Unix ms — used to compute X-Cache-Age on HITs
 }
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function buildCacheKey(req: Request): string {
   return `${req.method}:${req.originalUrl}`
@@ -21,11 +17,8 @@ function shouldSkipCache(req: Request): boolean {
   return req.method !== 'GET'
 }
 
-// ─── Factory ──────────────────────────────────────────────────────────────────
-
 export function cacheMiddleware(ttl: number): RequestHandler {
   return (req: Request, res: Response, next: NextFunction): void => {
-    // ── Skip logic ───────────────────────────────────────────────────────────
     if (shouldSkipCache(req)) {
       next()
       return
@@ -33,7 +26,6 @@ export function cacheMiddleware(ttl: number): RequestHandler {
 
     const cacheKey = buildCacheKey(req)
 
-    // ── HIT ──────────────────────────────────────────────────────────────────
     const cached = getCache<CachedResponse>(cacheKey)
 
     if (cached !== null) {
@@ -50,12 +42,11 @@ export function cacheMiddleware(ttl: number): RequestHandler {
       return
     }
 
-    // ── MISS — intercept res.json() to capture & store the response ──────────
     res.setHeader('X-Cache', 'MISS')
     res.setHeader('Cache-Control', 'no-cache')
 
     // Keep a reference to Express's real res.json before patching
-     
+
     const originalJson = res.json.bind(res)
 
     // Override res.json on this specific response object only.

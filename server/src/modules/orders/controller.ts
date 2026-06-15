@@ -2,10 +2,6 @@ import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import type { ListOrdersQuery, AdminListOrdersQuery } from './schema'
-import { AppError } from '../../types'
-import { adminSupabase } from '../../lib/supabase/admin'
-
-// ─── User Handlers ────────────────────────────────────────────────────────────
 
 export async function listOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -34,8 +30,6 @@ export async function getOrder(req: Request, res: Response, next: NextFunction):
     next(err)
   }
 }
-
-// ─── Admin Handlers ───────────────────────────────────────────────────────────
 
 export async function adminListOrders(
   req: Request,

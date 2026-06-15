@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ordersApiService } from '../../lib/api/orders'
 import type { OrderDetail as OrderDetailType } from '../../types/order'
@@ -19,23 +19,22 @@ export const OrderDetail: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (id) {
-      fetchOrderDetails()
-    }
-  }, [id])
-
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
+    if (!id) return
     setLoading(true)
     setError(null)
-    const res = await ordersApiService.getOrderById(id || '')
+    const res = await ordersApiService.getOrderById(id)
     if (res.success) {
       setOrder(res.data)
     } else {
       setError(res.error.message || 'Order not found.')
     }
     setLoading(false)
-  }
+  }, [id])
+
+  useEffect(() => {
+    fetchOrderDetails()
+  }, [fetchOrderDetails])
 
   const getStatusVariant = (status: string) => {
     switch (status) {

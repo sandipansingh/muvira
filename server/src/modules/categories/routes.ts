@@ -9,8 +9,6 @@ import {
 } from './schema'
 import * as controller from './controller'
 
-// ─── Public Routes ────────────────────────────────────────────────────────────
-
 export const categoriesRouter = Router()
 
 categoriesRouter.get(
@@ -25,8 +23,6 @@ categoriesRouter.get(
   validate({ params: CategoryParamsSchema }),
   controller.getCategory
 )
-
-// ─── Admin Routes ─────────────────────────────────────────────────────────────
 
 export const adminCategoriesRouter = Router()
 

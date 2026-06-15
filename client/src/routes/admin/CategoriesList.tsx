@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import type { Category } from '../../types/category'
@@ -49,11 +49,7 @@ export const CategoriesList: React.FC = () => {
   const [uploading, setUploading] = useState(false)
   const [slugTouched, setSlugTouched] = useState(false)
 
-  useEffect(() => {
-    fetchCategories()
-  }, [page])
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     setLoading(true)
     setError(null)
     const res = await adminApiService.getCategories({ page, limit: 20 })
@@ -64,7 +60,11 @@ export const CategoriesList: React.FC = () => {
       setError(res.error.message || 'Failed to fetch categories.')
     }
     setLoading(false)
-  }
+  }, [page])
+
+  useEffect(() => {
+    fetchCategories()
+  }, [fetchCategories])
 
   const updateParam = (key: string, value: string) => {
     const updated = new URLSearchParams(searchParams)
@@ -112,8 +112,8 @@ export const CategoriesList: React.FC = () => {
       const result = await uploadImage(file, 'categories')
       setImageUrl(result.url)
       showToast('Image uploaded', 'success')
-    } catch (err: any) {
-      showToast(err?.message || 'Upload failed', 'error')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Upload failed', 'error')
     } finally {
       setUploading(false)
       e.target.value = ''

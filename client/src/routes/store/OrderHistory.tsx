@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ordersApiService } from '../../lib/api/orders'
 import { trackingApiService } from '../../lib/api/tracking'
@@ -31,11 +31,7 @@ export const OrderHistory: React.FC = () => {
   // Map of awb_code → live current_status from Shiprocket
   const [liveStatuses, setLiveStatuses] = useState<Record<string, ShiprocketTrackData>>({})
 
-  useEffect(() => {
-    fetchOrders()
-  }, [page])
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true)
     setError(null)
     const res = await ordersApiService.getOrders(page, 10)
@@ -52,7 +48,11 @@ export const OrderHistory: React.FC = () => {
       setError(res.error.message || 'Failed to load order history')
     }
     setLoading(false)
-  }
+  }, [page])
+
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
 
   const getStatusVariant = (status: string) => {
     switch (status) {

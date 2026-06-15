@@ -22,7 +22,7 @@ export interface ErrorResponseEnvelope {
     code: string
     message: string
     fieldErrors?: Record<string, string[]>
-    details?: any
+    details?: unknown
   }
 }
 

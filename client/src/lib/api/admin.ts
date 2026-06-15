@@ -32,7 +32,6 @@ async function adminDelete<T>(path: string) {
 }
 
 export const adminApiService = {
-  // ── Dashboard ──────────────────────────────────────────────────────────────
   async getDashboardStats(): Promise<ApiResponse<DashboardStats>> {
     const res = await adminGet<{
       success: boolean
@@ -50,7 +49,6 @@ export const adminApiService = {
     return { success: true, data: mapDashboardStats(res.data) }
   },
 
-  // ── Inventory ──────────────────────────────────────────────────────────────
   async getInventory(
     page = 1,
     limit = 50,
@@ -82,7 +80,6 @@ export const adminApiService = {
     }
   },
 
-  // ── Products ───────────────────────────────────────────────────────────────
   async getProducts(
     params: {
       page?: number
@@ -281,7 +278,6 @@ export const adminApiService = {
     return { success: true, data: mapProductDetail(res.data) }
   },
 
-  // ── Categories ─────────────────────────────────────────────────────────────
   async getCategoriesList(): Promise<ApiResponse<Category[]>> {
     const res = await adminGet<{
       success: boolean
@@ -407,7 +403,6 @@ export const adminApiService = {
     return { success: true, data: { deleted: true } }
   },
 
-  // ── Coupons ────────────────────────────────────────────────────────────────
   async getCoupons(
     params: { page?: number; limit?: number } = {}
   ): Promise<ApiPaginatedResponse<Coupon>> {
@@ -520,7 +515,6 @@ export const adminApiService = {
     return { success: true, data: mapCoupon(res.data) }
   },
 
-  // ── Orders ─────────────────────────────────────────────────────────────────
   async syncTrackingOrders(): Promise<ApiResponse<{ totalChecked: number; totalUpdated: number }>> {
     const res = await adminPost<{
       success: boolean
@@ -652,7 +646,6 @@ export const adminApiService = {
     return { success: true, data: mapOrderDetail(res.data) }
   },
 
-  // ── Reviews (Admin) ────────────────────────────────────────────────────────
   async getReviews(
     params: {
       page?: number
@@ -661,7 +654,7 @@ export const adminApiService = {
       rating?: number
       q?: string
     } = {}
-  ): Promise<ApiPaginatedResponse<any>> {
+  ): Promise<ApiPaginatedResponse<Record<string, unknown>>> {
     const qs = new URLSearchParams()
     qs.set('page', String(params.page ?? 1))
     qs.set('limit', String(params.limit ?? 20))
@@ -698,9 +691,11 @@ export const adminApiService = {
   },
 
   async deleteReview(id: string): Promise<ApiResponse<{ deleted: boolean }>> {
-    const res = await adminDelete<{ success: boolean; data?: any; error?: AnyRecord }>(
-      `/api/admin/reviews/${id}`
-    )
+    const res = await adminDelete<{
+      success: boolean
+      data?: Record<string, unknown>
+      error?: AnyRecord
+    }>(`/api/admin/reviews/${id}`)
     if (!res.success)
       return {
         success: false,

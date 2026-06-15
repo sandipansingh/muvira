@@ -7,7 +7,7 @@ export function errorHandler(
   err: unknown,
   req: Request,
   res: Response,
-   
+
   _next: NextFunction
 ): void {
   const requestId = req.requestId ?? 'unknown'

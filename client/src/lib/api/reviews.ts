@@ -43,7 +43,7 @@ export const reviewsApiService = {
         success: false,
         error: res.error ?? { code: 'UNKNOWN', message: 'Failed to fetch reviews' },
         summary: { avgRating: null, totalReviews: 0 },
-      } as any
+      } as ApiPaginatedResponse<ProductReview> & { summary: ReviewSummary }
     }
 
     const rawReviews = (res.data.reviews ?? []) as unknown as Record<string, unknown>[]

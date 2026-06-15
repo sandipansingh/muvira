@@ -3,8 +3,6 @@ import * as service from './service'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import type { ListProductsQuery } from './schema'
 
-// ─── Public Handlers ──────────────────────────────────────────────────────────
-
 export async function listProducts(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const query = req.query as unknown as ListProductsQuery
@@ -45,8 +43,6 @@ export async function getRelatedProducts(
     next(err)
   }
 }
-
-// ─── Admin Handlers ───────────────────────────────────────────────────────────
 
 export async function adminListProducts(
   req: Request,

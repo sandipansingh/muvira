@@ -64,7 +64,7 @@ export async function listProductReviews(
     throw new AppError(500, 'DB_ERROR', 'Failed to fetch reviews')
   }
 
-  const reviews = (data ?? []).map((r: any) => ({
+  const reviews = (data ?? []).map((r: Record<string, unknown>) => ({
     id: r.id,
     product_id: r.product_id,
     user_id: r.user_id,
@@ -156,7 +156,7 @@ export async function createOrUpdateReview(
 
 // Admin list (with filters)
 export async function adminListReviews(query: AdminReviewsQuery): Promise<{
-  reviews: any[]
+  reviews: Record<string, unknown>[]
   total: number
   page: number
   limit: number
@@ -198,7 +198,7 @@ export async function adminListReviews(query: AdminReviewsQuery): Promise<{
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch reviews')
 
   // Flatten joined data for frontend convenience
-  const reviews = (data ?? []).map((r: any) => ({
+  const reviews = (data ?? []).map((r: Record<string, unknown>) => ({
     id: r.id,
     productId: r.product_id,
     productName: r.products?.name ?? '',
@@ -257,10 +257,11 @@ export async function getReviewAggregates(
 
   const groups: Record<string, number[]> = {}
   for (const row of data ?? []) {
-    const pid = (row as any).product_id
+    const r = row as Record<string, unknown>
+    const pid = r.product_id
     if (pid) {
-      if (!groups[pid]) groups[pid] = []
-      groups[pid].push((row as any).rating)
+      if (!groups[pid as string]) groups[pid as string] = []
+      groups[pid as string].push(r.rating as number)
     }
   }
 

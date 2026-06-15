@@ -91,7 +91,7 @@ export async function listProducts(query: ListProductsQuery) {
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch products')
 
-  const products = (data ?? []) as any[]
+  const products = (data ?? []) as Record<string, unknown>[]
   if (products.length > 0) {
     const ids = products.map((p) => p.id)
     const aggregates = await getReviewAggregates(ids)
@@ -174,7 +174,7 @@ export async function adminListProducts(query: ListProductsQuery) {
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch products')
 
-  const products = (data ?? []) as any[]
+  const products = (data ?? []) as Record<string, unknown>[]
   if (products.length > 0) {
     const ids = products.map((p) => p.id)
     const aggregates = await getReviewAggregates(ids)
@@ -221,7 +221,7 @@ export async function getProductBySlug(slug: string): Promise<
     throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
   }
 
-  const prod = data as any
+  const prod = data as Record<string, unknown>
   const aggregates = await getReviewAggregates([prod.id])
   const agg = aggregates[prod.id]
   if (agg) {
@@ -335,7 +335,7 @@ export async function deleteProductImage(imageId: string): Promise<void> {
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to delete product image')
 }
 
-export async function getProductById(id: string): Promise<any> {
+export async function getProductById(id: string): Promise<Record<string, unknown>> {
   const { data, error } = await adminSupabase
     .from('products')
     .select(
@@ -352,7 +352,7 @@ export async function getProductById(id: string): Promise<any> {
     throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
   }
 
-  const prod = data as any
+  const prod = data as Record<string, unknown>
   const aggregates = await getReviewAggregates([prod.id])
   const agg = aggregates[prod.id]
   if (agg) {

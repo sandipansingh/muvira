@@ -15,8 +15,6 @@ import type { DashboardStats, InventoryItem } from '../../types/dashboard'
 import type { SiteSettings } from '../../types/settings'
 import type { ProductReview } from '../../types/product'
 
-// ── Profile ──────────────────────────────────────────────────────────────────
-
 export function mapProfile(raw: Record<string, unknown>): Profile {
   return {
     id: raw['id'] as string,
@@ -28,8 +26,6 @@ export function mapProfile(raw: Record<string, unknown>): Profile {
   }
 }
 
-// ── Product images ────────────────────────────────────────────────────────────
-
 function mapProductImage(raw: Record<string, unknown>): ProductImage {
   return {
     id: raw['id'] as string,
@@ -39,8 +35,6 @@ function mapProductImage(raw: Record<string, unknown>): ProductImage {
     sortOrder: (raw['sort_order'] as number) ?? 0,
   }
 }
-
-// ── Product list item ─────────────────────────────────────────────────────────
 
 export function mapProductListItem(raw: Record<string, unknown>): ProductListItem {
   const images = (raw['product_images'] as Record<string, unknown>[] | undefined) ?? []
@@ -79,8 +73,6 @@ export function mapProductListItem(raw: Record<string, unknown>): ProductListIte
       0,
   }
 }
-
-// ── Product detail ────────────────────────────────────────────────────────────
 
 export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
   const images = (raw['product_images'] as Record<string, unknown>[] | undefined) ?? []
@@ -126,8 +118,6 @@ export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
   }
 }
 
-// ── Category ──────────────────────────────────────────────────────────────────
-
 export function mapCategory(raw: Record<string, unknown>): Category {
   return {
     id: raw['id'] as string,
@@ -140,8 +130,6 @@ export function mapCategory(raw: Record<string, unknown>): Category {
     showInNavbar: raw['show_in_navbar'] as boolean | undefined,
   }
 }
-
-// ── Cart ──────────────────────────────────────────────────────────────────────
 
 export function mapCartItem(raw: Record<string, unknown>): CartItem {
   const prod = raw['products'] as Record<string, unknown> | undefined
@@ -173,8 +161,6 @@ export function buildCart(rawItems: Record<string, unknown>[]): Cart {
   }
 }
 
-// ── Address ───────────────────────────────────────────────────────────────────
-
 export function mapAddress(raw: Record<string, unknown>): Address {
   return {
     id: raw['id'] as string,
@@ -190,8 +176,6 @@ export function mapAddress(raw: Record<string, unknown>): Address {
     isDefault: raw['is_default'] as boolean,
   }
 }
-
-// ── Order ─────────────────────────────────────────────────────────────────────
 
 export function mapOrderListItem(raw: Record<string, unknown>): OrderListItem {
   const items = (raw['order_items'] as Record<string, unknown>[] | undefined) ?? []
@@ -291,8 +275,6 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
   }
 }
 
-// ── Coupon ────────────────────────────────────────────────────────────────────
-
 export function mapCoupon(raw: Record<string, unknown>): Coupon {
   return {
     id: raw['id'] as string,
@@ -320,8 +302,6 @@ export function mapCouponPreview(raw: Record<string, unknown>): CouponPreview {
   }
 }
 
-// ── Dashboard / Inventory ─────────────────────────────────────────────────────
-
 export function mapDashboardStats(raw: Record<string, unknown>): DashboardStats {
   return {
     totalOrders: (raw['total_orders'] as number) ?? 0,
@@ -343,8 +323,6 @@ export function mapInventoryItem(raw: Record<string, unknown>): InventoryItem {
   }
 }
 
-// ── Reviews ──────────────────────────────────────────────────────────────────
-
 export function mapProductReview(raw: Record<string, unknown>): ProductReview {
   return {
     id: raw['id'] as string,
@@ -360,8 +338,6 @@ export function mapProductReview(raw: Record<string, unknown>): ProductReview {
       null,
   }
 }
-
-// ── Site Settings ─────────────────────────────────────────────────────────────
 
 export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
   const contactRaw = (raw['contact_info'] as Record<string, unknown>) ?? {}
