@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS products (
   tags                     TEXT[],
   meta_title               TEXT,
   meta_description         TEXT,
+  metadata                 JSONB       NOT NULL DEFAULT '{}'::jsonb,
   created_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

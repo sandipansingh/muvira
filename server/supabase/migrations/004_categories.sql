@@ -10,10 +10,11 @@ CREATE TABLE IF NOT EXISTS categories (
   description TEXT,
   image_url   TEXT,
   parent_id   UUID        REFERENCES categories (id) ON DELETE SET NULL,
-  is_active   BOOLEAN     NOT NULL DEFAULT TRUE,
-  sort_order  INT         NOT NULL DEFAULT 0,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  is_active      BOOLEAN     NOT NULL DEFAULT TRUE,
+  sort_order     INT         NOT NULL DEFAULT 0,
+  show_in_navbar BOOLEAN     NOT NULL DEFAULT FALSE,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories (slug);

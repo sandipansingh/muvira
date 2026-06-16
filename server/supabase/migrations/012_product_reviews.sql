@@ -4,13 +4,13 @@
 -- Public read for social proof. Admins can manage (delete).
 
 CREATE TABLE IF NOT EXISTS product_reviews (
-  id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  product_id    UUID        NOT NULL REFERENCES products (id) ON DELETE CASCADE,
-  user_id       UUID        NOT NULL REFERENCES profiles (id) ON DELETE CASCADE,
-  rating        INT         NOT NULL CHECK (rating BETWEEN 1 AND 5),
-  comment       TEXT,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id  UUID        NOT NULL REFERENCES products (id) ON DELETE CASCADE,
+  user_id     UUID        NOT NULL REFERENCES profiles (id) ON DELETE CASCADE,
+  rating      INT         NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment     TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
   CONSTRAINT unique_user_product_review UNIQUE (product_id, user_id)
 );
@@ -22,12 +22,12 @@ CREATE INDEX IF NOT EXISTS idx_product_reviews_rating      ON product_reviews (r
 
 ALTER TABLE product_reviews ENABLE ROW LEVEL SECURITY;
 
--- Anyone (including anonymous) can read reviews (used for product pages)
+-- Anyone can read reviews (social proof on product pages)
 CREATE POLICY "reviews_select_public"
   ON product_reviews FOR SELECT
   USING (true);
 
--- Users may only insert rows for themselves (buyer check done in application service)
+-- Users may only insert their own (buyer verification done in app)
 CREATE POLICY "reviews_insert_own"
   ON product_reviews FOR INSERT
   WITH CHECK (auth.uid() = user_id);
@@ -37,7 +37,7 @@ CREATE POLICY "reviews_update_own"
   ON product_reviews FOR UPDATE
   USING (auth.uid() = user_id);
 
--- Admins have full access for moderation
+-- Admins have full access
 CREATE POLICY "reviews_all_admin"
   ON product_reviews
   FOR ALL
@@ -48,7 +48,6 @@ CREATE POLICY "reviews_all_admin"
     )
   );
 
--- updated_at trigger
 CREATE TRIGGER product_reviews_set_updated_at
   BEFORE UPDATE ON product_reviews
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
