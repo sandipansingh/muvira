@@ -38,7 +38,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           loading="lazy"
         />
 
-        {/* Promo tag — refined */}
+        {/* Promo tag - refined */}
         {hasDiscount && (
           <span className="absolute top-3 left-3 bg-white text-[var(--text)] text-[9px] font-semibold px-2.5 py-px rounded tracking-[1px] uppercase border border-[var(--border)] shadow-sm">
             Sale
@@ -57,7 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </span>
         )}
 
-        {/* Quick Add — elegant brass accent */}
+        {/* Quick Add - elegant brass accent */}
         {product.stock > 0 && (
           <button
             onClick={handleQuickAdd}

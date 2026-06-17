@@ -31,7 +31,7 @@ export async function listUserOrders(
   let dbQuery = adminSupabase
     .from('orders')
     .select('*, order_items(*)', { count: 'exact' })
-    // Layer 2 ownership enforcement — always filter by userId from JWT
+    // Layer 2 ownership enforcement - always filter by userId from JWT
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 

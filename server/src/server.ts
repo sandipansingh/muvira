@@ -37,7 +37,7 @@ process.on('SIGTERM', () => shutdown('SIGTERM'))
 process.on('SIGINT', () => shutdown('SIGINT'))
 
 process.on('unhandledRejection', (reason) => {
-  // Do NOT log the full reason object — it may contain secrets in some stacks
+  // Do NOT log the full reason object - it may contain secrets in some stacks
   logger.error({ type: typeof reason }, 'Unhandled promise rejection')
   process.exit(1)
 })

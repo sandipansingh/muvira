@@ -6,7 +6,7 @@ interface CachedResponse {
   status: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any
-  cachedAt: number // Unix ms — used to compute X-Cache-Age on HITs
+  cachedAt: number // Unix ms - used to compute X-Cache-Age on HITs
 }
 
 function buildCacheKey(req: Request): string {
@@ -35,9 +35,9 @@ export function cacheMiddleware(ttl: number): RequestHandler {
       res.setHeader('X-Cache-Age', `${ageSeconds}s`)
       res.setHeader('Cache-Control', 'no-cache')
 
-      logger.info({ cacheKey, ageSeconds }, '[CACHE] HIT — serving from cache')
+      logger.info({ cacheKey, ageSeconds }, '[CACHE] HIT - serving from cache')
 
-      // Send the cached response directly — no Supabase call
+      // Send the cached response directly - no Supabase call
       res.status(cached.status).json(cached.body)
       return
     }
@@ -54,7 +54,7 @@ export function cacheMiddleware(ttl: number): RequestHandler {
     // interfere with any subsequent response methods.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(res as any).json = function patchedJson(body: any): Response {
-      // Restore the original immediately — prevents double-interception
+      // Restore the original immediately - prevents double-interception
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(res as any).json = originalJson
 
@@ -68,7 +68,7 @@ export function cacheMiddleware(ttl: number): RequestHandler {
 
         setCache<CachedResponse>(cacheKey, entry, ttl)
 
-        logger.info({ cacheKey, ttl, status: res.statusCode }, '[CACHE] MISS — response stored')
+        logger.info({ cacheKey, ttl, status: res.statusCode }, '[CACHE] MISS - response stored')
       }
 
       // Delegate to the real res.json to actually send the response

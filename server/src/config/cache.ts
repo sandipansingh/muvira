@@ -13,7 +13,7 @@ const cache = new NodeCache({
 
 // Print once at startup so you can confirm the cache module loaded correctly
 // regardless of pino log level. Remove in production if noisy.
-console.log(`[CACHE] Initialized — enabled=${CACHE_ENABLED} debug=${CACHE_DEBUG} stdTTL=300s`)
+console.log(`[CACHE] Initialized - enabled=${CACHE_ENABLED} debug=${CACHE_DEBUG} stdTTL=300s`)
 
 function debugLog(action: string, key: string, meta?: object): void {
   if (!CACHE_DEBUG) return
@@ -33,7 +33,7 @@ export function getCache<T>(key: string): T | null {
     debugLog('HIT', key)
     return value
   } catch (err) {
-    logger.error({ err, cacheKey: key }, '[CACHE] getCache error — falling through to DB')
+    logger.error({ err, cacheKey: key }, '[CACHE] getCache error - falling through to DB')
     return null
   }
 }
@@ -45,7 +45,7 @@ export function setCache<T>(key: string, value: T, ttl = 0): void {
     cache.set(key, value, ttl)
     debugLog('SET', key, { ttl: ttl || 'default' })
   } catch (err) {
-    logger.error({ err, cacheKey: key }, '[CACHE] setCache error — data not cached')
+    logger.error({ err, cacheKey: key }, '[CACHE] setCache error - data not cached')
   }
 }
 

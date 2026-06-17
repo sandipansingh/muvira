@@ -23,7 +23,7 @@ export async function createAddress(userId: string, input: CreateAddressInput): 
 
   const { data, error } = await adminSupabase
     .from('addresses')
-    // SECURITY: user_id is always set from the JWT userId — never from input
+    // SECURITY: user_id is always set from the JWT userId - never from input
     .insert({ ...input, user_id: userId })
     .select()
     .single()
@@ -37,7 +37,7 @@ export async function updateAddress(
   addressId: string,
   input: UpdateAddressInput
 ): Promise<Address> {
-  // Layer 2 ownership check — verify this address belongs to the requesting user
+  // Layer 2 ownership check - verify this address belongs to the requesting user
   const { data: existing } = await adminSupabase
     .from('addresses')
     .select('user_id')

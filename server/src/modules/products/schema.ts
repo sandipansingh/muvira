@@ -21,7 +21,7 @@ export const ProductIdParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
-// Admin schemas (strict — rejects unknown fields)
+// Admin schemas (strict - rejects unknown fields)
 
 export const CreateProductSchema = z
   .object({

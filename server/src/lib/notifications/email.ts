@@ -17,7 +17,7 @@ interface OrderConfirmationData {
 
 export async function sendOrderConfirmationEmail(data: OrderConfirmationData): Promise<void> {
   if (!resend) {
-    logger.info({ orderId: data.order.id }, 'Email skipped — RESEND_API_KEY not configured')
+    logger.info({ orderId: data.order.id }, 'Email skipped - RESEND_API_KEY not configured')
     return
   }
 
@@ -35,7 +35,7 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationData): P
     if (!toEmail) {
       logger.warn(
         { orderId: data.order.id, userId: data.order.user_id },
-        'No email address found for user — skipping order confirmation email'
+        'No email address found for user - skipping order confirmation email'
       )
       return
     }
@@ -45,13 +45,13 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationData): P
     await resend.emails.send({
       from: `${env.STORE_NAME} <${env.EMAIL_FROM}>`,
       to: toEmail,
-      subject: `Order Confirmed — ${data.order.order_number}`,
+      subject: `Order Confirmed - ${data.order.order_number}`,
       html: `
         <h2>Thank you for your order, ${data.customerName}!</h2>
         <p>Your order <strong>${data.order.order_number}</strong> has been confirmed.</p>
         <p><strong>Total: ₹${totalRupees}</strong></p>
         <p>We will notify you when your order ships.</p>
-        <p>— The ${env.STORE_NAME} Team</p>
+        <p>- The ${env.STORE_NAME} Team</p>
       `,
     })
 
@@ -60,10 +60,10 @@ export async function sendOrderConfirmationEmail(data: OrderConfirmationData): P
       'Order confirmation email sent'
     )
   } catch (err) {
-    // Do NOT rethrow — email failure must not affect order confirmation
+    // Do NOT rethrow - email failure must not affect order confirmation
     logger.error(
       { err, orderId: data.order.id },
-      'Failed to send order confirmation email — will need manual retry'
+      'Failed to send order confirmation email - will need manual retry'
     )
   }
 }

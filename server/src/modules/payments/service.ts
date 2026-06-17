@@ -7,7 +7,7 @@ import type { Order } from '../../types'
 import type { VerifyPaymentInput } from './schema'
 
 //
-// capturePayment — THE SINGLE IDEMPOTENT PAYMENT CAPTURE FUNCTION
+// capturePayment - THE SINGLE IDEMPOTENT PAYMENT CAPTURE FUNCTION
 //
 // This is the ONLY place in the codebase where payment_status is set to 'paid'
 // or payments.status is set to 'captured'. All other code paths are forbidden
@@ -40,7 +40,7 @@ async function capturePayment(
   }
 
   // IDEMPOTENCY GUARD
-  // If already captured, return success immediately — do not re-run side effects.
+  // If already captured, return success immediately - do not re-run side effects.
   if (payment.status === 'captured') {
     const { data: order } = await adminSupabase
       .from('orders')
@@ -90,7 +90,7 @@ async function capturePayment(
   }
 
   // Atomic stock decrement
-  // Uses the DB-level decrement_stock RPC (WHERE stock >= qty) — race-safe.
+  // Uses the DB-level decrement_stock RPC (WHERE stock >= qty) - race-safe.
   // If stock is insufficient at this final point, flag the order for manual
   // reconciliation rather than failing the capture (payment already happened).
   const orderItems = order.order_items as Array<{
@@ -106,17 +106,17 @@ async function capturePayment(
 
     if (stockError || newStock === null) {
       // EDGE CASE: Stock was depleted by a concurrent order between checkout
-      // and capture. The payment succeeded at Razorpay — do NOT refund automatically.
+      // and capture. The payment succeeded at Razorpay - do NOT refund automatically.
       // Flag the order for admin reconciliation.
       logger.error(
         { orderId: order.id, productId: item.product_id },
-        'Stock insufficient at capture time — flagging order for admin reconciliation'
+        'Stock insufficient at capture time - flagging order for admin reconciliation'
       )
       await adminSupabase
         .from('orders')
         .update({ fulfillment_status: 'exception' })
         .eq('id', order.id)
-      // Continue processing other items — don't throw here
+      // Continue processing other items - don't throw here
     }
   }
 
@@ -130,7 +130,7 @@ async function capturePayment(
       // Non-fatal: log and continue. Coupon over-usage is recoverable.
       logger.error(
         { error: couponError, couponId: order.coupon_id, orderId: order.id },
-        'Failed to increment coupon usage — manual check needed'
+        'Failed to increment coupon usage - manual check needed'
       )
     }
   }
@@ -155,7 +155,7 @@ async function capturePayment(
   )
 
   // Fire-and-forget email
-  // Do NOT await — email failure must not block the response
+  // Do NOT await - email failure must not block the response
   sendOrderConfirmationEmail({
     order: order as Order,
     customerName: order.shipping_full_name,
@@ -167,7 +167,7 @@ async function capturePayment(
 }
 
 //
-// verifyPayment — called by POST /api/payments/verify
+// verifyPayment - called by POST /api/payments/verify
 //
 // Receives the three Razorpay Checkout return values, verifies signature,
 // then calls capturePayment.
@@ -196,7 +196,7 @@ export async function verifyPayment(
     .single()
 
   if (!order || order.user_id !== userId) {
-    // Return 404 — don't reveal whether order exists for another user
+    // Return 404 - don't reveal whether order exists for another user
     throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   }
 
@@ -218,7 +218,7 @@ export async function verifyPayment(
   })
 
   if (!isValid) {
-    // Log failure — NEVER let a failed verification disappear silently
+    // Log failure - NEVER let a failed verification disappear silently
     await adminSupabase.from('payment_logs').insert({
       payment_id: payment.id,
       order_id: payment.order_id,
@@ -255,7 +255,7 @@ export async function verifyPayment(
     )
   }
 
-  // Signature valid — log success
+  // Signature valid - log success
   await adminSupabase.from('payment_logs').insert({
     payment_id: payment.id,
     order_id: payment.order_id,
@@ -265,7 +265,7 @@ export async function verifyPayment(
 
   logger.info(
     { orderId: payment.order_id, razorpayOrderId: input.razorpay_order_id },
-    'Payment signature verified — proceeding to capture'
+    'Payment signature verified - proceeding to capture'
   )
 
   // Call the single idempotent capture function
@@ -279,7 +279,7 @@ export async function verifyPayment(
 }
 
 //
-// processRazorpayWebhook — called by POST /api/webhooks/razorpay
+// processRazorpayWebhook - called by POST /api/webhooks/razorpay
 //
 // SECURITY REQUIREMENTS:
 // 1. rawBody must be the raw request Buffer (not parsed JSON)
@@ -296,7 +296,7 @@ export async function processRazorpayWebhook(
   const event = payload['event'] as string | undefined
   const eventId = payload['id'] as string | undefined // Razorpay event ID for dedup
 
-  // Log receipt of every webhook (before verification — for audit trail)
+  // Log receipt of every webhook (before verification - for audit trail)
   await adminSupabase.from('payment_logs').insert({
     event_type: 'webhook_received',
     payload: { event, event_id: eventId },
@@ -304,12 +304,12 @@ export async function processRazorpayWebhook(
   })
 
   // Signature verification
-  // Uses RAZORPAY_WEBHOOK_SECRET — separate from API key secret
-  // Uses raw buffer — Razorpay signs the exact bytes sent
+  // Uses RAZORPAY_WEBHOOK_SECRET - separate from API key secret
+  // Uses raw buffer - Razorpay signs the exact bytes sent
   const isValid = verifyWebhookSignature({ rawBody, signature })
 
   if (!isValid) {
-    logger.warn({ event, eventId }, 'Webhook signature verification FAILED — rejecting')
+    logger.warn({ event, eventId }, 'Webhook signature verification FAILED - rejecting')
     // Return 400 so Razorpay doesn't retry (signature mismatch is not retryable)
     throw new AppError(400, 'WEBHOOK_SIGNATURE_INVALID', 'Invalid webhook signature')
   }
@@ -321,7 +321,7 @@ export async function processRazorpayWebhook(
     })
 
     if (isDuplicate) {
-      logger.info({ event, eventId }, 'Duplicate webhook received — no-op')
+      logger.info({ event, eventId }, 'Duplicate webhook received - no-op')
       await adminSupabase.from('payment_logs').insert({
         event_type: 'webhook_duplicate',
         payload: { event, event_id: eventId },
@@ -408,7 +408,7 @@ export async function processRazorpayWebhook(
     return { status: 'processed' }
   }
 
-  // Other event types (payment.authorized, refund.*, etc.) — log and ignore for now
-  logger.info({ event }, 'Unhandled webhook event type — ignoring')
+  // Other event types (payment.authorized, refund.*, etc.) - log and ignore for now
+  logger.info({ event }, 'Unhandled webhook event type - ignoring')
   return { status: 'ignored' }
 }

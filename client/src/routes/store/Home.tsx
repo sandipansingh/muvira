@@ -54,7 +54,7 @@ export const Home: React.FC = () => {
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 py-10 text-left space-y-12">
-      {/* 1. HERO — clean, single focused message */}
+      {/* 1. HERO - clean, single focused message */}
       <div className="relative h-[400px] md:h-[460px] rounded-xl overflow-hidden border border-[var(--border)]">
         {heroSlides.length === 0 ? (
           // Skeleton while settings are loading / no slides configured
@@ -123,7 +123,7 @@ export const Home: React.FC = () => {
         )}
       </div>
 
-      {/* 3. CATEGORIES — distinctive presentation */}
+      {/* 3. CATEGORIES - distinctive presentation */}
       <div className="space-y-6 ">
         <div className="flex items-end justify-between">
           <div>
@@ -170,7 +170,7 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* 5. FEATURED BEST SELLERS — elevated product presentation */}
+      {/* 5. FEATURED BEST SELLERS - elevated product presentation */}
       <div className="space-y-6 ">
         <div className="flex items-end justify-between">
           <div>

@@ -154,7 +154,7 @@ export const OrderDetail: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Shipment Tracking — Live via Shiprocket */}
+            {/* Shipment Tracking - Live via Shiprocket */}
             <Card className="border border-secondary200">
               <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
                 <h3 className="text-sm font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">

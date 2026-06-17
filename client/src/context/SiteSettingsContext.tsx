@@ -18,7 +18,7 @@ function writeCache(data: SiteSettings): void {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(data))
   } catch {
-    // localStorage may be unavailable (private mode, quota exceeded) — fail silently
+    // localStorage may be unavailable (private mode, quota exceeded) - fail silently
   }
 }
 
@@ -31,7 +31,7 @@ interface SiteSettingsContextType {
 const SiteSettingsContext = createContext<SiteSettingsContextType | undefined>(undefined)
 
 export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialise from localStorage immediately — no dummy data
+  // Initialise from localStorage immediately - no dummy data
   const [settings, setSettings] = useState<SiteSettings | null>(readCache)
   // loading = true only when we have NO cached data yet (first-ever load)
   const [loading, setLoading] = useState(() => readCache() === null)

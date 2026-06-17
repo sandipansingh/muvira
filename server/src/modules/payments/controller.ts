@@ -42,7 +42,7 @@ export async function handleWebhook(
     }
 
     if (!req.rawBody) {
-      logger.error('Webhook handler received no rawBody — check express.raw() middleware ordering')
+      logger.error('Webhook handler received no rawBody - check express.raw() middleware ordering')
       throw new AppError(500, 'INTERNAL', 'Raw body not available for signature verification')
     }
 

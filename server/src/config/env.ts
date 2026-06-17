@@ -13,7 +13,7 @@ const envSchema = z.object({
   SUPABASE_ANON_KEY: z.string().min(10, 'SUPABASE_ANON_KEY is required'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(10, 'SUPABASE_SERVICE_ROLE_KEY is required'),
 
-  // Razorpay — secrets must never be logged or returned in responses
+  // Razorpay - secrets must never be logged or returned in responses
   RAZORPAY_KEY_ID: z.string().min(5, 'RAZORPAY_KEY_ID is required'),
   RAZORPAY_KEY_SECRET: z.string().min(5, 'RAZORPAY_KEY_SECRET is required'),
   RAZORPAY_WEBHOOK_SECRET: z.string().min(5, 'RAZORPAY_WEBHOOK_SECRET is required'),
@@ -35,7 +35,7 @@ const envSchema = z.object({
   // Set CACHE_DEBUG=true to log every HIT / MISS / SET / DELETE
   CACHE_DEBUG: z.enum(['true', 'false']).default('false'),
 
-  // Shiprocket — used for shipment tracking proxy
+  // Shiprocket - used for shipment tracking proxy
   // Required once you start using AWB-based tracking
   SHIPROCKET_EMAIL: z.string().email().optional(),
   SHIPROCKET_PASSWORD: z.string().optional(),

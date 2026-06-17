@@ -54,7 +54,7 @@ export async function validateCoupon(
       discountPaisa = Math.min(discountPaisa, coupon.max_discount_paisa)
     }
   } else {
-    // Fixed discount — cannot exceed the subtotal
+    // Fixed discount - cannot exceed the subtotal
     discountPaisa = Math.min(coupon.discount_value, subtotalPaisa)
   }
 

@@ -131,7 +131,7 @@ export async function adminListProducts(query: ListProductsQuery) {
     `,
     { count: 'exact' }
   )
-  // Intentionally do NOT filter is_active — admins see everything
+  // Intentionally do NOT filter is_active - admins see everything
 
   if (category) {
     if (categoryId) {

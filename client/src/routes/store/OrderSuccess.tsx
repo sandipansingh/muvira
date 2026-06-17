@@ -365,7 +365,7 @@ export const OrderSuccess: React.FC = () => {
                       <p>{order.shippingAddress.line1}</p>
                       {order.shippingAddress.line2 && <p>{order.shippingAddress.line2}</p>}
                       <p>
-                        {order.shippingAddress.city}, {order.shippingAddress.state} —{' '}
+                        {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
                         {order.shippingAddress.pincode}
                       </p>
                       <p className="text-secondary400 mt-0.5">

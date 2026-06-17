@@ -16,7 +16,7 @@ paymentsRouter.post(
   controller.verifyPayment
 )
 
-// Webhook route — NOT behind requireAuth (signature-verified instead)
+// Webhook route - NOT behind requireAuth (signature-verified instead)
 // Raw body parsing is configured in app.ts BEFORE this route
 export const webhooksRouter = Router()
 

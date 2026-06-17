@@ -48,7 +48,7 @@ CREATE POLICY "payments_select_admin"
 
 -- NOTE: INSERT and UPDATE on payments is ONLY done via the service-role client
 -- (in the checkout and payment-capture code paths). No user-level INSERT policy
--- is created — all payment mutations go through the trusted server layer.
+-- is created - all payment mutations go through the trusted server layer.
 
 CREATE TRIGGER payments_set_updated_at
   BEFORE UPDATE ON payments

@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
             {settings?.storeDescription ||
               'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.'}
           </p>
-          {/* Social profiles intentionally omitted — add real brand links when available */}
+          {/* Social profiles intentionally omitted - add real brand links when available */}
         </div>
 
         {/* Customer Support */}

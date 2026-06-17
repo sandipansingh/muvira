@@ -97,12 +97,12 @@ export function invalidateOn(event: CacheInvalidationEvent, payload: Invalidatio
       }
 
       default: {
-        // Exhaustiveness check — TypeScript will warn if a new event is added
+        // Exhaustiveness check - TypeScript will warn if a new event is added
         // to the union without a corresponding case.
         const _exhaustive: never = event
         logger.warn(
           { event: _exhaustive },
-          '[CACHE_INVALIDATION] Unknown event — no keys invalidated'
+          '[CACHE_INVALIDATION] Unknown event - no keys invalidated'
         )
       }
     }
@@ -112,7 +112,7 @@ export function invalidateOn(event: CacheInvalidationEvent, payload: Invalidatio
     // Invalidation errors must NEVER crash the request
     logger.error(
       { err, event },
-      '[CACHE_INVALIDATION] Error during invalidation — cache may be stale'
+      '[CACHE_INVALIDATION] Error during invalidation - cache may be stale'
     )
   }
 }

@@ -27,7 +27,7 @@ async function fetchProfile(_token: string): Promise<Profile | null> {
     }>('/api/profile', true)
     if (res.success && res.data) return mapProfile(res.data)
   } catch {
-    // ignore — caller handles null
+    // ignore - caller handles null
   }
   return null
 }
@@ -134,7 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await api.patch('/api/profile', { full_name: fullName, phone }, true)
     } catch {
-      // Non-fatal — user can update profile later
+      // Non-fatal - user can update profile later
     }
 
     const profile = await fetchProfile(data.session.access_token)

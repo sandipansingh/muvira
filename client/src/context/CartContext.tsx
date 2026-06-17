@@ -75,7 +75,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const previewRes = await couponsApiService.applyCoupon(coupon.code, res.data.subtotal)
         setCoupon(previewRes.success ? previewRes.data : null)
         if (!previewRes.success)
-          showToast('Coupon removed — cart total fell below minimum.', 'info')
+          showToast('Coupon removed - cart total fell below minimum.', 'info')
       }
       setLoading(false)
       return true
@@ -96,7 +96,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const previewRes = await couponsApiService.applyCoupon(coupon.code, cartRes.data.subtotal)
           setCoupon(previewRes.success ? previewRes.data : null)
           if (!previewRes.success)
-            showToast('Coupon removed — cart total fell below minimum.', 'info')
+            showToast('Coupon removed - cart total fell below minimum.', 'info')
         }
       }
       showToast('Item removed from cart', 'success')

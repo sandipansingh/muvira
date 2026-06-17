@@ -27,7 +27,7 @@ CREATE POLICY "profiles_select_own"
   USING (auth.uid() = id);
 
 -- Users can update their own profile (role field is NOT in the allowed update
--- columns — the app layer must enforce this; the DB schema relies on triggers
+-- columns - the app layer must enforce this; the DB schema relies on triggers
 -- or service-role mutations to change role)
 CREATE POLICY "profiles_update_own"
   ON profiles FOR UPDATE
