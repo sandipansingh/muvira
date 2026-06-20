@@ -160,16 +160,7 @@ export const AdminOrderDetail: React.FC = () => {
                     options={orderStatusOptions}
                     value={orderStatus}
                     onChange={(e) =>
-                      setOrderStatus(
-                        e.target.value as
-                          | 'pending'
-                          | 'confirmed'
-                          | 'processing'
-                          | 'shipped'
-                          | 'delivered'
-                          | 'cancelled'
-                          | 'refunded'
-                      )
+                      setOrderStatus(e.target.value as OrderStatus)
                     }
                   />
                 </div>

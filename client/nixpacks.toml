@@ -1,0 +1,13 @@
+# Nixpacks config when building the client directory directly
+# (set your platform's "Root Directory" to `client` for this to apply cleanly)
+
+[phases.setup]
+nixPkgs = ['nodejs_20']
+
+[phases.build]
+cmds = ['npm run build']
+
+# If your platform doesn't have a built-in static handler, this works.
+# Many platforms (Railway, Render, etc.) will auto-serve the `dist` folder for Vite.
+[start]
+cmd = 'npx serve dist -l $PORT'

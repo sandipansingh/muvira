@@ -40,15 +40,6 @@ export const CategoryDetail: React.FC = () => {
   const sort = searchParams.get('sort') || 'popularity'
   const page = parseInt(searchParams.get('page') || '1', 10)
 
-  useEffect(() => {
-    fetchCategoryDetails()
-  }, [fetchCategoryDetails])
-
-  useEffect(() => {
-    fetchCategoryProducts()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [fetchCategoryProducts])
-
   const fetchCategoryDetails = useCallback(async () => {
     if (!slug) return
     setLoadingCategory(true)
@@ -84,6 +75,15 @@ export const CategoryDetail: React.FC = () => {
     }
     setLoadingProducts(false)
   }, [slug, page, sort, inStock, minPrice, maxPrice])
+
+  useEffect(() => {
+    fetchCategoryDetails()
+  }, [fetchCategoryDetails])
+
+  useEffect(() => {
+    fetchCategoryProducts()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [fetchCategoryProducts])
 
   const updateParam = (key: string, value: string | boolean | number) => {
     const updated = new URLSearchParams(searchParams)

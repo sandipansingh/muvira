@@ -1,0 +1,18 @@
+# Nixpacks configuration for Muvira (monorepo)
+# Ensures modern Node is used because Vite 8 + React Router 7 require Node 20.19+
+
+[phases.setup]
+nixPkgs = ['nodejs_20']
+
+# Install from the client directory (where the frontend lives)
+[phases.install]
+cmds = ['cd client && npm ci']
+
+# Build the Vite client
+[phases.build]
+cmds = ['cd client && npm run build']
+
+# Serve the built static files
+# You can also use the platform's static site feature instead of this start command.
+[start]
+cmd = 'npx serve client/dist -l $PORT'
