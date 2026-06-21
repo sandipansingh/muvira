@@ -72,6 +72,70 @@ export async function listProducts(query: ListProductsQuery) {
   };
 }
 
+// Admin: list all products (including inactive) with pagination
+export async function adminListProducts(query: ListProductsQuery) {
+  const { page, limit, category, minPrice, maxPrice, inStock, sort, q } = query;
+
+  const offset = (page - 1) * limit;
+
+  let dbQuery = adminSupabase
+    .from("products")
+    .select(
+      `
+      id, name, slug, short_description, description, category_id, price_paisa,
+      compare_at_price_paisa, sku, stock, is_active, is_featured,
+      tags, created_at,
+      product_images ( id, url, alt_text, sort_order, is_primary ),
+      categories ( id, name, slug )
+    `,
+      { count: "exact" },
+    );
+  // Intentionally do NOT filter is_active — admins see everything
+
+  if (category) dbQuery = dbQuery.eq("category_id", category);
+  if (minPrice !== undefined) dbQuery = dbQuery.gte("price_paisa", minPrice);
+  if (maxPrice !== undefined) dbQuery = dbQuery.lte("price_paisa", maxPrice);
+  if (inStock === "true") dbQuery = dbQuery.gt("stock", 0);
+
+  // Full-text search using pg_trgm similarity
+  if (q) {
+    dbQuery = dbQuery.ilike("name", `%${q}%`);
+  }
+
+  // Sorting
+  switch (sort) {
+    case "price_asc":
+      dbQuery = dbQuery.order("price_paisa", { ascending: true });
+      break;
+    case "price_desc":
+      dbQuery = dbQuery.order("price_paisa", { ascending: false });
+      break;
+    case "newest":
+      dbQuery = dbQuery.order("created_at", { ascending: false });
+      break;
+    case "popularity":
+      // Approximate by is_featured first, then creation date
+      dbQuery = dbQuery
+        .order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false });
+      break;
+  }
+
+  dbQuery = dbQuery.range(offset, offset + limit - 1);
+
+  const { data, error, count } = await dbQuery;
+
+  if (error) throw new AppError(500, "DB_ERROR", "Failed to fetch products");
+
+  return {
+    products: data ?? [],
+    total: count ?? 0,
+    page,
+    limit,
+    totalPages: Math.ceil((count ?? 0) / limit),
+  };
+}
+
 // Public: get single product by slug
 
 export async function getProductBySlug(slug: string): Promise<

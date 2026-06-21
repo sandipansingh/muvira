@@ -55,6 +55,29 @@ export async function getRelatedProducts(
   }
 }
 
+export async function adminListProducts(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const query = req.query as unknown as ListProductsQuery;
+    const result = await service.adminListProducts(query);
+    res.json({
+      success: true,
+      data: result.products,
+      meta: {
+        page: result.page,
+        limit: result.limit,
+        total: result.total,
+        totalPages: result.totalPages,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // Admin controllers
 
 export async function adminCreateProduct(

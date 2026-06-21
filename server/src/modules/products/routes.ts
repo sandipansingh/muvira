@@ -37,6 +37,12 @@ productsRouter.get(
 // Admin product routes
 export const adminProductsRouter = Router();
 
+adminProductsRouter.get(
+  "/",
+  validate({ query: ListProductsQuerySchema }),
+  controller.adminListProducts,
+);
+
 adminProductsRouter.post(
   "/",
   validate({ body: CreateProductSchema }),

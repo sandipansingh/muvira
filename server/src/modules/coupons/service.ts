@@ -70,8 +70,8 @@ export async function validateCoupon(
 
   if (coupon.discount_type === "percentage") {
     discountPaisa = Math.round((subtotalPaisa * coupon.discount_value) / 100);
-    // Apply cap if specified
-    if (coupon.max_discount_paisa !== null) {
+    // Apply cap if specified (0 or null means no cap)
+    if (coupon.max_discount_paisa != null && coupon.max_discount_paisa > 0) {
       discountPaisa = Math.min(discountPaisa, coupon.max_discount_paisa);
     }
   } else {
