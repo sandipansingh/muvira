@@ -24,6 +24,7 @@ import {
   Upload,
   Sparkles,
 } from "lucide-react";
+import { uploadImage, deleteStorageFile } from "../../lib/storage";
 
 export const ProductForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -55,6 +56,7 @@ export const ProductForm: React.FC = () => {
   // Images state
   const [images, setImages] = useState<ProductDetail["images"]>([]);
   const [uploadUrl, setUploadUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -125,65 +127,107 @@ export const ProductForm: React.FC = () => {
     );
   };
 
-  // Image upload simulation
+  // Paste external URL (kept for power users / external CDNs)
   const handleImageUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!uploadUrl.trim()) return;
 
-    if (isEdit) {
+    const url = uploadUrl.trim();
+
+    if (isEdit && id) {
       setSaving(true);
-      const res = await adminApiService.uploadProductImages(id, [
-        uploadUrl.trim(),
-      ]);
+      const res = await adminApiService.uploadProductImages(id, [url]);
       setSaving(false);
       if (res.success) {
-        showToast("Image uploaded successfully", "success");
+        showToast("Image added", "success");
         setImages(res.data.images);
         setUploadUrl("");
       } else {
-        showToast(res.error.message || "Upload failed", "error");
+        showToast(res.error.message || "Failed to add image", "error");
       }
     } else {
-      // For create mode, save locally in images state first
       const newImg = {
         id: "img-temp-" + Math.random().toString(36).substring(2, 9),
-        url: uploadUrl.trim(),
+        url,
         altText: "Preview",
         isPrimary: images.length === 0,
         sortOrder: images.length,
       };
       setImages((prev) => [...prev, newImg]);
       setUploadUrl("");
-      showToast("Image preview added.", "info");
+      showToast("Image added from URL", "info");
     }
   };
 
-  // Direct file input simulation
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setUploadUrl(reader.result);
+  // Real file upload from device using Supabase Storage
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+
+    try {
+      for (const file of Array.from(files)) {
+        const result = await uploadImage(file, "products");
+        const publicUrl = result.url;
+
+        if (isEdit && id) {
+          // Persist immediately via backend
+          const res = await adminApiService.uploadProductImages(id, [publicUrl]);
+          if (res.success) {
+            setImages(res.data.images);
+          }
+        } else {
+          // Create mode: stage locally
+          setImages((prev) => {
+            const next = [
+              ...prev,
+              {
+                id: "img-temp-" + Math.random().toString(36).substring(2, 9),
+                url: publicUrl,
+                altText: file.name,
+                isPrimary: prev.length === 0,
+                sortOrder: prev.length,
+              },
+            ];
+            return next;
+          });
         }
-      };
-      reader.readAsDataURL(file);
+      }
+      showToast(
+        files.length > 1 ? "Images uploaded" : "Image uploaded",
+        "success"
+      );
+    } catch (err: any) {
+      showToast(err?.message || "Image upload failed", "error");
+    } finally {
+      setUploading(false);
+      // reset input so same file can be re-selected
+      e.target.value = "";
     }
   };
 
   const handleImageDelete = async (imgId: string) => {
-    if (isEdit) {
+    const target = images.find((img) => img.id === imgId);
+
+    if (isEdit && id) {
       setSaving(true);
       const res = await adminApiService.deleteProductImage(id, imgId);
       setSaving(false);
       if (res.success) {
+        // Try to clean up from Supabase Storage (safe if not ours)
+        if (target?.url) {
+          deleteStorageFile(target.url).catch(() => {});
+        }
         showToast("Image removed", "success");
         setImages((prev) => prev.filter((img) => img.id !== imgId));
       } else {
         showToast(res.error.message || "Remove failed", "error");
       }
     } else {
+      if (target?.url) {
+        deleteStorageFile(target.url).catch(() => {});
+      }
       setImages((prev) => prev.filter((img) => img.id !== imgId));
     }
   };
@@ -277,6 +321,22 @@ export const ProductForm: React.FC = () => {
     setSaving(false);
 
     if (res.success) {
+      const createdId = res.data?.id;
+
+      // If we created a new product and have staged images (from device uploads or URLs),
+      // persist them now that the product exists.
+      if (!isEdit && createdId && images.length > 0) {
+        for (const img of images) {
+          if (img.url) {
+            try {
+              await adminApiService.uploadProductImages(createdId, [img.url]);
+            } catch {
+              // non-fatal
+            }
+          }
+        }
+      }
+
       showToast(
         isEdit ? "Design updated successfully" : "New design created",
         "success",
@@ -477,8 +537,9 @@ export const ProductForm: React.FC = () => {
 
           <Button
             type="submit"
-            loading={saving}
+            loading={saving || uploading}
             className="w-full py-3.5 text-sm"
+            disabled={uploading}
           >
             {isEdit ? "Save Design Adjustments" : "Create New Design catalog"}
           </Button>
@@ -491,36 +552,48 @@ export const ProductForm: React.FC = () => {
               <CardTitle>Image Attachments</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Add image URL input */}
-              <form onSubmit={handleImageUpload} className="space-y-3">
-                <Input
-                  label="Image URL Link"
-                  placeholder="https://images.unsplash.com/..."
-                  value={uploadUrl}
-                  onChange={(e) => setUploadUrl(e.target.value)}
-                  className="text-xs"
-                />
+              {/* Upload from device (Supabase Storage) + optional external URL */}
+              <div className="space-y-3">
+                <div>
+                  <div className="text-xs font-semibold text-secondary600 mb-1.5 tracking-wide">Upload from Device</div>
+                  <label className="block">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      disabled={uploading || saving}
+                      className="hidden"
+                    />
+                    <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-2xl px-4 py-3 text-center cursor-pointer text-xs flex flex-col items-center gap-1 text-secondary700 hover:bg-lightgrayColor transition-colors">
+                      <Upload className="w-4 h-4" />
+                      <span className="font-medium">{uploading ? "Uploading..." : "Click to select images (multiple supported)"}</span>
+                      <span className="text-[10px] text-secondary500">JPG, PNG, WEBP up to 8MB</span>
+                    </div>
+                  </label>
+                </div>
 
-                <div className="flex gap-2">
+                {/* Optional: paste external URL */}
+                <form onSubmit={handleImageUpload} className="space-y-2 pt-1">
+                  <Input
+                    label="Or paste external image URL"
+                    placeholder="https://..."
+                    value={uploadUrl}
+                    onChange={(e) => setUploadUrl(e.target.value)}
+                    className="text-xs"
+                    disabled={uploading}
+                  />
                   <Button
                     type="submit"
                     size="sm"
-                    className="text-xs flex-grow flex items-center justify-center gap-1.5"
+                    variant="outline"
+                    disabled={!uploadUrl.trim() || uploading}
+                    className="text-xs w-full"
                   >
-                    <Upload className="w-3.5 h-3.5" />
-                    Add URL Link
+                    Add External URL
                   </Button>
-                  <label className="border border-secondary300 text-secondary700 rounded-3xl hover:bg-lightgrayColor px-4 py-1.5 text-xs font-semibold tracking-wide flex items-center gap-1.5 cursor-pointer justify-center">
-                    <input
-                      type="file"
-                      onChange={handleFileInput}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                    Browse
-                  </label>
-                </div>
-              </form>
+                </form>
+              </div>
 
               {/* List images */}
               <div className="space-y-3.5 pt-2">
@@ -561,7 +634,7 @@ export const ProductForm: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleImageReorder(img.id, "up")}
-                              disabled={index === 0 || saving}
+                              disabled={index === 0 || saving || uploading}
                               className="text-secondary500 hover:text-darkColor p-1 disabled:opacity-30"
                               title="Move Up"
                             >
@@ -570,7 +643,7 @@ export const ProductForm: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleImageReorder(img.id, "down")}
-                              disabled={index === images.length - 1 || saving}
+                              disabled={index === images.length - 1 || saving || uploading}
                               className="text-secondary500 hover:text-darkColor p-1 disabled:opacity-30"
                               title="Move Down"
                             >
@@ -579,7 +652,7 @@ export const ProductForm: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleImageDelete(img.id)}
-                              disabled={saving}
+                              disabled={saving || uploading}
                               className="text-rose-600 hover:text-rose-700 p-1 pl-2"
                               title="Delete Angle"
                             >
