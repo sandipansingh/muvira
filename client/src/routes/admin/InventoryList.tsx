@@ -1,16 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { adminMockService } from '../../mocks/admin.mock';
-import type { InventoryItem } from '../../types/dashboard';
-import { useToast } from '../../hooks/useToast';
-import Card, { CardContent } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Dialog from '../../components/ui/Dialog';
-import Skeleton from '../../components/ui/Skeleton';
-import ErrorState from '../../components/shared/ErrorState';
-import { Pencil, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { adminApiService } from "../../lib/api/admin";
+import type { InventoryItem } from "../../types/dashboard";
+import { useToast } from "../../hooks/useToast";
+import Card, { CardContent } from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "../../components/ui/Table";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Dialog from "../../components/ui/Dialog";
+import Skeleton from "../../components/ui/Skeleton";
+import ErrorState from "../../components/shared/ErrorState";
+import { Pencil, AlertTriangle } from "lucide-react";
 
 export const InventoryList: React.FC = () => {
   const { showToast } = useToast();
@@ -24,9 +31,9 @@ export const InventoryList: React.FC = () => {
   // Edit stock dialog states
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-  const [editSku, setEditSku] = useState('');
-  const [editStockValue, setEditStockValue] = useState('');
+  const [editName, setEditName] = useState("");
+  const [editSku, setEditSku] = useState("");
+  const [editStockValue, setEditStockValue] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -36,11 +43,11 @@ export const InventoryList: React.FC = () => {
   const fetchInventory = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminMockService.getInventory({ lowStockOnly });
+    const res = await adminApiService.getInventory(1, lowStockOnly ? 50 : 50);
     if (res.success) {
       setInventory(res.data);
     } else {
-      setError(res.error.message || 'Failed to fetch inventory reports.');
+      setError(res.error.message || "Failed to fetch inventory reports.");
     }
     setLoading(false);
   };
@@ -59,17 +66,20 @@ export const InventoryList: React.FC = () => {
 
     setSaving(true);
     const newStock = parseInt(editStockValue, 10);
-    const res = await adminMockService.updateProduct(editId, {
+    const res = await adminApiService.updateProduct(editId, {
       stock: newStock,
     } as any);
     setSaving(false);
 
     if (res.success) {
-      showToast(`Inventory updated for SKU "${editSku}" to ${newStock} units.`, 'success');
+      showToast(
+        `Inventory updated for SKU "${editSku}" to ${newStock} units.`,
+        "success",
+      );
       setModalOpen(false);
       fetchInventory();
     } else {
-      showToast(res.error.message || 'Failed to update stock.', 'error');
+      showToast(res.error.message || "Failed to update stock.", "error");
     }
   };
 
@@ -81,7 +91,8 @@ export const InventoryList: React.FC = () => {
           Inventory Control Center
         </h2>
         <p className="text-xs text-secondary500 tracking-wide mt-1">
-          Monitor catalog stock counts, audit SKUs, and apply quick-adjustments to items.
+          Monitor catalog stock counts, audit SKUs, and apply quick-adjustments
+          to items.
         </p>
       </div>
 
@@ -131,7 +142,9 @@ export const InventoryList: React.FC = () => {
               <TableBody>
                 {inventory.map((item) => (
                   <TableRow key={item.productId}>
-                    <TableCell className="font-medium text-darkColor">{item.productName}</TableCell>
+                    <TableCell className="font-medium text-darkColor">
+                      {item.productName}
+                    </TableCell>
                     <TableCell className="text-xs font-normal text-secondary500 font-roboto uppercase tracking-wider">
                       {item.sku}
                     </TableCell>
@@ -139,8 +152,12 @@ export const InventoryList: React.FC = () => {
                       {item.stock} units
                     </TableCell>
                     <TableCell>
-                      <Badge variant={item.isLowStock ? 'warning' : 'success'}>
-                        {item.stock === 0 ? 'Out of Stock' : item.isLowStock ? 'Low Stock' : 'Optimal'}
+                      <Badge variant={item.isLowStock ? "warning" : "success"}>
+                        {item.stock === 0
+                          ? "Out of Stock"
+                          : item.isLowStock
+                            ? "Low Stock"
+                            : "Optimal"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -167,7 +184,10 @@ export const InventoryList: React.FC = () => {
         title="Adjust Stock Count"
         maxWidth="sm"
       >
-        <form onSubmit={handleSaveStock} className="space-y-4 font-redhat text-left">
+        <form
+          onSubmit={handleSaveStock}
+          className="space-y-4 font-redhat text-left"
+        >
           <div className="bg-lightgrayColor p-4 rounded-xl border border-secondary200 space-y-1">
             <span className="text-[10px] font-bold text-secondary500 uppercase tracking-widest leading-none block">
               Design Title

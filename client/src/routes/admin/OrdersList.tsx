@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { adminMockService } from '../../mocks/admin.mock';
+import { adminApiService } from '../../lib/api/admin';
 import type { OrderDetail } from '../../types/order';
 import { formatPrice, formatDate } from '../../lib/format';
 import Card, { CardContent } from '../../components/ui/Card';
@@ -46,7 +46,7 @@ export const OrdersList: React.FC = () => {
     if (paymentStatus) queryParams.paymentStatus = paymentStatus;
     if (fulfillmentStatus) queryParams.fulfillmentStatus = fulfillmentStatus;
 
-    const res = await adminMockService.getOrders(queryParams);
+    const res = await adminApiService.getOrders(queryParams);
     if (res.success) {
       setOrders(res.data);
       setPagination(res.pagination);

@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { adminMockService } from '../../mocks/admin.mock';
-import { categoriesMockService } from '../../mocks/categories.mock';
-import type { ProductDetail } from '../../types/product';
-import type { Category } from '../../types/category';
-import { useToast } from '../../hooks/useToast';
-import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import Textarea from '../../components/ui/Textarea';
-import Button from '../../components/ui/Button';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import { ArrowLeft, Plus, Trash2, ArrowUp, ArrowDown, Upload, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { adminApiService } from "../../lib/api/admin";
+import { categoriesApiService } from "../../lib/api/categories";
+import type { ProductDetail } from "../../types/product";
+import type { Category } from "../../types/category";
+import { useToast } from "../../hooks/useToast";
+import Card, {
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/Card";
+import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
+import Textarea from "../../components/ui/Textarea";
+import Button from "../../components/ui/Button";
+import LoadingSpinner from "../../components/shared/LoadingSpinner";
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Upload,
+  Sparkles,
+} from "lucide-react";
 
 export const ProductForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,23 +36,25 @@ export const ProductForm: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   // Form Fields
-  const [name, setName] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [priceRupees, setPriceRupees] = useState('');
-  const [salePriceRupees, setSalePriceRupees] = useState('');
-  const [stock, setStock] = useState('10');
-  const [sku, setSku] = useState('');
-  const [shortDescription, setShortDescription] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [priceRupees, setPriceRupees] = useState("");
+  const [salePriceRupees, setSalePriceRupees] = useState("");
+  const [stock, setStock] = useState("10");
+  const [sku, setSku] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [description, setDescription] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
   // Metadata Specs
-  const [metadataRows, setMetadataRows] = useState<Array<{ key: string; val: string }>>([]);
+  const [metadataRows, setMetadataRows] = useState<
+    Array<{ key: string; val: string }>
+  >([]);
 
   // Images state
-  const [images, setImages] = useState<ProductDetail['images']>([]);
-  const [uploadUrl, setUploadUrl] = useState('');
+  const [images, setImages] = useState<ProductDetail["images"]>([]);
+  const [uploadUrl, setUploadUrl] = useState("");
 
   useEffect(() => {
     fetchCategories();
@@ -50,7 +64,7 @@ export const ProductForm: React.FC = () => {
   }, [id]);
 
   const fetchCategories = async () => {
-    const res = await categoriesMockService.getCategories();
+    const res = await categoriesApiService.getCategories();
     if (res.success) {
       setCategories(res.data);
       if (!isEdit && res.data.length > 0) {
@@ -61,14 +75,16 @@ export const ProductForm: React.FC = () => {
 
   const fetchProductDetails = async () => {
     setLoading(true);
-    const res = await adminMockService.getProducts();
+    const res = await adminApiService.getProducts();
     if (res.success) {
       const prod = res.data.find((p) => p.id === id);
       if (prod) {
         setName(prod.name);
         setCategoryId(prod.category.id);
         setPriceRupees((prod.price / 100).toString());
-        setSalePriceRupees(prod.salePrice !== null ? (prod.salePrice / 100).toString() : '');
+        setSalePriceRupees(
+          prod.salePrice !== null ? (prod.salePrice / 100).toString() : "",
+        );
         setStock(prod.stock.toString());
         setSku(prod.sku);
         setShortDescription(prod.shortDescription);
@@ -78,27 +94,34 @@ export const ProductForm: React.FC = () => {
         setImages(prod.images || []);
 
         // Load spec metadata
-        const rows = Object.entries(prod.metadata || {}).map(([k, v]) => ({ key: k, val: v }));
+        const rows = Object.entries(prod.metadata || {}).map(([k, v]) => ({
+          key: k,
+          val: v,
+        }));
         setMetadataRows(rows);
       } else {
-        showToast('Product not found.', 'error');
-        navigate('/admin/products');
+        showToast("Product not found.", "error");
+        navigate("/admin/products");
       }
     }
     setLoading(false);
   };
 
   const handleMetadataAddRow = () => {
-    setMetadataRows((prev) => [...prev, { key: '', val: '' }]);
+    setMetadataRows((prev) => [...prev, { key: "", val: "" }]);
   };
 
   const handleMetadataRemoveRow = (idx: number) => {
     setMetadataRows((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const handleMetadataChange = (idx: number, field: 'key' | 'val', val: string) => {
+  const handleMetadataChange = (
+    idx: number,
+    field: "key" | "val",
+    val: string,
+  ) => {
     setMetadataRows((prev) =>
-      prev.map((row, i) => (i === idx ? { ...row, [field]: val } : row))
+      prev.map((row, i) => (i === idx ? { ...row, [field]: val } : row)),
     );
   };
 
@@ -109,27 +132,29 @@ export const ProductForm: React.FC = () => {
 
     if (isEdit) {
       setSaving(true);
-      const res = await adminMockService.uploadProductImages(id, [uploadUrl.trim()]);
+      const res = await adminApiService.uploadProductImages(id, [
+        uploadUrl.trim(),
+      ]);
       setSaving(false);
       if (res.success) {
-        showToast('Image uploaded successfully', 'success');
-        setImages((prev) => [...prev, ...res.data]);
-        setUploadUrl('');
+        showToast("Image uploaded successfully", "success");
+        setImages(res.data.images);
+        setUploadUrl("");
       } else {
-        showToast(res.error.message || 'Upload failed', 'error');
+        showToast(res.error.message || "Upload failed", "error");
       }
     } else {
       // For create mode, save locally in images state first
       const newImg = {
-        id: 'img-temp-' + Math.random().toString(36).substring(2, 9),
+        id: "img-temp-" + Math.random().toString(36).substring(2, 9),
         url: uploadUrl.trim(),
-        altText: 'Preview',
+        altText: "Preview",
         isPrimary: images.length === 0,
         sortOrder: images.length,
       };
       setImages((prev) => [...prev, newImg]);
-      setUploadUrl('');
-      showToast('Image preview added.', 'info');
+      setUploadUrl("");
+      showToast("Image preview added.", "info");
     }
   };
 
@@ -139,7 +164,7 @@ export const ProductForm: React.FC = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
+        if (typeof reader.result === "string") {
           setUploadUrl(reader.result);
         }
       };
@@ -150,43 +175,50 @@ export const ProductForm: React.FC = () => {
   const handleImageDelete = async (imgId: string) => {
     if (isEdit) {
       setSaving(true);
-      const res = await adminMockService.deleteProductImage(id, imgId);
+      const res = await adminApiService.deleteProductImage(id, imgId);
       setSaving(false);
       if (res.success) {
-        showToast('Image removed', 'success');
+        showToast("Image removed", "success");
         setImages((prev) => prev.filter((img) => img.id !== imgId));
       } else {
-        showToast(res.error.message || 'Remove failed', 'error');
+        showToast(res.error.message || "Remove failed", "error");
       }
     } else {
       setImages((prev) => prev.filter((img) => img.id !== imgId));
     }
   };
 
-  const handleImageReorder = async (imgId: string, direction: 'up' | 'down') => {
+  const handleImageReorder = async (
+    imgId: string,
+    direction: "up" | "down",
+  ) => {
     const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
     const index = sorted.findIndex((img) => img.id === imgId);
     if (index === -1) return;
 
-    if (direction === 'up' && index > 0) {
+    if (direction === "up" && index > 0) {
       const temp = sorted[index];
       sorted[index] = sorted[index - 1];
       sorted[index - 1] = temp;
-    } else if (direction === 'down' && index < sorted.length - 1) {
+    } else if (direction === "down" && index < sorted.length - 1) {
       const temp = sorted[index];
       sorted[index] = sorted[index + 1];
       sorted[index + 1] = temp;
     }
 
     // Remap sortOrders
-    const remapped = sorted.map((img, idx) => ({ ...img, sortOrder: idx, isPrimary: idx === 0 }));
+    const remapped = sorted.map((img, idx) => ({
+      ...img,
+      sortOrder: idx,
+      isPrimary: idx === 0,
+    }));
     setImages(remapped);
 
     if (isEdit) {
       setSaving(true);
-      await adminMockService.reorderProductImages(
+      await adminApiService.reorderProductImages(
         id,
-        remapped.map((i) => i.id)
+        remapped.map((i) => i.id),
       );
       setSaving(false);
     }
@@ -195,13 +227,15 @@ export const ProductForm: React.FC = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !categoryId || !priceRupees || !stock || !sku) {
-      showToast('Please fill in all mandatory fields.', 'error');
+      showToast("Please fill in all mandatory fields.", "error");
       return;
     }
 
     // Convert Rupees float to Paisa integer
     const pricePaisa = Math.round(parseFloat(priceRupees) * 100);
-    const salePricePaisa = salePriceRupees ? Math.round(parseFloat(salePriceRupees) * 100) : null;
+    const salePricePaisa = salePriceRupees
+      ? Math.round(parseFloat(salePriceRupees) * 100)
+      : null;
     const stockNum = parseInt(stock, 10);
 
     // Build specs metadata
@@ -214,7 +248,7 @@ export const ProductForm: React.FC = () => {
 
     // Validate images
     if (images.length === 0) {
-      showToast('Please upload or enter at least one product image.', 'error');
+      showToast("Please upload or enter at least one product image.", "error");
       return;
     }
 
@@ -236,21 +270,27 @@ export const ProductForm: React.FC = () => {
     setSaving(true);
     let res;
     if (isEdit) {
-      res = await adminMockService.updateProduct(id, payload as any);
+      res = await adminApiService.updateProduct(id, payload as any);
     } else {
-      res = await adminMockService.createProduct(payload as any);
+      res = await adminApiService.createProduct(payload as any);
     }
     setSaving(false);
 
     if (res.success) {
-      showToast(isEdit ? 'Design updated successfully' : 'New design created', 'success');
-      navigate('/admin/products');
+      showToast(
+        isEdit ? "Design updated successfully" : "New design created",
+        "success",
+      );
+      navigate("/admin/products");
     } else {
-      showToast(res.error.message || 'Submit operation failed', 'error');
+      showToast(res.error.message || "Submit operation failed", "error");
     }
   };
 
-  const categoryOptions = categories.map((c) => ({ value: c.id, label: c.name }));
+  const categoryOptions = categories.map((c) => ({
+    value: c.id,
+    label: c.name,
+  }));
 
   if (loading) {
     return <LoadingSpinner fullPage={true} />;
@@ -268,7 +308,7 @@ export const ProductForm: React.FC = () => {
         </Link>
         <div>
           <h2 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor">
-            {isEdit ? 'Edit Design Product' : 'Create New Design Product'}
+            {isEdit ? "Edit Design Product" : "Create New Design Product"}
           </h2>
           <p className="text-xs text-secondary500 tracking-wide mt-1">
             Fill in pricing, dimensions spec sheets, and upload product angles.
@@ -360,7 +400,9 @@ export const ProductForm: React.FC = () => {
                     onChange={(e) => setIsFeatured(e.target.checked)}
                     className="w-4.5 h-4.5 accent-primaryBg cursor-pointer"
                   />
-                  <span className="text-sm font-semibold text-secondary700">Set as Featured design</span>
+                  <span className="text-sm font-semibold text-secondary700">
+                    Set as Featured design
+                  </span>
                 </label>
 
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
@@ -370,7 +412,9 @@ export const ProductForm: React.FC = () => {
                     onChange={(e) => setIsActive(e.target.checked)}
                     className="w-4.5 h-4.5 accent-primaryBg cursor-pointer"
                   />
-                  <span className="text-sm font-semibold text-secondary700">Product is Active (Visible to users)</span>
+                  <span className="text-sm font-semibold text-secondary700">
+                    Product is Active (Visible to users)
+                  </span>
                 </label>
               </div>
             </CardContent>
@@ -396,7 +440,8 @@ export const ProductForm: React.FC = () => {
             <CardContent className="space-y-3">
               {metadataRows.length === 0 ? (
                 <p className="text-xs text-secondary500 leading-relaxed py-2">
-                  No custom specifications set. Add fields like Material, Dimensions, Wood, Finish, or Size.
+                  No custom specifications set. Add fields like Material,
+                  Dimensions, Wood, Finish, or Size.
                 </p>
               ) : (
                 metadataRows.map((row, idx) => (
@@ -404,13 +449,17 @@ export const ProductForm: React.FC = () => {
                     <Input
                       placeholder="Spec Key (e.g. Material)"
                       value={row.key}
-                      onChange={(e) => handleMetadataChange(idx, 'key', e.target.value)}
+                      onChange={(e) =>
+                        handleMetadataChange(idx, "key", e.target.value)
+                      }
                       className="text-xs py-1.5"
                     />
                     <Input
                       placeholder="Spec Value (e.g. Teak wood)"
                       value={row.val}
-                      onChange={(e) => handleMetadataChange(idx, 'val', e.target.value)}
+                      onChange={(e) =>
+                        handleMetadataChange(idx, "val", e.target.value)
+                      }
                       className="text-xs py-1.5"
                     />
                     <button
@@ -426,8 +475,12 @@ export const ProductForm: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Button type="submit" loading={saving} className="w-full py-3.5 text-sm">
-            {isEdit ? 'Save Design Adjustments' : 'Create New Design catalog'}
+          <Button
+            type="submit"
+            loading={saving}
+            className="w-full py-3.5 text-sm"
+          >
+            {isEdit ? "Save Design Adjustments" : "Create New Design catalog"}
           </Button>
         </form>
 
@@ -447,14 +500,23 @@ export const ProductForm: React.FC = () => {
                   onChange={(e) => setUploadUrl(e.target.value)}
                   className="text-xs"
                 />
-                
+
                 <div className="flex gap-2">
-                  <Button type="submit" size="sm" className="text-xs flex-grow flex items-center justify-center gap-1.5">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="text-xs flex-grow flex items-center justify-center gap-1.5"
+                  >
                     <Upload className="w-3.5 h-3.5" />
                     Add URL Link
                   </Button>
                   <label className="border border-secondary300 text-secondary700 rounded-3xl hover:bg-lightgrayColor px-4 py-1.5 text-xs font-semibold tracking-wide flex items-center gap-1.5 cursor-pointer justify-center">
-                    <input type="file" onChange={handleFileInput} accept="image/*" className="hidden" />
+                    <input
+                      type="file"
+                      onChange={handleFileInput}
+                      accept="image/*"
+                      className="hidden"
+                    />
                     Browse
                   </label>
                 </div>
@@ -482,17 +544,23 @@ export const ProductForm: React.FC = () => {
                         >
                           <div className="flex items-center gap-2.5">
                             <div className="w-10 h-10 bg-white rounded overflow-hidden border border-secondary200 shrink-0">
-                              <img src={img.url} alt="angle" className="w-full h-full object-cover" />
+                              <img
+                                src={img.url}
+                                alt="angle"
+                                className="w-full h-full object-cover"
+                              />
                             </div>
                             <span className="text-[10px] text-secondary600 font-medium">
-                              {index === 0 ? 'Primary Cover' : `Angle #${index}`}
+                              {index === 0
+                                ? "Primary Cover"
+                                : `Angle #${index}`}
                             </span>
                           </div>
 
                           <div className="flex items-center gap-1">
                             <button
                               type="button"
-                              onClick={() => handleImageReorder(img.id, 'up')}
+                              onClick={() => handleImageReorder(img.id, "up")}
                               disabled={index === 0 || saving}
                               className="text-secondary500 hover:text-darkColor p-1 disabled:opacity-30"
                               title="Move Up"
@@ -501,7 +569,7 @@ export const ProductForm: React.FC = () => {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleImageReorder(img.id, 'down')}
+                              onClick={() => handleImageReorder(img.id, "down")}
                               disabled={index === images.length - 1 || saving}
                               className="text-secondary500 hover:text-darkColor p-1 disabled:opacity-30"
                               title="Move Down"

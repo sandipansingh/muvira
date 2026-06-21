@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { adminMockService } from '../../mocks/admin.mock';
+import { adminApiService } from '../../lib/api/admin';
 import type { ProductDetail } from '../../types/product';
 import { formatPrice } from '../../lib/format';
 import { useToast } from '../../hooks/useToast';
@@ -13,7 +13,7 @@ import Pagination from '../../components/ui/Pagination';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
 import { Search, Plus, Pencil, Trash } from 'lucide-react';
-import { categoriesMockService } from '../../mocks/categories.mock';
+import { categoriesApiService } from '../../lib/api/categories';
 import type { Category } from '../../types/category';
 
 export const ProductsList: React.FC = () => {
@@ -41,7 +41,7 @@ export const ProductsList: React.FC = () => {
   }, [q, categoryId, page]);
 
   const fetchCategories = async () => {
-    const res = await categoriesMockService.getCategories();
+    const res = await categoriesApiService.getCategories();
     if (res.success) {
       setCategories(res.data);
     }
@@ -50,7 +50,7 @@ export const ProductsList: React.FC = () => {
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminMockService.getProducts({
+    const res = await adminApiService.getProducts({
       page,
       limit: 10,
       q,
@@ -82,7 +82,7 @@ export const ProductsList: React.FC = () => {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to deactivate/soft-delete "${name}"?`)) return;
 
-    const res = await adminMockService.deleteProduct(id);
+    const res = await adminApiService.deleteProduct(id);
     if (res.success) {
       showToast(`Product "${name}" soft-deleted successfully (isActive = false).`, 'success');
       fetchProducts();

@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { productsMockService } from '../../mocks/products.mock';
-import type { ProductDetail as ProductDetailType, ProductListItem } from '../../types/product';
-import PriceDisplay from '../../components/shared/PriceDisplay';
-import StockBadge from '../../components/shared/StockBadge';
-import ProductCard from '../../components/product/ProductCard';
-import { useCart } from '../../hooks/useCart';
-import Button from '../../components/ui/Button';
-import Skeleton from '../../components/ui/Skeleton';
-import Breadcrumb from '../../components/layout/Breadcrumb';
-import ErrorState from '../../components/shared/ErrorState';
-import { Star, ShoppingCart, Info, Minus, Plus } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { productsApiService } from "../../lib/api/products";
+import type {
+  ProductDetail as ProductDetailType,
+  ProductListItem,
+} from "../../types/product";
+import PriceDisplay from "../../components/shared/PriceDisplay";
+import StockBadge from "../../components/shared/StockBadge";
+import ProductCard from "../../components/product/ProductCard";
+import { useCart } from "../../hooks/useCart";
+import Button from "../../components/ui/Button";
+import Skeleton from "../../components/ui/Skeleton";
+import Breadcrumb from "../../components/layout/Breadcrumb";
+import ErrorState from "../../components/shared/ErrorState";
+import { Star, ShoppingCart, Info, Minus, Plus } from "lucide-react";
 
 export const ProductDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -18,13 +21,13 @@ export const ProductDetail: React.FC = () => {
 
   const [product, setProduct] = useState<ProductDetailType | null>(null);
   const [related, setRelated] = useState<ProductListItem[]>([]);
-  const [activeImageId, setActiveImageId] = useState<string>('');
-  
+  const [activeImageId, setActiveImageId] = useState<string>("");
+
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Expandable description toggle
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
@@ -39,20 +42,23 @@ export const ProductDetail: React.FC = () => {
     setError(null);
     setQuantity(1);
 
-    const res = await productsMockService.getProductBySlug(slug || '');
+    const res = await productsApiService.getProductBySlug(slug || "");
     if (res.success) {
       setProduct(res.data);
       // Set primary image active
-      const primary = res.data.images.find((img) => img.isPrimary) || res.data.images[0];
-      setActiveImageId(primary?.id || '');
+      const primary =
+        res.data.images.find((img) => img.isPrimary) || res.data.images[0];
+      setActiveImageId(primary?.id || "");
 
       // Load related items
-      const relatedRes = await productsMockService.getRelatedProducts(res.data.id);
+      const relatedRes = await productsApiService.getRelatedProducts(
+        res.data.id,
+      );
       if (relatedRes.success) {
         setRelated(relatedRes.data);
       }
     } else {
-      setError(res.error.message || 'Product not found.');
+      setError(res.error.message || "Product not found.");
     }
     setLoading(false);
   };
@@ -64,7 +70,9 @@ export const ProductDetail: React.FC = () => {
     setAddingToCart(false);
   };
 
-  const activeImage = product?.images.find((img) => img.id === activeImageId) || product?.images[0];
+  const activeImage =
+    product?.images.find((img) => img.id === activeImageId) ||
+    product?.images[0];
 
   if (error) {
     return (
@@ -80,7 +88,10 @@ export const ProductDetail: React.FC = () => {
       {!loading && product && (
         <Breadcrumb
           items={[
-            { label: product.category.name, path: `/categories/${product.category.slug}` },
+            {
+              label: product.category.name,
+              path: `/categories/${product.category.slug}`,
+            },
             { label: product.name },
           ]}
         />
@@ -113,7 +124,6 @@ export const ProductDetail: React.FC = () => {
         <div className="my-6">
           {/* Main Layout Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            
             {/* LEFT COLUMN: Gallery */}
             <div className="flex flex-col gap-4">
               {/* Primary large image preview */}
@@ -136,11 +146,15 @@ export const ProductDetail: React.FC = () => {
                         onClick={() => setActiveImageId(img.id)}
                         className={`w-20 h-20 border rounded-lg overflow-hidden shrink-0 transition-all ${
                           activeImageId === img.id
-                            ? 'border-primaryBg ring-2 ring-primaryBg/30'
-                            : 'border-secondary200 hover:border-secondary400'
+                            ? "border-primaryBg ring-2 ring-primaryBg/30"
+                            : "border-secondary200 hover:border-secondary400"
                         }`}
                       >
-                        <img src={img.url} alt={img.altText} className="w-full h-full object-cover" />
+                        <img
+                          src={img.url}
+                          alt={img.altText}
+                          className="w-full h-full object-cover"
+                        />
                       </button>
                     ))}
                 </div>
@@ -172,7 +186,11 @@ export const ProductDetail: React.FC = () => {
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex text-primaryBg">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-current stroke-current" strokeWidth={1.5} />
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-current stroke-current"
+                      strokeWidth={1.5}
+                    />
                   ))}
                 </div>
                 <span className="text-xs font-medium text-secondary600 mt-0.5 font-redhat">
@@ -220,7 +238,9 @@ export const ProductDetail: React.FC = () => {
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+                      onClick={() =>
+                        setQuantity((q) => Math.min(product.stock, q + 1))
+                      }
                       disabled={quantity >= product.stock || addingToCart}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-secondary600 hover:bg-lightgrayColor disabled:opacity-40 transition-colors focus:outline-none"
                     >
@@ -241,7 +261,9 @@ export const ProductDetail: React.FC = () => {
                 <div className="p-4 bg-rose-50/50 border border-rose-100 rounded-xl mb-8 flex items-start gap-2.5">
                   <Info className="w-5 h-5 text-dangerColor shrink-0 mt-0.5" />
                   <div className="text-xs leading-relaxed text-rose-800">
-                    This item is currently out of stock. We are craft-restocking it soon. Click the store pins to inquire or check similar designs.
+                    This item is currently out of stock. We are craft-restocking
+                    it soon. Click the store pins to inquire or check similar
+                    designs.
                   </div>
                 </div>
               )}
@@ -255,8 +277,12 @@ export const ProductDetail: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4 text-xs font-roboto">
                     {Object.entries(product.metadata).map(([key, val]) => (
                       <div key={key} className="flex flex-col gap-0.5">
-                        <span className="text-secondary500 capitalize tracking-wide">{key}</span>
-                        <span className="font-semibold text-darkColor tracking-wide">{val}</span>
+                        <span className="text-secondary500 capitalize tracking-wide">
+                          {key}
+                        </span>
+                        <span className="font-semibold text-darkColor tracking-wide">
+                          {val}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -270,7 +296,7 @@ export const ProductDetail: React.FC = () => {
                 </h4>
                 <div
                   className={`text-xs md:text-sm text-secondary600 tracking-wide leading-relaxed overflow-hidden transition-all duration-300 ${
-                    isDescExpanded ? 'max-h-[1000px]' : 'max-h-20 line-clamp-3'
+                    isDescExpanded ? "max-h-[1000px]" : "max-h-20 line-clamp-3"
                   }`}
                 >
                   {product.description}
@@ -279,10 +305,9 @@ export const ProductDetail: React.FC = () => {
                   onClick={() => setIsDescExpanded(!isDescExpanded)}
                   className="mt-2 text-xs font-semibold text-primaryBg hover:text-primaryHover focus:outline-none"
                 >
-                  {isDescExpanded ? 'Read Less ▲' : 'Read More ▼'}
+                  {isDescExpanded ? "Read Less ▲" : "Read More ▼"}
                 </button>
               </div>
-
             </div>
           </div>
 

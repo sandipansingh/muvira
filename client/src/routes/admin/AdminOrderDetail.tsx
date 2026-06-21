@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { adminMockService } from '../../mocks/admin.mock';
-import type { OrderDetail, OrderStatus, FulfillmentStatus } from '../../types/order';
-import { formatPrice, formatDate } from '../../lib/format';
-import { useToast } from '../../hooks/useToast';
-import Button from '../../components/ui/Button';
-import Select from '../../components/ui/Select';
-import Input from '../../components/ui/Input';
-import Card, { CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import LoadingSpinner from '../../components/shared/LoadingSpinner';
-import ErrorState from '../../components/shared/ErrorState';
-import { ArrowLeft, Phone, Mail } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { adminApiService } from "../../lib/api/admin";
+import type {
+  OrderDetail,
+  OrderStatus,
+  FulfillmentStatus,
+} from "../../types/order";
+import { formatPrice, formatDate } from "../../lib/format";
+import { useToast } from "../../hooks/useToast";
+import Button from "../../components/ui/Button";
+import Select from "../../components/ui/Select";
+import Input from "../../components/ui/Input";
+import Card, {
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/Card";
+import LoadingSpinner from "../../components/shared/LoadingSpinner";
+import ErrorState from "../../components/shared/ErrorState";
+import { ArrowLeft, Phone, Mail } from "lucide-react";
 
 export const AdminOrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,13 +30,14 @@ export const AdminOrderDetail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Status updates state
-  const [orderStatus, setOrderStatus] = useState<OrderStatus>('pending');
-  const [fulfillmentStatus, setFulfillmentStatus] = useState<FulfillmentStatus>('unfulfilled');
-  const [carrierName, setCarrierName] = useState('');
-  const [trackingId, setTrackingId] = useState('');
+  const [orderStatus, setOrderStatus] = useState<OrderStatus>("pending");
+  const [fulfillmentStatus, setFulfillmentStatus] =
+    useState<FulfillmentStatus>("unfulfilled");
+  const [carrierName, setCarrierName] = useState("");
+  const [trackingId, setTrackingId] = useState("");
 
   // Admin notes state
-  const [noteText, setNoteText] = useState('');
+  const [noteText, setNoteText] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -39,20 +48,20 @@ export const AdminOrderDetail: React.FC = () => {
   const fetchOrderDetails = async () => {
     setLoading(true);
     setError(null);
-    const res = await adminMockService.getOrders({ page: 1, limit: 100 });
+    const res = await adminApiService.getOrders({ page: 1, limit: 100 });
     if (res.success) {
       const match = res.data.find((o) => o.id === id);
       if (match) {
         setOrder(match);
         setOrderStatus(match.status);
         setFulfillmentStatus(match.fulfillmentStatus);
-        setCarrierName(match.carrierName || '');
-        setTrackingId(match.trackingId || '');
+        setCarrierName(match.carrierName || "");
+        setTrackingId(match.trackingId || "");
       } else {
-        setError('Order not found.');
+        setError("Order not found.");
       }
     } else {
-      setError(res.error.message || 'Failed to fetch order.');
+      setError(res.error.message || "Failed to fetch order.");
     }
     setLoading(false);
   };
@@ -60,21 +69,21 @@ export const AdminOrderDetail: React.FC = () => {
   const handleUpdateStatus = async () => {
     if (!order) return;
     setSaving(true);
-    const res = await adminMockService.updateOrderStatus(order.id, orderStatus);
+    const res = await adminApiService.updateOrderStatus(order.id, orderStatus);
     setSaving(false);
 
     if (res.success) {
-      showToast('Order status updated successfully.', 'success');
+      showToast("Order status updated successfully.", "success");
       setOrder(res.data);
     } else {
-      showToast(res.error.message || 'Status update failed.', 'error');
+      showToast(res.error.message || "Status update failed.", "error");
     }
   };
 
   const handleUpdateFulfillment = async () => {
     if (!order) return;
     setSaving(true);
-    const res = await adminMockService.updateOrderFulfillment(order.id, {
+    const res = await adminApiService.updateOrderFulfillment(order.id, {
       fulfillmentStatus,
       carrierName,
       trackingId,
@@ -82,10 +91,10 @@ export const AdminOrderDetail: React.FC = () => {
     setSaving(false);
 
     if (res.success) {
-      showToast('Fulfillment logistics updated.', 'success');
+      showToast("Fulfillment logistics updated.", "success");
       setOrder(res.data);
     } else {
-      showToast(res.error.message || 'Fulfillment update failed.', 'error');
+      showToast(res.error.message || "Fulfillment update failed.", "error");
     }
   };
 
@@ -94,31 +103,31 @@ export const AdminOrderDetail: React.FC = () => {
     if (!noteText.trim() || !order) return;
 
     setSaving(true);
-    const res = await adminMockService.addOrderNote(order.id, noteText.trim());
+    const res = await adminApiService.addOrderNote(order.id, noteText.trim());
     setSaving(false);
 
     if (res.success) {
-      showToast('Internal note added.', 'success');
-      setNoteText('');
-      setOrder((prev) => (prev ? { ...prev, adminNotes: res.data } : null));
+      showToast("Internal note added.", "success");
+      setNoteText("");
+      setOrder(res.data);
     } else {
-      showToast(res.error.message || 'Failed to save note.', 'error');
+      showToast(res.error.message || "Failed to save note.", "error");
     }
   };
 
   const orderStatusOptions = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'processing', label: 'Processing' },
-    { value: 'shipped', label: 'Shipped' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' },
+    { value: "pending", label: "Pending" },
+    { value: "confirmed", label: "Confirmed" },
+    { value: "processing", label: "Processing" },
+    { value: "shipped", label: "Shipped" },
+    { value: "delivered", label: "Delivered" },
+    { value: "cancelled", label: "Cancelled" },
   ];
 
   const fulfillmentStatusOptions = [
-    { value: 'unfulfilled', label: 'Unfulfilled' },
-    { value: 'partial', label: 'Partial' },
-    { value: 'fulfilled', label: 'Fulfilled' },
+    { value: "unfulfilled", label: "Unfulfilled" },
+    { value: "partial", label: "Partial" },
+    { value: "fulfilled", label: "Fulfilled" },
   ];
 
   if (loading) {
@@ -128,7 +137,10 @@ export const AdminOrderDetail: React.FC = () => {
   if (error || !order) {
     return (
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <ErrorState message={error || 'Order not found.'} onRetry={fetchOrderDetails} />
+        <ErrorState
+          message={error || "Order not found."}
+          onRetry={fetchOrderDetails}
+        />
       </div>
     );
   }
@@ -156,7 +168,6 @@ export const AdminOrderDetail: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT COLUMN: FULFILLMENT CONTROLS & ITEMS */}
         <div className="lg:col-span-2 space-y-6">
-          
           {/* Status and Logistics Manager */}
           <Card className="border border-secondary200">
             <CardHeader>
@@ -173,7 +184,11 @@ export const AdminOrderDetail: React.FC = () => {
                     onChange={(e) => setOrderStatus(e.target.value as any)}
                   />
                 </div>
-                <Button onClick={handleUpdateStatus} loading={saving} className="w-full sm:w-auto text-xs py-2.5 px-4 font-medium shrink-0">
+                <Button
+                  onClick={handleUpdateStatus}
+                  loading={saving}
+                  className="w-full sm:w-auto text-xs py-2.5 px-4 font-medium shrink-0"
+                >
                   Update Order State
                 </Button>
               </div>
@@ -188,7 +203,9 @@ export const AdminOrderDetail: React.FC = () => {
                     label="Fulfillment Status"
                     options={fulfillmentStatusOptions}
                     value={fulfillmentStatus}
-                    onChange={(e) => setFulfillmentStatus(e.target.value as any)}
+                    onChange={(e) =>
+                      setFulfillmentStatus(e.target.value as any)
+                    }
                   />
                   <Input
                     label="Courier Carrier"
@@ -228,7 +245,11 @@ export const AdminOrderDetail: React.FC = () => {
                 {order.items.map((item) => (
                   <div key={item.id} className="p-4 flex gap-4">
                     <div className="w-14 h-14 bg-lightgrayColor border border-secondary200 rounded overflow-hidden shrink-0">
-                      <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                      <img
+                        src={item.productImage}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-grow flex items-center justify-between text-left gap-4">
                       <div>
@@ -240,8 +261,12 @@ export const AdminOrderDetail: React.FC = () => {
                         </span>
                       </div>
                       <div className="text-right whitespace-nowrap">
-                        <p className="text-xs font-normal text-secondary600">Qty: {item.quantity}</p>
-                        <p className="text-xs font-medium text-darkColor mt-0.5">{formatPrice(item.totalPrice)}</p>
+                        <p className="text-xs font-normal text-secondary600">
+                          Qty: {item.quantity}
+                        </p>
+                        <p className="text-xs font-medium text-darkColor mt-0.5">
+                          {formatPrice(item.totalPrice)}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -263,15 +288,21 @@ export const AdminOrderDetail: React.FC = () => {
             <CardContent className="p-5 text-xs md:text-sm text-left space-y-3 font-roboto">
               <div>
                 <span className="text-secondary500 block">Contact Name</span>
-                <span className="font-medium text-darkColor">{order.customer?.fullName}</span>
+                <span className="font-medium text-darkColor">
+                  {order.customer?.fullName}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-medium text-secondary700">{order.customer?.phone}</span>
+                <span className="font-medium text-secondary700">
+                  {order.customer?.phone}
+                </span>
               </div>
               <div className="flex items-center gap-2 truncate">
                 <Mail className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-medium text-secondary700 truncate">{order.customer?.email}</span>
+                <span className="font-medium text-secondary700 truncate">
+                  {order.customer?.email}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -284,12 +315,19 @@ export const AdminOrderDetail: React.FC = () => {
               </h3>
             </div>
             <CardContent className="p-5 text-left text-xs md:text-sm">
-              <p className="font-medium text-darkColor mb-1">{order.shippingAddress.fullName}</p>
-              <p className="text-secondary600 mb-1 leading-snug">
-                {order.shippingAddress.line1}, {order.shippingAddress.line2 && `${order.shippingAddress.line2}, `}
-                {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+              <p className="font-medium text-darkColor mb-1">
+                {order.shippingAddress.fullName}
               </p>
-              <p className="font-normal text-secondary700 font-roboto">{order.shippingAddress.phone}</p>
+              <p className="text-secondary600 mb-1 leading-snug">
+                {order.shippingAddress.line1},{" "}
+                {order.shippingAddress.line2 &&
+                  `${order.shippingAddress.line2}, `}
+                {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
+                {order.shippingAddress.pincode}
+              </p>
+              <p className="font-normal text-secondary700 font-roboto">
+                {order.shippingAddress.phone}
+              </p>
             </CardContent>
           </Card>
 
@@ -303,14 +341,19 @@ export const AdminOrderDetail: React.FC = () => {
             <CardContent className="p-5 text-left space-y-4">
               {/* Note records */}
               <div className="space-y-3.5 max-h-48 overflow-y-auto no-scrollbar border-b border-secondary200 pb-4">
-                {(!order.adminNotes || order.adminNotes.length === 0) ? (
+                {!order.adminNotes || order.adminNotes.length === 0 ? (
                   <p className="text-xs text-secondary500 italic py-1">
                     No custom administrative notes logged.
                   </p>
                 ) : (
                   order.adminNotes.map((note) => (
-                    <div key={note.id} className="p-2.5 bg-lightgrayColor border border-secondary200 rounded-lg text-xs">
-                      <p className="text-secondary700 leading-normal">{note.note}</p>
+                    <div
+                      key={note.id}
+                      className="p-2.5 bg-lightgrayColor border border-secondary200 rounded-lg text-xs"
+                    >
+                      <p className="text-secondary700 leading-normal">
+                        {note.note}
+                      </p>
                       <div className="flex justify-between items-center text-[9px] text-secondary500 font-medium tracking-wider uppercase mt-2">
                         <span>By: {note.createdBy}</span>
                         <span>{formatDate(note.createdAt)}</span>
@@ -330,7 +373,13 @@ export const AdminOrderDetail: React.FC = () => {
                   className="w-full text-xs p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:border-primaryBg"
                   disabled={saving}
                 />
-                <Button type="submit" variant="secondary" size="sm" loading={saving} className="w-full text-xs font-medium">
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="sm"
+                  loading={saving}
+                  className="w-full text-xs font-medium"
+                >
                   Add Internal Note
                 </Button>
               </form>

@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ordersMockService } from '../../mocks/orders.mock';
-import type { OrderDetail as OrderDetailType } from '../../types/order';
-import { formatPrice, formatDate } from '../../lib/format';
-import Button from '../../components/ui/Button';
-import Badge from '../../components/ui/Badge';
-import Card, { CardContent } from '../../components/ui/Card';
-import Skeleton from '../../components/ui/Skeleton';
-import Breadcrumb from '../../components/layout/Breadcrumb';
-import ErrorState from '../../components/shared/ErrorState';
-import { MapPin, Truck, ArrowLeft, FileText } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ordersApiService } from "../../lib/api/orders";
+import type { OrderDetail as OrderDetailType } from "../../types/order";
+import { formatPrice, formatDate } from "../../lib/format";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import Card, { CardContent } from "../../components/ui/Card";
+import Skeleton from "../../components/ui/Skeleton";
+import Breadcrumb from "../../components/layout/Breadcrumb";
+import ErrorState from "../../components/shared/ErrorState";
+import { MapPin, Truck, ArrowLeft, FileText } from "lucide-react";
 
 export const OrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,38 +27,38 @@ export const OrderDetail: React.FC = () => {
   const fetchOrderDetails = async () => {
     setLoading(true);
     setError(null);
-    const res = await ordersMockService.getOrderById(id || '');
+    const res = await ordersApiService.getOrderById(id || "");
     if (res.success) {
       setOrder(res.data);
     } else {
-      setError(res.error.message || 'Order not found.');
+      setError(res.error.message || "Order not found.");
     }
     setLoading(false);
   };
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'delivered':
-        return 'success';
-      case 'cancelled':
-        return 'danger';
-      case 'shipped':
-      case 'processing':
-      case 'confirmed':
-        return 'primary';
+      case "delivered":
+        return "success";
+      case "cancelled":
+        return "danger";
+      case "shipped":
+      case "processing":
+      case "confirmed":
+        return "primary";
       default:
-        return 'warning';
+        return "warning";
     }
   };
 
   const getPaymentVariant = (pStatus: string) => {
     switch (pStatus) {
-      case 'paid':
-        return 'success';
-      case 'failed':
-        return 'danger';
+      case "paid":
+        return "success";
+      case "failed":
+        return "danger";
       default:
-        return 'warning';
+        return "warning";
     }
   };
 
@@ -74,8 +74,8 @@ export const OrderDetail: React.FC = () => {
     <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
       <Breadcrumb
         items={[
-          { label: 'Order History', path: '/orders' },
-          { label: order?.orderNumber || 'Order Details' },
+          { label: "Order History", path: "/orders" },
+          { label: order?.orderNumber || "Order Details" },
         ]}
       />
 
@@ -84,7 +84,7 @@ export const OrderDetail: React.FC = () => {
           variant="ghost"
           size="sm"
           pill={true}
-          onClick={() => navigate('/orders')}
+          onClick={() => navigate("/orders")}
           className="border border-secondary300 bg-white p-2"
         >
           <ArrowLeft className="w-4.5 h-4.5" />
@@ -111,10 +111,8 @@ export const OrderDetail: React.FC = () => {
         <ErrorState message="Could not fetch order data." />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
           {/* LEFT: PRODUCTS LIST & STATUS LOGS */}
           <div className="lg:col-span-2 space-y-6">
-            
             {/* Products Card */}
             <Card className="border border-secondary200">
               <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
@@ -125,9 +123,16 @@ export const OrderDetail: React.FC = () => {
               </div>
               <CardContent className="p-5 divide-y divide-secondary200/50 space-y-4">
                 {order.items.map((item, idx) => (
-                  <div key={item.id} className={`flex gap-4 ${idx > 0 ? 'pt-4' : ''}`}>
+                  <div
+                    key={item.id}
+                    className={`flex gap-4 ${idx > 0 ? "pt-4" : ""}`}
+                  >
                     <div className="w-16 h-16 md:w-20 md:h-20 bg-lightgrayColor rounded-lg border border-secondary200 overflow-hidden shrink-0">
-                      <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                      <img
+                        src={item.productImage}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-grow flex justify-between items-start text-left gap-4">
                       <div>
@@ -163,15 +168,19 @@ export const OrderDetail: React.FC = () => {
               <CardContent className="p-5 text-left space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-xs md:text-sm">
                   <div>
-                    <span className="text-secondary500 block">Fulfillment Status</span>
+                    <span className="text-secondary500 block">
+                      Fulfillment Status
+                    </span>
                     <span className="font-semibold text-darkColor capitalize">
                       {order.fulfillmentStatus}
                     </span>
                   </div>
                   <div>
-                    <span className="text-secondary500 block">Delivery Partner</span>
+                    <span className="text-secondary500 block">
+                      Delivery Partner
+                    </span>
                     <span className="font-semibold text-darkColor">
-                      {order.carrierName || 'Preparing for Shipping'}
+                      {order.carrierName || "Preparing for Shipping"}
                     </span>
                   </div>
                   {order.trackingId && (
@@ -183,7 +192,8 @@ export const OrderDetail: React.FC = () => {
                         {order.trackingId}
                       </p>
                       <p className="text-[10px] text-secondary500 mt-1 leading-snug">
-                        Use the tracking ID on {order.carrierName}'s website to monitor your packages.
+                        Use the tracking ID on {order.carrierName}'s website to
+                        monitor your packages.
                       </p>
                     </div>
                   )}
@@ -194,7 +204,6 @@ export const OrderDetail: React.FC = () => {
 
           {/* RIGHT: BILLING BREAKDOWN & ADDRESS */}
           <div className="space-y-6">
-            
             {/* Payment Summary */}
             <Card className="border border-secondary200 shadow-sm">
               <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
@@ -207,7 +216,9 @@ export const OrderDetail: React.FC = () => {
                 <div className="space-y-2.5 text-xs md:text-sm border-b border-secondary200 pb-4">
                   <div className="flex justify-between text-secondary600">
                     <span>Cart Subtotal</span>
-                    <span className="font-semibold text-darkColor">{formatPrice(order.subtotal)}</span>
+                    <span className="font-semibold text-darkColor">
+                      {formatPrice(order.subtotal)}
+                    </span>
                   </div>
                   {order.discountAmount > 0 && (
                     <div className="flex justify-between text-emerald-700 font-semibold">
@@ -217,7 +228,9 @@ export const OrderDetail: React.FC = () => {
                   )}
                   <div className="flex justify-between text-secondary600">
                     <span>Shipping Charges</span>
-                    <span className="text-emerald-700 font-semibold uppercase">Free</span>
+                    <span className="text-emerald-700 font-semibold uppercase">
+                      Free
+                    </span>
                   </div>
                   <div className="flex justify-between text-secondary500 text-xs">
                     <span>Tax & GST</span>
@@ -227,13 +240,19 @@ export const OrderDetail: React.FC = () => {
 
                 {/* Final Total */}
                 <div className="flex justify-between items-center text-darkColor font-bold py-1">
-                  <span className="text-sm uppercase tracking-wider">Total Amount</span>
-                  <span className="text-sm md:text-lg text-primaryBg">{formatPrice(order.totalAmount)}</span>
+                  <span className="text-sm uppercase tracking-wider">
+                    Total Amount
+                  </span>
+                  <span className="text-sm md:text-lg text-primaryBg">
+                    {formatPrice(order.totalAmount)}
+                  </span>
                 </div>
 
                 {/* Payment Status Badges */}
                 <div className="border-t border-secondary200 pt-4 flex gap-2 justify-center">
-                  <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                  <Badge variant={getStatusVariant(order.status)}>
+                    {order.status}
+                  </Badge>
                   <Badge variant={getPaymentVariant(order.paymentStatus)}>
                     {order.paymentStatus}
                   </Badge>
@@ -250,10 +269,15 @@ export const OrderDetail: React.FC = () => {
                 </h3>
               </div>
               <CardContent className="p-5 text-left text-xs md:text-sm">
-                <p className="font-bold text-darkColor mb-1">{order.shippingAddress.fullName}</p>
+                <p className="font-bold text-darkColor mb-1">
+                  {order.shippingAddress.fullName}
+                </p>
                 <p className="text-secondary600 mb-1.5 leading-snug">
-                  {order.shippingAddress.line1}, {order.shippingAddress.line2 && `${order.shippingAddress.line2}, `}
-                  {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                  {order.shippingAddress.line1},{" "}
+                  {order.shippingAddress.line2 &&
+                    `${order.shippingAddress.line2}, `}
+                  {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
+                  {order.shippingAddress.pincode}
                 </p>
                 <p className="font-semibold text-secondary700 font-roboto">
                   {order.shippingAddress.phone}
@@ -261,7 +285,6 @@ export const OrderDetail: React.FC = () => {
               </CardContent>
             </Card>
           </div>
-
         </div>
       )}
     </div>
