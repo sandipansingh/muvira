@@ -5,11 +5,14 @@
  * transaction. A failed email must never fail or roll back a successful payment.
  * Log failures for later retry/reconciliation.
  *
+ * Customer email is always fetched fresh from the profiles table using order.user_id.
+ *
  * If RESEND_API_KEY is not configured, emails are silently skipped (dev mode).
  */
 import { Resend } from 'resend';
 import { env } from '../../config/env';
 import { logger } from '../logger';
+import { adminSupabase } from '../supabase/admin';
 import type { Order } from '../../types';
 
 let resend: Resend | null = null;
@@ -20,7 +23,6 @@ if (env.RESEND_API_KEY) {
 
 interface OrderConfirmationData {
   order: Order;
-  customerEmail: string;
   customerName: string;
 }
 
@@ -41,11 +43,29 @@ export async function sendOrderConfirmationEmail(
   }
 
   try {
+    // Always fetch fresh email from profiles using the order's user_id
+    // (never trust a passed-in email or user_id as "to")
+    const { data: profile } = await adminSupabase
+      .from("profiles")
+      .select("email")
+      .eq("id", data.order.user_id)
+      .single();
+
+    const toEmail = profile?.email;
+
+    if (!toEmail) {
+      logger.warn(
+        { orderId: data.order.id, userId: data.order.user_id },
+        "No email address found for user — skipping order confirmation email",
+      );
+      return;
+    }
+
     const totalRupees = (data.order.total_amount_paisa / 100).toFixed(2);
 
     await resend.emails.send({
       from: `${env.STORE_NAME} <${env.EMAIL_FROM}>`,
-      to: data.customerEmail,
+      to: toEmail,
       subject: `Order Confirmed — ${data.order.order_number}`,
       html: `
         <h2>Thank you for your order, ${data.customerName}!</h2>
@@ -57,7 +77,7 @@ export async function sendOrderConfirmationEmail(
     });
 
     logger.info(
-      { orderId: data.order.id, orderNumber: data.order.order_number },
+      { orderId: data.order.id, orderNumber: data.order.order_number, to: toEmail },
       'Order confirmation email sent',
     );
   } catch (err) {
