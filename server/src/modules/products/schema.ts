@@ -5,7 +5,7 @@ import { z } from "zod";
 export const ListProductsQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).default("1"),
   limit: z.string().regex(/^\d+$/).transform(Number).default("20"),
-  category: z.string().uuid().optional(),
+  category: z.string().min(1).max(300).optional(),
   minPrice: z.string().regex(/^\d+$/).transform(Number).optional(),
   maxPrice: z.string().regex(/^\d+$/).transform(Number).optional(),
   inStock: z.enum(["true", "false"]).optional(),

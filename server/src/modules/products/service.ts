@@ -8,12 +8,36 @@ import type {
   AddProductImageInput,
 } from "./schema";
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+async function resolveCategoryToId(
+  category: string | undefined,
+  requireActive = true,
+): Promise<string | undefined> {
+  if (!category) return undefined;
+  if (UUID_REGEX.test(category)) return category;
+
+  // treat as slug
+  let q = adminSupabase
+    .from("categories")
+    .select("id")
+    .eq("slug", category);
+
+  if (requireActive) q = q.eq("is_active", true);
+
+  const { data } = await q.single();
+  return data?.id ?? undefined;
+}
+
 // Public: list products
 
 export async function listProducts(query: ListProductsQuery) {
   const { page, limit, category, minPrice, maxPrice, inStock, sort, q } = query;
 
   const offset = (page - 1) * limit;
+
+  const categoryId = await resolveCategoryToId(category, true);
 
   let dbQuery = adminSupabase
     .from("products")
@@ -28,7 +52,14 @@ export async function listProducts(query: ListProductsQuery) {
     )
     .eq("is_active", true);
 
-  if (category) dbQuery = dbQuery.eq("category_id", category);
+  if (category) {
+    if (categoryId) {
+      dbQuery = dbQuery.eq("category_id", categoryId);
+    } else {
+      // explicit category filter provided but not found (bad slug) → no results
+      dbQuery = dbQuery.eq("category_id", "00000000-0000-0000-0000-000000000000");
+    }
+  }
   if (minPrice !== undefined) dbQuery = dbQuery.gte("price_paisa", minPrice);
   if (maxPrice !== undefined) dbQuery = dbQuery.lte("price_paisa", maxPrice);
   if (inStock === "true") dbQuery = dbQuery.gt("stock", 0);
@@ -78,6 +109,8 @@ export async function adminListProducts(query: ListProductsQuery) {
 
   const offset = (page - 1) * limit;
 
+  const categoryId = await resolveCategoryToId(category, false);
+
   let dbQuery = adminSupabase
     .from("products")
     .select(
@@ -92,7 +125,13 @@ export async function adminListProducts(query: ListProductsQuery) {
     );
   // Intentionally do NOT filter is_active — admins see everything
 
-  if (category) dbQuery = dbQuery.eq("category_id", category);
+  if (category) {
+    if (categoryId) {
+      dbQuery = dbQuery.eq("category_id", categoryId);
+    } else {
+      dbQuery = dbQuery.eq("category_id", "00000000-0000-0000-0000-000000000000");
+    }
+  }
   if (minPrice !== undefined) dbQuery = dbQuery.gte("price_paisa", minPrice);
   if (maxPrice !== undefined) dbQuery = dbQuery.lte("price_paisa", maxPrice);
   if (inStock === "true") dbQuery = dbQuery.gt("stock", 0);
