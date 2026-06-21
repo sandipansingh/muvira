@@ -28,7 +28,9 @@ export default {
         lightgrayColor: '#F5F5F5',
       },
       fontFamily: {
-        redhat: ['"Red Hat Display"', 'sans-serif'],
+        redhat: ['Lato', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
+        lato: ['Lato', 'sans-serif'],
         roboto: ['Roboto', 'sans-serif'],
       },
       borderRadius: {

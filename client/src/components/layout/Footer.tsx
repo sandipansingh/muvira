@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-[1240px] mx-auto px-6 py-12 md:py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* About column */}
         <div className="flex flex-col gap-4 text-left">
-          <h2 className="text-xl font-bold tracking-wider text-white uppercase">{STORE_NAME}</h2>
+          <h2 className="text-xl font-bold tracking-wider text-white uppercase font-montserrat">{STORE_NAME}</h2>
           <p className="text-xs md:text-sm text-secondary400 leading-relaxed">
             Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.
           </p>
@@ -29,7 +29,7 @@ export const Footer: React.FC = () => {
 
         {/* Customer Support */}
         <div className="flex flex-col gap-4 text-left">
-          <h3 className="text-sm font-semibold tracking-wider text-white uppercase border-l-2 border-primaryBg pl-2.5">
+          <h3 className="text-sm font-semibold tracking-wider text-white uppercase border-l-2 border-primaryBg pl-2.5 font-montserrat">
             Customer Support
           </h3>
           <ul className="flex flex-col gap-2.5 text-xs md:text-sm text-secondary400">
@@ -58,7 +58,7 @@ export const Footer: React.FC = () => {
 
         {/* Categories */}
         <div className="flex flex-col gap-4 text-left">
-          <h3 className="text-sm font-semibold tracking-wider text-white uppercase border-l-2 border-primaryBg pl-2.5">
+          <h3 className="text-sm font-semibold tracking-wider text-white uppercase border-l-2 border-primaryBg pl-2.5 font-montserrat">
             Quick Links
           </h3>
           <ul className="flex flex-col gap-2.5 text-xs md:text-sm text-secondary400">
@@ -87,7 +87,7 @@ export const Footer: React.FC = () => {
 
         {/* Contact Info */}
         <div className="flex flex-col gap-4 text-left font-roboto">
-          <h3 className="text-sm font-semibold tracking-wider text-white uppercase border-l-2 border-primaryBg pl-2.5">
+          <h3 className="text-sm font-semibold tracking-wider text-white uppercase border-l-2 border-primaryBg pl-2.5 font-montserrat">
             Contact Us
           </h3>
           <ul className="flex flex-col gap-3.5 text-xs md:text-sm text-secondary400">

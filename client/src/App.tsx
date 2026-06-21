@@ -12,6 +12,7 @@ import { RequireAuth, RequireAdmin } from './components/auth/AuthGuard';
 // Customer Layout Components
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import ScrollToTop from './components/shared/ScrollToTop';
 
 // Admin Layout Components
 import AdminSidebar from './components/layout/AdminSidebar';
@@ -83,7 +84,7 @@ const AdminLayout: React.FC = () => {
       </Sheet>
 
       {/* Main Container */}
-      <div className="flex-grow flex flex-col lg:pl-64 min-w-0 min-h-screen">
+      <div className="flex-grow flex flex-col min-w-0 min-h-screen">
         <AdminTopbar onToggleSidebar={() => setMobileMenuOpen(true)} />
         <main className="flex-grow p-6 md:p-8">
           <Outlet />
@@ -96,6 +97,7 @@ const AdminLayout: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ToastProvider>
         <AuthProvider>
           <CartProvider>

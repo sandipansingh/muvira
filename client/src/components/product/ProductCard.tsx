@@ -36,7 +36,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Promo tag */}
         {hasDiscount && (
-          <span className="absolute top-2.5 left-2.5 bg-primaryBg text-white text-[10px] font-bold px-2 py-0.5 rounded-radius3 uppercase tracking-wider">
+          <span className="absolute top-2.5 left-2.5 bg-white/95 text-secondary700 text-[9px] font-bold px-2 py-0.5 rounded border border-secondary200 uppercase tracking-widest font-montserrat shadow-xs">
             Sale
           </span>
         )}
@@ -61,7 +61,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </span>
 
         {/* Title Clamped to 2 lines */}
-        <h3 className="text-xs md:text-sm font-semibold tracking-wide text-darkColor group-hover:text-primaryBg transition-colors line-clamp-2 min-h-[38px] mb-1.5 leading-snug">
+        <h3 className="text-xs md:text-sm font-semibold tracking-wide text-darkColor group-hover:text-primaryBg transition-colors line-clamp-2 min-h-[38px] mb-1.5 leading-snug font-montserrat">
           {product.name}
         </h3>
 
@@ -92,14 +92,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Out of Stock warning */}
           {product.stock <= 0 && (
-            <span className="text-[10px] font-semibold text-dangerColor uppercase tracking-wider block mt-1.5">
+            <span className="text-[9px] font-bold text-rose-600 uppercase tracking-wider mt-1.5 flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-rose-500 shrink-0" />
               Out of stock
             </span>
           )}
 
           {/* Low Stock alert */}
           {product.stock > 0 && product.stock <= 5 && (
-            <span className="text-[10px] font-semibold text-amber-600 uppercase tracking-wider block mt-1.5">
+            <span className="text-[9px] font-bold text-amber-600 uppercase tracking-wider mt-1.5 flex items-center gap-1">
+              <span className="w-1 h-1 rounded-full bg-amber-500 shrink-0 animate-pulse" />
               Only {product.stock} left
             </span>
           )}

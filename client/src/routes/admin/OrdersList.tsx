@@ -6,7 +6,6 @@ import { formatPrice, formatDate } from '../../lib/format';
 import Card, { CardContent } from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
-import Button from '../../components/ui/Button';
 import Select from '../../components/ui/Select';
 import Pagination from '../../components/ui/Pagination';
 import Skeleton from '../../components/ui/Skeleton';
@@ -205,19 +204,19 @@ export const OrdersList: React.FC = () => {
               <TableBody>
                 {orders.map((ord) => (
                   <TableRow key={ord.id}>
-                    <TableCell className="font-bold text-darkColor font-roboto">
+                    <TableCell className="font-medium text-darkColor font-roboto">
                       {ord.orderNumber}
                     </TableCell>
                     <TableCell>
-                      <p className="font-semibold text-darkColor leading-none">{ord.customer?.fullName}</p>
+                      <p className="font-medium text-darkColor leading-none">{ord.customer?.fullName}</p>
                       <p className="text-[10px] text-secondary500 font-medium font-roboto mt-1">
                         {ord.customer?.email}
                       </p>
                     </TableCell>
-                    <TableCell className="font-semibold text-secondary700">
+                    <TableCell className="font-medium text-secondary700">
                       {formatPrice(ord.totalAmount)}
                     </TableCell>
-                    <TableCell className="text-xs font-medium text-secondary600 font-roboto">
+                    <TableCell className="text-xs font-normal text-secondary600 font-roboto">
                       {formatDate(ord.createdAt)}
                     </TableCell>
                     <TableCell>
@@ -234,14 +233,12 @@ export const OrdersList: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
+                      <button
                         onClick={() => navigate(`/admin/orders/${ord.id}`)}
-                        className="text-xs text-primaryBg font-bold py-1 px-2 hover:bg-primary100/50"
+                        className="text-xs text-secondary600 hover:text-darkColor font-medium py-1 px-2 transition-colors"
                       >
                         Fulfill / View
-                      </Button>
+                      </button>
                     </TableCell>
                   </TableRow>
                 ))}

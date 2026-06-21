@@ -21,19 +21,19 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
 
   const sizeClasses = {
     sm: {
-      current: 'text-sm font-semibold',
-      original: 'text-xs',
-      discount: 'text-[10px] px-1.5 py-0.2',
+      current: 'text-sm font-medium font-roboto',
+      original: 'text-xs font-roboto',
+      discount: 'text-[10px] px-1.5 py-0.2 font-roboto',
     },
     md: {
-      current: 'text-base font-semibold md:text-font19',
-      original: 'text-xs md:text-sm',
-      discount: 'text-xs px-2 py-0.5',
+      current: 'text-base font-medium md:text-font19 font-roboto',
+      original: 'text-xs md:text-sm font-roboto',
+      discount: 'text-xs px-2 py-0.5 font-roboto',
     },
     lg: {
-      current: 'text-xl md:text-2xl font-bold',
-      original: 'text-sm md:text-base',
-      discount: 'text-sm px-2.5 py-0.5',
+      current: 'text-xl md:text-2xl font-medium font-roboto',
+      original: 'text-sm md:text-base font-roboto',
+      discount: 'text-sm px-2.5 py-0.5 font-roboto',
     },
   };
 
@@ -51,10 +51,10 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
             {formatPrice(price)}
           </del>
 
-          {/* Discount Badge */}
+          {/* Discount Text */}
           {discountPercent > 0 && (
-            <span className={`bg-emerald-50 border border-emerald-200 text-successColor font-semibold rounded-md uppercase tracking-wider ${sizeClasses[size].discount}`}>
-              {discountPercent}% OFF
+            <span className="text-secondary600 font-medium uppercase tracking-wider text-xs md:text-sm font-roboto">
+              ({discountPercent}% OFF)
             </span>
           )}
         </>

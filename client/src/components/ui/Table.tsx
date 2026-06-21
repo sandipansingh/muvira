@@ -57,7 +57,7 @@ export const TableHead: React.FC<React.ThHTMLAttributes<HTMLTableCellElement>> =
 }) => {
   return (
     <th
-      className={`px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-secondary600 ${className}`}
+      className={`px-6 py-3.5 text-xs font-medium uppercase tracking-wider text-secondary600 ${className}`}
       {...props}
     >
       {children}

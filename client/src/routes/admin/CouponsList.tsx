@@ -178,24 +178,24 @@ export const CouponsList: React.FC = () => {
 
                   return (
                     <TableRow key={c.id}>
-                      <TableCell className="font-bold text-darkColor font-roboto tracking-wider uppercase">
+                      <TableCell className="font-medium text-darkColor font-roboto tracking-wider uppercase">
                         {c.code}
                       </TableCell>
-                      <TableCell className="font-semibold text-secondary700">
+                      <TableCell className="font-medium text-secondary700">
                         {valDisplay}
                       </TableCell>
-                      <TableCell className="text-xs font-semibold text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
                         {c.minOrderAmount > 0 ? formatPrice(c.minOrderAmount) : '₹0 (No Min)'}
                       </TableCell>
-                      <TableCell className="text-xs font-semibold text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
                         {c.maxDiscountAmount > 0 ? formatPrice(c.maxDiscountAmount) : 'No Cap'}
                       </TableCell>
-                      <TableCell className="text-xs font-semibold text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
                         {c.usageLimit} times
                       </TableCell>
                       <TableCell className="text-[10px] font-medium text-secondary600 leading-snug">
                         <p>From: {formatDate(c.validFrom)}</p>
-                        <p className={isExpired ? 'text-rose-600 font-bold' : ''}>
+                        <p className={isExpired ? 'text-secondary500 font-medium' : ''}>
                           Until: {formatDate(c.validUntil)}
                         </p>
                       </TableCell>
@@ -206,19 +206,15 @@ export const CouponsList: React.FC = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         {c.isActive && !isExpired ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            pill={true}
+                          <button
                             onClick={() => handleDeactivate(c.id, c.code)}
-                            className="text-rose-600 hover:bg-rose-50 p-1.5 flex items-center gap-1 text-[10px]"
+                            className="text-secondary500 hover:text-rose-600 transition-colors p-1"
                             title="Deactivate"
                           >
-                            <Ban className="w-3.5 h-3.5 shrink-0" />
-                            Deactivate
-                          </Button>
+                            <Ban className="w-4 h-4" />
+                          </button>
                         ) : (
-                          <span className="text-[10px] font-semibold text-secondary400 uppercase mr-3">
+                          <span className="text-[10px] font-medium text-secondary400 uppercase mr-3">
                             Locked
                           </span>
                         )}

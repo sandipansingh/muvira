@@ -13,7 +13,7 @@ import Textarea from '../../components/ui/Textarea';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
-import { Plus, Edit2, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Pencil, ToggleLeft, ToggleRight } from 'lucide-react';
 
 export const CampaignsList: React.FC = () => {
   const { showToast } = useToast();
@@ -203,12 +203,12 @@ export const CampaignsList: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <p className="font-semibold text-darkColor leading-none">{camp.name}</p>
+                        <p className="font-medium text-darkColor leading-none">{camp.name}</p>
                         <p className="text-[10px] text-secondary500 truncate max-w-[200px] mt-1.5 leading-snug">
                           {camp.description}
                         </p>
                       </TableCell>
-                      <TableCell className="font-semibold text-secondary700">
+                      <TableCell className="font-medium text-secondary700">
                         {valDisplay}
                       </TableCell>
                       <TableCell className="text-[10px] font-medium text-secondary600 leading-snug">
@@ -222,30 +222,24 @@ export const CampaignsList: React.FC = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            pill={true}
+                          <button
                             onClick={() => handleToggle(camp.id, camp.name)}
-                            className="text-secondary600 hover:text-primaryBg p-1.5"
+                            className="text-secondary500 hover:text-darkColor p-1 transition-colors focus:outline-none"
                             title={camp.isActive ? 'Deactivate' : 'Activate'}
                           >
                             {camp.isActive ? (
-                              <ToggleRight className="w-5 h-5 text-primaryBg" />
+                              <ToggleRight className="w-5.5 h-5.5 text-secondary700" />
                             ) : (
-                              <ToggleLeft className="w-5 h-5 text-secondary400" />
+                              <ToggleLeft className="w-5.5 h-5.5 text-secondary300" />
                             )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            pill={true}
+                          </button>
+                          <button
                             onClick={() => handleOpenEdit(camp)}
-                            className="text-secondary600 hover:text-primaryBg p-1.5"
+                            className="text-secondary500 hover:text-darkColor p-1 transition-colors focus:outline-none"
                             title="Edit"
                           >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
+                            <Pencil className="w-4 h-4" />
+                          </button>
                         </div>
                       </TableCell>
                     </TableRow>

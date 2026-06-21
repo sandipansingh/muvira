@@ -8,7 +8,7 @@ import Button from '../../components/ui/Button';
 import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import Dialog from '../../components/ui/Dialog';
 import Breadcrumb from '../../components/layout/Breadcrumb';
-import { User, Phone, Mail, MapPin, Plus, Trash2, Home, Building, CheckCircle2 } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Plus, Trash2, Home, Building, CheckCircle2, Pencil } from 'lucide-react';
 
 export const Profile: React.FC = () => {
   const { user, updateProfile } = useAuth();
@@ -260,49 +260,50 @@ export const Profile: React.FC = () => {
                     >
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="bg-secondary200 text-secondary700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                          <span className="border border-secondary300 text-secondary600 text-[10px] font-medium px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-1">
                             {addr.label === 'home' && <Home className="w-3 h-3" />}
                             {addr.label === 'office' && <Building className="w-3 h-3" />}
                             {addr.label}
                           </span>
                           {addr.isDefault && (
-                            <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-0.5">
-                              <CheckCircle2 className="w-3 h-3 shrink-0" /> Default
+                            <span className="text-secondary500 border border-secondary300 text-[9px] font-medium px-2 py-0.5 rounded uppercase tracking-wider flex items-center gap-0.5">
+                              <CheckCircle2 className="w-3 h-3 shrink-0 text-secondary400" /> Default
                             </span>
                           )}
                         </div>
-                        <p className="text-sm font-bold text-darkColor mb-1">{addr.fullName}</p>
+                        <p className="text-sm font-medium text-darkColor mb-1">{addr.fullName}</p>
                         <p className="text-xs text-secondary600 mb-1 leading-snug">
                           {addr.line1}, {addr.line2 && `${addr.line2}, `}
                           {addr.city}, {addr.state} - {addr.pincode}
                         </p>
-                        <p className="text-xs font-semibold text-secondary700 font-roboto">{addr.phone}</p>
+                        <p className="text-xs font-normal text-secondary600 font-roboto">{addr.phone}</p>
                       </div>
 
                       <div className="border-t border-secondary200/50 mt-4 pt-3.5 flex items-center justify-between">
                         {!addr.isDefault ? (
                           <button
                             onClick={() => handleSetDefault(addr.id)}
-                            className="text-[10px] font-semibold text-primaryBg hover:text-primaryHover uppercase tracking-wider"
+                            className="text-[10px] font-medium text-primaryBg hover:text-primaryHover uppercase tracking-wider"
                           >
                             Set Default
                           </button>
                         ) : (
                           <div />
                         )}
-                        <div className="flex gap-3">
+                        <div className="flex gap-4">
                           <button
                             onClick={() => handleOpenEditAddress(addr)}
-                            className="text-[10px] font-semibold text-secondary500 hover:text-darkColor uppercase tracking-wider"
+                            className="text-secondary500 hover:text-darkColor transition-colors"
+                            title="Edit Address"
                           >
-                            Edit
+                            <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteAddress(addr.id)}
-                            className="text-[10px] font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 uppercase tracking-wider"
+                            className="text-secondary500 hover:text-rose-600 transition-colors"
+                            title="Delete Address"
                           >
-                            <Trash2 className="w-3 h-3" />
-                            Delete
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -374,7 +375,7 @@ export const Profile: React.FC = () => {
           />
 
           <Input
-            label="Address Line 2 (Optional)"
+            label="Address Line 2"
             value={newLine2}
             onChange={(e) => setNewLine2(e.target.value)}
             placeholder="Landmark, Sector"

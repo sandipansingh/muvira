@@ -11,7 +11,7 @@ import Textarea from '../../components/ui/Textarea';
 import Dialog from '../../components/ui/Dialog';
 import Skeleton from '../../components/ui/Skeleton';
 import ErrorState from '../../components/shared/ErrorState';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash } from 'lucide-react';
 
 export const CategoriesList: React.FC = () => {
   const { showToast } = useToast();
@@ -169,15 +169,15 @@ export const CategoriesList: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <p className="font-semibold text-darkColor leading-none">{cat.name}</p>
+                        <p className="font-medium text-darkColor leading-none">{cat.name}</p>
                         <p className="text-[10px] text-secondary500 truncate max-w-[200px] mt-1.5 leading-snug">
                           {cat.description}
                         </p>
                       </TableCell>
-                      <TableCell className="text-xs font-semibold text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
                         {cat.slug}
                       </TableCell>
-                      <TableCell className="font-semibold text-secondary700">
+                      <TableCell className="font-medium text-secondary700">
                         {cat.sortOrder}
                       </TableCell>
                       <TableCell>
@@ -186,27 +186,21 @@ export const CategoriesList: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            pill={true}
+                        <div className="flex justify-end gap-3.5">
+                          <button
                             onClick={() => handleOpenEdit(cat)}
-                            className="text-secondary600 hover:text-primaryBg p-1.5"
+                            className="text-secondary500 hover:text-darkColor p-1 transition-colors focus:outline-none"
                             title="Edit Category"
                           >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            pill={true}
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleDelete(cat.id, cat.name)}
-                            className="text-secondary500 hover:text-rose-600 p-1.5"
+                            className="text-secondary500 hover:text-darkColor p-1 transition-colors focus:outline-none"
                             title="Delete"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                            <Trash className="w-4 h-4" />
+                          </button>
                         </div>
                       </TableCell>
                     </TableRow>

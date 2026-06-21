@@ -8,9 +8,7 @@ import {
   ShoppingBag,
   Ticket,
   Percent,
-  Warehouse,
-  Home,
-  ChevronRight
+  Warehouse
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
@@ -29,15 +27,15 @@ export const AdminSidebar: React.FC = () => {
       {/* Brand Header */}
       <div className="h-16 px-6 border-b border-secondary600/20 flex items-center justify-between">
         <Link to="/admin" className="flex items-center">
-          <span className="text-lg font-bold text-white tracking-widest uppercase">
-            {STORE_NAME} <span className="text-xs text-primaryBg font-medium lowercase">admin</span>
+          <span className="text-lg font-medium text-white tracking-widest uppercase">
+            {STORE_NAME} <span className="text-xs text-secondary400 font-medium lowercase">admin</span>
           </span>
         </Link>
       </div>
 
       {/* Nav Menu */}
       <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto no-scrollbar">
-        <p className="text-[10px] font-bold text-secondary500 uppercase tracking-widest pl-3 mb-2">
+        <p className="text-[10px] font-medium text-secondary500 uppercase tracking-widest pl-3 mb-2">
           Management
         </p>
         {menuItems.map((item) => (
@@ -48,16 +46,14 @@ export const AdminSidebar: React.FC = () => {
             className={({ isActive }) =>
               `flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs md:text-sm transition-all duration-200 group ${
                 isActive
-                  ? 'bg-primaryBg text-white font-semibold'
-                  : 'text-secondary400 hover:bg-secondary700 hover:text-white'
+                  ? 'bg-white/10 text-white font-medium'
+                  : 'text-secondary400 hover:bg-white/5 hover:text-white'
               }`
             }
           >
             <div className="flex items-center gap-3">
-              <item.icon className="w-5 h-5 shrink-0" />
               <span>{item.name}</span>
             </div>
-            <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
           </NavLink>
         ))}
       </nav>
@@ -66,9 +62,8 @@ export const AdminSidebar: React.FC = () => {
       <div className="p-4 border-t border-secondary600/20">
         <Link
           to="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs md:text-sm text-secondary400 hover:bg-secondary700 hover:text-white transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs md:text-sm text-secondary400 hover:bg-white/5 hover:text-white transition-colors"
         >
-          <Home className="w-5 h-5 shrink-0" />
           <span>Go to Live Store</span>
         </Link>
       </div>

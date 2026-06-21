@@ -99,7 +99,7 @@ export const Home: React.FC = () => {
                 <span className="bg-primaryBg text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider mb-2 self-start">
                   Festival Sale
                 </span>
-                <h2 className="text-xl md:text-3xl font-bold tracking-wide mb-2 leading-tight">
+                <h2 className="text-xl md:text-3xl font-bold tracking-wide mb-2 leading-tight font-montserrat">
                   {slide.title}
                 </h2>
                 <p className="text-xs md:text-sm text-[#E7E7E7] font-medium tracking-wide mb-6">
@@ -154,7 +154,7 @@ export const Home: React.FC = () => {
             <h3 className="text-sm font-bold text-primaryBg uppercase tracking-widest mb-1.5">
               Organic Coordinates
             </h3>
-            <h4 className="text-lg font-bold text-darkColor leading-snug mb-3">
+            <h4 className="text-lg font-bold text-darkColor leading-snug mb-3 font-montserrat">
               Blockprinted Cushions & Bedspreads
             </h4>
             <Link
@@ -168,7 +168,7 @@ export const Home: React.FC = () => {
             <h3 className="text-sm font-bold text-secondary700 uppercase tracking-widest mb-1.5">
               Classic Living
             </h3>
-            <h4 className="text-lg font-bold text-darkColor leading-snug mb-3">
+            <h4 className="text-lg font-bold text-darkColor leading-snug mb-3 font-montserrat">
               Sheesham Wood Coffee Tables & Sofas
             </h4>
             <Link
@@ -226,7 +226,7 @@ export const Home: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-end border-b border-secondary200 pb-3">
           <div>
-            <h2 className="text-lg md:text-2xl font-semibold tracking-wide text-darkColor">
+            <h2 className="text-lg md:text-2xl font-semibold tracking-wide text-darkColor font-montserrat">
               Shop by Room & Category
             </h2>
             <p className="text-xs md:text-sm text-secondary600 tracking-wide mt-1">
@@ -270,10 +270,11 @@ export const Home: React.FC = () => {
       {campaigns.length > 0 && (
         <div className="bg-[#FFF2F2] border border-[#f5dedd] rounded-xl p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="text-left space-y-2 max-w-xl">
-            <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-rose-600 uppercase tracking-widest flex items-center gap-1.5 font-montserrat">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shrink-0" />
               Limited Time Coupon Alert
             </span>
-            <h2 className="text-xl md:text-3xl font-bold text-rose-950 tracking-wide">
+            <h2 className="text-xl md:text-3xl font-bold text-rose-950 tracking-wide font-montserrat">
               {campaigns[0].name}
             </h2>
             <p className="text-xs md:text-sm text-rose-800 leading-relaxed tracking-wide">
@@ -294,7 +295,7 @@ export const Home: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-end border-b border-secondary200 pb-3">
           <div>
-            <h2 className="text-lg md:text-2xl font-semibold tracking-wide text-darkColor">
+            <h2 className="text-lg md:text-2xl font-semibold tracking-wide text-darkColor font-montserrat">
               Featured Best Sellers
             </h2>
             <p className="text-xs md:text-sm text-secondary600 tracking-wide mt-1">
@@ -324,6 +325,50 @@ export const Home: React.FC = () => {
               <ProductCard key={prod.id} product={prod} />
             ))
           )}
+        </div>
+      </div>
+
+      {/* 6. ALSO AVAILABLE AT SECTION */}
+      <div className="border-t border-secondary200 pt-10 pb-8 text-center space-y-6">
+        <h3 className="text-sm md:text-base font-semibold uppercase tracking-wider text-secondary600 font-montserrat">
+          We are also available at
+        </h3>
+        <div className="flex justify-center items-center gap-16 md:gap-24">
+          {/* Amazon Logo */}
+          <a
+            href="https://amazon.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center gap-3 focus:outline-none"
+          >
+            <img
+              src="/amazon.webp"
+              alt="Amazon"
+              className="h-10 md:h-12 w-auto object-contain"
+            />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-secondary500 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+              Live
+            </span>
+          </a>
+
+          {/* Flipkart Logo */}
+          <a
+            href="https://flipkart.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center gap-3 focus:outline-none"
+          >
+            <img
+              src="/flipkart.webp"
+              alt="Flipkart"
+              className="h-10 md:h-12 w-auto object-contain"
+            />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-secondary500 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+              Live
+            </span>
+          </a>
         </div>
       </div>
 
