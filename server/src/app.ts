@@ -55,6 +55,12 @@ import { adminInventoryRouter } from "./modules/admin/inventory/routes";
 export function createApp() {
   const app = express();
 
+  // Trust the first proxy in the chain (reverse proxy / load balancer / container runtime).
+  // Required so express-rate-limit can read X-Forwarded-For for accurate client IP
+  // identification. Without this, rate-limit v7 throws ERR_ERL_UNEXPECTED_X_FORWARDED_FOR.
+  // Set to 1 (trust one hop) — adjust to the actual number of proxies in front if needed.
+  app.set("trust proxy", 1);
+
   // 1. Request ID (first middleware)
   app.use(requestIdMiddleware);
 
