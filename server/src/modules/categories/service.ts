@@ -1,0 +1,83 @@
+import { adminSupabase } from "../../lib/supabase/admin";
+import { AppError } from "../../types";
+import type { Category } from "../../types";
+import type { CreateCategoryInput, UpdateCategoryInput } from "./schema";
+
+export async function listCategories(): Promise<Category[]> {
+  const { data, error } = await adminSupabase
+    .from("categories")
+    .select("*")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+
+  if (error) throw new AppError(500, "DB_ERROR", "Failed to fetch categories");
+  return (data as Category[]) ?? [];
+}
+
+export async function getCategoryBySlug(slug: string): Promise<Category> {
+  const { data, error } = await adminSupabase
+    .from("categories")
+    .select("*")
+    .eq("slug", slug)
+    .eq("is_active", true)
+    .single();
+
+  if (error || !data)
+    throw new AppError(404, "CATEGORY_NOT_FOUND", "Category not found");
+  return data as Category;
+}
+
+// Admin
+
+export async function listAllCategories(): Promise<Category[]> {
+  const { data, error } = await adminSupabase
+    .from("categories")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw new AppError(500, "DB_ERROR", "Failed to fetch categories");
+  return (data as Category[]) ?? [];
+}
+
+export async function createCategory(
+  input: CreateCategoryInput,
+): Promise<Category> {
+  const { data, error } = await adminSupabase
+    .from("categories")
+    .insert(input)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === "23505")
+      throw new AppError(409, "DUPLICATE_SLUG", "Category slug already exists");
+    throw new AppError(500, "DB_ERROR", "Failed to create category");
+  }
+  return data as Category;
+}
+
+export async function updateCategory(
+  id: string,
+  input: UpdateCategoryInput,
+): Promise<Category> {
+  const { data, error } = await adminSupabase
+    .from("categories")
+    .update(input)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error || !data)
+    throw new AppError(404, "CATEGORY_NOT_FOUND", "Category not found");
+  return data as Category;
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  // Soft-delete by deactivating
+  const { error } = await adminSupabase
+    .from("categories")
+    .update({ is_active: false })
+    .eq("id", id);
+
+  if (error) throw new AppError(500, "DB_ERROR", "Failed to delete category");
+}
