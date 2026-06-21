@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[35290],{35290:function(e,t,n){n.d(t,{Bi:function(){return s},gQ:function(){return i}});let i=["All Online Coverage","2026","2025","2024","2023","2022","2021","2020","2019","2018","2017","2016","2015"],s=e=>e?/^https?:\/\//i.test(e)?e:`https://images.woodenstreet.de/image/${e}`:"no-image"}}]);
