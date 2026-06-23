@@ -38,6 +38,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
   const { showToast } = useToast()
 
+  // Dynamically determine the correct redirect URL for Supabase auth emails
+  // This ensures verification links go to production (muvira.in) instead of localhost
+  const getEmailRedirectUrl = (): string => {
+    // Allow override via environment variable
+    const explicitRedirect = import.meta.env.VITE_AUTH_REDIRECT_URL
+    if (explicitRedirect) return explicitRedirect
+
+    if (typeof window !== 'undefined') {
+      const origin = window.location.origin
+
+      // In development (localhost or 127.0.0.1), use current origin
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return `${origin}/`
+      }
+
+      // Production: use the current origin (handles both muvira.in and www.muvira.in)
+      return `${origin}/`
+    }
+
+    // SSR fallback (should rarely be hit)
+    return 'https://muvira.in/'
+  }
+
   // Restore session on mount and subscribe to Supabase auth state changes
   useEffect(() => {
     let mounted = true
@@ -112,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           full_name: fullName,
           phone: phone,
         },
+        emailRedirectTo: getEmailRedirectUrl(),
       },
     })
     if (error) {
