@@ -26,7 +26,8 @@ export const Navbar: React.FC = () => {
   const { cart } = useCart();
   const navigate = useNavigate();
   const { settings } = useSiteSettings();
-  const { announcementBar, contactInfo } = settings;
+  const announcementBar = settings?.announcementBar;
+  const contactInfo = settings?.contactInfo;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
@@ -52,7 +53,7 @@ export const Navbar: React.FC = () => {
   return (
     <header className="relative z-[39] bg-[var(--surface)] border-b border-[var(--border)]">
       {/* 1. TOP UTILITY BAR (Desktop only) */}
-      {announcementBar.enabled && (
+      {announcementBar?.enabled && (
       <div className="hidden md:block bg-[var(--surface)] text-[var(--text-muted)] text-[11px] font-instrument font-normal border-b border-[var(--border)] py-2">
         <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -62,10 +63,12 @@ export const Navbar: React.FC = () => {
             <span>{announcementBar.message}</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
-              <Phone className="w-3.5 h-3.5 shrink-0" />
-              <span>Call Us: {contactInfo.phone}</span>
-            </a>
+            {contactInfo && (
+              <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
+                <Phone className="w-3.5 h-3.5 shrink-0" />
+                <span>Call Us: {contactInfo.phone}</span>
+              </a>
+            )}
             <Link to="/orders" className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
               <Truck className="w-3.5 h-3.5 shrink-0" />
               <span>Track Order</span>
@@ -325,11 +328,13 @@ export const Navbar: React.FC = () => {
 
           {/* Contact Strip */}
           <div className="mt-auto pt-6 text-xs text-secondary500 flex flex-col gap-2 pl-1 border-t border-secondary200">
-            <div className="flex items-center gap-2">
-              <Phone className="w-4 h-4 text-primaryBg" />
-              <span>Call support: {contactInfo.phone}</span>
-            </div>
-            {announcementBar.enabled && announcementBar.message && (
+            {contactInfo && (
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-primaryBg" />
+                <span>Call support: {contactInfo.phone}</span>
+              </div>
+            )}
+            {announcementBar?.enabled && announcementBar.message && (
             <div className="flex items-center gap-2">
               <Info className="w-4 h-4 text-primaryBg" />
               <span>{announcementBar.message}</span>
