@@ -51,7 +51,7 @@ import InventoryList from './routes/admin/InventoryList';
 // CUSTOMER PAGES LAYOUT WRAPPER
 const CustomerLayout: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)]">
       <Navbar />
       <main className="flex-grow">
         <Outlet />

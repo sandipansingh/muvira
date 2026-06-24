@@ -17,14 +17,14 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyle = 'inline-flex items-center justify-center font-medium tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primaryBg/50 disabled:opacity-50 disabled:pointer-events-none';
+  const baseStyle = 'inline-flex items-center justify-center font-medium tracking-[0.4px] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/40 disabled:opacity-50 disabled:pointer-events-none';
 
   const variants = {
-    primary: 'bg-primaryBg text-white hover:bg-primaryHover active:bg-primary600 border border-transparent',
-    secondary: 'bg-lightgrayColor text-secondary700 hover:bg-secondary200 active:bg-secondary300 border border-transparent',
-    outline: 'bg-transparent text-primaryBg border border-primaryBg hover:bg-primary100 active:bg-primary200',
-    ghost: 'bg-transparent text-secondary700 hover:bg-lightgrayColor active:bg-secondary200 border border-transparent',
-    danger: 'bg-dangerColor text-white hover:bg-red-600 active:bg-red-700 border border-transparent',
+    primary: 'bg-[var(--accent)] text-white hover:bg-[var(--accent-dark)] active:bg-[#8e3c1f] border border-transparent',
+    secondary: 'bg-[var(--surface-2)] text-[var(--text)] hover:bg-[var(--border)] active:bg-[#e1d9cd] border border-transparent',
+    outline: 'bg-transparent text-[var(--accent)] border border-[var(--accent)] hover:bg-[#f9f0e8] active:bg-[var(--accent)]/10',
+    ghost: 'bg-transparent text-[var(--text-muted)] hover:bg-[var(--surface-2)] active:bg-[var(--border)] border border-transparent',
+    danger: 'bg-[var(--accent)] text-white hover:bg-[var(--accent-dark)] active:bg-[#8e3c1f] border border-transparent',
   };
 
   const sizes = {
