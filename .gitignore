@@ -33,4 +33,5 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
-
+# Miscellaneous
+graphify-out/
