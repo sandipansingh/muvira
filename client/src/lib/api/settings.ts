@@ -22,6 +22,7 @@ export const settingsApiService = {
     contact_info: SiteSettings['contactInfo'];
     announcement_bar: SiteSettings['announcementBar'];
     hero_slides: SiteSettings['heroSlides'];
+    store_description: string;
   }>): Promise<ApiResponse<SiteSettings>> {
     const res = await api.patch<RawSettingsResponse>('/api/admin/settings', patch, true);
     if (!res.success || !res.data) {

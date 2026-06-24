@@ -32,10 +32,12 @@ export const SiteSettingsPage: React.FC = () => {
 
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+  const [storeDescription, setStoreDescription] = useState('');
 
   const [savingContact, setSavingContact] = useState(false);
   const [savingAnn, setSavingAnn] = useState(false);
   const [savingSlides, setSavingSlides] = useState(false);
+  const [savingDescription, setSavingDescription] = useState(false);
 
   const dragIdx = useRef<number | null>(null);
   const dragOverIdx = useRef<number | null>(null);
@@ -49,6 +51,7 @@ export const SiteSettingsPage: React.FC = () => {
     setAnnBadge(settings.announcementBar.badge);
     setAnnMessage(settings.announcementBar.message);
     setSlides(settings.heroSlides.length > 0 ? settings.heroSlides : [emptySlide()]);
+    setStoreDescription(settings.storeDescription || '');
   }, [settings]);
 
   const handleSaveContact = async () => {
@@ -64,6 +67,24 @@ export const SiteSettingsPage: React.FC = () => {
     if (res.success) {
       await refresh();
       showToast('Contact info saved.', 'success');
+    } else {
+      showToast(res.error.message || 'Failed to save.', 'error');
+    }
+  };
+
+  const handleSaveDescription = async () => {
+    if (!storeDescription) {
+      showToast('Store description is required.', 'error');
+      return;
+    }
+    setSavingDescription(true);
+    const res = await settingsApiService.adminUpdateSettings({
+      store_description: storeDescription,
+    });
+    setSavingDescription(false);
+    if (res.success) {
+      await refresh();
+      showToast('Store description saved.', 'success');
     } else {
       showToast(res.error.message || 'Failed to save.', 'error');
     }
@@ -199,6 +220,28 @@ export const SiteSettingsPage: React.FC = () => {
           <div className="flex justify-end">
             <Button variant="primary" size="sm" onClick={handleSaveContact} disabled={savingContact}>
               {savingContact ? 'Saving…' : 'Save Contact Info'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Store Description ── */}
+      <Card>
+        <CardContent className="space-y-4 pt-6">
+          <h2 className="text-base font-semibold text-[var(--text)]">Store Description</h2>
+          <div>
+            <label className="block text-xs font-medium text-secondary600 mb-1">Footer/About Text</label>
+            <Textarea
+              value={storeDescription}
+              onChange={(e) => setStoreDescription(e.target.value)}
+              placeholder="Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home."
+              rows={3}
+              maxLength={1000}
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button variant="primary" size="sm" onClick={handleSaveDescription} disabled={savingDescription}>
+              {savingDescription ? 'Saving…' : 'Save Description'}
             </Button>
           </div>
         </CardContent>

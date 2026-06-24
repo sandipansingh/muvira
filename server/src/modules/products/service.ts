@@ -330,3 +330,47 @@ export async function deleteProductImage(imageId: string): Promise<void> {
   if (error)
     throw new AppError(500, "DB_ERROR", "Failed to delete product image");
 }
+
+export async function getProductById(id: string): Promise<any> {
+  const { data, error } = await adminSupabase
+    .from("products")
+    .select(
+      `
+      *,
+      product_images ( id, url, alt_text, sort_order, is_primary ),
+      categories ( id, name, slug )
+    `,
+    )
+    .eq("id", id)
+    .single();
+
+  if (error || !data) {
+    throw new AppError(404, "PRODUCT_NOT_FOUND", "Product not found");
+  }
+
+  return data;
+}
+
+export async function reorderProductImages(
+  productId: string,
+  imageIds: string[],
+): Promise<void> {
+  const updates = imageIds.map((id, index) => {
+    return adminSupabase
+      .from("product_images")
+      .update({
+        sort_order: index,
+        is_primary: index === 0,
+      })
+      .eq("id", id)
+      .eq("product_id", productId);
+  });
+
+  const results = await Promise.all(updates);
+
+  for (const res of results) {
+    if (res.error) {
+      throw new AppError(500, "DB_ERROR", "Failed to update image order");
+    }
+  }
+}

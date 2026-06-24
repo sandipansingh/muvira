@@ -22,6 +22,33 @@ import {
   Info
 } from 'lucide-react';
 
+const CATEGORIES_CACHE_KEY = 'navbar_categories_cache';
+
+const DEFAULT_CATEGORIES = [
+  { name: 'Solid Wood Furniture', slug: 'solid-wood-furniture' },
+  { name: 'Kurtas & Apparel', slug: 'kurtas-apparel' },
+  { name: 'Home Decor', slug: 'home-decor' },
+  { name: 'Doll', slug: 'doll' },
+];
+
+function readCategoriesCache(): { name: string; slug: string }[] {
+  try {
+    const raw = localStorage.getItem(CATEGORIES_CACHE_KEY);
+    if (!raw) return DEFAULT_CATEGORIES;
+    return JSON.parse(raw);
+  } catch {
+    return DEFAULT_CATEGORIES;
+  }
+}
+
+function writeCategoriesCache(data: { name: string; slug: string }[]): void {
+  try {
+    localStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify(data));
+  } catch {
+    // fail silently
+  }
+}
+
 export const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const { cart } = useCart();
@@ -32,7 +59,7 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
-  const [categoriesList, setCategoriesList] = useState<{ name: string; slug: string }[]>([]);
+  const [categoriesList, setCategoriesList] = useState<{ name: string; slug: string }[]>(readCategoriesCache);
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
@@ -61,6 +88,7 @@ export const Navbar: React.FC = () => {
             .map((cat) => ({ name: cat.name, slug: cat.slug }));
           console.log('[Navbar] Setting navbar categories list to:', navbarCats);
           setCategoriesList(navbarCats);
+          writeCategoriesCache(navbarCats);
         } else if (active && !res.success) {
           console.error('[Navbar] API returned error:', res.error);
         }

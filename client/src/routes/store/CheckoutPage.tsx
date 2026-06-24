@@ -8,6 +8,7 @@ import { ordersApiService } from "../../lib/api/orders";
 import type { Address } from "../../types/cart";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
 import Card, { CardContent } from "../../components/ui/Card";
 import Dialog from "../../components/ui/Dialog";
 import Breadcrumb from "../../components/layout/Breadcrumb";
@@ -19,7 +20,7 @@ import {
   Check,
   Truck,
 } from "lucide-react";
-import { STORE_NAME } from "../../lib/constants";
+import { STORE_NAME, INDIAN_STATES } from "../../lib/constants";
 
 export const CheckoutPage: React.FC = () => {
   const { cart, coupon, totalAmount, clearCartState } = useCart();
@@ -463,12 +464,11 @@ export const CheckoutPage: React.FC = () => {
               placeholder="Kolkata"
               maxLength={200}
             />
-            <Input
+            <Select
               label="State *"
               value={newState}
               onChange={(e) => setNewState(e.target.value)}
-              placeholder="West Bengal"
-              maxLength={100}
+              options={[{ value: "", label: "Select State" }, ...INDIAN_STATES]}
             />
           </div>
 

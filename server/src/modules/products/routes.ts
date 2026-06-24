@@ -170,3 +170,20 @@ adminProductsRouter.delete(
   }),
   controller.adminDeleteProductImage,
 );
+
+/**
+ * PATCH /api/admin/products/:id/images/reorder
+ *
+ * Reorders product images.
+ * Triggers PRODUCT_UPDATED cache invalidation.
+ */
+adminProductsRouter.patch(
+  "/:id/images/reorder",
+  validate({
+    params: ProductIdParamsSchema,
+    body: z.object({
+      imageIds: z.array(z.string().uuid()),
+    }),
+  }),
+  controller.adminReorderProductImages,
+);

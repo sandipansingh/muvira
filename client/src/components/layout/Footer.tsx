@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col gap-4 text-left">
           <h2 className="text-xl font-semibold tracking-[-0.1px] text-white uppercase font-playfair">{STORE_NAME}</h2>
           <p className="text-xs md:text-sm text-[#b6ab9e] leading-relaxed tracking-wide">
-            Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.
+            {settings?.storeDescription || 'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.'}
           </p>
           {/* Social profiles intentionally omitted — add real brand links when available */}
         </div>

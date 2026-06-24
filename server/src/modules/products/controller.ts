@@ -263,3 +263,24 @@ export async function adminDeleteProductImage(
     next(err);
   }
 }
+
+export async function adminReorderProductImages(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const productId = req.params["id"] as string;
+    const { imageIds } = req.body as { imageIds: string[] };
+
+    await service.reorderProductImages(productId, imageIds);
+
+    invalidateOn("PRODUCT_UPDATED", { id: productId });
+
+    const product = await service.getProductById(productId);
+
+    res.json({ success: true, data: product });
+  } catch (err) {
+    next(err);
+  }
+}
