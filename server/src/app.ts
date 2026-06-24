@@ -52,6 +52,7 @@ import { ordersRouter, adminOrdersRouter } from "./modules/orders/routes";
 import { adminDashboardRouter } from "./modules/admin/dashboard/routes";
 import { adminInventoryRouter } from "./modules/admin/inventory/routes";
 import { settingsRouter, adminSettingsRouter } from "./modules/settings/routes";
+import { adminCacheRouter } from "./modules/admin/cache/routes";
 
 export function createApp() {
   const app = express();
@@ -163,6 +164,7 @@ export function createApp() {
   adminRouter.use("/dashboard", adminDashboardRouter);
   adminRouter.use("/inventory", adminInventoryRouter);
   adminRouter.use("/settings", adminSettingsRouter);
+  adminRouter.use("/cache", adminCacheRouter);
 
   app.use("/api/admin", adminRouter);
 
