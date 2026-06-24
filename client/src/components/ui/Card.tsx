@@ -6,7 +6,7 @@ export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`bg-white rounded-lg border border-secondary200 shadow-sm overflow-hidden ${className}`} {...props}>
+    <div className={`bg-white rounded-xl border border-secondary200 shadow-sm overflow-hidden ${className}`} {...props}>
       {children}
     </div>
   );

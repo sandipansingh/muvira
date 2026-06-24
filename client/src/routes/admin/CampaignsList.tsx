@@ -157,7 +157,7 @@ export const CampaignsList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-redhat text-left">
+    <div className="space-y-6 font-instrument text-left">
       {/* Title */}
       <div className="flex justify-between items-center gap-4">
         <div>

@@ -38,34 +38,15 @@ export default {
         stone: '#665f59',
       },
       fontFamily: {
-        // Distinctive, non-generic fonts
         playfair: ['Playfair Display', 'Georgia', 'serif'],
         instrument: ['Instrument Sans', 'system-ui', 'sans-serif'],
-        // Keep legacy aliases mapped to new for compatibility
-        redhat: ['Instrument Sans', 'system-ui', 'sans-serif'],
-        montserrat: ['Playfair Display', 'Georgia', 'serif'],
-        lato: ['Instrument Sans', 'system-ui', 'sans-serif'],
-        roboto: ['Instrument Sans', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        'xs': 'calc(0.5rem - 4px)',
-        'sm': 'calc(0.5rem - 4px)',
-        'md': 'calc(0.5rem - 2px)',
-        'lg': '0.5rem',
-        'xl': '12px',
-        '2xl': '16px',
-        '3xl': '24px',
-        'radius2': '2px',
-        'radius3': '3px',
-        'radius4': '4px',
-        'radius5': '5px',
-        'radius6': '6px',
-        'radius7': '7px',
-        'radius8': '8px',
-        'radius10': '10px',
-        'radius12': '30px',
-        'radius14': '50px',
-        'radius15': '100px',
+        // Strict system per anti-vibe guidelines
+        sm: '6px',   // cards, inputs, small elements
+        md: '12px',  // modals, larger containers
+        lg: '16px',  // featured sections
+        full: '9999px',
       },
       boxShadow: {
         'card': '0 0 6px rgba(0,0,0,0.2)',

@@ -97,7 +97,7 @@ export const ProductsList: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 font-redhat text-left">
+    <div className="space-y-6 font-instrument text-left">
       {/* Title */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -197,13 +197,13 @@ export const ProductsList: React.FC = () => {
                       {/* Info */}
                       <TableCell>
                         <p className="font-medium text-darkColor leading-none truncate max-w-[180px]">{prod.name}</p>
-                        <p className="text-[10px] text-secondary500 font-medium font-roboto mt-1 uppercase tracking-wider">
+                        <p className="text-[10px] text-secondary500 font-medium font-instrument mt-1 uppercase tracking-wider">
                           SKU: {prod.sku}
                         </p>
                       </TableCell>
 
                       {/* Category */}
-                      <TableCell className="text-xs font-medium text-secondary600 font-redhat">
+                      <TableCell className="text-xs font-medium text-secondary600 font-instrument">
                         {prod.category.name}
                       </TableCell>
 

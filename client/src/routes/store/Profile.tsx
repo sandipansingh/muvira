@@ -183,7 +183,7 @@ export const Profile: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb items={[{ label: "Profile Account" }]} />
 
       <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor my-6">
@@ -310,7 +310,7 @@ export const Profile: React.FC = () => {
                           {addr.line1}, {addr.line2 && `${addr.line2}, `}
                           {addr.city}, {addr.state} - {addr.pincode}
                         </p>
-                        <p className="text-xs font-normal text-secondary600 font-roboto">
+                        <p className="text-xs font-normal text-secondary600 font-instrument">
                           {addr.phone}
                         </p>
                       </div>

@@ -146,7 +146,7 @@ export const AdminOrderDetail: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-redhat text-left max-w-5xl mx-auto pb-12">
+    <div className="space-y-6 font-instrument text-left max-w-5xl mx-auto pb-12">
       {/* Header Title */}
       <div className="flex items-center gap-3">
         <Link
@@ -256,7 +256,7 @@ export const AdminOrderDetail: React.FC = () => {
                         <h4 className="text-xs md:text-sm font-medium text-darkColor leading-snug">
                           {item.productName}
                         </h4>
-                        <span className="text-[10px] text-secondary500 font-normal block mt-1 uppercase tracking-widest font-roboto">
+                        <span className="text-[10px] text-secondary500 font-normal block mt-1 uppercase tracking-widest font-instrument">
                           Unit price: {formatPrice(item.unitPrice)}
                         </span>
                       </div>
@@ -285,7 +285,7 @@ export const AdminOrderDetail: React.FC = () => {
                 Customer Identity
               </h3>
             </div>
-            <CardContent className="p-5 text-xs md:text-sm text-left space-y-3 font-roboto">
+            <CardContent className="p-5 text-xs md:text-sm text-left space-y-3 font-instrument">
               <div>
                 <span className="text-secondary500 block">Contact Name</span>
                 <span className="font-medium text-darkColor">
@@ -325,7 +325,7 @@ export const AdminOrderDetail: React.FC = () => {
                 {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
                 {order.shippingAddress.pincode}
               </p>
-              <p className="font-normal text-secondary700 font-roboto">
+              <p className="font-normal text-secondary700 font-instrument">
                 {order.shippingAddress.phone}
               </p>
             </CardContent>

@@ -13,7 +13,7 @@ import ErrorState from '../../components/shared/ErrorState';
 import {
   AlertTriangle,
   ArrowRight,
-  TrendingUp,
+
   FolderTree
 } from 'lucide-react';
 
@@ -65,7 +65,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-redhat">
+    <div className="space-y-6 font-instrument">
       {/* Title Header */}
       <div className="text-left">
         <h2 className="text-xl md:text-2xl font-medium tracking-wide text-darkColor">
@@ -99,7 +99,7 @@ export const Dashboard: React.FC = () => {
                     {formatPrice(stats.totalRevenue)}
                   </span>
                   <span className="text-[9px] font-medium text-secondary500 flex items-center gap-0.5 mt-1 leading-none">
-                    <TrendingUp className="w-3 h-3 text-secondary400" /> Live confirmed
+                    Live confirmed
                   </span>
                 </div>
               </CardContent>
@@ -212,12 +212,12 @@ export const Dashboard: React.FC = () => {
               <TableBody>
                 {recentOrders.map((ord) => (
                   <TableRow key={ord.id}>
-                    <TableCell className="font-medium text-secondary700 font-roboto">
+                    <TableCell className="font-medium text-secondary700 font-instrument">
                       {ord.orderNumber}
                     </TableCell>
                     <TableCell>
                       <p className="font-medium text-darkColor leading-none">{ord.customer?.fullName}</p>
-                      <p className="text-[10px] text-secondary500 font-medium font-roboto mt-1">
+                      <p className="text-[10px] text-secondary500 font-medium font-instrument mt-1">
                         {ord.customer?.phone}
                       </p>
                     </TableCell>

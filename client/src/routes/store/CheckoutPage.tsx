@@ -30,6 +30,7 @@ export const CheckoutPage: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [carrierNote, setCarrierNote] = useState("");
+  const [paying, setPaying] = useState(false);
 
   // Address edit modal state
   const [addressModalOpen, setAddressModalOpen] = useState(false);
@@ -120,6 +121,7 @@ export const CheckoutPage: React.FC = () => {
       showToast("Please select or add a shipping address.", "error");
       return;
     }
+    setPaying(true);
 
     setLoading(true);
     const res = await ordersApiService.createOrder(
@@ -189,6 +191,7 @@ export const CheckoutPage: React.FC = () => {
       },
       modal: {
         ondismiss: () => {
+          setPaying(false);
           showToast("Payment cancelled", "info");
         },
       },
@@ -199,7 +202,7 @@ export const CheckoutPage: React.FC = () => {
 
   if (cart.items.length === 0) {
     return (
-      <div className="max-w-[1240px] mx-auto px-6 py-12 text-center font-redhat">
+      <div className="max-w-[1240px] mx-auto px-6 py-12 text-center font-instrument">
         <h2 className="text-lg font-bold text-darkColor mb-2">Cart is empty</h2>
         <Button onClick={() => navigate("/products")}>Continue Shopping</Button>
       </div>
@@ -207,7 +210,7 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb
         items={[
           { label: "Shopping Cart", path: "/cart" },
@@ -277,7 +280,7 @@ export const CheckoutPage: React.FC = () => {
                         {addr.line1}, {addr.line2 && `${addr.line2}, `}
                         {addr.city}, {addr.state} - {addr.pincode}
                       </p>
-                      <p className="text-xs font-normal text-secondary600 font-roboto">
+                      <p className="text-xs font-normal text-secondary600 font-instrument">
                         {addr.phone}
                       </p>
                     </div>
@@ -366,6 +369,8 @@ export const CheckoutPage: React.FC = () => {
               <Button
                 variant="primary"
                 onClick={handlePayNow}
+                loading={paying}
+                disabled={paying}
                 className="w-full py-3.5 flex items-center justify-center gap-2 text-sm"
               >
                 <ShieldCheck className="w-5 h-5" />

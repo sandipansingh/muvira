@@ -75,15 +75,6 @@
 .stagger-7 { animation-delay: 540ms; }
 .stagger-8 { animation-delay: 620ms; }
 
-/* Elegant micro interactions */
-.hover-lift {
-  transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.2s ease;
-}
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.12);
-}
-
 /* Hero progress */
 .progress-fill {
   animation: progressAnimation 8000ms linear forwards;
@@ -108,30 +99,4 @@
   scrollbar-width: none;
 }
 
-/* Custom indicator progress animation for hero banner */
-@keyframes progressAnimation {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
-  }
-}
 
-.progress-fill {
-  animation: progressAnimation 8000ms linear forwards;
-}
-
-/* Smooth transitions */
-.transition-smooth {
-  transition: all 0.3s ease-in-out;
-}
-
-/* Hide scrollbars but keep functionality */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}

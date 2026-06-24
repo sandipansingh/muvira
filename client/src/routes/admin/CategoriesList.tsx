@@ -149,7 +149,7 @@ export const CategoriesList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-redhat text-left">
+    <div className="space-y-6 font-instrument text-left">
       {/* Title */}
       <div className="flex justify-between items-center gap-4">
         <div>
@@ -212,7 +212,7 @@ export const CategoriesList: React.FC = () => {
                           {cat.description}
                         </p>
                       </TableCell>
-                      <TableCell className="text-xs font-normal text-secondary600 font-roboto">
+                      <TableCell className="text-xs font-normal text-secondary600 font-instrument">
                         {cat.slug}
                       </TableCell>
                       <TableCell className="font-medium text-secondary700">

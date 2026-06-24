@@ -101,7 +101,7 @@ export const SearchResults: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb items={[{ label: "Search Results" }]} />
 
       <div className="my-6">

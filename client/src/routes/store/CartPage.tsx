@@ -57,7 +57,7 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-redhat text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
       <Breadcrumb items={[{ label: 'Shopping Cart' }]} />
 
       <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor my-6">
@@ -102,7 +102,7 @@ export const CartPage: React.FC = () => {
                   {/* Quantity and Line Total */}
                   <div className="flex items-center justify-between gap-4 mt-3">
                     {/* Quantity selectors */}
-                    <div className="flex items-center border border-secondary300 rounded-3xl bg-white p-0.5">
+                    <div className="flex items-center border border-secondary300 rounded-full bg-white p-0.5">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         disabled={item.quantity <= 1 || loading}

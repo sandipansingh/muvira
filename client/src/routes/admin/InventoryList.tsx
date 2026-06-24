@@ -84,7 +84,7 @@ export const InventoryList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-redhat text-left">
+    <div className="space-y-6 font-instrument text-left">
       {/* Title */}
       <div>
         <h2 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor">
@@ -145,10 +145,10 @@ export const InventoryList: React.FC = () => {
                     <TableCell className="font-medium text-darkColor">
                       {item.productName}
                     </TableCell>
-                    <TableCell className="text-xs font-normal text-secondary500 font-roboto uppercase tracking-wider">
+                    <TableCell className="text-xs font-normal text-secondary500 font-instrument uppercase tracking-wider">
                       {item.sku}
                     </TableCell>
-                    <TableCell className="font-medium text-secondary700 font-roboto">
+                    <TableCell className="font-medium text-secondary700 font-instrument">
                       {item.stock} units
                     </TableCell>
                     <TableCell>
@@ -186,14 +186,14 @@ export const InventoryList: React.FC = () => {
       >
         <form
           onSubmit={handleSaveStock}
-          className="space-y-4 font-redhat text-left"
+          className="space-y-4 font-instrument text-left"
         >
           <div className="bg-lightgrayColor p-4 rounded-xl border border-secondary200 space-y-1">
             <span className="text-[10px] font-bold text-secondary500 uppercase tracking-widest leading-none block">
               Design Title
             </span>
             <p className="text-sm font-bold text-darkColor">{editName}</p>
-            <p className="text-[10px] text-secondary500 font-roboto uppercase tracking-wider mt-0.5 leading-none">
+            <p className="text-[10px] text-secondary500 font-instrument uppercase tracking-wider mt-0.5 leading-none">
               SKU: {editSku}
             </p>
           </div>

@@ -12,7 +12,7 @@ import {
   Menu,
   Phone,
   Truck,
-  Heart,
+
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -92,12 +92,8 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Action Navigation Icons */}
-        <div className="flex items-center gap-4 md:gap-6 font-redhat">
-          {/* Wishlist Link (Mocked) */}
-          <Link to="#" className="hidden md:inline-flex flex-col items-center justify-center min-w-[40px] text-secondary700 hover:text-primaryBg transition-colors">
-            <Heart className="w-[22px] h-[20.5px]" />
-            <span className="text-[12px] tracking-wide mt-1">Wishlist</span>
-          </Link>
+        <div className="flex items-center gap-4 md:gap-6 font-instrument">
+          {/* Wishlist intentionally not linked until implemented */}
 
           {/* User Account / Profile */}
           <div className="relative">
@@ -224,7 +220,7 @@ export const Navbar: React.FC = () => {
         onClose={() => setMobileMenuOpen(false)}
         title="Menu Options"
       >
-        <div className="flex flex-col gap-6 text-left font-redhat">
+        <div className="flex flex-col gap-6 text-left font-instrument">
           {/* User Section */}
           <div className="bg-lightgrayColor rounded-xl p-4 flex flex-col gap-3">
             {isAuthenticated ? (

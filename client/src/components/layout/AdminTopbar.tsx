@@ -22,7 +22,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
   };
 
   return (
-    <header className="bg-white border-b border-secondary200 h-16 flex items-center justify-between px-6 sticky top-0 z-30 font-redhat">
+    <header className="bg-white border-b border-secondary200 h-16 flex items-center justify-between px-6 sticky top-0 z-30 font-instrument">
       {/* Page Title / Context */}
       <div className="flex items-center gap-4">
         {onToggleSidebar && (
@@ -37,7 +37,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
       </div>
 
       {/* Admin Quick Profile Options */}
-      <div className="flex items-center gap-4 font-redhat">
+      <div className="flex items-center gap-4 font-instrument">
         {/* Profile Card */}
         <div className="hidden sm:flex items-center gap-2.5 bg-lightgrayColor px-3 py-1.5 rounded-lg border border-secondary200">
           <div className="w-7 h-7 bg-secondary700 text-white rounded-full flex items-center justify-center font-medium text-xs">
