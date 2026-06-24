@@ -42,6 +42,8 @@ export const ProductDetail: React.FC = () => {
     }));
   };
 
+  const [isDescTextExpanded, setIsDescTextExpanded] = useState(false);
+
   useEffect(() => {
     if (slug) {
       fetchProductDetails();
@@ -303,7 +305,40 @@ export const ProductDetail: React.FC = () => {
                     }`}
                   >
                     <div className="text-xs md:text-sm text-secondary600 tracking-wide leading-relaxed py-1 font-instrument">
-                      {product.description}
+                      {(() => {
+                        const maxLength = 180;
+                        const isLong = product.description && product.description.length > maxLength;
+
+                        if (!isLong) return product.description;
+
+                        if (isDescTextExpanded) {
+                          return (
+                            <>
+                              {product.description}{" "}
+                              <button
+                                onClick={() => setIsDescTextExpanded(false)}
+                                className="text-primaryBg font-semibold hover:text-primaryHover focus:outline-none ml-1 inline-block"
+                                type="button"
+                              >
+                                less
+                              </button>
+                            </>
+                          );
+                        }
+
+                        return (
+                          <>
+                            {product.description.substring(0, maxLength)}...{" "}
+                            <button
+                              onClick={() => setIsDescTextExpanded(true)}
+                              className="text-primaryBg font-semibold hover:text-primaryHover focus:outline-none ml-1 inline-block"
+                              type="button"
+                            >
+                              more
+                            </button>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -349,41 +384,7 @@ export const ProductDetail: React.FC = () => {
                   </div>
                 )}
 
-                {/* Shipping & Returns Panel */}
-                <div className="py-4">
-                  <button
-                    onClick={() => toggleSection("shipping")}
-                    className="w-full flex justify-between items-center text-left py-1.5 focus:outline-none"
-                    type="button"
-                  >
-                    <span className="text-xs font-bold text-secondary700 uppercase tracking-widest font-instrument">
-                      Shipping & Heritage Care
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-secondary500 transition-transform duration-300 ${
-                        openSections.shipping ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      openSections.shipping ? "max-h-[400px] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
-                    }`}
-                  >
-                    <div className="text-xs text-secondary600 tracking-wide leading-relaxed py-2 space-y-2.5 font-instrument">
-                      <p>
-                        Each design is custom-crafted to order by local heritage
-                        artisans. Standard shipping and delivery takes 7-14
-                        business days.
-                      </p>
-                      <p>
-                        <strong>Product Care:</strong> Wipe clean with a soft
-                        dry cloth. Avoid harsh chemicals, direct sunlight, or excess
-                        moisture to preserve the natural grain and craftsmanship.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+
               </div>
             </div>
           </div>
