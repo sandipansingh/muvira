@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { campaignsApiService } from "../../lib/api/campaigns";
 import { productsApiService } from "../../lib/api/products";
 import { categoriesApiService } from "../../lib/api/categories";
+import { useSiteSettings } from "../../context/SiteSettingsContext";
 import type { Category } from "../../types/category";
 import type { ProductListItem } from "../../types/product";
 import type { Campaign } from "../../types/campaign";
@@ -16,40 +17,14 @@ import {
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
+  const heroSlides = settings.heroSlides;
   const [categories, setCategories] = useState<Category[]>([]);
   const [featured, setFeatured] = useState<ProductListItem[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
-
-  // Hero slides data
-  const heroSlides = [
-    {
-      id: 1,
-      title: "Festival Furniture Bonanza",
-      subtitle: "Up to 30% Off Sheesham Wood Craftsmanship",
-      imageUrl:
-        "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&auto=format&fit=crop&q=80",
-      link: "/categories/solid-wood-furniture",
-    },
-    {
-      id: 2,
-      title: "Handloom apparel & Kurtas",
-      subtitle: "Organic block-print cotton kurtas from Jaipur weavers",
-      imageUrl:
-        "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&auto=format&fit=crop&q=80",
-      link: "/categories/kurtas-apparel",
-    },
-    {
-      id: 3,
-      title: "Bespoke cushions & rugs",
-      subtitle: "Jaipur vegetable dye home coordinates to match your sofas",
-      imageUrl:
-        "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=1200&auto=format&fit=crop&q=80",
-      link: "/categories/home-decor",
-    },
-  ];
 
   useEffect(() => {
     fetchHomepageData();
@@ -208,7 +183,7 @@ export const Home: React.FC = () => {
               {campaigns[0].name}
             </h2>
             <p className="text-[13px] leading-relaxed tracking-wide text-[#d9cebf]">
-              {campaigns[0].description} Use code <span className="font-medium text-[var(--accent-gold-light)] tracking-[1px]">DIWALI20</span> at checkout for 20% off.
+              {campaigns[0].description}
             </p>
           </div>
           <div className="md:ml-auto mt-2 md:mt-0">
@@ -255,24 +230,26 @@ export const Home: React.FC = () => {
       </div>
 
       {/* 6. ALSO AVAILABLE AT */}
-      <div className="pt-8 pb-10 border-t border-[var(--border)]">
-        <div className="text-center mb-6">
-          <div className="uppercase text-[10px] tracking-[2.5px] font-medium text-[var(--text-muted)] mb-5">
+      <div className="pt-6 pb-8 border-t border-[var(--border)]">
+        <div className="text-center mb-4">
+          <div className="uppercase text-[10px] tracking-[2.5px] font-medium text-[var(--text-muted)] mb-3">
             Also available at
           </div>
 
-          <div className="flex justify-center items-center gap-10 md:gap-16">
+          <div className="flex justify-center items-center gap-8 md:gap-14">
             <a
               href="https://amazon.in"
               target="_blank"
               rel="noopener noreferrer"
               className="group"
             >
-              <img
-                src="/amazon.webp"
-                alt="Amazon"
-                className="h-10 md:h-12 w-auto object-contain grayscale-[0.3] group-hover:grayscale-0 transition-all"
-              />
+              <div className="bg-white p-3 rounded-3xl border border-[var(--border)]">
+                <img
+                  src="/amazon.webp"
+                  alt="Amazon"
+                  className="h-10 md:h-12 w-auto object-contain rounded-2xl grayscale-[0.3] group-hover:grayscale-0 transition-all"
+                />
+              </div>
             </a>
             <a
               href="https://flipkart.com"
@@ -280,11 +257,13 @@ export const Home: React.FC = () => {
               rel="noopener noreferrer"
               className="group"
             >
-              <img
-                src="/flipkart.webp"
-                alt="Flipkart"
-                className="h-10 md:h-12 w-auto object-contain grayscale-[0.3] group-hover:grayscale-0 transition-all"
-              />
+              <div className="bg-white p-3 rounded-3xl border border-[var(--border)]">
+                <img
+                  src="/flipkart.webp"
+                  alt="Flipkart"
+                  className="h-10 md:h-12 w-auto object-contain rounded-2xl grayscale-[0.3] group-hover:grayscale-0 transition-all"
+                />
+              </div>
             </a>
           </div>
         </div>

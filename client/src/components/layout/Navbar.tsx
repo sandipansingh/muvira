@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
 import { STORE_NAME } from '../../lib/constants';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import SearchBar from '../shared/SearchBar';
 import Sheet from '../ui/Sheet';
 import Button from '../ui/Button';
@@ -24,6 +25,8 @@ export const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
   const { cart } = useCart();
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
+  const { announcementBar, contactInfo } = settings;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
@@ -49,16 +52,19 @@ export const Navbar: React.FC = () => {
   return (
     <header className="relative z-[39] bg-[var(--surface)] border-b border-[var(--border)]">
       {/* 1. TOP UTILITY BAR (Desktop only) */}
+      {announcementBar.enabled && (
       <div className="hidden md:block bg-[var(--surface)] text-[var(--text-muted)] text-[11px] font-instrument font-normal border-b border-[var(--border)] py-2">
         <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <span className="text-[var(--accent)] font-medium tracking-wider">NEW DEALS:</span>
-            <span>Diwali Festival Sale is active! Save 20% off with coupon <b>DIWALI20</b></span>
+            {announcementBar.badge && (
+              <span className="text-[var(--accent)] font-medium tracking-wider">{announcementBar.badge}:</span>
+            )}
+            <span>{announcementBar.message}</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="tel:+919876543210" className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
+            <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
               <Phone className="w-3.5 h-3.5 shrink-0" />
-              <span>Call Us: +91 98765 43210</span>
+              <span>Call Us: {contactInfo.phone}</span>
             </a>
             <Link to="/orders" className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
               <Truck className="w-3.5 h-3.5 shrink-0" />
@@ -67,6 +73,7 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* 2. MAIN HEADER */}
       <div className="max-w-[1240px] mx-auto px-6 py-4 flex items-center justify-between gap-4 md:py-6">
@@ -320,12 +327,14 @@ export const Navbar: React.FC = () => {
           <div className="mt-auto pt-6 text-xs text-secondary500 flex flex-col gap-2 pl-1 border-t border-secondary200">
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 text-primaryBg" />
-              <span>Call support: +91 98765 43210</span>
+              <span>Call support: {contactInfo.phone}</span>
             </div>
+            {announcementBar.enabled && announcementBar.message && (
             <div className="flex items-center gap-2">
               <Info className="w-4 h-4 text-primaryBg" />
-              <span>Diwali coupon: DIWALI20</span>
+              <span>{announcementBar.message}</span>
             </div>
+            )}
             {isAuthenticated && (
               <button
                 onClick={() => {

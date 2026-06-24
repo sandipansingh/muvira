@@ -1,0 +1,25 @@
+export interface HeroSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  link: string;
+}
+
+export interface AnnouncementBar {
+  enabled: boolean;
+  badge: string;
+  message: string;
+}
+
+export interface ContactInfo {
+  email: string;
+  phone: string;
+  address: string;
+}
+
+export interface SiteSettings {
+  contactInfo: ContactInfo;
+  announcementBar: AnnouncementBar;
+  heroSlides: HeroSlide[];
+}

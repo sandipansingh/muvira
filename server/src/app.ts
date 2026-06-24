@@ -51,6 +51,7 @@ import { paymentsRouter, webhooksRouter } from "./modules/payments/routes";
 import { ordersRouter, adminOrdersRouter } from "./modules/orders/routes";
 import { adminDashboardRouter } from "./modules/admin/dashboard/routes";
 import { adminInventoryRouter } from "./modules/admin/inventory/routes";
+import { settingsRouter, adminSettingsRouter } from "./modules/settings/routes";
 
 export function createApp() {
   const app = express();
@@ -134,6 +135,7 @@ export function createApp() {
   app.use("/api/products", productsRouter);
   app.use("/api/categories", categoriesRouter);
   app.use("/api/campaigns", campaignsRouter);
+  app.use("/api/settings", settingsRouter);
 
   // Authenticated user routes
   app.use("/api/profile", profileRouter);
@@ -160,6 +162,7 @@ export function createApp() {
   adminRouter.use("/orders", adminOrdersRouter);
   adminRouter.use("/dashboard", adminDashboardRouter);
   adminRouter.use("/inventory", adminInventoryRouter);
+  adminRouter.use("/settings", adminSettingsRouter);
 
   app.use("/api/admin", adminRouter);
 

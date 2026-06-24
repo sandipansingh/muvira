@@ -10,6 +10,7 @@ import type { Cart, CartItem, Address } from '../../types/cart';
 import type { OrderListItem, OrderDetail, OrderItem, OrderAddress } from '../../types/order';
 import type { Coupon, CouponPreview } from '../../types/coupon';
 import type { DashboardStats, InventoryItem } from '../../types/dashboard';
+import type { SiteSettings } from '../../types/settings';
 
 // ── Profile ──────────────────────────────────────────────────────────────────
 
@@ -316,5 +317,33 @@ export function mapInventoryItem(raw: Record<string, unknown>): InventoryItem {
     sku: (raw['sku'] as string | null) ?? '',
     stock: raw['stock'] as number,
     isLowStock: (raw['stock'] as number) <= 10,
+  };
+}
+
+// ── Site Settings ─────────────────────────────────────────────────────────────
+
+export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
+  const contactRaw = (raw['contact_info'] as Record<string, unknown>) ?? {};
+  const announcementRaw = (raw['announcement_bar'] as Record<string, unknown>) ?? {};
+  const slidesRaw = (raw['hero_slides'] as Record<string, unknown>[]) ?? [];
+
+  return {
+    contactInfo: {
+      email: (contactRaw['email'] as string) ?? '',
+      phone: (contactRaw['phone'] as string) ?? '',
+      address: (contactRaw['address'] as string) ?? '',
+    },
+    announcementBar: {
+      enabled: (announcementRaw['enabled'] as boolean) ?? false,
+      badge: (announcementRaw['badge'] as string) ?? '',
+      message: (announcementRaw['message'] as string) ?? '',
+    },
+    heroSlides: slidesRaw.map((s) => ({
+      id: s['id'] as string,
+      title: s['title'] as string,
+      subtitle: (s['subtitle'] as string) ?? '',
+      imageUrl: s['imageUrl'] as string,
+      link: s['link'] as string,
+    })),
   };
 }

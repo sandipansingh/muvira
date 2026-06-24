@@ -8,7 +8,8 @@ import {
   ShoppingBag,
   Ticket,
   Percent,
-  Warehouse
+  Warehouse,
+  Settings
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
@@ -20,6 +21,7 @@ export const AdminSidebar: React.FC = () => {
     { name: 'Coupons', path: '/admin/coupons', icon: Ticket },
     { name: 'Campaigns', path: '/admin/campaigns', icon: Percent },
     { name: 'Inventory', path: '/admin/inventory', icon: Warehouse },
+    { name: 'Site Settings', path: '/admin/settings', icon: Settings },
   ];
 
   return (
