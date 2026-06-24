@@ -55,7 +55,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   return (
-    <div className="bg-white border border-secondary200 rounded-xl p-5 space-y-6 text-left font-instrument shrink-0">
+    <div className="bg-transparent rounded-xl p-5 space-y-6 text-left font-instrument shrink-0">
       {/* Title */}
       <div className="flex items-center justify-between border-b border-secondary200 pb-3">
         <h3 className="text-sm font-bold text-darkColor flex items-center gap-2 tracking-wide">

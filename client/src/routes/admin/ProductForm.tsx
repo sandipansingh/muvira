@@ -19,8 +19,6 @@ import {
   ArrowLeft,
   Plus,
   Trash2,
-  ArrowUp,
-  ArrowDown,
   Upload,
   Sparkles,
   GripVertical,
