@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
@@ -7,6 +7,7 @@ import { useSiteSettings } from '../../context/SiteSettingsContext';
 import SearchBar from '../shared/SearchBar';
 import Sheet from '../ui/Sheet';
 import Button from '../ui/Button';
+import { categoriesApiService } from '../../lib/api/categories';
 import {
   ShoppingCart,
   User,
@@ -31,6 +32,8 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
+  const [categoriesList, setCategoriesList] = useState<{ name: string; slug: string }[]>([]);
+
   const handleSearch = (query: string) => {
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
@@ -43,12 +46,33 @@ export const Navbar: React.FC = () => {
     navigate('/');
   };
 
-  const categoriesList = [
-    { name: 'Kurtas & Apparel', slug: 'kurtas-apparel' },
-    { name: 'Home Decor', slug: 'home-decor' },
-    { name: 'Solid Wood Furniture', slug: 'solid-wood-furniture' },
-    { name: 'Bed & Bath', slug: 'bed-bath' },
-  ];
+  useEffect(() => {
+    let active = true;
+    const fetchNavbarCategories = async () => {
+      try {
+        const res = await categoriesApiService.getCategories();
+        if (active && res.success && res.data) {
+          console.log('[Navbar] Fetched categories from API:', res.data);
+          const navbarCats = res.data
+            .filter((cat) => {
+              console.log(`[Navbar] Checking category: ${cat.name}, showInNavbar: ${cat.showInNavbar}, isActive: ${cat.isActive}`);
+              return cat.showInNavbar && cat.isActive !== false;
+            })
+            .map((cat) => ({ name: cat.name, slug: cat.slug }));
+          console.log('[Navbar] Setting navbar categories list to:', navbarCats);
+          setCategoriesList(navbarCats);
+        } else if (active && !res.success) {
+          console.error('[Navbar] API returned error:', res.error);
+        }
+      } catch (err) {
+        console.error('Failed to fetch navbar categories:', err);
+      }
+    };
+    fetchNavbarCategories();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <header className="relative z-[39] bg-[var(--surface)] border-b border-[var(--border)]">

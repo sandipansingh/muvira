@@ -109,45 +109,10 @@ export function invalidateOn(
 
     switch (event) {
       // ── Product mutations ────────────────────────────────────────────────
-      case "PRODUCT_UPDATED": {
-        const p = payload as ProductEventPayload;
-        const keys: string[] = [
-          `products:all`,
-          `products:id:${p.id}`,
-        ];
-        if (p.categorySlug) {
-          keys.push(`products:category:${p.categorySlug}`);
-        }
-        deleteCache(keys);
-        // Invalidate any search results that may contain this product
-        deleteCacheByPattern("products:search:");
-        break;
-      }
-
-      case "PRODUCT_CREATED": {
-        const p = payload as ProductEventPayload;
-        const keys: string[] = ["products:all"];
-        if (p.categorySlug) {
-          keys.push(`products:category:${p.categorySlug}`);
-        }
-        deleteCache(keys);
-        // New product may appear in search results
-        deleteCacheByPattern("products:search:");
-        break;
-      }
-
+      case "PRODUCT_UPDATED":
+      case "PRODUCT_CREATED":
       case "PRODUCT_DELETED": {
-        const p = payload as ProductEventPayload;
-        const keys: string[] = [
-          "products:all",
-          `products:id:${p.id}`,
-          `inventory:product:${p.id}`,
-        ];
-        if (p.categorySlug) {
-          keys.push(`products:category:${p.categorySlug}`);
-        }
-        deleteCache(keys);
-        deleteCacheByPattern("products:search:");
+        deleteCacheByPattern("GET:/api/products");
         break;
       }
 
@@ -195,9 +160,10 @@ export function invalidateOn(
       case "CATEGORY_UPDATED": {
         const p = payload as CategoryEventPayload;
         deleteCache([
-          "categories:all",
-          `products:category:${p.slug}`,
+          "GET:/api/categories",
         ]);
+        deleteCacheByPattern(`GET:/api/categories/${p.slug}`);
+        deleteCacheByPattern("GET:/api/products");
         break;
       }
 

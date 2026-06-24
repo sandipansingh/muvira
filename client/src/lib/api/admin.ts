@@ -313,6 +313,7 @@ export const adminApiService = {
       image_url: data["imageUrl"] ?? data["image_url"],
       is_active: data["isActive"] ?? data["is_active"] ?? true,
       sort_order: data["sortOrder"] ?? data["sort_order"] ?? 0,
+      show_in_navbar: data["showInNavbar"] ?? data["show_in_navbar"] ?? false,
     };
     const res = await adminPost<{
       success: boolean;
@@ -344,6 +345,10 @@ export const adminApiService = {
     if (data["isActive"] !== undefined) body["is_active"] = data["isActive"];
     if (data["is_active"] !== undefined) body["is_active"] = data["is_active"];
     if (data["sortOrder"] !== undefined) body["sort_order"] = data["sortOrder"];
+    if (data["showInNavbar"] !== undefined)
+      body["show_in_navbar"] = data["showInNavbar"];
+    if (data["show_in_navbar"] !== undefined)
+      body["show_in_navbar"] = data["show_in_navbar"];
 
     const res = await adminPatch<{
       success: boolean;

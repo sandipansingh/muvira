@@ -30,6 +30,7 @@ export const CategoriesList: React.FC = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [sortOrder, setSortOrder] = useState('0');
   const [isActive, setIsActive] = useState(true);
+  const [showInNavbar, setShowInNavbar] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
@@ -59,6 +60,7 @@ export const CategoriesList: React.FC = () => {
     setImageUrl('');
     setSortOrder(categories.length.toString());
     setIsActive(true);
+    setShowInNavbar(false);
     setModalOpen(true);
   };
 
@@ -71,6 +73,7 @@ export const CategoriesList: React.FC = () => {
     setImageUrl(cat.imageUrl);
     setSortOrder(cat.sortOrder.toString());
     setIsActive(cat.isActive ?? true);
+    setShowInNavbar(cat.showInNavbar ?? false);
     setModalOpen(true);
   };
 
@@ -112,6 +115,7 @@ export const CategoriesList: React.FC = () => {
       imageUrl,
       sortOrder: parseInt(sortOrder, 10),
       isActive,
+      showInNavbar,
     };
 
     if (editId) {
@@ -193,6 +197,7 @@ export const CategoriesList: React.FC = () => {
                   <TableHead>Slug Url</TableHead>
                   <TableHead>Sort Order</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Navbar</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -221,6 +226,11 @@ export const CategoriesList: React.FC = () => {
                       <TableCell>
                         <Badge variant={cat.isActive !== false ? 'success' : 'neutral'}>
                           {cat.isActive !== false ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={cat.showInNavbar ? 'success' : 'neutral'}>
+                          {cat.showInNavbar ? 'Yes' : 'No'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -338,6 +348,16 @@ export const CategoriesList: React.FC = () => {
               className="w-4 h-4 accent-primaryBg"
             />
             <span className="text-xs font-semibold text-secondary600">Category is Active</span>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer py-1">
+            <input
+              type="checkbox"
+              checked={showInNavbar}
+              onChange={(e) => setShowInNavbar(e.target.checked)}
+              className="w-4 h-4 accent-primaryBg"
+            />
+            <span className="text-xs font-semibold text-secondary600">Show in Navbar (Maximum 5)</span>
           </label>
 
           <Button type="submit" loading={saving || uploading} disabled={uploading} className="w-full py-2.5">

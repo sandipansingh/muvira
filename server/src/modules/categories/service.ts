@@ -42,6 +42,24 @@ export async function listAllCategories(): Promise<Category[]> {
 export async function createCategory(
   input: CreateCategoryInput,
 ): Promise<Category> {
+  const isActive = input.is_active ?? true;
+  const showInNavbar = input.show_in_navbar ?? false;
+
+  if (isActive && showInNavbar) {
+    const { count, error: countError } = await adminSupabase
+      .from("categories")
+      .select("*", { count: "exact", head: true })
+      .eq("show_in_navbar", true)
+      .eq("is_active", true);
+
+    if (countError) {
+      throw new AppError(500, "DB_ERROR", "Failed to check navbar category limit");
+    }
+    if ((count ?? 0) >= 5) {
+      throw new AppError(400, "NAVBAR_LIMIT_REACHED", "Maximum of 5 categories can be shown in the navbar");
+    }
+  }
+
   const { data, error } = await adminSupabase
     .from("categories")
     .insert(input)
@@ -60,6 +78,27 @@ export async function updateCategory(
   id: string,
   input: UpdateCategoryInput,
 ): Promise<Category> {
+  // Fetch current state to see if it will become active + show_in_navbar
+  const current = await getCategoryById(id);
+  const willBeActive = input.is_active ?? current.is_active;
+  const willBeInNavbar = input.show_in_navbar ?? current.show_in_navbar;
+
+  if (willBeActive && willBeInNavbar) {
+    const { count, error: countError } = await adminSupabase
+      .from("categories")
+      .select("*", { count: "exact", head: true })
+      .eq("show_in_navbar", true)
+      .eq("is_active", true)
+      .neq("id", id);
+
+    if (countError) {
+      throw new AppError(500, "DB_ERROR", "Failed to check navbar category limit");
+    }
+    if ((count ?? 0) >= 5) {
+      throw new AppError(400, "NAVBAR_LIMIT_REACHED", "Maximum of 5 categories can be shown in the navbar");
+    }
+  }
+
   const { data, error } = await adminSupabase
     .from("categories")
     .update(input)
