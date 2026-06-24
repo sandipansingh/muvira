@@ -284,6 +284,7 @@ export const CampaignsList: React.FC = () => {
             onChange={(e) => setName(e.target.value)}
             placeholder="E.g. Diwali Festival Bonanza"
             required
+            maxLength={300}
           />
 
           <div className="space-y-1.5">
@@ -359,6 +360,7 @@ export const CampaignsList: React.FC = () => {
             placeholder="Marketing tagline for banners..."
             rows={3}
             required
+            maxLength={2000}
           />
 
           <label className="flex items-center gap-2 cursor-pointer py-1">
