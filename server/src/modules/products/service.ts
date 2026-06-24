@@ -117,7 +117,7 @@ export async function adminListProducts(query: ListProductsQuery) {
       `
       id, name, slug, short_description, description, category_id, price_paisa,
       compare_at_price_paisa, sku, stock, is_active, is_featured,
-      tags, created_at,
+      tags, metadata, created_at,
       product_images ( id, url, alt_text, sort_order, is_primary ),
       categories ( id, name, slug )
     `,

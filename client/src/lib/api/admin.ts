@@ -132,22 +132,22 @@ export const adminApiService = {
   async createProduct(data: AnyRecord): Promise<ApiResponse<ProductDetail>> {
     // Convert camelCase frontend fields to snake_case server fields
     const name = data["name"] as string;
+    const price = data["price"] as number;
+    const salePrice = data["salePrice"] as number | null | undefined;
+
     const body: AnyRecord = {
       name,
       slug: data["slug"] || slugify(name || ""),
       description: data["description"],
       short_description: data["shortDescription"] ?? data["short_description"],
       category_id: data["categoryId"] ?? data["category_id"],
-      price_paisa: data["pricePaisa"] ?? data["price_paisa"] ?? data["price"],
-      compare_at_price_paisa:
-        data["compareAtPricePaisa"] ??
-        data["compare_at_price_paisa"] ??
-        data["salePrice"] ??
-        undefined,
+      price_paisa: salePrice ? salePrice : price,
+      compare_at_price_paisa: salePrice ? price : null,
       sku: data["sku"],
       stock: data["stock"],
       is_active: data["isActive"] ?? data["is_active"] ?? true,
       is_featured: data["isFeatured"] ?? data["is_featured"] ?? false,
+      metadata: data["metadata"],
     };
 
     const res = await adminPost<{
@@ -183,15 +183,12 @@ export const adminApiService = {
       body["category_id"] = data["categoryId"];
     if (data["category_id"] !== undefined)
       body["category_id"] = data["category_id"];
-    if (data["pricePaisa"] !== undefined)
-      body["price_paisa"] = data["pricePaisa"];
-    if (data["price_paisa"] !== undefined)
-      body["price_paisa"] = data["price_paisa"];
-    if (data["price"] !== undefined) body["price_paisa"] = data["price"];
-    if (data["salePrice"] !== undefined)
-      body["compare_at_price_paisa"] = data["salePrice"];
-    if (data["compare_at_price_paisa"] !== undefined)
-      body["compare_at_price_paisa"] = data["compare_at_price_paisa"];
+    if (data["price"] !== undefined || data["salePrice"] !== undefined) {
+      const price = data["price"] as number;
+      const salePrice = data["salePrice"] as number | null | undefined;
+      body["price_paisa"] = salePrice ? salePrice : price;
+      body["compare_at_price_paisa"] = salePrice ? price : null;
+    }
     if (data["sku"] !== undefined) body["sku"] = data["sku"];
     if (data["stock"] !== undefined) body["stock"] = data["stock"];
     if (data["isActive"] !== undefined) body["is_active"] = data["isActive"];
@@ -200,6 +197,7 @@ export const adminApiService = {
       body["is_featured"] = data["isFeatured"];
     if (data["is_featured"] !== undefined)
       body["is_featured"] = data["is_featured"];
+    if (data["metadata"] !== undefined) body["metadata"] = data["metadata"];
 
     const res = await adminPatch<{
       success: boolean;

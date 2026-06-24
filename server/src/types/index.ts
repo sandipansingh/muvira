@@ -116,6 +116,7 @@ export interface Product {
   tags: string[] | null;
   meta_title: string | null;
   meta_description: string | null;
+  metadata: Record<string, string>;
   created_at: string;
   updated_at: string;
 }
