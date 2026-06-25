@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS orders (
   fulfillment_status    TEXT        NOT NULL DEFAULT 'unfulfilled'
     CHECK (fulfillment_status IN ('unfulfilled','partial','fulfilled','exception')),
 
-  -- Shipping address snapshot — copied at order-creation time; immutable.
+  -- Shipping address snapshot - copied at order-creation time; immutable.
   -- Never reference the addresses table from here after creation.
   shipping_full_name    TEXT        NOT NULL,
   shipping_phone        TEXT        NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS orders (
   shipping_pincode      TEXT        NOT NULL,
   shipping_country      TEXT        NOT NULL DEFAULT 'India',
 
-  -- All amounts in INTEGER PAISA — no floating-point money
+  -- All amounts in INTEGER PAISA - no floating-point money
   subtotal_paisa        INT         NOT NULL CHECK (subtotal_paisa >= 0),
   discount_amount_paisa INT         NOT NULL DEFAULT 0 CHECK (discount_amount_paisa >= 0),
   shipping_amount_paisa INT         NOT NULL DEFAULT 0 CHECK (shipping_amount_paisa >= 0),

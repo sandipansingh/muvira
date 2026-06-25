@@ -10,7 +10,7 @@ import {
 } from './schema'
 import * as controller from './controller'
 
-// User route — apply a coupon to preview its discount
+// User route - apply a coupon to preview its discount
 export const couponsRouter = Router()
 
 couponsRouter.use(requireAuth)

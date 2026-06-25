@@ -41,7 +41,7 @@ interface CreateOrderResult {
   razorpay_order_id: string
   amount_paisa: number
   currency: string
-  key_id: string // public key — safe to return; secret is NEVER returned
+  key_id: string // public key - safe to return; secret is NEVER returned
 }
 
 export async function createCheckoutOrder(
@@ -92,7 +92,7 @@ export async function createCheckoutOrder(
   }
 
   // 2. Compute subtotal server-side
-  // CRITICAL: amount is computed from DB prices — never from client input
+  // CRITICAL: amount is computed from DB prices - never from client input
   let subtotalPaisa = 0
   for (const item of cartItems) {
     const product = (item as unknown as { products: { price_paisa: number } }).products
@@ -156,7 +156,7 @@ export async function createCheckoutOrder(
   // SECURITY: This uses the server-side Razorpay SDK with KEY_SECRET.
   // The KEY_SECRET is NEVER returned or logged.
   // Razorpay SDK returns amount as string | number depending on the version;
-  // we only use `id` and `currency` for the response — `amount` comes from our server-computed totalAmountPaisa.
+  // we only use `id` and `currency` for the response - `amount` comes from our server-computed totalAmountPaisa.
   let razorpayOrder: { id: string; amount: string | number; currency: string }
   try {
     razorpayOrder = await razorpay.orders.create({
@@ -189,7 +189,7 @@ export async function createCheckoutOrder(
     shipping_state: address.state,
     shipping_pincode: address.pincode,
     shipping_country: address.country,
-    // Amounts (server-computed — NEVER from client)
+    // Amounts (server-computed - NEVER from client)
     subtotal_paisa: subtotalPaisa,
     discount_amount_paisa: discountAmountPaisa,
     shipping_amount_paisa: shippingAmountPaisa,
@@ -288,6 +288,6 @@ export async function createCheckoutOrder(
     razorpay_order_id: razorpayOrder.id,
     amount_paisa: totalAmountPaisa,
     currency: 'INR',
-    key_id: env.RAZORPAY_KEY_ID, // public key — safe to return
+    key_id: env.RAZORPAY_KEY_ID, // public key - safe to return
   }
 }

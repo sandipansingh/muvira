@@ -236,7 +236,7 @@ export const ProductDetail: React.FC = () => {
                   })}
                 </div>
                 <span className="text-xs font-medium text-secondary600 mt-0.5">
-                  {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : '—'} / 5.0
+                  {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : '-'} / 5.0
                   {reviewSummary.totalReviews > 0 && (
                     <span className="ml-1 text-secondary400">({reviewSummary.totalReviews})</span>
                   )}
@@ -462,7 +462,7 @@ export const ProductDetail: React.FC = () => {
               <div className="lg:col-span-2">
                 <div className="flex items-baseline gap-3">
                   <div className="text-4xl font-bold text-darkColor">
-                    {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : '—'}
+                    {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : '-'}
                   </div>
                   <div className="flex text-primaryBg">
                     {Array.from({ length: 5 }).map((_, i) => (

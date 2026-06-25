@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* =========================================================
-   CUSTOM FONTS — loaded via @font-face only (no Google Fonts)
+   CUSTOM FONTS - loaded via @font-face only (no Google Fonts)
    Place WOFF2 files in /public/fonts/
    Font family names match the design specification exactly.
    ========================================================= */
@@ -85,7 +85,7 @@
 }
 
 :root {
-  /* Warm heritage craft palette — dominant rich tones + sharp accents */
+  /* Warm heritage craft palette - dominant rich tones + sharp accents */
   --bg: #f9f5ef;
   --surface: #ffffff;
   --surface-2: #f4ede3;

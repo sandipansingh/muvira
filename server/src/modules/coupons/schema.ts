@@ -10,7 +10,7 @@ export const CouponIdParamsSchema = z.object({
   id: z.string().uuid(),
 })
 
-// Base object schema — used for both Create (with refinement) and Update (partial)
+// Base object schema - used for both Create (with refinement) and Update (partial)
 // Split from .refine() so .partial() can be called before validation refinements are applied.
 const CouponBaseObject = z
   .object({

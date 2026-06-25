@@ -190,7 +190,7 @@ export const ReviewsList: React.FC = () => {
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm">{r.userName || '—'}</div>
+                      <div className="text-sm">{r.userName || '-'}</div>
                       <div className="text-[10px] text-secondary400">{r.userEmail}</div>
                     </TableCell>
                     <TableCell>

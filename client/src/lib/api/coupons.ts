@@ -25,7 +25,7 @@ export const couponsApiService = {
   },
 
   async removeCoupon(): Promise<ApiResponse<{ removed: boolean }>> {
-    // Coupon state is client-side only — no server call needed for removal
+    // Coupon state is client-side only - no server call needed for removal
     return { success: true, data: { removed: true } }
   },
 }

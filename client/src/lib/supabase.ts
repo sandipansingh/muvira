@@ -12,7 +12,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Persist session in localStorage by default — user stays logged in across page reloads
+    // Persist session in localStorage by default - user stays logged in across page reloads
     persistSession: true,
     autoRefreshToken: true,
   },

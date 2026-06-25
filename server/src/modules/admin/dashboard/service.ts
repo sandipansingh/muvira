@@ -49,7 +49,7 @@ export async function getDashboardStats(params: {
       .select('id', { count: 'exact', head: true })
       .gte('created_at', todayStart),
 
-    // Total revenue (paid orders only) — sum of total_amount_paisa
+    // Total revenue (paid orders only) - sum of total_amount_paisa
     (() => {
       let q = adminSupabase.from('orders').select('total_amount_paisa').eq('payment_status', 'paid')
       if (params.from_date) q = q.gte('created_at', params.from_date)

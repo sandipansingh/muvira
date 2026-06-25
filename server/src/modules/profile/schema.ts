@@ -8,6 +8,6 @@ export const UpdateProfileSchema = z
       .regex(/^[6-9]\d{9}$/, 'Must be a valid 10-digit Indian mobile number')
       .optional(),
   })
-  .strict() // rejects unknown fields — prevents role smuggling
+  .strict() // rejects unknown fields - prevents role smuggling
 
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>

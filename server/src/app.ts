@@ -41,7 +41,7 @@ export function createApp() {
   app.use(
     pinoHttp({
       logger,
-      // Do not log health check requests — too noisy
+      // Do not log health check requests - too noisy
       autoLogging: {
         ignore: (req) => req.url === '/api/health',
       },
@@ -115,10 +115,10 @@ export function createApp() {
   // Coupon preview (authenticated)
   app.use('/api/checkout', couponsRouter) // POST /api/checkout/apply (behind requireAuth internally)
 
-  // Webhook — signature-verified (NOT user-auth)
+  // Webhook - signature-verified (NOT user-auth)
   app.use('/api/webhooks', webhooksRouter)
 
-  // Admin routes — requireAuth + requireAdmin applied here centrally
+  // Admin routes - requireAuth + requireAdmin applied here centrally
   const adminRouter = express.Router()
   adminRouter.use(requireAuth, requireAdmin)
 

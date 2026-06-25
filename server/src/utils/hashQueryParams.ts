@@ -10,6 +10,6 @@ export function hashQueryParams(params: Record<string, unknown>): string {
 
   const canonical = JSON.stringify(cleaned)
 
-  // MD5 via Node's built-in crypto — no external package required
+  // MD5 via Node's built-in crypto - no external package required
   return createHash('md5').update(canonical).digest('hex').slice(0, 8)
 }

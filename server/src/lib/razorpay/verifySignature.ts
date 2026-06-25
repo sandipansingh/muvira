@@ -13,7 +13,7 @@ export function verifyPaymentSignature(params: {
     .update(body)
     .digest('hex')
 
-  // MUST use timingSafeEqual — prevents timing-based signature forgery attacks
+  // MUST use timingSafeEqual - prevents timing-based signature forgery attacks
   try {
     const expected = Buffer.from(expectedSignature, 'utf8')
     const received = Buffer.from(params.razorpay_signature, 'utf8')

@@ -6,7 +6,7 @@
 --
 -- If NULL is returned, the caller (payment capture logic) should set
 -- fulfillment_status = 'exception' on the order for manual admin reconciliation.
--- The payment is still considered captured — do NOT refund automatically.
+-- The payment is still considered captured - do NOT refund automatically.
 --
 -- DROP before CREATE OR REPLACE because Postgres does not allow changing a
 -- function's return type signature in-place (SQLSTATE 42P13).
@@ -81,7 +81,7 @@ END;
 $$;
 
 --
--- Low-stock view — used by admin inventory endpoint
+-- Low-stock view - used by admin inventory endpoint
 --
 
 CREATE OR REPLACE VIEW low_stock_products AS
