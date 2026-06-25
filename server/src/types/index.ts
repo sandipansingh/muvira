@@ -194,6 +194,7 @@ export interface Order {
   // Fulfillment (manual tracking only)
   carrier_name: string | null;
   tracking_id: string | null;
+  awb_code: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

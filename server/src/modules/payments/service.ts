@@ -176,6 +176,7 @@ async function capturePayment(
   return { alreadyCaptured: false, order: order as Order };
 }
 
+
 //
 // verifyPayment — called by POST /api/payments/verify
 //
