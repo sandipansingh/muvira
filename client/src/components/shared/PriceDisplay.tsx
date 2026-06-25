@@ -1,12 +1,12 @@
-import React from 'react';
-import { formatPrice } from '../../lib/format';
+import React from 'react'
+import { formatPrice } from '../../lib/format'
 
 interface PriceDisplayProps {
-  price: number; // in paisa
-  salePrice: number | null; // in paisa
-  discountPercent?: number;
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
+  price: number // in paisa
+  salePrice: number | null // in paisa
+  discountPercent?: number
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
 }
 
 export const PriceDisplay: React.FC<PriceDisplayProps> = ({
@@ -16,8 +16,8 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   size = 'md',
   className = '',
 }) => {
-  const hasDiscount = salePrice !== null && salePrice < price;
-  const currentPrice = hasDiscount && salePrice !== null ? salePrice : price;
+  const hasDiscount = salePrice !== null && salePrice < price
+  const currentPrice = hasDiscount && salePrice !== null ? salePrice : price
 
   const sizeClasses = {
     sm: {
@@ -35,7 +35,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       original: 'text-sm md:text-base font-redhatRegular',
       discount: 'text-sm px-2.5 py-0.5 font-redhatMedium',
     },
-  };
+  }
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -47,7 +47,9 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       {/* Strikethrough Original Price */}
       {hasDiscount && (
         <>
-          <del className={`text-[var(--text-muted)] font-normal line-through ${sizeClasses[size].original}`}>
+          <del
+            className={`text-[var(--text-muted)] font-normal line-through ${sizeClasses[size].original}`}
+          >
             {formatPrice(price)}
           </del>
 
@@ -60,7 +62,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         </>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default PriceDisplay;
+export default PriceDisplay

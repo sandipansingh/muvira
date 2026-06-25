@@ -1,20 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { ChevronRight } from 'lucide-react'
 
 export interface BreadcrumbItem {
-  label: string;
-  path?: string;
+  label: string
+  path?: string
 }
 
 interface BreadcrumbProps {
-  items: BreadcrumbItem[];
-  className?: string;
+  items: BreadcrumbItem[]
+  className?: string
 }
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' }) => {
   return (
-    <nav className={`flex items-center gap-1.5 py-3 text-xs md:text-sm text-secondary500 tracking-wide select-none ${className}`}>
+    <nav
+      className={`flex items-center gap-1.5 py-3 text-xs md:text-sm text-secondary500 tracking-wide select-none ${className}`}
+    >
       <Link to="/" className="hover:text-primaryBg transition-colors">
         Home
       </Link>
@@ -33,7 +35,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
         </React.Fragment>
       ))}
     </nav>
-  );
-};
+  )
+}
 
-export default Breadcrumb;
+export default Breadcrumb

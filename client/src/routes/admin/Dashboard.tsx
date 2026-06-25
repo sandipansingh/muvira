@@ -1,16 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { adminApiService } from "../../lib/api/admin";
-import type { DashboardStats } from "../../types/dashboard";
-import type { OrderDetail } from "../../types/order";
-import { formatPrice } from "../../lib/format";
-import Card, {
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
+import React, { useState, useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { adminApiService } from '../../lib/api/admin'
+import type { DashboardStats } from '../../types/dashboard'
+import type { OrderDetail } from '../../types/order'
+import { formatPrice } from '../../lib/format'
+import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
 import {
   Table,
   TableHeader,
@@ -18,57 +13,57 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "../../components/ui/Table";
-import Skeleton from "../../components/ui/Skeleton";
-import ErrorState from "../../components/shared/ErrorState";
-import { AlertTriangle, ArrowRight, FolderTree } from "lucide-react";
+} from '../../components/ui/Table'
+import Skeleton from '../../components/ui/Skeleton'
+import ErrorState from '../../components/shared/ErrorState'
+import { AlertTriangle, ArrowRight, FolderTree } from 'lucide-react'
 
 export const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [recentOrders, setRecentOrders] = useState<OrderDetail[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate()
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [recentOrders, setRecentOrders] = useState<OrderDetail[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    fetchDashboardData()
+  }, [])
 
   const fetchDashboardData = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     const [statsRes, ordersRes, inventoryRes] = await Promise.all([
       adminApiService.getDashboardStats(),
       adminApiService.getOrders({ page: 1, limit: 5 }),
       adminApiService.getInventory(1, 5, true),
-    ]);
+    ])
 
     if (statsRes.success && ordersRes.success && inventoryRes.success) {
-      setStats(statsRes.data);
-      setRecentOrders(ordersRes.data);
+      setStats(statsRes.data)
+      setRecentOrders(ordersRes.data)
     } else {
-      setError("Failed to load dashboard metrics.");
+      setError('Failed to load dashboard metrics.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case "delivered":
-        return "success";
-      case "cancelled":
-        return "danger";
-      case "shipped":
-      case "processing":
-      case "confirmed":
-        return "primary";
+      case 'delivered':
+        return 'success'
+      case 'cancelled':
+        return 'danger'
+      case 'shipped':
+      case 'processing':
+      case 'confirmed':
+        return 'primary'
       default:
-        return "warning";
+        return 'warning'
     }
-  };
+  }
 
   if (error) {
-    return <ErrorState message={error} onRetry={fetchDashboardData} />;
+    return <ErrorState message={error} onRetry={fetchDashboardData} />
   }
 
   return (
@@ -79,8 +74,7 @@ export const Dashboard: React.FC = () => {
           Administrative Dashboard
         </h2>
         <p className="text-xs text-secondary500 tracking-wide mt-1">
-          Real-time metrics, store revenues, order fulfillments, and stock
-          alerts.
+          Real-time metrics, store revenues, order fulfillments, and stock alerts.
         </p>
       </div>
 
@@ -140,8 +134,8 @@ export const Dashboard: React.FC = () => {
                     {stats.totalProducts}
                   </span>
                   <span className="text-[9px] font-medium text-secondary500 flex items-center gap-1 mt-1 leading-none">
-                    <FolderTree className="w-3 h-3 text-secondary400" />{" "}
-                    {stats.totalCategories} Categories
+                    <FolderTree className="w-3 h-3 text-secondary400" /> {stats.totalCategories}{' '}
+                    Categories
                   </span>
                 </div>
               </CardContent>
@@ -162,8 +156,7 @@ export const Dashboard: React.FC = () => {
                       to="/admin/inventory"
                       className="text-[9px] font-medium text-secondary500 hover:text-darkColor flex items-center gap-0.5 mt-1 leading-none hover:underline"
                     >
-                      <AlertTriangle className="w-3 h-3 text-secondary400" />{" "}
-                      Restock catalog
+                      <AlertTriangle className="w-3 h-3 text-secondary400" /> Restock catalog
                     </Link>
                   ) : (
                     <span className="text-[9px] font-medium text-secondary500 block mt-1 leading-none">
@@ -182,9 +175,7 @@ export const Dashboard: React.FC = () => {
         <CardHeader className="flex items-center justify-between">
           <div>
             <CardTitle>Recent Orders</CardTitle>
-            <CardDescription>
-              Latest 5 transactions placed across the store
-            </CardDescription>
+            <CardDescription>Latest 5 transactions placed across the store</CardDescription>
           </div>
 
           <Link
@@ -236,16 +227,10 @@ export const Dashboard: React.FC = () => {
                       {formatPrice(ord.totalAmount)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusVariant(ord.status)}>
-                        {ord.status}
-                      </Badge>
+                      <Badge variant={getStatusVariant(ord.status)}>{ord.status}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={
-                          ord.paymentStatus === "paid" ? "success" : "warning"
-                        }
-                      >
+                      <Badge variant={ord.paymentStatus === 'paid' ? 'success' : 'warning'}>
                         {ord.paymentStatus}
                       </Badge>
                     </TableCell>
@@ -265,7 +250,7 @@ export const Dashboard: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

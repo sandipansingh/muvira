@@ -1,74 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { formatPrice, formatDate } from '../../lib/format';
-import Button from '../../components/ui/Button';
-import { ordersApiService } from '../../lib/api/orders';
-import type { OrderDetail } from '../../types/order';
-import { 
-  ShoppingBag, 
-  ClipboardList, 
-  MapPin, 
-  CreditCard, 
-  ShieldCheck,
-  Package
-} from 'lucide-react';
-import Skeleton from '../../components/ui/Skeleton';
-import OrderStatusTracker from '../../components/shared/OrderStatusTracker';
+import React, { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { formatPrice, formatDate } from '../../lib/format'
+import Button from '../../components/ui/Button'
+import { ordersApiService } from '../../lib/api/orders'
+import type { OrderDetail } from '../../types/order'
+import { ShoppingBag, ClipboardList, MapPin, CreditCard, ShieldCheck, Package } from 'lucide-react'
+import Skeleton from '../../components/ui/Skeleton'
+import OrderStatusTracker from '../../components/shared/OrderStatusTracker'
 
 export const OrderSuccess: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [order, setOrder] = useState<OrderDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Retrieve initial details passed from checkout routing (fallback values)
-  const orderNumberFromState = location.state?.orderNumber;
-  const totalAmountFromState = location.state?.totalAmount;
-  const orderIdFromState = location.state?.orderId;
+  const orderNumberFromState = location.state?.orderNumber
+  const totalAmountFromState = location.state?.totalAmount
+  const orderIdFromState = location.state?.orderId
 
   useEffect(() => {
     const fetchOrder = async () => {
-      setLoading(true);
-      setError(null);
-      
-      let finalOrderId = orderIdFromState;
+      setLoading(true)
+      setError(null)
+
+      let finalOrderId = orderIdFromState
 
       // If no orderId is passed in state, look up user's latest order to support page refresh
       if (!finalOrderId) {
         try {
-          const listRes = await ordersApiService.getOrders(1, 1);
+          const listRes = await ordersApiService.getOrders(1, 1)
           if (listRes.success && listRes.data && listRes.data.length > 0) {
-            finalOrderId = listRes.data[0].id;
+            finalOrderId = listRes.data[0].id
           }
         } catch (err) {
-          console.error("Error checking latest orders:", err);
+          console.error('Error checking latest orders:', err)
         }
       }
 
       if (finalOrderId) {
-        const res = await ordersApiService.getOrderById(finalOrderId);
+        const res = await ordersApiService.getOrderById(finalOrderId)
         if (res.success) {
-          setOrder(res.data);
+          setOrder(res.data)
         } else {
-          console.error("Failed to load order details:", res.error.message);
+          console.error('Failed to load order details:', res.error.message)
           // If we couldn't load details but have location state, we can fallback to it
           if (!orderNumberFromState) {
-            setError(res.error.message || "Failed to retrieve order details.");
+            setError(res.error.message || 'Failed to retrieve order details.')
           }
         }
       } else {
         // No orderId in state and no orders in account history
         if (!orderNumberFromState) {
-          setError("No recent order found in your account.");
+          setError('No recent order found in your account.')
         }
       }
-      setLoading(false);
-    };
+      setLoading(false)
+    }
 
-    fetchOrder();
-  }, [orderIdFromState, orderNumberFromState]);
+    fetchOrder()
+  }, [orderIdFromState, orderNumberFromState])
 
   // If loading and we have no state fallback, show a skeleton layout
   if (loading && !orderNumberFromState) {
@@ -120,7 +113,7 @@ export const OrderSuccess: React.FC = () => {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error && !orderNumberFromState) {
@@ -131,9 +124,12 @@ export const OrderSuccess: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-secondary200 flex items-center justify-center mx-auto text-secondary600">
             <Package className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-redhatMedium font-bold text-darkColor">Unable to load details</h1>
+          <h1 className="text-2xl font-redhatMedium font-bold text-darkColor">
+            Unable to load details
+          </h1>
           <p className="text-sm text-secondary500 leading-relaxed">
-            {error}. Don't worry, if your payment was processed, your order is secure. Check your email for confirmation.
+            {error}. Don't worry, if your payment was processed, your order is secure. Check your
+            email for confirmation.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row gap-3">
             <Button variant="outline" onClick={() => navigate('/orders')} className="w-full">
@@ -145,13 +141,13 @@ export const OrderSuccess: React.FC = () => {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   // Use values from fetched order, fallback to state values, fallback to dummy
-  const orderNumber = order?.orderNumber || orderNumberFromState || 'MUV-XXXXXX';
-  const totalAmount = order?.totalAmount || totalAmountFromState || 0;
-  const status = order?.status || 'confirmed';
+  const orderNumber = order?.orderNumber || orderNumberFromState || 'MUV-XXXXXX'
+  const totalAmount = order?.totalAmount || totalAmountFromState || 0
+  const status = order?.status || 'confirmed'
 
   return (
     <div className="min-h-[85vh] relative py-12 md:py-20 px-6 overflow-hidden bg-transparent">
@@ -175,37 +171,53 @@ export const OrderSuccess: React.FC = () => {
 
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          
           {/* LEFT COLUMN: Success Hero & Milestone Timeline */}
           <div className="lg:col-span-7 space-y-10 animate-stagger stagger-1 text-left">
-            
             {/* Success Header */}
             <div className="space-y-4">
               <div className="relative flex items-center justify-center w-20 h-20 mb-6">
                 {/* Rotating decorative dashed circle */}
-                <svg className="absolute w-full h-full animate-[spin_20s_linear_infinite] text-[var(--accent-gold)]" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="1.5" strokeDasharray="5,4" fill="none" />
+                <svg
+                  className="absolute w-full h-full animate-[spin_20s_linear_infinite] text-[var(--accent-gold)]"
+                  viewBox="0 0 100 100"
+                >
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeDasharray="5,4"
+                    fill="none"
+                  />
                 </svg>
                 {/* Solid inner circle */}
                 <div className="w-16 h-16 rounded-full border border-[var(--accent-gold)]/30 flex items-center justify-center bg-[var(--surface)] shadow-md animate-scale-pop">
-                  <svg className="w-8 h-8 text-[var(--accent)]" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeDasharray="24" 
-                      strokeDashoffset="24" 
+                  <svg
+                    className="w-8 h-8 text-[var(--accent)]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeDasharray="24"
+                      strokeDashoffset="24"
                       className="animate-[drawCheck_0.5s_ease-out_0.2s_forwards]"
-                      d="M5 13l4 4L19 7" 
+                      d="M5 13l4 4L19 7"
                     />
                   </svg>
                 </div>
               </div>
-              
+
               <h1 className="text-3xl md:text-4xl font-redhatMedium font-bold text-darkColor leading-tight">
                 Your Order is Confirmed
               </h1>
               <p className="text-sm md:text-base text-secondary500 leading-relaxed max-w-xl">
-                Thank you for your purchase. We have received your order and are already preparing to handcraft your pieces. A detailed summary has been sent to your email.
+                Thank you for your purchase. We have received your order and are already preparing
+                to handcraft your pieces. A detailed summary has been sent to your email.
               </p>
             </div>
 
@@ -214,7 +226,7 @@ export const OrderSuccess: React.FC = () => {
               <h3 className="text-sm font-semibold uppercase tracking-wider text-secondary600">
                 Delivery Milestones
               </h3>
-              
+
               <OrderStatusTracker status={status} />
             </div>
 
@@ -237,13 +249,11 @@ export const OrderSuccess: React.FC = () => {
                 Continue Shopping
               </Button>
             </div>
-
           </div>
 
           {/* RIGHT COLUMN: Detailed Craft Receipt Card */}
           <div className="lg:col-span-5 animate-stagger stagger-2">
             <div className="bg-[#f4ede3]/40 border border-[#e6dfd5] rounded-xl overflow-hidden shadow-sm p-6 space-y-6 text-left">
-              
               {/* Receipt Header */}
               <div className="pb-4 border-b border-[#e6dfd5] flex justify-between items-center">
                 <div>
@@ -265,13 +275,14 @@ export const OrderSuccess: React.FC = () => {
                       <div className="flex gap-3 items-center">
                         <div className="w-14 h-14 rounded-lg bg-[var(--surface-2)] border border-[#e6dfd5] overflow-hidden shrink-0 flex items-center justify-center">
                           {item.productImage ? (
-                            <img 
-                              src={item.productImage} 
-                              alt={item.productName} 
+                            <img
+                              src={item.productImage}
+                              alt={item.productName}
                               className="w-full h-full object-cover transition-opacity duration-300"
                               onError={(e) => {
                                 // Graceful image error handler
-                                (e.target as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f4ede3"/><text x="50" y="55" font-family="serif" font-size="10" fill="%23a59a8c" text-anchor="middle">Heritage</text></svg>';
+                                ;(e.target as HTMLImageElement).src =
+                                  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f4ede3"/><text x="50" y="55" font-family="serif" font-size="10" fill="%23a59a8c" text-anchor="middle">Heritage</text></svg>'
                               }}
                             />
                           ) : (
@@ -319,7 +330,9 @@ export const OrderSuccess: React.FC = () => {
                     )}
                     <div className="flex justify-between text-secondary600">
                       <span>Shipping</span>
-                      <span>{order.shippingAmount > 0 ? formatPrice(order.shippingAmount) : 'Free'}</span>
+                      <span>
+                        {order.shippingAmount > 0 ? formatPrice(order.shippingAmount) : 'Free'}
+                      </span>
                     </div>
                   </>
                 ) : totalAmount > 0 ? (
@@ -332,15 +345,12 @@ export const OrderSuccess: React.FC = () => {
                 {/* Total */}
                 <div className="flex justify-between items-center text-sm font-bold text-darkColor border-t border-[#e6dfd5]/60 pt-3">
                   <span className="font-redhatMedium text-base">Grand Total</span>
-                  <span className="text-base text-[var(--accent)]">
-                    {formatPrice(totalAmount)}
-                  </span>
+                  <span className="text-base text-[var(--accent)]">{formatPrice(totalAmount)}</span>
                 </div>
               </div>
 
               {/* Delivery Address & Payment Method */}
               <div className="border-t border-[#e6dfd5] pt-4 space-y-4">
-                
                 {/* Shipping Details */}
                 {order && order.shippingAddress ? (
                   <div className="space-y-1.5">
@@ -349,13 +359,18 @@ export const OrderSuccess: React.FC = () => {
                       <span>Delivery Address</span>
                     </div>
                     <div className="text-[11px] text-secondary500 pl-5 leading-relaxed">
-                      <p className="font-semibold text-darkColor">{order.shippingAddress.fullName}</p>
+                      <p className="font-semibold text-darkColor">
+                        {order.shippingAddress.fullName}
+                      </p>
                       <p>{order.shippingAddress.line1}</p>
                       {order.shippingAddress.line2 && <p>{order.shippingAddress.line2}</p>}
                       <p>
-                        {order.shippingAddress.city}, {order.shippingAddress.state} — {order.shippingAddress.pincode}
+                        {order.shippingAddress.city}, {order.shippingAddress.state} —{' '}
+                        {order.shippingAddress.pincode}
                       </p>
-                      <p className="text-secondary400 mt-0.5">Phone: {order.shippingAddress.phone}</p>
+                      <p className="text-secondary400 mt-0.5">
+                        Phone: {order.shippingAddress.phone}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -369,23 +384,19 @@ export const OrderSuccess: React.FC = () => {
                 <div className="bg-transparent border border-[#e6dfd5]/60 rounded-md p-3.5 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <CreditCard className="w-4 h-4 text-[var(--accent-gold)] shrink-0" />
-                    <span className="text-xs font-medium text-secondary600">
-                      Payment Method
-                    </span>
+                    <span className="text-xs font-medium text-secondary600">Payment Method</span>
                   </div>
                   <span className="border border-[var(--accent-gold)]/30 bg-[#faf6ef] text-[var(--accent-gold)] text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5" /> Razorpay Verified
                   </span>
                 </div>
               </div>
-
             </div>
           </div>
-
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OrderSuccess;
+export default OrderSuccess

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   children,
@@ -6,11 +6,14 @@ export const Card: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`bg-white border border-secondary200 shadow-sm rounded-xl overflow-hidden ${className}`} {...props}>
+    <div
+      className={`bg-white border border-secondary200 shadow-sm rounded-xl overflow-hidden ${className}`}
+      {...props}
+    >
       {children}
     </div>
-  );
-};
+  )
+}
 
 export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   children,
@@ -21,8 +24,8 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     <div className={`p-5 border-b border-secondary200 ${className}`} {...props}>
       {children}
     </div>
-  );
-};
+  )
+}
 
 export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   children,
@@ -33,8 +36,8 @@ export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
     <h3 className={`text-base font-semibold tracking-wide text-darkColor ${className}`} {...props}>
       {children}
     </h3>
-  );
-};
+  )
+}
 
 export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({
   children,
@@ -45,8 +48,8 @@ export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement
     <p className={`text-xs text-secondary500 tracking-wide mt-1 ${className}`} {...props}>
       {children}
     </p>
-  );
-};
+  )
+}
 
 export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   children,
@@ -57,8 +60,8 @@ export const CardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     <div className={`p-5 ${className}`} {...props}>
       {children}
     </div>
-  );
-};
+  )
+}
 
 export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   children,
@@ -66,10 +69,13 @@ export const CardFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`px-5 py-4 border-t border-secondary200 bg-transparent flex items-center justify-end gap-2.5 ${className}`} {...props}>
+    <div
+      className={`px-5 py-4 border-t border-secondary200 bg-transparent flex items-center justify-end gap-2.5 ${className}`}
+      {...props}
+    >
       {children}
     </div>
-  );
-};
+  )
+}
 
-export default Card;
+export default Card

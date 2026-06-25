@@ -1,18 +1,21 @@
-import React from 'react';
+import React from 'react'
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
+  label?: string
+  error?: string
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = '', id, ...props }, ref) => {
-    const inputId = id || Math.random().toString(36).substring(2, 9);
-    
+    const inputId = id || Math.random().toString(36).substring(2, 9)
+
     return (
       <div className="w-full flex flex-col gap-1.5 text-left">
         {label && (
-          <label htmlFor={inputId} className="text-xs font-semibold text-secondary700 tracking-wider uppercase">
+          <label
+            htmlFor={inputId}
+            className="text-xs font-semibold text-secondary700 tracking-wider uppercase"
+          >
             {label}
           </label>
         )}
@@ -28,9 +31,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         />
         {error && <span className="text-xs font-medium text-dangerColor">{error}</span>}
       </div>
-    );
+    )
   }
-);
+)
 
-Input.displayName = 'Input';
-export default Input;
+Input.displayName = 'Input'
+export default Input

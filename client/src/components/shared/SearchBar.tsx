@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import React, { useState } from 'react'
+import { Search } from 'lucide-react'
 
 interface SearchBarProps {
-  onSearch: (query: string) => void;
-  placeholder?: string;
-  initialValue?: string;
-  className?: string;
+  onSearch: (query: string) => void
+  placeholder?: string
+  initialValue?: string
+  className?: string
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
@@ -14,12 +14,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   initialValue = '',
   className = '',
 }) => {
-  const [query, setQuery] = useState(initialValue);
+  const [query, setQuery] = useState(initialValue)
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(query.trim());
-  };
+    e.preventDefault()
+    onSearch(query.trim())
+  }
 
   return (
     <form
@@ -40,7 +40,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <Search className="w-5 h-5" />
       </button>
     </form>
-  );
-};
+  )
+}
 
-export default SearchBar;
+export default SearchBar

@@ -1,12 +1,12 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { STORE_NAME } from '../../lib/constants';
-import { useSiteSettings } from '../../context/SiteSettingsContext';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { STORE_NAME } from '../../lib/constants'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
+import { Mail, Phone, MapPin } from 'lucide-react'
 
 export const Footer: React.FC = () => {
-  const { settings } = useSiteSettings();
-  const contactInfo = settings?.contactInfo;
+  const { settings } = useSiteSettings()
+  const contactInfo = settings?.contactInfo
 
   return (
     <footer className="bg-[var(--text)] text-[#d9d0c5] border-t border-[#463f38]">
@@ -14,9 +14,12 @@ export const Footer: React.FC = () => {
       <div className="max-w-[1240px] mx-auto px-6 py-12 md:py-16 grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* About column */}
         <div className="flex flex-col gap-4 text-left">
-          <h2 className="text-xl font-semibold tracking-[-0.1px] text-white uppercase font-redhatMedium">{STORE_NAME}</h2>
+          <h2 className="text-xl font-semibold tracking-[-0.1px] text-white uppercase font-redhatMedium">
+            {STORE_NAME}
+          </h2>
           <p className="text-xs md:text-sm text-[#b6ab9e] leading-relaxed tracking-wide">
-            {settings?.storeDescription || 'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.'}
+            {settings?.storeDescription ||
+              'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.'}
           </p>
           {/* Social profiles intentionally omitted — add real brand links when available */}
         </div>
@@ -28,7 +31,10 @@ export const Footer: React.FC = () => {
           </h3>
           <ul className="flex flex-col gap-2.5 text-xs md:text-sm text-secondary400">
             <li>
-              <Link to="/orders" className="hover:text-[var(--accent-gold-light)] transition-colors">
+              <Link
+                to="/orders"
+                className="hover:text-[var(--accent-gold-light)] transition-colors"
+              >
                 Track Order
               </Link>
             </li>
@@ -51,17 +57,26 @@ export const Footer: React.FC = () => {
           </h3>
           <ul className="flex flex-col gap-2.5 text-xs md:text-sm text-secondary400">
             <li>
-              <Link to="/products" className="hover:text-[var(--accent-gold-light)] transition-colors">
+              <Link
+                to="/products"
+                className="hover:text-[var(--accent-gold-light)] transition-colors"
+              >
                 All Products
               </Link>
             </li>
             <li>
-              <Link to="/categories" className="hover:text-[var(--accent-gold-light)] transition-colors">
+              <Link
+                to="/categories"
+                className="hover:text-[var(--accent-gold-light)] transition-colors"
+              >
                 Shop By Category
               </Link>
             </li>
             <li>
-              <Link to="/profile" className="hover:text-[var(--accent-gold-light)] transition-colors">
+              <Link
+                to="/profile"
+                className="hover:text-[var(--accent-gold-light)] transition-colors"
+              >
                 My Profile
               </Link>
             </li>
@@ -104,16 +119,22 @@ export const Footer: React.FC = () => {
       {/* Bottom section: copyright */}
       <div className="border-t border-[#463f38] bg-black/40 py-6 text-center text-xs text-[#91857a]">
         <div className="max-w-[1240px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p>© {new Date().getFullYear()} {STORE_NAME}. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} {STORE_NAME}. All rights reserved.
+          </p>
           <div className="flex items-center gap-4 text-[11px] uppercase tracking-wider">
-            <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors">
+              Privacy Policy
+            </a>
             <span>•</span>
-            <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors">Terms of Use</a>
+            <a href="#" className="hover:text-[var(--accent-gold-light)] transition-colors">
+              Terms of Use
+            </a>
           </div>
         </div>
       </div>
     </footer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer

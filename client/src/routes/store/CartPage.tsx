@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../../hooks/useCart';
-import { useSiteSettings } from '../../context/SiteSettingsContext';
-import { formatPrice } from '../../lib/format';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Card, { CardContent } from '../../components/ui/Card';
-import Breadcrumb from '../../components/layout/Breadcrumb';
-import EmptyState from '../../components/shared/EmptyState';
-import { Trash2, ShoppingBag, Minus, Plus, Tag, X } from 'lucide-react';
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useCart } from '../../hooks/useCart'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
+import { formatPrice } from '../../lib/format'
+import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
+import Card, { CardContent } from '../../components/ui/Card'
+import Breadcrumb from '../../components/layout/Breadcrumb'
+import EmptyState from '../../components/shared/EmptyState'
+import { Trash2, ShoppingBag, Minus, Plus, Tag, X } from 'lucide-react'
 
 export const CartPage: React.FC = () => {
   const {
@@ -21,33 +21,33 @@ export const CartPage: React.FC = () => {
     removeCouponCode,
     shippingAmount,
     totalAmount,
-  } = useCart();
+  } = useCart()
 
-  const { settings } = useSiteSettings();
-  const shippingRules = settings?.shippingRules;
-  const discountAmount = coupon ? coupon.discountAmount : 0;
-  const discountedSubtotal = cart.subtotal - discountAmount;
+  const { settings } = useSiteSettings()
+  const shippingRules = settings?.shippingRules
+  const discountAmount = coupon ? coupon.discountAmount : 0
+  const discountedSubtotal = cart.subtotal - discountAmount
 
-  const navigate = useNavigate();
-  const [couponInput, setCouponInput] = useState('');
-  const [applying, setApplying] = useState(false);
+  const navigate = useNavigate()
+  const [couponInput, setCouponInput] = useState('')
+  const [applying, setApplying] = useState(false)
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!couponInput.trim()) return;
+    e.preventDefault()
+    if (!couponInput.trim()) return
 
-    setApplying(true);
-    const success = await applyCouponCode(couponInput.trim());
-    setApplying(false);
+    setApplying(true)
+    const success = await applyCouponCode(couponInput.trim())
+    setApplying(false)
 
     if (success) {
-      setCouponInput('');
+      setCouponInput('')
     }
-  };
+  }
 
   const handleRemoveCoupon = async () => {
-    await removeCouponCode();
-  };
+    await removeCouponCode()
+  }
 
   if (cart.items.length === 0) {
     return (
@@ -60,7 +60,7 @@ export const CartPage: React.FC = () => {
           icon={<ShoppingBag className="w-12 h-12" />}
         />
       </div>
-    );
+    )
   }
 
   return (
@@ -79,7 +79,11 @@ export const CartPage: React.FC = () => {
               <CardContent className="p-4 flex gap-4">
                 {/* Image */}
                 <div className="w-20 h-20 md:w-24 md:h-24 bg-lightgrayColor rounded-lg overflow-hidden border border-secondary200 shrink-0">
-                  <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                  <img
+                    src={item.productImage}
+                    alt={item.productName}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 {/* Details */}
@@ -179,24 +183,40 @@ export const CartPage: React.FC = () => {
                 <div className="flex justify-between text-secondary600">
                   <span>Delivery Shipping</span>
                   {shippingAmount === 0 ? (
-                    <span className="text-emerald-700 font-semibold uppercase tracking-wider">Free</span>
+                    <span className="text-emerald-700 font-semibold uppercase tracking-wider">
+                      Free
+                    </span>
                   ) : (
-                    <span className="font-semibold text-darkColor">{formatPrice(shippingAmount)}</span>
+                    <span className="font-semibold text-darkColor">
+                      {formatPrice(shippingAmount)}
+                    </span>
                   )}
                 </div>
-                {shippingRules && shippingRules.freeShippingThresholdPaisa > 0 && shippingAmount > 0 && (
-                  <div className="text-[10px] text-[#c65c30] bg-[#c65c30]/5 px-2.5 py-1.5 rounded-lg border border-[#c65c30]/10 flex items-center mt-1">
-                    <span>
-                      Add <strong>{formatPrice(shippingRules.freeShippingThresholdPaisa - discountedSubtotal)}</strong> more for Free Shipping!
-                    </span>
-                  </div>
-                )}
+                {shippingRules &&
+                  shippingRules.freeShippingThresholdPaisa > 0 &&
+                  shippingAmount > 0 && (
+                    <div className="text-[10px] text-[#c65c30] bg-[#c65c30]/5 px-2.5 py-1.5 rounded-lg border border-[#c65c30]/10 flex items-center mt-1">
+                      <span>
+                        Add{' '}
+                        <strong>
+                          {formatPrice(
+                            shippingRules.freeShippingThresholdPaisa - discountedSubtotal
+                          )}
+                        </strong>{' '}
+                        more for Free Shipping!
+                      </span>
+                    </div>
+                  )}
               </div>
 
               {/* Total Row */}
               <div className="flex justify-between items-center text-darkColor font-bold py-1">
-                <span className="text-sm md:text-base uppercase tracking-wider">Estimated Total</span>
-                <span className="text-base md:text-lg text-primaryBg">{formatPrice(totalAmount)}</span>
+                <span className="text-sm md:text-base uppercase tracking-wider">
+                  Estimated Total
+                </span>
+                <span className="text-base md:text-lg text-primaryBg">
+                  {formatPrice(totalAmount)}
+                </span>
               </div>
 
               {/* Coupon inputs */}
@@ -236,7 +256,7 @@ export const CartPage: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CartPage;
+export default CartPage

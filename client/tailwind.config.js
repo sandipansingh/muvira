@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -54,23 +51,23 @@ export default {
       },
       fontSize: {
         // Custom type scale per design spec
-        'font10': ['10px', { lineHeight: '1.2' }],
-        'font11': ['11px', { lineHeight: '1.2' }],
-        'font12': ['12px', { lineHeight: '1.3' }],
-        'font13': ['13px', { lineHeight: '1.4' }],
-        'font19': ['19px', { lineHeight: '1.3' }],
+        font10: ['10px', { lineHeight: '1.2' }],
+        font11: ['11px', { lineHeight: '1.2' }],
+        font12: ['12px', { lineHeight: '1.3' }],
+        font13: ['13px', { lineHeight: '1.4' }],
+        font19: ['19px', { lineHeight: '1.3' }],
       },
       borderRadius: {
         // Strict system per anti-vibe guidelines
-        sm: '6px',   // cards, inputs, small elements
-        md: '12px',  // modals, larger containers
-        lg: '16px',  // featured sections
+        sm: '6px', // cards, inputs, small elements
+        md: '12px', // modals, larger containers
+        lg: '16px', // featured sections
         full: '9999px',
       },
       boxShadow: {
-        'card': '0 0 6px rgba(0,0,0,0.2)',
-        'megamenu': '0 4px 7.28px 0.72px rgba(0,0,0,0.2)',
-      }
+        card: '0 0 6px rgba(0,0,0,0.2)',
+        megamenu: '0 4px 7.28px 0.72px rgba(0,0,0,0.2)',
+      },
     },
   },
   plugins: [],

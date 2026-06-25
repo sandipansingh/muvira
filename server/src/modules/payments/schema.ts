@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 // Schema for the payment verification endpoint.
 // These are the three values Razorpay Checkout returns to the client
@@ -12,6 +12,6 @@ export const VerifyPaymentSchema = z
     // that could influence what gets marked as paid.
     // .strict() rejects any extra fields.
   })
-  .strict();
+  .strict()
 
-export type VerifyPaymentInput = z.infer<typeof VerifyPaymentSchema>;
+export type VerifyPaymentInput = z.infer<typeof VerifyPaymentSchema>

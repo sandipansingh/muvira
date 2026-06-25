@@ -1,97 +1,110 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { adminApiService } from '../../lib/api/admin';
-import { formatDate } from '../../lib/format';
-import Card from '../../components/ui/Card';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
-import Pagination from '../../components/ui/Pagination';
-import Skeleton from '../../components/ui/Skeleton';
-import ErrorState from '../../components/shared/ErrorState';
-import Button from '../../components/ui/Button';
-import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import { Dialog } from '../../components/ui/Dialog';
-import { useToast } from '../../hooks/useToast';
-import { Star, Search, Trash2, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { adminApiService } from '../../lib/api/admin'
+import { formatDate } from '../../lib/format'
+import Card from '../../components/ui/Card'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../components/ui/Table'
+import Pagination from '../../components/ui/Pagination'
+import Skeleton from '../../components/ui/Skeleton'
+import ErrorState from '../../components/shared/ErrorState'
+import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
+import Select from '../../components/ui/Select'
+import { Dialog } from '../../components/ui/Dialog'
+import { useToast } from '../../hooks/useToast'
+import { Star, Search, Trash2, ExternalLink } from 'lucide-react'
 
 interface AdminReview {
-  id: string;
-  productId: string;
-  productName: string;
-  productSlug: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  rating: number;
-  comment: string | null;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  productId: string
+  productName: string
+  productSlug: string
+  userId: string
+  userName: string
+  userEmail: string
+  rating: number
+  comment: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export const ReviewsList: React.FC = () => {
-  const [reviews, setReviews] = useState<AdminReview[]>([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<AdminReview[]>([])
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 1 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const [q, setQ] = useState('');
-  const [ratingFilter, setRatingFilter] = useState('');
-  const [page, setPage] = useState(1);
+  const [q, setQ] = useState('')
+  const [ratingFilter, setRatingFilter] = useState('')
+  const [page, setPage] = useState(1)
 
-  const [deleteTarget, setDeleteTarget] = useState<AdminReview | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AdminReview | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
-  const { showToast } = useToast();
+  const { showToast } = useToast()
 
   const fetchReviews = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
-    const params: any = { page, limit: 20 };
-    if (q) params.q = q;
-    if (ratingFilter) params.rating = parseInt(ratingFilter, 10);
+    const params: any = { page, limit: 20 }
+    if (q) params.q = q
+    if (ratingFilter) params.rating = parseInt(ratingFilter, 10)
 
-    const res = await adminApiService.getReviews(params);
+    const res = await adminApiService.getReviews(params)
     if (res.success) {
-      setReviews(res.data as AdminReview[]);
-      setPagination(res.pagination);
+      setReviews(res.data as AdminReview[])
+      setPagination(res.pagination)
     } else {
-      setError(res.error.message || 'Failed to load reviews.');
+      setError(res.error.message || 'Failed to load reviews.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   useEffect(() => {
-    fetchReviews();
-  }, [page, q, ratingFilter]);
+    fetchReviews()
+  }, [page, q, ratingFilter])
 
   const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleting(true);
-    const res = await adminApiService.deleteReview(deleteTarget.id);
-    setDeleting(false);
+    if (!deleteTarget) return
+    setDeleting(true)
+    const res = await adminApiService.deleteReview(deleteTarget.id)
+    setDeleting(false)
     if (res.success) {
-      showToast('Review deleted.', 'success');
-      setDeleteTarget(null);
-      fetchReviews();
+      showToast('Review deleted.', 'success')
+      setDeleteTarget(null)
+      fetchReviews()
     } else {
-      showToast(res.error.message || 'Delete failed.', 'error');
+      showToast(res.error.message || 'Delete failed.', 'error')
     }
-  };
+  }
 
   const renderStars = (rating: number) => (
     <div className="flex text-primaryBg">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} className={`w-3.5 h-3.5 ${i + 1 <= rating ? 'fill-current' : ''}`} strokeWidth={1.5} />
+        <Star
+          key={i}
+          className={`w-3.5 h-3.5 ${i + 1 <= rating ? 'fill-current' : ''}`}
+          strokeWidth={1.5}
+        />
       ))}
     </div>
-  );
+  )
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl md:text-2xl font-medium tracking-wide text-darkColor">Reviews</h2>
-        <p className="text-xs text-secondary500 mt-1">Manage customer ratings and comments. Only verified delivered buyers can post.</p>
+        <p className="text-xs text-secondary500 mt-1">
+          Manage customer ratings and comments. Only verified delivered buyers can post.
+        </p>
       </div>
 
       {/* Filters */}
@@ -102,7 +115,10 @@ export const ReviewsList: React.FC = () => {
             <Input
               placeholder="Search by comment or product..."
               value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setQ(e.target.value)
+                setPage(1)
+              }}
               className="pl-9"
             />
           </div>
@@ -110,7 +126,10 @@ export const ReviewsList: React.FC = () => {
         <div className="w-40">
           <Select
             value={ratingFilter}
-            onChange={(e) => { setRatingFilter(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setRatingFilter(e.target.value)
+              setPage(1)
+            }}
             options={[
               { value: '', label: 'All ratings' },
               { value: '5', label: '5 stars' },
@@ -121,14 +140,23 @@ export const ReviewsList: React.FC = () => {
             ]}
           />
         </div>
-        <Button variant="outline" onClick={() => { setQ(''); setRatingFilter(''); setPage(1); }}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            setQ('')
+            setRatingFilter('')
+            setPage(1)
+          }}
+        >
           Clear
         </Button>
       </div>
 
       {loading ? (
         <div className="space-y-2">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-16 rounded-xl" />)}
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl" />
+          ))}
         </div>
       ) : error ? (
         <ErrorState message={error} onRetry={fetchReviews} />
@@ -152,7 +180,11 @@ export const ReviewsList: React.FC = () => {
                 {reviews.map((r) => (
                   <TableRow key={r.id}>
                     <TableCell>
-                      <Link to={`/products/${r.productSlug}`} target="_blank" className="font-medium hover:underline inline-flex items-center gap-1">
+                      <Link
+                        to={`/products/${r.productSlug}`}
+                        target="_blank"
+                        className="font-medium hover:underline inline-flex items-center gap-1"
+                      >
                         {r.productName || r.productId}
                         <ExternalLink className="w-3 h-3" />
                       </Link>
@@ -169,7 +201,9 @@ export const ReviewsList: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <div className="text-xs text-secondary700 max-w-[360px] line-clamp-3">
-                        {r.comment || <span className="italic text-secondary400">(no comment)</span>}
+                        {r.comment || (
+                          <span className="italic text-secondary400">(no comment)</span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="text-xs text-secondary500 whitespace-nowrap">
@@ -206,19 +240,35 @@ export const ReviewsList: React.FC = () => {
           <p>This will permanently remove the review and comment from the product page.</p>
           {deleteTarget && (
             <div className="bg-lightgrayColor p-3 rounded text-xs">
-              <div><strong>Product:</strong> {deleteTarget.productName}</div>
-              <div><strong>Rating:</strong> {deleteTarget.rating} ★</div>
-              {deleteTarget.comment && <div className="mt-1"><strong>Comment:</strong> {deleteTarget.comment}</div>}
+              <div>
+                <strong>Product:</strong> {deleteTarget.productName}
+              </div>
+              <div>
+                <strong>Rating:</strong> {deleteTarget.rating} ★
+              </div>
+              {deleteTarget.comment && (
+                <div className="mt-1">
+                  <strong>Comment:</strong> {deleteTarget.comment}
+                </div>
+              )}
             </div>
           )}
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>Cancel</Button>
-            <Button onClick={handleDelete} loading={deleting} className="bg-rose-600 hover:bg-rose-700">Delete Review</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDelete}
+              loading={deleting}
+              className="bg-rose-600 hover:bg-rose-700"
+            >
+              Delete Review
+            </Button>
           </div>
         </div>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default ReviewsList;
+export default ReviewsList

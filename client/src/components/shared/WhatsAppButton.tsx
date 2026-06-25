@@ -1,37 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
-import { useLocation } from "react-router-dom";
-import { useSiteSettings } from "../../context/SiteSettingsContext";
+import React, { useState, useEffect } from 'react'
+import { X } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export const WhatsAppButton: React.FC = () => {
-  const { settings, loading } = useSiteSettings();
-  const { pathname } = useLocation();
-  const [showPrompt, setShowPrompt] = useState(false);
+  const { settings, loading } = useSiteSettings()
+  const { pathname } = useLocation()
+  const [showPrompt, setShowPrompt] = useState(false)
 
   useEffect(() => {
     // Show the chat prompt with a subtle delay to draw the user's attention
     const timer = setTimeout(() => {
-      setShowPrompt(true);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
+      setShowPrompt(true)
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Hide on login, signup, and forgot-password pages
-  const isAuthPage = ["/login", "/signup", "/forgot-password"].includes(
-    pathname,
-  );
+  const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(pathname)
   if (loading || isAuthPage || !settings?.contactInfo?.phone) {
-    return null;
+    return null
   }
 
   // Format phone number by keeping only numeric digits
-  const cleanPhone = settings.contactInfo.phone.replace(/[^0-9]/g, "");
+  const cleanPhone = settings.contactInfo.phone.replace(/[^0-9]/g, '')
 
   // Custom message for the chat redirect
   const defaultMessage = encodeURIComponent(
-    "Hello! I am visiting the Muvira store and need assistance.",
-  );
-  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${defaultMessage}`;
+    'Hello! I am visiting the Muvira store and need assistance.'
+  )
+  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${defaultMessage}`
 
   return (
     <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
@@ -40,8 +38,7 @@ export const WhatsAppButton: React.FC = () => {
         <div
           className="relative bg-white border border-secondary200 rounded-xl px-4 py-3 shadow-xl max-w-[240px] text-left animate-fade-in flex flex-col gap-1 transition-all duration-300"
           style={{
-            animation:
-              "promptSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+            animation: 'promptSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
           }}
         >
           {/* Close button */}
@@ -108,7 +105,7 @@ export const WhatsAppButton: React.FC = () => {
         }
       `}</style>
     </div>
-  );
-};
+  )
+}
 
-export default WhatsAppButton;
+export default WhatsAppButton

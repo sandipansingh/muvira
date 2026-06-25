@@ -1,50 +1,50 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
-import { Lock, Mail } from 'lucide-react';
+import React, { useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import Input from '../../components/ui/Input'
+import Button from '../../components/ui/Button'
+import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card'
+import { Lock, Mail } from 'lucide-react'
 
 export const Login: React.FC = () => {
-  const { login, loading } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { login, loading } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   // Get redirection path or fall back to "/"
-  const from = (location.state as any)?.from?.pathname || '/';
+  const from = (location.state as any)?.from?.pathname || '/'
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
     if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
+      setError('Please fill in all fields.')
+      return
     }
 
-    const success = await login(email, password);
+    const success = await login(email, password)
     if (success) {
-      navigate(from, { replace: true });
+      navigate(from, { replace: true })
     }
-  };
+  }
 
   const handleQuickLogin = async (role: 'user' | 'admin') => {
-    setError(null);
-    const demoEmail = role === 'admin' ? 'admin@muvira.com' : 'user@muvira.com';
-    const demoPassword = role === 'admin' ? 'admin123' : 'user123';
-    
-    setEmail(demoEmail);
-    setPassword(demoPassword);
+    setError(null)
+    const demoEmail = role === 'admin' ? 'admin@muvira.com' : 'user@muvira.com'
+    const demoPassword = role === 'admin' ? 'admin123' : 'user123'
 
-    const success = await login(demoEmail, demoPassword);
+    setEmail(demoEmail)
+    setPassword(demoPassword)
+
+    const success = await login(demoEmail, demoPassword)
     if (success) {
-      navigate(from, { replace: true });
+      navigate(from, { replace: true })
     }
-  };
+  }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-6">
@@ -64,7 +64,7 @@ export const Login: React.FC = () => {
                 {error}
               </div>
             )}
-            
+
             <div className="relative">
               <Mail className="absolute left-3.5 top-[38px] -translate-y-1/2 w-4 h-4 text-secondary400 z-10" />
               <Input
@@ -148,7 +148,7 @@ export const Login: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

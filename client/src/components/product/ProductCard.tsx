@@ -1,28 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import type { ProductListItem } from '../../types/product';
-import PriceDisplay from '../shared/PriceDisplay';
-import { useCart } from '../../hooks/useCart';
-import { Star, ShoppingCart } from 'lucide-react';
+import React from 'react'
+import { Link } from 'react-router-dom'
+import type { ProductListItem } from '../../types/product'
+import PriceDisplay from '../shared/PriceDisplay'
+import { useCart } from '../../hooks/useCart'
+import { Star, ShoppingCart } from 'lucide-react'
 
 interface ProductCardProps {
-  product: ProductListItem;
+  product: ProductListItem
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useCart();
-  const [adding, setAdding] = React.useState(false);
+  const { addToCart } = useCart()
+  const [adding, setAdding] = React.useState(false)
 
   const handleQuickAdd = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (adding) return;
-    setAdding(true);
-    await addToCart(product.id, 1);
-    setAdding(false);
-  };
+    e.preventDefault()
+    e.stopPropagation()
+    if (adding) return
+    setAdding(true)
+    await addToCart(product.id, 1)
+    setAdding(false)
+  }
 
-  const hasDiscount = product.salePrice !== null && product.salePrice < product.price;
+  const hasDiscount = product.salePrice !== null && product.salePrice < product.price
 
   return (
     <Link
@@ -103,7 +103,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </>
           ) : (
             Array.from({ length: 5 }).map((_, idx) => (
-              <Star key={idx} className="w-[13px] h-[13px] fill-current opacity-40" strokeWidth={0.5} />
+              <Star
+                key={idx}
+                className="w-[13px] h-[13px] fill-current opacity-40"
+                strokeWidth={0.5}
+              />
             ))
           )}
         </div>
@@ -118,7 +122,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
       </div>
     </Link>
-  );
-};
+  )
+}
 
-export default ProductCard;
+export default ProductCard

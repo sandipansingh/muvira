@@ -1,67 +1,46 @@
-/**
- * Transactional email via Resend.
- *
- * DESIGN: email sending is FIRE-AND-FORGET relative to the payment-capture
- * transaction. A failed email must never fail or roll back a successful payment.
- * Log failures for later retry/reconciliation.
- *
- * Customer email is always fetched fresh from the profiles table using order.user_id.
- *
- * If RESEND_API_KEY is not configured, emails are silently skipped (dev mode).
- */
-import { Resend } from 'resend';
-import { env } from '../../config/env';
-import { logger } from '../logger';
-import { adminSupabase } from '../supabase/admin';
-import type { Order } from '../../types';
+import { Resend } from 'resend'
+import { env } from '../../config/env'
+import { logger } from '../logger'
+import { adminSupabase } from '../supabase/admin'
+import type { Order } from '../../types'
 
-let resend: Resend | null = null;
+let resend: Resend | null = null
 
 if (env.RESEND_API_KEY) {
-  resend = new Resend(env.RESEND_API_KEY);
+  resend = new Resend(env.RESEND_API_KEY)
 }
 
 interface OrderConfirmationData {
-  order: Order;
-  customerName: string;
+  order: Order
+  customerName: string
 }
 
-/**
- * Sends an order-confirmation email.
- * This should be called AFTER the payment is captured and persisted.
- * Call without await so failures don't block the response.
- */
-export async function sendOrderConfirmationEmail(
-  data: OrderConfirmationData,
-): Promise<void> {
+export async function sendOrderConfirmationEmail(data: OrderConfirmationData): Promise<void> {
   if (!resend) {
-    logger.info(
-      { orderId: data.order.id },
-      'Email skipped — RESEND_API_KEY not configured',
-    );
-    return;
+    logger.info({ orderId: data.order.id }, 'Email skipped — RESEND_API_KEY not configured')
+    return
   }
 
   try {
     // Always fetch fresh email from profiles using the order's user_id
     // (never trust a passed-in email or user_id as "to")
     const { data: profile } = await adminSupabase
-      .from("profiles")
-      .select("email")
-      .eq("id", data.order.user_id)
-      .single();
+      .from('profiles')
+      .select('email')
+      .eq('id', data.order.user_id)
+      .single()
 
-    const toEmail = profile?.email;
+    const toEmail = profile?.email
 
     if (!toEmail) {
       logger.warn(
         { orderId: data.order.id, userId: data.order.user_id },
-        "No email address found for user — skipping order confirmation email",
-      );
-      return;
+        'No email address found for user — skipping order confirmation email'
+      )
+      return
     }
 
-    const totalRupees = (data.order.total_amount_paisa / 100).toFixed(2);
+    const totalRupees = (data.order.total_amount_paisa / 100).toFixed(2)
 
     await resend.emails.send({
       from: `${env.STORE_NAME} <${env.EMAIL_FROM}>`,
@@ -74,17 +53,17 @@ export async function sendOrderConfirmationEmail(
         <p>We will notify you when your order ships.</p>
         <p>— The ${env.STORE_NAME} Team</p>
       `,
-    });
+    })
 
     logger.info(
       { orderId: data.order.id, orderNumber: data.order.order_number, to: toEmail },
-      'Order confirmation email sent',
-    );
+      'Order confirmation email sent'
+    )
   } catch (err) {
     // Do NOT rethrow — email failure must not affect order confirmation
     logger.error(
       { err, orderId: data.order.id },
-      'Failed to send order confirmation email — will need manual retry',
-    );
+      'Failed to send order confirmation email — will need manual retry'
+    )
   }
 }

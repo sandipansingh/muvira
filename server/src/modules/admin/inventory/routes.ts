@@ -1,18 +1,14 @@
-import { Router } from 'express';
-import { z } from 'zod';
-import { validate } from '../../../middleware/validate';
-import { InventoryQuerySchema, UpdateStockSchema } from './schema';
-import * as controller from './controller';
+import { Router } from 'express'
+import { z } from 'zod'
+import { validate } from '../../../middleware/validate'
+import { InventoryQuerySchema, UpdateStockSchema } from './schema'
+import * as controller from './controller'
 
-export const adminInventoryRouter = Router();
+export const adminInventoryRouter = Router()
 
-adminInventoryRouter.get(
-  '/',
-  validate({ query: InventoryQuerySchema }),
-  controller.getInventory,
-);
+adminInventoryRouter.get('/', validate({ query: InventoryQuerySchema }), controller.getInventory)
 
-adminInventoryRouter.get('/low-stock', controller.getLowStockList);
+adminInventoryRouter.get('/low-stock', controller.getLowStockList)
 
 adminInventoryRouter.patch(
   '/:id/stock',
@@ -20,5 +16,5 @@ adminInventoryRouter.patch(
     params: z.object({ id: z.string().uuid() }),
     body: UpdateStockSchema,
   }),
-  controller.updateStock,
-);
+  controller.updateStock
+)

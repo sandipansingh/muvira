@@ -1,51 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { categoriesApiService } from "../../lib/api/categories";
-import type { Category } from "../../types/category";
-import ErrorState from "../../components/shared/ErrorState";
-import Skeleton from "../../components/ui/Skeleton";
-import Breadcrumb from "../../components/layout/Breadcrumb";
+import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { categoriesApiService } from '../../lib/api/categories'
+import type { Category } from '../../types/category'
+import ErrorState from '../../components/shared/ErrorState'
+import Skeleton from '../../components/ui/Skeleton'
+import Breadcrumb from '../../components/layout/Breadcrumb'
 
 export const Categories: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategories()
+  }, [])
 
   const fetchCategories = async () => {
-    setLoading(true);
-    setError(null);
-    const res = await categoriesApiService.getCategories();
+    setLoading(true)
+    setError(null)
+    const res = await categoriesApiService.getCategories()
     if (res.success) {
-      setCategories(res.data);
+      setCategories(res.data)
     } else {
-      setError(res.error.message || "Failed to load categories");
+      setError(res.error.message || 'Failed to load categories')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   if (error) {
     return (
       <div className="max-w-[1240px] mx-auto px-6 py-8">
         <ErrorState message={error} onRetry={fetchCategories} />
       </div>
-    );
+    )
   }
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
-      <Breadcrumb items={[{ label: "Categories" }]} />
+      <Breadcrumb items={[{ label: 'Categories' }]} />
 
       <div className="my-6">
         <h1 className="text-xl md:text-2xl font-semibold tracking-wide text-darkColor mb-2">
           Shop by Category
         </h1>
         <p className="text-xs md:text-sm text-secondary600 tracking-wide max-w-xl">
-          Browse through our curated collections of handloom clothing, organic
-          beddings, and handcrafted solid wood furniture.
+          Browse through our curated collections of handloom clothing, organic beddings, and
+          handcrafted solid wood furniture.
         </p>
       </div>
 
@@ -96,7 +96,7 @@ export const Categories: React.FC = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Categories;
+export default Categories

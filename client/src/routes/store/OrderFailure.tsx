@@ -1,11 +1,11 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import Button from '../../components/ui/Button';
-import Card, { CardContent } from '../../components/ui/Card';
-import { AlertCircle, ShoppingCart, HelpCircle } from 'lucide-react';
+import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import Button from '../../components/ui/Button'
+import Card, { CardContent } from '../../components/ui/Card'
+import { AlertCircle, ShoppingCart, HelpCircle } from 'lucide-react'
 
 export const OrderFailure: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center py-12 px-6 text-center">
@@ -16,7 +16,8 @@ export const OrderFailure: React.FC = () => {
             Payment Cancelled / Failed
           </h1>
           <p className="text-xs md:text-sm text-rose-700 font-medium tracking-wide mt-1.5 leading-relaxed">
-            Your transaction was not completed. If any funds were deducted, they will be refunded within 3-5 business days.
+            Your transaction was not completed. If any funds were deducted, they will be refunded
+            within 3-5 business days.
           </p>
         </div>
 
@@ -52,7 +53,7 @@ export const OrderFailure: React.FC = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default OrderFailure;
+export default OrderFailure

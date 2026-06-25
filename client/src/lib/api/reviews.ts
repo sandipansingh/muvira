@@ -1,56 +1,52 @@
-import { api } from "./client";
-import { mapProductReview } from "./adapters";
-import type { ProductReview, ReviewSummary } from "../../types/product";
-import type { ApiResponse, ApiPaginatedResponse } from "../../types/common";
+import { api } from './client'
+import { mapProductReview } from './adapters'
+import type { ProductReview, ReviewSummary } from '../../types/product'
+import type { ApiResponse, ApiPaginatedResponse } from '../../types/common'
 
 interface RawReview {
-  id: string;
-  product_id?: string;
-  productId?: string;
-  user_id?: string;
-  userId?: string;
-  rating: number;
-  comment: string | null;
-  created_at?: string;
-  createdAt?: string;
-  updated_at?: string;
-  updatedAt?: string;
-  user_name?: string | null;
-  userName?: string | null;
-  profiles?: { full_name?: string | null };
+  id: string
+  product_id?: string
+  productId?: string
+  user_id?: string
+  userId?: string
+  rating: number
+  comment: string | null
+  created_at?: string
+  createdAt?: string
+  updated_at?: string
+  updatedAt?: string
+  user_name?: string | null
+  userName?: string | null
+  profiles?: { full_name?: string | null }
 }
 
 interface ReviewsListResponse {
-  reviews: RawReview[];
-  summary: ReviewSummary;
+  reviews: RawReview[]
+  summary: ReviewSummary
 }
 
 export const reviewsApiService = {
   async getProductReviews(
     productId: string,
     page = 1,
-    limit = 20,
-  ): Promise<
-    ApiPaginatedResponse<ProductReview> & { summary: ReviewSummary }
-  > {
+    limit = 20
+  ): Promise<ApiPaginatedResponse<ProductReview> & { summary: ReviewSummary }> {
     const res = await api.get<{
-      success: boolean;
-      data?: ReviewsListResponse;
-      meta?: { page: number; limit: number; total: number; totalPages: number };
-      error?: { code: string; message: string };
-    }>(
-      `/api/products/${encodeURIComponent(productId)}/reviews?page=${page}&limit=${limit}`,
-    );
+      success: boolean
+      data?: ReviewsListResponse
+      meta?: { page: number; limit: number; total: number; totalPages: number }
+      error?: { code: string; message: string }
+    }>(`/api/products/${encodeURIComponent(productId)}/reviews?page=${page}&limit=${limit}`)
 
     if (!res.success || !res.data) {
       return {
         success: false,
-        error: res.error ?? { code: "UNKNOWN", message: "Failed to fetch reviews" },
+        error: res.error ?? { code: 'UNKNOWN', message: 'Failed to fetch reviews' },
         summary: { avgRating: null, totalReviews: 0 },
-      } as any;
+      } as any
     }
 
-    const rawReviews = ((res.data.reviews ?? []) as unknown) as Record<string, unknown>[];
+    const rawReviews = (res.data.reviews ?? []) as unknown as Record<string, unknown>[]
     return {
       success: true,
       data: rawReviews.map(mapProductReview),
@@ -61,29 +57,29 @@ export const reviewsApiService = {
         total: res.meta?.total ?? 0,
         totalPages: res.meta?.totalPages ?? 1,
       },
-    };
+    }
   },
 
   async submitReview(
     productId: string,
     rating: number,
-    comment?: string | null,
+    comment?: string | null
   ): Promise<ApiResponse<{ review: ProductReview; summary: ReviewSummary }>> {
     const res = await api.post<{
-      success: boolean;
-      data?: { review: RawReview; summary: ReviewSummary };
-      error?: { code: string; message: string };
+      success: boolean
+      data?: { review: RawReview; summary: ReviewSummary }
+      error?: { code: string; message: string }
     }>(
       `/api/products/${encodeURIComponent(productId)}/reviews`,
       { rating, comment: comment ?? null },
-      true,
-    );
+      true
+    )
 
     if (!res.success || !res.data) {
       return {
         success: false,
-        error: res.error ?? { code: "UNKNOWN", message: "Failed to submit review" },
-      };
+        error: res.error ?? { code: 'UNKNOWN', message: 'Failed to submit review' },
+      }
     }
 
     return {
@@ -92,6 +88,6 @@ export const reviewsApiService = {
         review: mapProductReview(res.data.review as unknown as Record<string, unknown>),
         summary: res.data.summary,
       },
-    };
+    }
   },
-};
+}

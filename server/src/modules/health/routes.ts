@@ -1,22 +1,22 @@
-import { Router } from 'express';
-import { adminSupabase } from '../../lib/supabase/admin';
+import { Router } from 'express'
+import { adminSupabase } from '../../lib/supabase/admin'
 
-export const healthRouter = Router();
+export const healthRouter = Router()
 
 healthRouter.get('/', async (_req, res) => {
   // Quick DB connectivity check
-  let dbStatus = 'ok';
+  let dbStatus = 'ok'
   try {
     const { error } = await adminSupabase
       .from('profiles')
       .select('id', { head: true, count: 'exact' })
-      .limit(1);
-    if (error) dbStatus = 'degraded';
+      .limit(1)
+    if (error) dbStatus = 'degraded'
   } catch {
-    dbStatus = 'error';
+    dbStatus = 'error'
   }
 
-  const status = dbStatus === 'ok' ? 200 : 503;
+  const status = dbStatus === 'ok' ? 200 : 503
 
   res.status(status).json({
     success: true,
@@ -27,5 +27,5 @@ healthRouter.get('/', async (_req, res) => {
         database: dbStatus,
       },
     },
-  });
-});
+  })
+})

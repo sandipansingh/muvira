@@ -1,6 +1,6 @@
-import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
-import { STORE_NAME } from '../../lib/constants';
+import React from 'react'
+import { NavLink, Link } from 'react-router-dom'
+import { STORE_NAME } from '../../lib/constants'
 import {
   LayoutDashboard,
   Box,
@@ -10,8 +10,8 @@ import {
   Warehouse,
   Settings,
   ArrowUpRight,
-  Star
-} from 'lucide-react';
+  Star,
+} from 'lucide-react'
 
 export const AdminSidebar: React.FC = () => {
   const menuItems = [
@@ -23,7 +23,7 @@ export const AdminSidebar: React.FC = () => {
     { name: 'Coupons', path: '/admin/coupons', icon: Ticket },
     { name: 'Inventory', path: '/admin/inventory', icon: Warehouse },
     { name: 'Site Settings', path: '/admin/settings', icon: Settings },
-  ];
+  ]
 
   return (
     <aside className="w-64 bg-darkColor text-secondary300 h-screen fixed top-0 left-0 flex flex-col border-r border-secondary600/20 z-40 text-left">
@@ -31,7 +31,8 @@ export const AdminSidebar: React.FC = () => {
       <div className="h-16 px-6 border-b border-secondary600/20 flex items-center justify-between">
         <Link to="/admin" className="flex items-center">
           <span className="text-lg font-medium text-white tracking-widest uppercase">
-            {STORE_NAME} <span className="text-xs text-primary400 font-medium lowercase">admin</span>
+            {STORE_NAME}{' '}
+            <span className="text-xs text-primary400 font-medium lowercase">admin</span>
           </span>
         </Link>
       </div>
@@ -73,7 +74,7 @@ export const AdminSidebar: React.FC = () => {
         </Link>
       </div>
     </aside>
-  );
-};
+  )
+}
 
-export default AdminSidebar;
+export default AdminSidebar

@@ -1,136 +1,143 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { adminApiService } from '../../lib/api/admin';
-import type { OrderDetail } from '../../types/order';
-import { formatPrice, formatDate } from '../../lib/format';
-import Card, { CardContent } from '../../components/ui/Card';
-import Badge from '../../components/ui/Badge';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
-import Select from '../../components/ui/Select';
-import Pagination from '../../components/ui/Pagination';
-import Skeleton from '../../components/ui/Skeleton';
-import ErrorState from '../../components/shared/ErrorState';
-import { Search, RefreshCw } from 'lucide-react';
-import { useToast } from '../../hooks/useToast';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { adminApiService } from '../../lib/api/admin'
+import type { OrderDetail } from '../../types/order'
+import { formatPrice, formatDate } from '../../lib/format'
+import Card, { CardContent } from '../../components/ui/Card'
+import Badge from '../../components/ui/Badge'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../components/ui/Table'
+import Select from '../../components/ui/Select'
+import Pagination from '../../components/ui/Pagination'
+import Skeleton from '../../components/ui/Skeleton'
+import ErrorState from '../../components/shared/ErrorState'
+import { Search, RefreshCw } from 'lucide-react'
+import { useToast } from '../../hooks/useToast'
 
 export const OrdersList: React.FC = () => {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [orders, setOrders] = useState<OrderDetail[]>([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [orders, setOrders] = useState<OrderDetail[]>([])
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 })
+  const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const { showToast } = useToast();
+  const { showToast } = useToast()
 
   const handleSyncTracking = async () => {
-    setSyncing(true);
-    const res = await adminApiService.syncTrackingOrders();
-    setSyncing(false);
+    setSyncing(true)
+    const res = await adminApiService.syncTrackingOrders()
+    setSyncing(false)
     if (res.success) {
       showToast(
         `Sync completed. Checked ${res.data.totalChecked} active shipments, updated ${res.data.totalUpdated} statuses.`,
         'success'
-      );
-      fetchOrders();
+      )
+      fetchOrders()
     } else {
-      showToast(res.error.message || 'Tracking sync failed.', 'error');
+      showToast(res.error.message || 'Tracking sync failed.', 'error')
     }
-  };
+  }
 
   // Sync inputs with URL params
-  const q = searchParams.get('q') || '';
-  const status = searchParams.get('status') || '';
-  const paymentStatus = searchParams.get('paymentStatus') || '';
-  const fulfillmentStatus = searchParams.get('fulfillmentStatus') || '';
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const q = searchParams.get('q') || ''
+  const status = searchParams.get('status') || ''
+  const paymentStatus = searchParams.get('paymentStatus') || ''
+  const fulfillmentStatus = searchParams.get('fulfillmentStatus') || ''
+  const page = parseInt(searchParams.get('page') || '1', 10)
 
   useEffect(() => {
-    fetchOrders();
-  }, [q, status, paymentStatus, fulfillmentStatus, page]);
+    fetchOrders()
+  }, [q, status, paymentStatus, fulfillmentStatus, page])
 
   const fetchOrders = async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
 
     const queryParams: any = {
       page,
       limit: 10,
       q,
-    };
+    }
 
-    if (status) queryParams.status = status;
-    if (paymentStatus) queryParams.paymentStatus = paymentStatus;
-    if (fulfillmentStatus) queryParams.fulfillmentStatus = fulfillmentStatus;
+    if (status) queryParams.status = status
+    if (paymentStatus) queryParams.paymentStatus = paymentStatus
+    if (fulfillmentStatus) queryParams.fulfillmentStatus = fulfillmentStatus
 
-    const res = await adminApiService.getOrders(queryParams);
+    const res = await adminApiService.getOrders(queryParams)
     if (res.success) {
-      setOrders(res.data);
-      setPagination(res.pagination);
+      setOrders(res.data)
+      setPagination(res.pagination)
 
       // Silent background tracking sync for any active/transit shipments on this page
       const activeOrders = res.data.filter(
         (o) => o.awbCode && o.status !== 'delivered' && o.status !== 'cancelled'
-      );
+      )
       if (activeOrders.length > 0) {
         adminApiService.syncTrackingOrders().then((syncRes) => {
           if (syncRes.success && syncRes.data.totalUpdated > 0) {
             // Re-fetch list silently since some statuses were updated
             adminApiService.getOrders(queryParams).then((reRes) => {
               if (reRes.success) {
-                setOrders(reRes.data);
-                setPagination(reRes.pagination);
+                setOrders(reRes.data)
+                setPagination(reRes.pagination)
               }
-            });
+            })
           }
-        });
+        })
       }
     } else {
-      setError(res.error.message || 'Failed to load orders list.');
+      setError(res.error.message || 'Failed to load orders list.')
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   const updateParam = (key: string, value: string) => {
-    const updated = new URLSearchParams(searchParams);
+    const updated = new URLSearchParams(searchParams)
     if (value === '') {
-      updated.delete(key);
+      updated.delete(key)
     } else {
-      updated.set(key, value);
+      updated.set(key, value)
     }
     if (key !== 'page') {
-      updated.delete('page');
+      updated.delete('page')
     }
-    setSearchParams(updated);
-  };
+    setSearchParams(updated)
+  }
 
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'delivered':
-        return 'success';
+        return 'success'
       case 'cancelled':
-        return 'danger';
+        return 'danger'
       case 'shipped':
       case 'processing':
       case 'confirmed':
-        return 'primary';
+        return 'primary'
       default:
-        return 'warning';
+        return 'warning'
     }
-  };
+  }
 
   const getPaymentVariant = (pStatus: string) => {
     switch (pStatus) {
       case 'paid':
-        return 'success';
+        return 'success'
       case 'failed':
-        return 'danger';
+        return 'danger'
       default:
-        return 'warning';
+        return 'warning'
     }
-  };
+  }
 
   const orderStatusOptions = [
     { value: '', label: 'All Order Statuses' },
@@ -140,7 +147,7 @@ export const OrdersList: React.FC = () => {
     { value: 'shipped', label: 'Shipped' },
     { value: 'delivered', label: 'Delivered' },
     { value: 'cancelled', label: 'Cancelled' },
-  ];
+  ]
 
   const paymentStatusOptions = [
     { value: '', label: 'All Payments' },
@@ -148,14 +155,14 @@ export const OrdersList: React.FC = () => {
     { value: 'paid', label: 'Paid' },
     { value: 'failed', label: 'Failed' },
     { value: 'refunded', label: 'Refunded' },
-  ];
+  ]
 
   const fulfillmentStatusOptions = [
     { value: '', label: 'All Fulfillments' },
     { value: 'unfulfilled', label: 'Unfulfilled' },
     { value: 'partial', label: 'Partial' },
     { value: 'fulfilled', label: 'Fulfilled' },
-  ];
+  ]
 
   return (
     <div className="space-y-6 text-left">
@@ -166,7 +173,8 @@ export const OrdersList: React.FC = () => {
             Order Management
           </h2>
           <p className="text-xs text-secondary500 tracking-wide mt-1">
-            Fulfill order packages, assign carriers tracking details, and moderate custom request notes.
+            Fulfill order packages, assign carriers tracking details, and moderate custom request
+            notes.
           </p>
         </div>
         <button
@@ -251,11 +259,11 @@ export const OrdersList: React.FC = () => {
               <TableBody>
                 {orders.map((ord) => (
                   <TableRow key={ord.id}>
-                    <TableCell className="font-medium text-darkColor">
-                      {ord.orderNumber}
-                    </TableCell>
+                    <TableCell className="font-medium text-darkColor">{ord.orderNumber}</TableCell>
                     <TableCell>
-                      <p className="font-medium text-darkColor leading-none">{ord.customer?.fullName}</p>
+                      <p className="font-medium text-darkColor leading-none">
+                        {ord.customer?.fullName}
+                      </p>
                       <p className="text-[10px] text-secondary500 font-medium mt-1">
                         {ord.customer?.email}
                       </p>
@@ -275,7 +283,9 @@ export const OrdersList: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={ord.fulfillmentStatus === 'fulfilled' ? 'success' : 'warning'}>
+                      <Badge
+                        variant={ord.fulfillmentStatus === 'fulfilled' ? 'success' : 'warning'}
+                      >
                         {ord.fulfillmentStatus}
                       </Badge>
                     </TableCell>
@@ -301,7 +311,7 @@ export const OrdersList: React.FC = () => {
         onPageChange={(pageVal) => updateParam('page', pageVal.toString())}
       />
     </div>
-  );
-};
+  )
+}
 
-export default OrdersList;
+export default OrdersList

@@ -1,17 +1,19 @@
-/**
- * Maps server (snake_case, _paisa suffix) shapes → frontend (camelCase) types.
- * All money values stay as integer paisa — no conversion.
- */
-import type { Profile } from '../../types/auth';
-import type { ProductListItem, ProductDetail, ProductImage } from '../../types/product';
-import type { Category } from '../../types/category';
+import type { Profile } from '../../types/auth'
+import type { ProductListItem, ProductDetail, ProductImage } from '../../types/product'
+import type { Category } from '../../types/category'
 
-import type { Cart, CartItem, Address } from '../../types/cart';
-import type { OrderListItem, OrderDetail, OrderItem, OrderAddress, AdminNote } from '../../types/order';
-import type { Coupon, CouponPreview } from '../../types/coupon';
-import type { DashboardStats, InventoryItem } from '../../types/dashboard';
-import type { SiteSettings } from '../../types/settings';
-import type { ProductReview } from '../../types/product';
+import type { Cart, CartItem, Address } from '../../types/cart'
+import type {
+  OrderListItem,
+  OrderDetail,
+  OrderItem,
+  OrderAddress,
+  AdminNote,
+} from '../../types/order'
+import type { Coupon, CouponPreview } from '../../types/coupon'
+import type { DashboardStats, InventoryItem } from '../../types/dashboard'
+import type { SiteSettings } from '../../types/settings'
+import type { ProductReview } from '../../types/product'
 
 // ── Profile ──────────────────────────────────────────────────────────────────
 
@@ -23,7 +25,7 @@ export function mapProfile(raw: Record<string, unknown>): Profile {
     role: raw['role'] as 'user' | 'admin',
     createdAt: raw['created_at'] as string,
     email: raw['email'] as string | undefined,
-  };
+  }
 }
 
 // ── Product images ────────────────────────────────────────────────────────────
@@ -35,25 +37,25 @@ function mapProductImage(raw: Record<string, unknown>): ProductImage {
     altText: (raw['alt_text'] as string | null) ?? '',
     isPrimary: raw['is_primary'] as boolean,
     sortOrder: (raw['sort_order'] as number) ?? 0,
-  };
+  }
 }
 
 // ── Product list item ─────────────────────────────────────────────────────────
 
 export function mapProductListItem(raw: Record<string, unknown>): ProductListItem {
-  const images = (raw['product_images'] as Record<string, unknown>[] | undefined) ?? [];
-  const primaryImage = images.find((img) => img['is_primary']) ?? images[0];
-  const pricePaisa = raw['price_paisa'] as number;
-  const compareAtPaisa = raw['compare_at_price_paisa'] as number | null;
+  const images = (raw['product_images'] as Record<string, unknown>[] | undefined) ?? []
+  const primaryImage = images.find((img) => img['is_primary']) ?? images[0]
+  const pricePaisa = raw['price_paisa'] as number
+  const compareAtPaisa = raw['compare_at_price_paisa'] as number | null
 
   // price_paisa is the selling price; compare_at_price_paisa is the crossed-out MRP.
-  const price = compareAtPaisa ?? pricePaisa;
-  const salePrice = compareAtPaisa ? pricePaisa : null;
+  const price = compareAtPaisa ?? pricePaisa
+  const salePrice = compareAtPaisa ? pricePaisa : null
   const discountPercent = compareAtPaisa
     ? Math.round(((compareAtPaisa - pricePaisa) / compareAtPaisa) * 100)
-    : 0;
+    : 0
 
-  const cat = raw['categories'] as Record<string, unknown> | undefined;
+  const cat = raw['categories'] as Record<string, unknown> | undefined
 
   return {
     id: raw['id'] as string,
@@ -71,25 +73,28 @@ export function mapProductListItem(raw: Record<string, unknown>): ProductListIte
     primaryImageUrl: (primaryImage?.['url'] as string | undefined) ?? '',
     createdAt: raw['created_at'] as string,
     rating: (raw['rating'] as number | null | undefined) ?? null,
-    reviewCount: (raw['review_count'] as number | undefined) ?? (raw['reviewCount'] as number | undefined) ?? 0,
-  };
+    reviewCount:
+      (raw['review_count'] as number | undefined) ??
+      (raw['reviewCount'] as number | undefined) ??
+      0,
+  }
 }
 
 // ── Product detail ────────────────────────────────────────────────────────────
 
 export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
-  const images = (raw['product_images'] as Record<string, unknown>[] | undefined) ?? [];
-  const pricePaisa = raw['price_paisa'] as number;
-  const compareAtPaisa = raw['compare_at_price_paisa'] as number | null;
+  const images = (raw['product_images'] as Record<string, unknown>[] | undefined) ?? []
+  const pricePaisa = raw['price_paisa'] as number
+  const compareAtPaisa = raw['compare_at_price_paisa'] as number | null
 
-  const price = compareAtPaisa ?? pricePaisa;
-  const salePrice = compareAtPaisa ? pricePaisa : null;
+  const price = compareAtPaisa ?? pricePaisa
+  const salePrice = compareAtPaisa ? pricePaisa : null
   const discountPercent = compareAtPaisa
     ? Math.round(((compareAtPaisa - pricePaisa) / compareAtPaisa) * 100)
-    : 0;
+    : 0
 
-  const catRaw = raw['categories'] as Record<string, unknown> | undefined;
-  const cat = catRaw ?? { id: raw['category_id'], name: '', slug: '' };
+  const catRaw = raw['categories'] as Record<string, unknown> | undefined
+  const cat = catRaw ?? { id: raw['category_id'], name: '', slug: '' }
 
   return {
     id: raw['id'] as string,
@@ -114,8 +119,11 @@ export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
     metadata: (raw['metadata'] as Record<string, string> | null) ?? {},
     createdAt: raw['created_at'] as string,
     rating: (raw['rating'] as number | null | undefined) ?? null,
-    reviewCount: (raw['review_count'] as number | undefined) ?? (raw['reviewCount'] as number | undefined) ?? 0,
-  };
+    reviewCount:
+      (raw['review_count'] as number | undefined) ??
+      (raw['reviewCount'] as number | undefined) ??
+      0,
+  }
 }
 
 // ── Category ──────────────────────────────────────────────────────────────────
@@ -130,19 +138,17 @@ export function mapCategory(raw: Record<string, unknown>): Category {
     sortOrder: (raw['sort_order'] as number) ?? 0,
     isActive: raw['is_active'] as boolean,
     showInNavbar: raw['show_in_navbar'] as boolean | undefined,
-  };
+  }
 }
-
-
 
 // ── Cart ──────────────────────────────────────────────────────────────────────
 
 export function mapCartItem(raw: Record<string, unknown>): CartItem {
-  const prod = raw['products'] as Record<string, unknown> | undefined;
-  const images = (prod?.['product_images'] as Record<string, unknown>[] | undefined) ?? [];
-  const primaryImage = images.find((img) => img['is_primary']) ?? images[0];
-  const unitPrice = (prod?.['price_paisa'] as number) ?? 0;
-  const quantity = raw['quantity'] as number;
+  const prod = raw['products'] as Record<string, unknown> | undefined
+  const images = (prod?.['product_images'] as Record<string, unknown>[] | undefined) ?? []
+  const primaryImage = images.find((img) => img['is_primary']) ?? images[0]
+  const unitPrice = (prod?.['price_paisa'] as number) ?? 0
+  const quantity = raw['quantity'] as number
 
   return {
     id: raw['id'] as string,
@@ -155,16 +161,16 @@ export function mapCartItem(raw: Record<string, unknown>): CartItem {
     lineTotal: unitPrice * quantity,
     inStock: ((prod?.['stock'] as number) ?? 0) > 0,
     availableStock: (prod?.['stock'] as number) ?? 0,
-  };
+  }
 }
 
 export function buildCart(rawItems: Record<string, unknown>[]): Cart {
-  const items = rawItems.map(mapCartItem);
+  const items = rawItems.map(mapCartItem)
   return {
     items,
     subtotal: items.reduce((s, i) => s + i.lineTotal, 0),
     itemCount: items.reduce((s, i) => s + i.quantity, 0),
-  };
+  }
 }
 
 // ── Address ───────────────────────────────────────────────────────────────────
@@ -182,13 +188,13 @@ export function mapAddress(raw: Record<string, unknown>): Address {
     pincode: raw['pincode'] as string,
     country: raw['country'] as string,
     isDefault: raw['is_default'] as boolean,
-  };
+  }
 }
 
 // ── Order ─────────────────────────────────────────────────────────────────────
 
 export function mapOrderListItem(raw: Record<string, unknown>): OrderListItem {
-  const items = (raw['order_items'] as Record<string, unknown>[] | undefined) ?? [];
+  const items = (raw['order_items'] as Record<string, unknown>[] | undefined) ?? []
   return {
     id: raw['id'] as string,
     orderNumber: raw['order_number'] as string,
@@ -199,9 +205,8 @@ export function mapOrderListItem(raw: Record<string, unknown>): OrderListItem {
     itemCount: items.reduce((s, i) => s + ((i['quantity'] as number) ?? 0), 0),
     createdAt: raw['created_at'] as string,
     awbCode: (raw['awb_code'] as string | null) ?? null,
-  };
+  }
 }
-
 
 export function mapOrderItem(raw: Record<string, unknown>): OrderItem {
   return {
@@ -212,7 +217,7 @@ export function mapOrderItem(raw: Record<string, unknown>): OrderItem {
     unitPrice: raw['unit_price_paisa'] as number,
     quantity: raw['quantity'] as number,
     totalPrice: raw['total_price_paisa'] as number,
-  };
+  }
 }
 
 export function mapOrderAddress(raw: Record<string, unknown>): OrderAddress {
@@ -225,36 +230,36 @@ export function mapOrderAddress(raw: Record<string, unknown>): OrderAddress {
     state: raw['shipping_state'] as string,
     pincode: raw['shipping_pincode'] as string,
     country: raw['shipping_country'] as string,
-  };
+  }
 }
 
 export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
-  const items = (raw['order_items'] as Record<string, unknown>[] | undefined) ?? [];
-  const profile = raw['profiles'] as Record<string, unknown> | undefined;
+  const items = (raw['order_items'] as Record<string, unknown>[] | undefined) ?? []
+  const profile = raw['profiles'] as Record<string, unknown> | undefined
 
-  const rawNotes = (raw['notes'] as string | null) ?? '';
-  let deliveryInstructions: string | null = null;
-  const adminNotes: AdminNote[] = [];
+  const rawNotes = (raw['notes'] as string | null) ?? ''
+  let deliveryInstructions: string | null = null
+  const adminNotes: AdminNote[] = []
 
   if (rawNotes) {
-    const lines = rawNotes.split('\n');
+    const lines = rawNotes.split('\n')
     lines.forEach((line, idx) => {
-      const match = line.match(/^\[([^\]]+)\]\s*(.*)$/);
+      const match = line.match(/^\[([^\]]+)\]\s*(.*)$/)
       if (match) {
         adminNotes.push({
           id: String(idx),
           note: match[2],
           createdBy: 'Admin',
           createdAt: match[1],
-        });
+        })
       } else {
         if (deliveryInstructions) {
-          deliveryInstructions += '\n' + line;
+          deliveryInstructions += '\n' + line
         } else {
-          deliveryInstructions = line;
+          deliveryInstructions = line
         }
       }
-    });
+    })
   }
 
   return {
@@ -283,9 +288,8 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
       : undefined,
     adminNotes,
     deliveryInstructions,
-  };
+  }
 }
-
 
 // ── Coupon ────────────────────────────────────────────────────────────────────
 
@@ -301,19 +305,19 @@ export function mapCoupon(raw: Record<string, unknown>): Coupon {
     validFrom: raw['valid_from'] as string,
     validUntil: (raw['valid_until'] as string | null) ?? '',
     isActive: raw['is_active'] as boolean,
-  };
+  }
 }
 
 export function mapCouponPreview(raw: Record<string, unknown>): CouponPreview {
-  const subtotalPaisa = (raw['subtotal_paisa'] as number | undefined) ?? 0;
-  const discountPaisa = raw['discount_amount_paisa'] as number;
+  const subtotalPaisa = (raw['subtotal_paisa'] as number | undefined) ?? 0
+  const discountPaisa = raw['discount_amount_paisa'] as number
   return {
     code: raw['code'] as string,
     discountType: raw['discount_type'] as 'percentage' | 'fixed',
     discountValue: raw['discount_value'] as number,
     discountAmount: discountPaisa,
     newSubtotal: subtotalPaisa - discountPaisa,
-  };
+  }
 }
 
 // ── Dashboard / Inventory ─────────────────────────────────────────────────────
@@ -326,7 +330,7 @@ export function mapDashboardStats(raw: Record<string, unknown>): DashboardStats 
     totalCategories: (raw['total_categories'] as number) ?? 0,
     activeCoupons: (raw['active_coupons'] as number) ?? 0,
     lowStockCount: (raw['low_stock_count'] as number) ?? 0,
-  };
+  }
 }
 
 export function mapInventoryItem(raw: Record<string, unknown>): InventoryItem {
@@ -336,7 +340,7 @@ export function mapInventoryItem(raw: Record<string, unknown>): InventoryItem {
     sku: (raw['sku'] as string | null) ?? '',
     stock: raw['stock'] as number,
     isLowStock: (raw['stock'] as number) <= 10,
-  };
+  }
 }
 
 // ── Reviews ──────────────────────────────────────────────────────────────────
@@ -350,17 +354,20 @@ export function mapProductReview(raw: Record<string, unknown>): ProductReview {
     comment: (raw['comment'] as string) ?? null,
     createdAt: (raw['created_at'] as string) ?? (raw['createdAt'] as string) ?? '',
     updatedAt: (raw['updated_at'] as string) ?? (raw['updatedAt'] as string) ?? undefined,
-    userName: (raw['user_name'] as string | null | undefined) ?? (raw['userName'] as string | null | undefined) ?? null,
-  };
+    userName:
+      (raw['user_name'] as string | null | undefined) ??
+      (raw['userName'] as string | null | undefined) ??
+      null,
+  }
 }
 
 // ── Site Settings ─────────────────────────────────────────────────────────────
 
 export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
-  const contactRaw = (raw['contact_info'] as Record<string, unknown>) ?? {};
-  const announcementRaw = (raw['announcement_bar'] as Record<string, unknown>) ?? {};
-  const slidesRaw = (raw['hero_slides'] as Record<string, unknown>[]) ?? [];
-  const shippingRaw = (raw['shipping_rules'] as Record<string, unknown>) ?? {};
+  const contactRaw = (raw['contact_info'] as Record<string, unknown>) ?? {}
+  const announcementRaw = (raw['announcement_bar'] as Record<string, unknown>) ?? {}
+  const slidesRaw = (raw['hero_slides'] as Record<string, unknown>[]) ?? []
+  const shippingRaw = (raw['shipping_rules'] as Record<string, unknown>) ?? {}
 
   return {
     contactInfo: {
@@ -380,10 +387,13 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       imageUrl: s['imageUrl'] as string,
       link: s['link'] as string,
     })),
-    storeDescription: (raw['store_description'] as string) ?? 'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
+    storeDescription:
+      (raw['store_description'] as string) ??
+      'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
     shippingRules: {
       shippingChargePaisa: (shippingRaw['shipping_charge_paisa'] as number) ?? 15000,
-      freeShippingThresholdPaisa: (shippingRaw['free_shipping_threshold_paisa'] as number) ?? 100000,
+      freeShippingThresholdPaisa:
+        (shippingRaw['free_shipping_threshold_paisa'] as number) ?? 100000,
     },
-  };
+  }
 }

@@ -1,64 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { useCart } from '../../hooks/useCart';
-import { STORE_NAME } from '../../lib/constants';
-import { useSiteSettings } from '../../context/SiteSettingsContext';
-import SearchBar from '../shared/SearchBar';
-import Sheet from '../ui/Sheet';
-import Button from '../ui/Button';
-import { categoriesApiService } from '../../lib/api/categories';
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import { useCart } from '../../hooks/useCart'
+import { STORE_NAME } from '../../lib/constants'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
+import SearchBar from '../shared/SearchBar'
+import Sheet from '../ui/Sheet'
+import Button from '../ui/Button'
+import { categoriesApiService } from '../../lib/api/categories'
 import {
   ShoppingCart,
   User,
   Menu,
   Phone,
   Truck,
-
   ChevronDown,
   LayoutDashboard,
   LogOut,
   History,
-  Info
-} from 'lucide-react';
+  Info,
+} from 'lucide-react'
 
-const CATEGORIES_CACHE_KEY = 'navbar_categories_cache';
+const CATEGORIES_CACHE_KEY = 'navbar_categories_cache'
 
 const DEFAULT_CATEGORIES = [
   { name: 'Solid Wood Furniture', slug: 'solid-wood-furniture' },
   { name: 'Kurtas & Apparel', slug: 'kurtas-apparel' },
   { name: 'Home Decor', slug: 'home-decor' },
   { name: 'Doll', slug: 'doll' },
-];
+]
 
 function readCategoriesCache(): { name: string; slug: string }[] {
   try {
-    const raw = localStorage.getItem(CATEGORIES_CACHE_KEY);
-    if (!raw) return DEFAULT_CATEGORIES;
-    return JSON.parse(raw);
+    const raw = localStorage.getItem(CATEGORIES_CACHE_KEY)
+    if (!raw) return DEFAULT_CATEGORIES
+    return JSON.parse(raw)
   } catch {
-    return DEFAULT_CATEGORIES;
+    return DEFAULT_CATEGORIES
   }
 }
 
 function writeCategoriesCache(data: { name: string; slug: string }[]): void {
   try {
-    localStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify(data))
   } catch {
     // fail silently
   }
 }
 
 export const Navbar: React.FC = () => {
-  const { user, logout, isAuthenticated, isAdmin } = useAuth();
-  const { cart } = useCart();
-  const navigate = useNavigate();
-  const { settings } = useSiteSettings();
-  const announcementBar = settings?.announcementBar;
-  const contactInfo = settings?.contactInfo;
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const profileDropdownRef = React.useRef<HTMLDivElement>(null);
+  const { user, logout, isAuthenticated, isAdmin } = useAuth()
+  const { cart } = useCart()
+  const navigate = useNavigate()
+  const { settings } = useSiteSettings()
+  const announcementBar = settings?.announcementBar
+  const contactInfo = settings?.contactInfo
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
+  const profileDropdownRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -66,87 +65,98 @@ export const Navbar: React.FC = () => {
         profileDropdownRef.current &&
         !profileDropdownRef.current.contains(event.target as Node)
       ) {
-        setProfileDropdownOpen(false);
+        setProfileDropdownOpen(false)
       }
-    };
+    }
 
     if (profileDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside)
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [profileDropdownOpen]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [profileDropdownOpen])
 
-  const [categoriesList, setCategoriesList] = useState<{ name: string; slug: string }[]>(readCategoriesCache);
+  const [categoriesList, setCategoriesList] =
+    useState<{ name: string; slug: string }[]>(readCategoriesCache)
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+      navigate(`/search?q=${encodeURIComponent(query.trim())}`)
     }
-  };
+  }
 
   const handleLogout = async () => {
-    await logout();
-    setProfileDropdownOpen(false);
-    navigate('/');
-  };
+    await logout()
+    setProfileDropdownOpen(false)
+    navigate('/')
+  }
 
   useEffect(() => {
-    let active = true;
+    let active = true
     const fetchNavbarCategories = async () => {
       try {
-        const res = await categoriesApiService.getCategories();
+        const res = await categoriesApiService.getCategories()
         if (active && res.success && res.data) {
-          console.log('[Navbar] Fetched categories from API:', res.data);
+          console.log('[Navbar] Fetched categories from API:', res.data)
           const navbarCats = res.data
             .filter((cat) => {
-              console.log(`[Navbar] Checking category: ${cat.name}, showInNavbar: ${cat.showInNavbar}, isActive: ${cat.isActive}`);
-              return cat.showInNavbar && cat.isActive !== false;
+              console.log(
+                `[Navbar] Checking category: ${cat.name}, showInNavbar: ${cat.showInNavbar}, isActive: ${cat.isActive}`
+              )
+              return cat.showInNavbar && cat.isActive !== false
             })
-            .map((cat) => ({ name: cat.name, slug: cat.slug }));
-          console.log('[Navbar] Setting navbar categories list to:', navbarCats);
-          setCategoriesList(navbarCats);
-          writeCategoriesCache(navbarCats);
+            .map((cat) => ({ name: cat.name, slug: cat.slug }))
+          console.log('[Navbar] Setting navbar categories list to:', navbarCats)
+          setCategoriesList(navbarCats)
+          writeCategoriesCache(navbarCats)
         } else if (active && !res.success) {
-          console.error('[Navbar] API returned error:', res.error);
+          console.error('[Navbar] API returned error:', res.error)
         }
       } catch (err) {
-        console.error('Failed to fetch navbar categories:', err);
+        console.error('Failed to fetch navbar categories:', err)
       }
-    };
-    fetchNavbarCategories();
+    }
+    fetchNavbarCategories()
     return () => {
-      active = false;
-    };
-  }, []);
+      active = false
+    }
+  }, [])
 
   return (
     <header className="relative z-[39] bg-[var(--surface)] border-b border-[var(--border)]">
       {/* 1. TOP UTILITY BAR (Desktop only) */}
       {announcementBar?.enabled && (
-      <div className="hidden md:block bg-[var(--surface)] text-[var(--text-muted)] text-[11px] font-normal border-b border-[var(--border)] py-2">
-        <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {announcementBar.badge && (
-              <span className="text-[var(--accent)] font-medium tracking-wider">{announcementBar.badge}:</span>
-            )}
-            <span>{announcementBar.message}</span>
-          </div>
-          <div className="flex items-center gap-6">
-            {contactInfo && (
-              <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
-                <Phone className="w-3.5 h-3.5 shrink-0" />
-                <span>Call Us: {contactInfo.phone}</span>
-              </a>
-            )}
-            <Link to="/orders" className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors">
-              <Truck className="w-3.5 h-3.5 shrink-0" />
-              <span>Track Order</span>
-            </Link>
+        <div className="hidden md:block bg-[var(--surface)] text-[var(--text-muted)] text-[11px] font-normal border-b border-[var(--border)] py-2">
+          <div className="max-w-[1240px] mx-auto px-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {announcementBar.badge && (
+                <span className="text-[var(--accent)] font-medium tracking-wider">
+                  {announcementBar.badge}:
+                </span>
+              )}
+              <span>{announcementBar.message}</span>
+            </div>
+            <div className="flex items-center gap-6">
+              {contactInfo && (
+                <a
+                  href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
+                  className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5 shrink-0" />
+                  <span>Call Us: {contactInfo.phone}</span>
+                </a>
+              )}
+              <Link
+                to="/orders"
+                className="flex items-center gap-1.5 hover:text-[var(--accent)] transition-colors"
+              >
+                <Truck className="w-3.5 h-3.5 shrink-0" />
+                <span>Track Order</span>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* 2. MAIN HEADER */}
@@ -187,9 +197,10 @@ export const Navbar: React.FC = () => {
                   <User className="w-[23.6px] h-[23.5px]" />
                   <span className="text-[12px] tracking-wide mt-1 flex items-center gap-0.5">
                     {(() => {
-                      const firstName = user?.fullName ? user.fullName.trim().split(/\s+/)[0] : '';
-                      const greetingName = firstName.length > 7 ? `${firstName.slice(0, 6)}...` : firstName;
-                      return `Hi, ${greetingName}`;
+                      const firstName = user?.fullName ? user.fullName.trim().split(/\s+/)[0] : ''
+                      const greetingName =
+                        firstName.length > 7 ? `${firstName.slice(0, 6)}...` : firstName
+                      return `Hi, ${greetingName}`
                     })()}
                     <ChevronDown className="w-3 h-3 shrink-0" />
                   </span>
@@ -200,7 +211,9 @@ export const Navbar: React.FC = () => {
                   <div className="absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-2xl border border-secondary200 py-2.5 z-50 text-left transition-smooth animate-slide-in">
                     <div className="px-4 py-2 border-b border-secondary200">
                       <p className="text-xs text-secondary500 font-medium">Signed in as</p>
-                      <p className="text-sm font-semibold text-darkColor truncate">{user?.fullName}</p>
+                      <p className="text-sm font-semibold text-darkColor truncate">
+                        {user?.fullName}
+                      </p>
                     </div>
                     {isAdmin && (
                       <Link
@@ -276,10 +289,16 @@ export const Navbar: React.FC = () => {
       <div className="hidden md:block bg-[var(--surface-2)] border-t border-[var(--border)] font-medium">
         <div className="max-w-[1240px] mx-auto px-6">
           <nav className="flex items-center gap-7 py-2.5 text-[13px]">
-            <Link to="/" className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
+            <Link
+              to="/"
+              className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+            >
               Home
             </Link>
-            <Link to="/products" className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors">
+            <Link
+              to="/products"
+              className="text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
+            >
               All Products
             </Link>
             {categoriesList.map((cat) => (
@@ -296,11 +315,7 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* 5. MOBILE NAVIGATION DRAWER SHEET */}
-      <Sheet
-        isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-        title="Menu Options"
-      >
+      <Sheet isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} title="Menu Options">
         <div className="flex flex-col gap-6 text-left">
           {/* User Section */}
           <div className="bg-lightgrayColor rounded-xl p-4 flex flex-col gap-3">
@@ -327,8 +342,8 @@ export const Navbar: React.FC = () => {
                   variant="primary"
                   size="sm"
                   onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate('/login');
+                    setMobileMenuOpen(false)
+                    navigate('/login')
                   }}
                   className="flex-1"
                 >
@@ -338,8 +353,8 @@ export const Navbar: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate('/signup');
+                    setMobileMenuOpen(false)
+                    navigate('/signup')
                   }}
                   className="flex-1 bg-white"
                 >
@@ -406,17 +421,17 @@ export const Navbar: React.FC = () => {
               </div>
             )}
             {announcementBar?.enabled && announcementBar.message && (
-            <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-primaryBg" />
-              <span>{announcementBar.message}</span>
-            </div>
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-primaryBg" />
+                <span>{announcementBar.message}</span>
+              </div>
             )}
             {isAuthenticated && (
               <button
                 onClick={() => {
-                  logout();
-                  setMobileMenuOpen(false);
-                  navigate('/');
+                  logout()
+                  setMobileMenuOpen(false)
+                  navigate('/')
                 }}
                 className="flex items-center gap-2 text-rose-600 font-semibold mt-4 text-left p-1"
               >
@@ -428,7 +443,7 @@ export const Navbar: React.FC = () => {
         </div>
       </Sheet>
     </header>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

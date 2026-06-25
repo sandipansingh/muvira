@@ -1,12 +1,12 @@
-import React from 'react';
-import Button from '../ui/Button';
+import React from 'react'
+import Button from '../ui/Button'
 
 interface EmptyStateProps {
-  title: string;
-  description: string;
-  actionLabel?: string;
-  onAction?: () => void;
-  icon?: React.ReactNode;
+  title: string
+  description: string
+  actionLabel?: string
+  onAction?: () => void
+  icon?: React.ReactNode
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
@@ -22,16 +22,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <h3 className="text-base md:text-lg font-semibold tracking-wide text-darkColor mb-1.5">
         {title}
       </h3>
-      <p className="text-xs md:text-sm text-secondary600 tracking-wide mb-6">
-        {description}
-      </p>
+      <p className="text-xs md:text-sm text-secondary600 tracking-wide mb-6">{description}</p>
       {actionLabel && onAction && (
         <Button variant="primary" onClick={onAction}>
           {actionLabel}
         </Button>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default EmptyState;
+export default EmptyState
