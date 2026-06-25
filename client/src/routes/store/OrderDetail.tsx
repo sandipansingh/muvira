@@ -73,7 +73,7 @@ export const OrderDetail: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       <Breadcrumb
         items={[
           { label: "Order History", path: "/orders" },
@@ -249,7 +249,7 @@ export const OrderDetail: React.FC = () => {
                   {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
                   {order.shippingAddress.pincode}
                 </p>
-                <p className="font-semibold text-secondary700 font-instrument">
+                <p className="font-semibold text-secondary700">
                   {order.shippingAddress.phone}
                 </p>
               </CardContent>

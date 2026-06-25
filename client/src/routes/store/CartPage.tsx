@@ -64,7 +64,7 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       <Breadcrumb items={[{ label: 'Shopping Cart' }]} />
 
       <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor my-6">

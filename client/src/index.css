@@ -1,8 +1,86 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* =========================================================
+   CUSTOM FONTS — loaded via @font-face only (no Google Fonts)
+   Place WOFF2 files in /public/fonts/
+   Font family names match the design specification exactly.
+   ========================================================= */
+
+@font-face {
+  font-family: 'red_hat_displayregular';
+  src: url('/fonts/red_hat_display_regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'red_hat_displaymedium';
+  src: url('/fonts/red_hat_display_medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'red_hat_displaybold';
+  src: url('/fonts/red_hat_display_bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'robotoregular';
+  src: url('/fonts/roboto_regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'robotomedium';
+  src: url('/fonts/roboto_medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'pangramregular';
+  src: url('/fonts/pangram_regular.woff2') format('woff2'),
+       url('/fonts/pangram_regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'pangrambold';
+  src: url('/fonts/pangram_bold.woff2') format('woff2'),
+       url('/fonts/pangram_bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Abhaya Libre';
+  src: url('/fonts/abhaya_libre_regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Annapurna SIL';
+  src: url('/fonts/annapurna_sil_regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   /* Warm heritage craft palette — dominant rich tones + sharp accents */
@@ -24,11 +102,11 @@
 @layer base {
   body {
     @apply bg-[var(--bg)] text-[var(--text)] antialiased;
-    font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+    font-family: robotoregular, system-ui, -apple-system, sans-serif;
   }
 
-  h1, h2, h3, h4, .heading {
-    font-family: 'Playfair Display', Georgia, serif;
+  h1, h2, h3, h4, .heading, h5, h6 {
+    font-family: red_hat_displaymedium, system-ui, sans-serif;
   }
 }
 

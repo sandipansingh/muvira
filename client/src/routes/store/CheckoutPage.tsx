@@ -214,7 +214,7 @@ export const CheckoutPage: React.FC = () => {
 
   if (cart.items.length === 0) {
     return (
-      <div className="max-w-[1240px] mx-auto px-6 py-12 text-center font-instrument">
+      <div className="max-w-[1240px] mx-auto px-6 py-12 text-center">
         <h2 className="text-lg font-bold text-darkColor mb-2">Cart is empty</h2>
         <Button onClick={() => navigate("/products")}>Continue Shopping</Button>
       </div>
@@ -222,7 +222,7 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       <Breadcrumb
         items={[
           { label: "Shopping Cart", path: "/cart" },
@@ -292,7 +292,7 @@ export const CheckoutPage: React.FC = () => {
                         {addr.line1}, {addr.line2 && `${addr.line2}, `}
                         {addr.city}, {addr.state} - {addr.pincode}
                       </p>
-                      <p className="text-xs font-normal text-secondary600 font-instrument">
+                      <p className="text-xs font-normal text-secondary600">
                         {addr.phone}
                       </p>
                     </div>

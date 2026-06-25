@@ -123,7 +123,7 @@ export const CategoryDetail: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 py-6 font-instrument text-left">
+    <div className="max-w-[1240px] mx-auto px-6 py-6 text-left">
       <Breadcrumb
         items={[
           { label: "Categories", path: "/categories" },

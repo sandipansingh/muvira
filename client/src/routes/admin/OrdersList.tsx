@@ -158,7 +158,7 @@ export const OrdersList: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6 font-instrument text-left">
+    <div className="space-y-6 text-left">
       {/* Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -251,19 +251,19 @@ export const OrdersList: React.FC = () => {
               <TableBody>
                 {orders.map((ord) => (
                   <TableRow key={ord.id}>
-                    <TableCell className="font-medium text-darkColor font-instrument">
+                    <TableCell className="font-medium text-darkColor">
                       {ord.orderNumber}
                     </TableCell>
                     <TableCell>
                       <p className="font-medium text-darkColor leading-none">{ord.customer?.fullName}</p>
-                      <p className="text-[10px] text-secondary500 font-medium font-instrument mt-1">
+                      <p className="text-[10px] text-secondary500 font-medium mt-1">
                         {ord.customer?.email}
                       </p>
                     </TableCell>
                     <TableCell className="font-medium text-secondary700">
                       {formatPrice(ord.totalAmount)}
                     </TableCell>
-                    <TableCell className="text-xs font-normal text-secondary600 font-instrument">
+                    <TableCell className="text-xs font-normal text-secondary600">
                       {formatDate(ord.createdAt)}
                     </TableCell>
                     <TableCell>

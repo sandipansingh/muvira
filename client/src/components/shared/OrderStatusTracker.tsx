@@ -42,7 +42,7 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
 
   if (layout === 'horizontal') {
     return (
-      <div className="w-full py-4 font-instrument">
+      <div className="w-full py-4">
         <div className="relative flex justify-between items-center w-full">
           {/* Connecting Line */}
           <div className="absolute left-[3%] right-[3%] top-[11px] h-[2px] bg-[#e6dfd5] z-0" />
@@ -100,7 +100,7 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
 
   // Vertical layout (default)
   return (
-    <div className="relative pl-1 font-instrument">
+    <div className="relative pl-1">
       {/* Vertical Timeline Bar */}
       <div className="absolute left-[11px] top-2 bottom-2 w-[1.5px] bg-[#e6dfd5] pointer-events-none" />
 
@@ -134,7 +134,7 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
                 }`}>
                   {step.title === 'Crafting' ? 'Workshop Preparation' : step.title === 'Shipped' ? 'Dispatched & Delivery' : step.title === 'Paid' ? 'Payment Verified' : 'Order Confirmed'}
                 </h4>
-                <p className="text-xs text-secondary500 leading-relaxed font-instrument max-w-lg">
+                <p className="text-xs text-secondary500 leading-relaxed max-w-lg">
                   {step.title === 'Paid' 
                     ? 'Payment successfully captured via secure gateway.' 
                     : step.title === 'Confirmed' 

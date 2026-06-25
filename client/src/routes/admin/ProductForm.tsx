@@ -359,7 +359,7 @@ export const ProductForm: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-instrument text-left max-w-4xl mx-auto">
+    <div className="space-y-6 text-left max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link

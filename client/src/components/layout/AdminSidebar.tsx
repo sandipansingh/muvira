@@ -24,7 +24,7 @@ export const AdminSidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-64 bg-darkColor text-secondary300 h-screen fixed top-0 left-0 flex flex-col border-r border-secondary600/20 z-40 text-left font-instrument">
+    <aside className="w-64 bg-darkColor text-secondary300 h-screen fixed top-0 left-0 flex flex-col border-r border-secondary600/20 z-40 text-left">
       {/* Brand Header */}
       <div className="h-16 px-6 border-b border-secondary600/20 flex items-center justify-between">
         <Link to="/admin" className="flex items-center">

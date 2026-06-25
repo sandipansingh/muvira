@@ -70,7 +70,7 @@ const AdminLayout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-lightgrayColor flex font-instrument">
+    <div className="min-h-screen bg-lightgrayColor flex">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block w-64 shrink-0">
         <AdminSidebar />

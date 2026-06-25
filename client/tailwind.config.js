@@ -38,8 +38,27 @@ export default {
         stone: '#665f59',
       },
       fontFamily: {
-        playfair: ['Playfair Display', 'Georgia', 'serif'],
-        instrument: ['Instrument Sans', 'system-ui', 'sans-serif'],
+        // Primary UI font (nav, headings, buttons, product titles)
+        redhatRegular: ['red_hat_displayregular', 'system-ui', 'sans-serif'],
+        redhatMedium: ['red_hat_displaymedium', 'system-ui', 'sans-serif'],
+        redhatBold: ['red_hat_displaybold', 'system-ui', 'sans-serif'],
+        // Secondary UI font (search, body copy, sign-in)
+        robotoRegular: ['robotoregular', 'system-ui', 'sans-serif'],
+        robotoMedium: ['robotomedium', 'system-ui', 'sans-serif'],
+        // Accent / marketing font (hero CTAs, sale labels)
+        pangramRegular: ['pangramregular', 'system-ui', 'sans-serif'],
+        pangramBold: ['pangrambold', 'system-ui', 'sans-serif'],
+        // Vernacular fonts
+        abhaya: ['Abhaya Libre', 'serif'],
+        annapurna: ['Annapurna SIL', 'serif'],
+      },
+      fontSize: {
+        // Custom type scale per design spec
+        'font10': ['10px', { lineHeight: '1.2' }],
+        'font11': ['11px', { lineHeight: '1.2' }],
+        'font12': ['12px', { lineHeight: '1.3' }],
+        'font13': ['13px', { lineHeight: '1.4' }],
+        'font19': ['19px', { lineHeight: '1.3' }],
       },
       borderRadius: {
         // Strict system per anti-vibe guidelines

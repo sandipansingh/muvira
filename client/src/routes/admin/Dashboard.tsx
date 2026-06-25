@@ -72,7 +72,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-instrument">
+    <div className="space-y-6">
       {/* Title Header */}
       <div className="text-left">
         <h2 className="text-xl md:text-2xl font-medium tracking-wide text-darkColor">
@@ -221,14 +221,14 @@ export const Dashboard: React.FC = () => {
               <TableBody>
                 {recentOrders.map((ord) => (
                   <TableRow key={ord.id}>
-                    <TableCell className="font-medium text-secondary700 font-instrument">
+                    <TableCell className="font-medium text-secondary700">
                       {ord.orderNumber}
                     </TableCell>
                     <TableCell>
                       <p className="font-medium text-darkColor leading-none">
                         {ord.customer?.fullName}
                       </p>
-                      <p className="text-[10px] text-secondary500 font-medium font-instrument mt-1">
+                      <p className="text-[10px] text-secondary500 font-medium mt-1">
                         {ord.customer?.phone}
                       </p>
                     </TableCell>

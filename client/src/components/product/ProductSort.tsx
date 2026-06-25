@@ -34,7 +34,7 @@ export const ProductSort: React.FC<ProductSortProps> = ({ sort, onSortChange }) 
   }, [isOpen]);
 
   return (
-    <div className="flex items-center gap-2.5 font-instrument relative" ref={dropdownRef}>
+    <div className="flex items-center gap-2.5 relative" ref={dropdownRef}>
       <span className="text-xs font-semibold text-secondary500 uppercase tracking-wider whitespace-nowrap hidden sm:inline">
         Sort By:
       </span>

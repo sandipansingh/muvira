@@ -18,7 +18,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     const [focused, setFocused] = useState(false);
 
     return (
-      <div className="w-full flex flex-col gap-1.5 text-left font-instrument">
+      <div className="w-full flex flex-col gap-1.5 text-left">
         {label && (
           <label htmlFor={selectId} className="text-xs font-semibold text-secondary700 tracking-wider uppercase">
             {label}
