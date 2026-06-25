@@ -93,10 +93,10 @@ export async function listProducts(query: ListProductsQuery) {
 
   const products = (data ?? []) as Record<string, unknown>[]
   if (products.length > 0) {
-    const ids = products.map((p) => p.id)
+    const ids = products.map((p) => p.id as string)
     const aggregates = await getReviewAggregates(ids)
     for (const p of products) {
-      const agg = aggregates[p.id]
+      const agg = aggregates[p.id as string]
       if (agg) {
         p.rating = agg.rating
         p.review_count = agg.reviewCount
@@ -176,10 +176,10 @@ export async function adminListProducts(query: ListProductsQuery) {
 
   const products = (data ?? []) as Record<string, unknown>[]
   if (products.length > 0) {
-    const ids = products.map((p) => p.id)
+    const ids = products.map((p) => p.id as string)
     const aggregates = await getReviewAggregates(ids)
     for (const p of products) {
-      const agg = aggregates[p.id]
+      const agg = aggregates[p.id as string]
       if (agg) {
         p.rating = agg.rating
         p.review_count = agg.reviewCount
@@ -222,14 +222,14 @@ export async function getProductBySlug(slug: string): Promise<
   }
 
   const prod = data as Record<string, unknown>
-  const aggregates = await getReviewAggregates([prod.id])
-  const agg = aggregates[prod.id]
+  const aggregates = await getReviewAggregates([prod.id as string])
+  const agg = aggregates[prod.id as string]
   if (agg) {
     prod.rating = agg.rating
     prod.review_count = agg.reviewCount
   }
 
-  return prod as Product & {
+  return prod as unknown as Product & {
     product_images: ProductImage[]
     category: { id: string; name: string; slug: string } | null
   }
@@ -353,8 +353,8 @@ export async function getProductById(id: string): Promise<Record<string, unknown
   }
 
   const prod = data as Record<string, unknown>
-  const aggregates = await getReviewAggregates([prod.id])
-  const agg = aggregates[prod.id]
+  const aggregates = await getReviewAggregates([prod.id as string])
+  const agg = aggregates[prod.id as string]
   if (agg) {
     prod.rating = agg.rating
     prod.review_count = agg.reviewCount
