@@ -11,4 +11,4 @@ cmds = ['cd client && npm ci --include=dev']
 cmds = ['cd client && npm run build']
 
 [start]
-cmd = 'npx serve client/dist -l $PORT'
+cmd = 'npx serve client/dist -l 3000'

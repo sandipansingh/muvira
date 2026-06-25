@@ -12,4 +12,4 @@ cmds = ['npm run build']
 
 # For platforms that need an explicit start (many auto-detect static 'dist' folder)
 [start]
-cmd = 'npx serve dist -l $PORT'
+cmd = 'npx serve dist -l 3000'
