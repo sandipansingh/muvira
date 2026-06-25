@@ -247,6 +247,17 @@ export interface PaymentLog {
   created_at: string;
 }
 
+// Product reviews (verified buyer ratings + comments)
+export interface ProductReview {
+  id: string;
+  product_id: string;
+  user_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // Checkout
 
 export interface CheckoutTotals {

@@ -9,7 +9,8 @@ import {
   Ticket,
   Warehouse,
   Settings,
-  ArrowUpRight
+  ArrowUpRight,
+  Star
 } from 'lucide-react';
 
 export const AdminSidebar: React.FC = () => {
@@ -18,6 +19,7 @@ export const AdminSidebar: React.FC = () => {
     { name: 'Products', path: '/admin/products', icon: Box },
     { name: 'Categories', path: '/admin/categories', icon: FolderTree },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Reviews', path: '/admin/reviews', icon: Star },
     { name: 'Coupons', path: '/admin/coupons', icon: Ticket },
     { name: 'Inventory', path: '/admin/inventory', icon: Warehouse },
     { name: 'Site Settings', path: '/admin/settings', icon: Settings },

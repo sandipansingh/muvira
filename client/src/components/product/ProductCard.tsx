@@ -85,11 +85,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {product.name}
         </h3>
 
-        {/* Subtle rating line */}
+        {/* Rating */}
         <div className="flex items-center gap-1 mb-3 text-[var(--accent)]">
-          {Array.from({ length: 5 }).map((_, idx) => (
-            <Star key={idx} className="w-[13px] h-[13px] fill-current" strokeWidth={0.5} />
-          ))}
+          {product.rating && product.rating > 0 ? (
+            <>
+              {Array.from({ length: 5 }).map((_, idx) => (
+                <Star
+                  key={idx}
+                  className={`w-[13px] h-[13px] ${idx + 1 <= Math.floor(product.rating!) ? 'fill-current' : ''}`}
+                  strokeWidth={0.5}
+                />
+              ))}
+              <span className="ml-1 text-[10px] text-secondary500 tabular-nums">
+                {product.rating.toFixed(1)}
+                {product.reviewCount ? ` (${product.reviewCount})` : ''}
+              </span>
+            </>
+          ) : (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <Star key={idx} className="w-[13px] h-[13px] fill-current opacity-40" strokeWidth={0.5} />
+            ))
+          )}
         </div>
 
         <div className="mt-auto">

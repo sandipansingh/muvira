@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { productsApiService } from "../../lib/api/products";
+import { reviewsApiService } from "../../lib/api/reviews";
 import type {
   ProductDetail as ProductDetailType,
   ProductListItem,
+  ProductReview,
+  ReviewSummary,
 } from "../../types/product";
+import { useAuth } from "../../hooks/useAuth";
 import PriceDisplay from "../../components/shared/PriceDisplay";
 import StockBadge from "../../components/shared/StockBadge";
 import ProductCard from "../../components/product/ProductCard";
@@ -27,6 +31,16 @@ export const ProductDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Reviews
+  const { user } = useAuth();
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ avgRating: null, totalReviews: 0 });
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   // Collapsible Accordion sections state
   const [openSections, setOpenSections] = useState({
@@ -70,10 +84,23 @@ export const ProductDetail: React.FC = () => {
       if (relatedRes.success) {
         setRelated(relatedRes.data);
       }
+
+      // Load reviews (after product id known)
+      fetchReviews(res.data.id);
     } else {
       setError(res.error.message || "Product not found.");
     }
     setLoading(false);
+  };
+
+  const fetchReviews = async (prodId: string) => {
+    setReviewsLoading(true);
+    const res = await reviewsApiService.getProductReviews(prodId, 1, 50);
+    if (res.success) {
+      setReviews(res.data);
+      setReviewSummary(res.summary);
+    }
+    setReviewsLoading(false);
   };
 
   const handleAddToCart = async () => {
@@ -195,19 +222,27 @@ export const ProductDetail: React.FC = () => {
                 {product.name}
               </h1>
 
-              {/* Social rating stars */}
+              {/* Social rating stars - real data */}
               <div className="flex items-center gap-2 mb-4">
                 <div className="flex text-primaryBg">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 fill-current stroke-current"
-                      strokeWidth={1.5}
-                    />
-                  ))}
+                  {Array.from({ length: 5 }).map((_, i) => {
+                    const avg = reviewSummary.avgRating ?? 0;
+                    const filled = i + 1 <= Math.floor(avg);
+                    const half = !filled && i + 1 <= Math.ceil(avg) && avg % 1 !== 0;
+                    return (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${filled || half ? "fill-current" : ""} stroke-current`}
+                        strokeWidth={1.5}
+                      />
+                    );
+                  })}
                 </div>
                 <span className="text-xs font-medium text-secondary600 mt-0.5">
-                  4.8 / 5.0
+                  {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : "—"} / 5.0
+                  {reviewSummary.totalReviews > 0 && (
+                    <span className="ml-1 text-secondary400">({reviewSummary.totalReviews})</span>
+                  )}
                 </span>
               </div>
 
@@ -416,6 +451,156 @@ export const ProductDetail: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* REVIEWS SECTION */}
+          <div id="reviews" className="border-t border-secondary200 mt-16 pt-12">
+            <div className="mb-6">
+              <h2 className="text-lg md:text-2xl tracking-wide font-bold text-darkColor font-redhatMedium">
+                Customer Reviews
+              </h2>
+              <p className="text-secondary600 text-xs md:text-sm mt-1">
+                {reviewSummary.totalReviews > 0
+                  ? `${reviewSummary.totalReviews} verified review${reviewSummary.totalReviews === 1 ? "" : "s"}`
+                  : "Be the first to review this product"}
+              </p>
+            </div>
+
+            {/* Summary + Submit Form */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-8">
+              {/* Summary */}
+              <div className="lg:col-span-2">
+                <div className="flex items-baseline gap-3">
+                  <div className="text-4xl font-bold text-darkColor">
+                    {reviewSummary.avgRating ? reviewSummary.avgRating.toFixed(1) : "—"}
+                  </div>
+                  <div className="flex text-primaryBg">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-current" strokeWidth={1} />
+                    ))}
+                  </div>
+                </div>
+                <div className="text-xs text-secondary500 mt-1">
+                  Based on {reviewSummary.totalReviews} review{reviewSummary.totalReviews === 1 ? "" : "s"}
+                </div>
+              </div>
+
+              {/* Submit / Write Review */}
+              <div className="lg:col-span-3">
+                {user ? (
+                  <div className="bg-lightgrayColor/30 border border-secondary200 rounded-xl p-4">
+                    <div className="text-xs font-semibold uppercase tracking-widest text-secondary600 mb-2">
+                      {reviews.some((r) => r.userId === user.id) ? "Update your review" : "Write a review"}
+                    </div>
+                    <div className="flex gap-1 mb-3">
+                      {[1, 2, 3, 4, 5].map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => setSelectedRating(r)}
+                          className={`p-1 transition ${selectedRating >= r ? "text-primaryBg" : "text-secondary300 hover:text-secondary400"}`}
+                        >
+                          <Star className="w-6 h-6" fill={selectedRating >= r ? "currentColor" : "none"} strokeWidth={1.5} />
+                        </button>
+                      ))}
+                    </div>
+                    <textarea
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      placeholder="Share your experience with this product (optional)"
+                      className="w-full rounded-lg border border-secondary300 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primaryBg min-h-[80px] resize-y"
+                      maxLength={2000}
+                    />
+                    {reviewError && (
+                      <p className="text-xs text-rose-600 mt-1">{reviewError}</p>
+                    )}
+                    <div className="mt-2 text-[10px] text-secondary400">
+                      Only verified buyers with delivered orders can submit reviews.
+                    </div>
+                    <Button
+                      onClick={async () => {
+                        if (!product) return;
+                        setSubmittingReview(true);
+                        setReviewError(null);
+                        const res = await reviewsApiService.submitReview(
+                          product.id,
+                          selectedRating,
+                          reviewComment.trim() || null,
+                        );
+                        setSubmittingReview(false);
+                        if (res.success) {
+                          setReviewComment("");
+                          // Refresh both summary + list
+                          await fetchReviews(product.id);
+                          // Also refresh product in case rating changed on detail object
+                          const pRes = await productsApiService.getProductBySlug(product.slug);
+                          if (pRes.success) setProduct(pRes.data);
+                        } else {
+                          const msg = res.error?.message || "Could not submit review.";
+                          setReviewError(msg);
+                        }
+                      }}
+                      loading={submittingReview}
+                      className="mt-3"
+                    >
+                      {reviews.some((r) => r.userId === user.id) ? "Update Review" : "Submit Review"}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-xs text-secondary500">
+                    Please <Link to="/login" className="text-primaryBg underline">log in</Link> to write a review.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Reviews List */}
+            {reviewsLoading ? (
+              <div className="space-y-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="border border-secondary200 rounded-xl p-4">
+                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="h-3 w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : reviews.length > 0 ? (
+              <div className="space-y-4">
+                {reviews.map((rev) => (
+                  <div key={rev.id} className="border border-secondary200 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="flex text-primaryBg">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${i + 1 <= rev.rating ? "fill-current" : ""}`}
+                              strokeWidth={1}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs font-medium text-secondary600">
+                          {rev.userName || "Verified Buyer"}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-secondary400">
+                        {new Date(rev.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {rev.comment && (
+                      <p className="text-sm text-secondary700 whitespace-pre-wrap mt-1 leading-relaxed">
+                        {rev.comment}
+                      </p>
+                    )}
+                    <div className="text-[10px] mt-2 text-emerald-600 font-medium">Verified purchase</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-secondary500 py-4 border border-dashed border-secondary200 rounded-xl text-center">
+                No reviews yet. Be the first to share your experience.
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
