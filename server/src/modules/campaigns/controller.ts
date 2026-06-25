@@ -10,8 +10,15 @@ export async function getActiveCampaigns(req: Request, res: Response, next: Next
 
 export async function adminListCampaigns(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const campaigns = await service.adminListCampaigns();
-    res.json({ success: true, data: campaigns });
+    const page = Math.max(1, parseInt((req.query['page'] as string) || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt((req.query['limit'] as string) || '10', 10)));
+
+    const result = await service.adminListCampaignsPaginated(page, limit);
+    res.json({
+      success: true,
+      data: result.data,
+      meta: { page: result.page, limit: result.limit, total: result.total, totalPages: result.totalPages },
+    });
   } catch (err) { next(err); }
 }
 

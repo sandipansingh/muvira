@@ -208,8 +208,10 @@ export function mapOrderListItem(raw: Record<string, unknown>): OrderListItem {
     totalAmount: raw['total_amount_paisa'] as number,
     itemCount: items.reduce((s, i) => s + ((i['quantity'] as number) ?? 0), 0),
     createdAt: raw['created_at'] as string,
+    awbCode: (raw['awb_code'] as string | null) ?? null,
   };
 }
+
 
 export function mapOrderItem(raw: Record<string, unknown>): OrderItem {
   return {
@@ -277,8 +279,7 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
     totalAmount: raw['total_amount_paisa'] as number,
     couponCode: (raw['coupon_code'] as string | null) ?? null,
     shippingAddress: mapOrderAddress(raw),
-    carrierName: (raw['carrier_name'] as string | null) ?? null,
-    trackingId: (raw['tracking_id'] as string | null) ?? null,
+    awbCode: (raw['awb_code'] as string | null) ?? null,
     items: items.map(mapOrderItem),
     createdAt: raw['created_at'] as string,
     updatedAt: raw['updated_at'] as string,
@@ -294,6 +295,7 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
     deliveryInstructions,
   };
 }
+
 
 // ── Coupon ────────────────────────────────────────────────────────────────────
 

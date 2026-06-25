@@ -217,3 +217,22 @@ export async function adminAddNote(
     next(err);
   }
 }
+
+/**
+ * adminSyncTracking — POST /api/admin/orders/sync-tracking
+ *
+ * Scans all active orders (non-delivered/non-cancelled with AWB codes)
+ * and pulls their status from Shiprocket to sync in bulk.
+ */
+export async function adminSyncTracking(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const result = await service.adminSyncTrackingOrders();
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+}

@@ -23,6 +23,7 @@ ordersRouter.get('/:id', validate({ params: OrderIdParamsSchema }), controller.g
 export const adminOrdersRouter = Router();
 
 adminOrdersRouter.get('/', validate({ query: AdminListOrdersQuerySchema }), controller.adminListOrders);
+adminOrdersRouter.post('/sync-tracking', controller.adminSyncTracking);
 adminOrdersRouter.get('/:id', validate({ params: OrderIdParamsSchema }), controller.adminGetOrder);
 adminOrdersRouter.patch(
   '/:id/status',

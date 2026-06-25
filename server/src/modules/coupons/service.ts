@@ -94,6 +94,28 @@ export async function adminListCoupons(): Promise<Coupon[]> {
   return (data as Coupon[]) ?? [];
 }
 
+export async function adminListCouponsPaginated(
+  page: number,
+  limit: number,
+): Promise<{ data: Coupon[]; total: number; page: number; limit: number; totalPages: number }> {
+  const offset = (page - 1) * limit;
+
+  const { data, error, count } = await adminSupabase
+    .from("coupons")
+    .select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) throw new AppError(500, "DB_ERROR", "Failed to fetch coupons");
+  return {
+    data: (data as Coupon[]) ?? [],
+    total: count ?? 0,
+    page,
+    limit,
+    totalPages: Math.ceil((count ?? 0) / limit),
+  };
+}
+
 export async function createCoupon(input: CreateCouponInput): Promise<Coupon> {
   const { data, error } = await adminSupabase
     .from("coupons")

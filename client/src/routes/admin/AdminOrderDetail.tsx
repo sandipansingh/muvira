@@ -4,7 +4,6 @@ import { adminApiService } from "../../lib/api/admin";
 import type {
   OrderDetail,
   OrderStatus,
-  FulfillmentStatus,
 } from "../../types/order";
 import { formatPrice, formatDate } from "../../lib/format";
 import { useToast } from "../../hooks/useToast";
@@ -18,7 +17,8 @@ import Card, {
 } from "../../components/ui/Card";
 import LoadingSpinner from "../../components/shared/LoadingSpinner";
 import ErrorState from "../../components/shared/ErrorState";
-import { ArrowLeft, Phone, Mail } from "lucide-react";
+import ShiprocketTracker from "../../components/shared/ShiprocketTracker";
+import { ArrowLeft, Phone, Mail, Package } from "lucide-react";
 
 export const AdminOrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,15 +26,16 @@ export const AdminOrderDetail: React.FC = () => {
 
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [savingAwb, setSavingAwb] = useState(false);
+  const [addingNote, setAddingNote] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Status updates state
+  // Status update
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("pending");
-  const [fulfillmentStatus, setFulfillmentStatus] =
-    useState<FulfillmentStatus>("unfulfilled");
-  const [carrierName, setCarrierName] = useState("");
-  const [trackingId, setTrackingId] = useState("");
+
+  // AWB code field
+  const [awbCode, setAwbCode] = useState("");
 
   // Admin notes state
   const [noteText, setNoteText] = useState("");
@@ -53,9 +54,7 @@ export const AdminOrderDetail: React.FC = () => {
     if (res.success) {
       setOrder(res.data);
       setOrderStatus(res.data.status);
-      setFulfillmentStatus(res.data.fulfillmentStatus);
-      setCarrierName(res.data.carrierName || "");
-      setTrackingId(res.data.trackingId || "");
+      setAwbCode(res.data.awbCode || "");
     } else {
       setError(res.error.message || "Failed to fetch order.");
     }
@@ -64,9 +63,9 @@ export const AdminOrderDetail: React.FC = () => {
 
   const handleUpdateStatus = async () => {
     if (!order) return;
-    setSaving(true);
+    setUpdatingStatus(true);
     const res = await adminApiService.updateOrderStatus(order.id, orderStatus);
-    setSaving(false);
+    setUpdatingStatus(false);
 
     if (res.success) {
       showToast("Order status updated successfully.", "success");
@@ -76,21 +75,24 @@ export const AdminOrderDetail: React.FC = () => {
     }
   };
 
-  const handleUpdateFulfillment = async () => {
+  const handleSaveAwb = async () => {
     if (!order) return;
-    setSaving(true);
+    setSavingAwb(true);
     const res = await adminApiService.updateOrderFulfillment(order.id, {
-      fulfillmentStatus,
-      carrierName,
-      trackingId,
+      awbCode: awbCode.trim() || null,
     });
-    setSaving(false);
+    setSavingAwb(false);
 
     if (res.success) {
-      showToast("Fulfillment logistics updated.", "success");
+      showToast(
+        awbCode.trim()
+          ? "AWB code saved. Order marked as fulfilled."
+          : "AWB code cleared.",
+        "success",
+      );
       setOrder(res.data);
     } else {
-      showToast(res.error.message || "Fulfillment update failed.", "error");
+      showToast(res.error.message || "Failed to save AWB code.", "error");
     }
   };
 
@@ -98,9 +100,9 @@ export const AdminOrderDetail: React.FC = () => {
     e.preventDefault();
     if (!noteText.trim() || !order) return;
 
-    setSaving(true);
+    setAddingNote(true);
     const res = await adminApiService.addOrderNote(order.id, noteText.trim());
-    setSaving(false);
+    setAddingNote(false);
 
     if (res.success) {
       showToast("Internal note added.", "success");
@@ -118,12 +120,6 @@ export const AdminOrderDetail: React.FC = () => {
     { value: "shipped", label: "Shipped" },
     { value: "delivered", label: "Delivered" },
     { value: "cancelled", label: "Cancelled" },
-  ];
-
-  const fulfillmentStatusOptions = [
-    { value: "unfulfilled", label: "Unfulfilled" },
-    { value: "partial", label: "Partial" },
-    { value: "fulfilled", label: "Fulfilled" },
   ];
 
   if (loading) {
@@ -164,7 +160,7 @@ export const AdminOrderDetail: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT COLUMN: FULFILLMENT CONTROLS & ITEMS */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Status and Logistics Manager */}
+          {/* Order Status + AWB Manager */}
           <Card className="border border-secondary200">
             <CardHeader>
               <CardTitle>Logistics Fulfillment Center</CardTitle>
@@ -182,52 +178,69 @@ export const AdminOrderDetail: React.FC = () => {
                 </div>
                 <Button
                   onClick={handleUpdateStatus}
-                  loading={saving}
+                  loading={updatingStatus}
+                  disabled={savingAwb || addingNote}
                   className="w-full sm:w-auto text-xs py-2.5 px-4 font-medium shrink-0"
                 >
                   Update Order State
                 </Button>
               </div>
 
-              {/* Courier Fulfillment */}
-              <div className="space-y-4 pt-1">
-                <h4 className="text-xs font-medium text-secondary700 uppercase tracking-widest pl-0.5">
-                  Shipment & Tracking Assignment
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <Select
-                    label="Fulfillment Status"
-                    options={fulfillmentStatusOptions}
-                    value={fulfillmentStatus}
-                    onChange={(e) =>
-                      setFulfillmentStatus(e.target.value as any)
-                    }
-                  />
-                  <Input
-                    label="Courier Carrier"
-                    placeholder="E.g. Bluedart"
-                    value={carrierName}
-                    onChange={(e) => setCarrierName(e.target.value)}
-                    maxLength={200}
-                  />
-                  <Input
-                    label="Tracking ID"
-                    placeholder="E.g. BD123456789"
-                    value={trackingId}
-                    onChange={(e) => setTrackingId(e.target.value)}
-                    maxLength={200}
-                  />
+              {/* AWB Code Entry */}
+              <div className="space-y-3 pt-1">
+                <div>
+                  <h4 className="text-xs font-medium text-secondary700 uppercase tracking-widest mb-0.5">
+                    Shiprocket AWB Code
+                  </h4>
+                  <p className="text-[11px] text-secondary400 leading-snug">
+                    Create the shipment in Shiprocket, then paste the AWB code
+                    here. Live tracking will be activated automatically.
+                  </p>
                 </div>
-                <div className="flex justify-end pt-2">
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1">
+                    <Input
+                      label="AWB Code"
+                      placeholder="E.g. 141123221084922"
+                      value={awbCode}
+                      onChange={(e) => setAwbCode(e.target.value)}
+                      maxLength={100}
+                    />
+                  </div>
                   <Button
-                    onClick={handleUpdateFulfillment}
-                    loading={saving}
-                    className="w-full sm:w-auto text-xs py-2.5 px-4 font-medium"
+                    onClick={handleSaveAwb}
+                    loading={savingAwb}
+                    disabled={updatingStatus || addingNote}
+                    className="text-xs py-2.5 px-4 font-medium shrink-0"
                   >
-                    Save Fulfillment Details
+                    Save AWB
                   </Button>
                 </div>
+                {/* Current saved AWB display */}
+                {order.awbCode && (
+                  <div className="flex items-center gap-2 p-3 bg-lightgrayColor border border-secondary200 rounded-lg">
+                    <Package className="w-4 h-4 text-primaryBg shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-secondary500 uppercase tracking-wider font-medium">
+                        Current AWB
+                      </p>
+                      <p className="text-sm font-bold text-darkColor font-instrument">
+                        {order.awbCode}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Shiprocket Tracking Preview in Admin */}
+              {order.awbCode && (
+                <div className="pt-2 border-t border-secondary200">
+                  <h4 className="text-xs font-medium text-secondary700 uppercase tracking-widest mb-4">
+                    Live Tracking Preview
+                  </h4>
+                  <ShiprocketTracker awbCode={order.awbCode} />
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -377,14 +390,15 @@ export const AdminOrderDetail: React.FC = () => {
                   placeholder="Log custom instructions, packaging requests..."
                   rows={2}
                   className="w-full text-xs p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:border-primaryBg"
-                  disabled={saving}
+                  disabled={updatingStatus || savingAwb || addingNote}
                   maxLength={2000}
                 />
                 <Button
                   type="submit"
                   variant="secondary"
                   size="sm"
-                  loading={saving}
+                  loading={addingNote}
+                  disabled={updatingStatus || savingAwb}
                   className="w-full text-xs font-medium"
                 >
                   Add Internal Note

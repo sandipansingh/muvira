@@ -56,8 +56,16 @@ export async function adminListCategories(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const categories = await service.listAllCategories();
-    res.json({ success: true, data: categories });
+    const page = Math.max(1, parseInt((req.query['page'] as string) || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt((req.query['limit'] as string) || '20', 10)));
+    const q = (req.query['q'] as string) || undefined;
+
+    const result = await service.listAllCategoriesPaginated(page, limit, q);
+    res.json({
+      success: true,
+      data: result.data,
+      meta: { page: result.page, limit: result.limit, total: result.total, totalPages: result.totalPages },
+    });
   } catch (err) {
     next(err);
   }

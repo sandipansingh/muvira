@@ -299,8 +299,9 @@ export const adminApiService = {
     const res = await adminGet<{
       success: boolean;
       data?: AnyRecord[];
+      meta?: AnyRecord;
       error?: AnyRecord;
-    }>("/api/admin/categories");
+    }>("/api/admin/categories?limit=100");
     if (!res.success || !res.data)
       return {
         success: false,
@@ -310,6 +311,42 @@ export const adminApiService = {
         },
       };
     return { success: true, data: res.data.map(mapCategory) };
+  },
+
+  async getCategories(
+    params: { page?: number; limit?: number; q?: string } = {},
+  ): Promise<ApiPaginatedResponse<Category>> {
+    const qs = new URLSearchParams();
+    qs.set("page", String(params.page ?? 1));
+    qs.set("limit", String(params.limit ?? 20));
+    if (params.q) qs.set("q", params.q);
+
+    const res = await adminGet<{
+      success: boolean;
+      data?: AnyRecord[];
+      meta?: AnyRecord;
+      error?: AnyRecord;
+    }>(`/api/admin/categories?${qs}`);
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
+          code: string;
+          message: string;
+        },
+      };
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    return {
+      success: true,
+      data: res.data.map(mapCategory),
+      pagination: {
+        page,
+        limit,
+        total: (res.meta?.["total"] as number) ?? 0,
+        totalPages: (res.meta?.["totalPages"] as number) ?? 1,
+      },
+    };
   },
 
   async createCategory(data: AnyRecord): Promise<ApiResponse<Category>> {
@@ -390,12 +427,19 @@ export const adminApiService = {
   },
 
   // ── Coupons ────────────────────────────────────────────────────────────────
-  async getCoupons(): Promise<ApiResponse<Coupon[]>> {
+  async getCoupons(
+    params: { page?: number; limit?: number } = {},
+  ): Promise<ApiPaginatedResponse<Coupon>> {
+    const qs = new URLSearchParams();
+    qs.set("page", String(params.page ?? 1));
+    qs.set("limit", String(params.limit ?? 20));
+
     const res = await adminGet<{
       success: boolean;
       data?: AnyRecord[];
+      meta?: AnyRecord;
       error?: AnyRecord;
-    }>("/api/admin/coupons");
+    }>(`/api/admin/coupons?${qs}`);
     if (!res.success || !res.data)
       return {
         success: false,
@@ -404,7 +448,18 @@ export const adminApiService = {
           message: string;
         },
       };
-    return { success: true, data: res.data.map(mapCoupon) };
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    return {
+      success: true,
+      data: res.data.map(mapCoupon),
+      pagination: {
+        page,
+        limit,
+        total: (res.meta?.["total"] as number) ?? 0,
+        totalPages: (res.meta?.["totalPages"] as number) ?? 1,
+      },
+    };
   },
 
   async createCoupon(data: AnyRecord): Promise<ApiResponse<Coupon>> {
@@ -495,12 +550,19 @@ export const adminApiService = {
   },
 
   // ── Campaigns ──────────────────────────────────────────────────────────────
-  async getCampaigns(): Promise<ApiResponse<Campaign[]>> {
+  async getCampaigns(
+    params: { page?: number; limit?: number } = {},
+  ): Promise<ApiPaginatedResponse<Campaign>> {
+    const qs = new URLSearchParams();
+    qs.set("page", String(params.page ?? 1));
+    qs.set("limit", String(params.limit ?? 10));
+
     const res = await adminGet<{
       success: boolean;
       data?: AnyRecord[];
+      meta?: AnyRecord;
       error?: AnyRecord;
-    }>("/api/admin/campaigns");
+    }>(`/api/admin/campaigns?${qs}`);
     if (!res.success || !res.data)
       return {
         success: false,
@@ -509,7 +571,18 @@ export const adminApiService = {
           message: string;
         },
       };
-    return { success: true, data: res.data.map(mapCampaign) };
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 10;
+    return {
+      success: true,
+      data: res.data.map(mapCampaign),
+      pagination: {
+        page,
+        limit,
+        total: (res.meta?.["total"] as number) ?? 0,
+        totalPages: (res.meta?.["totalPages"] as number) ?? 1,
+      },
+    };
   },
 
   async createCampaign(data: AnyRecord): Promise<ApiResponse<Campaign>> {
@@ -592,6 +665,23 @@ export const adminApiService = {
   },
 
   // ── Orders ─────────────────────────────────────────────────────────────────
+  async syncTrackingOrders(): Promise<ApiResponse<{ totalChecked: number; totalUpdated: number }>> {
+    const res = await adminPost<{
+      success: boolean;
+      data?: { totalChecked: number; totalUpdated: number };
+      error?: AnyRecord;
+    }>("/api/admin/orders/sync-tracking");
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: "UNKNOWN", message: "Failed" }) as {
+          code: string;
+          message: string;
+        },
+      };
+    return { success: true, data: res.data };
+  },
+
   async getOrders(
     params: { page?: number; limit?: number; status?: string; q?: string } = {},
   ): Promise<ApiPaginatedResponse<OrderDetail>> {
@@ -652,16 +742,11 @@ export const adminApiService = {
   async updateOrderFulfillment(
     id: string,
     data: {
-      fulfillmentStatus?: string;
-      carrierName?: string;
-      trackingId?: string;
+      awbCode?: string | null;
     },
   ): Promise<ApiResponse<OrderDetail>> {
     const body: AnyRecord = {};
-    if (data.fulfillmentStatus !== undefined)
-      body["fulfillment_status"] = data.fulfillmentStatus;
-    if (data.carrierName !== undefined) body["carrier_name"] = data.carrierName;
-    if (data.trackingId !== undefined) body["tracking_id"] = data.trackingId;
+    if (data.awbCode !== undefined) body["awb_code"] = data.awbCode;
 
     const res = await adminPatch<{
       success: boolean;
@@ -678,6 +763,7 @@ export const adminApiService = {
       };
     return { success: true, data: mapOrderDetail(res.data) };
   },
+
 
   async addOrderNote(
     id: string,

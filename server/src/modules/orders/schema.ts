@@ -30,11 +30,10 @@ export const UpdateOrderStatusSchema = z
 
 export const UpdateFulfillmentSchema = z
   .object({
-    fulfillment_status: z.enum(['unfulfilled', 'partial', 'fulfilled', 'exception']).optional(),
-    carrier_name: z.string().max(200).optional(),
-    tracking_id: z.string().max(200).optional(),
+    awb_code: z.string().max(100).optional().nullable(),
   })
   .strict();
+
 
 export const AddOrderNoteSchema = z
   .object({
