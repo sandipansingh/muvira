@@ -4,7 +4,11 @@ export const DEFAULT_PAGE_LIMIT = 20
 export const TAX_RATE_PERCENT = 0
 export const SHIPPING_CHARGES = 0
 
-export const API_BASE_URL: string = import.meta.env.VITE_API_URL ?? ''
+// Use VITE_API_URL for the production API origin (e.g. https://api.muvira.in)
+// Leave empty in development to use Vite's /api proxy (relative URLs).
+// All API calls already include the /api prefix in their paths.
+const rawBase = import.meta.env.VITE_API_URL ?? ''
+export const API_BASE_URL: string = rawBase.replace(/\/+$/, '')
 
 export const INDIAN_STATES = [
   { value: 'Andhra Pradesh', label: 'Andhra Pradesh' },
