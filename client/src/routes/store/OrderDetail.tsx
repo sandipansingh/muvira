@@ -10,6 +10,7 @@ import Skeleton from "../../components/ui/Skeleton";
 import Breadcrumb from "../../components/layout/Breadcrumb";
 import ErrorState from "../../components/shared/ErrorState";
 import { MapPin, Truck, ArrowLeft, FileText } from "lucide-react";
+import OrderStatusTracker from "../../components/shared/OrderStatusTracker";
 
 export const OrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -165,8 +166,8 @@ export const OrderDetail: React.FC = () => {
                   Shipment & Logistics
                 </h3>
               </div>
-              <CardContent className="p-5 text-left space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-xs md:text-sm">
+              <CardContent className="p-5 text-left space-y-6">
+                <div className="grid grid-cols-2 gap-4 text-xs md:text-sm pb-4 border-b border-secondary200/50">
                   <div>
                     <span className="text-secondary500 block">
                       Fulfillment Status
@@ -197,6 +198,13 @@ export const OrderDetail: React.FC = () => {
                       </p>
                     </div>
                   )}
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-secondary600 font-instrument">
+                    Delivery Milestones
+                  </h4>
+                  <OrderStatusTracker status={order.status} />
                 </div>
               </CardContent>
             </Card>
