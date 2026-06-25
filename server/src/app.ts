@@ -60,15 +60,19 @@ export function createApp() {
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (server-to-server, curl) in development
-        if (!origin && env.NODE_ENV !== 'production') {
+        // Always allow requests with no Origin header.
+        // This covers: server-to-server, curl, Postman, health probes,
+        // load balancers, and direct browser navigation (which never sends Origin).
+        if (!origin) {
           callback(null, true)
           return
         }
-        if (origin && allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin)) {
           callback(null, true)
         } else {
-          callback(new Error(`CORS: origin ${origin} not allowed`))
+          // Deny without throwing: the request continues (CORS is not access control),
+          // but no Access-Control-Allow-Origin header will be set.
+          callback(null, false)
         }
       },
       credentials: true,
