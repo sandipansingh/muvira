@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { adminApiService } from '../../lib/api/admin';
-import type { DashboardStats, InventoryItem } from '../../types/dashboard';
+import type { DashboardStats } from '../../types/dashboard';
 import type { OrderDetail } from '../../types/order';
 import { formatPrice } from '../../lib/format';
 import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
@@ -21,7 +21,6 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<OrderDetail[]>([]);
-  const [lowStockItems, setLowStockItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,7 +40,6 @@ export const Dashboard: React.FC = () => {
     if (statsRes.success && ordersRes.success && inventoryRes.success) {
       setStats(statsRes.data);
       setRecentOrders(ordersRes.data);
-      setLowStockItems(inventoryRes.data);
     } else {
       setError('Failed to load dashboard metrics.');
     }
