@@ -60,9 +60,8 @@ CREATE TABLE IF NOT EXISTS orders (
   coupon_code           TEXT,
   coupon_discount_paisa INT         NOT NULL DEFAULT 0,
 
-  -- Manual fulfillment tracking — no shipping API; free-text fields only
-  carrier_name          TEXT,
-  tracking_id           TEXT,
+  -- Shiprocket fulfillment
+  awb_code              TEXT,
   notes                 TEXT,
 
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -74,6 +73,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders (order_number);
 CREATE INDEX IF NOT EXISTS idx_orders_status       ON orders (status);
 CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders (payment_status);
 CREATE INDEX IF NOT EXISTS idx_orders_created_at   ON orders (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_awb_code ON orders (awb_code) WHERE awb_code IS NOT NULL;
 
 -- Row-Level Security 
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
