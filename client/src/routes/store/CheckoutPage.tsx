@@ -130,6 +130,7 @@ export const CheckoutPage: React.FC = () => {
     const res = await ordersApiService.createOrder(
       selectedAddressId,
       coupon ? coupon.code : null,
+      carrierNote.trim() || null,
     );
     setLoading(false);
 

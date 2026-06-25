@@ -46,20 +46,16 @@ export const AdminOrderDetail: React.FC = () => {
   }, [id]);
 
   const fetchOrderDetails = async () => {
+    if (!id) return;
     setLoading(true);
     setError(null);
-    const res = await adminApiService.getOrders({ page: 1, limit: 100 });
+    const res = await adminApiService.getOrderById(id);
     if (res.success) {
-      const match = res.data.find((o) => o.id === id);
-      if (match) {
-        setOrder(match);
-        setOrderStatus(match.status);
-        setFulfillmentStatus(match.fulfillmentStatus);
-        setCarrierName(match.carrierName || "");
-        setTrackingId(match.trackingId || "");
-      } else {
-        setError("Order not found.");
-      }
+      setOrder(res.data);
+      setOrderStatus(res.data.status);
+      setFulfillmentStatus(res.data.fulfillmentStatus);
+      setCarrierName(res.data.carrierName || "");
+      setTrackingId(res.data.trackingId || "");
     } else {
       setError(res.error.message || "Failed to fetch order.");
     }
@@ -239,7 +235,7 @@ export const AdminOrderDetail: React.FC = () => {
           <Card className="border border-secondary200">
             <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
               <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest flex items-center gap-2">
-                Products Log
+                Purchased Items
               </h3>
             </div>
             <CardContent className="p-0">
@@ -327,9 +323,17 @@ export const AdminOrderDetail: React.FC = () => {
                 {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
                 {order.shippingAddress.pincode}
               </p>
-              <p className="font-normal text-secondary700 font-instrument">
+              <p className="font-normal text-secondary700 font-instrument mb-1">
                 {order.shippingAddress.phone}
               </p>
+              {order.deliveryInstructions && (
+                <div className="mt-4 pt-4 border-t border-secondary200">
+                  <span className="text-secondary500 block mb-1 text-[10px] uppercase tracking-wider font-medium">Delivery Instructions</span>
+                  <p className="font-normal text-secondary700 italic bg-lightgrayColor/40 p-2.5 rounded-lg border border-secondary200/50 leading-relaxed">
+                    "{order.deliveryInstructions}"
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

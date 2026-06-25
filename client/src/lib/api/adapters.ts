@@ -7,7 +7,7 @@ import type { ProductListItem, ProductDetail, ProductImage } from '../../types/p
 import type { Category } from '../../types/category';
 import type { Campaign } from '../../types/campaign';
 import type { Cart, CartItem, Address } from '../../types/cart';
-import type { OrderListItem, OrderDetail, OrderItem, OrderAddress } from '../../types/order';
+import type { OrderListItem, OrderDetail, OrderItem, OrderAddress, AdminNote } from '../../types/order';
 import type { Coupon, CouponPreview } from '../../types/coupon';
 import type { DashboardStats, InventoryItem } from '../../types/dashboard';
 import type { SiteSettings } from '../../types/settings';
@@ -239,6 +239,32 @@ export function mapOrderAddress(raw: Record<string, unknown>): OrderAddress {
 export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
   const items = (raw['order_items'] as Record<string, unknown>[] | undefined) ?? [];
   const profile = raw['profiles'] as Record<string, unknown> | undefined;
+
+  const rawNotes = (raw['notes'] as string | null) ?? '';
+  let deliveryInstructions: string | null = null;
+  const adminNotes: AdminNote[] = [];
+
+  if (rawNotes) {
+    const lines = rawNotes.split('\n');
+    lines.forEach((line, idx) => {
+      const match = line.match(/^\[([^\]]+)\]\s*(.*)$/);
+      if (match) {
+        adminNotes.push({
+          id: String(idx),
+          note: match[2],
+          createdBy: 'Admin',
+          createdAt: match[1],
+        });
+      } else {
+        if (deliveryInstructions) {
+          deliveryInstructions += '\n' + line;
+        } else {
+          deliveryInstructions = line;
+        }
+      }
+    });
+  }
+
   return {
     id: raw['id'] as string,
     orderNumber: raw['order_number'] as string,
@@ -264,7 +290,8 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
           email: (profile['email'] as string) ?? '',
         }
       : undefined,
-    adminNotes: [],
+    adminNotes,
+    deliveryInstructions,
   };
 }
 

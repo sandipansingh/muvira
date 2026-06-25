@@ -66,4 +66,5 @@ export interface OrderDetail {
     email: string;
   };
   adminNotes?: AdminNote[];
+  deliveryInstructions?: string | null;
 }
