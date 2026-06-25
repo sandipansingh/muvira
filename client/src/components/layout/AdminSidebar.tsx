@@ -7,7 +7,6 @@ import {
   FolderTree,
   ShoppingBag,
   Ticket,
-  Percent,
   Warehouse,
   Settings
 } from 'lucide-react';
@@ -19,7 +18,7 @@ export const AdminSidebar: React.FC = () => {
     { name: 'Categories', path: '/admin/categories', icon: FolderTree },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Coupons', path: '/admin/coupons', icon: Ticket },
-    { name: 'Campaigns', path: '/admin/campaigns', icon: Percent },
+
     { name: 'Inventory', path: '/admin/inventory', icon: Warehouse },
     { name: 'Site Settings', path: '/admin/settings', icon: Settings },
   ];
