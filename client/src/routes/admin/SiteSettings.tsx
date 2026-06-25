@@ -8,7 +8,7 @@ import Card, { CardContent } from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Textarea from '../../components/ui/Textarea';
-import { Plus, Trash2, GripVertical, Upload } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Upload, Mail, Phone, MapPin, Truck, Megaphone, Layers, Info } from 'lucide-react';
 
 const emptySlide = (): HeroSlide => ({
   id: Date.now().toString(),
@@ -21,6 +21,8 @@ const emptySlide = (): HeroSlide => ({
 export const SiteSettingsPage: React.FC = () => {
   const { settings, refresh } = useSiteSettings();
   const { showToast } = useToast();
+
+  const [activeTab, setActiveTab] = useState<'general' | 'announcements' | 'slides'>('general');
 
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
@@ -212,287 +214,365 @@ export const SiteSettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl space-y-8">
+    <div className="w-full space-y-6 text-left pb-10">
       <div>
-        <h1 className="text-2xl font-semibold text-[var(--text)]">Site Settings</h1>
-        <p className="text-sm text-secondary500 mt-1">Manage contact info, announcement bar, and hero slides.</p>
+        <h1 className="text-xl md:text-2xl font-bold text-darkColor tracking-wide">Site Settings</h1>
+        <p className="text-xs text-secondary500 mt-1">Manage contact info, announcement bar, and hero slides.</p>
       </div>
 
-      {/* ── Contact Info ── */}
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <h2 className="text-base font-semibold text-[var(--text)]">Contact Information</h2>
-          <div>
-            <label className="block text-xs font-medium text-secondary600 mb-1">Email</label>
-            <Input
-              type="email"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-              placeholder="support@example.com"
-              maxLength={255}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-secondary600 mb-1">Phone</label>
-            <Input
-              value={contactPhone}
-              onChange={(e) => setContactPhone(e.target.value.replace(/[^\d+()\s-]/g, '').slice(0, 50))}
-              placeholder="+91 98765 43210"
-              maxLength={50}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-secondary600 mb-1">Address</label>
-            <Textarea
-              value={contactAddress}
-              onChange={(e) => setContactAddress(e.target.value)}
-              placeholder="Street, City, State, PIN"
-              rows={2}
-              maxLength={500}
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button variant="primary" size="sm" onClick={handleSaveContact} disabled={savingContact}>
-              {savingContact ? 'Saving…' : 'Save Contact Info'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Navigation Tabs */}
+      <div className="flex border-b border-secondary200">
+        <button
+          onClick={() => setActiveTab('general')}
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+            activeTab === 'general'
+              ? 'border-primaryBg text-primaryBg font-bold'
+              : 'border-transparent text-secondary500 hover:text-darkColor'
+          }`}
+        >
+          <Info className="w-4 h-4" />
+          General Store Info
+        </button>
+        <button
+          onClick={() => setActiveTab('announcements')}
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+            activeTab === 'announcements'
+              ? 'border-primaryBg text-primaryBg font-bold'
+              : 'border-transparent text-secondary500 hover:text-darkColor'
+          }`}
+        >
+          <Megaphone className="w-4 h-4" />
+          Fulfillment & Banners
+        </button>
+        <button
+          onClick={() => setActiveTab('slides')}
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+            activeTab === 'slides'
+              ? 'border-primaryBg text-primaryBg font-bold'
+              : 'border-transparent text-secondary500 hover:text-darkColor'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          Hero Slides
+        </button>
+      </div>
 
-      {/* ── Store Description ── */}
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <h2 className="text-base font-semibold text-[var(--text)]">Store Description</h2>
-          <div>
-            <label className="block text-xs font-medium text-secondary600 mb-1">Footer/About Text</label>
-            <Textarea
-              value={storeDescription}
-              onChange={(e) => setStoreDescription(e.target.value)}
-              placeholder="Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home."
-              rows={3}
-              maxLength={1000}
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button variant="primary" size="sm" onClick={handleSaveDescription} disabled={savingDescription}>
-              {savingDescription ? 'Saving…' : 'Save Description'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Announcement Bar ── */}
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold text-[var(--text)]">Announcement Bar</h2>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <span className="text-xs text-secondary600">Enabled</span>
-              <input
-                type="checkbox"
-                checked={annEnabled}
-                onChange={(e) => setAnnEnabled(e.target.checked)}
-                className="w-4 h-4 accent-[var(--accent)]"
-              />
-            </label>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-secondary600 mb-1">Badge Label</label>
-            <Input
-              value={annBadge}
-              onChange={(e) => setAnnBadge(e.target.value)}
-              placeholder="e.g. NEW DEALS"
-              maxLength={100}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-secondary600 mb-1">Message</label>
-            <Textarea
-              value={annMessage}
-              onChange={(e) => setAnnMessage(e.target.value)}
-              placeholder="Diwali Festival Sale is active! Save 20% off with coupon DIWALI20"
-              rows={2}
-              maxLength={500}
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button variant="primary" size="sm" onClick={handleSaveAnnouncement} disabled={savingAnn}>
-              {savingAnn ? 'Saving…' : 'Save Announcement'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Shipping Configuration ── */}
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <h2 className="text-base font-semibold text-[var(--text)]">Shipping Rules</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-secondary600 mb-1">
-                Flat Shipping Charge (₹)
-              </label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={shippingCharge}
-                onChange={(e) => setShippingCharge(e.target.value)}
-                placeholder="e.g. 150"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-secondary600 mb-1">
-                Free Shipping Threshold (₹)
-              </label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={freeShippingThreshold}
-                onChange={(e) => setFreeShippingThreshold(e.target.value)}
-                placeholder="e.g. 1000"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <Button variant="primary" size="sm" onClick={handleSaveShipping} disabled={savingShipping}>
-              {savingShipping ? 'Saving…' : 'Save Shipping Rules'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Hero Slides ── */}
-      <Card>
-        <CardContent className="space-y-6 pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-[var(--text)]">Hero Slides</h2>
-              <p className="text-xs text-secondary500 mt-0.5">Drag the grip handle to reorder slides.</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={addSlide}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add Slide
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {slides.map((slide, idx) => (
-              <div
-                key={slide.id}
-                draggable
-                onDragStart={() => handleDragStart(idx)}
-                onDragEnter={() => handleDragEnter(idx)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => e.preventDefault()}
-                className="border border-[var(--border)] rounded-lg p-4 space-y-3 bg-white cursor-default"
-              >
-                {/* Slide header row */}
-                <div className="flex items-center justify-between">
-                  <div
-                    className="flex items-center gap-2 cursor-grab active:cursor-grabbing select-none"
-                    title="Drag to reorder"
-                  >
-                    <GripVertical className="w-4 h-4 text-secondary400" />
-                    <span className="text-xs font-semibold text-secondary600 uppercase tracking-wide">
-                      Slide {idx + 1}
-                    </span>
-                  </div>
-                  {slides.length > 1 && (
-                    <button
-                      onClick={() => removeSlide(idx)}
-                      className="text-rose-500 hover:text-rose-700 transition-colors"
-                      aria-label="Remove slide"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Title */}
+      {/* Tab Panels */}
+      <div className="mt-4">
+        {activeTab === 'general' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {/* Contact Info Card */}
+            <Card>
+              <CardContent className="space-y-4 pt-6">
+                <h2 className="text-sm font-bold text-darkColor uppercase tracking-wider flex items-center gap-2 border-b border-secondary200 pb-3">
+                  <Phone className="w-4.5 h-4.5 text-primaryBg" />
+                  Contact Information
+                </h2>
                 <div>
-                  <label className="block text-xs font-medium text-secondary600 mb-1">Title</label>
-                  <Input
-                    value={slide.title}
-                    onChange={(e) => updateSlide(idx, 'title', e.target.value.slice(0, 200))}
-                    placeholder="Festival Furniture Bonanza"
-                    maxLength={200}
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">Email</label>
+                  <div className="relative">
+                    <Input
+                      type="email"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      placeholder="support@example.com"
+                      maxLength={255}
+                      className="pl-10"
+                    />
+                    <Mail className="w-4.5 h-4.5 text-secondary400 absolute left-3 top-3" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">Phone</label>
+                  <div className="relative">
+                    <Input
+                      value={contactPhone}
+                      onChange={(e) => setContactPhone(e.target.value.replace(/[^\d+()\s-]/g, '').slice(0, 50))}
+                      placeholder="+91 98765 43210"
+                      maxLength={50}
+                      className="pl-10"
+                    />
+                    <Phone className="w-4.5 h-4.5 text-secondary400 absolute left-3 top-3" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">Address</label>
+                  <div className="relative">
+                    <Textarea
+                      value={contactAddress}
+                      onChange={(e) => setContactAddress(e.target.value)}
+                      placeholder="Street, City, State, PIN"
+                      rows={3}
+                      maxLength={500}
+                      className="pl-10 pt-2"
+                    />
+                    <MapPin className="w-4.5 h-4.5 text-secondary400 absolute left-3 top-3.5" />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-2 border-t border-secondary200/50">
+                  <Button variant="primary" size="sm" onClick={handleSaveContact} disabled={savingContact}>
+                    {savingContact ? 'Saving…' : 'Save Contact Info'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Store Description Card */}
+            <Card>
+              <CardContent className="space-y-4 pt-6">
+                <h2 className="text-sm font-bold text-darkColor uppercase tracking-wider flex items-center gap-2 border-b border-secondary200 pb-3">
+                  <Info className="w-4.5 h-4.5 text-primaryBg" />
+                  About The Store
+                </h2>
+                <div>
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">Footer / About Description</label>
+                  <Textarea
+                    value={storeDescription}
+                    onChange={(e) => setStoreDescription(e.target.value)}
+                    placeholder="Premium Indian lifestyle, apparel..."
+                    rows={4}
+                    maxLength={1000}
                   />
                 </div>
+                <div className="flex justify-end pt-2 border-t border-secondary200/50">
+                  <Button variant="primary" size="sm" onClick={handleSaveDescription} disabled={savingDescription}>
+                    {savingDescription ? 'Saving…' : 'Save Description'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-                {/* Subtitle */}
+        {activeTab === 'announcements' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {/* Announcement Card */}
+            <Card>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center justify-between border-b border-secondary200 pb-3">
+                  <h2 className="text-sm font-bold text-darkColor uppercase tracking-wider flex items-center gap-2">
+                    <Megaphone className="w-4.5 h-4.5 text-primaryBg" />
+                    Announcement Banner
+                  </h2>
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={annEnabled}
+                      onChange={(e) => setAnnEnabled(e.target.checked)}
+                      className="w-4 h-4 accent-primaryBg cursor-pointer"
+                    />
+                    <span className="text-xs font-semibold text-secondary700">Active</span>
+                  </label>
+                </div>
                 <div>
-                  <label className="block text-xs font-medium text-secondary600 mb-1">Subtitle</label>
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">Badge Text</label>
                   <Input
-                    value={slide.subtitle}
-                    onChange={(e) => updateSlide(idx, 'subtitle', e.target.value.slice(0, 500))}
-                    placeholder="Up to 30% Off Sheesham Wood Craftsmanship"
+                    value={annBadge}
+                    onChange={(e) => setAnnBadge(e.target.value)}
+                    placeholder="e.g. FESTIVE DEALS"
+                    maxLength={100}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">Campaign Message</label>
+                  <Textarea
+                    value={annMessage}
+                    onChange={(e) => setAnnMessage(e.target.value)}
+                    placeholder="Diwali Sale is active! Save 20%..."
+                    rows={4}
                     maxLength={500}
                   />
                 </div>
+                <div className="flex justify-end pt-2 border-t border-secondary200/50">
+                  <Button variant="primary" size="sm" onClick={handleSaveAnnouncement} disabled={savingAnn}>
+                    {savingAnn ? 'Saving…' : 'Save Announcement'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-                {/* Image — URL input + device upload */}
+            {/* Shipping Config Card */}
+            <Card>
+              <CardContent className="space-y-4 pt-6">
+                <h2 className="text-sm font-bold text-darkColor uppercase tracking-wider flex items-center gap-2 border-b border-secondary200 pb-3">
+                  <Truck className="w-4.5 h-4.5 text-primaryBg" />
+                  Shipping & Delivery Rules
+                </h2>
                 <div>
-                  <label className="block text-xs font-medium text-secondary600 mb-1">Image</label>
-
-                  {/* File upload zone */}
-                  <label className="block cursor-pointer mb-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploadingIdx === idx}
-                      onChange={(e) => handleFileUpload(e, idx)}
-                    />
-                    <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-lg px-3 py-2.5 flex items-center gap-2 text-xs text-secondary600 hover:bg-lightgrayColor transition-colors">
-                      <Upload className="w-4 h-4 shrink-0" />
-                      <span className="font-medium">
-                        {uploadingIdx === idx ? 'Uploading…' : 'Upload from device'}
-                      </span>
-                      <span className="text-secondary400 ml-auto">JPG, PNG, WEBP · max 8MB</span>
-                    </div>
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">
+                    Flat Shipping Charge (₹)
                   </label>
-
-                  {/* URL input */}
                   <Input
-                    value={slide.imageUrl}
-                    onChange={(e) => updateSlide(idx, 'imageUrl', e.target.value.slice(0, 2048))}
-                    placeholder="Or paste image URL: https://…"
-                    maxLength={2048}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={shippingCharge}
+                    onChange={(e) => setShippingCharge(e.target.value)}
+                    placeholder="e.g. 150"
                   />
-
-                  {/* Preview */}
-                  {slide.imageUrl && (
-                    <img
-                      src={slide.imageUrl}
-                      alt={slide.title}
-                      className="mt-2 h-28 w-full object-cover rounded-md border border-[var(--border)]"
-                    />
-                  )}
                 </div>
-
-                {/* Link */}
                 <div>
-                  <label className="block text-xs font-medium text-secondary600 mb-1">Link</label>
+                  <label className="block text-xs font-semibold text-secondary700 mb-1 uppercase tracking-wider">
+                    Free Shipping Threshold (₹)
+                  </label>
                   <Input
-                    value={slide.link}
-                    onChange={(e) => updateSlide(idx, 'link', e.target.value.slice(0, 2048))}
-                    placeholder="/categories/solid-wood-furniture"
-                    maxLength={2048}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={freeShippingThreshold}
+                    onChange={(e) => setFreeShippingThreshold(e.target.value)}
+                    placeholder="e.g. 1000"
                   />
                 </div>
-              </div>
-            ))}
+                <div className="flex justify-end pt-2 border-t border-secondary200/50">
+                  <Button variant="primary" size="sm" onClick={handleSaveShipping} disabled={savingShipping}>
+                    {savingShipping ? 'Saving…' : 'Save Shipping Rules'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
+        )}
 
-          <div className="flex justify-end">
-            <Button variant="primary" size="sm" onClick={handleSaveSlides} disabled={savingSlides}>
-              {savingSlides ? 'Saving…' : 'Save Hero Slides'}
-            </Button>
+        {activeTab === 'slides' && (
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="space-y-6 pt-6">
+                <div className="flex items-center justify-between border-b border-secondary200 pb-3">
+                  <div>
+                    <h2 className="text-sm font-bold text-darkColor uppercase tracking-wider flex items-center gap-2">
+                      <Layers className="w-4.5 h-4.5 text-primaryBg" />
+                      Hero Carousel Manager
+                    </h2>
+                    <p className="text-[10px] text-secondary500 mt-0.5">Drag any card handle to arrange slides order.</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={addSlide} className="flex items-center gap-1">
+                    <Plus className="w-4 h-4" />
+                    Add New Slide
+                  </Button>
+                </div>
+
+                {/* HORIZONTAL CAROUSEL LAYOUT FOR DRAG REORDERING */}
+                <div className="flex flex-row overflow-x-auto gap-4 pb-4 pt-1 snap-x no-scrollbar select-none">
+                  {slides.map((slide, idx) => (
+                    <div
+                      key={slide.id}
+                      draggable
+                      onDragStart={() => handleDragStart(idx)}
+                      onDragEnter={() => handleDragEnter(idx)}
+                      onDragEnd={handleDragEnd}
+                      onDragOver={(e) => e.preventDefault()}
+                      className="w-80 shrink-0 border border-secondary200 rounded-xl p-4 space-y-3 bg-white shadow-sm hover:border-secondary300 transition-all select-none snap-start relative"
+                    >
+                      {/* Grip Header Row */}
+                      <div className="flex items-center justify-between border-b border-secondary100 pb-2">
+                        <div
+                          className="flex items-center gap-2 cursor-grab active:cursor-grabbing text-secondary500 hover:text-darkColor"
+                          title="Drag slide horizontally to reorder"
+                        >
+                          <GripVertical className="w-4 h-4" />
+                          <span className="text-[10px] font-bold uppercase tracking-wider">
+                            Slide #{idx + 1}
+                          </span>
+                        </div>
+                        {slides.length > 1 && (
+                          <button
+                            onClick={() => removeSlide(idx)}
+                            className="text-rose-500 hover:text-rose-700 transition-colors p-1"
+                            aria-label="Remove slide"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Form Details */}
+                      <div className="space-y-2.5 text-xs">
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Title</label>
+                          <Input
+                            value={slide.title}
+                            onChange={(e) => updateSlide(idx, 'title', e.target.value.slice(0, 200))}
+                            placeholder="Festival Furniture Sale"
+                            maxLength={200}
+                            className="text-xs !py-1"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Subtitle</label>
+                          <Input
+                            value={slide.subtitle}
+                            onChange={(e) => updateSlide(idx, 'subtitle', e.target.value.slice(0, 500))}
+                            placeholder="Up to 30% Off Sheesham Wood"
+                            maxLength={500}
+                            className="text-xs !py-1"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Image Preview</label>
+                          
+                          {/* File Device Picker */}
+                          <label className="block cursor-pointer mb-1.5">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={uploadingIdx === idx}
+                              onChange={(e) => handleFileUpload(e, idx)}
+                            />
+                            <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-lg px-2.5 py-1.5 flex items-center justify-center gap-1.5 text-[10px] text-secondary600 hover:bg-lightgrayColor transition-colors">
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{uploadingIdx === idx ? 'Uploading…' : 'Upload device image'}</span>
+                            </div>
+                          </label>
+
+                          <Input
+                            value={slide.imageUrl}
+                            onChange={(e) => updateSlide(idx, 'imageUrl', e.target.value.slice(0, 2048))}
+                            placeholder="Or paste image URL"
+                            maxLength={2048}
+                            className="text-xs !py-1"
+                          />
+
+                          {/* Render visual image thumbnail */}
+                          {slide.imageUrl && (
+                            <div className="mt-2 h-20 w-full overflow-hidden rounded-lg border border-secondary200 bg-lightgrayColor">
+                              <img
+                                src={slide.imageUrl}
+                                alt={slide.title}
+                                className="w-full h-full object-cover select-none pointer-events-none"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">Navigation Link</label>
+                          <Input
+                            value={slide.link}
+                            onChange={(e) => updateSlide(idx, 'link', e.target.value.slice(0, 2048))}
+                            placeholder="/categories/wood-furniture"
+                            maxLength={2048}
+                            className="text-xs !py-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-end pt-3 border-t border-secondary200">
+                  <Button variant="primary" size="sm" onClick={handleSaveSlides} disabled={savingSlides}>
+                    {savingSlides ? 'Saving…' : 'Save Hero Slides'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   );
 };

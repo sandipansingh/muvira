@@ -291,25 +291,25 @@ export const AdminOrderDetail: React.FC = () => {
         <div className="space-y-6">
           {/* Customer Card */}
           <Card className="border border-secondary200">
-            <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
-              <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest flex items-center gap-2">
+            <div className="p-4 border-b border-secondary200 bg-lightgrayColor/30">
+              <h3 className="text-xs font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">
                 Customer Identity
               </h3>
             </div>
-            <CardContent className="p-5 text-xs md:text-sm text-left space-y-3 font-instrument">
+            <CardContent className="p-4 text-xs md:text-sm text-left space-y-3 font-instrument">
               <div>
-                <span className="text-secondary500 block">Contact Name</span>
-                <span className="font-medium text-darkColor">
+                <span className="text-[10px] uppercase tracking-wider text-secondary500 block font-semibold mb-0.5">Contact Name</span>
+                <span className="font-semibold text-darkColor">
                   {order.customer?.fullName}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-xs">
                 <Phone className="w-4 h-4 text-secondary400 shrink-0" />
                 <span className="font-medium text-secondary700">
                   {order.customer?.phone}
                 </span>
               </div>
-              <div className="flex items-center gap-2 truncate">
+              <div className="flex items-center gap-2 text-xs truncate">
                 <Mail className="w-4 h-4 text-secondary400 shrink-0" />
                 <span className="font-medium text-secondary700 truncate">
                   {order.customer?.email}
@@ -320,29 +320,29 @@ export const AdminOrderDetail: React.FC = () => {
 
           {/* Delivery destination */}
           <Card className="border border-secondary200">
-            <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
-              <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest flex items-center gap-2">
+            <div className="p-4 border-b border-secondary200 bg-lightgrayColor/30">
+              <h3 className="text-xs font-bold text-darkColor uppercase tracking-widest flex items-center gap-2">
                 Shipping Destination
               </h3>
             </div>
-            <CardContent className="p-5 text-left text-xs md:text-sm">
-              <p className="font-medium text-darkColor mb-1">
+            <CardContent className="p-4 text-left text-xs md:text-sm space-y-2">
+              <p className="font-semibold text-darkColor">
                 {order.shippingAddress.fullName}
               </p>
-              <p className="text-secondary600 mb-1 leading-snug">
-                {order.shippingAddress.line1},{" "}
-                {order.shippingAddress.line2 &&
-                  `${order.shippingAddress.line2}, `}
-                {order.shippingAddress.city}, {order.shippingAddress.state} -{" "}
-                {order.shippingAddress.pincode}
+              <p className="text-secondary600 text-xs leading-relaxed">
+                {order.shippingAddress.line1}
+                {order.shippingAddress.line2 && `, ${order.shippingAddress.line2}`}
+                <br />
+                {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
               </p>
-              <p className="font-normal text-secondary700 font-instrument mb-1">
+              <p className="font-medium text-secondary750 text-xs flex items-center gap-1.5 mt-1 font-instrument">
+                <Phone className="w-3.5 h-3.5 text-secondary400" />
                 {order.shippingAddress.phone}
               </p>
               {order.deliveryInstructions && (
-                <div className="mt-4 pt-4 border-t border-secondary200">
-                  <span className="text-secondary500 block mb-1 text-[10px] uppercase tracking-wider font-medium">Delivery Instructions</span>
-                  <p className="font-normal text-secondary700 italic bg-lightgrayColor/40 p-2.5 rounded-lg border border-secondary200/50 leading-relaxed">
+                <div className="mt-3 pt-3 border-t border-secondary200/50">
+                  <span className="text-secondary500 block mb-1 text-[9px] uppercase tracking-wider font-semibold">Delivery Instructions</span>
+                  <p className="font-normal text-secondary700 text-xs italic bg-lightgrayColor/40 p-2.5 rounded-lg border border-secondary200/50 leading-relaxed">
                     "{order.deliveryInstructions}"
                   </p>
                 </div>
@@ -352,33 +352,36 @@ export const AdminOrderDetail: React.FC = () => {
 
           {/* INTERNAL NOTES LOGGER */}
           <Card className="border border-secondary200">
-            <div className="p-5 border-b border-secondary200 bg-lightgrayColor/30">
-              <h3 className="text-sm font-medium text-darkColor uppercase tracking-widest">
+            <div className="p-4 border-b border-secondary200 bg-lightgrayColor/30">
+              <h3 className="text-xs font-bold text-darkColor uppercase tracking-widest">
                 Internal Logs & Notes
               </h3>
             </div>
-            <CardContent className="p-5 text-left space-y-4">
+            <CardContent className="p-4 text-left space-y-4">
               {/* Note records */}
-              <div className="space-y-3.5 max-h-48 overflow-y-auto no-scrollbar border-b border-secondary200 pb-4">
+              <div className="max-h-64 overflow-y-auto no-scrollbar border-b border-secondary200/50 pb-4 pr-1">
                 {!order.adminNotes || order.adminNotes.length === 0 ? (
                   <p className="text-xs text-secondary500 italic py-1">
                     No custom administrative notes logged.
                   </p>
                 ) : (
-                  order.adminNotes.map((note) => (
-                    <div
-                      key={note.id}
-                      className="p-2.5 bg-lightgrayColor border border-secondary200 rounded-lg text-xs"
-                    >
-                      <p className="text-secondary700 leading-normal">
-                        {note.note}
-                      </p>
-                      <div className="flex justify-between items-center text-[9px] text-secondary500 font-medium tracking-wider uppercase mt-2">
-                        <span>By: {note.createdBy}</span>
-                        <span>{formatDate(note.createdAt)}</span>
+                  <div className="relative pl-4 border-l border-secondary200 space-y-4 ml-2 pt-1">
+                    {order.adminNotes.map((note) => (
+                      <div key={note.id} className="relative space-y-1">
+                        {/* Timeline dot */}
+                        <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-primaryBg border border-white ring-2 ring-primary100" />
+                        <div className="bg-lightgrayColor/50 border border-secondary200/60 p-2.5 rounded-lg text-xs">
+                          <p className="text-secondary700 leading-normal font-medium">
+                            {note.note}
+                          </p>
+                          <div className="flex justify-between items-center text-[9px] text-secondary400 mt-2 font-medium">
+                            <span>By: {note.createdBy}</span>
+                            <span>{formatDate(note.createdAt)}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
 
@@ -389,7 +392,7 @@ export const AdminOrderDetail: React.FC = () => {
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder="Log custom instructions, packaging requests..."
                   rows={2}
-                  className="w-full text-xs p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:border-primaryBg"
+                  className="w-full text-xs p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primaryBg/30 focus:border-primaryBg bg-white"
                   disabled={updatingStatus || savingAwb || addingNote}
                   maxLength={2000}
                 />

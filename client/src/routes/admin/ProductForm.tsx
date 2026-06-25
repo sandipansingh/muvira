@@ -602,18 +602,18 @@ export const ProductForm: React.FC = () => {
               </div>
 
               {/* List images */}
-              <div className="space-y-3.5 pt-2">
+              <div className="space-y-3 pt-1">
                 <span className="text-[10px] font-bold text-secondary500 uppercase tracking-widest block pl-0.5">
-                  Gallery angles list (First image is Primary cover)
+                  Gallery angles (Drag grids to reorder)
                 </span>
 
                 {images.length === 0 ? (
-                  <div className="border-2 border-dashed border-secondary300 rounded-xl p-6 text-center text-xs text-secondary500 flex flex-col items-center justify-center gap-2 select-none">
+                  <div className="border-2 border-dashed border-secondary200 rounded-xl p-6 text-center text-xs text-secondary500 flex flex-col items-center justify-center gap-2 select-none bg-lightgrayColor/30">
                     <Sparkles className="w-6 h-6 text-secondary400" />
                     No images uploaded yet.
                   </div>
                 ) : (
-                  <div className="space-y-2.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {images
                       .sort((a, b) => a.sortOrder - b.sortOrder)
                       .map((img, index) => (
@@ -623,42 +623,46 @@ export const ProductForm: React.FC = () => {
                           onDragStart={(e) => handleDragStart(e, index)}
                           onDragOver={(e) => handleDragOver(e, index)}
                           onDragEnd={handleDragEnd}
-                          className={`flex items-center gap-3 p-2 bg-lightgrayColor border border-secondary200 rounded-xl justify-between transition-all duration-200 ${
+                          className={`group relative border border-secondary200 rounded-xl overflow-hidden bg-white shadow-sm flex flex-col justify-between transition-all duration-200 ${
                             draggedIndex === index
                               ? "opacity-40 border-dashed border-primary400 scale-[0.98]"
-                              : "hover:border-secondary300"
+                              : "hover:border-secondary300 hover:shadow-md"
                           }`}
                         >
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className="cursor-grab active:cursor-grabbing p-1 text-secondary400 hover:text-secondary700"
-                              title="Drag to reorder"
-                            >
-                              <GripVertical className="w-4 h-4 shrink-0" />
-                            </div>
-                            <div className="w-10 h-10 bg-white rounded overflow-hidden border border-secondary200 shrink-0">
-                              <img
-                                src={img.url}
-                                alt="angle"
-                                className="w-full h-full object-cover select-none pointer-events-none"
-                              />
-                            </div>
-                            <span className="text-[10px] text-secondary600 font-medium select-none">
-                              {index === 0
-                                ? "Primary Cover"
-                                : `Angle #${index}`}
-                            </span>
+                          {/* Image container */}
+                          <div className="relative aspect-square w-full bg-lightgrayColor overflow-hidden">
+                            <img
+                              src={img.url}
+                              alt={`angle-${index}`}
+                              className="w-full h-full object-cover select-none pointer-events-none"
+                            />
+                            {index === 0 ? (
+                              <span className="absolute top-2 left-2 px-2 py-0.5 bg-primaryBg text-white rounded-full text-[8px] font-bold uppercase tracking-wider shadow-sm z-10">
+                                Cover
+                              </span>
+                            ) : (
+                              <span className="absolute top-2 left-2 px-2 py-0.5 bg-secondary700/80 backdrop-blur-sm text-white rounded-full text-[8px] font-bold uppercase tracking-wider shadow-sm z-10">
+                                Angle #{index}
+                              </span>
+                            )}
                           </div>
 
-                          <div className="flex items-center gap-1">
+                          {/* Actions bar */}
+                          <div className="p-1.5 bg-lightgrayColor/50 flex items-center justify-between border-t border-secondary200/50">
+                            <div
+                              className="cursor-grab active:cursor-grabbing p-1 text-secondary500 hover:text-darkColor transition-colors"
+                              title="Drag to reorder"
+                            >
+                              <GripVertical className="w-3.5 h-3.5" />
+                            </div>
                             <button
                               type="button"
                               onClick={() => handleImageDelete(img.id)}
                               disabled={saving || uploading}
-                              className="text-rose-600 hover:text-rose-700 p-1 pl-2"
-                              title="Delete Angle"
+                              className="text-rose-500 hover:text-rose-700 p-1 transition-colors disabled:opacity-40"
+                              title="Delete image"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
                         </div>

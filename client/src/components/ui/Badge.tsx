@@ -10,18 +10,18 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
   ...props
 }) => {
-  const textColors = {
-    primary: 'text-secondary800',
-    secondary: 'text-secondary600',
-    success: 'text-secondary600',
-    danger: 'text-secondary600',
-    warning: 'text-secondary600',
-    neutral: 'text-secondary500',
+  const variants = {
+    primary: 'bg-primary100 text-primaryBg border-primary200/50',
+    secondary: 'bg-lightgrayColor text-secondary700 border-secondary200',
+    success: 'bg-green-50 text-green-700 border-green-200/60',
+    danger: 'bg-red-50 text-red-700 border-red-200/60',
+    warning: 'bg-amber-50 text-amber-700 border-amber-200/60',
+    neutral: 'bg-stone-100 text-stone-600 border-stone-200',
   };
 
   return (
     <span
-      className={`inline-flex items-center text-[10px] font-medium uppercase tracking-wider ${textColors[variant]} ${className}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider border ${variants[variant]} ${className}`}
       {...props}
     >
       {children}
