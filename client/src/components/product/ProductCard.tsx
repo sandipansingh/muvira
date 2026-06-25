@@ -27,7 +27,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link
       to={`/products/${product.slug}`}
-      className="group bg-[var(--surface)] rounded-xl border border-[var(--border)] p-2.5 flex flex-col relative w-full text-left"
+      className="group bg-[var(--surface)] rounded-xl border border-[var(--border)] p-2.5 flex flex-col relative w-full h-full text-left"
     >
       {/* Product Image Cover */}
       <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-[var(--surface-2)] shrink-0">
@@ -42,6 +42,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {hasDiscount && (
           <span className="absolute top-3 left-3 bg-white text-[var(--text)] text-[9px] font-semibold px-2.5 py-px rounded tracking-[1px] uppercase border border-[var(--border)] shadow-sm">
             Sale
+          </span>
+        )}
+
+        {/* Stock overlays */}
+        {product.stock <= 0 && (
+          <span className="absolute top-3 right-3 bg-rose-50 text-rose-700 text-[9px] font-semibold px-2.5 py-px rounded tracking-[1px] uppercase border border-rose-200 shadow-sm">
+            Out of stock
+          </span>
+        )}
+        {product.stock > 0 && product.stock <= 5 && (
+          <span className="absolute top-3 right-3 bg-amber-50 text-amber-700 text-[9px] font-semibold px-2.5 py-px rounded tracking-[1px] uppercase border border-amber-200 shadow-sm animate-pulse">
+            Only {product.stock} Left
           </span>
         )}
 
@@ -87,17 +99,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             discountPercent={product.discountPercent}
             size="sm"
           />
-
-          {product.stock <= 0 && (
-            <span className="mt-2 text-[9px] font-medium uppercase tracking-widest text-[var(--accent)] flex items-center gap-1">
-              <span className="w-[3px] h-[3px] rounded-full bg-[var(--accent)]" /> Out of stock
-            </span>
-          )}
-          {product.stock > 0 && product.stock <= 5 && (
-            <span className="mt-2 text-[9px] font-medium uppercase tracking-widest text-[var(--text-muted)] flex items-center gap-1">
-              <span className="w-[3px] h-[3px] rounded-full bg-[var(--accent-gold)] animate-pulse" /> Only {product.stock} left
-            </span>
-          )}
         </div>
       </div>
     </Link>

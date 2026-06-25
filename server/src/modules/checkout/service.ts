@@ -1,7 +1,6 @@
 import { adminSupabase } from "../../lib/supabase/admin";
 import { razorpay } from "../../lib/razorpay/client";
 import { logger } from "../../lib/logger";
-import { calculateTax } from "../../lib/tax";
 import { validateCoupon } from "../coupons/service";
 import { AppError } from "../../types";
 import type { Order, Coupon } from "../../types";
@@ -12,9 +11,28 @@ import { env } from "../../config/env";
  * Currently: free shipping on all orders.
  * Change this function when shipping rate tiers are introduced.
  */
-function calculateShipping(_subtotalPaisa: number): number {
-  // TODO: Implement tiered shipping when rates are confirmed
-  return 0;
+async function calculateShipping(subtotalPaisa: number): Promise<number> {
+  const { data, error } = await adminSupabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "shipping_rules")
+    .single();
+
+  const fallbackRules = {
+    shipping_charge_paisa: 15000,
+    free_shipping_threshold_paisa: 100000,
+  };
+
+  const rules = (error || !data || !data.value) ? fallbackRules : (data.value as {
+    shipping_charge_paisa: number;
+    free_shipping_threshold_paisa: number;
+  });
+
+  if (rules.free_shipping_threshold_paisa > 0 && subtotalPaisa >= rules.free_shipping_threshold_paisa) {
+    return 0;
+  }
+
+  return rules.shipping_charge_paisa;
 }
 
 interface CreateOrderResult {
@@ -119,10 +137,10 @@ export async function createCheckoutOrder(
 
   // 4. Compute final totals
   const discountedSubtotal = subtotalPaisa - discountAmountPaisa;
-  const shippingAmountPaisa = calculateShipping(discountedSubtotal);
-  const taxAmountPaisa = calculateTax(discountedSubtotal);
+
+  const shippingAmountPaisa = await calculateShipping(discountedSubtotal);
   const totalAmountPaisa =
-    discountedSubtotal + shippingAmountPaisa + taxAmountPaisa;
+    discountedSubtotal + shippingAmountPaisa;
 
   if (totalAmountPaisa < 100) {
     // Razorpay minimum is ₹1 (100 paisa)
@@ -197,7 +215,7 @@ export async function createCheckoutOrder(
     subtotal_paisa: subtotalPaisa,
     discount_amount_paisa: discountAmountPaisa,
     shipping_amount_paisa: shippingAmountPaisa,
-    tax_amount_paisa: taxAmountPaisa,
+    tax_amount_paisa: 0,
     total_amount_paisa: totalAmountPaisa,
     // Coupon snapshot
     coupon_id: couponData?.id ?? null,

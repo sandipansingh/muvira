@@ -21,9 +21,13 @@ export interface SiteSettings {
     link: string;
   }>;
   store_description: string;
+  shipping_rules: {
+    shipping_charge_paisa: number;
+    free_shipping_threshold_paisa: number;
+  };
 }
 
-const SETTING_KEYS = ['contact_info', 'announcement_bar', 'hero_slides', 'store_description'] as const;
+const SETTING_KEYS = ['contact_info', 'announcement_bar', 'hero_slides', 'store_description', 'shipping_rules'] as const;
 
 export async function getSettings(): Promise<SiteSettings> {
   const { data, error } = await adminSupabase
@@ -51,6 +55,10 @@ export async function getSettings(): Promise<SiteSettings> {
     },
     hero_slides: (map['hero_slides'] as SiteSettings['hero_slides']) ?? [],
     store_description: (map['store_description'] as string) ?? 'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
+    shipping_rules: (map['shipping_rules'] as SiteSettings['shipping_rules']) ?? {
+      shipping_charge_paisa: 15000,
+      free_shipping_threshold_paisa: 100000,
+    },
   };
 }
 

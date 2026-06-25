@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 import { formatPrice } from '../../lib/format';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -18,8 +19,14 @@ export const CartPage: React.FC = () => {
     removeFromCart,
     applyCouponCode,
     removeCouponCode,
+    shippingAmount,
     totalAmount,
   } = useCart();
+
+  const { settings } = useSiteSettings();
+  const shippingRules = settings?.shippingRules;
+  const discountAmount = coupon ? coupon.discountAmount : 0;
+  const discountedSubtotal = cart.subtotal - discountAmount;
 
   const navigate = useNavigate();
   const [couponInput, setCouponInput] = useState('');
@@ -153,23 +160,37 @@ export const CartPage: React.FC = () => {
                   <span className="font-semibold text-darkColor">{formatPrice(cart.subtotal)}</span>
                 </div>
                 {coupon && (
-                  <div className="flex justify-between text-emerald-700 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Tag className="w-3.5 h-3.5 shrink-0" />
-                      Coupon Discount ({coupon.code})
+                  <div className="flex justify-between text-emerald-700 font-medium items-center">
+                    <span className="flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                      <span>Coupon Discount ({coupon.code})</span>
+                      <button
+                        onClick={handleRemoveCoupon}
+                        className="text-secondary400 hover:text-rose-600 p-0.5 rounded-full hover:bg-rose-50 transition-colors inline-flex items-center justify-center"
+                        title="Remove Coupon"
+                        aria-label="Remove Coupon"
+                      >
+                        <X className="w-3 h-3 shrink-0" />
+                      </button>
                     </span>
                     <span>-{formatPrice(coupon.discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-secondary600">
                   <span>Delivery Shipping</span>
-                  <span className="text-emerald-700 font-semibold uppercase tracking-wider">Free</span>
+                  {shippingAmount === 0 ? (
+                    <span className="text-emerald-700 font-semibold uppercase tracking-wider">Free</span>
+                  ) : (
+                    <span className="font-semibold text-darkColor">{formatPrice(shippingAmount)}</span>
+                  )}
                 </div>
-                {/* Optional Tax line */}
-                <div className="flex justify-between text-secondary500 text-xs">
-                  <span>Estimated Tax/GST</span>
-                  <span>₹0</span>
-                </div>
+                {shippingRules && shippingRules.freeShippingThresholdPaisa > 0 && shippingAmount > 0 && (
+                  <div className="text-[10px] text-[#c65c30] bg-[#c65c30]/5 px-2.5 py-1.5 rounded-lg border border-[#c65c30]/10 flex items-center mt-1">
+                    <span>
+                      Add <strong>{formatPrice(shippingRules.freeShippingThresholdPaisa - discountedSubtotal)}</strong> more for Free Shipping!
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Total Row */}
@@ -179,27 +200,8 @@ export const CartPage: React.FC = () => {
               </div>
 
               {/* Coupon inputs */}
-              <div className="border-t border-secondary200 pt-4 text-left">
-                {coupon ? (
-                  <div className="flex items-center justify-between p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl">
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <div className="text-xs">
-                        <p className="font-bold uppercase leading-none">{coupon.code}</p>
-                        <p className="text-[10px] text-emerald-600 mt-1">
-                          Saved {formatPrice(coupon.discountAmount)}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={handleRemoveCoupon}
-                      className="text-emerald-700 hover:text-rose-600 p-1"
-                      title="Remove Code"
-                    >
-                      <X className="w-4 h-4 shrink-0" />
-                    </button>
-                  </div>
-                ) : (
+              {!coupon && (
+                <div className="border-t border-secondary200 pt-4 text-left">
                   <form onSubmit={handleApplyCoupon} className="flex gap-2">
                     <Input
                       placeholder="ENTER COUPON CODE"
@@ -218,8 +220,8 @@ export const CartPage: React.FC = () => {
                       Apply
                     </Button>
                   </form>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Checkout CTA */}
               <Button

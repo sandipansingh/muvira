@@ -5,6 +5,7 @@ import { cartApiService } from "../lib/api/cart";
 import { couponsApiService } from "../lib/api/coupons";
 import { useToast } from "./ToastContext";
 import { useAuth } from "./AuthContext";
+import { useSiteSettings } from "./SiteSettingsContext";
 
 const EMPTY_CART: Cart = { items: [], subtotal: 0, itemCount: 0 };
 
@@ -18,7 +19,7 @@ interface CartContextType {
   applyCouponCode: (code: string) => Promise<boolean>;
   removeCouponCode: () => Promise<void>;
   clearCartState: () => void;
-  taxAmount: number;
+  shippingAmount: number;
   totalAmount: number;
 }
 
@@ -148,9 +149,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     setCoupon(null);
   };
 
-  const taxAmount = 0;
+  const { settings } = useSiteSettings();
   const discountAmount = coupon ? coupon.discountAmount : 0;
-  const totalAmount = cart.subtotal - discountAmount + taxAmount;
+  const discountedSubtotal = cart.subtotal - discountAmount;
+
+  let shippingAmount = 0;
+  if (cart.items.length > 0 && settings?.shippingRules) {
+    const { shippingChargePaisa, freeShippingThresholdPaisa } = settings.shippingRules;
+    if (freeShippingThresholdPaisa > 0 && discountedSubtotal >= freeShippingThresholdPaisa) {
+      shippingAmount = 0;
+    } else {
+      shippingAmount = shippingChargePaisa;
+    }
+  }
+
+  const totalAmount = discountedSubtotal + shippingAmount;
 
   return (
     <CartContext.Provider
@@ -164,7 +177,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         applyCouponCode,
         removeCouponCode,
         clearCartState,
-        taxAmount,
+        shippingAmount,
         totalAmount,
       }}
     >

@@ -248,7 +248,6 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
     subtotal: raw['subtotal_paisa'] as number,
     discountAmount: raw['discount_amount_paisa'] as number,
     shippingAmount: raw['shipping_amount_paisa'] as number,
-    taxAmount: raw['tax_amount_paisa'] as number,
     totalAmount: raw['total_amount_paisa'] as number,
     couponCode: (raw['coupon_code'] as string | null) ?? null,
     shippingAddress: mapOrderAddress(raw),
@@ -327,6 +326,7 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
   const contactRaw = (raw['contact_info'] as Record<string, unknown>) ?? {};
   const announcementRaw = (raw['announcement_bar'] as Record<string, unknown>) ?? {};
   const slidesRaw = (raw['hero_slides'] as Record<string, unknown>[]) ?? [];
+  const shippingRaw = (raw['shipping_rules'] as Record<string, unknown>) ?? {};
 
   return {
     contactInfo: {
@@ -347,5 +347,9 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       link: s['link'] as string,
     })),
     storeDescription: (raw['store_description'] as string) ?? 'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
+    shippingRules: {
+      shippingChargePaisa: (shippingRaw['shipping_charge_paisa'] as number) ?? 15000,
+      freeShippingThresholdPaisa: (shippingRaw['free_shipping_threshold_paisa'] as number) ?? 100000,
+    },
   };
 }

@@ -229,9 +229,7 @@ export const Home: React.FC = () => {
                 </div>
               ))
             : featured.map((prod) => (
-                <div key={prod.id}>
-                  <ProductCard product={prod} />
-                </div>
+                <ProductCard key={prod.id} product={prod} />
               ))}
         </div>
       </div>

@@ -23,7 +23,7 @@ import {
 import { STORE_NAME, INDIAN_STATES } from "../../lib/constants";
 
 export const CheckoutPage: React.FC = () => {
-  const { cart, coupon, totalAmount, clearCartState } = useCart();
+  const { cart, coupon, shippingAmount, totalAmount, clearCartState } = useCart();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -180,6 +180,7 @@ export const CheckoutPage: React.FC = () => {
             state: {
               orderNumber: verifyRes.data.orderNumber,
               totalAmount: orderTotal,
+              orderId: verifyRes.data.orderId,
             },
           });
         } else {
@@ -351,9 +352,13 @@ export const CheckoutPage: React.FC = () => {
                     <span>-{formatPrice(coupon.discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-secondary600">
+                 <div className="flex justify-between text-secondary600">
                   <span>Shipping & Delivery</span>
-                  <span className="text-emerald-700 font-semibold">Free</span>
+                  {shippingAmount === 0 ? (
+                    <span className="text-emerald-700 font-semibold uppercase tracking-wider">Free</span>
+                  ) : (
+                    <span className="font-semibold text-darkColor">{formatPrice(shippingAmount)}</span>
+                  )}
                 </div>
               </div>
 

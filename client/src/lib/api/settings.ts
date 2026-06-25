@@ -23,6 +23,10 @@ export const settingsApiService = {
     announcement_bar: SiteSettings['announcementBar'];
     hero_slides: SiteSettings['heroSlides'];
     store_description: string;
+    shipping_rules: {
+      shipping_charge_paisa: number;
+      free_shipping_threshold_paisa: number;
+    };
   }>): Promise<ApiResponse<SiteSettings>> {
     const res = await api.patch<RawSettingsResponse>('/api/admin/settings', patch, true);
     if (!res.success || !res.data) {

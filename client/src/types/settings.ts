@@ -18,9 +18,15 @@ export interface ContactInfo {
   address: string;
 }
 
+export interface ShippingRules {
+  shippingChargePaisa: number;
+  freeShippingThresholdPaisa: number;
+}
+
 export interface SiteSettings {
   contactInfo: ContactInfo;
   announcementBar: AnnouncementBar;
   heroSlides: HeroSlide[];
   storeDescription: string;
+  shippingRules: ShippingRules;
 }

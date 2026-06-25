@@ -232,10 +232,6 @@ export const OrderDetail: React.FC = () => {
                       Free
                     </span>
                   </div>
-                  <div className="flex justify-between text-secondary500 text-xs">
-                    <span>Tax & GST</span>
-                    <span>₹0</span>
-                  </div>
                 </div>
 
                 {/* Final Total */}

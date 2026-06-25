@@ -398,7 +398,6 @@ Creates a pending order and a Razorpay order. Call this when the user taps "Pay 
     "subtotal": 239800,
     "discountAmount": 47960,
     "shippingAmount": 0,
-    "taxAmount": 0,
     "totalAmount": 191840
   }
 }
@@ -510,7 +509,6 @@ Full order detail. **`404`** if not found or not owned by caller (see note in Se
     "subtotal": 239800,
     "discountAmount": 47960,
     "shippingAmount": 0,
-    "taxAmount": 0,
     "totalAmount": 191840,
     "couponCode": "DIWALI20",
     "shippingAddress": {
