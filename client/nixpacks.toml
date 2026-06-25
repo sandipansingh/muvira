@@ -1,13 +1,15 @@
-# Nixpacks config when building the client directory directly
-# (set your platform's "Root Directory" to `client` for this to apply cleanly)
+# Nixpacks config for the Vite client
+# Force modern Node because Vite 8 + React Router 7 + Rolldown require >=20.19
 
 [phases.setup]
 nixPkgs = ['nodejs_20']
 
+[phases.install]
+cmds = ['npm ci --include=dev']
+
 [phases.build]
 cmds = ['npm run build']
 
-# If your platform doesn't have a built-in static handler, this works.
-# Many platforms (Railway, Render, etc.) will auto-serve the `dist` folder for Vite.
+# For platforms that need an explicit start (many auto-detect static 'dist' folder)
 [start]
 cmd = 'npx serve dist -l $PORT'
