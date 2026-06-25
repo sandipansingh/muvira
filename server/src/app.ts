@@ -31,10 +31,7 @@ import { reviewsRouter, adminReviewsRouter } from './modules/reviews/routes'
 export function createApp() {
   const app = express()
 
-  // Trust the first proxy in the chain (reverse proxy / load balancer / container runtime).
-  // Required so express-rate-limit can read X-Forwarded-For for accurate client IP
-  // identification. Without this, rate-limit v7 throws ERR_ERL_UNEXPECTED_X_FORWARDED_FOR.
-  // Set to 1 (trust one hop) — adjust to the actual number of proxies in front if needed.
+  // Trust first proxy so rate limiting works correctly with X-Forwarded-For
   app.set('trust proxy', 1)
 
   // 1. Request ID (first middleware)
@@ -80,15 +77,11 @@ export function createApp() {
     })
   )
 
-  // 5. Raw body parser — WEBHOOK ROUTE ONLY
-  // CRITICAL: This MUST be registered before express.json().
-  // Razorpay signs the raw request bytes. Any JSON re-serialization breaks the
-  // signature. The raw Buffer is attached to req.rawBody for signature verification.
+  // 5. Raw body for webhook (must be before json parser)
   app.use(
     '/api/webhooks/razorpay',
     express.raw({ type: 'application/json' }),
     (req: Request, _res: Response, next: NextFunction) => {
-      // Attach rawBody so the webhook handler can access it for HMAC verification
       req.rawBody = req.body as Buffer
       next()
     }

@@ -39,8 +39,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       return
     }
 
-    // Fetch the user's role from profiles — do NOT trust any role claim in the JWT.
-    // The role in profiles is the single source of truth for authorization decisions.
+    // Role comes from profiles table (single source of truth), not JWT claims.
     const { data: profile, error: profileError } = await adminSupabase
       .from('profiles')
       .select('role')
@@ -62,7 +61,6 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       return
     }
 
-    // Attach verified identity to the request
     req.user = {
       id: user.id,
       email: user.email ?? '',
@@ -70,8 +68,6 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
     req.token = token
 
-    // Create a user-scoped client for this request.
-    // All user-facing DB queries go through this client so RLS is enforced.
     req.supabase = createUserSupabaseClient(token)
 
     next()

@@ -170,9 +170,7 @@ export const Products: React.FC = () => {
           </div>
         )}
 
-        {/* PRODUCTS LIST GRID & HEADER */}
         <div className="flex-grow flex flex-col gap-6">
-          {/* Header Row */}
           <div className="flex items-center justify-between gap-4 border-b border-secondary200 pb-4">
             <div className="hidden md:block">
               <h2 className="text-lg md:text-xl font-semibold tracking-wide text-darkColor">
