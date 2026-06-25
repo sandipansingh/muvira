@@ -60,7 +60,7 @@ export const ReviewsList: React.FC = () => {
 
     const res = await adminApiService.getReviews(params)
     if (res.success) {
-      setReviews(res.data as AdminReview[])
+      setReviews(res.data as unknown as AdminReview[])
       setPagination(res.pagination)
     } else {
       setError(res.error.message || 'Failed to load reviews.')
