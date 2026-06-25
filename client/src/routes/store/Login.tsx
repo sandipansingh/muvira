@@ -105,36 +105,41 @@ export const Login: React.FC = () => {
             </Button>
           </form>
 
-          {/* Divider */}
-          <div className="relative flex py-5 items-center">
-            <div className="flex-grow border-t border-secondary200"></div>
-            <span className="flex-shrink mx-4 text-xs font-semibold text-secondary500 uppercase tracking-widest">
-              Or Quick Login
-            </span>
-            <div className="flex-grow border-t border-secondary200"></div>
-          </div>
+          {/* Quick Demo Logins - only visible in development */}
+          {import.meta.env.DEV && (
+            <>
+              {/* Divider */}
+              <div className="relative flex py-5 items-center">
+                <div className="flex-grow border-t border-secondary200"></div>
+                <span className="flex-shrink mx-4 text-xs font-semibold text-secondary500 uppercase tracking-widest">
+                  Or Quick Login
+                </span>
+                <div className="flex-grow border-t border-secondary200"></div>
+              </div>
 
-          {/* Quick Demo Logins */}
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickLogin('user')}
-              disabled={loading}
-              className="bg-white"
-            >
-              Demo Customer
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => handleQuickLogin('admin')}
-              disabled={loading}
-              className="bg-white border border-secondary300"
-            >
-              Demo Admin
-            </Button>
-          </div>
+              {/* Quick Demo Logins */}
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuickLogin('user')}
+                  disabled={loading}
+                  className="bg-white"
+                >
+                  Demo Customer
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleQuickLogin('admin')}
+                  disabled={loading}
+                  className="bg-white border border-secondary300"
+                >
+                  Demo Admin
+                </Button>
+              </div>
+            </>
+          )}
 
           <p className="text-xs text-center text-secondary600 mt-6 tracking-wide">
             Don't have an account?{' '}
