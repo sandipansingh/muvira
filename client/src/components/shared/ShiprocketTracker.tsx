@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Truck, MapPin, Package, RefreshCw, ExternalLink } from 'lucide-react'
 import { trackingApiService } from '../../lib/api/tracking'
 import type { ShiprocketTrackData } from '../../types/order'
@@ -56,7 +56,7 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchTracking = async () => {
+  const fetchTracking = useCallback(async () => {
     if (!awbCode) return
     setLoading(true)
     setError(null)
@@ -67,13 +67,12 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
       setError('Could not fetch live tracking. Try again shortly.')
     }
     setLoading(false)
-  }
+  }, [awbCode])
 
   useEffect(() => {
     fetchTracking()
-  }, [awbCode])
+  }, [fetchTracking])
 
-  // ── No AWB ───────────────────────────────────────────────────────────────────
   if (!awbCode) {
     return (
       <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
@@ -90,7 +89,6 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
     )
   }
 
-  // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="space-y-4 animate-pulse">
@@ -110,7 +108,6 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
     )
   }
 
-  // ── Error ────────────────────────────────────────────────────────────────────
   if (error || !trackData) {
     return (
       <div className="flex flex-col items-center gap-3 py-8 text-center">
@@ -132,7 +129,6 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
 
   return (
     <div className="space-y-5 text-left">
-      {/* ── Current Status Banner ─────────────────────────────────────────── */}
       <div className="rounded-xl border border-secondary200 bg-lightgrayColor/40 p-4 flex items-start gap-3">
         <div className="w-9 h-9 rounded-full bg-white border border-secondary200 flex items-center justify-center shrink-0 shadow-sm">
           <Truck className="w-4 h-4 text-primaryBg" />
@@ -180,7 +176,6 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
         </div>
       </div>
 
-      {/* ── Activity Timeline ─────────────────────────────────────────────── */}
       {activities.length > 0 && (
         <div>
           <h4 className="text-[10px] font-bold uppercase tracking-widest text-secondary500 mb-3 pl-0.5">

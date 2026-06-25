@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import type { Coupon } from '../../types/coupon'
@@ -46,11 +46,7 @@ export const CouponsList: React.FC = () => {
   const [validUntil, setValidUntil] = useState('')
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    fetchCoupons()
-  }, [page])
-
-  const fetchCoupons = async () => {
+  const fetchCoupons = useCallback(async () => {
     setLoading(true)
     setError(null)
     const res = await adminApiService.getCoupons({ page, limit: 20 })
@@ -61,7 +57,11 @@ export const CouponsList: React.FC = () => {
       setError(res.error.message || 'Failed to load coupons list.')
     }
     setLoading(false)
-  }
+  }, [page])
+
+  useEffect(() => {
+    fetchCoupons()
+  }, [fetchCoupons])
 
   const updateParam = (key: string, value: string) => {
     const updated = new URLSearchParams(searchParams)
@@ -287,7 +287,7 @@ export const CouponsList: React.FC = () => {
                 { value: 'fixed', label: 'Fixed Rupees (₹)' },
               ]}
               value={discountType}
-              onChange={(e) => setDiscountType(e.target.value as any)}
+              onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
             />
             <Input
               label={discountType === 'percentage' ? 'Percentage Value *' : 'Rupees Amount (₹) *'}

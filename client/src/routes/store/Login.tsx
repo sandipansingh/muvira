@@ -15,7 +15,7 @@ export const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   // Get redirection path or fall back to "/"
-  const from = (location.state as any)?.from?.pathname || '/'
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '/'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import type { InventoryItem } from '../../types/dashboard'
@@ -43,11 +43,7 @@ export const InventoryList: React.FC = () => {
   const [editStockValue, setEditStockValue] = useState('')
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    fetchInventory()
-  }, [lowStockOnly, page])
-
-  const fetchInventory = async () => {
+  const fetchInventory = useCallback(async () => {
     setLoading(true)
     setError(null)
     const res = await adminApiService.getInventory(page, 20, lowStockOnly)
@@ -58,7 +54,11 @@ export const InventoryList: React.FC = () => {
       setError(res.error.message || 'Failed to fetch inventory reports.')
     }
     setLoading(false)
-  }
+  }, [page, lowStockOnly])
+
+  useEffect(() => {
+    fetchInventory()
+  }, [fetchInventory])
 
   const updateParam = (key: string, value: string) => {
     const updated = new URLSearchParams(searchParams)
@@ -86,7 +86,7 @@ export const InventoryList: React.FC = () => {
     const newStock = parseInt(editStockValue, 10)
     const res = await adminApiService.updateProduct(editId, {
       stock: newStock,
-    } as any)
+    } as Record<string, unknown>)
     setSaving(false)
 
     if (res.success) {

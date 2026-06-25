@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { productsApiService } from '../../lib/api/products'
-import type { ProductListItem } from '../../types/product'
+import type { ProductListItem, ProductQueryParams } from '../../types/product'
 import ProductCard from '../../components/product/ProductCard'
 import ProductFilters from '../../components/product/ProductFilters'
 import ProductSort from '../../components/product/ProductSort'
@@ -37,20 +37,14 @@ export const Products: React.FC = () => {
   const sort = searchParams.get('sort') || 'popularity'
   const page = parseInt(searchParams.get('page') || '1', 10)
 
-  useEffect(() => {
-    fetchProducts()
-    // Scroll to top when filters or page change
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [category, q, minPrice, maxPrice, inStock, sort, page])
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
     setError(null)
 
-    const queryParams: any = {
+    const queryParams: ProductQueryParams = {
       page,
       limit: 12,
-      sort,
+      sort: sort as ProductQueryParams['sort'],
     }
 
     if (category) queryParams.category = category
@@ -69,7 +63,13 @@ export const Products: React.FC = () => {
       setError(res.error.message || 'Failed to load products')
     }
     setLoading(false)
-  }
+  }, [page, category, q, minPrice, maxPrice, inStock, sort])
+
+  useEffect(() => {
+    fetchProducts()
+    // Scroll to top when filters or page change
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [fetchProducts])
 
   const updateParam = (key: string, value: string | boolean | number) => {
     const updated = new URLSearchParams(searchParams)

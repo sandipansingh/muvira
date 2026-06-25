@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import type { OrderDetail } from '../../types/order'
@@ -54,15 +54,11 @@ export const OrdersList: React.FC = () => {
   const fulfillmentStatus = searchParams.get('fulfillmentStatus') || ''
   const page = parseInt(searchParams.get('page') || '1', 10)
 
-  useEffect(() => {
-    fetchOrders()
-  }, [q, status, paymentStatus, fulfillmentStatus, page])
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true)
     setError(null)
 
-    const queryParams: any = {
+    const queryParams: Record<string, string | number | boolean> = {
       page,
       limit: 10,
       q,
@@ -98,7 +94,11 @@ export const OrdersList: React.FC = () => {
       setError(res.error.message || 'Failed to load orders list.')
     }
     setLoading(false)
-  }
+  }, [page, q, status, paymentStatus, fulfillmentStatus])
+
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
 
   const updateParam = (key: string, value: string) => {
     const updated = new URLSearchParams(searchParams)

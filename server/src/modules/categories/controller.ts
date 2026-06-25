@@ -2,8 +2,6 @@ import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 import { invalidateOn } from '../../services/cacheInvalidation'
 
-// ─── Public Handlers ──────────────────────────────────────────────────────────
-
 export async function listCategories(
   req: Request,
   res: Response,
@@ -25,8 +23,6 @@ export async function getCategory(req: Request, res: Response, next: NextFunctio
     next(err)
   }
 }
-
-// ─── Admin Handlers ───────────────────────────────────────────────────────────
 
 export async function adminListCategories(
   req: Request,

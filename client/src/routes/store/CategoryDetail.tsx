@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { categoriesApiService } from '../../lib/api/categories'
 import { productsApiService } from '../../lib/api/products'
@@ -41,41 +41,37 @@ export const CategoryDetail: React.FC = () => {
   const page = parseInt(searchParams.get('page') || '1', 10)
 
   useEffect(() => {
-    if (slug) {
-      fetchCategoryDetails()
-    }
-  }, [slug])
+    fetchCategoryDetails()
+  }, [fetchCategoryDetails])
 
   useEffect(() => {
-    if (slug) {
-      fetchCategoryProducts()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }, [slug, minPrice, maxPrice, inStock, sort, page])
+    fetchCategoryProducts()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [fetchCategoryProducts])
 
-  const fetchCategoryDetails = async () => {
+  const fetchCategoryDetails = useCallback(async () => {
+    if (!slug) return
     setLoadingCategory(true)
-    const res = await categoriesApiService.getCategoryBySlug(slug || '')
+    const res = await categoriesApiService.getCategoryBySlug(slug)
     if (res.success) {
       setCategory(res.data)
     } else {
       setError(res.error.message || 'Category not found')
     }
     setLoadingCategory(false)
-  }
+  }, [slug])
 
-  const fetchCategoryProducts = async () => {
+  const fetchCategoryProducts = useCallback(async () => {
+    if (!slug) return
     setLoadingProducts(true)
-    const queryParams: any = {
+    const queryParams: Record<string, string | number | boolean> = {
       page,
       limit: 12,
-      sort,
-      category, // pass category slug
+      sort: sort as 'price_asc' | 'price_desc' | 'newest' | 'popularity',
+      category: slug,
     }
 
-    if (slug) queryParams.category = slug
     if (inStock) queryParams.inStock = inStock
-
     if (minPrice) queryParams.minPrice = parseFloat(minPrice) * 100
     if (maxPrice) queryParams.maxPrice = parseFloat(maxPrice) * 100
 
@@ -87,7 +83,7 @@ export const CategoryDetail: React.FC = () => {
       setError(res.error.message || 'Failed to load products')
     }
     setLoadingProducts(false)
-  }
+  }, [slug, page, sort, inStock, minPrice, maxPrice])
 
   const updateParam = (key: string, value: string | boolean | number) => {
     const updated = new URLSearchParams(searchParams)

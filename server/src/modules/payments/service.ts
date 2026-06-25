@@ -3,7 +3,7 @@ import { verifyPaymentSignature, verifyWebhookSignature } from '../../lib/razorp
 import { logger } from '../../lib/logger'
 import { sendOrderConfirmationEmail } from '../../lib/notifications/email'
 import { AppError } from '../../types'
-import type { Payment, Order } from '../../types'
+import type { Order } from '../../types'
 import type { VerifyPaymentInput } from './schema'
 
 //

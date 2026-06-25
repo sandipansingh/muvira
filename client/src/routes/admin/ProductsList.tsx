@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import type { ProductDetail } from '../../types/product'
@@ -43,10 +43,6 @@ export const ProductsList: React.FC = () => {
     fetchCategories()
   }, [])
 
-  useEffect(() => {
-    fetchProducts()
-  }, [q, categoryId, page])
-
   const fetchCategories = async () => {
     const res = await categoriesApiService.getCategories()
     if (res.success) {
@@ -54,7 +50,7 @@ export const ProductsList: React.FC = () => {
     }
   }
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true)
     setError(null)
     const res = await adminApiService.getProducts({
@@ -71,7 +67,11 @@ export const ProductsList: React.FC = () => {
       setError(res.error.message || 'Failed to fetch catalog.')
     }
     setLoading(false)
-  }
+  }, [page, q, categoryId])
+
+  useEffect(() => {
+    fetchProducts()
+  }, [fetchProducts])
 
   const updateParam = (key: string, value: string) => {
     const updated = new URLSearchParams(searchParams)

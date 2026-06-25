@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { productsApiService } from '../../lib/api/products'
 import { reviewsApiService } from '../../lib/api/reviews'
@@ -61,18 +61,23 @@ export const ProductDetail: React.FC = () => {
 
   const [isDescTextExpanded, setIsDescTextExpanded] = useState(false)
 
-  useEffect(() => {
-    if (slug) {
-      fetchProductDetails()
+  const fetchReviews = useCallback(async (prodId: string) => {
+    setReviewsLoading(true)
+    const res = await reviewsApiService.getProductReviews(prodId, 1, 50)
+    if (res.success) {
+      setReviews(res.data)
+      setReviewSummary(res.summary)
     }
-  }, [slug])
+    setReviewsLoading(false)
+  }, [])
 
-  const fetchProductDetails = async () => {
+  const fetchProductDetails = useCallback(async () => {
+    if (!slug) return
     setLoading(true)
     setError(null)
     setQuantity(1)
 
-    const res = await productsApiService.getProductBySlug(slug || '')
+    const res = await productsApiService.getProductBySlug(slug)
     if (res.success) {
       setProduct(res.data)
       // Set primary image active
@@ -91,17 +96,11 @@ export const ProductDetail: React.FC = () => {
       setError(res.error.message || 'Product not found.')
     }
     setLoading(false)
-  }
+  }, [slug, fetchReviews])
 
-  const fetchReviews = async (prodId: string) => {
-    setReviewsLoading(true)
-    const res = await reviewsApiService.getProductReviews(prodId, 1, 50)
-    if (res.success) {
-      setReviews(res.data)
-      setReviewSummary(res.summary)
-    }
-    setReviewsLoading(false)
-  }
+  useEffect(() => {
+    fetchProductDetails()
+  }, [fetchProductDetails])
 
   const handleAddToCart = async () => {
     if (!product) return

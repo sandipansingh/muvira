@@ -75,8 +75,6 @@ export interface OrderDetail {
   deliveryInstructions?: string | null
 }
 
-// ── Shiprocket Tracking ───────────────────────────────────────────────────────
-
 export interface ShiprocketTrackActivity {
   date: string
   status: string

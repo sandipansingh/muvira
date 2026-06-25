@@ -1,8 +1,6 @@
 import { deleteCache, deleteCacheByPattern } from '../config/cache'
 import { logger } from '../lib/logger'
 
-// ─── Supported Domain Events ─────────────────────────────────────────────────
-
 export type CacheInvalidationEvent =
   | 'PRODUCT_UPDATED'
   | 'PRODUCT_CREATED'
@@ -13,8 +11,6 @@ export type CacheInvalidationEvent =
   | 'REVIEW_DELETED'
   | 'CART_UPDATED'
   | 'CATEGORY_UPDATED'
-
-// ─── Event Payload Types ──────────────────────────────────────────────────────
 
 export interface ProductEventPayload {
   id: string
@@ -47,14 +43,11 @@ export type InvalidationPayload =
   | CartEventPayload
   | CategoryEventPayload
 
-// ─── Invalidation Map ─────────────────────────────────────────────────────────
-
 export function invalidateOn(event: CacheInvalidationEvent, payload: InvalidationPayload): void {
   try {
     logger.debug({ event, payload }, '[CACHE_INVALIDATION] Processing event')
 
     switch (event) {
-      // ── Product mutations ────────────────────────────────────────────────
       case 'PRODUCT_UPDATED':
       case 'PRODUCT_CREATED':
       case 'PRODUCT_DELETED': {
@@ -62,7 +55,6 @@ export function invalidateOn(event: CacheInvalidationEvent, payload: Invalidatio
         break
       }
 
-      // ── Order events ─────────────────────────────────────────────────────
       case 'ORDER_PLACED': {
         const p = payload as OrderEventPayload
         const keys: string[] = [`cart:user:${p.userId}`, `orders:user:${p.userId}`]
@@ -82,7 +74,6 @@ export function invalidateOn(event: CacheInvalidationEvent, payload: Invalidatio
         break
       }
 
-      // ── Review events ────────────────────────────────────────────────────
       case 'REVIEW_ADDED':
       case 'REVIEW_DELETED': {
         const p = payload as ReviewEventPayload
@@ -91,14 +82,12 @@ export function invalidateOn(event: CacheInvalidationEvent, payload: Invalidatio
         break
       }
 
-      // ── Cart events ──────────────────────────────────────────────────────
       case 'CART_UPDATED': {
         const p = payload as CartEventPayload
         deleteCache(`cart:user:${p.userId}`)
         break
       }
 
-      // ── Category events ──────────────────────────────────────────────────
       case 'CATEGORY_UPDATED': {
         const p = payload as CategoryEventPayload
         deleteCache(['GET:/api/categories'])

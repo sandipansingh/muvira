@@ -28,8 +28,6 @@ reviewsRouter.post(
   controller.submitReview
 )
 
-// ─── Admin routes ─────────────────────────────────────────────────────────────
-
 export const adminReviewsRouter = Router()
 
 adminReviewsRouter.get(

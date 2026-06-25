@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import { categoriesApiService } from '../../lib/api/categories'
@@ -45,14 +45,7 @@ export const ProductForm: React.FC = () => {
   const [uploading, setUploading] = useState(false)
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
 
-  useEffect(() => {
-    fetchCategories()
-    if (isEdit) {
-      fetchProductDetails()
-    }
-  }, [id])
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     const res = await categoriesApiService.getCategories()
     if (res.success) {
       setCategories(res.data)
@@ -60,9 +53,10 @@ export const ProductForm: React.FC = () => {
         setCategoryId(res.data[0].id)
       }
     }
-  }
+  }, [isEdit])
 
-  const fetchProductDetails = async () => {
+  const fetchProductDetails = useCallback(async () => {
+    if (!id) return
     setLoading(true)
     const res = await adminApiService.getProducts()
     if (res.success) {
@@ -92,7 +86,14 @@ export const ProductForm: React.FC = () => {
       }
     }
     setLoading(false)
-  }
+  }, [id, navigate, showToast])
+
+  useEffect(() => {
+    fetchCategories()
+    if (isEdit) {
+      fetchProductDetails()
+    }
+  }, [fetchCategories, fetchProductDetails, isEdit])
 
   const handleMetadataAddRow = () => {
     setMetadataRows((prev) => [...prev, { key: '', val: '' }])
@@ -174,8 +175,8 @@ export const ProductForm: React.FC = () => {
         }
       }
       showToast(files.length > 1 ? 'Images uploaded' : 'Image uploaded', 'success')
-    } catch (err: any) {
-      showToast(err?.message || 'Image upload failed', 'error')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Image upload failed', 'error')
     } finally {
       setUploading(false)
       // reset input so same file can be re-selected
@@ -290,9 +291,9 @@ export const ProductForm: React.FC = () => {
     setSaving(true)
     let res
     if (isEdit) {
-      res = await adminApiService.updateProduct(id, payload as any)
+      res = await adminApiService.updateProduct(id, payload as Record<string, unknown>)
     } else {
-      res = await adminApiService.createProduct(payload as any)
+      res = await adminApiService.createProduct(payload as Record<string, unknown>)
     }
     setSaving(false)
 

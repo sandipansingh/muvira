@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import type { OrderDetail, OrderStatus } from '../../types/order'
@@ -33,13 +33,7 @@ export const AdminOrderDetail: React.FC = () => {
   // Admin notes state
   const [noteText, setNoteText] = useState('')
 
-  useEffect(() => {
-    if (id) {
-      fetchOrderDetails()
-    }
-  }, [id])
-
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     if (!id) return
     setLoading(true)
     setError(null)
@@ -52,7 +46,11 @@ export const AdminOrderDetail: React.FC = () => {
       setError(res.error.message || 'Failed to fetch order.')
     }
     setLoading(false)
-  }
+  }, [id])
+
+  useEffect(() => {
+    fetchOrderDetails()
+  }, [fetchOrderDetails])
 
   const handleUpdateStatus = async () => {
     if (!order) return
@@ -161,7 +159,18 @@ export const AdminOrderDetail: React.FC = () => {
                     label="Update Order Status"
                     options={orderStatusOptions}
                     value={orderStatus}
-                    onChange={(e) => setOrderStatus(e.target.value as any)}
+                    onChange={(e) =>
+                      setOrderStatus(
+                        e.target.value as
+                          | 'pending'
+                          | 'confirmed'
+                          | 'processing'
+                          | 'shipped'
+                          | 'delivered'
+                          | 'cancelled'
+                          | 'refunded'
+                      )
+                    }
                   />
                 </div>
                 <Button

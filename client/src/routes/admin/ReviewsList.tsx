@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { adminApiService } from '../../lib/api/admin'
 import { formatDate } from '../../lib/format'
@@ -50,11 +50,11 @@ export const ReviewsList: React.FC = () => {
 
   const { showToast } = useToast()
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     setLoading(true)
     setError(null)
 
-    const params: any = { page, limit: 20 }
+    const params: Record<string, string | number> = { page, limit: 20 }
     if (q) params.q = q
     if (ratingFilter) params.rating = parseInt(ratingFilter, 10)
 
@@ -66,11 +66,11 @@ export const ReviewsList: React.FC = () => {
       setError(res.error.message || 'Failed to load reviews.')
     }
     setLoading(false)
-  }
+  }, [page, q, ratingFilter])
 
   useEffect(() => {
     fetchReviews()
-  }, [page, q, ratingFilter])
+  }, [fetchReviews])
 
   const handleDelete = async () => {
     if (!deleteTarget) return

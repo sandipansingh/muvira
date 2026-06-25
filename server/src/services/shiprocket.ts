@@ -3,8 +3,6 @@ import { logger } from '../lib/logger'
 
 const SHIPROCKET_BASE = 'https://apiv2.shiprocket.in/v1/external'
 
-// ── Token cache ───────────────────────────────────────────────────────────────
-
 let cachedToken: string | null = null
 let tokenExpiresAt: number = 0 // Unix ms
 
@@ -40,8 +38,6 @@ async function getToken(): Promise<string> {
 
   return cachedToken
 }
-
-// ── Tracking ──────────────────────────────────────────────────────────────────
 
 export interface ShiprocketTrackActivity {
   date: string

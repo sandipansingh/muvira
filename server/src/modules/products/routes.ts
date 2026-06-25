@@ -12,8 +12,6 @@ import {
 } from './schema'
 import * as controller from './controller'
 
-// ─── Public Routes ────────────────────────────────────────────────────────────
-
 export const productsRouter = Router()
 
 productsRouter.get(
@@ -36,8 +34,6 @@ productsRouter.get(
   validate({ params: ProductIdParamsSchema }),
   controller.getRelatedProducts
 )
-
-// ─── Admin Routes ─────────────────────────────────────────────────────────────
 
 export const adminProductsRouter = Router()
 
