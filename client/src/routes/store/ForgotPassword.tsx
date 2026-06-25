@@ -5,6 +5,7 @@ import Button from '../../components/ui/Button'
 import Card, { CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card'
 import { Mail, ArrowLeft } from 'lucide-react'
 import { useToast } from '../../hooks/useToast'
+import { supabase } from '../../lib/supabase'
 
 export const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -12,16 +13,34 @@ export const ForgotPassword: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const { showToast } = useToast()
 
+  const getPasswordResetRedirectUrl = () => {
+    if (typeof window !== 'undefined') {
+      const origin = window.location.origin
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return `${origin}/login`
+      }
+      return `${origin}/login`
+    }
+    return 'https://muvira.in/login'
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
 
     setLoading(true)
-    // Simulate API delay
-    await new Promise((res) => setTimeout(res, 800))
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: getPasswordResetRedirectUrl(),
+    })
     setLoading(false)
+
+    if (error) {
+      showToast(error.message || 'Failed to send reset email', 'error')
+      return
+    }
+
     setSubmitted(true)
-    showToast('Reset email sent!', 'success')
+    showToast('Password reset email sent! Check your inbox (and spam).', 'success')
   }
 
   return (
