@@ -40,16 +40,20 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     // Only show loading spinner when there is no cached data to show
     if (settings === null) setLoading(true);
 
-    const res = await settingsApiService.getSettings();
+    try {
+      const res = await settingsApiService.getSettings();
 
-    if (res.success) {
-      const fresh = res.data;
-      // Update state + persist to localStorage whenever we get fresh data
-      setSettings(fresh);
-      writeCache(fresh);
+      if (res.success) {
+        const fresh = res.data;
+        // Update state + persist to localStorage whenever we get fresh data
+        setSettings(fresh);
+        writeCache(fresh);
+      }
+    } catch (err) {
+      console.error('Failed to load site settings:', err);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   useEffect(() => {
