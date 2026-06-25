@@ -18,7 +18,7 @@ export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`p-5 border-b border-secondary200 flex flex-col gap-1.5 ${className}`} {...props}>
+    <div className={`p-5 border-b border-secondary200 ${className}`} {...props}>
       {children}
     </div>
   );
@@ -42,7 +42,7 @@ export const CardDescription: React.FC<React.HTMLAttributes<HTMLParagraphElement
   ...props
 }) => {
   return (
-    <p className={`text-xs text-secondary500 tracking-wide ${className}`} {...props}>
+    <p className={`text-xs text-secondary500 tracking-wide mt-1 ${className}`} {...props}>
       {children}
     </p>
   );
