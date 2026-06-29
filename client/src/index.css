@@ -212,3 +212,14 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Sliding Hero track styles (CSS variables controlled in React) */
+.hero-track {
+  transform: translate3d(var(--slide-transform-mobile), 0px, 0px);
+}
+@media (min-width: 768px) {
+  .hero-track {
+    transform: translate3d(var(--slide-transform-desktop), 0px, 0px);
+  }
+}
+
