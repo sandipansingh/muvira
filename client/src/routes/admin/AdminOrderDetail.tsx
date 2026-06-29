@@ -159,9 +159,7 @@ export const AdminOrderDetail: React.FC = () => {
                     label="Update Order Status"
                     options={orderStatusOptions}
                     value={orderStatus}
-                    onChange={(e) =>
-                      setOrderStatus(e.target.value as OrderStatus)
-                    }
+                    onChange={(e) => setOrderStatus(e.target.value as OrderStatus)}
                   />
                 </div>
                 <Button
