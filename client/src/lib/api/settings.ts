@@ -23,6 +23,7 @@ export const settingsApiService = {
       contact_info: SiteSettings['contactInfo']
       announcement_bar: SiteSettings['announcementBar']
       hero_slides: SiteSettings['heroSlides']
+      promo_banners: SiteSettings['promoBanners']
       store_description: string
       shipping_rules: {
         shipping_charge_paisa: number

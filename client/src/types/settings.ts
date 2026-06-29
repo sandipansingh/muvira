@@ -6,6 +6,14 @@ export interface HeroSlide {
   link: string
 }
 
+export interface PromoBanner {
+  id: string
+  title: string
+  subtitle: string
+  imageUrl: string
+  link: string
+}
+
 export interface AnnouncementBar {
   enabled: boolean
   badge: string
@@ -27,6 +35,7 @@ export interface SiteSettings {
   contactInfo: ContactInfo
   announcementBar: AnnouncementBar
   heroSlides: HeroSlide[]
+  promoBanners: PromoBanner[]
   storeDescription: string
   shippingRules: ShippingRules
 }

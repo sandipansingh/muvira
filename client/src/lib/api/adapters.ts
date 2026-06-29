@@ -343,6 +343,7 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
   const contactRaw = (raw['contact_info'] as Record<string, unknown>) ?? {}
   const announcementRaw = (raw['announcement_bar'] as Record<string, unknown>) ?? {}
   const slidesRaw = (raw['hero_slides'] as Record<string, unknown>[]) ?? []
+  const bannersRaw = (raw['promo_banners'] as Record<string, unknown>[]) ?? []
   const shippingRaw = (raw['shipping_rules'] as Record<string, unknown>) ?? {}
 
   return {
@@ -362,6 +363,13 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       subtitle: (s['subtitle'] as string) ?? '',
       imageUrl: s['imageUrl'] as string,
       link: s['link'] as string,
+    })),
+    promoBanners: bannersRaw.map((b) => ({
+      id: b['id'] as string,
+      title: b['title'] as string,
+      subtitle: (b['subtitle'] as string) ?? '',
+      imageUrl: b['imageUrl'] as string,
+      link: b['link'] as string,
     })),
     storeDescription:
       (raw['store_description'] as string) ??

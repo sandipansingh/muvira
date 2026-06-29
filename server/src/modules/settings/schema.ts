@@ -8,6 +8,14 @@ export const HeroSlideSchema = z.object({
   link: z.string().min(1),
 })
 
+export const PromoBannerSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1).max(200),
+  subtitle: z.string().max(500).optional().default(''),
+  imageUrl: z.string().url(),
+  link: z.string().min(1),
+})
+
 export const AnnouncementBarSchema = z.object({
   enabled: z.boolean(),
   badge: z.string().max(100).optional().default(''),
@@ -30,6 +38,7 @@ export const UpdateSettingsSchema = z
     contact_info: ContactInfoSchema.optional(),
     announcement_bar: AnnouncementBarSchema.optional(),
     hero_slides: z.array(HeroSlideSchema).min(1).max(10).optional(),
+    promo_banners: z.array(PromoBannerSchema).max(2).optional(),
     store_description: z.string().max(1000).optional(),
     shipping_rules: ShippingRulesSchema.optional(),
   })
@@ -37,6 +46,7 @@ export const UpdateSettingsSchema = z
 
 export type UpdateSettingsInput = z.infer<typeof UpdateSettingsSchema>
 export type HeroSlide = z.infer<typeof HeroSlideSchema>
+export type PromoBanner = z.infer<typeof PromoBannerSchema>
 export type AnnouncementBar = z.infer<typeof AnnouncementBarSchema>
 export type ContactInfo = z.infer<typeof ContactInfoSchema>
 export type ShippingRulesInput = z.infer<typeof ShippingRulesSchema>

@@ -14,6 +14,7 @@ export const Home: React.FC = () => {
   const navigate = useNavigate()
   const { settings } = useSiteSettings()
   const heroSlides = settings?.heroSlides ?? []
+  const promoBanners = settings?.promoBanners ?? []
   const [categories, setCategories] = useState<Category[]>([])
   const [featured, setFeatured] = useState<ProductListItem[]>([])
 
@@ -54,72 +55,103 @@ export const Home: React.FC = () => {
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 py-10 text-left space-y-12">
-      {/* 1. HERO - clean, single focused message */}
-      <div className="relative h-[400px] md:h-[460px] rounded-xl overflow-hidden border border-[var(--border)]">
-        {heroSlides.length === 0 ? (
-          // Skeleton while settings are loading / no slides configured
-          <Skeleton className="w-full h-full rounded-xl" />
-        ) : (
-          <>
-            {heroSlides.map((slide, idx) => (
+      {/* 1. HERO - left slider + right promo banners */}
+      <div className="flex flex-col md:flex-row gap-4">
+        {/* LEFT - Hero Slider (≈63%) */}
+        <div className="relative h-[400px] md:h-[460px] md:w-[63%] rounded-xl overflow-hidden border border-[var(--border)]">
+          {heroSlides.length === 0 ? (
+            <Skeleton className="w-full h-full rounded-xl" />
+          ) : (
+            <>
+              {heroSlides.map((slide, idx) => (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    activeSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                >
+                  <img
+                    src={slide.imageUrl}
+                    alt={slide.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-[#2c2724]/60 flex items-center">
+                    <div className="max-w-[620px] px-8 md:px-14">
+                      <h1 className="text-white text-[34px] md:text-[48px] leading-[1.05] font-medium tracking-[-0.02em] mb-4 font-redhatMedium">
+                        {slide.title}
+                      </h1>
+                      <p className="text-[#e8e0d4] text-[15px] md:text-[17px] tracking-wide mb-8 max-w-[36ch]">
+                        {slide.subtitle}
+                      </p>
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        className="font-pangramBold tracking-wide"
+                        onClick={() => navigate(slide.link)}
+                      >
+                        Shop the Collection
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                onClick={handlePrevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full z-20 hidden md:block transition-colors"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={handleNextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full z-20 hidden md:block transition-colors"
+                aria-label="Next"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                {heroSlides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveSlide(idx)}
+                    className={`h-1 rounded-full transition-all ${activeSlide === idx ? 'w-5 bg-[var(--accent)]' : 'w-1.5 bg-white/60'}`}
+                    aria-label={`Slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* RIGHT - Promo Banners (≈37%) */}
+        {promoBanners.length > 0 && (
+          <div className="flex flex-col gap-4 md:w-[37%]">
+            {promoBanners.slice(0, 2).map((banner) => (
               <div
-                key={slide.id}
-                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                  activeSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                }`}
+                key={banner.id}
+                className="relative flex-1 rounded-xl overflow-hidden border border-[var(--border)] cursor-pointer group h-[192px] md:h-auto"
+                onClick={() => navigate(banner.link)}
               >
                 <img
-                  src={slide.imageUrl}
-                  alt={slide.title}
+                  src={banner.imageUrl}
+                  alt={banner.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-[#2c2724]/60 flex items-center">
-                  <div className="max-w-[620px] px-8 md:px-14">
-                    <h1 className="text-white text-[34px] md:text-[48px] leading-[1.05] font-medium tracking-[-0.02em] mb-4 font-redhatMedium">
-                      {slide.title}
-                    </h1>
-                    <p className="text-[#e8e0d4] text-[15px] md:text-[17px] tracking-wide mb-8 max-w-[36ch]">
-                      {slide.subtitle}
-                    </p>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      className="font-pangramBold tracking-wide"
-                      onClick={() => navigate(slide.link)}
-                    >
-                      Shop the Collection
-                    </Button>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#2c2724]/70 via-[#2c2724]/20 to-transparent flex items-end p-4 md:p-5">
+                  <div>
+                    <h3 className="text-white text-sm md:text-base font-medium font-redhatMedium">
+                      {banner.title}
+                    </h3>
+                    {banner.subtitle && (
+                      <p className="text-[#e8e0d4] text-xs mt-0.5">{banner.subtitle}</p>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
-
-            <button
-              onClick={handlePrevSlide}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full z-20 hidden md:block transition-colors"
-              aria-label="Previous"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleNextSlide}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full z-20 hidden md:block transition-colors"
-              aria-label="Next"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-              {heroSlides.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveSlide(idx)}
-                  className={`h-1 rounded-full transition-all ${activeSlide === idx ? 'w-5 bg-[var(--accent)]' : 'w-1.5 bg-white/60'}`}
-                  aria-label={`Slide ${idx + 1}`}
-                />
-              ))}
-            </div>
-          </>
+          </div>
         )}
       </div>
 

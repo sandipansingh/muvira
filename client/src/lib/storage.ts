@@ -10,7 +10,7 @@ const BUCKET = 'images'
 
 export async function uploadImage(
   file: File,
-  folder: 'products' | 'categories' | 'hero-slides'
+  folder: 'products' | 'categories' | 'hero-slides' | 'promo-banners'
 ): Promise<UploadImageResult> {
   if (!file.type.startsWith('image/')) {
     throw new Error('Only image files are allowed')
@@ -66,7 +66,8 @@ export async function deleteStorageFile(pathOrUrl: string): Promise<void> {
   if (
     !path.startsWith('products/') &&
     !path.startsWith('categories/') &&
-    !path.startsWith('hero-slides/')
+    !path.startsWith('hero-slides/') &&
+    !path.startsWith('promo-banners/')
   ) {
     return
   }

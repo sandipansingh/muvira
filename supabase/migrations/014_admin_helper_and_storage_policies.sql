@@ -41,7 +41,7 @@ CREATE POLICY "images_insert_admin"
   ON storage.objects FOR INSERT
   WITH CHECK (
     bucket_id = 'images'
-    AND (storage.foldername(name))[1] IN ('products', 'categories', 'hero-slides')
+    AND (storage.foldername(name))[1] IN ('products', 'categories', 'hero-slides', 'promo-banners')
     AND public.is_admin(auth.uid())
   );
 
@@ -58,7 +58,7 @@ CREATE POLICY "images_delete_admin"
   ON storage.objects FOR DELETE
   USING (
     bucket_id = 'images'
-    AND (storage.foldername(name))[1] IN ('products', 'categories', 'hero-slides')
+    AND (storage.foldername(name))[1] IN ('products', 'categories', 'hero-slides', 'promo-banners')
     AND public.is_admin(auth.uid())
   );
 

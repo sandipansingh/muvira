@@ -20,6 +20,13 @@ export interface SiteSettings {
     imageUrl: string
     link: string
   }>
+  promo_banners: Array<{
+    id: string
+    title: string
+    subtitle: string
+    imageUrl: string
+    link: string
+  }>
   store_description: string
   shipping_rules: {
     shipping_charge_paisa: number
@@ -31,6 +38,7 @@ const SETTING_KEYS = [
   'contact_info',
   'announcement_bar',
   'hero_slides',
+  'promo_banners',
   'store_description',
   'shipping_rules',
 ] as const
@@ -60,6 +68,7 @@ export async function getSettings(): Promise<SiteSettings> {
       message: '',
     },
     hero_slides: (map['hero_slides'] as SiteSettings['hero_slides']) ?? [],
+    promo_banners: (map['promo_banners'] as SiteSettings['promo_banners']) ?? [],
     store_description:
       (map['store_description'] as string) ??
       'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
