@@ -20,8 +20,8 @@ import Dialog from '../../components/ui/Dialog'
 import Skeleton from '../../components/ui/Skeleton'
 import ErrorState from '../../components/shared/ErrorState'
 import Pagination from '../../components/ui/Pagination'
-import { Plus, Pencil, Trash, Upload } from 'lucide-react'
-import { uploadImage, deleteStorageFile } from '../../lib/storage'
+import { Plus, Pencil, EyeOff, Eye, Upload } from 'lucide-react'
+import { uploadImage } from '../../lib/storage'
 import { slugify } from '../../lib/slug'
 
 export const CategoriesList: React.FC = () => {
@@ -159,21 +159,22 @@ export const CategoriesList: React.FC = () => {
     }
   }
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete category "${name}"?`)) return
+  const handleToggleActive = async (cat: Category) => {
+    const currentlyActive = cat.isActive !== false
+    const action = currentlyActive ? 'deactivate' : 'activate'
+    if (!confirm(`Are you sure you want to ${action} category "${cat.name}"?`)) return
 
-    // Find the category to clean storage (best effort)
-    const catToDelete = categories.find((c) => c.id === id)
-    if (catToDelete?.imageUrl) {
-      deleteStorageFile(catToDelete.imageUrl).catch(() => {})
+    let res
+    if (currentlyActive) {
+      res = await adminApiService.deleteCategory(cat.id)
+    } else {
+      res = await adminApiService.updateCategory(cat.id, { isActive: true })
     }
-
-    const res = await adminApiService.deleteCategory(id)
     if (res.success) {
-      showToast(`Category "${name}" deleted.`, 'success')
+      showToast(`Category "${cat.name}" ${action}d.`, 'success')
       fetchCategories()
     } else {
-      showToast(res.error.message || 'Failed to delete category.', 'error')
+      showToast(res.error.message || `Failed to ${action} category.`, 'error')
     }
   }
 
@@ -272,11 +273,15 @@ export const CategoriesList: React.FC = () => {
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => handleDelete(cat.id, cat.name)}
+                            onClick={() => handleToggleActive(cat)}
                             className="text-secondary500 hover:text-darkColor p-1 transition-colors focus:outline-none"
-                            title="Delete"
+                            title={cat.isActive !== false ? 'Deactivate' : 'Activate'}
                           >
-                            <Trash className="w-4 h-4" />
+                            {cat.isActive !== false ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
                       </TableCell>

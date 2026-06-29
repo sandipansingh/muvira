@@ -3,7 +3,7 @@ import { settingsApiService } from '../../lib/api/settings'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 import { useToast } from '../../hooks/useToast'
 import { uploadImage } from '../../lib/storage'
-import type { HeroSlide } from '../../types/settings'
+import type { HeroSlide, PromoBanner } from '../../types/settings'
 import Card, { CardContent } from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -36,7 +36,7 @@ export const SiteSettingsPage: React.FC = () => {
   const { settings, refresh } = useSiteSettings()
   const { showToast } = useToast()
 
-  const [activeTab, setActiveTab] = useState<'general' | 'announcements' | 'slides'>('general')
+  const [activeTab, setActiveTab] = useState<'general' | 'announcements' | 'slides' | 'promo'>('general')
 
   const [contactEmail, setContactEmail] = useState('')
   const [contactPhone, setContactPhone] = useState('')
@@ -47,7 +47,9 @@ export const SiteSettingsPage: React.FC = () => {
   const [annMessage, setAnnMessage] = useState('')
 
   const [slides, setSlides] = useState<HeroSlide[]>([])
+  const [promoBanners, setPromoBanners] = useState<PromoBanner[]>([])
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
+  const [uploadingPromoIdx, setUploadingPromoIdx] = useState<number | null>(null)
   const [storeDescription, setStoreDescription] = useState('')
 
   const [shippingCharge, setShippingCharge] = useState('0')
@@ -56,6 +58,7 @@ export const SiteSettingsPage: React.FC = () => {
   const [savingContact, setSavingContact] = useState(false)
   const [savingAnn, setSavingAnn] = useState(false)
   const [savingSlides, setSavingSlides] = useState(false)
+  const [savingPromo, setSavingPromo] = useState(false)
   const [savingDescription, setSavingDescription] = useState(false)
   const [savingShipping, setSavingShipping] = useState(false)
 
@@ -82,6 +85,14 @@ export const SiteSettingsPage: React.FC = () => {
     setAnnBadge(settings.announcementBar.badge)
     setAnnMessage(settings.announcementBar.message)
     setSlides(settings.heroSlides.length > 0 ? settings.heroSlides : [emptySlide()])
+    setPromoBanners(
+      settings.promoBanners.length > 0
+        ? settings.promoBanners
+        : [
+            { id: 'promo-1', title: '', subtitle: '', imageUrl: '', link: '' },
+            { id: 'promo-2', title: '', subtitle: '', imageUrl: '', link: '' },
+          ]
+    )
     setStoreDescription(settings.storeDescription || '')
     if (settings.shippingRules) {
       setShippingCharge((settings.shippingRules.shippingChargePaisa / 100).toString())
@@ -201,6 +212,43 @@ export const SiteSettingsPage: React.FC = () => {
     setSlides((prev) => prev.filter((_, i) => i !== idx))
   }
 
+  const updatePromoBanner = (idx: number, field: keyof PromoBanner, value: string) => {
+    setPromoBanners((prev) => prev.map((b, i) => (i === idx ? { ...b, [field]: value } : b)))
+  }
+
+  const handlePromoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingPromoIdx(idx)
+    try {
+      const result = await uploadImage(file, 'promo-banners')
+      updatePromoBanner(idx, 'imageUrl', result.url)
+      showToast('Image uploaded.', 'success')
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Upload failed', 'error')
+    } finally {
+      setUploadingPromoIdx(null)
+      e.target.value = ''
+    }
+  }
+
+  const handleSavePromo = async () => {
+    const invalid = promoBanners.some((b) => !b.title || !b.imageUrl || !b.link)
+    if (invalid) {
+      showToast('Each promo banner must have a title, image URL, and link.', 'error')
+      return
+    }
+    setSavingPromo(true)
+    const res = await settingsApiService.adminUpdateSettings({ promo_banners: promoBanners })
+    setSavingPromo(false)
+    if (res.success) {
+      await refresh()
+      showToast('Promo banners saved.', 'success')
+    } else {
+      showToast(res.error.message || 'Failed to save.', 'error')
+    }
+  }
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -283,6 +331,17 @@ export const SiteSettingsPage: React.FC = () => {
         >
           <Layers className="w-4 h-4" />
           Hero Slides
+        </button>
+        <button
+          onClick={() => setActiveTab('promo')}
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+            activeTab === 'promo'
+              ? 'border-primaryBg text-primaryBg font-bold'
+              : 'border-transparent text-secondary500 hover:text-darkColor'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          Promo Banners
         </button>
       </div>
 
@@ -689,6 +748,136 @@ export const SiteSettingsPage: React.FC = () => {
                     disabled={savingSlides}
                   >
                     {savingSlides ? 'Saving…' : 'Save Hero Slides'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'promo' && (
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="space-y-6 pt-6">
+                <div className="border-b border-secondary200 pb-3">
+                  <h2 className="text-sm font-bold text-darkColor uppercase tracking-wider flex items-center gap-2">
+                    <Layers className="w-4.5 h-4.5 text-primaryBg" />
+                    Promotional Banners
+                  </h2>
+                  <p className="text-[10px] text-secondary500 mt-0.5">
+                    Two side banners displayed on the homepage next to the hero slider.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {promoBanners.map((banner, idx) => (
+                    <div
+                      key={banner.id}
+                      className="border border-secondary200 rounded-xl p-4 space-y-3 bg-white shadow-sm"
+                    >
+                      <div className="border-b border-secondary100 pb-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-secondary500">
+                          Banner #{idx + 1}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5 text-xs">
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">
+                            Title
+                          </label>
+                          <Input
+                            value={banner.title}
+                            onChange={(e) =>
+                              updatePromoBanner(idx, 'title', e.target.value.slice(0, 200))
+                            }
+                            placeholder="New Arrivals"
+                            maxLength={200}
+                            className="text-xs !py-1"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">
+                            Subtitle
+                          </label>
+                          <Input
+                            value={banner.subtitle}
+                            onChange={(e) =>
+                              updatePromoBanner(idx, 'subtitle', e.target.value.slice(0, 500))
+                            }
+                            placeholder="Shop the latest collection"
+                            maxLength={500}
+                            className="text-xs !py-1"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">
+                            Image
+                          </label>
+                          <label className="block cursor-pointer mb-1.5">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={uploadingPromoIdx === idx}
+                              onChange={(e) => handlePromoFileUpload(e, idx)}
+                            />
+                            <div className="border border-dashed border-secondary300 hover:border-secondary400 rounded-lg px-2.5 py-1.5 flex items-center justify-center gap-1.5 text-[10px] text-secondary600 hover:bg-lightgrayColor transition-colors">
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>
+                                {uploadingPromoIdx === idx ? 'Uploading…' : 'Upload device image'}
+                              </span>
+                            </div>
+                          </label>
+                          <Input
+                            value={banner.imageUrl}
+                            onChange={(e) =>
+                              updatePromoBanner(idx, 'imageUrl', e.target.value.slice(0, 2048))
+                            }
+                            placeholder="Or paste image URL"
+                            maxLength={2048}
+                            className="text-xs !py-1"
+                          />
+                          {banner.imageUrl && (
+                            <div className="mt-2 h-20 w-full overflow-hidden rounded-lg border border-secondary200 bg-lightgrayColor">
+                              <img
+                                src={banner.imageUrl}
+                                alt={banner.title}
+                                className="w-full h-full object-cover select-none pointer-events-none"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-semibold text-secondary700 mb-0.5 uppercase tracking-wider">
+                            Navigation Link
+                          </label>
+                          <Input
+                            value={banner.link}
+                            onChange={(e) =>
+                              updatePromoBanner(idx, 'link', e.target.value.slice(0, 2048))
+                            }
+                            placeholder="/categories/new-arrivals"
+                            maxLength={2048}
+                            className="text-xs !py-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-end pt-3 border-t border-secondary200">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleSavePromo}
+                    disabled={savingPromo}
+                  >
+                    {savingPromo ? 'Saving…' : 'Save Promo Banners'}
                   </Button>
                 </div>
               </CardContent>
