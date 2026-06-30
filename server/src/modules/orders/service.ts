@@ -60,12 +60,40 @@ export async function listUserOrders(
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch orders')
 
+  // Auto-sync tracking for any orders with active AWB codes (fire-and-forget)
+  const orders = data as Order[] ?? []
+  const activeAwbs = orders
+    .filter((o) => o.awb_code && o.status !== 'delivered' && o.status !== 'cancelled')
+    .map((o) => o.awb_code)
+    .filter(Boolean) as string[]
+  if (activeAwbs.length > 0) {
+    syncOrdersTrackingInBackground(activeAwbs).catch(() => {})
+  }
+
   return {
-    orders: (data as Order[]) ?? [],
+    orders,
     total: count ?? 0,
     page,
     limit,
     totalPages: Math.ceil((count ?? 0) / limit),
+  }
+}
+
+async function syncOrdersTrackingInBackground(awbs: string[]): Promise<void> {
+  try {
+    const trackingMap = await trackBulk(awbs)
+    for (const [awb, data] of Object.entries(trackingMap)) {
+      const shipmentTrack = data.tracking_data?.shipment_track
+      const currentStatus = shipmentTrack?.[0]?.current_status
+      if (currentStatus) {
+        const mapped = mapShiprocketStatusToOrderStatus(currentStatus)
+        if (mapped) {
+          await updateOrderStatusByAwb(awb, mapped)
+        }
+      }
+    }
+  } catch (err) {
+    logger.warn({ err, awbCount: awbs.length }, 'Bulk tracking sync (customer) failed')
   }
 }
 
@@ -83,6 +111,9 @@ export async function getUserOrder(userId: string, orderId: string): Promise<Ord
   if (error || !data) {
     throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   }
+
+  // Auto-sync tracking from Shiprocket in background
+  syncOrderTrackingInBackground(data as Record<string, unknown>).catch(() => {})
 
   return data as Order
 }
@@ -257,11 +288,8 @@ export async function updateOrderStatusByAwb(
   if (fetchError || !order) return null
 
   if (order.status !== status) {
-    // Prevent state downgrades (e.g. if order is marked delivered manually, don't revert to shipped via auto-sync)
+    // Prevent terminal downgrades via auto-sync
     if (order.status === 'delivered' && status === 'shipped') {
-      return order as unknown as Order
-    }
-    if (order.status === 'shipped' && status === 'processing') {
       return order as unknown as Order
     }
     if (order.status === 'delivered' && status === 'processing') {
