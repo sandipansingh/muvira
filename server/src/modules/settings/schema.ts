@@ -33,6 +33,14 @@ export const ShippingRulesSchema = z.object({
   free_shipping_threshold_paisa: z.number().int().min(0),
 })
 
+export const ShiprocketSettingsSchema = z.object({
+  pickup_location: z.string().min(1).default('primary'),
+  default_length_cm: z.number().int().min(1).default(15),
+  default_breadth_cm: z.number().int().min(1).default(10),
+  default_height_cm: z.number().int().min(1).default(5),
+  default_weight_grams: z.number().int().min(1).default(500),
+})
+
 export const UpdateSettingsSchema = z
   .object({
     contact_info: ContactInfoSchema.optional(),
@@ -41,6 +49,7 @@ export const UpdateSettingsSchema = z
     promo_banners: z.array(PromoBannerSchema).max(2).optional(),
     store_description: z.string().max(1000).optional(),
     shipping_rules: ShippingRulesSchema.optional(),
+    shiprocket_settings: ShiprocketSettingsSchema.optional(),
   })
   .strict()
 

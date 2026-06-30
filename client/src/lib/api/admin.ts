@@ -15,6 +15,11 @@ import type { Coupon } from '../../types/coupon'
 import type { OrderDetail } from '../../types/order'
 import type { DashboardStats, InventoryItem } from '../../types/dashboard'
 import type { ApiResponse, ApiPaginatedResponse } from '../../types/common'
+import type {
+  FulfillOrderRequest,
+  FulfillOrderResult,
+  ServiceabilityResult,
+} from '../../types/order'
 
 type AnyRecord = Record<string, unknown>
 
@@ -628,6 +633,80 @@ export const adminApiService = {
     return { success: true, data: mapOrderDetail(res.data) }
   },
 
+  // Shiprocket actions
+  async assignAwb(
+    id: string,
+    courierId?: number
+  ): Promise<ApiResponse<OrderDetail>> {
+    const body: AnyRecord = {}
+    if (courierId !== undefined) body['courier_id'] = courierId
+    const res = await adminPost<{
+      success: boolean
+      data?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/orders/${id}/assign-awb`, body)
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    return { success: true, data: mapOrderDetail(res.data) }
+  },
+
+  async schedulePickup(id: string): Promise<ApiResponse<{ status: string }>> {
+    const res = await adminPost<{
+      success: boolean
+      data?: { status: string }
+      error?: AnyRecord
+    }>(`/api/admin/orders/${id}/schedule-pickup`)
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    return { success: true, data: res.data }
+  },
+
+  async retryShiprocket(id: string): Promise<ApiResponse<OrderDetail>> {
+    const res = await adminPost<{
+      success: boolean
+      data?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/orders/${id}/retry-shiprocket`)
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    return { success: true, data: mapOrderDetail(res.data) }
+  },
+
+  async cancelShiprocketOrder(id: string): Promise<ApiResponse<{ status: string }>> {
+    const res = await adminPost<{
+      success: boolean
+      data?: { status: string }
+      error?: AnyRecord
+    }>(`/api/admin/orders/${id}/shiprocket-cancel`)
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    return { success: true, data: res.data }
+  },
+
   // Admin get single order
   async getOrderById(id: string): Promise<ApiResponse<OrderDetail>> {
     const res = await adminGet<{
@@ -644,6 +723,101 @@ export const adminApiService = {
         },
       }
     return { success: true, data: mapOrderDetail(res.data) }
+  },
+
+  async createShipment(id: string, pickupLocation: string): Promise<ApiResponse<OrderDetail>> {
+    const res = await adminPost<{
+      success: boolean
+      data?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/orders/${id}/create-shipment`, { pickup_location: pickupLocation })
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    return { success: true, data: mapOrderDetail(res.data) }
+  },
+
+  async getPickupLocations(): Promise<
+    ApiResponse<Array<{ pickup_location: string; id: number; address: string; city: string; state: string; pin_code: string }>>
+  > {
+    const res = await adminGet<{
+      success: boolean
+      data?: AnyRecord[]
+      error?: AnyRecord
+    }>('/api/admin/shiprocket/pickup-locations')
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    return { success: true, data: res.data as AnyRecord[] as any }
+  },
+
+  async checkServiceability(params: {
+    pickup_pincode: string
+    delivery_pincode: string
+    weight: number
+    cod: boolean
+  }): Promise<ApiResponse<ServiceabilityResult>> {
+    const res = await adminPost<{
+      success: boolean
+      data?: ServiceabilityResult
+      error?: AnyRecord
+    }>('/api/admin/shiprocket/check-serviceability', params)
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    return { success: true, data: res.data }
+  },
+
+  async fulfillOrder(
+    id: string,
+    data: FulfillOrderRequest
+  ): Promise<ApiResponse<FulfillOrderResult>> {
+    const body: AnyRecord = {
+      pickup_location: data.pickup_location,
+      weight_grams: data.weight_grams,
+      length_cm: data.length_cm,
+      breadth_cm: data.breadth_cm,
+      height_cm: data.height_cm,
+      package_count: data.package_count ?? 1,
+    }
+    if (data.courier_id !== undefined) body['courier_id'] = data.courier_id
+    if (data.payment_method) body['payment_method'] = data.payment_method
+    if (data.cod_amount !== undefined) body['cod_amount'] = data.cod_amount
+
+    const res = await adminPost<{
+      success: boolean
+      data?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/orders/${id}/fulfill`, body)
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed' }) as {
+          code: string
+          message: string
+        },
+      }
+    }
+    const result = res.data as unknown as FulfillOrderResult
+    if (result.order) {
+      result.order = mapOrderDetail(result.order as unknown as AnyRecord)
+    }
+    return { success: true, data: result }
   },
 
   async getReviews(

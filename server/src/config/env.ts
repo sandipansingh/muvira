@@ -37,10 +37,9 @@ const envSchema = z.object({
   // Set CACHE_DEBUG=true to log every HIT / MISS / SET / DELETE
   CACHE_DEBUG: z.enum(['true', 'false']).default('false'),
 
-  // Shiprocket - used for shipment tracking proxy
-  // Required once you start using AWB-based tracking
-  SHIPROCKET_EMAIL: z.string().email().optional(),
-  SHIPROCKET_PASSWORD: z.string().optional(),
+  // Shiprocket - used for order fulfillment + tracking
+  SHIPROCKET_EMAIL: z.string().email(),
+  SHIPROCKET_PASSWORD: z.string().min(1, 'SHIPROCKET_PASSWORD is required'),
 })
 
 const parsed = envSchema.safeParse(process.env)

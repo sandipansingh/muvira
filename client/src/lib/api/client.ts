@@ -1,11 +1,23 @@
 import { supabase } from '../supabase'
 import { API_BASE_URL } from '../constants'
 
-async function getToken(): Promise<string | null> {
+async function getFreshToken(): Promise<string | null> {
   const {
     data: { session },
   } = await supabase.auth.getSession()
   return session?.access_token ?? null
+}
+
+async function forceRefreshToken(): Promise<string | null> {
+  const {
+    data: { session: current },
+  } = await supabase.auth.getSession()
+  if (!current?.refresh_token) return null
+
+  const {
+    data: { session: refreshed },
+  } = await supabase.auth.refreshSession({ refresh_token: current.refresh_token })
+  return refreshed?.access_token ?? null
 }
 
 async function request<T>(
@@ -19,12 +31,24 @@ async function request<T>(
   }
 
   if (requiresAuth) {
-    const token = await getToken()
+    const token = await getFreshToken()
     if (token) headers['Authorization'] = `Bearer ${token}`
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, { ...options, headers })
-  // Let the caller handle non-2xx via the success/error shape
+  const doFetch = (): Promise<Response> =>
+    fetch(`${API_BASE_URL}${path}`, { ...options, headers })
+
+  let res = await doFetch()
+
+  // If auth required and we get a 401, try refreshing the token once
+  if (requiresAuth && res.status === 401) {
+    const freshToken = await forceRefreshToken()
+    if (freshToken) {
+      headers['Authorization'] = `Bearer ${freshToken}`
+      res = await doFetch()
+    }
+  }
+
   return res.json() as Promise<T>
 }
 

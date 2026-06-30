@@ -5,7 +5,6 @@ import { sendOrderConfirmationEmail } from '../../lib/notifications/email'
 import { AppError } from '../../types'
 import type { Order } from '../../types'
 import type { VerifyPaymentInput } from './schema'
-
 //
 // capturePayment - THE SINGLE IDEMPOTENT PAYMENT CAPTURE FUNCTION
 //
@@ -162,6 +161,9 @@ async function capturePayment(
   }).catch((err: unknown) => {
     logger.error({ err, orderId: order.id }, 'Order confirmation email failed (fire-and-forget)')
   })
+
+  // Shiprocket order creation is now manual via admin fulfillment workflow.
+  // Do NOT auto-create Shiprocket orders after payment capture.
 
   return { alreadyCaptured: false, order: order as Order }
 }

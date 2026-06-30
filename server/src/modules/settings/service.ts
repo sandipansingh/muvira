@@ -32,6 +32,13 @@ export interface SiteSettings {
     shipping_charge_paisa: number
     free_shipping_threshold_paisa: number
   }
+  shiprocket_settings: {
+    pickup_location: string
+    default_length_cm: number
+    default_breadth_cm: number
+    default_height_cm: number
+    default_weight_grams: number
+  }
 }
 
 const SETTING_KEYS = [
@@ -41,6 +48,7 @@ const SETTING_KEYS = [
   'promo_banners',
   'store_description',
   'shipping_rules',
+  'shiprocket_settings',
 ] as const
 
 export async function getSettings(): Promise<SiteSettings> {
@@ -75,6 +83,13 @@ export async function getSettings(): Promise<SiteSettings> {
     shipping_rules: (map['shipping_rules'] as SiteSettings['shipping_rules']) ?? {
       shipping_charge_paisa: 15000,
       free_shipping_threshold_paisa: 100000,
+    },
+    shiprocket_settings: (map['shiprocket_settings'] as SiteSettings['shiprocket_settings']) ?? {
+      pickup_location: 'primary',
+      default_length_cm: 15,
+      default_breadth_cm: 10,
+      default_height_cm: 5,
+      default_weight_grams: 500,
     },
   }
 }
