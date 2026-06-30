@@ -186,10 +186,27 @@ export interface Order {
   coupon_id: string | null
   coupon_code: string | null
   coupon_discount_paisa: number
-  // Fulfillment (manual tracking only)
+  // Fulfillment
   carrier_name: string | null
   tracking_id: string | null
   awb_code: string | null
+  // Shiprocket integration
+  shiprocket_order_id: string | null
+  shiprocket_status: 'pending' | 'created' | 'failed' | null
+  shiprocket_error: string | null
+  shipment_id: string | null
+  courier_name: string | null
+  tracking_url: string | null
+  pickup_location: string | null
+  package_weight_grams: number | null
+  package_length_cm: number | null
+  package_breadth_cm: number | null
+  package_height_cm: number | null
+  pickup_scheduled_date: string | null
+  pickup_token_number: string | null
+  label_generated: boolean
+  manifest_generated: boolean
+  fulfillment_step: 'idle' | 'order_created' | 'awb_assigned' | 'pickup_scheduled' | 'label_generated' | 'manifest_generated' | 'ready_for_pickup' | null
   notes: string | null
   created_at: string
   updated_at: string
@@ -239,6 +256,20 @@ export interface PaymentLog {
     | 'webhook_failed'
   payload: Record<string, unknown> | null
   razorpay_event_id: string | null
+  created_at: string
+}
+
+// Shipment tracking events (populated via Shiprocket webhook)
+
+export interface ShipmentEvent {
+  id: string
+  order_id: string
+  shipment_id: string | null
+  status: string
+  location: string | null
+  remarks: string | null
+  event_time: string
+  raw_payload: Record<string, unknown> | null
   created_at: string
 }
 

@@ -1,6 +1,6 @@
 import { api } from './client'
 import { mapOrderListItem, mapOrderDetail } from './adapters'
-import type { OrderListItem, OrderDetail } from '../../types/order'
+import type { OrderListItem, OrderDetail, ShiprocketTrackData, OrderTrackingData } from '../../types/order'
 import type { ApiPaginatedResponse, ApiResponse } from '../../types/common'
 
 interface CreateOrderResult {
@@ -154,5 +154,43 @@ export const ordersApiService = {
     }
 
     return { success: true, data: mapOrderDetail(res.data) }
+  },
+
+  async trackOrder(awb: string): Promise<ApiResponse<ShiprocketTrackData>> {
+    const res = await api.get<{
+      success: boolean
+      data?: Record<string, unknown>
+      error?: { code: string; message: string }
+    }>(`/api/tracking/${encodeURIComponent(awb)}`, false)
+
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: res.error ?? { code: 'TRACK_FAILED', message: 'Failed to fetch tracking' },
+      }
+    }
+
+    const trackingData = res.data['tracking_data'] as Record<string, unknown> | undefined
+    return {
+      success: true,
+      data: trackingData as unknown as ShiprocketTrackData,
+    }
+  },
+
+  async getOrderTracking(id: string): Promise<ApiResponse<OrderTrackingData>> {
+    const res = await api.get<{
+      success: boolean
+      data?: Record<string, unknown>
+      error?: { code: string; message: string }
+    }>(`/api/orders/${encodeURIComponent(id)}/tracking`, true)
+
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: res.error ?? { code: 'TRACK_FAILED', message: 'Failed to fetch tracking' },
+      }
+    }
+
+    return { success: true, data: res.data as unknown as OrderTrackingData }
   },
 }

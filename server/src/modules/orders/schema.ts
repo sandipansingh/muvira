@@ -53,8 +53,52 @@ export const AdminListOrdersQuerySchema = z.object({
   to_date: z.string().datetime().optional(),
 })
 
+// Shiprocket admin action schemas
+
+export const AssignAwbSchema = z
+  .object({
+    courier_id: z.number().int().optional(),
+  })
+  .strict()
+
+export const PackageDimensionsSchema = z
+  .object({
+    length_cm: z.number().int().min(1).optional(),
+    breadth_cm: z.number().int().min(1).optional(),
+    height_cm: z.number().int().min(1).optional(),
+    weight_grams: z.number().int().min(1).optional(),
+  })
+  .strict()
+
+export const ShiprocketCancelSchema = z
+  .object({})
+  .strict()
+
+export const CreateShipmentSchema = z
+  .object({
+    pickup_location: z.string().min(1),
+  })
+  .strict()
+
+export const FulfillOrderSchema = z
+  .object({
+    pickup_location: z.string().min(1, 'Pickup location is required'),
+    weight_grams: z.number().int().min(1, 'Weight must be at least 1g'),
+    length_cm: z.number().int().min(1, 'Length must be at least 1cm'),
+    breadth_cm: z.number().int().min(1, 'Breadth must be at least 1cm'),
+    height_cm: z.number().int().min(1, 'Height must be at least 1cm'),
+    package_count: z.number().int().min(1).default(1),
+    courier_id: z.number().int().optional(),
+    payment_method: z.enum(['Prepaid', 'COD']).optional(),
+    cod_amount: z.number().int().optional(),
+  })
+  .strict()
+
 export type ListOrdersQuery = z.infer<typeof ListOrdersQuerySchema>
 export type AdminListOrdersQuery = z.infer<typeof AdminListOrdersQuerySchema>
 export type UpdateOrderStatusInput = z.infer<typeof UpdateOrderStatusSchema>
 export type UpdateFulfillmentInput = z.infer<typeof UpdateFulfillmentSchema>
 export type AddOrderNoteInput = z.infer<typeof AddOrderNoteSchema>
+export type AssignAwbInput = z.infer<typeof AssignAwbSchema>
+export type PackageDimensionsInput = z.infer<typeof PackageDimensionsSchema>
+export type FulfillOrderInput = z.infer<typeof FulfillOrderSchema>

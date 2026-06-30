@@ -27,6 +27,7 @@ import { settingsRouter, adminSettingsRouter } from './modules/settings/routes'
 import { adminCacheRouter } from './modules/admin/cache/routes'
 import { trackingRouter } from './modules/tracking/routes'
 import { reviewsRouter, adminReviewsRouter } from './modules/reviews/routes'
+import { shiprocketWebhookRouter, adminShiprocketRouter } from './modules/shiprocket/routes'
 
 export function createApp() {
   const app = express()
@@ -121,6 +122,7 @@ export function createApp() {
 
   // Webhook - signature-verified (NOT user-auth)
   app.use('/api/webhooks', webhooksRouter)
+  app.use('/api/webhooks/shiprocket', shiprocketWebhookRouter)
 
   // Admin routes - requireAuth + requireAdmin applied here centrally
   const adminRouter = express.Router()
@@ -135,6 +137,7 @@ export function createApp() {
   adminRouter.use('/settings', adminSettingsRouter)
   adminRouter.use('/cache', adminCacheRouter)
   adminRouter.use('/reviews', adminReviewsRouter)
+  adminRouter.use('/shiprocket', adminShiprocketRouter)
 
   app.use('/api/admin', adminRouter)
 
