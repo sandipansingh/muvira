@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Truck, MapPin, Package, RefreshCw, ExternalLink } from 'lucide-react'
+import { Truck, MapPin, Package, RefreshCw } from 'lucide-react'
 import { trackingApiService } from '../../lib/api/tracking'
 import type { ShiprocketTrackData } from '../../types/order'
 
@@ -123,7 +123,12 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
 
   const currentInfo = trackData.shipment_track?.[0]
   const activities = trackData.shipment_track_activities ?? []
-  const currentStatusLabel = activities[0]?.['sr-status-label'] ?? currentInfo?.current_status ?? ''
+  const firstActivity = activities[0]
+  const firstLabel = firstActivity?.['sr-status-label']
+  const firstStatus = firstActivity?.status
+  const currentStatusLabel = (firstLabel && firstLabel !== 'NA')
+    ? firstLabel
+    : (firstStatus && firstStatus !== 'NA' ? firstStatus : currentInfo?.current_status ?? '')
 
   return (
     <div className="space-y-5 text-left">
@@ -156,21 +161,10 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
             </p>
           )}
         </div>
-        {/* AWB + Track URL */}
+        {/* AWB */}
         <div className="text-right shrink-0">
           <p className="text-[10px] text-secondary400 uppercase tracking-wider">AWB</p>
           <p className="text-xs font-bold text-darkColor">{awbCode}</p>
-          {trackData.track_url && (
-            <a
-              href={trackData.track_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-[10px] text-primaryBg font-semibold hover:underline mt-1 justify-end"
-            >
-              Shiprocket
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          )}
         </div>
       </div>
 
@@ -240,18 +234,6 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
           </div>
         </div>
       )}
-
-      {/* Refresh hint */}
-      <div className="flex items-center justify-end gap-1.5 pt-1">
-        <button
-          onClick={fetchTracking}
-          disabled={loading}
-          className="flex items-center gap-1.5 text-[10px] text-secondary400 hover:text-primaryBg transition-colors font-medium uppercase tracking-wider"
-        >
-          <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
-      </div>
     </div>
   )
 }
