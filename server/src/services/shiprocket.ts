@@ -1,7 +1,126 @@
 import { env } from '../config/env'
 import { logger } from '../lib/logger'
+import {
+  recordShiprocketCall,
+  recordShiprocketCallFailed,
+  recordShiprocketCallRetried,
+  recordShiprocketCallTimedOut,
+} from './metricsCollector'
 
 const SHIPROCKET_BASE = 'https://apiv2.shiprocket.in/v1/external'
+const DEFAULT_TIMEOUT_MS = 15_000
+const DEFAULT_MAX_RETRIES = 3
+const MAX_REQUESTS_PER_SEC = 10
+
+// --- Token Bucket Rate Limiter ---
+
+interface TokenBucket {
+  tokens: number
+  lastRefill: number
+}
+
+const tokenBucket: TokenBucket = { tokens: MAX_REQUESTS_PER_SEC, lastRefill: Date.now() }
+
+function acquireToken(): void {
+  const now = Date.now()
+  const elapsed = (now - tokenBucket.lastRefill) / 1000
+  tokenBucket.tokens = Math.min(MAX_REQUESTS_PER_SEC, tokenBucket.tokens + elapsed * MAX_REQUESTS_PER_SEC)
+  tokenBucket.lastRefill = now
+
+  if (tokenBucket.tokens < 1) {
+    const waitMs = Math.ceil(((1 - tokenBucket.tokens) / MAX_REQUESTS_PER_SEC) * 1000)
+    logger.warn({ waitMs }, 'Shiprocket rate limit: token bucket empty, delaying')
+    const waitStart = Date.now()
+    while (Date.now() - waitStart < waitMs) { /* busy-wait for simplicity; at this scale it's fine */ }
+    tokenBucket.tokens = 1
+    tokenBucket.lastRefill = Date.now()
+  }
+  tokenBucket.tokens -= 1
+}
+
+// --- Error Classification ---
+
+export interface ShiprocketError extends Error {
+  type: 'RATE_LIMITED' | 'SERVER_ERROR' | 'AUTH_EXPIRED' | 'ALREADY_DONE' | 'BAD_REQUEST' | 'TIMEOUT' | 'NETWORK' | 'UNKNOWN'
+  statusCode?: number
+  retryable: boolean
+  retryAfterMs?: number
+  shouldRefreshToken?: boolean
+}
+
+function classifyError(status: number, body: string, isTimeout: boolean, isNetworkError: boolean): ShiprocketError {
+  const err = new Error() as ShiprocketError
+  err.type = 'UNKNOWN'
+  err.retryable = false
+
+  if (isTimeout) {
+    err.type = 'TIMEOUT'
+    err.retryable = true
+    err.retryAfterMs = 1000
+    err.message = 'Shiprocket request timed out'
+    return err
+  }
+
+  if (isNetworkError) {
+    err.type = 'NETWORK'
+    err.retryable = true
+    err.retryAfterMs = 2000
+    err.message = 'Shiprocket network error'
+    return err
+  }
+
+  err.statusCode = status
+
+  if (status === 429) {
+    err.type = 'RATE_LIMITED'
+    err.retryable = true
+    err.retryAfterMs = 60_000
+    err.message = `Shiprocket rate limited (429): ${body}`
+    return err
+  }
+
+  if (status >= 500) {
+    err.type = 'SERVER_ERROR'
+    err.retryable = true
+    err.retryAfterMs = 5000
+    err.message = `Shiprocket server error (${status}): ${body}`
+    return err
+  }
+
+  if (status === 401) {
+    err.type = 'AUTH_EXPIRED'
+    err.retryable = true
+    err.shouldRefreshToken = true
+    err.message = `Shiprocket auth expired (401): ${body}`
+    return err
+  }
+
+  if (status === 400 && (body.toLowerCase().includes('already') || body.toLowerCase().includes('generated'))) {
+    err.type = 'ALREADY_DONE'
+    err.retryable = false
+    err.message = `Shiprocket already done (400): ${body}`
+    return err
+  }
+
+  if (status === 400) {
+    err.type = 'BAD_REQUEST'
+    err.retryable = false
+    err.message = `Shiprocket bad request (400): ${body}`
+    return err
+  }
+
+  if (status === 404) {
+    err.type = 'BAD_REQUEST'
+    err.retryable = false
+    err.message = `Shiprocket not found (404): ${body}`
+    return err
+  }
+
+  err.message = `Shiprocket API error (${status}): ${body}`
+  return err
+}
+
+// --- Token Management ---
 
 let cachedToken: string | null = null
 let tokenExpiresAt: number = 0
@@ -22,6 +141,7 @@ async function getToken(): Promise<string> {
       email: env.SHIPROCKET_EMAIL,
       password: env.SHIPROCKET_PASSWORD,
     }),
+    signal: AbortSignal.timeout(10_000),
   })
 
   if (!res.ok) {
@@ -38,37 +158,97 @@ async function getToken(): Promise<string> {
   return cachedToken
 }
 
+function invalidateToken(): void {
+  cachedToken = null
+  tokenExpiresAt = 0
+  logger.info('Shiprocket: token invalidated')
+}
+
+// --- Core API Client with Resilience ---
+
 async function apiFetch<T>(
   path: string,
-  options: { method?: string; body?: unknown } = {}
+  options: { method?: string; body?: unknown; timeout?: number; maxRetries?: number } = {}
 ): Promise<T> {
-  const token = await getToken()
-  const url = `${SHIPROCKET_BASE}${path}`
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`,
+  const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES
+  const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS
+  let lastError: ShiprocketError | null = null
+  const callStart = Date.now()
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      // Rate limit gate
+      acquireToken()
+
+      const token = await getToken()
+      const url = `${SHIPROCKET_BASE}${path}`
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${token}`,
+      }
+
+      if (options.body) {
+        headers['Content-Type'] = 'application/json'
+      }
+
+      const res = await fetch(url, {
+        method: options.method ?? 'GET',
+        headers,
+        body: options.body ? JSON.stringify(options.body) : undefined,
+        signal: AbortSignal.timeout(timeout),
+      })
+
+      // 401: token may have expired before our TTL. Invalidate and retry once.
+      if (res.status === 401 && attempt < maxRetries) {
+        invalidateToken()
+        lastError = classifyError(401, '', false, false)
+        continue
+      }
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw classifyError(res.status, text, false, false)
+      }
+
+      const contentType = res.headers.get('content-type') ?? ''
+      if (contentType.includes('application/pdf') || contentType.includes('application/octet-stream')) {
+        recordShiprocketCall(Date.now() - callStart)
+        return (await res.arrayBuffer()) as unknown as T
+      }
+
+      recordShiprocketCall(Date.now() - callStart)
+      return res.json() as Promise<T>
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        lastError = classifyError(0, '', true, false)
+        recordShiprocketCallTimedOut()
+      } else if (err instanceof TypeError && (err.message.includes('fetch') || err.message.includes('network'))) {
+        lastError = classifyError(0, '', false, true)
+        recordShiprocketCallFailed()
+      } else if ((err as ShiprocketError).type) {
+        lastError = err as ShiprocketError
+        if (!lastError.retryable) recordShiprocketCallFailed()
+      } else {
+        const message = err instanceof Error ? err.message : String(err)
+        lastError = new Error(message) as ShiprocketError
+        lastError.type = 'UNKNOWN'
+        lastError.retryable = true
+        lastError.retryAfterMs = 1000
+      }
+
+      if (!lastError.retryable || attempt >= maxRetries) break
+
+      recordShiprocketCallRetried()
+      const delay = lastError.retryAfterMs ?? 1000 * (2 ** attempt)
+      logger.warn(
+        { path, attempt: attempt + 1, maxRetries, delay, type: lastError.type },
+        `Shiprocket: retrying after ${delay}ms`
+      )
+      await new Promise((r) => setTimeout(r, delay))
+    }
   }
 
-  if (options.body) {
-    headers['Content-Type'] = 'application/json'
-  }
-
-  const res = await fetch(url, {
-    method: options.method ?? 'GET',
-    headers,
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  })
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`Shiprocket API error (${res.status}): ${text}`)
-  }
-
-  const contentType = res.headers.get('content-type') ?? ''
-  if (contentType.includes('application/pdf') || contentType.includes('application/octet-stream')) {
-    return (await res.arrayBuffer()) as unknown as T
-  }
-
-  return res.json() as Promise<T>
+  recordShiprocketCallFailed()
+  throw lastError ?? new Error('Shiprocket API error: max retries exceeded')
 }
 
 //

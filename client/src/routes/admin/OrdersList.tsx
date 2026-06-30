@@ -75,7 +75,7 @@ export const OrdersList: React.FC = () => {
 
       // Silent background tracking sync for any active/transit shipments on this page
       const activeOrders = res.data.filter(
-        (o) => o.awbCode && o.status !== 'delivered' && o.status !== 'cancelled'
+        (o) => o.awbCode && !['delivered', 'cancelled', 'returned', 'refunded', 'lost', 'damaged'].includes(o.status)
       )
       if (activeOrders.length > 0) {
         adminApiService.syncTrackingOrders().then((syncRes) => {
@@ -118,11 +118,20 @@ export const OrdersList: React.FC = () => {
       case 'delivered':
         return 'success'
       case 'cancelled':
+      case 'lost':
+      case 'damaged':
         return 'danger'
       case 'shipped':
+      case 'out_for_delivery':
       case 'processing':
       case 'confirmed':
         return 'primary'
+      case 'rto':
+      case 'returned':
+      case 'refunded':
+        return 'warning'
+      case 'delivery_failed':
+        return 'danger'
       default:
         return 'warning'
     }
@@ -145,8 +154,15 @@ export const OrdersList: React.FC = () => {
     { value: 'confirmed', label: 'Confirmed' },
     { value: 'processing', label: 'Processing' },
     { value: 'shipped', label: 'Shipped' },
+    { value: 'out_for_delivery', label: 'Out for Delivery' },
     { value: 'delivered', label: 'Delivered' },
+    { value: 'delivery_failed', label: 'Delivery Failed' },
     { value: 'cancelled', label: 'Cancelled' },
+    { value: 'rto', label: 'RTO' },
+    { value: 'returned', label: 'Returned' },
+    { value: 'refunded', label: 'Refunded' },
+    { value: 'lost', label: 'Lost' },
+    { value: 'damaged', label: 'Damaged' },
   ]
 
   const paymentStatusOptions = [

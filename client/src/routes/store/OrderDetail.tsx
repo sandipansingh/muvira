@@ -41,11 +41,20 @@ export const OrderDetail: React.FC = () => {
       case 'delivered':
         return 'success'
       case 'cancelled':
+      case 'lost':
+      case 'damaged':
         return 'danger'
       case 'shipped':
+      case 'out_for_delivery':
       case 'processing':
       case 'confirmed':
         return 'primary'
+      case 'rto':
+      case 'returned':
+      case 'refunded':
+        return 'warning'
+      case 'delivery_failed':
+        return 'danger'
       default:
         return 'warning'
     }

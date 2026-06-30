@@ -1,10 +1,27 @@
 import { adminSupabase } from '../../lib/supabase/admin'
 import { logger } from '../../lib/logger'
 import { updateOrderStatusByAwb, mapShiprocketStatusToOrderStatus } from '../orders/service'
+import { writeTrackingSnapshot } from '../../services/trackingAnalytics'
 
+export interface ProcessWebhookResult {
+  status: 'processed' | 'ignored'
+  orderId?: string
+}
+
+/**
+ * Process an already-authenticated, already-deduped Shiprocket webhook payload.
+ *
+ * Idempotency notes:
+ * - Called only AFTER the controller has verified the payload is not a duplicate
+ * - shipment_events insert is NOT idempotent at the DB level, but the controller
+ *   guards against duplicate payloads, so this is effectively safe
+ * - Multiple webhooks with different payloads for the same event (e.g. successive
+ *   status updates) are expected and will each INSERT a new event row — this is
+ *   correct behavior (each represents a distinct shipment scan)
+ */
 export async function processShiprocketWebhook(
   payload: Record<string, unknown>
-): Promise<{ status: 'processed' | 'ignored' }> {
+): Promise<ProcessWebhookResult> {
   const event = payload['event'] as string | undefined
   const shipmentId = payload['shipment_id'] as number | undefined
   const awbCode = payload['awb'] as string | undefined
@@ -18,9 +35,9 @@ export async function processShiprocketWebhook(
     'Shiprocket webhook received'
   )
 
-  // Find the matching order in our DB
   let dbOrderId: string | null = null
 
+  // Match by AWB code (primary)
   if (awbCode) {
     const { data: order } = await adminSupabase
       .from('orders')
@@ -33,6 +50,7 @@ export async function processShiprocketWebhook(
     }
   }
 
+  // Fallback: match by shipment_id
   if (!dbOrderId && shipmentId) {
     const { data: order } = await adminSupabase
       .from('orders')
@@ -45,6 +63,7 @@ export async function processShiprocketWebhook(
     }
   }
 
+  // Fallback: match by Shiprocket order_id
   if (!dbOrderId && orderId) {
     const { data: order } = await adminSupabase
       .from('orders')
@@ -65,7 +84,7 @@ export async function processShiprocketWebhook(
     return { status: 'ignored' }
   }
 
-  // Save shipment event
+  // Save shipment event for customer-facing timeline display
   await adminSupabase.from('shipment_events').insert({
     order_id: dbOrderId,
     shipment_id: shipmentId != null ? String(shipmentId) : null,
@@ -76,11 +95,28 @@ export async function processShiprocketWebhook(
     raw_payload: payload,
   })
 
-  // Update order status if we have tracking info
+  // Write tracking snapshot for analytics (fire-and-forget)
+  writeTrackingSnapshot({
+    orderId: dbOrderId,
+    awbCode: awbCode ?? null,
+    shipmentId: shipmentId != null ? String(shipmentId) : null,
+    currentStatus: currentStatus ?? '',
+    location: location ?? null,
+    courierName: null,
+    origin: null,
+    destination: null,
+    edd: null,
+    pickupDate: null,
+    deliveredDate: null,
+    trackingRaw: payload,
+    syncSource: 'webhook',
+  }).catch(() => {})
+
+  // Update order status if tracking info is provided
   if (awbCode && currentStatus) {
     const targetStatus = mapShiprocketStatusToOrderStatus(currentStatus)
     if (targetStatus) {
-      await updateOrderStatusByAwb(awbCode, targetStatus)
+      await updateOrderStatusByAwb(awbCode, targetStatus, 'webhook')
     }
   }
 
@@ -109,5 +145,5 @@ export async function processShiprocketWebhook(
     'Shiprocket webhook processed'
   )
 
-  return { status: 'processed' }
+  return { status: 'processed', orderId: dbOrderId }
 }

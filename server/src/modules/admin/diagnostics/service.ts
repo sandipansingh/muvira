@@ -1,0 +1,262 @@
+import { adminSupabase } from '../../../lib/supabase/admin'
+import { logger } from '../../../lib/logger'
+
+// --- Shipment Health ---
+
+export async function getShipmentHealth(): Promise<{
+  health: Array<Record<string, unknown>>
+  summary: { total_active: number; warning_count: number; danger_count: number }
+}> {
+  const { data, error } = await adminSupabase
+    .from('shipment_health' as never)
+    .select('*')
+    .limit(100)
+
+  if (error) {
+    logger.error({ error }, 'Failed to query shipment_health view')
+    return { health: [], summary: { total_active: 0, warning_count: 0, danger_count: 0 } }
+  }
+
+  const rows = (data ?? []) as Array<Record<string, unknown>>
+  return {
+    health: rows,
+    summary: {
+      total_active: rows.length,
+      warning_count: rows.filter((r) => (r['health_status'] as string)?.startsWith('warning')).length,
+      danger_count: rows.filter((r) => (r['health_status'] as string)?.startsWith('danger')).length,
+    },
+  }
+}
+
+// --- Sync Health ---
+
+export async function getSyncHealth(): Promise<{
+  lastFullSync: Record<string, unknown> | null
+  lastOfdSync: Record<string, unknown> | null
+  pendingOrders: number
+  recentErrors: Array<Record<string, unknown>>
+}> {
+  const [fullSync, ofdSync, pendingOrders, recentErrors] = await Promise.all([
+    adminSupabase
+      .from('sync_jobs')
+      .select('*')
+      .eq('job_type', 'full_poll')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    adminSupabase
+      .from('sync_jobs')
+      .select('*')
+      .eq('job_type', 'ofd_poll')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    adminSupabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .not('awb_code', 'is', null)
+      .not('status', 'in', '("delivered","cancelled","returned","refunded","lost","damaged")'),
+    adminSupabase
+      .from('sync_jobs')
+      .select('started_at, status, orders_checked, orders_updated, errors')
+      .eq('status', 'failed')
+      .order('started_at', { ascending: false })
+      .limit(5),
+  ])
+
+  return {
+    lastFullSync: fullSync.data ?? null,
+    lastOfdSync: ofdSync.data ?? null,
+    pendingOrders: pendingOrders.count ?? 0,
+    recentErrors: (recentErrors.data ?? []) as Array<Record<string, unknown>>,
+  }
+}
+
+// --- Webhook Logs ---
+
+export async function getWebhookLogs(params: {
+  page: number
+  limit: number
+  source?: string
+  status?: string
+}): Promise<{
+  logs: Array<Record<string, unknown>>
+  total: number
+}> {
+  const offset = (params.page - 1) * params.limit
+
+  let query = adminSupabase
+    .from('webhook_events')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + params.limit - 1)
+
+  if (params.source) query = query.eq('source', params.source)
+  if (params.status) query = query.eq('processing_status', params.status)
+
+  const { data, error, count } = await query
+  if (error) throw error
+
+  return {
+    logs: (data ?? []) as Array<Record<string, unknown>>,
+    total: count ?? 0,
+  }
+}
+
+// --- Retry Queue ---
+
+export async function getRetryQueue(params: {
+  page: number
+  limit: number
+  status?: string
+}): Promise<{
+  jobs: Array<Record<string, unknown>>
+  total: number
+}> {
+  const offset = (params.page - 1) * params.limit
+
+  let query = adminSupabase
+    .from('retry_jobs')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + params.limit - 1)
+
+  if (params.status) query = query.eq('status', params.status)
+
+  const { data, error, count } = await query
+  if (error) throw error
+
+  return {
+    jobs: (data ?? []) as Array<Record<string, unknown>>,
+    total: count ?? 0,
+  }
+}
+
+export async function retryJob(jobId: string): Promise<boolean> {
+  const { error } = await adminSupabase
+    .from('retry_jobs')
+    .update({ status: 'pending', next_retry_at: new Date().toISOString() })
+    .eq('id', jobId)
+    .in('status', ['dead', 'failed'])
+
+  return !error
+}
+
+// --- Shiprocket Error Diagnostics ---
+
+export async function getShiprocketErrors(params: {
+  page: number
+  limit: number
+}): Promise<{
+  errors: Array<Record<string, unknown>>
+  total: number
+}> {
+  const offset = (params.page - 1) * params.limit
+
+  const { data, error, count } = await adminSupabase
+    .from('orders')
+    .select('id, order_number, shiprocket_status, shiprocket_error, created_at, updated_at', { count: 'exact' })
+    .eq('shiprocket_status', 'failed')
+    .order('updated_at', { ascending: false })
+    .range(offset, offset + params.limit - 1)
+
+  if (error) throw error
+
+  return {
+    errors: (data ?? []) as Array<Record<string, unknown>>,
+    total: count ?? 0,
+  }
+}
+
+// --- Courier Performance ---
+
+export async function getCourierPerformance(): Promise<Array<{
+  courier_name: string
+  total_shipments: number
+  delivered: number
+  rto_count: number
+  avg_delivery_days: number | null
+}>> {
+  const { data, error } = await adminSupabase
+    .from('tracking_snapshots')
+    .select('courier_name, current_status, pickup_date, delivered_date')
+    .not('courier_name', 'is', null)
+    .order('synced_at', { ascending: false })
+    .limit(5000)
+
+  if (error || !data) return []
+
+  const grouped = new Map<string, {
+    total: number
+    delivered: number
+    rto: number
+    deliveryDays: number[]
+  }>()
+
+  for (const row of data as Array<{
+    courier_name: string
+    current_status: string
+    pickup_date: string | null
+    delivered_date: string | null
+  }>) {
+    const courier = row.courier_name
+    if (!grouped.has(courier)) {
+      grouped.set(courier, { total: 0, delivered: 0, rto: 0, deliveryDays: [] })
+    }
+    const stats = grouped.get(courier)!
+
+    stats.total++
+    if (row.current_status === 'delivered') {
+      stats.delivered++
+      if (row.pickup_date && row.delivered_date) {
+        const days = (new Date(row.delivered_date).getTime() - new Date(row.pickup_date).getTime()) / (1000 * 60 * 60 * 24)
+        if (days > 0 && days < 90) stats.deliveryDays.push(days)
+      }
+    }
+    if (row.current_status?.toLowerCase().includes('rto')) {
+      stats.rto++
+    }
+  }
+
+  return Array.from(grouped.entries()).map(([name, stats]) => ({
+    courier_name: name,
+    total_shipments: stats.total,
+    delivered: stats.delivered,
+    rto_count: stats.rto,
+    avg_delivery_days: stats.deliveryDays.length > 0
+      ? Math.round((stats.deliveryDays.reduce((a, b) => a + b, 0) / stats.deliveryDays.length) * 10) / 10
+      : null,
+  })).sort((a, b) => b.total_shipments - a.total_shipments)
+}
+
+// --- Dashboard Summary (single endpoint aggregating everything) ---
+
+export async function getDashboardSummary(): Promise<Record<string, unknown>> {
+  const [
+    ordersPending,
+    activeShipments,
+    failedOrders,
+    pendingRetry,
+    deadJobs,
+    failedWebhooks,
+    lastSync,
+  ] = await Promise.all([
+    adminSupabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    adminSupabase.from('orders').select('id', { count: 'exact', head: true }).in('status', ['processing', 'shipped', 'out_for_delivery']),
+    adminSupabase.from('orders').select('id', { count: 'exact', head: true }).eq('shiprocket_status', 'failed'),
+    adminSupabase.from('retry_jobs').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    adminSupabase.from('retry_jobs').select('id', { count: 'exact', head: true }).eq('status', 'dead'),
+    adminSupabase.from('webhook_events').select('id', { count: 'exact', head: true }).eq('processing_status', 'failed'),
+    adminSupabase.from('sync_jobs').select('started_at, status').order('started_at', { ascending: false }).limit(1).maybeSingle(),
+  ])
+
+  return {
+    orders_pending: ordersPending.count ?? 0,
+    active_shipments: activeShipments.count ?? 0,
+    failed_shiprocket_orders: failedOrders.count ?? 0,
+    pending_retry_jobs: pendingRetry.count ?? 0,
+    dead_retry_jobs: deadJobs.count ?? 0,
+    failed_webhooks: failedWebhooks.count ?? 0,
+    last_sync: lastSync.data ?? null,
+  }
+}

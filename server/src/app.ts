@@ -28,6 +28,8 @@ import { adminCacheRouter } from './modules/admin/cache/routes'
 import { trackingRouter } from './modules/tracking/routes'
 import { reviewsRouter, adminReviewsRouter } from './modules/reviews/routes'
 import { shiprocketWebhookRouter, adminShiprocketRouter } from './modules/shiprocket/routes'
+import { notificationsRouter, adminNotificationsRouter } from './modules/notifications/routes'
+import { adminDiagnosticsRouter } from './modules/admin/diagnostics/routes'
 
 export function createApp() {
   const app = express()
@@ -82,9 +84,18 @@ export function createApp() {
     })
   )
 
-  // 5. Raw body for webhook (must be before json parser)
+  // 5. Raw body for webhooks (must be before json parser)
+  // Preserve raw request bytes so webhook handlers can verify HMAC signatures
   app.use(
     '/api/webhooks/razorpay',
+    express.raw({ type: 'application/json' }),
+    (req: Request, _res: Response, next: NextFunction) => {
+      req.rawBody = req.body as Buffer
+      next()
+    }
+  )
+  app.use(
+    '/api/webhooks/shiprocket',
     express.raw({ type: 'application/json' }),
     (req: Request, _res: Response, next: NextFunction) => {
       req.rawBody = req.body as Buffer
@@ -116,6 +127,7 @@ export function createApp() {
   app.use('/api/checkout', checkoutRouter)
   app.use('/api/payments', paymentsRouter)
   app.use('/api/orders', ordersRouter)
+  app.use('/api/notifications', notificationsRouter)
 
   // Coupon preview (authenticated)
   app.use('/api/checkout', couponsRouter) // POST /api/checkout/apply (behind requireAuth internally)
@@ -138,6 +150,8 @@ export function createApp() {
   adminRouter.use('/cache', adminCacheRouter)
   adminRouter.use('/reviews', adminReviewsRouter)
   adminRouter.use('/shiprocket', adminShiprocketRouter)
+  adminRouter.use('/notifications', adminNotificationsRouter)
+  adminRouter.use('/diagnostics', adminDiagnosticsRouter)
 
   app.use('/api/admin', adminRouter)
 
