@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { proxyTrackSingle, proxyTrackBulk } from './controller'
+import { trackByAwb, trackBulkByAwb } from './controller'
 
 export const trackingRouter = Router()
 
-// Public - no auth required; Shiprocket credentials never reach the client
-trackingRouter.get('/:awb', proxyTrackSingle)
-trackingRouter.post('/bulk', proxyTrackBulk)
+// Public — reads from OUR database only (never calls Shiprocket API)
+trackingRouter.get('/:awb', trackByAwb)
+trackingRouter.post('/bulk', trackBulkByAwb)

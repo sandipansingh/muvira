@@ -1,5 +1,12 @@
 import { adminSupabase } from '../../../lib/supabase/admin'
 import { logger } from '../../../lib/logger'
+import { trackSingle } from '../../../services/shiprocket'
+import {
+  shiprocketStatusToOrderStatus,
+  isValidTransition,
+} from '../../orders/stateMachine'
+import { emitStatusChangeEvents } from '../../../services/eventBus'
+import { writeTrackingSnapshot } from '../../../services/trackingAnalytics'
 
 // --- Shipment Health ---
 
@@ -259,4 +266,94 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
     failed_webhooks: failedWebhooks.count ?? 0,
     last_sync: lastSync.data ?? null,
   }
+}
+
+/**
+ * Emergency-only: refresh a single shipment from Shiprocket.
+ * Calls Shiprocket API directly — use sparingly.
+ * Audit-logged in order_status_history.
+ */
+export async function refreshSingleShipment(
+  orderId: string
+): Promise<{ updated: boolean; oldStatus: string; newStatus: string | null }> {
+  const { data: order } = await adminSupabase
+    .from('orders')
+    .select('id, awb_code, status, user_id, order_number, shipment_id')
+    .eq('id', orderId)
+    .maybeSingle()
+
+  if (!order || !order.awb_code) {
+    throw Object.assign(new Error('Order not found or no AWB code'), { statusCode: 404 })
+  }
+
+  const trackResult = await trackSingle(order.awb_code)
+  const shipmentTrack = trackResult.tracking_data?.shipment_track?.[0]
+  if (!shipmentTrack) {
+    return { updated: false, oldStatus: order.status, newStatus: null }
+  }
+
+  const srStatus = shipmentTrack.current_status
+  const newStatus = shiprocketStatusToOrderStatus(srStatus)
+  if (!newStatus || newStatus === order.status) {
+    return { updated: false, oldStatus: order.status, newStatus }
+  }
+
+  if (!isValidTransition(order.status, newStatus)) {
+    logger.warn(
+      { orderId, from: order.status, to: newStatus },
+      'Emergency refresh: blocked invalid transition'
+    )
+    return { updated: false, oldStatus: order.status, newStatus }
+  }
+
+  const oldStatus = order.status
+
+  await adminSupabase
+    .from('orders')
+    .update({ status: newStatus })
+    .eq('id', orderId)
+    .eq('status', oldStatus)
+
+  // Record status history (emergency manual source)
+  await adminSupabase.from('order_status_history').insert({
+    order_id: orderId,
+    old_status: oldStatus,
+    new_status: newStatus,
+    source: 'admin_manual',
+  })
+
+  // Write tracking snapshot
+  writeTrackingSnapshot({
+    orderId,
+    awbCode: order.awb_code,
+    shipmentId: (order as Record<string, unknown>)['shipment_id'] as string | null ?? null,
+    courierName: shipmentTrack.courier_name ?? null,
+    currentStatus: shipmentTrack.current_status,
+    origin: shipmentTrack.origin ?? null,
+    destination: shipmentTrack.destination ?? null,
+    edd: shipmentTrack.edd ?? null,
+    pickupDate: shipmentTrack.pickup_date ?? null,
+    deliveredDate: shipmentTrack.delivered_date ?? null,
+    trackingRaw: shipmentTrack as unknown as Record<string, unknown>,
+    syncSource: 'manual',
+  }).catch(() => {})
+
+  // Emit events
+  emitStatusChangeEvents({
+    orderId,
+    orderNumber: order.order_number,
+    userId: order.user_id,
+    oldStatus,
+    newStatus,
+    source: 'admin_manual',
+    awbCode: order.awb_code,
+    courierName: shipmentTrack.courier_name ?? null,
+  })
+
+  logger.info(
+    { orderId, awb: order.awb_code, oldStatus, newStatus },
+    'Emergency shipment refresh completed'
+  )
+
+  return { updated: true, oldStatus, newStatus }
 }

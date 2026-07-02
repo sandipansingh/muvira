@@ -1,5 +1,6 @@
 import { adminSupabase } from '../../lib/supabase/admin'
 import { logger } from '../../lib/logger'
+import { createHash } from 'crypto'
 import { updateOrderStatusByAwb, mapShiprocketStatusToOrderStatus } from '../orders/service'
 import { writeTrackingSnapshot } from '../../services/trackingAnalytics'
 
@@ -85,6 +86,10 @@ export async function processShiprocketWebhook(
   }
 
   // Save shipment event for customer-facing timeline display
+  const eventPayloadHash = createHash('sha256')
+    .update(JSON.stringify(payload))
+    .digest('hex')
+
   await adminSupabase.from('shipment_events').insert({
     order_id: dbOrderId,
     shipment_id: shipmentId != null ? String(shipmentId) : null,
@@ -93,6 +98,7 @@ export async function processShiprocketWebhook(
     remarks: remarks ?? null,
     event_time: new Date().toISOString(),
     raw_payload: payload,
+    payload_hash: eventPayloadHash,
   })
 
   // Write tracking snapshot for analytics (fire-and-forget)

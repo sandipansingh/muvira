@@ -6,6 +6,11 @@ import {
   recordShiprocketCallRetried,
   recordShiprocketCallTimedOut,
 } from './metricsCollector'
+import {
+  canMakeShiprocketCall,
+  reportShiprocketSuccess,
+  reportShiprocketFailure,
+} from './circuitBreaker'
 
 const SHIPROCKET_BASE = 'https://apiv2.shiprocket.in/v1/external'
 const DEFAULT_TIMEOUT_MS = 15_000
@@ -175,6 +180,15 @@ async function apiFetch<T>(
   let lastError: ShiprocketError | null = null
   const callStart = Date.now()
 
+  // Circuit breaker: if Shiprocket is down, fail fast
+  if (!canMakeShiprocketCall()) {
+    const breakerErr = new Error('Shiprocket API circuit breaker is open') as ShiprocketError
+    breakerErr.type = 'SERVER_ERROR'
+    breakerErr.retryable = true
+    breakerErr.retryAfterMs = 60_000
+    throw breakerErr
+  }
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       // Rate limit gate
@@ -212,10 +226,12 @@ async function apiFetch<T>(
       const contentType = res.headers.get('content-type') ?? ''
       if (contentType.includes('application/pdf') || contentType.includes('application/octet-stream')) {
         recordShiprocketCall(Date.now() - callStart)
+        reportShiprocketSuccess()
         return (await res.arrayBuffer()) as unknown as T
       }
 
       recordShiprocketCall(Date.now() - callStart)
+      reportShiprocketSuccess()
       return res.json() as Promise<T>
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') {
@@ -248,6 +264,7 @@ async function apiFetch<T>(
   }
 
   recordShiprocketCallFailed()
+  reportShiprocketFailure()
   throw lastError ?? new Error('Shiprocket API error: max retries exceeded')
 }
 
@@ -772,5 +789,62 @@ export async function generateInvoice(orderIds: number[]): Promise<ShiprocketGen
   return apiFetch<ShiprocketGenerateInvoiceResponse>('/orders/print/invoice', {
     method: 'POST',
     body: { ids: orderIds },
+  })
+}
+
+//
+// 18. Create Return Order
+//
+
+export interface ShiprocketReturnOrderInput {
+  order_id: string
+  order_date: string
+  pickup_customer_name: string
+  pickup_last_name: string
+  pickup_address: string
+  pickup_city: string
+  pickup_pincode: string
+  pickup_state: string
+  pickup_country: string
+  pickup_email: string
+  pickup_phone: string
+  pickup_isd_code?: string
+  shipping_customer_name: string
+  shipping_last_name: string
+  shipping_address: string
+  shipping_city: string
+  shipping_pincode: string
+  shipping_state: string
+  shipping_country: string
+  shipping_email: string
+  shipping_phone: string
+  shipping_isd_code?: string
+  order_items: Array<{
+    name: string
+    sku: string
+    units: number
+    selling_price: number
+  }>
+  payment_method: 'Prepaid' | 'COD'
+  total_discount?: number
+  sub_total: number
+  length: number
+  breadth: number
+  height: number
+  weight: number
+}
+
+export interface ShiprocketReturnOrderResponse {
+  order_id: number
+  shipment_id: number
+  status: string
+}
+
+export async function createReturnOrder(
+  input: ShiprocketReturnOrderInput
+): Promise<ShiprocketReturnOrderResponse> {
+  return apiFetch<ShiprocketReturnOrderResponse>('/orders/create/return', {
+    method: 'POST',
+    body: input,
   })
 }

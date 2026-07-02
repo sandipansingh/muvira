@@ -4,12 +4,42 @@ import { env } from '../../config/env'
 import { adminSupabase } from '../../lib/supabase/admin'
 import { logger } from '../../lib/logger'
 
+const REPLAY_WINDOW_MS = 5 * 60 * 1000 // 5 minutes
+
 /**
  * Compute SHA-256 hash of a raw webhook payload Buffer.
  * Used as an idempotency key to detect duplicate deliveries.
  */
 export function computePayloadHash(rawBody: Buffer): string {
   return createHash('sha256').update(rawBody).digest('hex')
+}
+
+/**
+ * Check replay attack protection: webhook payload timestamp must be within
+ * the allowed replay window. Rejects payloads older than 5 minutes.
+ *
+ * Returns true if the timestamp is within the valid window, false otherwise.
+ * Returns true if no timestamp is found (Shiprocket may not always include it).
+ */
+export function verifyWebhookFreshness(rawPayload: Record<string, unknown>): boolean {
+  const ts = rawPayload['timestamp'] ?? rawPayload['created_at'] ?? rawPayload['date']
+  if (!ts) return true
+
+  const eventTime = new Date(ts as string).getTime()
+  if (Number.isNaN(eventTime)) return true
+
+  const ageMs = Date.now() - eventTime
+  if (ageMs < 0) return true // future timestamps (clock skew) — allow
+
+  if (ageMs > REPLAY_WINDOW_MS) {
+    logger.warn(
+      { eventTime: ts, ageMs, maxAgeMs: REPLAY_WINDOW_MS },
+      'Webhook: payload expired — possible replay attack'
+    )
+    return false
+  }
+
+  return true
 }
 
 /**

@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 import { getMetricsSnapshot } from '../../../services/metricsCollector'
+import { getBreakerStatus } from '../../../services/circuitBreaker'
 
 export async function getSummary(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -75,6 +76,21 @@ export async function getCourierPerformance(req: Request, res: Response, next: N
 export async function getMetrics(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const data = getMetricsSnapshot()
+    res.json({ success: true, data })
+  } catch (err) { next(err) }
+}
+
+export async function refreshShipment(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const orderId = req.params['orderId'] as string
+    const result = await service.refreshSingleShipment(orderId)
+    res.json({ success: true, data: result })
+  } catch (err) { next(err) }
+}
+
+export async function getCircuitBreaker(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const data = getBreakerStatus()
     res.json({ success: true, data })
   } catch (err) { next(err) }
 }
