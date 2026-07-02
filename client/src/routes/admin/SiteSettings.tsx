@@ -289,9 +289,9 @@ export const SiteSettingsPage: React.FC = () => {
   }
 
   return (
-    <div className="w-full space-y-6 text-left pb-10">
+    <div className="w-full space-y-6 text-left px-4 md:px-6 pb-10 animate-fadeIn">
       <div>
-        <h1 className="text-xl md:text-2xl font-bold text-darkColor tracking-wide">
+        <h1 className="text-xl md:text-2xl font-bold text-darkColor tracking-tight">
           Site Settings
         </h1>
         <p className="text-xs text-secondary500 mt-1">
@@ -300,10 +300,10 @@ export const SiteSettingsPage: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-secondary200">
+      <div className="flex border-b border-secondary200 overflow-x-auto no-scrollbar whitespace-nowrap">
         <button
           onClick={() => setActiveTab('general')}
-          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 shrink-0 ${
             activeTab === 'general'
               ? 'border-primaryBg text-primaryBg font-bold'
               : 'border-transparent text-secondary500 hover:text-darkColor'
@@ -314,7 +314,7 @@ export const SiteSettingsPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('announcements')}
-          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 shrink-0 ${
             activeTab === 'announcements'
               ? 'border-primaryBg text-primaryBg font-bold'
               : 'border-transparent text-secondary500 hover:text-darkColor'
@@ -325,7 +325,7 @@ export const SiteSettingsPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('slides')}
-          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 shrink-0 ${
             activeTab === 'slides'
               ? 'border-primaryBg text-primaryBg font-bold'
               : 'border-transparent text-secondary500 hover:text-darkColor'
@@ -336,7 +336,7 @@ export const SiteSettingsPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('promo')}
-          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 ${
+          className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs md:text-sm font-semibold tracking-wider uppercase transition-all duration-200 shrink-0 ${
             activeTab === 'promo'
               ? 'border-primaryBg text-primaryBg font-bold'
               : 'border-transparent text-secondary500 hover:text-darkColor'
@@ -657,7 +657,7 @@ export const SiteSettingsPage: React.FC = () => {
                               onChange={(e) =>
                                 updateSlide(idx, 'title', e.target.value.slice(0, 200))
                               }
-                              placeholder="Festival Furniture Sale"
+                              placeholder="Season Launch Sale"
                               maxLength={200}
                               className="text-xs !py-1"
                             />
@@ -672,7 +672,7 @@ export const SiteSettingsPage: React.FC = () => {
                               onChange={(e) =>
                                 updateSlide(idx, 'subtitle', e.target.value.slice(0, 500))
                               }
-                              placeholder="Up to 30% Off Sheesham Wood"
+                              placeholder="Up to 30% Off Apparel"
                               maxLength={500}
                               className="text-xs !py-1"
                             />
@@ -731,7 +731,7 @@ export const SiteSettingsPage: React.FC = () => {
                               onChange={(e) =>
                                 updateSlide(idx, 'link', e.target.value.slice(0, 2048))
                               }
-                              placeholder="/categories/wood-furniture"
+                              placeholder="/categories/new-arrivals"
                               maxLength={2048}
                               className="text-xs !py-1"
                             />

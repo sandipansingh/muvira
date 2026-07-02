@@ -21,6 +21,16 @@ export const Footer: React.FC = () => {
             {settings?.storeDescription ||
               'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.'}
           </p>
+          <div className="mt-2 flex flex-col gap-2.5">
+            <span className="text-[10px] text-[#91857a] uppercase tracking-wider font-bold">
+              We Accept
+            </span>
+            <img
+              src="/razorpay-cards-upi.png"
+              alt="We Accept Cards, UPI & Netbanking"
+              className="h-14 object-contain self-start bg-white px-3.5 py-1.5 rounded shadow-sm hover:opacity-95 transition-opacity"
+            />
+          </div>
           {/* Social profiles intentionally omitted - add real brand links when available */}
         </div>
 

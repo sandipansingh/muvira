@@ -316,7 +316,7 @@ export const CategoriesList: React.FC = () => {
                 setSlug(slugify(val).slice(0, 200))
               }
             }}
-            placeholder="E.g. Solid Wood Furniture"
+            placeholder="E.g. Clothing"
             required
             maxLength={200}
           />
@@ -333,7 +333,7 @@ export const CategoriesList: React.FC = () => {
               )
               if (!editId) setSlugTouched(true)
             }}
-            placeholder="solid-wood-furniture"
+            placeholder="clothing"
             required
             maxLength={200}
           />
