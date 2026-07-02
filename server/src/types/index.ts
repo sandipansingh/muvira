@@ -212,7 +212,15 @@ export interface Order {
   pickup_token_number: string | null
   label_generated: boolean
   manifest_generated: boolean
-  fulfillment_step: 'idle' | 'order_created' | 'awb_assigned' | 'pickup_scheduled' | 'label_generated' | 'manifest_generated' | 'ready_for_pickup' | null
+  fulfillment_step:
+    | 'idle'
+    | 'order_created'
+    | 'awb_assigned'
+    | 'pickup_scheduled'
+    | 'label_generated'
+    | 'manifest_generated'
+    | 'ready_for_pickup'
+    | null
   notes: string | null
   created_at: string
   updated_at: string

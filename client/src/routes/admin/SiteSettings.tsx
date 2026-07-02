@@ -36,7 +36,9 @@ export const SiteSettingsPage: React.FC = () => {
   const { settings, refresh } = useSiteSettings()
   const { showToast } = useToast()
 
-  const [activeTab, setActiveTab] = useState<'general' | 'announcements' | 'slides' | 'promo'>('general')
+  const [activeTab, setActiveTab] = useState<'general' | 'announcements' | 'slides' | 'promo'>(
+    'general'
+  )
 
   const [contactEmail, setContactEmail] = useState('')
   const [contactPhone, setContactPhone] = useState('')

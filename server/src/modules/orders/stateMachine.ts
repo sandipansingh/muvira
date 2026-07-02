@@ -40,18 +40,8 @@ export const VALID_TRANSITIONS: Record<OrderStatus, ReadonlySet<OrderStatus>> = 
   pending: new Set<OrderStatus>(['confirmed', 'cancelled']),
   confirmed: new Set<OrderStatus>(['processing', 'cancelled']),
   processing: new Set<OrderStatus>(['shipped', 'cancelled']),
-  shipped: new Set<OrderStatus>([
-    'out_for_delivery',
-    'delivered',
-    'rto',
-    'lost',
-    'damaged',
-  ]),
-  out_for_delivery: new Set<OrderStatus>([
-    'delivered',
-    'delivery_failed',
-    'rto',
-  ]),
+  shipped: new Set<OrderStatus>(['out_for_delivery', 'delivered', 'rto', 'lost', 'damaged']),
+  out_for_delivery: new Set<OrderStatus>(['delivered', 'delivery_failed', 'rto']),
   delivered: new Set<OrderStatus>(['returned']),
   cancelled: new Set<OrderStatus>([]), // terminal
   rto: new Set<OrderStatus>(['returned']),
@@ -65,10 +55,7 @@ export const VALID_TRANSITIONS: Record<OrderStatus, ReadonlySet<OrderStatus>> = 
 /**
  * Check whether a transition from oldStatus to newStatus is valid.
  */
-export function isValidTransition(
-  from: string,
-  to: string
-): boolean {
+export function isValidTransition(from: string, to: string): boolean {
   const validTargets = VALID_TRANSITIONS[from as OrderStatus]
   if (!validTargets) return false
   return validTargets.has(to as OrderStatus)

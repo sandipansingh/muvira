@@ -1,10 +1,7 @@
 import { adminSupabase } from '../lib/supabase/admin'
 import { logger } from '../lib/logger'
 import { trackSingle, generateLabel, generateInvoice } from './shiprocket'
-import {
-  shiprocketStatusToOrderStatus,
-  isValidTransition,
-} from '../modules/orders/stateMachine'
+import { shiprocketStatusToOrderStatus, isValidTransition } from '../modules/orders/stateMachine'
 import { emitStatusChangeEvents } from './eventBus'
 import { writeTrackingSnapshot } from './trackingAnalytics'
 
@@ -18,10 +15,7 @@ import { writeTrackingSnapshot } from './trackingAnalytics'
  * as 'dead'.
  */
 
-type JobHandler = (
-  payload: Record<string, unknown>,
-  referenceId: string | null
-) => Promise<void>
+type JobHandler = (payload: Record<string, unknown>, referenceId: string | null) => Promise<void>
 
 const handlers: Record<string, JobHandler> = {
   tracking_sync: async (payload) => {
@@ -65,7 +59,10 @@ const handlers: Record<string, JobHandler> = {
       .eq('status', oldStatus)
 
     if (updateError) {
-      logger.warn({ err: updateError, orderId: order.id }, 'retryWorker/tracking_sync: update failed')
+      logger.warn(
+        { err: updateError, orderId: order.id },
+        'retryWorker/tracking_sync: update failed'
+      )
       return
     }
 
@@ -81,7 +78,7 @@ const handlers: Record<string, JobHandler> = {
     writeTrackingSnapshot({
       orderId: order.id,
       awbCode: awb,
-      shipmentId: (order as Record<string, unknown>)['shipment_id'] as string | null ?? null,
+      shipmentId: ((order as Record<string, unknown>)['shipment_id'] as string | null) ?? null,
       courierName: shipmentTrack.courier_name ?? null,
       currentStatus: shipmentTrack.current_status,
       origin: shipmentTrack.origin ?? null,
@@ -133,7 +130,8 @@ const handlers: Record<string, JobHandler> = {
       orderId,
       userId,
       newStatus: (payload['newStatus'] as string) ?? '',
-      source: (payload['source'] as 'webhook' | 'polling_sync' | 'admin_manual' | 'system') ?? 'system',
+      source:
+        (payload['source'] as 'webhook' | 'polling_sync' | 'admin_manual' | 'system') ?? 'system',
       awbCode: (payload['awbCode'] as string | null) ?? null,
     })
   },
@@ -148,16 +146,14 @@ const handlers: Record<string, JobHandler> = {
     // Update order if orderId is provided
     const orderId = payload['orderId'] as string | undefined
     if (orderId) {
-      await adminSupabase
-        .from('orders')
-        .update({ label_generated: true })
-        .eq('id', orderId)
+      await adminSupabase.from('orders').update({ label_generated: true }).eq('id', orderId)
     }
   },
 
   invoice_generate: async (payload) => {
     const orderIds = payload['orderIds'] as number[] | undefined
-    if (!orderIds || orderIds.length === 0) throw new Error('Missing orderIds in invoice_generate payload')
+    if (!orderIds || orderIds.length === 0)
+      throw new Error('Missing orderIds in invoice_generate payload')
 
     const result = await generateInvoice(orderIds)
     logger.info({ orderIds, result }, 'retryWorker: invoice generated')
@@ -190,10 +186,7 @@ export async function processRetryJobs(batchSize = 10): Promise<{
 
   // Mark all as processing to prevent concurrent workers from picking them up
   const jobIds = jobs.map((j) => j.id)
-  await adminSupabase
-    .from('retry_jobs')
-    .update({ status: 'processing' })
-    .in('id', jobIds)
+  await adminSupabase.from('retry_jobs').update({ status: 'processing' }).in('id', jobIds)
 
   for (const job of jobs) {
     const handler = handlers[job.job_type]
@@ -205,10 +198,7 @@ export async function processRetryJobs(batchSize = 10): Promise<{
 
     try {
       await handler(job.payload as Record<string, unknown>, job.reference_id)
-      await adminSupabase
-        .from('retry_jobs')
-        .update({ status: 'completed' })
-        .eq('id', job.id)
+      await adminSupabase.from('retry_jobs').update({ status: 'completed' }).eq('id', job.id)
       succeeded++
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err)
@@ -233,10 +223,7 @@ export async function processRetryJobs(batchSize = 10): Promise<{
   }
 
   if (succeeded + failed > 0) {
-    logger.info(
-      { succeeded, failed, total: jobs.length },
-      'retryWorker: batch processed'
-    )
+    logger.info({ succeeded, failed, total: jobs.length }, 'retryWorker: batch processed')
   }
 
   return { processed: jobs.length, succeeded, failed }

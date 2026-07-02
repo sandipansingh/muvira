@@ -1,9 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
-import {
-  getPickupLocations,
-  checkServiceability,
-} from '../../services/shiprocket'
+import { getPickupLocations, checkServiceability } from '../../services/shiprocket'
 import { getSettings, updateSettings } from '../settings/service'
 import {
   computePayloadHash,
@@ -44,7 +41,9 @@ export async function handleWebhook(
   try {
     const rawBody = req.rawBody
     if (!rawBody || rawBody.length === 0) {
-      res.status(422).json({ success: false, error: { code: 'EMPTY_BODY', message: 'Empty request body' } })
+      res
+        .status(422)
+        .json({ success: false, error: { code: 'EMPTY_BODY', message: 'Empty request body' } })
       return
     }
 
@@ -81,7 +80,10 @@ export async function handleWebhook(
     // 3. Idempotency check
     const existing = await checkWebhookDuplicate(payloadHash)
     if (existing) {
-      logger.info({ payloadHash, existingStatus: existing.processing_status }, 'Duplicate Shiprocket webhook')
+      logger.info(
+        { payloadHash, existingStatus: existing.processing_status },
+        'Duplicate Shiprocket webhook'
+      )
       recordWebhookDuplicate()
       await recordWebhookEvent({
         source: 'shiprocket',
@@ -123,7 +125,8 @@ export async function handleWebhook(
       res.json({ success: true, data: { status: result.status, orderId: result.orderId } })
     } catch (processingErr) {
       recordWebhookFailed()
-      const errorMsg = processingErr instanceof Error ? processingErr.message : String(processingErr)
+      const errorMsg =
+        processingErr instanceof Error ? processingErr.message : String(processingErr)
 
       if (eventId) {
         await recordWebhookEvent({

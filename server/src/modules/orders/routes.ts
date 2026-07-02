@@ -21,7 +21,11 @@ ordersRouter.use(requireAuth)
 
 ordersRouter.get('/', validate({ query: ListOrdersQuerySchema }), controller.listOrders)
 ordersRouter.get('/:id', validate({ params: OrderIdParamsSchema }), controller.getOrder)
-ordersRouter.get('/:id/tracking', validate({ params: OrderIdParamsSchema }), controller.getOrderTracking)
+ordersRouter.get(
+  '/:id/tracking',
+  validate({ params: OrderIdParamsSchema }),
+  controller.getOrderTracking
+)
 
 // Admin order routes - requireAdmin is applied in the parent admin router
 export const adminOrdersRouter = Router()

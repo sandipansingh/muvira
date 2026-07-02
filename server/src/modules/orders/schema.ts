@@ -104,9 +104,7 @@ export const PackageDimensionsSchema = z
   })
   .strict()
 
-export const ShiprocketCancelSchema = z
-  .object({})
-  .strict()
+export const ShiprocketCancelSchema = z.object({}).strict()
 
 export const CreateShipmentSchema = z
   .object({

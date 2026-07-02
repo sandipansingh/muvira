@@ -1,10 +1,7 @@
 import { adminSupabase } from '../../../lib/supabase/admin'
 import { logger } from '../../../lib/logger'
 import { trackSingle } from '../../../services/shiprocket'
-import {
-  shiprocketStatusToOrderStatus,
-  isValidTransition,
-} from '../../orders/stateMachine'
+import { shiprocketStatusToOrderStatus, isValidTransition } from '../../orders/stateMachine'
 import { emitStatusChangeEvents } from '../../../services/eventBus'
 import { writeTrackingSnapshot } from '../../../services/trackingAnalytics'
 
@@ -29,7 +26,8 @@ export async function getShipmentHealth(): Promise<{
     health: rows,
     summary: {
       total_active: rows.length,
-      warning_count: rows.filter((r) => (r['health_status'] as string)?.startsWith('warning')).length,
+      warning_count: rows.filter((r) => (r['health_status'] as string)?.startsWith('warning'))
+        .length,
       danger_count: rows.filter((r) => (r['health_status'] as string)?.startsWith('danger')).length,
     },
   }
@@ -151,10 +149,7 @@ export async function retryJob(jobId: string): Promise<boolean> {
 
 // --- Shiprocket Error Diagnostics ---
 
-export async function getShiprocketErrors(params: {
-  page: number
-  limit: number
-}): Promise<{
+export async function getShiprocketErrors(params: { page: number; limit: number }): Promise<{
   errors: Array<Record<string, unknown>>
   total: number
 }> {
@@ -162,7 +157,9 @@ export async function getShiprocketErrors(params: {
 
   const { data, error, count } = await adminSupabase
     .from('orders')
-    .select('id, order_number, shiprocket_status, shiprocket_error, created_at, updated_at', { count: 'exact' })
+    .select('id, order_number, shiprocket_status, shiprocket_error, created_at, updated_at', {
+      count: 'exact',
+    })
     .eq('shiprocket_status', 'failed')
     .order('updated_at', { ascending: false })
     .range(offset, offset + params.limit - 1)
@@ -177,13 +174,15 @@ export async function getShiprocketErrors(params: {
 
 // --- Courier Performance ---
 
-export async function getCourierPerformance(): Promise<Array<{
-  courier_name: string
-  total_shipments: number
-  delivered: number
-  rto_count: number
-  avg_delivery_days: number | null
-}>> {
+export async function getCourierPerformance(): Promise<
+  Array<{
+    courier_name: string
+    total_shipments: number
+    delivered: number
+    rto_count: number
+    avg_delivery_days: number | null
+  }>
+> {
   const { data, error } = await adminSupabase
     .from('tracking_snapshots')
     .select('courier_name, current_status, pickup_date, delivered_date')
@@ -193,12 +192,15 @@ export async function getCourierPerformance(): Promise<Array<{
 
   if (error || !data) return []
 
-  const grouped = new Map<string, {
-    total: number
-    delivered: number
-    rto: number
-    deliveryDays: number[]
-  }>()
+  const grouped = new Map<
+    string,
+    {
+      total: number
+      delivered: number
+      rto: number
+      deliveryDays: number[]
+    }
+  >()
 
   for (const row of data as Array<{
     courier_name: string
@@ -216,7 +218,9 @@ export async function getCourierPerformance(): Promise<Array<{
     if (row.current_status === 'delivered') {
       stats.delivered++
       if (row.pickup_date && row.delivered_date) {
-        const days = (new Date(row.delivered_date).getTime() - new Date(row.pickup_date).getTime()) / (1000 * 60 * 60 * 24)
+        const days =
+          (new Date(row.delivered_date).getTime() - new Date(row.pickup_date).getTime()) /
+          (1000 * 60 * 60 * 24)
         if (days > 0 && days < 90) stats.deliveryDays.push(days)
       }
     }
@@ -225,15 +229,20 @@ export async function getCourierPerformance(): Promise<Array<{
     }
   }
 
-  return Array.from(grouped.entries()).map(([name, stats]) => ({
-    courier_name: name,
-    total_shipments: stats.total,
-    delivered: stats.delivered,
-    rto_count: stats.rto,
-    avg_delivery_days: stats.deliveryDays.length > 0
-      ? Math.round((stats.deliveryDays.reduce((a, b) => a + b, 0) / stats.deliveryDays.length) * 10) / 10
-      : null,
-  })).sort((a, b) => b.total_shipments - a.total_shipments)
+  return Array.from(grouped.entries())
+    .map(([name, stats]) => ({
+      courier_name: name,
+      total_shipments: stats.total,
+      delivered: stats.delivered,
+      rto_count: stats.rto,
+      avg_delivery_days:
+        stats.deliveryDays.length > 0
+          ? Math.round(
+              (stats.deliveryDays.reduce((a, b) => a + b, 0) / stats.deliveryDays.length) * 10
+            ) / 10
+          : null,
+    }))
+    .sort((a, b) => b.total_shipments - a.total_shipments)
 }
 
 // --- Dashboard Summary (single endpoint aggregating everything) ---
@@ -248,13 +257,36 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
     failedWebhooks,
     lastSync,
   ] = await Promise.all([
-    adminSupabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    adminSupabase.from('orders').select('id', { count: 'exact', head: true }).in('status', ['processing', 'shipped', 'out_for_delivery']),
-    adminSupabase.from('orders').select('id', { count: 'exact', head: true }).eq('shiprocket_status', 'failed'),
-    adminSupabase.from('retry_jobs').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-    adminSupabase.from('retry_jobs').select('id', { count: 'exact', head: true }).eq('status', 'dead'),
-    adminSupabase.from('webhook_events').select('id', { count: 'exact', head: true }).eq('processing_status', 'failed'),
-    adminSupabase.from('sync_jobs').select('started_at, status').order('started_at', { ascending: false }).limit(1).maybeSingle(),
+    adminSupabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending'),
+    adminSupabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .in('status', ['processing', 'shipped', 'out_for_delivery']),
+    adminSupabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('shiprocket_status', 'failed'),
+    adminSupabase
+      .from('retry_jobs')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending'),
+    adminSupabase
+      .from('retry_jobs')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'dead'),
+    adminSupabase
+      .from('webhook_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('processing_status', 'failed'),
+    adminSupabase
+      .from('sync_jobs')
+      .select('started_at, status')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ])
 
   return {
@@ -326,7 +358,7 @@ export async function refreshSingleShipment(
   writeTrackingSnapshot({
     orderId,
     awbCode: order.awb_code,
-    shipmentId: (order as Record<string, unknown>)['shipment_id'] as string | null ?? null,
+    shipmentId: ((order as Record<string, unknown>)['shipment_id'] as string | null) ?? null,
     courierName: shipmentTrack.courier_name ?? null,
     currentStatus: shipmentTrack.current_status,
     origin: shipmentTrack.origin ?? null,

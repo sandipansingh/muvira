@@ -1,6 +1,11 @@
 import { api } from './client'
 import { mapOrderListItem, mapOrderDetail } from './adapters'
-import type { OrderListItem, OrderDetail, ShiprocketTrackData, OrderTrackingData } from '../../types/order'
+import type {
+  OrderListItem,
+  OrderDetail,
+  ShiprocketTrackData,
+  OrderTrackingData,
+} from '../../types/order'
 import type { ApiPaginatedResponse, ApiResponse } from '../../types/common'
 
 interface CreateOrderResult {

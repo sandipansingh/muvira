@@ -68,7 +68,7 @@ export const Signup: React.FC = () => {
                 label="Full Name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Asha Roy"
+                placeholder=""
                 className="pl-10"
                 disabled={loading}
                 maxLength={200}
@@ -82,7 +82,7 @@ export const Signup: React.FC = () => {
                 label="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="asha@example.com"
+                placeholder=""
                 className="pl-10"
                 disabled={loading}
                 maxLength={255}
@@ -96,7 +96,7 @@ export const Signup: React.FC = () => {
                 label="Phone Number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="9876543210"
+                placeholder=""
                 className="pl-10"
                 disabled={loading}
                 maxLength={10}

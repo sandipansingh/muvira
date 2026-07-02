@@ -75,7 +75,9 @@ export const OrdersList: React.FC = () => {
 
       // Silent background tracking sync for any active/transit shipments on this page
       const activeOrders = res.data.filter(
-        (o) => o.awbCode && !['delivered', 'cancelled', 'returned', 'refunded', 'lost', 'damaged'].includes(o.status)
+        (o) =>
+          o.awbCode &&
+          !['delivered', 'cancelled', 'returned', 'refunded', 'lost', 'damaged'].includes(o.status)
       )
       if (activeOrders.length > 0) {
         adminApiService.syncTrackingOrders().then((syncRes) => {

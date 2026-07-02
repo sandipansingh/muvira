@@ -71,19 +71,15 @@ const AdminLayout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-lightgrayColor flex">
-      <div className="hidden lg:block w-64 shrink-0">
+    <div className="admin-theme min-h-screen bg-lightgrayColor flex text-darkColor">
+      <div className="hidden lg:block w-64 shrink-0 h-screen sticky top-0 bg-white">
         <AdminSidebar />
       </div>
 
       {/* Mobile drawer */}
-      <Sheet
-        isOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-        title="Admin Navigation"
-      >
-        <div className="-mx-5 -mt-5">
-          <AdminSidebar />
+      <Sheet isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} hideHeader={true}>
+        <div className="-mx-5 -my-5 h-[calc(100%+2.5rem)]">
+          <AdminSidebar onClose={() => setMobileMenuOpen(false)} />
         </div>
       </Sheet>
 

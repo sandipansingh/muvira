@@ -29,14 +29,19 @@ const tokenBucket: TokenBucket = { tokens: MAX_REQUESTS_PER_SEC, lastRefill: Dat
 function acquireToken(): void {
   const now = Date.now()
   const elapsed = (now - tokenBucket.lastRefill) / 1000
-  tokenBucket.tokens = Math.min(MAX_REQUESTS_PER_SEC, tokenBucket.tokens + elapsed * MAX_REQUESTS_PER_SEC)
+  tokenBucket.tokens = Math.min(
+    MAX_REQUESTS_PER_SEC,
+    tokenBucket.tokens + elapsed * MAX_REQUESTS_PER_SEC
+  )
   tokenBucket.lastRefill = now
 
   if (tokenBucket.tokens < 1) {
     const waitMs = Math.ceil(((1 - tokenBucket.tokens) / MAX_REQUESTS_PER_SEC) * 1000)
     logger.warn({ waitMs }, 'Shiprocket rate limit: token bucket empty, delaying')
     const waitStart = Date.now()
-    while (Date.now() - waitStart < waitMs) { /* busy-wait for simplicity; at this scale it's fine */ }
+    while (Date.now() - waitStart < waitMs) {
+      /* busy-wait for simplicity; at this scale it's fine */
+    }
     tokenBucket.tokens = 1
     tokenBucket.lastRefill = Date.now()
   }
@@ -46,14 +51,27 @@ function acquireToken(): void {
 // --- Error Classification ---
 
 export interface ShiprocketError extends Error {
-  type: 'RATE_LIMITED' | 'SERVER_ERROR' | 'AUTH_EXPIRED' | 'ALREADY_DONE' | 'BAD_REQUEST' | 'TIMEOUT' | 'NETWORK' | 'UNKNOWN'
+  type:
+    | 'RATE_LIMITED'
+    | 'SERVER_ERROR'
+    | 'AUTH_EXPIRED'
+    | 'ALREADY_DONE'
+    | 'BAD_REQUEST'
+    | 'TIMEOUT'
+    | 'NETWORK'
+    | 'UNKNOWN'
   statusCode?: number
   retryable: boolean
   retryAfterMs?: number
   shouldRefreshToken?: boolean
 }
 
-function classifyError(status: number, body: string, isTimeout: boolean, isNetworkError: boolean): ShiprocketError {
+function classifyError(
+  status: number,
+  body: string,
+  isTimeout: boolean,
+  isNetworkError: boolean
+): ShiprocketError {
   const err = new Error() as ShiprocketError
   err.type = 'UNKNOWN'
   err.retryable = false
@@ -100,7 +118,10 @@ function classifyError(status: number, body: string, isTimeout: boolean, isNetwo
     return err
   }
 
-  if (status === 400 && (body.toLowerCase().includes('already') || body.toLowerCase().includes('generated'))) {
+  if (
+    status === 400 &&
+    (body.toLowerCase().includes('already') || body.toLowerCase().includes('generated'))
+  ) {
     err.type = 'ALREADY_DONE'
     err.retryable = false
     err.message = `Shiprocket already done (400): ${body}`
@@ -224,7 +245,10 @@ async function apiFetch<T>(
       }
 
       const contentType = res.headers.get('content-type') ?? ''
-      if (contentType.includes('application/pdf') || contentType.includes('application/octet-stream')) {
+      if (
+        contentType.includes('application/pdf') ||
+        contentType.includes('application/octet-stream')
+      ) {
         recordShiprocketCall(Date.now() - callStart)
         reportShiprocketSuccess()
         return (await res.arrayBuffer()) as unknown as T
@@ -237,7 +261,10 @@ async function apiFetch<T>(
       if (err instanceof DOMException && err.name === 'AbortError') {
         lastError = classifyError(0, '', true, false)
         recordShiprocketCallTimedOut()
-      } else if (err instanceof TypeError && (err.message.includes('fetch') || err.message.includes('network'))) {
+      } else if (
+        err instanceof TypeError &&
+        (err.message.includes('fetch') || err.message.includes('network'))
+      ) {
         lastError = classifyError(0, '', false, true)
         recordShiprocketCallFailed()
       } else if ((err as ShiprocketError).type) {
@@ -254,7 +281,7 @@ async function apiFetch<T>(
       if (!lastError.retryable || attempt >= maxRetries) break
 
       recordShiprocketCallRetried()
-      const delay = lastError.retryAfterMs ?? 1000 * (2 ** attempt)
+      const delay = lastError.retryAfterMs ?? 1000 * 2 ** attempt
       logger.warn(
         { path, attempt: attempt + 1, maxRetries, delay, type: lastError.type },
         `Shiprocket: retrying after ${delay}ms`
@@ -363,8 +390,8 @@ export interface ShiprocketUpdateOrderInput {
 export interface ShiprocketAssignAwbInput {
   shipment_id: number
   courier_id?: number
-  is_return?: number  // 0 = normal order, 1 = return order
-  status?: string     // 'reassign' to change courier (once per 24h)
+  is_return?: number // 0 = normal order, 1 = return order
+  status?: string // 'reassign' to change courier (once per 24h)
 }
 
 export interface ShiprocketAssignAwbResponse {
@@ -537,13 +564,18 @@ export async function checkServiceability(
     `/courier/serviceability/?${params.toString()}`
   )
   const raw = result as Record<string, unknown>
-  logger.info({ serviceabilityRaw: JSON.stringify(raw).slice(0, 500) }, 'Shiprocket serviceability raw response')
+  logger.info(
+    { serviceabilityRaw: JSON.stringify(raw).slice(0, 500) },
+    'Shiprocket serviceability raw response'
+  )
 
   const str = (v: unknown, fallback = ''): string => (typeof v === 'string' ? v : fallback)
   const num = (v: unknown, fallback = 0): number => (typeof v === 'number' ? v : fallback)
   const bol = (v: unknown): boolean => v === true || v === 1 || v === '1'
 
-  function mapCourierList(companies: Array<Record<string, unknown>>): ShiprocketServiceabilityResponse['data']['available_courier'] {
+  function mapCourierList(
+    companies: Array<Record<string, unknown>>
+  ): ShiprocketServiceabilityResponse['data']['available_courier'] {
     return companies.map((c) => ({
       courier_name: str(c['courier_name']) || str(c['name']),
       courier_id: num(c['courier_company_id']) || num(c['courier_id']) || num(c['id']),
@@ -556,13 +588,21 @@ export async function checkServiceability(
   const topData = raw['data'] as Record<string, unknown> | undefined
 
   if (topData?.['available_courier_companies']) {
-    return { available_courier: mapCourierList(topData['available_courier_companies'] as Array<Record<string, unknown>>) }
+    return {
+      available_courier: mapCourierList(
+        topData['available_courier_companies'] as Array<Record<string, unknown>>
+      ),
+    }
   }
   if (topData?.['available_courier']) {
     return topData as unknown as ShiprocketServiceabilityResponse['data']
   }
   if (raw['available_courier_companies']) {
-    return { available_courier: mapCourierList(raw['available_courier_companies'] as Array<Record<string, unknown>>) }
+    return {
+      available_courier: mapCourierList(
+        raw['available_courier_companies'] as Array<Record<string, unknown>>
+      ),
+    }
   }
   if (raw['available_courier']) {
     return raw as unknown as ShiprocketServiceabilityResponse['data']
@@ -614,7 +654,9 @@ export async function updateOrder(input: ShiprocketUpdateOrderInput): Promise<{ 
 export async function assignAwb(
   input: ShiprocketAssignAwbInput
 ): Promise<ShiprocketAssignAwbResponse> {
-  const result = await apiFetch<ShiprocketAssignAwbResponse | { data: ShiprocketAssignAwbResponse }>('/courier/assign/awb', {
+  const result = await apiFetch<
+    ShiprocketAssignAwbResponse | { data: ShiprocketAssignAwbResponse }
+  >('/courier/assign/awb', {
     method: 'POST',
     body: input,
   })
@@ -666,7 +708,9 @@ export async function generateLabel(shipmentId: number): Promise<ShiprocketGener
 // 8. Generate Manifest
 //
 
-export async function generateManifest(shipmentId?: number): Promise<ShiprocketGenerateManifestResponse> {
+export async function generateManifest(
+  shipmentId?: number
+): Promise<ShiprocketGenerateManifestResponse> {
   return apiFetch<ShiprocketGenerateManifestResponse>('/manifests/generate', {
     method: 'POST',
     body: shipmentId != null ? { shipment_id: [shipmentId] } : {},
@@ -712,9 +756,7 @@ export async function trackBulk(
 export async function trackByOrder(
   orderId: number
 ): Promise<{ tracking_data: ShiprocketTrackData }> {
-  return apiFetch<{ tracking_data: ShiprocketTrackData }>(
-    `/courier/track?order_id=${orderId}`
-  )
+  return apiFetch<{ tracking_data: ShiprocketTrackData }>(`/courier/track?order_id=${orderId}`)
 }
 
 //
@@ -724,16 +766,16 @@ export async function trackByOrder(
 export async function trackByShipment(
   shipmentId: number
 ): Promise<{ tracking_data: ShiprocketTrackData }> {
-  return apiFetch<{ tracking_data: ShiprocketTrackData }>(
-    `/courier/track/shipment/${shipmentId}`
-  )
+  return apiFetch<{ tracking_data: ShiprocketTrackData }>(`/courier/track/shipment/${shipmentId}`)
 }
 
 //
 // 14. Cancel Order
 //
 
-export async function cancelOrder(input: ShiprocketCancelOrderInput): Promise<Record<string, unknown>> {
+export async function cancelOrder(
+  input: ShiprocketCancelOrderInput
+): Promise<Record<string, unknown>> {
   return apiFetch<Record<string, unknown>>('/orders/cancel', {
     method: 'POST',
     body: input,
@@ -785,7 +827,9 @@ export interface ShiprocketGenerateInvoiceResponse {
   not_created?: number[]
 }
 
-export async function generateInvoice(orderIds: number[]): Promise<ShiprocketGenerateInvoiceResponse> {
+export async function generateInvoice(
+  orderIds: number[]
+): Promise<ShiprocketGenerateInvoiceResponse> {
   return apiFetch<ShiprocketGenerateInvoiceResponse>('/orders/print/invoice', {
     method: 'POST',
     body: { ids: orderIds },

@@ -2,10 +2,7 @@ import cron, { type ScheduledTask } from 'node-cron'
 import { adminSupabase } from '../lib/supabase/admin'
 import { trackBulk } from './shiprocket'
 import { logger } from '../lib/logger'
-import {
-  shiprocketStatusToOrderStatus,
-  isValidTransition,
-} from '../modules/orders/stateMachine'
+import { shiprocketStatusToOrderStatus, isValidTransition } from '../modules/orders/stateMachine'
 import { emitStatusChangeEvents } from './eventBus'
 import { processRetryJobs } from './retryWorker'
 import { writeTrackingSnapshot } from './trackingAnalytics'
@@ -120,7 +117,7 @@ async function pollActiveShipments(
         writeTrackingSnapshot({
           orderId: order.id,
           awbCode: awb,
-          shipmentId: (order as Record<string, unknown>)['shipment_id'] as string | null ?? null,
+          shipmentId: ((order as Record<string, unknown>)['shipment_id'] as string | null) ?? null,
           courierName: trackingInfo.courier_name ?? null,
           currentStatus: trackingInfo.current_status,
           origin: trackingInfo.origin ?? null,

@@ -62,10 +62,7 @@ orderEvents.setMaxListeners(50)
  * All listeners are invoked asynchronously. Failures in listeners are caught
  * and logged — they never propagate to the caller.
  */
-export function emitOrderEvent(
-  event: OrderDomainEvent,
-  payload: OrderEventPayload
-): void {
+export function emitOrderEvent(event: OrderDomainEvent, payload: OrderEventPayload): void {
   setImmediate(() => {
     try {
       orderEvents.emit(event, payload)

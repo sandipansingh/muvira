@@ -17,10 +17,7 @@ import {
 } from '../../services/shiprocket'
 import { logger } from '../../lib/logger'
 import { emitStatusChangeEvents } from '../../services/eventBus'
-import {
-  shiprocketStatusToOrderStatus,
-  isValidTransition,
-} from './stateMachine'
+import { shiprocketStatusToOrderStatus, isValidTransition } from './stateMachine'
 import type {
   ListOrdersQuery,
   AdminListOrdersQuery,
@@ -64,7 +61,7 @@ export async function listUserOrders(
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch orders')
 
-  const orders = data as Order[] ?? []
+  const orders = (data as Order[]) ?? []
 
   return {
     orders,
@@ -428,7 +425,8 @@ async function buildShiprocketOrderPayload(
   overrides: ShiprocketOrderOverrides
 ) {
   // Resolve weight: override > order.package_weight_grams > compute from products > default 500g
-  let weightGrams = overrides.weightGrams ?? (order['package_weight_grams'] as number | undefined) ?? 0
+  let weightGrams =
+    overrides.weightGrams ?? (order['package_weight_grams'] as number | undefined) ?? 0
   if (weightGrams <= 0) {
     const productIds = orderItems
       .map((i) => (i as unknown as { product_id: string }).product_id)
@@ -441,7 +439,10 @@ async function buildShiprocketOrderPayload(
       if (products && products.length > 0) {
         const weightMap = new Map(products.map((p) => [p.id, p.weight_grams ?? 200]))
         weightGrams = orderItems.reduce(
-          (sum, item) => sum + (weightMap.get((item as unknown as { product_id: string }).product_id) ?? 200) * item.quantity,
+          (sum, item) =>
+            sum +
+            (weightMap.get((item as unknown as { product_id: string }).product_id) ?? 200) *
+              item.quantity,
           0
         )
       }
@@ -457,10 +458,26 @@ async function buildShiprocketOrderPayload(
     .single()
   const defaults = (settingsData?.value as Record<string, number | string>) ?? {}
 
-  const lengthCm = overrides.lengthCm ?? (order['package_length_cm'] as number) ?? (defaults['default_length_cm'] as number) ?? 15
-  const breadthCm = overrides.breadthCm ?? (order['package_breadth_cm'] as number) ?? (defaults['default_breadth_cm'] as number) ?? 10
-  const heightCm = overrides.heightCm ?? (order['package_height_cm'] as number) ?? (defaults['default_height_cm'] as number) ?? 5
-  const pickupLocation = overrides.pickupLocation ?? (order['pickup_location'] as string) ?? (defaults['pickup_location'] as string) ?? ''
+  const lengthCm =
+    overrides.lengthCm ??
+    (order['package_length_cm'] as number) ??
+    (defaults['default_length_cm'] as number) ??
+    15
+  const breadthCm =
+    overrides.breadthCm ??
+    (order['package_breadth_cm'] as number) ??
+    (defaults['default_breadth_cm'] as number) ??
+    10
+  const heightCm =
+    overrides.heightCm ??
+    (order['package_height_cm'] as number) ??
+    (defaults['default_height_cm'] as number) ??
+    5
+  const pickupLocation =
+    overrides.pickupLocation ??
+    (order['pickup_location'] as string) ??
+    (defaults['pickup_location'] as string) ??
+    ''
 
   // Build items
   const srItems = orderItems.map((item) => ({
@@ -493,15 +510,17 @@ async function buildShiprocketOrderPayload(
     billing_customer_name: firstName,
     billing_last_name: lastName,
     billing_address: fullAddress,
-    billing_city: (order['shipping_city'] as string),
-    billing_pincode: (order['shipping_pincode'] as string),
-    billing_state: (order['shipping_state'] as string),
+    billing_city: order['shipping_city'] as string,
+    billing_pincode: order['shipping_pincode'] as string,
+    billing_state: order['shipping_state'] as string,
     billing_country: (order['shipping_country'] as string) ?? 'India',
     billing_email: '',
-    billing_phone: (order['shipping_phone'] as string),
+    billing_phone: order['shipping_phone'] as string,
     shipping_is_billing: true,
     order_items: srItems,
-    payment_method: (overrides.paymentMethod as 'Prepaid' | 'COD') ?? ((order['payment_status'] === 'paid' ? 'Prepaid' : 'COD') as 'Prepaid' | 'COD'),
+    payment_method:
+      (overrides.paymentMethod as 'Prepaid' | 'COD') ??
+      ((order['payment_status'] === 'paid' ? 'Prepaid' : 'COD') as 'Prepaid' | 'COD'),
     sub_total: Math.round((order['subtotal_paisa'] as number) / 100),
     shipping_charges: Math.round(((order['shipping_amount_paisa'] as number) ?? 0) / 100),
     total_discount: Math.round(((order['discount_amount_paisa'] as number) ?? 0) / 100),
@@ -539,13 +558,21 @@ async function createShiprocketOrderInternal(
   }
 
   if (order.shiprocket_order_id && order.shipment_id) {
-    logger.info({ orderId, shiprocketOrderId: order.shiprocket_order_id }, 'Shiprocket order already exists - reusing')
-    return { shiprocket_order_id: Number(order.shiprocket_order_id), shipment_id: Number(order.shipment_id) }
+    logger.info(
+      { orderId, shiprocketOrderId: order.shiprocket_order_id },
+      'Shiprocket order already exists - reusing'
+    )
+    return {
+      shiprocket_order_id: Number(order.shiprocket_order_id),
+      shipment_id: Number(order.shipment_id),
+    }
   }
 
   const orderItems = order.order_items as Array<{
-    product_name: string; product_sku: string | null
-    quantity: number; unit_price_paisa: number
+    product_name: string
+    product_sku: string | null
+    quantity: number
+    unit_price_paisa: number
   }>
 
   await adminSupabase
@@ -561,7 +588,8 @@ async function createShiprocketOrderInternal(
     const responseData = rawResult['data'] as Record<string, unknown> | undefined
     const resolved = responseData ?? rawResult
 
-    const shiprocketOrderId = (resolved['shiprocket_order_id'] as number) ?? (resolved['order_id'] as number)
+    const shiprocketOrderId =
+      (resolved['shiprocket_order_id'] as number) ?? (resolved['order_id'] as number)
     const shipmentId = resolved['shipment_id'] as number | undefined
 
     if (!shiprocketOrderId) {
@@ -600,10 +628,7 @@ async function createShiprocketOrderInternal(
 // Admin create shipment - validates pickup location, then creates Shiprocket order
 //
 
-export async function adminCreateShipment(
-  orderId: string,
-  pickupLocation: string
-): Promise<Order> {
+export async function adminCreateShipment(orderId: string, pickupLocation: string): Promise<Order> {
   // Fetch available pickup locations from Shiprocket to validate
   let availableLocations: Array<{ pickup_location: string }> = []
   try {
@@ -618,7 +643,9 @@ export async function adminCreateShipment(
     )
     if (!valid) {
       const names = availableLocations.map((l) => `"${l.pickup_location}"`).join(', ')
-      throw new AppError(400, 'INVALID_PICKUP_LOCATION',
+      throw new AppError(
+        400,
+        'INVALID_PICKUP_LOCATION',
         `Invalid pickup location "${pickupLocation}". Available: ${names}`
       )
     }
@@ -626,7 +653,11 @@ export async function adminCreateShipment(
 
   const result = await createShiprocketOrder(orderId, pickupLocation)
   if (!result) {
-    throw new AppError(502, 'SHIPROCKET_FAILED', 'Failed to create Shiprocket order. Check error log.')
+    throw new AppError(
+      502,
+      'SHIPROCKET_FAILED',
+      'Failed to create Shiprocket order. Check error log.'
+    )
   }
 
   return adminGetOrder(orderId)
@@ -688,7 +719,9 @@ export async function getOrderTracking(
 // Admin Shiprocket Actions
 //
 
-async function getOrderShipmentId(orderId: string): Promise<{ shipmentId: number; awbCode: string | null }> {
+async function getOrderShipmentId(
+  orderId: string
+): Promise<{ shipmentId: number; awbCode: string | null }> {
   const { data: order } = await adminSupabase
     .from('orders')
     .select('shipment_id, awb_code')
@@ -696,15 +729,17 @@ async function getOrderShipmentId(orderId: string): Promise<{ shipmentId: number
     .single()
 
   if (!order) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  if (!order.shipment_id) throw new AppError(400, 'NO_SHIPMENT', 'No Shiprocket shipment_id found. Create a Shiprocket order first.')
+  if (!order.shipment_id)
+    throw new AppError(
+      400,
+      'NO_SHIPMENT',
+      'No Shiprocket shipment_id found. Create a Shiprocket order first.'
+    )
 
   return { shipmentId: Number(order.shipment_id), awbCode: order.awb_code }
 }
 
-export async function adminAssignAwb(
-  orderId: string,
-  input: AssignAwbInput
-): Promise<Order> {
+export async function adminAssignAwb(orderId: string, input: AssignAwbInput): Promise<Order> {
   const { shipmentId } = await getOrderShipmentId(orderId)
 
   const result = await shiprocketAssignAwb({
@@ -753,7 +788,10 @@ export async function adminGenerateManifest(orderId: string): Promise<Buffer> {
   return adminGenerateDocument(orderId, 'manifest')
 }
 
-async function adminGenerateDocument(orderId: string, docType: 'label' | 'manifest'): Promise<Buffer> {
+async function adminGenerateDocument(
+  orderId: string,
+  docType: 'label' | 'manifest'
+): Promise<Buffer> {
   const { shipmentId } = await getOrderShipmentId(orderId)
   const name = docType === 'label' ? 'Label' : 'Manifest'
 
@@ -777,7 +815,9 @@ async function adminGenerateDocument(orderId: string, docType: 'label' | 'manife
     try {
       const shipment = await shiprocketGetShipmentDetails(shipmentId)
       docUrl = docType === 'label' ? (shipment.label_url ?? null) : (shipment.manifest_url ?? null)
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   if (!docUrl) {
@@ -846,7 +886,9 @@ export async function adminGenerateInvoice(orderId: string): Promise<Buffer> {
   return Buffer.from(arrayBuf)
 }
 
-export async function adminCancelShiprocketOrder(orderId: string): Promise<Record<string, unknown>> {
+export async function adminCancelShiprocketOrder(
+  orderId: string
+): Promise<Record<string, unknown>> {
   const { data: order } = await adminSupabase
     .from('orders')
     .select('shiprocket_order_id')
@@ -854,7 +896,8 @@ export async function adminCancelShiprocketOrder(orderId: string): Promise<Recor
     .single()
 
   if (!order) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  if (!order.shiprocket_order_id) throw new AppError(400, 'NO_SHIPROCKET_ORDER', 'No Shiprocket order exists')
+  if (!order.shiprocket_order_id)
+    throw new AppError(400, 'NO_SHIPROCKET_ORDER', 'No Shiprocket order exists')
 
   const result = await shiprocketCancelOrder({
     ids: [Number(order.shiprocket_order_id)],
@@ -867,10 +910,7 @@ export async function adminCancelShiprocketOrder(orderId: string): Promise<Recor
     .single()
   const oldStatus = beforeCancel?.status as string | undefined
 
-  await adminSupabase
-    .from('orders')
-    .update({ status: 'cancelled' })
-    .eq('id', orderId)
+  await adminSupabase.from('orders').update({ status: 'cancelled' }).eq('id', orderId)
 
   if (oldStatus) {
     recordStatusChange({
@@ -882,7 +922,10 @@ export async function adminCancelShiprocketOrder(orderId: string): Promise<Recor
   }
 
   invalidateOn('ORDER_UPDATED', { id: orderId, userId: '' })
-  logger.info({ orderId, shiprocketOrderId: order.shiprocket_order_id }, 'Shiprocket order cancelled')
+  logger.info(
+    { orderId, shiprocketOrderId: order.shiprocket_order_id },
+    'Shiprocket order cancelled'
+  )
   return result
 }
 
@@ -894,7 +937,8 @@ export async function adminCancelShiprocketShipment(orderId: string): Promise<{ 
     .single()
 
   if (!order) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  if (!order.awb_code) throw new AppError(400, 'NO_AWB', 'No AWB code found. Cannot cancel shipment.')
+  if (!order.awb_code)
+    throw new AppError(400, 'NO_AWB', 'No AWB code found. Cannot cancel shipment.')
 
   const result = await shiprocketCancelShipment({
     awbs: [order.awb_code],
@@ -907,10 +951,7 @@ export async function adminCancelShiprocketShipment(orderId: string): Promise<{ 
     .single()
   const oldShipStatus = beforeCancelShip?.status as string | undefined
 
-  await adminSupabase
-    .from('orders')
-    .update({ status: 'cancelled' })
-    .eq('id', orderId)
+  await adminSupabase.from('orders').update({ status: 'cancelled' }).eq('id', orderId)
 
   if (oldShipStatus) {
     recordStatusChange({
@@ -982,16 +1023,19 @@ export async function adminFulfillOrder(
     failed_step: step,
   })
 
-  let { data: orderRaw } = await adminSupabase
-    .from('orders')
-    .select('*')
-    .eq('id', orderId)
-    .single()
+  let { data: orderRaw } = await adminSupabase.from('orders').select('*').eq('id', orderId).single()
 
   if (!orderRaw) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
   const currentStep = orderRaw['fulfillment_step'] as string | null
-  const FULFILLMENT_STEPS = ['idle', 'order_created', 'awb_assigned', 'pickup_scheduled', 'label_generated', 'manifest_generated'] as const
+  const FULFILLMENT_STEPS = [
+    'idle',
+    'order_created',
+    'awb_assigned',
+    'pickup_scheduled',
+    'label_generated',
+    'manifest_generated',
+  ] as const
 
   // Returns true if the step should be attempted (hasn't been completed yet).
   // currentStep === null means no steps have been run yet.
@@ -1017,8 +1061,15 @@ export async function adminFulfillOrder(
       if (!result) throw new Error('Shiprocket order creation returned null')
       savedShiprocketOrderId = result.shiprocket_order_id
       savedShipmentId = result.shipment_id
-      steps.push({ step: 'order_created', status: 'completed', details: { shiprocket_order_id: savedShiprocketOrderId, shipment_id: savedShipmentId } })
-      await adminSupabase.from('orders').update({ fulfillment_step: 'order_created' }).eq('id', orderId)
+      steps.push({
+        step: 'order_created',
+        status: 'completed',
+        details: { shiprocket_order_id: savedShiprocketOrderId, shipment_id: savedShipmentId },
+      })
+      await adminSupabase
+        .from('orders')
+        .update({ fulfillment_step: 'order_created' })
+        .eq('id', orderId)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       logger.error({ err, orderId }, 'Fulfill Step 1 failed: create Shiprocket order')
@@ -1028,7 +1079,9 @@ export async function adminFulfillOrder(
   } else {
     steps.push({ step: 'order_created', status: 'skipped' })
     // Restore saved state from DB for retry
-    savedShiprocketOrderId = orderRaw['shiprocket_order_id'] ? Number(orderRaw['shiprocket_order_id']) : null
+    savedShiprocketOrderId = orderRaw['shiprocket_order_id']
+      ? Number(orderRaw['shiprocket_order_id'])
+      : null
     savedShipmentId = orderRaw['shipment_id'] ? Number(orderRaw['shipment_id']) : null
   }
 
@@ -1054,8 +1107,9 @@ export async function adminFulfillOrder(
       const respObj = rawAssign['response'] as Record<string, unknown> | undefined
       const respData = respObj?.['data'] as Record<string, unknown> | undefined
 
-      let awbData: { awb_code?: string; courier_name?: string } | undefined =
-        (respData?.awb_code ? respData : undefined) as { awb_code?: string; courier_name?: string } | undefined
+      let awbData: { awb_code?: string; courier_name?: string } | undefined = (
+        respData?.awb_code ? respData : undefined
+      ) as { awb_code?: string; courier_name?: string } | undefined
 
       // Fallback: response might be wrapped in a top-level 'data' key
       if (!awbData?.awb_code) {
@@ -1063,22 +1117,30 @@ export async function adminFulfillOrder(
         if (topData) {
           const innerResp = topData['response'] as Record<string, unknown> | undefined
           const innerData = innerResp?.['data'] as Record<string, unknown> | undefined
-          if (innerData?.awb_code) awbData = innerData as { awb_code?: string; courier_name?: string }
+          if (innerData?.awb_code)
+            awbData = innerData as { awb_code?: string; courier_name?: string }
         }
       }
 
       // Final fallback: check if awb_code is directly on respData or resp array
       if (!awbData?.awb_code) {
-        const respArr = respObj ? ([respObj] as Record<string, unknown>[]) : (rawAssign['response'] as Record<string, unknown>[] | undefined)
+        const respArr = respObj
+          ? ([respObj] as Record<string, unknown>[])
+          : (rawAssign['response'] as Record<string, unknown>[] | undefined)
         if (respArr && respArr.length > 0) {
           awbData = respArr[0] as { awb_code?: string; courier_name?: string }
         }
       }
 
-      logger.info({ orderId, shipmentId, assignResp: JSON.stringify(rawAssign) }, 'AWB assignment response')
+      logger.info(
+        { orderId, shipmentId, assignResp: JSON.stringify(rawAssign) },
+        'AWB assignment response'
+      )
 
       if (!awbData?.awb_code) {
-        throw new Error('Shiprocket AWB assignment returned no AWB code. The order may need manual processing in the Shiprocket dashboard.')
+        throw new Error(
+          'Shiprocket AWB assignment returned no AWB code. The order may need manual processing in the Shiprocket dashboard.'
+        )
       }
       savedAwbCode = awbData.awb_code
       savedCourierName = awbData.courier_name ?? null
@@ -1091,7 +1153,11 @@ export async function adminFulfillOrder(
           fulfillment_step: 'awb_assigned',
         })
         .eq('id', orderId)
-      steps.push({ step: 'awb_assigned', status: 'completed', details: { awb_code: savedAwbCode, courier_name: savedCourierName } })
+      steps.push({
+        step: 'awb_assigned',
+        status: 'completed',
+        details: { awb_code: savedAwbCode, courier_name: savedCourierName },
+      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       logger.error({ err, orderId }, 'Fulfill Step 2 failed: assign AWB')
@@ -1121,7 +1187,11 @@ export async function adminFulfillOrder(
           fulfillment_step: 'pickup_scheduled',
         })
         .eq('id', orderId)
-      steps.push({ step: 'pickup_scheduled', status: 'completed', details: { pickup_scheduled_date: savedPickupDate, pickup_token_number: tokenNumber } })
+      steps.push({
+        step: 'pickup_scheduled',
+        status: 'completed',
+        details: { pickup_scheduled_date: savedPickupDate, pickup_token_number: tokenNumber },
+      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       logger.error({ err, orderId }, 'Fulfill Step 3 failed: schedule pickup')
@@ -1142,7 +1212,11 @@ export async function adminFulfillOrder(
         .from('orders')
         .update({ label_generated: true, fulfillment_step: 'label_generated' })
         .eq('id', orderId)
-      steps.push({ step: 'label_generated', status: 'completed', details: { label_url: labelResp.label_url } })
+      steps.push({
+        step: 'label_generated',
+        status: 'completed',
+        details: { label_url: labelResp.label_url },
+      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       logger.error({ err, orderId }, 'Fulfill Step 4 failed: generate label')
@@ -1163,7 +1237,11 @@ export async function adminFulfillOrder(
         .from('orders')
         .update({ manifest_generated: true, fulfillment_step: 'manifest_generated' })
         .eq('id', orderId)
-      steps.push({ step: 'manifest_generated', status: 'completed', details: { manifest_url: manifestResp.manifest_url } })
+      steps.push({
+        step: 'manifest_generated',
+        status: 'completed',
+        details: { manifest_url: manifestResp.manifest_url },
+      })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       logger.error({ err, orderId }, 'Fulfill Step 5 failed: generate manifest')

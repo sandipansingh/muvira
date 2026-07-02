@@ -16,11 +16,7 @@ import { adminSupabase } from '../../lib/supabase/admin'
  * Returns tracking data for a single AWB from our DB.
  * Matches the ShiprocketTrackData shape so the client component works unchanged.
  */
-export async function trackByAwb(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function trackByAwb(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const awb = req.params['awb'] as string
     if (!awb || awb.trim() === '') {
@@ -124,7 +120,7 @@ async function buildTrackingData(awbCode: string): Promise<{
     return {
       date: evt.event_time,
       status: evt.status,
-      activity: (evt.remarks as string) ?? (evt.status),
+      activity: (evt.remarks as string) ?? evt.status,
       location: evt.location ?? '',
       'sr-status': payload['sr-status'] ?? evt.status,
       'sr-status-label': payload['sr-status-label'] ?? evt.status,

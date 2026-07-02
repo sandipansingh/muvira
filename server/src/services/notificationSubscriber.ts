@@ -51,10 +51,7 @@ async function canSendNotification(userId: string): Promise<boolean> {
   return prefs?.email_enabled !== false
 }
 
-async function isDuplicateNotification(
-  orderId: string,
-  eventType: string
-): Promise<boolean> {
+async function isDuplicateNotification(orderId: string, eventType: string): Promise<boolean> {
   const { data: existing } = await adminSupabase
     .from('notification_logs')
     .select('id')
@@ -95,11 +92,17 @@ async function sendEmail(params: {
       return
     }
     if (!(await canSendNotification(params.userId))) {
-      logger.info({ orderId: params.orderId, eventType: params.eventType }, 'NotificationSubscriber: user disabled emails')
+      logger.info(
+        { orderId: params.orderId, eventType: params.eventType },
+        'NotificationSubscriber: user disabled emails'
+      )
       return
     }
     if (await isDuplicateNotification(params.orderId, params.eventType)) {
-      logger.info({ orderId: params.orderId, eventType: params.eventType }, 'NotificationSubscriber: duplicate skipped')
+      logger.info(
+        { orderId: params.orderId, eventType: params.eventType },
+        'NotificationSubscriber: duplicate skipped'
+      )
       return
     }
 
@@ -110,15 +113,16 @@ async function sendEmail(params: {
       html: params.html,
     })
     await recordNotification(params.orderId, params.userId, params.eventType)
-    logger.info({ orderId: params.orderId, eventType: params.eventType }, 'NotificationSubscriber: email sent')
+    logger.info(
+      { orderId: params.orderId, eventType: params.eventType },
+      'NotificationSubscriber: email sent'
+    )
   } catch (err) {
     logger.error({ err, orderId: params.orderId }, 'NotificationSubscriber: failed to send email')
   }
 }
 
-async function emailWrapper(
-  html: string
-): Promise<string> {
+async function emailWrapper(html: string): Promise<string> {
   return `
     <div style="max-width:600px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;line-height:1.6">
       <div style="text-align:center;padding:24px;background:#fafafa;border-bottom:3px solid #c4a777">
@@ -143,7 +147,9 @@ async function fetchOrderInfo(orderId: string): Promise<{
   try {
     const { data: order } = await adminSupabase
       .from('orders')
-      .select('order_number, total_amount_paisa, shipping_full_name, shipping_city, awb_code, courier_name')
+      .select(
+        'order_number, total_amount_paisa, shipping_full_name, shipping_city, awb_code, courier_name'
+      )
       .eq('id', orderId)
       .single()
     if (!order) return null
@@ -155,7 +161,9 @@ async function fetchOrderInfo(orderId: string): Promise<{
       awbCode: order.awb_code,
       courierName: order.courier_name,
     }
-  } catch { return null }
+  } catch {
+    return null
+  }
 }
 
 function totalRupees(paisa: number): string {
