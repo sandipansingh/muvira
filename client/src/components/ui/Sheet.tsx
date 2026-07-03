@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 
 interface SheetProps {
@@ -7,6 +8,7 @@ interface SheetProps {
   side?: 'left' | 'right'
   title?: string
   children: React.ReactNode
+  hideHeader?: boolean
 }
 
 export const Sheet: React.FC<SheetProps> = ({
@@ -15,6 +17,7 @@ export const Sheet: React.FC<SheetProps> = ({
   side = 'left',
   title,
   children,
+  hideHeader = false,
 }) => {
   // Prevent background scroll
   useEffect(() => {
@@ -38,7 +41,7 @@ export const Sheet: React.FC<SheetProps> = ({
   const anim =
     side === 'left' ? 'slideRight 0.3s ease-out forwards' : 'slideLeft 0.3s ease-out forwards'
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[99999] flex">
       {/* Backdrop */}
       <div
@@ -54,19 +57,21 @@ export const Sheet: React.FC<SheetProps> = ({
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-secondary200">
-          {title ? (
-            <h3 className="text-base font-semibold tracking-wide text-darkColor">{title}</h3>
-          ) : (
-            <div />
-          )}
-          <button
-            onClick={onClose}
-            className="text-secondary500 hover:text-darkColor p-1 rounded-full hover:bg-lightgrayColor focus:outline-none transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        {!hideHeader && (
+          <div className="flex items-center justify-between p-4 border-b border-secondary200">
+            {title ? (
+              <h3 className="text-base font-semibold tracking-wide text-darkColor">{title}</h3>
+            ) : (
+              <div />
+            )}
+            <button
+              onClick={onClose}
+              className="text-secondary500 hover:text-darkColor p-1 rounded-full hover:bg-lightgrayColor focus:outline-none transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        )}
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-5">{children}</div>
@@ -90,7 +95,8 @@ export const Sheet: React.FC<SheetProps> = ({
           }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   )
 }
 

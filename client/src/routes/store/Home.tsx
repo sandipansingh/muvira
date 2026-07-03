@@ -64,10 +64,12 @@ export const Home: React.FC = () => {
               <div className="overflow-hidden w-full md:rounded-lg">
                 <div
                   className="hero-track flex md:gap-4 md:rounded-lg transition-transform duration-500 ease-in-out"
-                  style={{
-                    '--slide-transform-mobile': `-${activeSlide * 100}%`,
-                    '--slide-transform-desktop': `calc(-${activeSlide * 100}% - ${activeSlide * 16}px)`
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      '--slide-transform-mobile': `-${activeSlide * 100}%`,
+                      '--slide-transform-desktop': `calc(-${activeSlide * 100}% - ${activeSlide * 16}px)`,
+                    } as React.CSSProperties
+                  }
                 >
                   {heroSlides.map((slide, idx) => (
                     <div

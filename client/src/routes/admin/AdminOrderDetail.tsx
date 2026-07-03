@@ -46,7 +46,14 @@ const FULFILLMENT_STEP_LABELS: Record<string, string> = {
   ready_for_pickup: 'Ready for Pickup',
 }
 
-const STEP_ORDER = ['order_created', 'awb_assigned', 'pickup_scheduled', 'label_generated', 'manifest_generated', 'ready_for_pickup']
+const STEP_ORDER = [
+  'order_created',
+  'awb_assigned',
+  'pickup_scheduled',
+  'label_generated',
+  'manifest_generated',
+  'ready_for_pickup',
+]
 
 export const AdminOrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -71,7 +78,14 @@ export const AdminOrderDetail: React.FC = () => {
 
   // Pickup locations
   const [pickupLocations, setPickupLocations] = useState<
-    Array<{ pickup_location: string; id: number; address: string; city: string; state: string; pin_code: string }>
+    Array<{
+      pickup_location: string
+      id: number
+      address: string
+      city: string
+      state: string
+      pin_code: string
+    }>
   >([])
   const [selectedPickup, setSelectedPickup] = useState('')
 
@@ -160,8 +174,7 @@ export const AdminOrderDetail: React.FC = () => {
       setCouriers(
         all.map((c) => ({
           ...c,
-          is_recommended:
-            res.data.recommended_courier?.courier_id === c.courier_id,
+          is_recommended: res.data.recommended_courier?.courier_id === c.courier_id,
         }))
       )
       // Auto-select recommended
@@ -213,7 +226,9 @@ export const AdminOrderDetail: React.FC = () => {
         showToast(res.data.error || 'Fulfillment failed. Check details.', 'error')
       }
     } else {
-      const errMsg = ('error' in res && res.error ? (res.error as { message: string }).message : null) || 'Fulfillment failed'
+      const errMsg =
+        ('error' in res && res.error ? (res.error as { message: string }).message : null) ||
+        'Fulfillment failed'
       setFulfillError(errMsg)
       showToast(errMsg, 'error')
     }
@@ -226,7 +241,9 @@ export const AdminOrderDetail: React.FC = () => {
   const handleDownloadLabel = async () => {
     if (!order) return
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       if (!session?.access_token) {
         showToast('Session expired. Please log in again.', 'error')
         return
@@ -254,7 +271,9 @@ export const AdminOrderDetail: React.FC = () => {
   const handleDownloadManifest = async () => {
     if (!order) return
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       if (!session?.access_token) {
         showToast('Session expired. Please log in again.', 'error')
         return
@@ -282,7 +301,9 @@ export const AdminOrderDetail: React.FC = () => {
   const handleDownloadInvoice = async () => {
     if (!order) return
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       if (!session?.access_token) {
         showToast('Session expired. Please log in again.', 'error')
         return
@@ -330,20 +351,27 @@ export const AdminOrderDetail: React.FC = () => {
   const volumetricWeight = Math.round((packageLength * packageBreadth * packageHeight) / 5000)
 
   if (loading) return <LoadingSpinner fullPage={true} />
-  if (error || !order) return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
-      <ErrorState message={error || 'Order not found.'} onRetry={fetchOrderDetails} />
-    </div>
-  )
+  if (error || !order)
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <ErrorState message={error || 'Order not found.'} onRetry={fetchOrderDetails} />
+      </div>
+    )
 
   const isFulfillmentComplete = order.fulfillmentStep === 'ready_for_pickup'
-  const isFulfillmentInProgress = order.fulfillmentStep && order.fulfillmentStep !== 'idle' && order.fulfillmentStep !== 'ready_for_pickup'
+  const isFulfillmentInProgress =
+    order.fulfillmentStep &&
+    order.fulfillmentStep !== 'idle' &&
+    order.fulfillmentStep !== 'ready_for_pickup'
 
   return (
     <div className="space-y-6 text-left max-w-6xl mx-auto pb-12">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link to="/admin/orders" className="border border-secondary300 bg-white p-2 rounded-full hover:bg-lightgrayColor transition-colors shrink-0">
+        <Link
+          to="/admin/orders"
+          className="border border-secondary300 bg-white p-2 rounded-full hover:bg-lightgrayColor transition-colors shrink-0"
+        >
           <ArrowLeft className="w-4.5 h-4.5 text-secondary700" />
         </Link>
         <div>
@@ -366,21 +394,29 @@ export const AdminOrderDetail: React.FC = () => {
             <CardContent className="text-left text-xs space-y-3">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-semibold text-darkColor">{order.customer?.fullName || order.shippingAddress.fullName}</span>
+                <span className="font-semibold text-darkColor">
+                  {order.customer?.fullName || order.shippingAddress.fullName}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-medium text-secondary700">{order.customer?.phone || order.shippingAddress.phone}</span>
+                <span className="font-medium text-secondary700">
+                  {order.customer?.phone || order.shippingAddress.phone}
+                </span>
               </div>
               {order.customer?.email && (
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-secondary400 shrink-0" />
-                  <span className="font-medium text-secondary700 truncate">{order.customer.email}</span>
+                  <span className="font-medium text-secondary700 truncate">
+                    {order.customer.email}
+                  </span>
                 </div>
               )}
               <div className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-medium text-secondary700 capitalize">{order.paymentStatus}</span>
+                <span className="font-medium text-secondary700 capitalize">
+                  {order.paymentStatus}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -398,15 +434,22 @@ export const AdminOrderDetail: React.FC = () => {
                     {order.shippingAddress.line1}
                     {order.shippingAddress.line2 && `, ${order.shippingAddress.line2}`}
                     <br />
-                    {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                    {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
+                    {order.shippingAddress.pincode}
                   </p>
-                  <p className="font-medium text-secondary700 mt-1">{order.shippingAddress.phone}</p>
+                  <p className="font-medium text-secondary700 mt-1">
+                    {order.shippingAddress.phone}
+                  </p>
                 </div>
               </div>
               {order.deliveryInstructions && (
                 <div className="mt-3 pt-3 border-t border-secondary200/50">
-                  <span className="text-[10px] uppercase tracking-wider text-secondary500 font-semibold">Instructions</span>
-                  <p className="text-secondary700 text-xs italic mt-1">{order.deliveryInstructions}</p>
+                  <span className="text-[10px] uppercase tracking-wider text-secondary500 font-semibold">
+                    Instructions
+                  </span>
+                  <p className="text-secondary700 text-xs italic mt-1">
+                    {order.deliveryInstructions}
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -424,17 +467,25 @@ export const AdminOrderDetail: React.FC = () => {
                 {order.items.map((item) => (
                   <div key={item.id} className="p-4 flex gap-4">
                     <div className="w-14 h-14 bg-lightgrayColor border border-secondary200 rounded overflow-hidden shrink-0">
-                      <img src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                      <img
+                        src={item.productImage}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-grow flex items-center justify-between gap-4">
                       <div>
-                        <h4 className="text-xs md:text-sm font-medium text-darkColor leading-snug">{item.productName}</h4>
+                        <h4 className="text-xs md:text-sm font-medium text-darkColor leading-snug">
+                          {item.productName}
+                        </h4>
                         <span className="text-[10px] text-secondary500 font-normal block mt-1">
                           Qty: {item.quantity} &times; {formatPrice(item.unitPrice)}
                         </span>
                       </div>
                       <div className="text-right whitespace-nowrap">
-                        <p className="text-xs font-medium text-darkColor">{formatPrice(item.totalPrice)}</p>
+                        <p className="text-xs font-medium text-darkColor">
+                          {formatPrice(item.totalPrice)}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -443,17 +494,23 @@ export const AdminOrderDetail: React.FC = () => {
               <div className="p-4 border-t border-secondary200 bg-lightgrayColor/20 space-y-1.5">
                 <div className="flex justify-between text-xs">
                   <span className="text-secondary500">Subtotal</span>
-                  <span className="text-secondary700 font-medium">{formatPrice(order.subtotal)}</span>
+                  <span className="text-secondary700 font-medium">
+                    {formatPrice(order.subtotal)}
+                  </span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className="flex justify-between text-xs">
                     <span className="text-secondary500">Discount</span>
-                    <span className="text-emerald-600 font-medium">-{formatPrice(order.discountAmount)}</span>
+                    <span className="text-emerald-600 font-medium">
+                      -{formatPrice(order.discountAmount)}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between text-xs">
                   <span className="text-secondary500">Shipping</span>
-                  <span className="text-secondary700 font-medium">{formatPrice(order.shippingAmount)}</span>
+                  <span className="text-secondary700 font-medium">
+                    {formatPrice(order.shippingAmount)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold pt-1.5 border-t border-secondary200">
                   <span className="text-darkColor">Total</span>
@@ -461,9 +518,14 @@ export const AdminOrderDetail: React.FC = () => {
                 </div>
                 {order.packageWeightGrams && (
                   <div className="flex items-center gap-4 pt-2 text-[10px] text-secondary500 uppercase tracking-wider">
-                    <span className="flex items-center gap-1"><Scale className="w-3 h-3" /> {order.packageWeightGrams}g</span>
+                    <span className="flex items-center gap-1">
+                      <Scale className="w-3 h-3" /> {order.packageWeightGrams}g
+                    </span>
                     {order.packageLengthCm && (
-                      <span className="flex items-center gap-1"><Ruler className="w-3 h-3" /> {order.packageLengthCm}&times;{order.packageBreadthCm}&times;{order.packageHeightCm} cm</span>
+                      <span className="flex items-center gap-1">
+                        <Ruler className="w-3 h-3" /> {order.packageLengthCm}&times;
+                        {order.packageBreadthCm}&times;{order.packageHeightCm} cm
+                      </span>
                     )}
                   </div>
                 )}
@@ -493,12 +555,16 @@ export const AdminOrderDetail: React.FC = () => {
             <CardContent className="space-y-4">
               {/* Fulfillment Status */}
               <div>
-                <span className="text-[10px] uppercase tracking-wider text-secondary500 font-semibold">Status</span>
+                <span className="text-[10px] uppercase tracking-wider text-secondary500 font-semibold">
+                  Status
+                </span>
                 <div className="mt-1">
                   {isFulfillmentComplete ? (
                     <div className="flex items-center gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
                       <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      <span className="text-xs font-semibold text-emerald-700">Ready for Pickup</span>
+                      <span className="text-xs font-semibold text-emerald-700">
+                        Ready for Pickup
+                      </span>
                     </div>
                   ) : isFulfillmentInProgress ? (
                     <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
@@ -513,14 +579,18 @@ export const AdminOrderDetail: React.FC = () => {
                       <div>
                         <span className="text-xs font-semibold text-rose-700">Failed</span>
                         {order.shiprocketError && (
-                          <p className="text-[10px] text-rose-600 mt-0.5">{order.shiprocketError}</p>
+                          <p className="text-[10px] text-rose-600 mt-0.5">
+                            {order.shiprocketError}
+                          </p>
                         )}
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 p-2.5 bg-secondary100 border border-secondary200 rounded-lg">
                       <Clock className="w-4 h-4 text-secondary400" />
-                      <span className="text-xs font-medium text-secondary600">Pending Fulfillment</span>
+                      <span className="text-xs font-medium text-secondary600">
+                        Pending Fulfillment
+                      </span>
                     </div>
                   )}
                 </div>
@@ -530,16 +600,22 @@ export const AdminOrderDetail: React.FC = () => {
               {(isFulfillmentInProgress || isFulfillmentComplete) && (
                 <div className="space-y-2 pt-2 border-t border-secondary200">
                   {order.shiprocketOrderId && (
-                    <div className="text-[10px] text-secondary500">Shiprocket ID: {order.shiprocketOrderId}</div>
+                    <div className="text-[10px] text-secondary500">
+                      Shiprocket ID: {order.shiprocketOrderId}
+                    </div>
                   )}
                   {order.shipmentId && (
-                    <div className="text-[10px] text-secondary500">Shipment ID: {order.shipmentId}</div>
+                    <div className="text-[10px] text-secondary500">
+                      Shipment ID: {order.shipmentId}
+                    </div>
                   )}
                   {order.awbCode && (
                     <div className="flex items-center gap-2 p-2.5 bg-secondary100 rounded-lg">
                       <Package className="w-4 h-4 text-primaryBg shrink-0" />
                       <div>
-                        <p className="text-[9px] uppercase tracking-wider text-secondary500 font-semibold">AWB</p>
+                        <p className="text-[9px] uppercase tracking-wider text-secondary500 font-semibold">
+                          AWB
+                        </p>
                         <p className="text-sm font-bold text-darkColor">{order.awbCode}</p>
                       </div>
                     </div>
@@ -560,13 +636,21 @@ export const AdminOrderDetail: React.FC = () => {
               {/* Action buttons */}
               <div className="space-y-2 pt-2 border-t border-secondary200">
                 {!order.shiprocketOrderId || order.shiprocketStatus === 'failed' ? (
-                  <Button onClick={handleOpenFulfillDialog} className="w-full text-xs font-medium" disabled={order.paymentStatus !== 'paid'}>
+                  <Button
+                    onClick={handleOpenFulfillDialog}
+                    className="w-full text-xs font-medium"
+                    disabled={order.paymentStatus !== 'paid'}
+                  >
                     <Send className="w-3.5 h-3.5" />
                     Create Shipment
                   </Button>
                 ) : (
                   <>
-                    <Button onClick={handleOpenFulfillDialog} variant="secondary" className="w-full text-xs font-medium">
+                    <Button
+                      onClick={handleOpenFulfillDialog}
+                      variant="secondary"
+                      className="w-full text-xs font-medium"
+                    >
                       <RefreshCw className="w-3.5 h-3.5" />
                       Resume / Retry Fulfillment
                     </Button>
@@ -574,17 +658,32 @@ export const AdminOrderDetail: React.FC = () => {
                 )}
 
                 {order.labelGenerated && (
-                  <Button onClick={handleDownloadLabel} variant="secondary" size="sm" className="w-full text-xs font-medium">
+                  <Button
+                    onClick={handleDownloadLabel}
+                    variant="secondary"
+                    size="sm"
+                    className="w-full text-xs font-medium"
+                  >
                     <Download className="w-3.5 h-3.5" /> Download / Print Label
                   </Button>
                 )}
                 {order.awbCode && (
-                  <Button onClick={handleDownloadInvoice} variant="secondary" size="sm" className="w-full text-xs font-medium">
+                  <Button
+                    onClick={handleDownloadInvoice}
+                    variant="secondary"
+                    size="sm"
+                    className="w-full text-xs font-medium"
+                  >
                     <Download className="w-3.5 h-3.5" /> Download Invoice
                   </Button>
                 )}
                 {order.manifestGenerated && (
-                  <Button onClick={handleDownloadManifest} variant="secondary" size="sm" className="w-full text-xs font-medium">
+                  <Button
+                    onClick={handleDownloadManifest}
+                    variant="secondary"
+                    size="sm"
+                    className="w-full text-xs font-medium"
+                  >
                     <Download className="w-3.5 h-3.5" /> Download Manifest
                   </Button>
                 )}
@@ -599,7 +698,9 @@ export const AdminOrderDetail: React.FC = () => {
 
           {/* Internal Notes */}
           <Card className="border border-secondary200">
-            <CardHeader><CardTitle>Internal Notes</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Internal Notes</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-4">
               <div className="max-h-48 overflow-y-auto no-scrollbar border-b border-secondary200/50 pb-4">
                 {!order.adminNotes || order.adminNotes.length === 0 ? (
@@ -611,7 +712,9 @@ export const AdminOrderDetail: React.FC = () => {
                         <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-primaryBg border border-white ring-2 ring-primary100" />
                         <div className="bg-lightgrayColor/50 border border-secondary200/60 p-2.5 rounded-lg text-xs">
                           <p className="text-secondary700 leading-normal">{note.note}</p>
-                          <span className="text-[9px] text-secondary400 mt-1 block">{formatDate(note.createdAt)}</span>
+                          <span className="text-[9px] text-secondary400 mt-1 block">
+                            {formatDate(note.createdAt)}
+                          </span>
                         </div>
                       </div>
                     ))}
@@ -628,7 +731,13 @@ export const AdminOrderDetail: React.FC = () => {
                   disabled={addingNote}
                   maxLength={2000}
                 />
-                <Button type="submit" variant="secondary" size="sm" loading={addingNote} className="w-full text-xs font-medium">
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="sm"
+                  loading={addingNote}
+                  className="w-full text-xs font-medium"
+                >
                   Add Note
                 </Button>
               </form>
@@ -638,7 +747,12 @@ export const AdminOrderDetail: React.FC = () => {
       </div>
 
       {/* FULFILLMENT DIALOG */}
-      <Dialog isOpen={showFulfillDialog} onClose={() => !fulfilling && setShowFulfillDialog(false)} title="Create Shipment" maxWidth="2xl">
+      <Dialog
+        isOpen={showFulfillDialog}
+        onClose={() => !fulfilling && setShowFulfillDialog(false)}
+        title="Create Shipment"
+        maxWidth="2xl"
+      >
         <div className="space-y-6">
           {/* Section 1: Pickup Location */}
           <div className="space-y-3">
@@ -664,33 +778,80 @@ export const AdminOrderDetail: React.FC = () => {
             </h4>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">Weight (grams)</label>
-                <Input value={String(packageWeight)} onChange={(e) => setPackageWeight(Number(e.target.value) || 0)} type="number" min={1} disabled={fulfilling} />
+                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">
+                  Weight (grams)
+                </label>
+                <Input
+                  value={String(packageWeight)}
+                  onChange={(e) => setPackageWeight(Number(e.target.value) || 0)}
+                  type="number"
+                  min={1}
+                  disabled={fulfilling}
+                />
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">Package Count</label>
-                <Input value={String(packageCount)} onChange={(e) => setPackageCount(Number(e.target.value) || 1)} type="number" min={1} disabled={fulfilling} />
+                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">
+                  Package Count
+                </label>
+                <Input
+                  value={String(packageCount)}
+                  onChange={(e) => setPackageCount(Number(e.target.value) || 1)}
+                  type="number"
+                  min={1}
+                  disabled={fulfilling}
+                />
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">Length (cm)</label>
-                <Input value={String(packageLength)} onChange={(e) => setPackageLength(Number(e.target.value) || 0)} type="number" min={1} disabled={fulfilling} />
+                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">
+                  Length (cm)
+                </label>
+                <Input
+                  value={String(packageLength)}
+                  onChange={(e) => setPackageLength(Number(e.target.value) || 0)}
+                  type="number"
+                  min={1}
+                  disabled={fulfilling}
+                />
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">Breadth (cm)</label>
-                <Input value={String(packageBreadth)} onChange={(e) => setPackageBreadth(Number(e.target.value) || 0)} type="number" min={1} disabled={fulfilling} />
+                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">
+                  Breadth (cm)
+                </label>
+                <Input
+                  value={String(packageBreadth)}
+                  onChange={(e) => setPackageBreadth(Number(e.target.value) || 0)}
+                  type="number"
+                  min={1}
+                  disabled={fulfilling}
+                />
               </div>
               <div>
-                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">Height (cm)</label>
-                <Input value={String(packageHeight)} onChange={(e) => setPackageHeight(Number(e.target.value) || 0)} type="number" min={1} disabled={fulfilling} />
+                <label className="text-[10px] font-semibold text-secondary600 uppercase tracking-wider">
+                  Height (cm)
+                </label>
+                <Input
+                  value={String(packageHeight)}
+                  onChange={(e) => setPackageHeight(Number(e.target.value) || 0)}
+                  type="number"
+                  min={1}
+                  disabled={fulfilling}
+                />
               </div>
               <div className="flex flex-col justify-end">
-                <span className="text-[9px] text-secondary500 uppercase tracking-wider">Volumetric Weight</span>
-                <span className="text-xs font-semibold text-darkColor">{(volumetricWeight / 1000).toFixed(2)} kg</span>
-                <span className="text-[9px] text-secondary400">({packageLength}&times;{packageBreadth}&times;{packageHeight} &divide; 5000)</span>
+                <span className="text-[9px] text-secondary500 uppercase tracking-wider">
+                  Volumetric Weight
+                </span>
+                <span className="text-xs font-semibold text-darkColor">
+                  {(volumetricWeight / 1000).toFixed(2)} kg
+                </span>
+                <span className="text-[9px] text-secondary400">
+                  ({packageLength}&times;{packageBreadth}&times;{packageHeight} &divide; 5000)
+                </span>
               </div>
             </div>
             <div className="text-[10px] text-secondary500">
-              Actual weight: {(packageWeight / 1000).toFixed(2)} kg | Chargeable: {Math.max(volumetricWeight, packageWeight) / 1000} kg
+              Actual weight: {(packageWeight / 1000).toFixed(2)} kg | Chargeable:{' '}
+              {Math.max(volumetricWeight, packageWeight) / 1000} kg
             </div>
           </div>
 
@@ -699,7 +860,14 @@ export const AdminOrderDetail: React.FC = () => {
             <h4 className="text-xs font-semibold text-darkColor uppercase tracking-widest flex items-center gap-2">
               <Truck className="w-4 h-4 text-primaryBg" /> Shipping
             </h4>
-            <Button onClick={handleCheckServiceability} loading={checkingServiceability} variant="secondary" size="sm" disabled={fulfilling} className="text-xs">
+            <Button
+              onClick={handleCheckServiceability}
+              loading={checkingServiceability}
+              variant="secondary"
+              size="sm"
+              disabled={fulfilling}
+              className="text-xs"
+            >
               Check Courier Availability
             </Button>
             {couriers.length > 0 && (
@@ -708,7 +876,9 @@ export const AdminOrderDetail: React.FC = () => {
                   <label
                     key={c.courier_id}
                     className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedCourierId === c.courier_id ? 'bg-primaryBg/5 border-primaryBg' : 'bg-white border-secondary200 hover:border-secondary300'
+                      selectedCourierId === c.courier_id
+                        ? 'bg-primaryBg/5 border-primaryBg'
+                        : 'bg-white border-secondary200 hover:border-secondary300'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -724,14 +894,20 @@ export const AdminOrderDetail: React.FC = () => {
                         <p className="text-xs font-semibold text-darkColor">
                           {c.courier_name}
                           {c.is_recommended && (
-                            <span className="ml-2 text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium">Recommended</span>
+                            <span className="ml-2 text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full font-medium">
+                              Recommended
+                            </span>
                           )}
                         </p>
-                        <p className="text-[10px] text-secondary500">Est. delivery: {c.estimated_delivery_days} days</p>
+                        <p className="text-[10px] text-secondary500">
+                          Est. delivery: {c.estimated_delivery_days} days
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-semibold text-darkColor">{formatPrice(c.rate * 100)}</p>
+                      <p className="text-xs font-semibold text-darkColor">
+                        {formatPrice(c.rate * 100)}
+                      </p>
                       {c.cod && <span className="text-[9px] text-amber-600">COD available</span>}
                     </div>
                   </label>
@@ -752,15 +928,22 @@ export const AdminOrderDetail: React.FC = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-secondary500">Address</span>
-                <span className="font-medium text-darkColor text-right max-w-[60%]">{order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}</span>
+                <span className="font-medium text-darkColor text-right max-w-[60%]">
+                  {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
+                  {order.shippingAddress.pincode}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-secondary500">Weight</span>
-                <span className="font-medium text-darkColor">{(Math.max(volumetricWeight, packageWeight) / 1000).toFixed(2)} kg</span>
+                <span className="font-medium text-darkColor">
+                  {(Math.max(volumetricWeight, packageWeight) / 1000).toFixed(2)} kg
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-secondary500">Dimensions</span>
-                <span className="font-medium text-darkColor">{packageLength}&times;{packageBreadth}&times;{packageHeight} cm</span>
+                <span className="font-medium text-darkColor">
+                  {packageLength}&times;{packageBreadth}&times;{packageHeight} cm
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-secondary500">Payment</span>
@@ -769,7 +952,9 @@ export const AdminOrderDetail: React.FC = () => {
               {selectedCourierId && (
                 <div className="flex justify-between pt-1.5 border-t border-secondary200">
                   <span className="text-secondary500">Courier</span>
-                  <span className="font-medium text-darkColor">{couriers.find((c) => c.courier_id === selectedCourierId)?.courier_name}</span>
+                  <span className="font-medium text-darkColor">
+                    {couriers.find((c) => c.courier_id === selectedCourierId)?.courier_name}
+                  </span>
                 </div>
               )}
             </div>
@@ -778,31 +963,49 @@ export const AdminOrderDetail: React.FC = () => {
           {/* Fulfillment Progress */}
           {fulfillSteps.length > 0 && (
             <div className="space-y-3 pt-4 border-t border-secondary200">
-              <h4 className="text-xs font-semibold text-darkColor uppercase tracking-widest">Progress</h4>
+              <h4 className="text-xs font-semibold text-darkColor uppercase tracking-widest">
+                Progress
+              </h4>
               <div className="space-y-2">
                 {STEP_ORDER.map((step) => {
                   const stepResult = fulfillSteps.find((s) => s.step === step)
                   if (!stepResult) return null
-                  const isCompleted = stepResult.status === 'completed' || stepResult.status === 'skipped'
+                  const isCompleted =
+                    stepResult.status === 'completed' || stepResult.status === 'skipped'
                   const isFailed = stepResult.status === 'failed'
                   return (
-                    <div key={step} className={`flex items-center gap-3 p-2.5 rounded-lg text-xs ${
-                      isCompleted ? 'bg-emerald-50 border border-emerald-200' :
-                      isFailed ? 'bg-rose-50 border border-rose-200' :
-                      'bg-secondary100 border border-secondary200'
-                    }`}>
-                      {isCompleted ? <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" /> :
-                       isFailed ? <XCircle className="w-4 h-4 text-rose-500 shrink-0" /> :
-                       <Loader2 className="w-4 h-4 text-secondary400 animate-spin shrink-0" />}
+                    <div
+                      key={step}
+                      className={`flex items-center gap-3 p-2.5 rounded-lg text-xs ${
+                        isCompleted
+                          ? 'bg-emerald-50 border border-emerald-200'
+                          : isFailed
+                            ? 'bg-rose-50 border border-rose-200'
+                            : 'bg-secondary100 border border-secondary200'
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                      ) : isFailed ? (
+                        <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                      ) : (
+                        <Loader2 className="w-4 h-4 text-secondary400 animate-spin shrink-0" />
+                      )}
                       <div>
-                        <p className={`font-semibold ${isCompleted ? 'text-emerald-700' : isFailed ? 'text-rose-700' : 'text-secondary600'}`}>
+                        <p
+                          className={`font-semibold ${isCompleted ? 'text-emerald-700' : isFailed ? 'text-rose-700' : 'text-secondary600'}`}
+                        >
                           {FULFILLMENT_STEP_LABELS[step]}
                         </p>
                         {stepResult.details?.awb_code && (
-                          <p className="text-[10px] text-secondary500 mt-0.5">AWB: {stepResult.details.awb_code}</p>
+                          <p className="text-[10px] text-secondary500 mt-0.5">
+                            AWB: {stepResult.details.awb_code}
+                          </p>
                         )}
                         {stepResult.details?.error && (
-                          <p className="text-[10px] text-rose-600 mt-0.5">{stepResult.details.error}</p>
+                          <p className="text-[10px] text-rose-600 mt-0.5">
+                            {stepResult.details.error}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -822,7 +1025,12 @@ export const AdminOrderDetail: React.FC = () => {
                   <p className="text-[10px] text-rose-600 mt-0.5">{fulfillError}</p>
                 </div>
               </div>
-              <Button onClick={handleRetryFulfill} variant="secondary" size="sm" className="w-full text-xs">
+              <Button
+                onClick={handleRetryFulfill}
+                variant="secondary"
+                size="sm"
+                className="w-full text-xs"
+              >
                 <RefreshCw className="w-3.5 h-3.5" /> Retry from Failed Step
               </Button>
             </div>
@@ -833,27 +1041,46 @@ export const AdminOrderDetail: React.FC = () => {
             <div className="space-y-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-emerald-600" />
-                <span className="text-sm font-semibold text-emerald-700">Shipment Created Successfully</span>
+                <span className="text-sm font-semibold text-emerald-700">
+                  Shipment Created Successfully
+                </span>
               </div>
               {fulfillResult.awb_code && (
                 <p className="text-xs text-emerald-600">AWB: {fulfillResult.awb_code}</p>
               )}
               {fulfillResult.pickup_scheduled_date && (
-                <p className="text-xs text-emerald-600">Pickup scheduled: {formatDate(fulfillResult.pickup_scheduled_date)}</p>
+                <p className="text-xs text-emerald-600">
+                  Pickup scheduled: {formatDate(fulfillResult.pickup_scheduled_date)}
+                </p>
               )}
               <div className="flex flex-wrap gap-2">
                 {fulfillResult.label_generated && (
-                  <Button onClick={handleDownloadLabel} variant="secondary" size="sm" className="text-xs">
+                  <Button
+                    onClick={handleDownloadLabel}
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs"
+                  >
                     <Download className="w-3.5 h-3.5" /> Download / Print Label
                   </Button>
                 )}
                 {fulfillResult.awb_code && (
-                  <Button onClick={handleDownloadInvoice} variant="secondary" size="sm" className="text-xs">
+                  <Button
+                    onClick={handleDownloadInvoice}
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs"
+                  >
                     <Download className="w-3.5 h-3.5" /> Download Invoice
                   </Button>
                 )}
                 {fulfillResult.manifest_generated && (
-                  <Button onClick={handleDownloadManifest} variant="secondary" size="sm" className="text-xs">
+                  <Button
+                    onClick={handleDownloadManifest}
+                    variant="secondary"
+                    size="sm"
+                    className="text-xs"
+                  >
                     <Download className="w-3.5 h-3.5" /> Download Manifest
                   </Button>
                 )}
@@ -863,19 +1090,27 @@ export const AdminOrderDetail: React.FC = () => {
 
           {/* Action Button */}
           {!fulfillResult && !fulfillError && (
-            <Button onClick={handleFulfillOrder} loading={fulfilling} disabled={!selectedPickup || fulfilling} className="w-full text-sm font-semibold py-3">
+            <Button
+              onClick={handleFulfillOrder}
+              loading={fulfilling}
+              disabled={!selectedPickup || fulfilling}
+              className="w-full text-sm font-semibold py-3"
+            >
               <Send className="w-4 h-4" /> Fulfill Order
             </Button>
           )}
 
           {fulfillResult && (
-            <Button onClick={() => setShowFulfillDialog(false)} variant="secondary" className="w-full text-xs">
+            <Button
+              onClick={() => setShowFulfillDialog(false)}
+              variant="secondary"
+              className="w-full text-xs"
+            >
               Close
             </Button>
           )}
         </div>
       </Dialog>
-
     </div>
   )
 }

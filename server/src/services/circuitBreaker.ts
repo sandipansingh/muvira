@@ -101,8 +101,6 @@ export function getBreakerStatus(): {
     failures: state.failures,
     openedAt: state.state === 'open' ? new Date(state.openedAt).toISOString() : null,
     cooldownRemainingMs:
-      state.state === 'open'
-        ? Math.max(0, COOLDOWN_MS - (Date.now() - state.openedAt))
-        : null,
+      state.state === 'open' ? Math.max(0, COOLDOWN_MS - (Date.now() - state.openedAt)) : null,
   }
 }

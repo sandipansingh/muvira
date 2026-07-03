@@ -126,9 +126,12 @@ const ShiprocketTracker: React.FC<ShiprocketTrackerProps> = ({ awbCode }) => {
   const firstActivity = activities[0]
   const firstLabel = firstActivity?.['sr-status-label']
   const firstStatus = firstActivity?.status
-  const currentStatusLabel = (firstLabel && firstLabel !== 'NA')
-    ? firstLabel
-    : (firstStatus && firstStatus !== 'NA' ? firstStatus : currentInfo?.current_status ?? '')
+  const currentStatusLabel =
+    firstLabel && firstLabel !== 'NA'
+      ? firstLabel
+      : firstStatus && firstStatus !== 'NA'
+        ? firstStatus
+        : (currentInfo?.current_status ?? '')
 
   return (
     <div className="space-y-5 text-left">

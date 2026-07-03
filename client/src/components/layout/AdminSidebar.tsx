@@ -11,9 +11,14 @@ import {
   Settings,
   ArrowUpRight,
   Star,
+  X,
 } from 'lucide-react'
 
-export const AdminSidebar: React.FC = () => {
+interface AdminSidebarProps {
+  onClose?: () => void
+}
+
+export const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
   const menuItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, exact: true },
     { name: 'Products', path: '/admin/products', icon: Box },
@@ -26,20 +31,27 @@ export const AdminSidebar: React.FC = () => {
   ]
 
   return (
-    <aside className="w-64 bg-darkColor text-secondary300 h-screen fixed top-0 left-0 flex flex-col border-r border-secondary600/20 z-40 text-left">
+    <aside className="w-full h-full flex flex-col bg-white text-secondary700 border-r border-secondary200 text-left">
       {/* Brand Header */}
-      <div className="h-16 px-6 border-b border-secondary600/20 flex items-center justify-between">
-        <Link to="/admin" className="flex items-center">
-          <span className="text-lg font-medium text-white tracking-widest uppercase">
-            {STORE_NAME}{' '}
-            <span className="text-xs text-primary400 font-medium lowercase">admin</span>
+      <div className="h-16 px-6 border-b border-secondary200 flex items-center justify-between shrink-0">
+        <Link to="/admin" className="flex items-center" onClick={onClose}>
+          <span className="text-lg font-medium text-darkColor tracking-widest uppercase font-redhatMedium">
+            {STORE_NAME} <span className="text-xs text-primaryBg font-medium lowercase">admin</span>
           </span>
         </Link>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="text-secondary500 hover:text-darkColor p-1 rounded-full hover:bg-lightgrayColor focus:outline-none transition-colors lg:hidden"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Nav Menu */}
       <nav className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto no-scrollbar">
-        <p className="text-[10px] font-medium text-secondary500 uppercase tracking-widest pl-3 mb-2">
+        <p className="text-[10px] font-semibold text-secondary500 uppercase tracking-widest pl-3 mb-2">
           Management
         </p>
         {menuItems.map((item) => (
@@ -47,11 +59,12 @@ export const AdminSidebar: React.FC = () => {
             key={item.path}
             to={item.path}
             end={item.exact}
+            onClick={onClose}
             className={({ isActive }) =>
               `flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs md:text-sm transition-all duration-200 group ${
                 isActive
-                  ? 'bg-white/10 text-white font-semibold'
-                  : 'text-secondary400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-darkColor text-white font-semibold shadow-sm'
+                  : 'text-secondary500 hover:bg-lightgrayColor hover:text-darkColor'
               }`
             }
           >
@@ -64,13 +77,14 @@ export const AdminSidebar: React.FC = () => {
       </nav>
 
       {/* Footer Links */}
-      <div className="p-4 border-t border-secondary600/20">
+      <div className="p-4 border-t border-secondary200 shrink-0">
         <Link
           to="/"
-          className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs md:text-sm text-secondary400 hover:bg-white/5 hover:text-white transition-colors"
+          onClick={onClose}
+          className="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs md:text-sm text-secondary500 hover:bg-lightgrayColor hover:text-darkColor transition-colors"
         >
           <span>Go to Live Store</span>
-          <ArrowUpRight className="w-4 h-4 text-secondary400" />
+          <ArrowUpRight className="w-4 h-4 text-secondary500" />
         </Link>
       </div>
     </aside>

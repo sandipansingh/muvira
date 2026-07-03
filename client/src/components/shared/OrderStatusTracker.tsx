@@ -28,14 +28,29 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
       title: 'Crafting',
       desc: 'Preparing items.',
       icon: Clock,
-      isCompleted: ['processing', 'shipped', 'out_for_delivery', 'delivered', 'rto', 'returned', 'refunded'].includes(status),
+      isCompleted: [
+        'processing',
+        'shipped',
+        'out_for_delivery',
+        'delivered',
+        'rto',
+        'returned',
+        'refunded',
+      ].includes(status),
       isActive: status === 'confirmed',
     },
     {
       title: 'Shipped',
       desc: 'Logistics transit.',
       icon: Truck,
-      isCompleted: ['shipped', 'out_for_delivery', 'delivered', 'rto', 'returned', 'refunded'].includes(status),
+      isCompleted: [
+        'shipped',
+        'out_for_delivery',
+        'delivered',
+        'rto',
+        'returned',
+        'refunded',
+      ].includes(status),
       isActive: status === 'shipped' || status === 'out_for_delivery',
     },
   ]
@@ -52,7 +67,12 @@ export const OrderStatusTracker: React.FC<OrderStatusTrackerProps> = ({
             className="absolute left-[3%] top-[11px] h-[2px] bg-[var(--accent)] transition-all duration-500 z-0"
             style={{
               width: `${
-                status === 'delivered' || status === 'shipped' || status === 'out_for_delivery' || status === 'rto' || status === 'returned' || status === 'refunded'
+                status === 'delivered' ||
+                status === 'shipped' ||
+                status === 'out_for_delivery' ||
+                status === 'rto' ||
+                status === 'returned' ||
+                status === 'refunded'
                   ? '94%'
                   : ['processing', 'confirmed'].includes(status)
                     ? '62%'

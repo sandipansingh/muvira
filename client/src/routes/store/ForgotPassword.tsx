@@ -62,7 +62,7 @@ export const ForgotPassword: React.FC = () => {
                   label="Email Address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="asha@example.com"
+                  placeholder=""
                   className="pl-10"
                   required
                   disabled={loading}
