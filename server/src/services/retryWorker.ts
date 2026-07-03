@@ -1,7 +1,12 @@
 import { adminSupabase } from '../lib/supabase/admin'
 import { logger } from '../lib/logger'
-import { trackSingle } from './shiprocket'
-import { shiprocketStatusToOrderStatus } from '../modules/orders/stateMachine'
+import { trackSingle, generateLabel, generateInvoice } from './shiprocket'
+import {
+  shiprocketStatusToOrderStatus,
+  isValidTransition,
+} from '../modules/orders/stateMachine'
+import { emitStatusChangeEvents } from './eventBus'
+import { writeTrackingSnapshot } from './trackingAnalytics'
 
 /**
  * Retry Worker
@@ -10,7 +15,7 @@ import { shiprocketStatusToOrderStatus } from '../modules/orders/stateMachine'
  * by the polling scheduler and can also be triggered manually via admin API.
  *
  * Each job type has a handler registered here. Unknown job types are marked
- * as 'failed' with an error.
+ * as 'dead'.
  */
 
 type JobHandler = (
@@ -31,31 +36,131 @@ const handlers: Record<string, JobHandler> = {
     const newStatus = shiprocketStatusToOrderStatus(srStatus)
     if (!newStatus) return
 
-    await adminSupabase
+    // Get order for state machine validation
+    const { data: order } = await adminSupabase
+      .from('orders')
+      .select('id, user_id, status, order_number, shipment_id')
+      .eq('awb_code', awb)
+      .maybeSingle()
+
+    if (!order) return
+    if (order.status === newStatus) return
+
+    // Validate transition via state machine
+    if (!isValidTransition(order.status, newStatus)) {
+      logger.warn(
+        { orderId: order.id, awb, from: order.status, to: newStatus },
+        'retryWorker/tracking_sync: blocked invalid transition'
+      )
+      return
+    }
+
+    const oldStatus = order.status
+
+    // Atomic update
+    const { error: updateError } = await adminSupabase
       .from('orders')
       .update({ status: newStatus })
-      .eq('awb_code', awb)
-      .neq('status', newStatus)
-  },
+      .eq('id', order.id)
+      .eq('status', oldStatus)
 
-  notification: async (payload) => {
-    // Notification retries are handled by the notification subscriber's
-    // idempotency mechanism. This handler is a stub for now.
-    logger.info({ payload }, 'retryWorker: notification stub')
+    if (updateError) {
+      logger.warn({ err: updateError, orderId: order.id }, 'retryWorker/tracking_sync: update failed')
+      return
+    }
+
+    // Record status history
+    await adminSupabase.from('order_status_history').insert({
+      order_id: order.id,
+      old_status: oldStatus,
+      new_status: newStatus,
+      source: 'polling_sync',
+    })
+
+    // Write tracking snapshot
+    writeTrackingSnapshot({
+      orderId: order.id,
+      awbCode: awb,
+      shipmentId: (order as Record<string, unknown>)['shipment_id'] as string | null ?? null,
+      courierName: shipmentTrack.courier_name ?? null,
+      currentStatus: shipmentTrack.current_status,
+      origin: shipmentTrack.origin ?? null,
+      destination: shipmentTrack.destination ?? null,
+      edd: shipmentTrack.edd ?? null,
+      pickupDate: shipmentTrack.pickup_date ?? null,
+      deliveredDate: shipmentTrack.delivered_date ?? null,
+      trackingRaw: shipmentTrack as unknown as Record<string, unknown>,
+      syncSource: 'cron_poll',
+    }).catch(() => {})
+
+    // Emit events for notifications
+    emitStatusChangeEvents({
+      orderId: order.id,
+      orderNumber: order.order_number,
+      userId: order.user_id,
+      oldStatus,
+      newStatus,
+      source: 'polling_sync',
+      awbCode: awb,
+      courierName: shipmentTrack.courier_name ?? null,
+    })
   },
 
   webhook_process: async (payload) => {
-    // Webhook reprocessing is a stub. In production, this would re-parse
-    // the raw webhook payload and re-run the webhook processing logic.
-    logger.info({ payload }, 'retryWorker: webhook_process stub')
+    const rawPayload = payload['rawPayload'] as Record<string, unknown> | undefined
+    if (!rawPayload) throw new Error('Missing rawPayload in webhook_process payload')
+
+    // Re-use the shiprocket webhook service to process the payload
+    const { processShiprocketWebhook } = await import('../modules/shiprocket/service')
+    const result = await processShiprocketWebhook(rawPayload)
+
+    if (result.status === 'ignored') {
+      logger.warn({ payload }, 'retryWorker/webhook_process: no matching order found')
+    }
+  },
+
+  notification: async (payload) => {
+    const orderId = payload['orderId'] as string | undefined
+    const userId = payload['userId'] as string | undefined
+    const eventType = payload['eventType'] as string | undefined
+    if (!orderId || !userId || !eventType) {
+      throw new Error('Missing required fields in notification payload')
+    }
+
+    // Re-emit the event so notification subscriber picks it up
+    const { emitOrderEvent } = await import('./eventBus')
+    emitOrderEvent(eventType as import('./eventBus').OrderDomainEvent, {
+      orderId,
+      userId,
+      newStatus: (payload['newStatus'] as string) ?? '',
+      source: (payload['source'] as 'webhook' | 'polling_sync' | 'admin_manual' | 'system') ?? 'system',
+      awbCode: (payload['awbCode'] as string | null) ?? null,
+    })
   },
 
   label_generate: async (payload) => {
-    logger.info({ payload }, 'retryWorker: label_generate stub')
+    const shipmentId = payload['shipmentId'] as number | undefined
+    if (!shipmentId) throw new Error('Missing shipmentId in label_generate payload')
+
+    const result = await generateLabel(shipmentId)
+    logger.info({ shipmentId, result }, 'retryWorker: label generated')
+
+    // Update order if orderId is provided
+    const orderId = payload['orderId'] as string | undefined
+    if (orderId) {
+      await adminSupabase
+        .from('orders')
+        .update({ label_generated: true })
+        .eq('id', orderId)
+    }
   },
 
   invoice_generate: async (payload) => {
-    logger.info({ payload }, 'retryWorker: invoice_generate stub')
+    const orderIds = payload['orderIds'] as number[] | undefined
+    if (!orderIds || orderIds.length === 0) throw new Error('Missing orderIds in invoice_generate payload')
+
+    const result = await generateInvoice(orderIds)
+    logger.info({ orderIds, result }, 'retryWorker: invoice generated')
   },
 }
 

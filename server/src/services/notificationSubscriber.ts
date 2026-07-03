@@ -23,6 +23,9 @@ export async function initNotificationSubscribers(): Promise<void> {
   orderEvents.on('order:delivery-failed', handleDeliveryFailed)
   orderEvents.on('order:rto:initiated', handleRto)
   orderEvents.on('order:returned', handleReturned)
+  orderEvents.on('order:lost', handleLost)
+  orderEvents.on('order:damaged', handleDamaged)
+  orderEvents.on('order:refunded', handleRefunded)
 
   logger.info('NotificationSubscriber: initialized')
 }
@@ -376,6 +379,121 @@ async function handleReturned(payload: OrderEventPayload): Promise<void> {
       <h2 style="margin:0 0 16px;font-size:18px">Your return has been processed</h2>
       <p style="margin:0 0 8px">Order <strong>${order.orderNumber}</strong> has been returned to our warehouse.</p>
       <p style="margin:0 0 8px">Your refund will be processed shortly.</p>
+      <p style="margin:16px 0 0">— The ${env.STORE_NAME} Team</p>
+    `),
+  })
+}
+
+async function handleLost(payload: OrderEventPayload): Promise<void> {
+  const order = await fetchOrderInfo(payload.orderId)
+  if (!order) return
+
+  await sendEmail({
+    orderId: payload.orderId,
+    userId: payload.userId,
+    eventType: 'lost',
+    subject: `Shipment Lost — ${order.orderNumber}`,
+    html: await emailWrapper(`
+      <h2 style="margin:0 0 16px;font-size:18px;color:#c62828">Your shipment has been reported as lost</h2>
+      <p style="margin:0 0 8px">We are sorry — order <strong>${order.orderNumber}</strong> has been reported as lost in transit by the courier.</p>
+      ${buildTrackingLine(order.awbCode, order.courierName)}
+      <p style="margin:8px 0 0;font-size:14px;color:#c62828">Our team will contact you within 24 hours to arrange a replacement or full refund.</p>
+      <p style="margin:16px 0 0">— The ${env.STORE_NAME} Team</p>
+    `),
+  })
+
+  // Admin alert for lost shipment
+  sendAdminLostAlert(payload, order).catch((err) => {
+    logger.error({ err, orderId: payload.orderId }, 'Admin lost shipment alert failed')
+  })
+}
+
+async function sendAdminLostAlert(
+  payload: OrderEventPayload,
+  order: { orderNumber: string; shippingCity: string; awbCode: string | null }
+): Promise<void> {
+  if (!resend) return
+
+  try {
+    const { data: admins } = await adminSupabase
+      .from('profiles')
+      .select('email')
+      .eq('role', 'admin')
+
+    if (!admins || admins.length === 0) return
+    const adminEmails = admins.map((a) => a.email).filter(Boolean) as string[]
+    if (adminEmails.length === 0) return
+
+    const eventType = 'admin_lost'
+    const { data: existing } = await adminSupabase
+      .from('notification_logs')
+      .select('id')
+      .eq('order_id', payload.orderId)
+      .eq('event_type', eventType)
+      .eq('notification_type', 'email')
+      .eq('sent_status', 'sent')
+      .maybeSingle()
+
+    if (existing) return
+
+    await resend.emails.send({
+      from: `${env.STORE_NAME} Alerts <${env.EMAIL_FROM}>`,
+      to: adminEmails,
+      subject: `LOST: Shipment lost for ${order.orderNumber}`,
+      html: await emailWrapper(`
+        <h2 style="margin:0 0 16px;font-size:18px;color:#c62828">Shipment Lost — Action Required</h2>
+        <p style="margin:0 0 8px">Order <strong>${order.orderNumber}</strong> to ${order.shippingCity} has been marked as lost.</p>
+        ${buildTrackingLine(order.awbCode, null)}
+        <p style="margin:8px 0 0">Source: ${payload.source} | AWB: ${payload.awbCode ?? 'N/A'}</p>
+      `),
+    })
+
+    await adminSupabase.from('notification_logs').insert({
+      order_id: payload.orderId,
+      user_id: payload.userId,
+      notification_type: 'email',
+      event_type: eventType,
+      sent_status: 'sent',
+    })
+
+    logger.info({ orderId: payload.orderId }, 'Admin lost shipment alert sent')
+  } catch (err) {
+    logger.error({ err }, 'Failed to send admin lost shipment alert')
+  }
+}
+
+async function handleDamaged(payload: OrderEventPayload): Promise<void> {
+  const order = await fetchOrderInfo(payload.orderId)
+  if (!order) return
+
+  await sendEmail({
+    orderId: payload.orderId,
+    userId: payload.userId,
+    eventType: 'damaged',
+    subject: `Shipment Damaged — ${order.orderNumber}`,
+    html: await emailWrapper(`
+      <h2 style="margin:0 0 16px;font-size:18px;color:#e57318">Your shipment has been reported as damaged</h2>
+      <p style="margin:0 0 8px">We are sorry — order <strong>${order.orderNumber}</strong> has been reported as damaged in transit by the courier.</p>
+      ${buildTrackingLine(order.awbCode, order.courierName)}
+      <p style="margin:8px 0 0;font-size:14px;color:#ef6c00">Our team will contact you within 24 hours to arrange a replacement or full refund.</p>
+      <p style="margin:16px 0 0">— The ${env.STORE_NAME} Team</p>
+    `),
+  })
+}
+
+async function handleRefunded(payload: OrderEventPayload): Promise<void> {
+  const order = await fetchOrderInfo(payload.orderId)
+  if (!order) return
+
+  await sendEmail({
+    orderId: payload.orderId,
+    userId: payload.userId,
+    eventType: 'refunded',
+    subject: `Refund Processed — ${order.orderNumber}`,
+    html: await emailWrapper(`
+      <h2 style="margin:0 0 16px;font-size:18px">Your refund has been processed</h2>
+      <p style="margin:0 0 8px">A refund for order <strong>${order.orderNumber}</strong> has been initiated.</p>
+      <p style="margin:0 0 8px">The amount of <strong>₹${totalRupees(order.totalAmountPaisa)}</strong> will be credited to your original payment method within 5-7 business days.</p>
       <p style="margin:16px 0 0">— The ${env.STORE_NAME} Team</p>
     `),
   })

@@ -8,6 +8,7 @@ import { getSettings, updateSettings } from '../settings/service'
 import {
   computePayloadHash,
   verifyWebhookAuth,
+  verifyWebhookFreshness,
   checkWebhookDuplicate,
   recordWebhookEvent,
 } from './webhookSecurity'
@@ -66,7 +67,18 @@ export async function handleWebhook(
       return
     }
 
-    // 2. Idempotency check
+    // 2. Replay attack protection — reject expired webhooks
+    if (!verifyWebhookFreshness(parsedBody)) {
+      recordWebhookFailed()
+      logger.warn({ correlationId, payloadHash }, 'Webhook expired — possible replay attack')
+      res.status(422).json({
+        success: false,
+        error: { code: 'EXPIRED', message: 'Webhook payload has expired' },
+      })
+      return
+    }
+
+    // 3. Idempotency check
     const existing = await checkWebhookDuplicate(payloadHash)
     if (existing) {
       logger.info({ payloadHash, existingStatus: existing.processing_status }, 'Duplicate Shiprocket webhook')
@@ -83,7 +95,7 @@ export async function handleWebhook(
       return
     }
 
-    // 3. Record receipt
+    // 4. Record receipt
     recordWebhookReceived()
     const eventId = await recordWebhookEvent({
       source: 'shiprocket',
@@ -93,7 +105,7 @@ export async function handleWebhook(
       processingStatus: 'verified',
     })
 
-    // 4. Process
+    // 5. Process
     try {
       const result = await service.processShiprocketWebhook(parsedBody)
 

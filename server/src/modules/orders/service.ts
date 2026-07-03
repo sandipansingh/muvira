@@ -4,7 +4,6 @@ import type { Order } from '../../types'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import {
   trackBulk,
-  trackSingle,
   createOrder as shiprocketCreateOrder,
   assignAwb as shiprocketAssignAwb,
   schedulePickup as shiprocketSchedulePickup,
@@ -21,7 +20,6 @@ import { emitStatusChangeEvents } from '../../services/eventBus'
 import {
   shiprocketStatusToOrderStatus,
   isValidTransition,
-  isTerminalStatus,
 } from './stateMachine'
 import type {
   ListOrdersQuery,
@@ -66,15 +64,7 @@ export async function listUserOrders(
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch orders')
 
-  // Auto-sync tracking for any orders with active AWB codes (fire-and-forget)
   const orders = data as Order[] ?? []
-  const activeAwbs = orders
-    .filter((o) => o.awb_code && !isTerminalStatus(o.status))
-    .map((o) => o.awb_code)
-    .filter(Boolean) as string[]
-  if (activeAwbs.length > 0) {
-    syncOrdersTrackingInBackground(activeAwbs).catch(() => {})
-  }
 
   return {
     orders,
@@ -82,24 +72,6 @@ export async function listUserOrders(
     page,
     limit,
     totalPages: Math.ceil((count ?? 0) / limit),
-  }
-}
-
-async function syncOrdersTrackingInBackground(awbs: string[]): Promise<void> {
-  try {
-    const trackingMap = await trackBulk(awbs)
-    for (const [awb, data] of Object.entries(trackingMap)) {
-      const shipmentTrack = data.tracking_data?.shipment_track
-      const currentStatus = shipmentTrack?.[0]?.current_status
-      if (currentStatus) {
-        const mapped = shiprocketStatusToOrderStatus(currentStatus)
-        if (mapped) {
-          await updateOrderStatusByAwb(awb, mapped, 'polling_sync')
-        }
-      }
-    }
-  } catch (err) {
-    logger.warn({ err, awbCount: awbs.length }, 'Bulk tracking sync (customer) failed')
   }
 }
 
@@ -118,9 +90,7 @@ export async function getUserOrder(userId: string, orderId: string): Promise<Ord
     throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   }
 
-  // Auto-sync tracking from Shiprocket in background
-  syncOrderTrackingInBackground(data as Record<string, unknown>).catch(() => {})
-
+  // Return from DB only — tracking is synced by webhooks + cron polling
   return data as Order
 }
 
@@ -192,31 +162,8 @@ export async function adminGetOrder(orderId: string): Promise<Order> {
 
   if (error || !data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
-  // Auto-sync tracking from Shiprocket in background (fire-and-forget, non-blocking)
-  syncOrderTrackingInBackground(data as Record<string, unknown>).catch(() => {})
-
+  // Return from DB only — tracking is synced by webhooks + cron polling
   return data as unknown as Order
-}
-
-async function syncOrderTrackingInBackground(order: Record<string, unknown>): Promise<void> {
-  const awbCode = order['awb_code'] as string | undefined
-  const status = order['status'] as string | undefined
-  if (!awbCode || (status && isTerminalStatus(status))) return
-
-  try {
-    const trackResult = await trackSingle(awbCode)
-    const shipmentTrack = trackResult.tracking_data?.shipment_track
-    const currentStatus = shipmentTrack?.[0]?.current_status
-
-    if (currentStatus) {
-      const mappedStatus = shiprocketStatusToOrderStatus(currentStatus)
-      if (mappedStatus) {
-        await updateOrderStatusByAwb(awbCode, mappedStatus)
-      }
-    }
-  } catch (err) {
-    logger.warn({ err, awbCode: awbCode }, 'Background tracking sync failed')
-  }
 }
 
 export async function adminUpdateOrderStatus(
