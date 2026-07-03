@@ -13,6 +13,7 @@ import Dialog from '../../components/ui/Dialog'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import ErrorState from '../../components/shared/ErrorState'
 import ShiprocketTracker from '../../components/shared/ShiprocketTracker'
+import Badge from '../../components/ui/Badge'
 import {
   ArrowLeft,
   Phone,
@@ -58,6 +59,30 @@ const STEP_ORDER = [
 export const AdminOrderDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { showToast } = useToast()
+
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'delivered':
+        return 'success'
+      case 'cancelled':
+      case 'lost':
+      case 'damaged':
+        return 'danger'
+      case 'shipped':
+      case 'out_for_delivery':
+      case 'processing':
+      case 'confirmed':
+        return 'primary'
+      case 'rto':
+      case 'returned':
+      case 'refunded':
+        return 'warning'
+      case 'delivery_failed':
+        return 'danger'
+      default:
+        return 'warning'
+    }
+  }
 
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -365,99 +390,34 @@ export const AdminOrderDetail: React.FC = () => {
     order.fulfillmentStep !== 'ready_for_pickup'
 
   return (
-    <div className="space-y-6 text-left max-w-6xl mx-auto pb-12">
+    <div className="space-y-6 text-left max-w-6xl mx-auto px-4 md:px-6 pb-12 animate-fadeIn">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <Link
-          to="/admin/orders"
-          className="border border-secondary300 bg-white p-2 rounded-full hover:bg-lightgrayColor transition-colors shrink-0"
-        >
-          <ArrowLeft className="w-4.5 h-4.5 text-secondary700" />
-        </Link>
-        <div>
-          <h2 className="text-xl md:text-2xl font-medium tracking-wide text-darkColor">
-            {order.orderNumber}
-          </h2>
-          <p className="text-xs text-secondary500 tracking-wide mt-0.5">
-            Placed on {formatDate(order.createdAt)}
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-secondary200 pb-5">
+        <div className="flex items-center gap-3">
+          <Link
+            to="/admin/orders"
+            className="border border-secondary300 bg-white p-2 rounded-lg hover:bg-neutral-50 transition-colors shrink-0 shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 text-secondary700" />
+          </Link>
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-darkColor">
+                {order.orderNumber}
+              </h2>
+              <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+            </div>
+            <p className="text-sm text-secondary500 mt-1">
+              Placed on {formatDate(order.createdAt)}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* LEFT: Customer Info + Shipping */}
-        <div className="space-y-5">
-          <Card className="border border-secondary200">
-            <CardHeader>
-              <CardTitle>Customer Information</CardTitle>
-            </CardHeader>
-            <CardContent className="text-left text-xs space-y-3">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-semibold text-darkColor">
-                  {order.customer?.fullName || order.shippingAddress.fullName}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-medium text-secondary700">
-                  {order.customer?.phone || order.shippingAddress.phone}
-                </span>
-              </div>
-              {order.customer?.email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-secondary400 shrink-0" />
-                  <span className="font-medium text-secondary700 truncate">
-                    {order.customer.email}
-                  </span>
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-secondary400 shrink-0" />
-                <span className="font-medium text-secondary700 capitalize">
-                  {order.paymentStatus}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-secondary200">
-            <CardHeader>
-              <CardTitle>Shipping Address</CardTitle>
-            </CardHeader>
-            <CardContent className="text-left text-xs space-y-2">
-              <div className="flex items-start gap-2">
-                <MapPinHouse className="w-4 h-4 text-secondary400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-darkColor">{order.shippingAddress.fullName}</p>
-                  <p className="text-secondary600 leading-relaxed mt-0.5">
-                    {order.shippingAddress.line1}
-                    {order.shippingAddress.line2 && `, ${order.shippingAddress.line2}`}
-                    <br />
-                    {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
-                    {order.shippingAddress.pincode}
-                  </p>
-                  <p className="font-medium text-secondary700 mt-1">
-                    {order.shippingAddress.phone}
-                  </p>
-                </div>
-              </div>
-              {order.deliveryInstructions && (
-                <div className="mt-3 pt-3 border-t border-secondary200/50">
-                  <span className="text-[10px] uppercase tracking-wider text-secondary500 font-semibold">
-                    Instructions
-                  </span>
-                  <p className="text-secondary700 text-xs italic mt-1">
-                    {order.deliveryInstructions}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* MIDDLE: Ordered Products */}
-        <div className="space-y-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* LEFT COLUMN: Main Order and Fulfillment Details (8/12 = 2/3 width) */}
+        <div className="lg:col-span-8 space-y-6">
+          {/* Ordered Products */}
           <Card className="border border-secondary200">
             <CardHeader>
               <CardTitle>Ordered Products</CardTitle>
@@ -475,15 +435,15 @@ export const AdminOrderDetail: React.FC = () => {
                     </div>
                     <div className="flex-grow flex items-center justify-between gap-4">
                       <div>
-                        <h4 className="text-xs md:text-sm font-medium text-darkColor leading-snug">
+                        <h4 className="text-sm md:text-base font-semibold text-darkColor leading-snug">
                           {item.productName}
                         </h4>
-                        <span className="text-[10px] text-secondary500 font-normal block mt-1">
+                        <span className="text-xs md:text-sm text-secondary500 font-normal block mt-1">
                           Qty: {item.quantity} &times; {formatPrice(item.unitPrice)}
                         </span>
                       </div>
                       <div className="text-right whitespace-nowrap">
-                        <p className="text-xs font-medium text-darkColor">
+                        <p className="text-sm md:text-base font-bold text-darkColor">
                           {formatPrice(item.totalPrice)}
                         </p>
                       </div>
@@ -492,38 +452,38 @@ export const AdminOrderDetail: React.FC = () => {
                 ))}
               </div>
               <div className="p-4 border-t border-secondary200 bg-lightgrayColor/20 space-y-1.5">
-                <div className="flex justify-between text-xs">
+                <div className="flex justify-between text-sm">
                   <span className="text-secondary500">Subtotal</span>
-                  <span className="text-secondary700 font-medium">
+                  <span className="text-secondary700 font-semibold">
                     {formatPrice(order.subtotal)}
                   </span>
                 </div>
                 {order.discountAmount > 0 && (
-                  <div className="flex justify-between text-xs">
+                  <div className="flex justify-between text-sm">
                     <span className="text-secondary500">Discount</span>
-                    <span className="text-emerald-600 font-medium">
+                    <span className="text-emerald-600 font-semibold">
                       -{formatPrice(order.discountAmount)}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-xs">
+                <div className="flex justify-between text-sm">
                   <span className="text-secondary500">Shipping</span>
-                  <span className="text-secondary700 font-medium">
+                  <span className="text-secondary700 font-semibold">
                     {formatPrice(order.shippingAmount)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm font-semibold pt-1.5 border-t border-secondary200">
+                <div className="flex justify-between text-base font-bold pt-1.5 border-t border-secondary200">
                   <span className="text-darkColor">Total</span>
                   <span className="text-darkColor">{formatPrice(order.totalAmount)}</span>
                 </div>
                 {order.packageWeightGrams && (
-                  <div className="flex items-center gap-4 pt-2 text-[10px] text-secondary500 uppercase tracking-wider">
+                  <div className="flex items-center gap-4 pt-2 text-xs text-secondary500 uppercase tracking-wider">
                     <span className="flex items-center gap-1">
-                      <Scale className="w-3 h-3" /> {order.packageWeightGrams}g
+                      <Scale className="w-3.5 h-3.5" /> {order.packageWeightGrams}g
                     </span>
                     {order.packageLengthCm && (
                       <span className="flex items-center gap-1">
-                        <Ruler className="w-3 h-3" /> {order.packageLengthCm}&times;
+                        <Ruler className="w-3.5 h-3.5" /> {order.packageLengthCm}&times;
                         {order.packageBreadthCm}&times;{order.packageHeightCm} cm
                       </span>
                     )}
@@ -533,21 +493,7 @@ export const AdminOrderDetail: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Tracking */}
-          {order.awbCode && (
-            <Card className="border border-secondary200">
-              <CardHeader>
-                <CardTitle>Live Tracking</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ShiprocketTracker awbCode={order.awbCode} />
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* RIGHT: Fulfillment Panel */}
-        <div className="space-y-5">
+          {/* Fulfillment Panel */}
           <Card className="border border-secondary200">
             <CardHeader>
               <CardTitle>Fulfillment Panel</CardTitle>
@@ -555,21 +501,21 @@ export const AdminOrderDetail: React.FC = () => {
             <CardContent className="space-y-4">
               {/* Fulfillment Status */}
               <div>
-                <span className="text-[10px] uppercase tracking-wider text-secondary500 font-semibold">
+                <span className="text-xs uppercase tracking-wider text-secondary500 font-semibold">
                   Status
                 </span>
                 <div className="mt-1">
                   {isFulfillmentComplete ? (
                     <div className="flex items-center gap-2 p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
                       <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      <span className="text-xs font-semibold text-emerald-700">
+                      <span className="text-sm font-semibold text-emerald-700">
                         Ready for Pickup
                       </span>
                     </div>
                   ) : isFulfillmentInProgress ? (
                     <div className="flex items-center gap-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
                       <Loader2 className="w-4 h-4 text-amber-600 animate-spin" />
-                      <span className="text-xs font-semibold text-amber-700">
+                      <span className="text-sm font-semibold text-amber-700">
                         {FULFILLMENT_STEP_LABELS[order.fulfillmentStep!] || order.fulfillmentStep}
                       </span>
                     </div>
@@ -577,9 +523,9 @@ export const AdminOrderDetail: React.FC = () => {
                     <div className="flex items-center gap-2 p-2.5 bg-rose-50 border border-rose-200 rounded-lg">
                       <XCircle className="w-4 h-4 text-rose-500" />
                       <div>
-                        <span className="text-xs font-semibold text-rose-700">Failed</span>
+                        <span className="text-sm font-semibold text-rose-700">Failed</span>
                         {order.shiprocketError && (
-                          <p className="text-[10px] text-rose-600 mt-0.5">
+                           <p className="text-xs text-rose-600 mt-0.5">
                             {order.shiprocketError}
                           </p>
                         )}
@@ -588,7 +534,7 @@ export const AdminOrderDetail: React.FC = () => {
                   ) : (
                     <div className="flex items-center gap-2 p-2.5 bg-secondary100 border border-secondary200 rounded-lg">
                       <Clock className="w-4 h-4 text-secondary400" />
-                      <span className="text-xs font-medium text-secondary600">
+                      <span className="text-sm font-medium text-secondary600">
                         Pending Fulfillment
                       </span>
                     </div>
@@ -600,12 +546,12 @@ export const AdminOrderDetail: React.FC = () => {
               {(isFulfillmentInProgress || isFulfillmentComplete) && (
                 <div className="space-y-2 pt-2 border-t border-secondary200">
                   {order.shiprocketOrderId && (
-                    <div className="text-[10px] text-secondary500">
+                    <div className="text-xs text-secondary500">
                       Shiprocket ID: {order.shiprocketOrderId}
                     </div>
                   )}
                   {order.shipmentId && (
-                    <div className="text-[10px] text-secondary500">
+                    <div className="text-xs text-secondary500">
                       Shipment ID: {order.shipmentId}
                     </div>
                   )}
@@ -613,20 +559,20 @@ export const AdminOrderDetail: React.FC = () => {
                     <div className="flex items-center gap-2 p-2.5 bg-secondary100 rounded-lg">
                       <Package className="w-4 h-4 text-primaryBg shrink-0" />
                       <div>
-                        <p className="text-[9px] uppercase tracking-wider text-secondary500 font-semibold">
+                        <p className="text-xs uppercase tracking-wider text-secondary500 font-semibold">
                           AWB
                         </p>
-                        <p className="text-sm font-bold text-darkColor">{order.awbCode}</p>
+                        <p className="text-base font-bold text-darkColor">{order.awbCode}</p>
                       </div>
                     </div>
                   )}
                   {order.courierName && (
-                    <div className="text-xs text-secondary700">
+                    <div className="text-sm text-secondary700">
                       Courier: <span className="font-semibold">{order.courierName}</span>
                     </div>
                   )}
                   {order.pickupScheduledDate && (
-                    <div className="text-xs text-secondary700">
+                    <div className="text-sm text-secondary700">
                       Pickup: {formatDate(order.pickupScheduledDate)}
                     </div>
                   )}
@@ -696,6 +642,91 @@ export const AdminOrderDetail: React.FC = () => {
             </CardContent>
           </Card>
 
+          {/* Tracking */}
+          {order.awbCode && (
+            <Card className="border border-secondary200">
+              <CardHeader>
+                <CardTitle>Live Tracking</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ShiprocketTracker awbCode={order.awbCode} />
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* RIGHT COLUMN: Customer Context & Notes (4/12 = 1/3 width) */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Customer Information */}
+          <Card className="border border-secondary200">
+            <CardHeader>
+              <CardTitle>Customer Information</CardTitle>
+            </CardHeader>
+            <CardContent className="text-left text-sm space-y-3">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-secondary400 shrink-0" />
+                <span className="font-semibold text-darkColor">
+                  {order.customer?.fullName || order.shippingAddress.fullName}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-secondary400 shrink-0" />
+                <span className="font-medium text-secondary700">
+                  {order.customer?.phone || order.shippingAddress.phone}
+                </span>
+              </div>
+              {order.customer?.email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-secondary400 shrink-0" />
+                  <span className="font-medium text-secondary700 truncate">
+                    {order.customer.email}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-secondary400 shrink-0" />
+                <span className="font-medium text-secondary700 capitalize">
+                  {order.paymentStatus}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Shipping Address */}
+          <Card className="border border-secondary200">
+            <CardHeader>
+              <CardTitle>Shipping Address</CardTitle>
+            </CardHeader>
+            <CardContent className="text-left text-sm space-y-3">
+              <div className="flex items-start gap-2">
+                <MapPinHouse className="w-4 h-4 text-secondary400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-darkColor">{order.shippingAddress.fullName}</p>
+                  <p className="text-secondary600 leading-relaxed mt-0.5">
+                    {order.shippingAddress.line1}
+                    {order.shippingAddress.line2 && `, ${order.shippingAddress.line2}`}
+                    <br />
+                    {order.shippingAddress.city}, {order.shippingAddress.state} -{' '}
+                    {order.shippingAddress.pincode}
+                  </p>
+                  <p className="font-medium text-secondary700 mt-1">
+                    {order.shippingAddress.phone}
+                  </p>
+                </div>
+              </div>
+              {order.deliveryInstructions && (
+                <div className="mt-3 pt-3 border-t border-secondary200/50">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-secondary500">
+                    Instructions
+                  </span>
+                  <p className="text-secondary700 text-sm italic mt-1">
+                    {order.deliveryInstructions}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Internal Notes */}
           <Card className="border border-secondary200">
             <CardHeader>
@@ -704,15 +735,15 @@ export const AdminOrderDetail: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="max-h-48 overflow-y-auto no-scrollbar border-b border-secondary200/50 pb-4">
                 {!order.adminNotes || order.adminNotes.length === 0 ? (
-                  <p className="text-xs text-secondary500 italic">No notes logged.</p>
+                  <p className="text-sm text-secondary500 italic">No notes logged.</p>
                 ) : (
                   <div className="relative pl-4 border-l border-secondary200 space-y-4 ml-2">
                     {order.adminNotes.map((note) => (
                       <div key={note.id} className="relative space-y-1">
                         <div className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-primaryBg border border-white ring-2 ring-primary100" />
-                        <div className="bg-lightgrayColor/50 border border-secondary200/60 p-2.5 rounded-lg text-xs">
+                        <div className="bg-lightgrayColor/50 border border-secondary200/60 p-2.5 rounded-lg text-sm">
                           <p className="text-secondary700 leading-normal">{note.note}</p>
-                          <span className="text-[9px] text-secondary400 mt-1 block">
+                          <span className="text-xs text-secondary400 mt-1 block">
                             {formatDate(note.createdAt)}
                           </span>
                         </div>
@@ -727,7 +758,7 @@ export const AdminOrderDetail: React.FC = () => {
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder="Log fulfillment notes..."
                   rows={2}
-                  className="w-full text-xs p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primaryBg/30 focus:border-primaryBg bg-white"
+                  className="w-full text-sm p-2.5 border border-secondary300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primaryBg/30 focus:border-primaryBg bg-white"
                   disabled={addingNote}
                   maxLength={2000}
                 />
@@ -736,7 +767,7 @@ export const AdminOrderDetail: React.FC = () => {
                   variant="secondary"
                   size="sm"
                   loading={addingNote}
-                  className="w-full text-xs font-medium"
+                  className="w-full text-sm font-medium"
                 >
                   Add Note
                 </Button>

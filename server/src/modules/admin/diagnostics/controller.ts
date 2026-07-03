@@ -76,12 +76,10 @@ export async function retryJob(req: Request, res: Response, next: NextFunction):
     const jobId = req.params['id'] as string
     const ok = await service.retryJob(jobId)
     if (!ok) {
-      res
-        .status(404)
-        .json({
-          success: false,
-          error: { code: 'JOB_NOT_FOUND', message: 'Job not found or not in retryable state' },
-        })
+      res.status(404).json({
+        success: false,
+        error: { code: 'JOB_NOT_FOUND', message: 'Job not found or not in retryable state' },
+      })
       return
     }
     res.json({ success: true, data: { retried: true } })

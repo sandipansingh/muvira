@@ -284,13 +284,11 @@ export async function adminFulfillOrder(
     if (result.success) {
       res.json({ success: true, data: result })
     } else {
-      res
-        .status(502)
-        .json({
-          success: false,
-          data: result,
-          error: { code: 'FULFILLMENT_FAILED', message: result.error ?? 'Fulfillment failed' },
-        })
+      res.status(502).json({
+        success: false,
+        data: result,
+        error: { code: 'FULFILLMENT_FAILED', message: result.error ?? 'Fulfillment failed' },
+      })
     }
   } catch (err) {
     next(err)
