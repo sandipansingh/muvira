@@ -2,6 +2,7 @@ import { adminSupabase } from '../../lib/supabase/admin'
 import { verifyPaymentSignature, verifyWebhookSignature } from '../../lib/razorpay/verifySignature'
 import { logger } from '../../lib/logger'
 import { sendOrderConfirmationEmail } from '../../lib/notifications/email'
+import { emitOrderEvent } from '../../services/eventBus'
 import { AppError } from '../../types'
 import type { Order } from '../../types'
 import type { VerifyPaymentInput } from './schema'
@@ -153,8 +154,18 @@ async function capturePayment(
     'Payment captured successfully'
   )
 
-  // Fire-and-forget email
+  // Fire-and-forget email notification via event bus
   // Do NOT await - email failure must not block the response
+  emitOrderEvent('order:payment:captured', {
+    orderId: order.id,
+    orderNumber: order.order_number,
+    userId: order.user_id,
+    oldStatus: 'pending',
+    newStatus: 'confirmed',
+    source: 'system',
+  })
+
+  // Legacy email (will be replaced by event bus subscriber)
   sendOrderConfirmationEmail({
     order: order as Order,
     customerName: order.shipping_full_name,

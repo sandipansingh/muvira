@@ -162,9 +162,15 @@ export interface Order {
     | 'confirmed'
     | 'processing'
     | 'shipped'
+    | 'out_for_delivery'
     | 'delivered'
     | 'cancelled'
+    | 'rto'
+    | 'returned'
     | 'refunded'
+    | 'lost'
+    | 'damaged'
+    | 'delivery_failed'
   payment_status: 'pending' | 'paid' | 'failed' | 'refunded'
   fulfillment_status: 'unfulfilled' | 'partial' | 'fulfilled' | 'exception'
   // Shipping address snapshot
@@ -292,6 +298,21 @@ export interface CheckoutTotals {
   shipping_amount_paisa: number
   tax_amount_paisa: number
   total_amount_paisa: number
+}
+
+// Webhook events — raw receipt + processing audit trail
+
+export interface WebhookEvent {
+  id: string
+  source: 'shiprocket' | 'razorpay'
+  event_type: string | null
+  payload_hash: string
+  raw_payload: Record<string, unknown>
+  processing_status: 'received' | 'verified' | 'processed' | 'failed' | 'duplicate'
+  retry_count: number
+  error_message: string | null
+  processed_at: string | null
+  created_at: string
 }
 
 // AppError

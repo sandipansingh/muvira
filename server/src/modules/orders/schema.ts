@@ -8,7 +8,21 @@ export const ListOrdersQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).default('1'),
   limit: z.string().regex(/^\d+$/).transform(Number).default('20'),
   status: z
-    .enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'])
+    .enum([
+      'pending',
+      'confirmed',
+      'processing',
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+      'cancelled',
+      'rto',
+      'returned',
+      'refunded',
+      'lost',
+      'damaged',
+      'delivery_failed',
+    ])
     .optional(),
   payment_status: z.enum(['pending', 'paid', 'failed', 'refunded']).optional(),
 })
@@ -21,9 +35,15 @@ export const UpdateOrderStatusSchema = z
       'confirmed',
       'processing',
       'shipped',
+      'out_for_delivery',
       'delivered',
       'cancelled',
+      'rto',
+      'returned',
       'refunded',
+      'lost',
+      'damaged',
+      'delivery_failed',
     ]),
   })
   .strict()
@@ -44,7 +64,21 @@ export const AdminListOrdersQuerySchema = z.object({
   page: z.string().regex(/^\d+$/).transform(Number).default('1'),
   limit: z.string().regex(/^\d+$/).transform(Number).default('20'),
   status: z
-    .enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'])
+    .enum([
+      'pending',
+      'confirmed',
+      'processing',
+      'shipped',
+      'out_for_delivery',
+      'delivered',
+      'cancelled',
+      'rto',
+      'returned',
+      'refunded',
+      'lost',
+      'damaged',
+      'delivery_failed',
+    ])
     .optional(),
   payment_status: z.enum(['pending', 'paid', 'failed', 'refunded']).optional(),
   fulfillment_status: z.enum(['unfulfilled', 'partial', 'fulfilled', 'exception']).optional(),

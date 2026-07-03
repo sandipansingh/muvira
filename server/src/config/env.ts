@@ -40,6 +40,11 @@ const envSchema = z.object({
   // Shiprocket - used for order fulfillment + tracking
   SHIPROCKET_EMAIL: z.string().email(),
   SHIPROCKET_PASSWORD: z.string().min(1, 'SHIPROCKET_PASSWORD is required'),
+
+  // Shiprocket webhook - shared secret for payload verification
+  // If set, incoming webhooks must include ?secret=<value> in the URL or a
+  // X-Shiprocket-Signature header. Leave empty to skip verification (dev mode).
+  SHIPROCKET_WEBHOOK_SECRET: z.string().optional().default(''),
 })
 
 const parsed = envSchema.safeParse(process.env)
