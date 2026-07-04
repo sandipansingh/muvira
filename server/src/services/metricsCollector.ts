@@ -80,21 +80,29 @@ export function getMetricsSnapshot() {
   return {
     ...m,
     server_uptime_seconds: Math.floor(process.uptime()),
-    memory_mb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 10) / 10,
+    memory_mb: Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 10) / 10,
     node_env: process.env.NODE_ENV ?? 'unknown',
   }
 }
 
 // --- Sync Metrics ---
 
-export function recordFullPoll(ordersChecked: number, ordersUpdated: number, durationMs: number): void {
+export function recordFullPoll(
+  ordersChecked: number,
+  ordersUpdated: number,
+  durationMs: number
+): void {
   metrics.sync.fullPolls++
   metrics.sync.ordersSyncedTotal += ordersUpdated
   metrics.sync.lastSyncAt = new Date().toISOString()
   metrics.sync.lastSyncDurationMs = durationMs
 }
 
-export function recordOfdPoll(ordersChecked: number, ordersUpdated: number, durationMs: number): void {
+export function recordOfdPoll(
+  ordersChecked: number,
+  ordersUpdated: number,
+  durationMs: number
+): void {
   metrics.sync.ofdPolls++
   metrics.sync.ordersSyncedTotal += ordersUpdated
   metrics.sync.lastSyncAt = new Date().toISOString()
@@ -148,9 +156,17 @@ export function recordShiprocketCallTimedOut(): void {
 export function recordOrderEvent(event: string): void {
   metrics.orderEvents.emittedTotal++
   switch (event) {
-    case 'order:delivered': metrics.orderEvents.deliveredTotal++; break
-    case 'order:shipped': metrics.orderEvents.shippedTotal++; break
-    case 'order:cancelled': metrics.orderEvents.cancelledTotal++; break
-    case 'order:rto:initiated': metrics.orderEvents.rtoTotal++; break
+    case 'order:delivered':
+      metrics.orderEvents.deliveredTotal++
+      break
+    case 'order:shipped':
+      metrics.orderEvents.shippedTotal++
+      break
+    case 'order:cancelled':
+      metrics.orderEvents.cancelledTotal++
+      break
+    case 'order:rto:initiated':
+      metrics.orderEvents.rtoTotal++
+      break
   }
 }

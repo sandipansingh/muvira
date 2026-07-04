@@ -634,10 +634,7 @@ export const adminApiService = {
   },
 
   // Shiprocket actions
-  async assignAwb(
-    id: string,
-    courierId?: number
-  ): Promise<ApiResponse<OrderDetail>> {
+  async assignAwb(id: string, courierId?: number): Promise<ApiResponse<OrderDetail>> {
     const body: AnyRecord = {}
     if (courierId !== undefined) body['courier_id'] = courierId
     const res = await adminPost<{
@@ -743,7 +740,16 @@ export const adminApiService = {
   },
 
   async getPickupLocations(): Promise<
-    ApiResponse<Array<{ pickup_location: string; id: number; address: string; city: string; state: string; pin_code: string }>>
+    ApiResponse<
+      Array<{
+        pickup_location: string
+        id: number
+        address: string
+        city: string
+        state: string
+        pin_code: string
+      }>
+    >
   > {
     const res = await adminGet<{
       success: boolean

@@ -101,6 +101,39 @@
   --primary: #c65c30;
 }
 
+.admin-theme {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f4f5;
+  --text: #18181b;
+  --text-muted: #71717a;
+  --border: #e4e4e7;
+  --accent: #18181b;
+  --accent-dark: #27272a;
+  --accent-gold: #3f3f46;
+  --accent-gold-light: #52525b;
+  --primary: #18181b;
+
+  --admin-primaryBg: #18181b;
+  --admin-primaryHover: #27272a;
+  --admin-primaryActive: #09090b;
+  --admin-primary100: #f4f4f5;
+  --admin-primary200: #e4e4e7;
+  --admin-primary300: #d4d4d8;
+  --admin-primary400: #a1a1aa;
+  --admin-primary600: #27272a;
+  --admin-secondary200: #e4e4e7;
+  --admin-secondary300: #d4d4d8;
+  --admin-secondary400: #a1a1aa;
+  --admin-secondary500: #71717a;
+  --admin-secondary600: #52525b;
+  --admin-secondary700: #27272a;
+  --admin-secondarytext: #71717a;
+  --admin-darkColor: #18181b;
+  --admin-dangerColor: #dc2626;
+  --admin-lightgrayColor: #fafafa;
+}
+
 @layer base {
   body {
     @apply bg-[var(--bg)] text-[var(--text)] antialiased;
@@ -222,4 +255,3 @@
     transform: translate3d(var(--slide-transform-desktop), 0px, 0px);
   }
 }
-

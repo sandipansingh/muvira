@@ -72,7 +72,7 @@ export const Login: React.FC = () => {
                 label="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="customer@example.com"
+                placeholder=""
                 className="pl-10"
                 disabled={loading}
               />

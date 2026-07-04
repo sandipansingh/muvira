@@ -56,10 +56,7 @@ export function verifyWebhookFreshness(rawPayload: Record<string, unknown>): boo
  *
  * Returns true if the webhook is authenticated OR if secret is not configured.
  */
-export function verifyWebhookAuth(
-  querySecret?: string,
-  headerSignature?: string
-): boolean {
+export function verifyWebhookAuth(querySecret?: string, headerSignature?: string): boolean {
   const expectedSecret = env.SHIPROCKET_WEBHOOK_SECRET
 
   if (!expectedSecret) {

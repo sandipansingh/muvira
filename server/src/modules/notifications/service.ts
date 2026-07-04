@@ -61,9 +61,13 @@ export async function adminListNotificationLogs(params: {
 
   return {
     logs: (data ?? []) as Array<{
-      id: string; order_id: string; user_id: string
-      notification_type: string; event_type: string
-      sent_status: string; created_at: string
+      id: string
+      order_id: string
+      user_id: string
+      notification_type: string
+      event_type: string
+      sent_status: string
+      created_at: string
     }>,
     total: count ?? 0,
   }

@@ -35,8 +35,7 @@ async function request<T>(
     if (token) headers['Authorization'] = `Bearer ${token}`
   }
 
-  const doFetch = (): Promise<Response> =>
-    fetch(`${API_BASE_URL}${path}`, { ...options, headers })
+  const doFetch = (): Promise<Response> => fetch(`${API_BASE_URL}${path}`, { ...options, headers })
 
   let res = await doFetch()
 

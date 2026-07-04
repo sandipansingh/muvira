@@ -14,7 +14,14 @@ export type OrderStatus =
   | 'delivery_failed'
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded'
 export type FulfillmentStatus = 'unfulfilled' | 'partial' | 'fulfilled' | 'exception'
-export type FulfillmentStep = 'idle' | 'order_created' | 'awb_assigned' | 'pickup_scheduled' | 'label_generated' | 'manifest_generated' | 'ready_for_pickup'
+export type FulfillmentStep =
+  | 'idle'
+  | 'order_created'
+  | 'awb_assigned'
+  | 'pickup_scheduled'
+  | 'label_generated'
+  | 'manifest_generated'
+  | 'ready_for_pickup'
 
 export interface OrderListItem {
   id: string

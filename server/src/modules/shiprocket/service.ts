@@ -31,10 +31,7 @@ export async function processShiprocketWebhook(
   const remarks = payload['remarks'] as string | undefined
   const orderId = payload['order_id'] as number | undefined
 
-  logger.info(
-    { event, shipmentId, awbCode, currentStatus, orderId },
-    'Shiprocket webhook received'
-  )
+  logger.info({ event, shipmentId, awbCode, currentStatus, orderId }, 'Shiprocket webhook received')
 
   let dbOrderId: string | null = null
 
@@ -86,9 +83,7 @@ export async function processShiprocketWebhook(
   }
 
   // Save shipment event for customer-facing timeline display
-  const eventPayloadHash = createHash('sha256')
-    .update(JSON.stringify(payload))
-    .digest('hex')
+  const eventPayloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
 
   await adminSupabase.from('shipment_events').insert({
     order_id: dbOrderId,
@@ -140,16 +135,10 @@ export async function processShiprocketWebhook(
   // If a tracking URL was provided, save it
   const trackUrl = payload['track_url'] as string | undefined
   if (trackUrl) {
-    await adminSupabase
-      .from('orders')
-      .update({ tracking_url: trackUrl })
-      .eq('id', dbOrderId)
+    await adminSupabase.from('orders').update({ tracking_url: trackUrl }).eq('id', dbOrderId)
   }
 
-  logger.info(
-    { dbOrderId, event, currentStatus },
-    'Shiprocket webhook processed'
-  )
+  logger.info({ dbOrderId, event, currentStatus }, 'Shiprocket webhook processed')
 
   return { status: 'processed', orderId: dbOrderId }
 }

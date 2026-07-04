@@ -102,7 +102,7 @@ export const OrderDetail: React.FC = () => {
           <h1 className="text-xl md:text-2xl font-bold tracking-wide text-darkColor">
             {order?.orderNumber}
           </h1>
-          <p className="text-xs text-secondary500 font-medium tracking-wide mt-0.5">
+          <p className="text-sm text-secondary500 font-medium tracking-wide mt-0.5">
             Placed on {order && formatDate(order.createdAt)}
           </p>
         </div>
@@ -142,18 +142,18 @@ export const OrderDetail: React.FC = () => {
                     </div>
                     <div className="flex-grow flex justify-between items-start text-left gap-4">
                       <div>
-                        <h4 className="text-xs md:text-sm font-semibold text-darkColor leading-snug">
+                        <h4 className="text-sm md:text-base font-semibold text-darkColor leading-snug">
                           {item.productName}
                         </h4>
-                        <span className="text-[10px] text-secondary500 uppercase tracking-widest font-semibold block mt-1">
+                        <span className="text-xs md:text-sm text-secondary500 uppercase tracking-widest font-semibold block mt-1">
                           Unit Price: {formatPrice(item.unitPrice)}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs text-secondary600 font-semibold block">
+                        <span className="text-sm text-secondary600 font-semibold block">
                           Qty: {item.quantity}
                         </span>
-                        <span className="text-xs md:text-sm font-bold text-darkColor block mt-1">
+                        <span className="text-sm md:text-base font-bold text-darkColor block mt-1">
                           {formatPrice(item.totalPrice)}
                         </span>
                       </div>
@@ -188,7 +188,7 @@ export const OrderDetail: React.FC = () => {
               </div>
               <CardContent className="p-5 space-y-4">
                 {/* Envelop details */}
-                <div className="space-y-2.5 text-xs md:text-sm border-b border-secondary200 pb-4">
+                <div className="space-y-2.5 text-sm border-b border-secondary200 pb-4">
                   <div className="flex justify-between text-secondary600">
                     <span>Cart Subtotal</span>
                     <span className="font-semibold text-darkColor">
@@ -196,7 +196,7 @@ export const OrderDetail: React.FC = () => {
                     </span>
                   </div>
                   {order.discountAmount > 0 && (
-                    <div className="flex justify-between text-emerald-700 font-semibold">
+                    <div className="flex justify-between text-emerald-700 font-semibold text-sm">
                       <span>Discount ({order.couponCode})</span>
                       <span>-{formatPrice(order.discountAmount)}</span>
                     </div>
@@ -209,8 +209,8 @@ export const OrderDetail: React.FC = () => {
 
                 {/* Final Total */}
                 <div className="flex justify-between items-center text-darkColor font-bold py-1">
-                  <span className="text-sm uppercase tracking-wider">Total Amount</span>
-                  <span className="text-sm md:text-lg text-primaryBg">
+                  <span className="text-sm md:text-base uppercase tracking-wider">Total Amount</span>
+                  <span className="text-base md:text-lg text-primaryBg">
                     {formatPrice(order.totalAmount)}
                   </span>
                 </div>
@@ -233,7 +233,7 @@ export const OrderDetail: React.FC = () => {
                   Delivery Destination
                 </h3>
               </div>
-              <CardContent className="p-5 text-left text-xs md:text-sm">
+              <CardContent className="p-5 text-left text-sm">
                 <p className="font-bold text-darkColor mb-1">{order.shippingAddress.fullName}</p>
                 <p className="text-secondary600 mb-1.5 leading-snug">
                   {order.shippingAddress.line1},{' '}
