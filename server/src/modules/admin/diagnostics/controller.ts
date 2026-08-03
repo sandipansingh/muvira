@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 import { getMetricsSnapshot } from '../../../services/metricsCollector'
-import { getBreakerStatus } from '../../../services/circuitBreaker'
+import { getBreakerStatus, resetShiprocketBreaker } from '../../../services/circuitBreaker'
 
 export async function getSummary(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -151,3 +151,17 @@ export async function getCircuitBreaker(
     next(err)
   }
 }
+
+export async function resetCircuitBreaker(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    resetShiprocketBreaker()
+    res.json({ success: true, data: { reset: true } })
+  } catch (err) {
+    next(err)
+  }
+}
+

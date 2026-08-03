@@ -17,3 +17,5 @@ adminDiagnosticsRouter.get('/metrics', controller.getMetrics)
 // This calls Shiprocket API directly — use sparingly, audit-logged
 adminDiagnosticsRouter.post('/shipments/:orderId/refresh', controller.refreshShipment)
 adminDiagnosticsRouter.get('/circuit-breaker', controller.getCircuitBreaker)
+adminDiagnosticsRouter.post('/circuit-breaker/reset', controller.resetCircuitBreaker)
+

@@ -88,6 +88,16 @@ export function reportShiprocketFailure(): void {
 }
 
 /**
+ * Manually reset circuit breaker state (e.g., via admin control).
+ */
+export function resetShiprocketBreaker(): void {
+  logger.info('CircuitBreaker/Shiprocket: manually reset -> closed')
+  state.failures = 0
+  state.openedAt = 0
+  state.state = 'closed'
+}
+
+/**
  * Get current circuit breaker status for diagnostics.
  */
 export function getBreakerStatus(): {
@@ -104,3 +114,4 @@ export function getBreakerStatus(): {
       state.state === 'open' ? Math.max(0, COOLDOWN_MS - (Date.now() - state.openedAt)) : null,
   }
 }
+
