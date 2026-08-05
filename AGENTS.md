@@ -1,165 +1,71 @@
-# Repository Guidelines
+# AGENTS.md
 
-Muvira — full-stack e-commerce platform (client-server monorepo).
+This is the **single source of truth** for how to write code in this repository. It covers the stack, commands, architecture, and coding conventions.
 
-## Project Structure & Module Organization
-
-Monorepo with three `package.json` files:
-
-* `/` – workspace orchestration, linting, formatting
-* `client/` – React + Vite storefront
-* `server/` – Express REST API
-
-Server modules are organized by domain under `server/src/modules/`.
-
-Client components are organized by feature under `client/src/components/`.
-
-Database: Supabase PostgreSQL.
-
-Payments: Razorpay.
-
-Email: Resend.
+> [!NOTE]
+> Detailed guidelines are organized into specific topic files under `.claude/rules/`:
+>
+> - [Design System](file://./.claude/rules/design_system.md) — typography, colors, spacing, radius, shadows, logo rules.
+> - [Component Patterns](file://./.claude/rules/components.md) — server/client split, data fetching, animations, card patterns, component descriptions.
+> - [Build, Image & SEO Rules](file://./.claude/rules/build_seo.md) — Next.js SSR, image rules, SEO constraints.
+> - [Structure & Types](file://./.claude/rules/structure_types.md) — folder structure, database schema, type definitions.
+> - [Code Style & Comments](file://./.claude/rules/code_style.md) — commenting conventions, plain comment rules.
 
 ---
 
-# Knowledge Base (Graphify)
+## Version Warning
 
-This repository uses **Graphify** as the primary architectural knowledge base.
+This project uses Next.js 16 with breaking changes from earlier versions. Read the relevant guide in `node_modules/next/dist/docs/` before writing framework-specific code.
 
-Before exploring the codebase:
+## Tech Stack
 
-1. Query Graphify.
-2. Understand the architecture.
-3. Read only the relevant source files.
+- **Next.js 16** (App Router) with React 19, Turbopack enabled
+- **Tailwind CSS v4** (`@tailwindcss/postcss` plugin)
+- **Prisma v7** with PostgreSQL — ORM for Supabase-hosted database
+- **framer-motion** for all animations
+- **lucide-react** for icons
 
-Never begin by recursively searching the repository unless Graphify cannot answer.
+## Verified Commands
 
-Preferred workflow:
+All commands are run using `npm`:
 
-* graphify query "<question>"
-* graphify explain "<component>"
-* graphify path "<component A>" "<component B>"
+- `npm run dev` — Start the development server (with Turbopack)
+- `npm run build` — Build project (runs prisma generate → migrate deploy → next build)
+- `npm run start` — Start production server
+- `npm run lint` — Run ESLint check
+- `npm run lint:fix` — Automatically fix lint errors
+- `npm run format` — Run Prettier format write
+- `npm run format:check` — Check Prettier formatting
+- `npm run db:reset` — Reset database using migrations
+- `npm run db:seed` — Seed the database (runs `npx tsx prisma/seed.ts`)
 
-Examples:
+### Post-Write Quality Gate
 
-* graphify query "How does admin authentication work?"
-* graphify query "How are orders processed?"
-* graphify explain "CouponService"
-* graphify path "Checkout" "PaymentService"
+After writing or modifying any code, you **must** run the following commands (in this order) before marking any task as complete or creating a commit:
 
-Use `GRAPH_REPORT.md` only for high-level architecture.
+1. `npm run lint:fix` — Auto-fix ESLint errors
+2. `npm run format` — Format all files with Prettier
+3. `npm run build` — Verify the project still compiles cleanly
 
-Use `graph.json` only if Graphify queries cannot answer.
+This ensures no lint errors, consistent formatting, and no broken builds.
 
----
+## Core Conventions & Architecture
 
-# Development Workflow
+- **Landing Page + Listings**: Single-page landing site (`src/app/page.tsx`) and package listings (`src/app/packages/page.tsx`).
+- **Path Aliases**: Always use `@/*` to map to `src/*` (e.g., `@/components/...`).
+- **Currency & Localization**: Currency is always `₹` (Indian Rupee).
+- **Client/Server Boundary**: Server pages pass fetched data to client components (`"use client"`) in `src/components/`.
 
-Before implementing changes:
+## Do Not (Strict Invariants)
 
-1. Understand the affected module.
-2. Identify dependencies.
-3. Explain the implementation plan.
-4. Modify the smallest possible set of files.
-5. Preserve existing architecture.
-
-Avoid unnecessary refactors.
-
----
-
-# Coding Rules
-
-* Follow existing project conventions.
-* Keep functions focused.
-* Reuse existing utilities.
-* Avoid duplicate business logic.
-* Prefer composition over duplication.
-* Keep API validation in Zod.
-* Maintain strict TypeScript types.
-
-Never use `any` unless unavoidable.
-
----
-
-# When Editing Code
-
-Always:
-
-* preserve API compatibility
-* preserve database schema unless requested
-* update types when changing APIs
-* update imports after moving files
-
-If changing multiple modules, explain why.
-
----
-
-# Before Creating New Code
-
-Search for existing:
-
-* services
-* hooks
-* utilities
-* middleware
-* components
-
-Prefer extending existing implementations over creating duplicates.
-
----
-
-# Testing Checklist
-
-Before finishing:
-
-* project builds successfully
-* lint passes
-* new TypeScript errors are not introduced
-* imports are clean
-* no unused variables
-
----
-
-# Build Commands
-
-npm run dev
-
-npm run build
-
-npm run lint
-
-npm run lint:fix
-
-npm run format
-
----
-
-# Deployment
-
-Client builds as static assets.
-
-Server compiles to `server/dist`.
-
-Do not modify deployment configuration unless requested.
-
----
-
-# Git
-
-Make focused commits.
-
-Do not rewrite Git history.
-
-Do not force push.
-
-Do not commit secrets or `.env` files.
-
-## graphify
-
-This project has a graphify knowledge graph at graphify-out/.
-
-Rules:
-- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
-- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
-- After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)
+- **No local interface declarations**: All domain-wide database model types must be declared in `src/types/` and imported (never duplicated).
+- **No root components**: React components must reside in their respective subdirectories inside `src/components/` (never directly in the root of `src/components/`).
+- **No `lib/types/`**: All domain-wide types must live in `src/types/` (never `src/lib/types/` or `src/lib/db/`).
+- **No hardcoded Hex values**: Always use `@theme` Tailwind CSS v4 variables from `globals.css`.
+- **No frames/backgrounds on Logo**: Brand logo images must never have a surrounding frame, background box, border, or shadow.
+- **Server APIs & Dynamic SSR**: Since Next.js SSR is used, dynamic server-side APIs (`headers()`, `cookies()`, `noStore()`, dynamic runtime options) are fully supported for per-request server rendering and dynamic backend logic.
+- **No dev-related scripts in scripts/**: All development-only or utility helper scripts (such as SQL generators, CSV importers, data-wiping scripts) must reside in `dev-scripts/` (which is git-ignored) and never in the `scripts/` folder (which is reserved for package runtime commands and fallback migration hooks).
+- **No new pages without sitemap updates**: Whenever a new page route is added under `src/app/`, you **must** also update both `src/app/sitemap.ts` (add the URL entry) and `src/app/sitemap/page.tsx` (add a visible link in the appropriate section). This is a non-negotiable SEO requirement. Refer to [Build, Image & SEO Rules](file://./.claude/rules/build_seo.md) for details.
+- **Clean Code Skill**: Always use the `clean-code` skill when writing or modifying any code in this repository.
+- **No decorative/excessive or git-reference comments**: Do not use heavy borders, decorative separators, or visual banners in code comments (e.g., `// ── ...`). Keep comments simple, concise, and meaningful. Do not use excessive comments, styling, or references to git commit hashes and restoration status (e.g., `(Restored original style from ...)`). This rule applies strictly to both the Next.js website and Cloudflare workers. Refer to the [Code Style](file://./.claude/rules/code_style.md) guidelines.
+- **No input font size smaller than 16px (1rem) on form controls**: All text inputs (`<input>`, `<textarea>`, `<select>`) must use a font size of at least `16px` (`text-base` in Tailwind) to prevent iOS Safari auto-zooming on focus on mobile devices.
