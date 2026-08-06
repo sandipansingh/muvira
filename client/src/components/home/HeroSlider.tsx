@@ -1,91 +1,107 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
-import { MOCK_HERO_SLIDES } from '../../mock/mockData'
+import { Link } from 'react-router-dom'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export const HeroSlider: React.FC = () => {
+  const { settings, loading } = useSiteSettings()
   const [currentIndex, setCurrentIndex] = useState(0)
+  const slides = settings.heroSlides
 
-  const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % MOCK_HERO_SLIDES.length)
-  }, [])
+  const moveToNextSlide = useCallback(() => {
+    setCurrentIndex((previous) => (previous + 1) % slides.length)
+  }, [slides.length])
 
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + MOCK_HERO_SLIDES.length) % MOCK_HERO_SLIDES.length)
-  }, [])
+  const moveToPreviousSlide = useCallback(() => {
+    setCurrentIndex((previous) => (previous - 1 + slides.length) % slides.length)
+  }, [slides.length])
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      nextSlide()
-    }, 5000)
+    if (slides.length < 2) return undefined
+    const timer = setInterval(moveToNextSlide, 5000)
     return () => clearInterval(timer)
-  }, [nextSlide])
+  }, [moveToNextSlide, slides.length])
+
+  useEffect(() => {
+    if (currentIndex >= slides.length) setCurrentIndex(0)
+  }, [currentIndex, slides.length])
+
+  if (loading) {
+    return (
+      <div className="editorial-container my-6 h-[24rem] animate-pulse bg-ivory sm:h-[36rem]" />
+    )
+  }
+
+  if (slides.length === 0) return null
+  const currentSlide = slides[currentIndex]
 
   return (
-    <section className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-      <div className="max-w-7xl mx-auto">
-        {/* High-impact rounded hero image slider container */}
-        <div className="relative w-full h-[380px] sm:h-[480px] md:h-[560px] lg:h-[620px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-zinc-200/60 group">
-          {/* Slides Track */}
-          {MOCK_HERO_SLIDES.map((slide, idx) => (
+    <section className="editorial-container py-6 sm:py-10">
+      <div className="grid border-y border-line lg:grid-cols-[1.7fr_0.8fr]">
+        <div className="relative aspect-[4/3] overflow-hidden border-b border-line sm:aspect-[16/9] lg:border-b-0 lg:border-r">
+          {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                index === currentIndex ? 'opacity-100' : 'pointer-events-none opacity-0'
               }`}
+              aria-hidden={index !== currentIndex}
             >
-              <img
-                src={slide.imageUrl}
-                alt={slide.alt}
-                className="w-full h-full object-cover object-center transform scale-100 group-hover:scale-105 transition-transform duration-700"
-              />
+              <img src={slide.imageUrl} alt={slide.title} className="h-full w-full object-cover" />
             </div>
           ))}
-
-          {/* Subtlest gradient at bottom left to ensure white pill button contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-15 pointer-events-none" />
-
-          {/* Top-Right Pagination Dots Indicator (Matching AuraLine Reference Design 1) */}
-          <div className="absolute top-6 right-6 z-20 flex items-center gap-2 bg-black/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-            {MOCK_HERO_SLIDES.map((_, idx) => (
+          {slides.length > 1 && (
+            <div className="absolute bottom-4 left-4 flex items-center gap-2 sm:bottom-6 sm:left-6">
               <button
-                key={idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`transition-all duration-300 rounded-full ${
-                  idx === currentIndex
-                    ? 'w-6 h-2 bg-white'
-                    : 'w-2 h-2 bg-white/50 hover:bg-white/80'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
+                type="button"
+                onClick={moveToPreviousSlide}
+                className="border border-paper bg-paper/90 p-2 text-ink transition-colors hover:bg-ivory"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={moveToNextSlide}
+                className="border border-paper bg-paper/90 p-2 text-ink transition-colors hover:bg-ivory"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col justify-between bg-ivory p-6 sm:p-10 lg:p-12">
+          <div>
+            <p className="editorial-label">The new collection</p>
+            <h1 className="editorial-heading mt-5 text-4xl leading-[0.95] sm:text-6xl">
+              {currentSlide.title}
+            </h1>
+            <p className="mt-5 max-w-sm text-sm leading-7 text-muted-ink">
+              {currentSlide.subtitle}
+            </p>
           </div>
-
-          {/* Floating Prev/Next Controls (visible on hover) */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/70 hover:bg-white text-zinc-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white/70 hover:bg-white text-zinc-900 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
-          {/* Strictly NO TEXT OVERLAY inside image — ONLY the floating "Shop Now →" Pill Button */}
-          <div className="absolute bottom-6 sm:bottom-8 left-6 sm:left-8 z-20">
-            <Link
-              to={MOCK_HERO_SLIDES[currentIndex].link}
-              className="inline-flex items-center gap-2 bg-white/95 hover:bg-white text-zinc-900 font-semibold text-sm px-6 py-3.5 rounded-full shadow-lg backdrop-blur-sm transition-all duration-300 transform hover:scale-105 hover:shadow-xl border border-white/40"
-            >
-              Shop Now
-              <ArrowRight className="w-4 h-4 text-[#C88D35]" />
+          <div className="mt-10">
+            <Link to={currentSlide.link} className="editorial-button">
+              Explore the piece <ArrowRight className="h-4 w-4 text-cognac" />
             </Link>
+            {slides.length > 1 && (
+              <div className="mt-8 flex items-center gap-2" aria-label="Hero slides">
+                {slides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    onClick={() => setCurrentIndex(index)}
+                    className={`h-px transition-colors ${
+                      index === currentIndex ? 'w-10 bg-ink' : 'w-5 bg-line hover:bg-muted-ink'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                    aria-current={index === currentIndex}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

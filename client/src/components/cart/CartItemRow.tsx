@@ -11,58 +11,63 @@ interface CartItemRowProps {
 
 export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart()
-
   return (
-    <div className="flex gap-4 p-4 bg-[#F6F4EF] rounded-2xl border border-zinc-200/80 items-center justify-between">
-      {/* Image */}
+    <article className="flex items-center gap-4 border-b border-line pb-4">
       <Link
         to={`/product/${item.productSlug}`}
-        className="w-20 h-20 rounded-xl overflow-hidden bg-white shrink-0 border border-zinc-200"
+        className="h-20 w-20 shrink-0 overflow-hidden bg-ivory"
+        aria-label={`View ${item.productName}`}
       >
-        <img
-          src={item.productImage || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc'}
-          alt={item.productName}
-          className="w-full h-full object-cover"
-        />
+        {item.productImage ? (
+          <img
+            src={item.productImage}
+            alt={item.productName}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-xs text-muted-ink">
+            No image
+          </div>
+        )}
       </Link>
-
-      {/* Title & Price */}
-      <div className="flex-1 min-w-0 space-y-1">
+      <div className="min-w-0 flex-1">
         <Link
           to={`/product/${item.productSlug}`}
-          className="font-serif font-bold text-sm text-zinc-900 hover:text-[#C88D35] transition-colors truncate block"
+          className="block truncate font-serif text-sm font-bold text-ink hover:text-cognac"
         >
           {item.productName}
         </Link>
-        <div className="text-xs font-semibold text-zinc-900">{formatPrice(item.unitPrice)}</div>
-      </div>
-
-      {/* Quantity Adjuster & Remove */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center border border-zinc-300 rounded-lg overflow-hidden bg-white">
+        <p className="mt-1 text-xs font-semibold text-ink">{formatPrice(item.unitPrice)}</p>
+        <div className="mt-3 flex items-center border border-line">
           <button
+            type="button"
             onClick={() => updateQuantity(item.productId, -1)}
-            className="px-2.5 py-1 text-xs text-zinc-700 hover:bg-zinc-100 font-bold"
+            className="px-2.5 py-1 text-xs font-bold text-ink hover:bg-ivory"
+            aria-label="Decrease quantity"
           >
-            -
+            −
           </button>
-          <span className="px-3 py-1 text-xs font-bold text-zinc-900">{item.quantity}</span>
+          <span className="border-x border-line px-3 py-1 text-xs font-bold text-ink">
+            {item.quantity}
+          </span>
           <button
+            type="button"
             onClick={() => updateQuantity(item.productId, 1)}
-            className="px-2.5 py-1 text-xs text-zinc-700 hover:bg-zinc-100 font-bold"
+            className="px-2.5 py-1 text-xs font-bold text-ink hover:bg-ivory"
+            aria-label="Increase quantity"
           >
             +
           </button>
         </div>
-
-        <button
-          onClick={() => removeFromCart(item.productId)}
-          className="p-1.5 text-zinc-400 hover:text-red-600 transition-colors"
-          aria-label="Remove item"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
       </div>
-    </div>
+      <button
+        type="button"
+        onClick={() => removeFromCart(item.productId)}
+        className="p-1.5 text-muted-ink transition-colors hover:text-danger"
+        aria-label={`Remove ${item.productName}`}
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+    </article>
   )
 }

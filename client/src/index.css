@@ -2,14 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================================
-   CUSTOM FONTS - loaded via @font-face only (no Google Fonts)
-   Place WOFF2 files in /public/fonts/
-   Font family names match the design specification exactly.
-   ========================================================= */
+@font-face {
+  font-family: 'Pangram';
+  src: url('/fonts/pangram_regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 @font-face {
-  font-family: 'red_hat_displayregular';
+  font-family: 'Pangram';
+  src: url('/fonts/pangram_bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Red Hat Display';
   src: url('/fonts/red_hat_display_regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
@@ -17,7 +27,7 @@
 }
 
 @font-face {
-  font-family: 'red_hat_displaymedium';
+  font-family: 'Red Hat Display';
   src: url('/fonts/red_hat_display_medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
@@ -25,231 +35,147 @@
 }
 
 @font-face {
-  font-family: 'red_hat_displaybold';
+  font-family: 'Red Hat Display';
   src: url('/fonts/red_hat_display_bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'robotoregular';
-  src: url('/fonts/roboto_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'robotomedium';
-  src: url('/fonts/roboto_medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'pangramregular';
-  src:
-    url('/fonts/pangram_regular.woff2') format('woff2'),
-    url('/fonts/pangram_regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'pangrambold';
-  src:
-    url('/fonts/pangram_bold.woff2') format('woff2'),
-    url('/fonts/pangram_bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Abhaya Libre';
-  src: url('/fonts/abhaya_libre_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Annapurna SIL';
-  src: url('/fonts/annapurna_sil_regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f6f4ef;
-  --text: #18181b;
-  --text-muted: #716e69;
-  --border: #e8e4dc;
-  --accent: #c88d35; /* warm golden cognac / amber */
-  --accent-dark: #b27b2a;
-  --accent-gold: #c88d35;
-  --accent-gold-light: #e8c58d;
+  --color-paper: #ffffff;
+  --color-ivory: #f7f4ee;
+  --color-ink: #171614;
+  --color-muted-ink: #6f6a62;
+  --color-line: #ddd7cd;
+  --color-cognac: #c88d35;
+  --color-cognac-dark: #a76f22;
+  --color-cognac-soft: #f4e8d5;
+  --color-success: #276749;
+  --color-success-soft: #edf7f0;
+  --color-danger: #a53f35;
+  --color-danger-soft: #fbefed;
+  --color-warning: #8a5a16;
+  --color-warning-soft: #fcf5e8;
 
-  --primary: #c88d35;
-}
-
-.admin-theme {
-  --bg: #fafafa;
-  --surface: #ffffff;
-  --surface-2: #f4f4f5;
-  --text: #18181b;
-  --text-muted: #71717a;
-  --border: #e4e4e7;
-  --accent: #18181b;
-  --accent-dark: #27272a;
-  --accent-gold: #3f3f46;
-  --accent-gold-light: #52525b;
-  --primary: #18181b;
-
-  --admin-primaryBg: #18181b;
-  --admin-primaryHover: #27272a;
-  --admin-primaryActive: #09090b;
-  --admin-primary100: #f4f4f5;
-  --admin-primary200: #e4e4e7;
-  --admin-primary300: #d4d4d8;
-  --admin-primary400: #a1a1aa;
-  --admin-primary600: #27272a;
-  --admin-secondary200: #e4e4e7;
-  --admin-secondary300: #d4d4d8;
-  --admin-secondary400: #a1a1aa;
-  --admin-secondary500: #71717a;
-  --admin-secondary600: #52525b;
-  --admin-secondary700: #27272a;
-  --admin-secondarytext: #71717a;
-  --admin-darkColor: #18181b;
-  --admin-dangerColor: #dc2626;
-  --admin-lightgrayColor: #fafafa;
+  --bg: var(--color-paper);
+  --surface: var(--color-paper);
+  --surface-2: var(--color-ivory);
+  --text: var(--color-ink);
+  --text-muted: var(--color-muted-ink);
+  --border: var(--color-line);
+  --accent: var(--color-cognac);
+  --accent-dark: var(--color-cognac-dark);
+  --accent-gold: var(--color-cognac);
+  --accent-gold-light: var(--color-cognac-soft);
+  --primary: var(--color-cognac);
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-[var(--bg)] text-[var(--text)] antialiased;
-    font-family:
-      robotoregular,
-      system-ui,
-      -apple-system,
-      sans-serif;
+    @apply bg-paper text-ink antialiased;
+    font-family: 'Red Hat Display', system-ui, sans-serif;
   }
 
   h1,
   h2,
   h3,
   h4,
-  .heading,
   h5,
-  h6 {
-    font-family: red_hat_displaymedium, system-ui, sans-serif;
+  h6,
+  .font-serif,
+  .font-display {
+    font-family: 'Pangram', system-ui, sans-serif;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 1rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-cognac);
+    outline-offset: 3px;
   }
 }
 
-/* Distinctive atmospheric patterns */
-.pattern-block {
-  background-image:
-    linear-gradient(var(--border) 0.8px, transparent 0.8px),
-    linear-gradient(90deg, var(--border) 0.8px, transparent 0.8px);
-  background-size: 22px 22px;
-  opacity: 0.35;
-}
-
-.section-gradient {
-  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
-}
-
-/* Refined staggered page load animations */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
+@layer components {
+  .editorial-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .editorial-page {
+    @apply min-h-screen bg-paper;
   }
-}
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+  .editorial-panel {
+    @apply border border-line bg-ivory;
   }
-  to {
-    opacity: 1;
+
+  .editorial-label {
+    @apply text-xs font-medium uppercase tracking-[0.18em] text-muted-ink;
   }
-}
 
-.animate-stagger {
-  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.stagger-1 {
-  animation-delay: 60ms;
-}
-.stagger-2 {
-  animation-delay: 140ms;
-}
-.stagger-3 {
-  animation-delay: 220ms;
-}
-.stagger-4 {
-  animation-delay: 300ms;
-}
-.stagger-5 {
-  animation-delay: 380ms;
-}
-.stagger-6 {
-  animation-delay: 460ms;
-}
-.stagger-7 {
-  animation-delay: 540ms;
-}
-.stagger-8 {
-  animation-delay: 620ms;
-}
-
-/* Hero progress */
-.progress-fill {
-  animation: progressAnimation 8000ms linear forwards;
-}
-
-@keyframes progressAnimation {
-  0% {
-    width: 0%;
+  .editorial-heading {
+    @apply font-serif font-bold tracking-[-0.03em] text-ink;
   }
-  100% {
-    width: 100%;
+
+  .editorial-button {
+    @apply inline-flex items-center justify-center gap-2 bg-ink px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-paper transition-colors hover:bg-cognac disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .editorial-button-secondary {
+    @apply inline-flex items-center justify-center gap-2 border border-line bg-paper px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:border-ink hover:bg-ivory;
+  }
+
+  .editorial-input {
+    @apply w-full border border-line bg-paper px-4 py-3 text-base text-ink placeholder:text-muted-ink focus:border-cognac focus:outline-none focus:ring-1 focus:ring-cognac;
+  }
+
+  .editorial-link {
+    @apply underline decoration-line underline-offset-4 transition-colors hover:text-cognac;
+  }
+
+  .editorial-rule {
+    @apply border-line;
   }
 }
 
-/* Smooth transitions */
-.transition-smooth {
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-/* Hide scrollbars */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* Sliding Hero track styles (CSS variables controlled in React) */
 .hero-track {
-  transform: translate3d(var(--slide-transform-mobile), 0px, 0px);
+  transform: translate3d(var(--slide-transform-mobile), 0, 0);
 }
+
 @media (min-width: 768px) {
   .hero-track {
-    transform: translate3d(var(--slide-transform-desktop), 0px, 0px);
+    transform: translate3d(var(--slide-transform-desktop), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

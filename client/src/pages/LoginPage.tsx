@@ -9,67 +9,67 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
     setLoading(true)
     const success = await login(email, password)
     setLoading(false)
-    if (success) {
-      navigate('/profile')
-    }
+    if (success) navigate('/profile')
   }
 
   return (
-    <main className="bg-[#FDFBF7] min-h-screen py-16 px-4 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-3xl border border-zinc-200 shadow-sm space-y-6">
-        <div className="text-center space-y-2">
-          <span className="font-serif text-3xl font-bold text-zinc-900">Muvira</span>
-          <h1 className="font-serif text-2xl font-bold text-zinc-900">Welcome Back</h1>
-          <p className="text-xs text-zinc-500">
-            Sign in to track orders and manage saved addresses
+    <main className="editorial-page flex items-center justify-center bg-ivory px-4 py-16">
+      <div className="w-full max-w-md border border-line bg-paper p-8 sm:p-10">
+        <div className="space-y-2 border-b border-line pb-6 text-center">
+          <Link to="/" className="text-3xl font-bold tracking-[-0.06em] text-ink">
+            Muvira
+          </Link>
+          <h1 className="editorial-heading text-3xl">Welcome back</h1>
+          <p className="text-sm text-muted-ink">
+            Sign in to track orders and manage saved addresses.
           </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 pt-6">
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Email Address</label>
+            <label htmlFor="login-email" className="mb-2 block text-xs font-semibold text-ink">
+              Email address
+            </label>
             <input
+              id="login-email"
+              name="email"
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
               placeholder="you@domain.com"
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              className="editorial-input"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Password</label>
+            <label htmlFor="login-password" className="mb-2 block text-xs font-semibold text-ink">
+              Password
+            </label>
             <input
+              id="login-password"
+              name="password"
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Your password"
+              className="editorial-input"
             />
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-zinc-900 hover:bg-[#C88D35] text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md disabled:opacity-50"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
+          <button type="submit" disabled={loading} className="editorial-button w-full">
+            {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-
-        <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-100">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-[#C88D35] font-semibold hover:underline">
-            Create Account
+        <p className="mt-6 border-t border-line pt-5 text-center text-xs text-muted-ink">
+          Do not have an account?{' '}
+          <Link to="/signup" className="font-semibold text-cognac hover:text-ink">
+            Create account
           </Link>
-        </div>
+        </p>
       </div>
     </main>
   )

@@ -1,105 +1,80 @@
 import React, { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
+import { formatPrice } from '../../lib/utils/format'
 
 interface ProductAccordionProps {
   product: ProductDetail
 }
 
+const sections = [
+  { id: 'specs', label: 'Specifications & materials' },
+  { id: 'dimensions', label: 'Dimensions & weight' },
+  { id: 'shipping', label: 'Shipping, delivery & returns' },
+]
+
 export const ProductAccordion: React.FC<ProductAccordionProps> = ({ product }) => {
   const [openSection, setOpenSection] = useState<string | null>('specs')
-
-  const toggleSection = (id: string) => {
-    setOpenSection(openSection === id ? null : id)
-  }
-
+  const { settings } = useSiteSettings()
   const metadataEntries = Object.entries(product.metadata || {})
 
   return (
-    <div className="border-t border-zinc-200 divide-y divide-zinc-200 mt-12">
-      {/* Specifications */}
-      <div className="py-4">
-        <button
-          onClick={() => toggleSection('specs')}
-          className="w-full flex items-center justify-between font-serif text-lg font-bold text-zinc-900 py-2 text-left"
-        >
-          Specifications & Materials
-          <ChevronDown
-            className={`w-5 h-5 text-zinc-500 transition-transform ${
-              openSection === 'specs' ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-        {openSection === 'specs' && (
-          <div className="pt-3 pb-2 text-xs space-y-2 text-zinc-700">
-            {metadataEntries.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#F6F4EF] p-4 rounded-xl">
-                {metadataEntries.map(([key, val]) => (
-                  <div key={key} className="flex justify-between border-b border-zinc-200/80 pb-1">
-                    <span className="font-semibold text-zinc-900">{key}:</span>
-                    <span className="text-zinc-600">{val}</span>
-                  </div>
-                ))}
+    <div className="mt-16 border-t border-line">
+      {sections.map((section) => {
+        const isOpen = openSection === section.id
+        return (
+          <div key={section.id} className="border-b border-line">
+            <button
+              type="button"
+              onClick={() => setOpenSection(isOpen ? null : section.id)}
+              className="flex w-full items-center justify-between py-5 text-left font-serif text-xl font-bold text-ink"
+              aria-expanded={isOpen}
+            >
+              {section.label}
+              <ChevronDown
+                className={`h-5 w-5 text-muted-ink transition-transform ${isOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {isOpen && section.id === 'specs' && (
+              <div className="grid gap-3 pb-6 text-sm text-muted-ink sm:grid-cols-2">
+                {metadataEntries.length > 0 ? (
+                  metadataEntries.map(([key, value]) => (
+                    <div key={key} className="flex justify-between gap-4 border-t border-line pt-3">
+                      <span className="font-semibold text-ink">{key}</span>
+                      <span>{value}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p>Product specifications have not been provided.</p>
+                )}
               </div>
-            ) : (
-              <p>Handcrafted solid hardwood framework with protective satin oil coating.</p>
+            )}
+            {isOpen && section.id === 'dimensions' && (
+              <p className="pb-6 text-sm leading-6 text-muted-ink">
+                {product.metadata?.Dimensions || 'Dimensions have not been provided.'}
+              </p>
+            )}
+            {isOpen && section.id === 'shipping' && (
+              <div className="space-y-3 pb-6 text-sm leading-6 text-muted-ink">
+                <p>
+                  <strong className="text-ink">Free shipping:</strong> Orders over{' '}
+                  {formatPrice(settings.shippingRules.freeShippingThresholdPaisa)} qualify for free
+                  shipping.
+                </p>
+                <p>
+                  <strong className="text-ink">In-home setup:</strong> Our delivery team uncrates,
+                  positions, and assembles the product in your room of choice.
+                </p>
+                <p>
+                  <strong className="text-ink">30-day guarantee:</strong> If the piece does not fit
+                  your space, return it within 30 days in original packaging for a full refund.
+                </p>
+              </div>
             )}
           </div>
-        )}
-      </div>
-
-      {/* Dimensions */}
-      <div className="py-4">
-        <button
-          onClick={() => toggleSection('dimensions')}
-          className="w-full flex items-center justify-between font-serif text-lg font-bold text-zinc-900 py-2 text-left"
-        >
-          Dimensions & Weight
-          <ChevronDown
-            className={`w-5 h-5 text-zinc-500 transition-transform ${
-              openSection === 'dimensions' ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-        {openSection === 'dimensions' && (
-          <div className="pt-3 pb-2 text-xs text-zinc-700">
-            <p className="bg-[#F6F4EF] p-4 rounded-xl font-medium">
-              {product.metadata?.Dimensions || 'Dimensions: W 180cm × D 90cm × H 75cm'}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Shipping & Returns */}
-      <div className="py-4">
-        <button
-          onClick={() => toggleSection('shipping')}
-          className="w-full flex items-center justify-between font-serif text-lg font-bold text-zinc-900 py-2 text-left"
-        >
-          Shipping, Delivery & Returns
-          <ChevronDown
-            className={`w-5 h-5 text-zinc-500 transition-transform ${
-              openSection === 'shipping' ? 'rotate-180' : ''
-            }`}
-          />
-        </button>
-        {openSection === 'shipping' && (
-          <div className="pt-3 pb-2 text-xs text-zinc-600 space-y-2 leading-relaxed">
-            <p>
-              • <strong>Free White-Glove Shipping:</strong> Compliments orders over ₹1,000 across
-              India.
-            </p>
-            <p>
-              • <strong>In-Home Setup:</strong> Our delivery team uncrates, positions, and assembles
-              the product in your room of choice.
-            </p>
-            <p>
-              • <strong>30-Day Guarantee:</strong> If the piece doesn't fit your space, return it
-              within 30 days in original packaging for a full refund.
-            </p>
-          </div>
-        )}
-      </div>
+        )
+      })}
     </div>
   )
 }

@@ -1,181 +1,167 @@
 import React, { useState } from 'react'
-import { Star, CheckCircle } from 'lucide-react'
-import type { Review } from '../../lib/types/review'
-import { RatingStars } from '../common/RatingStars'
-import { Modal } from '../common/Modal'
+import { CheckCircle, Star } from 'lucide-react'
+import type { ProductReview } from '../../lib/types/product'
+import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
+import { reviewService } from '../../lib/services/review.service'
+import { Modal } from '../common/Modal'
+import { RatingStars } from '../common/RatingStars'
 
 interface ReviewsSectionProps {
   productId: string
-  ratingAvg: number
+  ratingAvg: number | null
   reviewCount: number
-  reviews: Review[]
+  reviews: ProductReview[]
+  onReviewSubmitted?: () => Promise<void>
 }
 
 export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
+  productId,
   ratingAvg,
   reviewCount,
   reviews,
+  onReviewSubmitted,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newRating, setNewRating] = useState(5)
   const [newComment, setNewComment] = useState('')
-  const [newName, setNewName] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const { isAuthenticated } = useAuth()
   const { showToast } = useToast()
 
-  const handleReviewSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    showToast('Thank you! Your review has been submitted for verification.', 'success')
-    setIsModalOpen(false)
-    setNewComment('')
-    setNewName('')
+  const handleReviewSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!isAuthenticated) {
+      showToast('Please sign in to write a review.', 'info')
+      return
+    }
+    setSubmitting(true)
+    try {
+      const response = await reviewService.submitReview(productId, newRating, newComment.trim())
+      if (response.success) {
+        showToast('Your verified-purchase review has been saved.', 'success')
+        setIsModalOpen(false)
+        setNewComment('')
+        await onReviewSubmitted?.()
+      } else {
+        showToast(response.error.message, 'error')
+      }
+    } catch (reason) {
+      showToast(reason instanceof Error ? reason.message : 'Unable to save review.', 'error')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
-    <div className="mt-16 pt-12 border-t border-zinc-200">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+    <section className="mt-16 border-t border-line pt-12">
+      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h3 className="font-serif text-2xl font-bold text-zinc-900">Customer Reviews</h3>
-          <p className="text-xs text-zinc-500 mt-1">Real feedback from verified homeowners</p>
+          <p className="editorial-label">Verified purchasers</p>
+          <h2 className="editorial-heading mt-3 text-3xl">Customer reviews</h2>
         </div>
         <button
+          type="button"
           onClick={() => setIsModalOpen(true)}
-          className="px-6 py-2.5 bg-zinc-900 hover:bg-[#C88D35] text-white text-xs font-semibold rounded-full transition-colors self-start sm:self-auto shadow-xs"
+          className="editorial-button self-start sm:self-auto"
         >
-          Write a Review
+          Write a review
         </button>
       </div>
 
-      {/* Breakdown Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-[#F6F4EF] p-6 sm:p-8 rounded-3xl border border-zinc-200/80 mb-10">
-        {/* Left Rating Overview */}
-        <div className="flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-zinc-200/80 pb-6 md:pb-0 md:pr-6">
-          <span className="font-serif text-5xl font-bold text-zinc-900">
-            {ratingAvg.toFixed(1)}
+      <div className="mb-10 grid border-y border-line md:grid-cols-3">
+        <div className="border-b border-line py-6 md:border-b-0 md:border-r md:pr-8">
+          <span className="font-serif text-5xl font-bold text-ink">
+            {ratingAvg ? ratingAvg.toFixed(1) : '—'}
           </span>
-          <div className="my-2">
-            <RatingStars rating={ratingAvg} size="lg" />
-          </div>
-          <span className="text-xs text-zinc-500 font-medium">Based on {reviewCount} reviews</span>
+          {ratingAvg ? <RatingStars rating={ratingAvg} size="lg" /> : null}
+          <span className="mt-2 block text-xs text-muted-ink">Based on {reviewCount} reviews</span>
         </div>
-
-        {/* Middle Star Bar breakdown */}
-        <div className="md:col-span-2 space-y-2 flex flex-col justify-center">
-          {[
-            { stars: 5, pct: '88%' },
-            { stars: 4, pct: '9%' },
-            { stars: 3, pct: '2%' },
-            { stars: 2, pct: '1%' },
-            { stars: 1, pct: '0%' },
-          ].map((bar) => (
-            <div key={bar.stars} className="flex items-center gap-3 text-xs">
-              <span className="w-12 text-zinc-600 font-semibold">{bar.stars} stars</span>
-              <div className="flex-1 h-2 bg-zinc-200 rounded-full overflow-hidden">
-                <div className="h-full bg-[#C88D35]" style={{ width: bar.pct }} />
-              </div>
-              <span className="w-8 text-right text-zinc-400 font-mono">{bar.pct}</span>
-            </div>
-          ))}
-        </div>
+        <p className="py-6 text-sm leading-7 text-muted-ink md:col-span-2 md:pl-8">
+          Every review is tied to a delivered and paid order. Your feedback helps other customers
+          choose pieces with confidence.
+        </p>
       </div>
 
-      {/* Reviews List */}
-      <div className="space-y-6">
-        {reviews.map((rev) => (
-          <div
-            key={rev.id}
-            className="p-6 bg-white rounded-2xl border border-zinc-200/80 shadow-2xs space-y-3"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img
-                  src={
-                    rev.userAvatar ||
-                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop'
-                  }
-                  alt={rev.userName}
-                  className="w-9 h-9 rounded-full object-cover border border-zinc-200"
-                />
-                <div>
-                  <h5 className="font-semibold text-sm text-zinc-900">{rev.userName}</h5>
-                  {rev.verifiedPurchase && (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-medium">
-                      <CheckCircle className="w-3 h-3 text-emerald-600" /> Verified Buyer
-                    </span>
-                  )}
-                </div>
+      <div className="divide-y divide-line">
+        {reviews.length === 0 && (
+          <p className="py-6 text-sm text-muted-ink">This product does not have any reviews yet.</p>
+        )}
+        {reviews.map((review) => (
+          <article key={review.id} className="py-6">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-ink">
+                  {review.userName || 'Muvira customer'}
+                </h3>
+                <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-success">
+                  <CheckCircle className="h-3 w-3" /> Verified buyer
+                </span>
               </div>
-              <span className="text-xs text-zinc-400">
-                {new Date(rev.createdAt).toLocaleDateString('en-IN', {
+              <time className="text-xs text-muted-ink">
+                {new Date(review.createdAt).toLocaleDateString('en-IN', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
                 })}
-              </span>
+              </time>
             </div>
-
-            <RatingStars rating={rev.rating} size="sm" />
-
-            <p className="text-xs sm:text-sm text-zinc-700 leading-relaxed font-light">
-              "{rev.comment}"
-            </p>
-          </div>
+            <div className="mt-3">
+              <RatingStars rating={review.rating} size="sm" />
+            </div>
+            {review.comment && (
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-ink">“{review.comment}”</p>
+            )}
+          </article>
         ))}
       </div>
 
-      {/* Write Review Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a Review">
-        <form onSubmit={handleReviewSubmit} className="space-y-4">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
+        <form onSubmit={handleReviewSubmit} className="space-y-5">
+          {!isAuthenticated && (
+            <p className="border border-warning bg-warning-soft p-3 text-xs text-warning">
+              Sign in with the account used for your purchase to submit a review.
+            </p>
+          )}
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Your Rating</label>
+            <p className="mb-2 text-xs font-semibold text-ink">Your rating</p>
             <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((s) => (
+              {[1, 2, 3, 4, 5].map((star) => (
                 <button
-                  key={s}
+                  key={star}
                   type="button"
-                  onClick={() => setNewRating(s)}
-                  className="p-1 text-[#C88D35]"
+                  onClick={() => setNewRating(star)}
+                  className="p-1 text-cognac"
+                  aria-label={`Rate ${star} out of 5`}
                 >
-                  <Star
-                    className={`w-6 h-6 ${s <= newRating ? 'fill-[#C88D35]' : 'text-zinc-300'}`}
-                  />
+                  <Star className={`h-6 w-6 ${star <= newRating ? 'fill-current' : 'text-line'}`} />
                 </button>
               ))}
             </div>
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Your Name</label>
-            <input
-              type="text"
-              required
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="e.g. Priya N."
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Review</label>
+            <label htmlFor="review-comment" className="mb-2 block text-xs font-semibold text-ink">
+              Review
+            </label>
             <textarea
-              required
+              id="review-comment"
+              name="comment"
               rows={4}
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
+              onChange={(event) => setNewComment(event.target.value)}
               placeholder="Tell us about the craftsmanship, comfort, and delivery..."
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              className="editorial-input"
             />
           </div>
-
           <button
             type="submit"
-            className="w-full py-3 bg-zinc-900 text-white font-semibold text-xs uppercase tracking-wider rounded-xl hover:bg-[#C88D35] transition-colors"
+            disabled={submitting || !isAuthenticated}
+            className="editorial-button w-full"
           >
-            Submit Review
+            {submitting ? 'Saving review...' : 'Submit review'}
           </button>
         </form>
       </Modal>
-    </div>
+    </section>
   )
 }

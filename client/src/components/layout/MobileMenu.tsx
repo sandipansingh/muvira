@@ -1,6 +1,6 @@
 import React from 'react'
+import { ChevronRight, User, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { X, ChevronRight, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 interface MobileMenuProps {
@@ -8,124 +8,100 @@ interface MobileMenuProps {
   onClose: () => void
 }
 
+const collectionLinks = [
+  { label: 'Shop all products', to: '/shop' },
+  { label: 'Living room', to: '/shop?category=living-room' },
+  { label: 'Bedroom', to: '/shop?category=bedroom' },
+  { label: 'Dining', to: '/shop?category=dining' },
+  { label: 'Office & decor', to: '/shop?category=office-decor' },
+]
+
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated, user, logout } = useAuth()
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-xs" onClick={onClose} />
-      <div className="fixed inset-y-0 left-0 max-w-xs w-full bg-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 lg:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Main menu"
+    >
+      <button
+        type="button"
+        className="absolute inset-0 h-full w-full bg-ink/50"
+        onClick={onClose}
+        aria-label="Close mobile menu"
+      />
+      <aside className="relative flex h-full w-[min(88vw,24rem)] flex-col justify-between border-r border-line bg-paper">
         <div>
-          {/* Header */}
-          <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
-            <span className="font-serif text-2xl font-bold text-zinc-900">Muvira</span>
-            <button
+          <div className="flex items-center justify-between border-b border-line px-6 py-5">
+            <Link
+              to="/"
               onClick={onClose}
-              className="p-2 text-zinc-400 hover:text-zinc-900 rounded-full hover:bg-zinc-100"
+              className="text-2xl font-bold tracking-[-0.06em] text-ink"
             >
-              <X className="w-5 h-5" />
+              Muvira
+            </Link>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 text-muted-ink transition-colors hover:text-ink"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
             </button>
           </div>
-
-          {/* Nav Links */}
-          <div className="p-6 space-y-4">
-            <Link
-              to="/shop"
-              onClick={onClose}
-              className="flex items-center justify-between text-base font-semibold text-zinc-900 hover:text-[#C88D35] py-2 border-b border-zinc-100"
-            >
-              Shop All Products
-              <ChevronRight className="w-4 h-4 text-zinc-400" />
-            </Link>
-            <Link
-              to="/shop?category=living-room"
-              onClick={onClose}
-              className="flex items-center justify-between text-sm font-medium text-zinc-700 hover:text-[#C88D35] py-2"
-            >
-              Living Room
-              <ChevronRight className="w-4 h-4 text-zinc-400" />
-            </Link>
-            <Link
-              to="/shop?category=bedroom"
-              onClick={onClose}
-              className="flex items-center justify-between text-sm font-medium text-zinc-700 hover:text-[#C88D35] py-2"
-            >
-              Bedroom
-              <ChevronRight className="w-4 h-4 text-zinc-400" />
-            </Link>
-            <Link
-              to="/shop?category=dining"
-              onClick={onClose}
-              className="flex items-center justify-between text-sm font-medium text-zinc-700 hover:text-[#C88D35] py-2"
-            >
-              Dining
-              <ChevronRight className="w-4 h-4 text-zinc-400" />
-            </Link>
-            <Link
-              to="/shop?category=office-decor"
-              onClick={onClose}
-              className="flex items-center justify-between text-sm font-medium text-zinc-700 hover:text-[#C88D35] py-2"
-            >
-              Office & Decor
-              <ChevronRight className="w-4 h-4 text-zinc-400" />
-            </Link>
-          </div>
+          <nav className="px-6 py-6">
+            {collectionLinks.map((link, index) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={onClose}
+                className={`flex items-center justify-between border-b border-line py-4 text-sm font-medium text-ink transition-colors hover:text-cognac ${index === 0 ? 'text-base font-semibold' : ''}`}
+              >
+                {link.label}
+                <ChevronRight className="h-4 w-4 text-muted-ink" />
+              </Link>
+            ))}
+          </nav>
         </div>
-
-        {/* User Footer */}
-        <div className="p-6 bg-[#F6F4EF] border-t border-zinc-200">
+        <div className="border-t border-line bg-ivory px-6 py-6">
           {isAuthenticated ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#C88D35] text-white flex items-center justify-center font-bold">
-                  {user?.fullName.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-zinc-900">{user?.fullName}</p>
-                  <p className="text-xs text-zinc-500">{user?.email}</p>
-                </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-semibold text-ink">{user?.fullName}</p>
+                <p className="text-xs text-muted-ink">{user?.email}</p>
               </div>
-              <div className="pt-2 flex flex-col gap-2">
-                <Link
-                  to="/orders"
-                  onClick={onClose}
-                  className="w-full text-center py-2 text-xs font-semibold bg-white rounded-lg border border-zinc-200 text-zinc-800"
-                >
-                  My Orders
+              <div className="grid grid-cols-2 gap-3">
+                <Link to="/orders" onClick={onClose} className="editorial-button-secondary">
+                  My orders
                 </Link>
                 <button
+                  type="button"
                   onClick={() => {
                     logout()
                     onClose()
                   }}
-                  className="w-full text-center py-2 text-xs font-semibold bg-red-50 rounded-lg text-red-700"
+                  className="border border-danger px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-danger transition-colors hover:bg-danger-soft"
                 >
-                  Sign Out
+                  Sign out
                 </button>
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
-              <Link
-                to="/login"
-                onClick={onClose}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-[#18181B] text-white text-sm font-medium rounded-xl shadow-xs"
-              >
-                <User className="w-4 h-4" /> Sign In
+            <div className="grid grid-cols-2 gap-3">
+              <Link to="/login" onClick={onClose} className="editorial-button">
+                <User className="h-4 w-4" /> Sign in
               </Link>
-              <Link
-                to="/signup"
-                onClick={onClose}
-                className="w-full flex items-center justify-center py-3 bg-white text-zinc-900 text-sm font-medium rounded-xl border border-zinc-200"
-              >
-                Create Account
+              <Link to="/signup" onClick={onClose} className="editorial-button-secondary">
+                Create account
               </Link>
             </div>
           )}
         </div>
-      </div>
+      </aside>
     </div>
   )
 }

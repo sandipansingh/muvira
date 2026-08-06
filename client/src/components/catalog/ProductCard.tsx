@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
+import { Eye, Heart, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Heart, ShoppingBag, Eye } from 'lucide-react'
-import type { ProductListItem, ProductDetail } from '../../lib/types/product'
+import { useCart } from '../../context/CartContext'
+import type { ProductDetail, ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { RatingStars } from '../common/RatingStars'
-import { useCart } from '../../context/CartContext'
 import { QuickViewModal } from './QuickViewModal'
 
 interface ProductCardProps {
@@ -15,110 +15,85 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart()
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false)
-
   const isDetail = 'images' in product
-  const primaryImage = isDetail
-    ? product.images[0]?.url
-    : (product as ProductListItem).primaryImageUrl
-  const categoryName = isDetail
-    ? (product as ProductDetail).category.name
-    : (product as ProductListItem).categoryName
-
-  const hasDiscount = product.salePrice && product.salePrice < product.price
+  const primaryImage = isDetail ? product.images[0]?.url : product.primaryImageUrl
+  const categoryName = isDetail ? product.category.name : product.categoryName
+  const hasDiscount = product.salePrice && product.salePrice > product.price
 
   return (
     <>
-      <div className="group relative bg-[#F6F4EF] rounded-2xl p-3 border border-zinc-200/60 shadow-2xs hover:shadow-md transition-all duration-300 flex flex-col justify-between">
-        {/* Product Image Container */}
-        <div className="relative aspect-4/3 sm:aspect-square rounded-xl overflow-hidden bg-white mb-3">
-          <Link to={`/product/${product.slug}`} className="block w-full h-full">
-            <img
-              src={
-                primaryImage ||
-                'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'
-              }
-              alt={product.name}
-              className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
-            />
+      <article className="group border-b border-line bg-paper pb-4">
+        <div className="relative aspect-[4/3] overflow-hidden bg-ivory sm:aspect-square">
+          <Link to={`/product/${product.slug}`} className="block h-full w-full">
+            {primaryImage ? (
+              <img src={primaryImage} alt={product.name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs text-muted-ink">
+                Image unavailable
+              </div>
+            )}
           </Link>
+          {product.discountPercent > 0 && (
+            <span className="absolute left-3 top-3 bg-cognac-soft px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-ink">
+              -{product.discountPercent}%
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsWishlisted((wishlisted) => !wishlisted)}
+            className="absolute right-3 top-3 bg-paper/90 p-2 text-ink transition-colors hover:text-cognac"
+            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            aria-pressed={isWishlisted}
+          >
+            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current text-cognac' : ''}`} />
+          </button>
+        </div>
 
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-            {product.discountPercent > 0 && (
-              <span className="px-2.5 py-1 bg-red-600 text-white text-[11px] font-bold rounded-full uppercase tracking-wider shadow-xs">
-                -{product.discountPercent}%
-              </span>
+        <div className="pt-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="editorial-label text-[10px]">{categoryName}</p>
+              <Link to={`/product/${product.slug}`} className="mt-1 block">
+                <h3 className="font-serif text-lg font-bold leading-tight text-ink transition-colors group-hover:text-cognac">
+                  {product.name}
+                </h3>
+              </Link>
+            </div>
+            {product.rating !== null && product.rating !== undefined && (
+              <RatingStars rating={product.rating} count={product.reviewCount} size="sm" />
             )}
           </div>
 
-          {/* Wishlist Heart Button */}
-          <button
-            onClick={() => setIsWishlisted(!isWishlisted)}
-            className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-xs z-10 ${
-              isWishlisted
-                ? 'bg-red-50 text-red-600'
-                : 'bg-white/80 text-zinc-700 hover:bg-white hover:text-zinc-900'
-            }`}
-            aria-label="Add to wishlist"
-          >
-            <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-red-600' : ''}`} />
-          </button>
-
-          {/* Quick View Floating Action */}
-          <div className="absolute inset-x-3 bottom-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex gap-2">
-            <button
-              onClick={() => setIsQuickViewOpen(true)}
-              className="flex-1 py-2 bg-white/95 hover:bg-white text-zinc-900 text-xs font-semibold rounded-lg shadow-sm flex items-center justify-center gap-1.5 transition-colors"
-            >
-              <Eye className="w-3.5 h-3.5" /> Quick View
-            </button>
-          </div>
-        </div>
-
-        {/* Product Meta */}
-        <div className="space-y-2 px-1 pb-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#C88D35] uppercase tracking-wider">
-              {categoryName}
-            </span>
-            <RatingStars
-              rating={product.rating || 4.8}
-              count={product.reviewCount || 12}
-              size="sm"
-            />
-          </div>
-
-          <Link to={`/product/${product.slug}`} className="block">
-            <h3 className="font-serif text-base font-bold text-zinc-900 group-hover:text-[#C88D35] transition-colors line-clamp-1">
-              {product.name}
-            </h3>
-          </Link>
-
-          {/* Price & Add to Cart button */}
-          <div className="pt-2 flex items-center justify-between border-t border-zinc-200/60">
+          <div className="mt-4 flex items-center justify-between border-t border-line pt-3">
             <div className="flex items-baseline gap-2">
-              <span className="font-sans font-bold text-base text-zinc-900">
-                {formatPrice(product.price)}
-              </span>
+              <span className="text-sm font-semibold text-ink">{formatPrice(product.price)}</span>
               {hasDiscount && (
-                <span className="text-xs text-zinc-400 line-through">
+                <span className="text-xs text-muted-ink line-through">
                   {formatPrice(product.salePrice!)}
                 </span>
               )}
             </div>
-
-            <button
-              onClick={() => addToCart(product)}
-              className="p-2 bg-zinc-900 hover:bg-[#C88D35] text-white rounded-lg transition-colors shadow-xs"
-              aria-label="Add to cart"
-            >
-              <ShoppingBag className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsQuickViewOpen(true)}
+                className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-muted-ink transition-colors hover:text-cognac"
+              >
+                <Eye className="h-3.5 w-3.5" /> Quick view
+              </button>
+              <button
+                type="button"
+                onClick={() => addToCart(product)}
+                className="bg-ink p-2 text-paper transition-colors hover:bg-cognac"
+                aria-label={`Add ${product.name} to cart`}
+              >
+                <ShoppingBag className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </article>
 
-      {/* Quick View Modal */}
       <QuickViewModal
         product={product}
         isOpen={isQuickViewOpen}

@@ -19,55 +19,48 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   totalCount,
 }) => {
   return (
-    <div className="bg-white border-b border-zinc-200 py-4 mb-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Category Tag Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-          <button
-            onClick={() => onSelectCategory('all')}
-            className={`px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 ${
-              selectedCategory === 'all'
-                ? 'bg-zinc-900 text-white shadow-xs'
-                : 'bg-[#F6F4EF] text-zinc-700 hover:bg-zinc-200'
-            }`}
-          >
-            All Products
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.slug}
-              onClick={() => onSelectCategory(cat.slug)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 ${
-                selectedCategory === cat.slug
-                  ? 'bg-zinc-900 text-white shadow-xs'
-                  : 'bg-[#F6F4EF] text-zinc-700 hover:bg-zinc-200'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
+    <div className="mb-10 border-y border-line py-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="no-scrollbar flex items-center gap-5 overflow-x-auto">
+          {['all', ...categories.map((category) => category.slug)].map((slug) => {
+            const label =
+              slug === 'all' ? 'All products' : categories.find((item) => item.slug === slug)?.name
+            return (
+              <button
+                key={slug}
+                type="button"
+                onClick={() => onSelectCategory(slug)}
+                className={`shrink-0 border-b pb-2 text-xs font-semibold transition-colors ${
+                  selectedCategory === slug
+                    ? 'border-ink text-ink'
+                    : 'border-transparent text-muted-ink hover:border-line hover:text-ink'
+                }`}
+              >
+                {label}
+              </button>
+            )
+          })}
         </div>
-
-        {/* Right side: Count & Sort Dropdown */}
-        <div className="flex items-center justify-between md:justify-end gap-4 shrink-0">
-          <span className="text-xs font-medium text-zinc-500">
-            Showing <strong className="text-zinc-900">{totalCount}</strong> items
+        <div className="flex items-center justify-between gap-4 text-xs text-muted-ink md:justify-end">
+          <span>
+            <strong className="font-semibold text-ink">{totalCount}</strong> pieces
           </span>
-
-          <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-zinc-500" />
+          <label className="flex items-center gap-2">
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="sr-only">Sort products</span>
             <select
+              id="shop-sort"
+              name="sort"
               value={sortBy}
-              onChange={(e) => onSortChange(e.target.value)}
-              className="bg-[#F6F4EF] border border-zinc-300 text-zinc-800 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => onSortChange(event.target.value)}
+              className="border-0 bg-transparent py-1 text-base font-semibold text-ink focus:outline-none focus:ring-0"
             >
-              <option value="featured">Sort by: Featured</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest Additions</option>
+              <option value="popularity">Popular</option>
+              <option value="price_asc">Price: low to high</option>
+              <option value="price_desc">Price: high to low</option>
+              <option value="newest">Newest</option>
             </select>
-          </div>
+          </label>
         </div>
       </div>
     </div>

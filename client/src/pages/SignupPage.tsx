@@ -11,90 +11,98 @@ export const SignupPage: React.FC = () => {
   const { signup } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
     setLoading(true)
     const success = await signup(email, password, fullName, phone)
     setLoading(false)
-    if (success) {
-      navigate('/login')
-    }
+    if (success) navigate('/login')
   }
 
   return (
-    <main className="bg-[#FDFBF7] min-h-screen py-16 px-4 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-3xl border border-zinc-200 shadow-sm space-y-6">
-        <div className="text-center space-y-2">
-          <span className="font-serif text-3xl font-bold text-zinc-900">Muvira</span>
-          <h1 className="font-serif text-2xl font-bold text-zinc-900">Create Account</h1>
-          <p className="text-xs text-zinc-500">Join Muvira to enjoy 10% off your first order</p>
+    <main className="editorial-page flex items-center justify-center bg-ivory px-4 py-16">
+      <div className="w-full max-w-md border border-line bg-paper p-8 sm:p-10">
+        <div className="space-y-2 border-b border-line pb-6 text-center">
+          <Link to="/" className="text-3xl font-bold tracking-[-0.06em] text-ink">
+            Muvira
+          </Link>
+          <h1 className="editorial-heading text-3xl">Create an account</h1>
+          <p className="text-sm text-muted-ink">
+            Manage your orders, addresses, and studio purchases.
+          </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5 pt-6">
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Full Name</label>
+            <label htmlFor="signup-name" className="mb-2 block text-xs font-semibold text-ink">
+              Full name
+            </label>
             <input
+              id="signup-name"
+              name="fullName"
               type="text"
               required
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Priya Nair"
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setFullName(event.target.value)}
+              placeholder="Your full name"
+              className="editorial-input"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Phone Number</label>
+            <label htmlFor="signup-phone" className="mb-2 block text-xs font-semibold text-ink">
+              Phone number
+            </label>
             <input
+              id="signup-phone"
+              name="phone"
               type="tel"
               required
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="9876543210"
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setPhone(event.target.value)}
+              placeholder="10-digit mobile number"
+              className="editorial-input"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Email Address</label>
+            <label htmlFor="signup-email" className="mb-2 block text-xs font-semibold text-ink">
+              Email address
+            </label>
             <input
+              id="signup-email"
+              name="email"
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="priya@domain.com"
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              className="editorial-input"
             />
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">Password</label>
+            <label htmlFor="signup-password" className="mb-2 block text-xs font-semibold text-ink">
+              Password
+            </label>
             <input
+              id="signup-password"
+              name="password"
               type="password"
               required
               minLength={6}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               placeholder="At least 6 characters"
-              className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              className="editorial-input"
             />
           </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-zinc-900 hover:bg-[#C88D35] text-white font-semibold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md disabled:opacity-50"
-          >
-            {loading ? 'Creating...' : 'Create Account'}
+          <button type="submit" disabled={loading} className="editorial-button w-full">
+            {loading ? 'Creating...' : 'Create account'}
           </button>
         </form>
-
-        <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-100">
+        <p className="mt-6 border-t border-line pt-5 text-center text-xs text-muted-ink">
           Already have an account?{' '}
-          <Link to="/login" className="text-[#C88D35] font-semibold hover:underline">
-            Sign In
+          <Link to="/login" className="font-semibold text-cognac hover:text-ink">
+            Sign in
           </Link>
-        </div>
+        </p>
       </div>
     </main>
   )

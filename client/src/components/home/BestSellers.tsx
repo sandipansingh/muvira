@@ -1,64 +1,95 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
-import { MOCK_PRODUCTS } from '../../mock/mockData'
+import { Link } from 'react-router-dom'
+import { productService } from '../../lib/services/product.service'
+import type { ProductListItem } from '../../lib/types/product'
 import { ProductCard } from '../catalog/ProductCard'
 
 export const BestSellers: React.FC = () => {
+  const [products, setProducts] = useState<ProductListItem[]>([])
   const [selectedFilter, setSelectedFilter] = useState('All')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filterOptions = ['All', 'Sofas', 'Chairs', 'Tables', 'Lighting', 'Decor']
+  useEffect(() => {
+    let active = true
+    const loadBestSellers = async () => {
+      try {
+        const response = await productService.getProducts({ page: 1, limit: 8, sort: 'popularity' })
+        if (!response.success) throw new Error(response.error.message)
+        if (active) setProducts(response.data)
+      } catch (reason) {
+        if (active) setError(reason instanceof Error ? reason.message : 'Unable to load products.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    void loadBestSellers()
+    return () => {
+      active = false
+    }
+  }, [])
 
-  const filteredProducts = MOCK_PRODUCTS.filter((p) => {
-    if (selectedFilter === 'All') return true
-    return p.category.name.toLowerCase() === selectedFilter.toLowerCase()
-  })
+  const filterOptions = useMemo(() => {
+    const categories = products
+      .map((product) => product.categoryName)
+      .filter((name): name is string => Boolean(name))
+    return ['All', ...Array.from(new Set(categories))]
+  }, [products])
+  const filteredProducts = products.filter(
+    (product) => selectedFilter === 'All' || product.categoryName === selectedFilter
+  )
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+    <section className="bg-ivory py-16 sm:py-20">
+      <div className="editorial-container">
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#C88D35]">
-              Customer Favorites
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-zinc-900 mt-1">
-              Our Best Sellers
-            </h2>
+            <p className="editorial-label">Customer favorites</p>
+            <h2 className="editorial-heading mt-3 text-4xl sm:text-5xl">Our best sellers</h2>
           </div>
+          {!loading && filterOptions.length > 1 && (
+            <div className="no-scrollbar flex items-center gap-5 overflow-x-auto">
+              {filterOptions.map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setSelectedFilter(filter)}
+                  className={`shrink-0 border-b pb-2 text-xs font-semibold transition-colors ${selectedFilter === filter ? 'border-ink text-ink' : 'border-transparent text-muted-ink hover:border-line hover:text-ink'}`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
-            {filterOptions.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setSelectedFilter(filter)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all shrink-0 ${
-                  selectedFilter === filter
-                    ? 'bg-zinc-900 text-white shadow-xs'
-                    : 'bg-[#F6F4EF] text-zinc-600 hover:bg-zinc-200'
-                }`}
-              >
-                {filter}
-              </button>
+        {loading && (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className="aspect-square animate-pulse bg-paper" />
             ))}
           </div>
-        </div>
+        )}
+        {!loading && error && (
+          <p className="border border-line bg-paper p-6 text-sm text-muted-ink">{error}</p>
+        )}
+        {!loading && !error && filteredProducts.length === 0 && (
+          <p className="border border-line bg-paper p-6 text-sm text-muted-ink">
+            Best sellers are being updated. Please check back soon.
+          </p>
+        )}
+        {!loading && !error && filteredProducts.length > 0 && (
+          <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
 
-        {/* Product Cards Grid (using Warm Off-White Cards bg-[#F6F4EF]) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.slice(0, 8).map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {/* View All Button */}
-        <div className="mt-12 text-center">
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#F6F4EF] text-zinc-900 hover:bg-zinc-900 hover:text-white font-semibold text-sm transition-all shadow-xs border border-zinc-200"
-          >
-            View All Products <ArrowRight className="w-4 h-4 text-[#C88D35]" />
+        <div className="mt-12">
+          <Link to="/shop" className="editorial-button-secondary">
+            View all products <ArrowRight className="h-4 w-4 text-cognac" />
           </Link>
         </div>
       </div>

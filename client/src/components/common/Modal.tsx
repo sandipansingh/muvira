@@ -17,11 +17,7 @@ export const Modal: React.FC<ModalProps> = ({
   maxWidth = 'md',
 }) => {
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => {
       document.body.style.overflow = ''
     }
@@ -39,26 +35,34 @@ export const Modal: React.FC<ModalProps> = ({
           : 'max-w-lg'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+    >
+      <button
+        type="button"
+        className="fixed inset-0 bg-ink/60"
         onClick={onClose}
+        aria-label="Close dialog"
       />
       <div
-        className={`relative w-full ${widthClass} bg-white rounded-2xl shadow-2xl overflow-hidden border border-zinc-100 transform transition-all z-10 max-h-[90vh] flex flex-col`}
+        className={`relative z-10 flex max-h-[90vh] w-full ${widthClass} flex-col overflow-hidden border border-line bg-paper`}
       >
         {title && (
-          <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
-            <h3 className="font-serif text-xl font-bold text-zinc-900">{title}</h3>
+          <div className="flex items-center justify-between border-b border-line px-6 py-4">
+            <h2 className="font-serif text-xl font-bold text-ink">{title}</h2>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1 rounded-full text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+              className="p-1 text-muted-ink transition-colors hover:text-ink"
+              aria-label="Close dialog"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
           </div>
         )}
-        <div className="p-6 overflow-y-auto">{children}</div>
+        <div className="overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   )

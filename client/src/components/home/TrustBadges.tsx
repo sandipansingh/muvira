@@ -1,35 +1,24 @@
 import React from 'react'
 
+const trustFacts = [
+  ['2.4k+', 'Happy homes furnished'],
+  ['340+', 'Handcrafted designs'],
+  ['15yr', 'Solid wood warranty'],
+  ['100%', 'Responsibly sourced timber'],
+]
+
 export const TrustBadges: React.FC = () => {
   return (
-    <section className="py-8 bg-white border-y border-zinc-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-between text-center divide-y md:divide-y-0 md:divide-x divide-zinc-200/80">
-          <div className="py-2">
-            <h4 className="font-serif text-3xl font-bold text-zinc-900">2.4k+</h4>
-            <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase mt-1">
-              Happy Homes Furnished
+    <section className="border-b border-line bg-paper">
+      <div className="editorial-container grid grid-cols-2 divide-x divide-y divide-line md:grid-cols-4 md:divide-y-0">
+        {trustFacts.map(([value, label]) => (
+          <div key={label} className="px-4 py-7 first:pl-0 md:py-9 md:first:pl-0">
+            <p className="font-serif text-3xl font-bold tracking-[-0.04em] text-ink">{value}</p>
+            <p className="mt-2 max-w-32 text-[11px] uppercase leading-4 tracking-[0.14em] text-muted-ink">
+              {label}
             </p>
           </div>
-          <div className="py-2">
-            <h4 className="font-serif text-3xl font-bold text-zinc-900">340+</h4>
-            <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase mt-1">
-              Unique Handcrafted Designs
-            </p>
-          </div>
-          <div className="py-2">
-            <h4 className="font-serif text-3xl font-bold text-zinc-900">15yr</h4>
-            <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase mt-1">
-              Solid Wood Warranty
-            </p>
-          </div>
-          <div className="py-2">
-            <h4 className="font-serif text-3xl font-bold text-[#C88D35]">100%</h4>
-            <p className="text-xs text-zinc-500 font-medium tracking-wide uppercase mt-1">
-              Sustainably Harvested Timber
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
     </section>
   )

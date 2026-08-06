@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, ShoppingBag, User, Menu, X, Heart } from 'lucide-react'
+import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 
@@ -8,163 +8,145 @@ interface HeaderProps {
   onOpenMobileMenu?: () => void
 }
 
+const navigationLinks = [
+  { label: 'New Arrivals', to: '/shop' },
+  { label: 'Living Room', to: '/shop?category=living-room' },
+  { label: 'Bedroom', to: '/shop?category=bedroom' },
+  { label: 'Dining', to: '/shop?category=dining' },
+  { label: 'Office & Decor', to: '/shop?category=office-decor' },
+]
+
 export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
   const { itemCount, openCartDrawer } = useCart()
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
-
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`)
-      setIsSearchOpen(false)
-      setSearchQuery('')
-    }
+  const handleSearchSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    const query = searchQuery.trim()
+    if (!query) return
+    navigate(`/shop?q=${encodeURIComponent(query)}`)
+    setSearchQuery('')
+    setIsSearchOpen(false)
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-100 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Mobile menu trigger button */}
+    <header className="sticky top-0 z-40 border-b border-line bg-paper">
+      <div className="editorial-container">
+        <div className="flex min-h-20 items-center justify-between gap-6">
           <button
+            type="button"
             onClick={onOpenMobileMenu}
-            className="lg:hidden p-2 text-zinc-700 hover:text-zinc-900 rounded-lg hover:bg-zinc-100 transition-colors"
+            className="p-2 text-ink transition-colors hover:text-cognac lg:hidden"
             aria-label="Open mobile menu"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="h-5 w-5" />
           </button>
 
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900">
-              Muvira
-            </span>
+          <Link
+            to="/"
+            className="shrink-0 text-2xl font-bold tracking-[-0.06em] text-ink sm:text-3xl"
+          >
+            Muvira
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium text-zinc-700">
-            <Link to="/shop" className="hover:text-[#C88D35] transition-colors py-2">
-              New Arrivals
-            </Link>
-            <Link
-              to="/shop?category=living-room"
-              className="hover:text-[#C88D35] transition-colors py-2"
-            >
-              Living Room
-            </Link>
-            <Link
-              to="/shop?category=bedroom"
-              className="hover:text-[#C88D35] transition-colors py-2"
-            >
-              Bedroom
-            </Link>
-            <Link
-              to="/shop?category=dining"
-              className="hover:text-[#C88D35] transition-colors py-2"
-            >
-              Dining
-            </Link>
-            <Link
-              to="/shop?category=office-decor"
-              className="hover:text-[#C88D35] transition-colors py-2"
-            >
-              Office & Decor
-            </Link>
-            <Link to="/shop" className="hover:text-[#C88D35] transition-colors py-2">
+          <nav className="hidden items-center gap-6 text-xs font-medium tracking-wide text-muted-ink lg:flex">
+            {navigationLinks.map((link) => (
+              <Link key={link.to} to={link.to} className="py-2 transition-colors hover:text-cognac">
+                {link.label}
+              </Link>
+            ))}
+            <Link to="/shop" className="py-2 transition-colors hover:text-cognac">
               All Collections
             </Link>
           </nav>
 
-          {/* Action Controls */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Search Button */}
+          <div className="flex items-center gap-1 sm:gap-3">
             <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-zinc-700 hover:text-[#C88D35] rounded-full hover:bg-zinc-100 transition-colors"
+              type="button"
+              onClick={() => setIsSearchOpen((open) => !open)}
+              className="p-2 text-ink transition-colors hover:text-cognac"
               aria-label="Search"
+              aria-expanded={isSearchOpen}
             >
-              <Search className="w-5 h-5" />
+              <Search className="h-5 w-5" />
             </button>
-
-            {/* Wishlist */}
             <Link
               to="/shop"
-              className="hidden sm:flex p-2 text-zinc-700 hover:text-[#C88D35] rounded-full hover:bg-zinc-100 transition-colors"
-              aria-label="Wishlist"
+              className="hidden p-2 text-ink transition-colors hover:text-cognac sm:block"
+              aria-label="Browse collection"
             >
-              <Heart className="w-5 h-5" />
+              <Heart className="h-5 w-5" />
             </Link>
-
-            {/* Account dropdown */}
             <div className="relative">
               {isAuthenticated ? (
                 <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="p-2 text-zinc-700 hover:text-[#C88D35] rounded-full hover:bg-zinc-100 transition-colors flex items-center gap-1.5"
+                  type="button"
+                  onClick={() => setIsUserMenuOpen((open) => !open)}
+                  className="flex items-center gap-1.5 p-2 text-ink transition-colors hover:text-cognac"
                   aria-label="User account"
+                  aria-expanded={isUserMenuOpen}
                 >
-                  <User className="w-5 h-5" />
-                  <span className="hidden sm:inline text-xs font-semibold max-w-[80px] truncate">
+                  <User className="h-5 w-5" />
+                  <span className="hidden max-w-20 truncate text-xs font-semibold sm:inline">
                     {user?.fullName.split(' ')[0]}
                   </span>
                 </button>
               ) : (
                 <Link
                   to="/login"
-                  className="p-2 text-zinc-700 hover:text-[#C88D35] rounded-full hover:bg-zinc-100 transition-colors"
+                  className="p-2 text-ink transition-colors hover:text-cognac"
                   aria-label="Login"
                 >
-                  <User className="w-5 h-5" />
+                  <User className="h-5 w-5" />
                 </Link>
               )}
 
-              {isUserMenuOpen && isAuthenticated && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-zinc-100 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-zinc-100">
-                    <p className="text-xs text-zinc-400">Signed in as</p>
-                    <p className="text-sm font-semibold text-zinc-900 truncate">{user?.fullName}</p>
+              {isAuthenticated && isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-3 w-52 border border-line bg-paper py-2">
+                  <div className="border-b border-line px-4 py-2">
+                    <p className="text-xs text-muted-ink">Signed in as</p>
+                    <p className="truncate text-sm font-semibold text-ink">{user?.fullName}</p>
                   </div>
                   <Link
                     to="/profile"
                     onClick={() => setIsUserMenuOpen(false)}
-                    className="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+                    className="block px-4 py-2 text-sm text-ink transition-colors hover:bg-ivory"
                   >
                     My Profile
                   </Link>
                   <Link
                     to="/orders"
                     onClick={() => setIsUserMenuOpen(false)}
-                    className="block px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+                    className="block px-4 py-2 text-sm text-ink transition-colors hover:bg-ivory"
                   >
                     My Orders
                   </Link>
                   <button
+                    type="button"
                     onClick={() => {
                       setIsUserMenuOpen(false)
                       logout()
                     }}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="block w-full px-4 py-2 text-left text-sm text-danger transition-colors hover:bg-danger-soft"
                   >
                     Sign Out
                   </button>
                 </div>
               )}
             </div>
-
-            {/* Cart Counter Button */}
             <button
+              type="button"
               onClick={openCartDrawer}
-              className="relative p-2 text-zinc-900 hover:text-[#C88D35] rounded-full hover:bg-zinc-100 transition-colors"
-              aria-label="Shopping Cart"
+              className="relative p-2 text-ink transition-colors hover:text-cognac"
+              aria-label="Shopping cart"
             >
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="h-5 w-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#C88D35] text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-xs">
+                <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center bg-cognac px-1 text-[10px] font-bold text-paper">
                   {itemCount}
                 </span>
               )}
@@ -173,30 +155,36 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         </div>
       </div>
 
-      {/* Expandable Search Drawer */}
       {isSearchOpen && (
-        <div className="border-t border-zinc-100 bg-[#F6F4EF] p-4 transition-all animate-fadeIn">
-          <form onSubmit={handleSearchSubmit} className="max-w-3xl mx-auto relative flex">
+        <div className="border-t border-line bg-ivory px-4 py-4">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="editorial-container flex items-center gap-3"
+          >
+            <label htmlFor="site-search" className="sr-only">
+              Search products
+            </label>
             <input
-              type="text"
-              placeholder="Search solid wood sofas, tables, dining chairs, lamps..."
+              id="site-search"
+              name="search"
+              type="search"
+              placeholder="Search the collection"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-zinc-300 rounded-full pl-5 pr-12 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="editorial-input"
               autoFocus
             />
-            <button
-              type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-600 hover:text-[#C88D35]"
-            >
-              <Search className="w-5 h-5" />
+            <button type="submit" className="editorial-button shrink-0" aria-label="Submit search">
+              <Search className="h-4 w-4" />
+              <span className="hidden sm:inline">Search</span>
             </button>
             <button
               type="button"
               onClick={() => setIsSearchOpen(false)}
-              className="ml-3 text-sm text-zinc-500 hover:text-zinc-900 font-medium shrink-0 self-center"
+              className="p-2 text-muted-ink transition-colors hover:text-ink"
+              aria-label="Close search"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
           </form>
         </div>

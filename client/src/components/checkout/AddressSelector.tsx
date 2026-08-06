@@ -37,23 +37,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   const [pincode, setPincode] = useState('')
   const [phone, setPhone] = useState('')
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!fullName || !streetAddress || !city || !pincode || !phone) return
-
-    onAddNewAddress({
-      fullName,
-      label: 'Home',
-      streetAddress,
-      apartment,
-      city,
-      state,
-      pincode,
-      phone,
-      isDefault: addresses.length === 0,
-    })
-
-    setShowAddForm(false)
+  const resetForm = () => {
     setFullName('')
     setStreetAddress('')
     setApartment('')
@@ -62,144 +46,175 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
     setPhone('')
   }
 
+  const handleFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!fullName || !streetAddress || !city || !pincode || !phone) return
+    onAddNewAddress({
+      fullName,
+      label: 'Address',
+      streetAddress,
+      apartment,
+      city,
+      state,
+      pincode,
+      phone,
+      isDefault: addresses.length === 0,
+    })
+    setShowAddForm(false)
+    resetForm()
+  }
+
   return (
-    <div className="bg-[#F6F4EF] p-6 rounded-2xl border border-zinc-200/80 space-y-4">
-      <div className="flex items-center justify-between">
-        <h4 className="font-serif text-lg font-bold text-zinc-900">Delivery Address</h4>
+    <section className="border-b border-line pb-6">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="font-serif text-2xl font-bold text-ink">Delivery address</h2>
         <button
           type="button"
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="text-xs font-semibold text-[#C88D35] hover:underline flex items-center gap-1"
+          onClick={() => setShowAddForm((open) => !open)}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-cognac hover:text-ink"
         >
-          <Plus className="w-3.5 h-3.5" /> Add New Address
+          <Plus className="h-3.5 w-3.5" /> Add new
         </button>
       </div>
-
-      {/* Address Cards List */}
-      <div className="space-y-3">
-        {addresses.map((addr) => (
+      <div className="mt-5 space-y-3">
+        {addresses.length === 0 && (
+          <p className="border border-line bg-ivory p-4 text-sm text-muted-ink">
+            No saved addresses yet. Add one to continue.
+          </p>
+        )}
+        {addresses.map((address) => (
           <label
-            key={addr.id}
-            className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-              selectedAddressId === addr.id
-                ? 'bg-white border-[#C88D35] shadow-xs ring-1 ring-[#C88D35]/20'
-                : 'bg-white/60 border-zinc-200 hover:bg-white'
-            }`}
+            key={address.id}
+            className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${selectedAddressId === address.id ? 'border-cognac bg-ivory' : 'border-line bg-paper hover:bg-ivory'}`}
           >
             <input
               type="radio"
-              name="deliveryAddress"
-              checked={selectedAddressId === addr.id}
-              onChange={() => onSelectAddressId(addr.id)}
-              className="mt-1 accent-[#C88D35]"
+              name="delivery-address"
+              checked={selectedAddressId === address.id}
+              onChange={() => onSelectAddressId(address.id)}
+              className="mt-1 accent-cognac"
             />
-            <div className="flex-1 text-xs space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-zinc-900 text-sm">
-                  {addr.fullName} — {addr.label}
+            <div className="flex-1 text-xs leading-5 text-muted-ink">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-semibold text-ink">
+                  {address.fullName} — {address.label}
                 </span>
-                {addr.isDefault && (
-                  <span className="px-2 py-0.5 bg-amber-100 text-amber-900 font-bold rounded-md text-[10px] uppercase">
+                {address.isDefault && (
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-cognac">
                     Default
                   </span>
                 )}
               </div>
-              <p className="text-zinc-600">
-                {addr.streetAddress} {addr.apartment ? `, ${addr.apartment}` : ''}
+              <p>
+                {address.streetAddress}
+                {address.apartment ? `, ${address.apartment}` : ''}
               </p>
-              <p className="text-zinc-600">
-                {addr.city}, {addr.state} {addr.pincode} — ({addr.phone})
+              <p>
+                {address.city}, {address.state} {address.pincode} · {address.phone}
               </p>
             </div>
           </label>
         ))}
       </div>
 
-      {/* Add New Address Form Modal/Panel */}
       {showAddForm && (
         <form
           onSubmit={handleFormSubmit}
-          className="mt-4 p-5 bg-white rounded-xl border border-zinc-300 space-y-3 animate-fadeIn"
+          className="mt-5 space-y-3 border border-line bg-ivory p-5"
         >
-          <h5 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider">
-            Enter Shipping Details
-          </h5>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-ink">
+            Enter shipping details
+          </h3>
+          <div className="grid gap-3 sm:grid-cols-2">
             <input
+              id="address-full-name"
+              name="fullName"
               type="text"
               required
-              placeholder="Full Name"
+              placeholder="Full name"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setFullName(event.target.value)}
+              className="editorial-input"
             />
             <input
+              id="address-phone"
+              name="phone"
               type="tel"
               required
-              placeholder="Phone Number (10 digits)"
+              placeholder="Phone number"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setPhone(event.target.value)}
+              className="editorial-input"
             />
           </div>
-
           <input
+            id="address-line1"
+            name="streetAddress"
             type="text"
             required
-            placeholder="Street address (House No, Building, Area)"
+            placeholder="Street address"
             value={streetAddress}
-            onChange={(e) => setStreetAddress(e.target.value)}
-            className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+            onChange={(event) => setStreetAddress(event.target.value)}
+            className="editorial-input"
           />
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input
+            id="address-line2"
+            name="apartment"
+            type="text"
+            placeholder="Apartment, suite, or landmark"
+            value={apartment}
+            onChange={(event) => setApartment(event.target.value)}
+            className="editorial-input"
+          />
+          <div className="grid gap-3 sm:grid-cols-3">
             <input
+              id="address-city"
+              name="city"
               type="text"
               required
-              placeholder="City / District"
+              placeholder="City / district"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setCity(event.target.value)}
+              className="editorial-input"
             />
             <select
+              id="address-state"
+              name="state"
               value={state}
-              onChange={(e) => setState(e.target.value)}
-              className="bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setState(event.target.value)}
+              className="editorial-input"
             >
-              {INDIAN_STATES.map((st) => (
-                <option key={st.value} value={st.value}>
-                  {st.label}
+              {INDIAN_STATES.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.label}
                 </option>
               ))}
             </select>
             <input
+              id="address-pincode"
+              name="pincode"
               type="text"
               required
-              placeholder="Pincode (6 digits)"
+              placeholder="Pincode"
               value={pincode}
-              onChange={(e) => setPincode(e.target.value)}
-              className="bg-[#F6F4EF] border border-zinc-300 rounded-xl px-4 py-2.5 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+              onChange={(event) => setPincode(event.target.value)}
+              className="editorial-input"
             />
           </div>
-
-          <div className="flex gap-2 pt-2">
-            <button
-              type="submit"
-              className="px-5 py-2 bg-zinc-900 text-white font-semibold text-xs rounded-xl hover:bg-[#C88D35]"
-            >
-              Save Address
+          <div className="flex gap-3 pt-2">
+            <button type="submit" className="editorial-button">
+              Save address
             </button>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="px-4 py-2 bg-zinc-100 text-zinc-600 font-semibold text-xs rounded-xl hover:bg-zinc-200"
+              className="editorial-button-secondary"
             >
               Cancel
             </button>
           </div>
         </form>
       )}
-    </div>
+    </section>
   )
 }

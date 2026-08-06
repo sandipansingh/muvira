@@ -1,167 +1,129 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ShieldCheck, Truck, RotateCcw, CreditCard } from 'lucide-react'
+import { ArrowUpRight, CreditCard, Mail, Phone, Truck } from 'lucide-react'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
+import { formatPrice } from '../../lib/utils/format'
+
+const shopLinks = [
+  { label: 'All collections', to: '/shop' },
+  { label: 'Living room', to: '/shop?category=living-room' },
+  { label: 'Bedroom', to: '/shop?category=bedroom' },
+  { label: 'Dining', to: '/shop?category=dining' },
+  { label: 'Office & decor', to: '/shop?category=office-decor' },
+]
+
+const accountLinks = [
+  { label: 'Cart', to: '/cart' },
+  { label: 'Profile', to: '/profile' },
+  { label: 'Orders', to: '/orders' },
+  { label: 'Sign in', to: '/login' },
+]
 
 export const Footer: React.FC = () => {
+  const { settings } = useSiteSettings()
+  const { contactInfo, shippingRules, storeDescription } = settings
+  const phoneHref = contactInfo.phone.replace(/[^\d+]/g, '')
+
   return (
-    <footer className="bg-[#18181B] text-zinc-300 font-sans border-t border-zinc-800">
-      {/* Guarantees Strip */}
-      <div className="border-b border-zinc-800 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start gap-4">
-            <div className="p-3 bg-zinc-800/80 rounded-2xl text-[#C88D35]">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h5 className="font-semibold text-white text-sm">15-Year Solid Timber Warranty</h5>
-              <p className="text-xs text-zinc-400">On every frame, every single order</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center md:justify-start gap-4">
-            <div className="p-3 bg-zinc-800/80 rounded-2xl text-[#C88D35]">
-              <Truck className="w-6 h-6" />
-            </div>
-            <div>
-              <h5 className="font-semibold text-white text-sm">Free White-Glove Delivery</h5>
-              <p className="text-xs text-zinc-400">On orders over ₹1,000</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center md:justify-start gap-4">
-            <div className="p-3 bg-zinc-800/80 rounded-2xl text-[#C88D35]">
-              <RotateCcw className="w-6 h-6" />
-            </div>
-            <div>
-              <h5 className="font-semibold text-white text-sm">30-Day In-Home Trial</h5>
-              <p className="text-xs text-zinc-400">If it's not right, send it back seamlessly</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-10">
-          {/* Brand Info */}
-          <div className="md:col-span-2 space-y-4">
-            <h4 className="font-serif text-3xl font-bold text-white tracking-tight">Muvira</h4>
-            <p className="text-xs leading-relaxed text-zinc-400 max-w-sm">
-              Handcrafted furniture and home decor built for life. Crafted from FSC-certified solid
-              timbers by master joiners, designed to bring warmth and timeless elegance to modern
-              homes.
+    <footer className="border-t border-line bg-ivory text-ink">
+      <div className="editorial-container py-14 sm:py-20">
+        <div className="grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
+          <div>
+            <p className="editorial-label">Muvira / The studio</p>
+            <h2 className="editorial-heading mt-3 max-w-3xl text-4xl leading-[0.95] sm:text-6xl">
+              Objects with a quieter point of view.
+            </h2>
+            <p className="mt-5 max-w-xl text-sm leading-7 text-muted-ink">
+              {storeDescription || 'Considered pieces for rooms that are made to be lived in.'}
             </p>
-            <div className="flex items-center gap-2 pt-2 text-xs text-zinc-400">
-              <CreditCard className="w-4 h-4 text-[#C88D35]" />
-              <span>Razorpay Secured • PCI-DSS 256-Bit Encrypted</span>
+          </div>
+          <div className="border-t border-ink pt-5 lg:border-t-0 lg:border-l lg:pl-8">
+            <p className="editorial-label">Speak with the studio</p>
+            <p className="mt-3 text-sm leading-6 text-muted-ink">
+              Questions about a piece, delivery, or your order? We are here to help.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              {contactInfo.email && (
+                <a href={`mailto:${contactInfo.email}`} className="editorial-button">
+                  <Mail className="h-4 w-4" /> Email us
+                </a>
+              )}
+              {contactInfo.phone && (
+                <a href={`tel:${phoneHref}`} className="editorial-button-secondary">
+                  <Phone className="h-4 w-4" /> Call the studio
+                </a>
+              )}
             </div>
-          </div>
-
-          {/* Shop */}
-          <div className="space-y-3">
-            <h5 className="font-serif text-base font-semibold text-white">Shop</h5>
-            <ul className="space-y-2 text-xs text-zinc-400">
-              <li>
-                <Link
-                  to="/shop?category=living-room"
-                  className="hover:text-white transition-colors"
-                >
-                  Sofas & Sectionals
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/shop?category=living-room"
-                  className="hover:text-white transition-colors"
-                >
-                  Accent Chairs
-                </Link>
-              </li>
-              <li>
-                <Link to="/shop?category=dining" className="hover:text-white transition-colors">
-                  Dining Tables
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/shop?category=office-decor"
-                  className="hover:text-white transition-colors"
-                >
-                  Storage & Shelves
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/shop?category=office-decor"
-                  className="hover:text-white transition-colors"
-                >
-                  Lighting & Decor
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div className="space-y-3">
-            <h5 className="font-serif text-base font-semibold text-white">Company</h5>
-            <ul className="space-y-2 text-xs text-zinc-400">
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Our Story
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Craftsmanship
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Sustainability
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Journal & Press
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div className="space-y-3">
-            <h5 className="font-serif text-base font-semibold text-white">Support</h5>
-            <ul className="space-y-2 text-xs text-zinc-400">
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Help Center & FAQs
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Shipping & Returns
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Order Tracking
-                </Link>
-              </li>
-              <li>
-                <Link to="/" className="hover:text-white transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-            </ul>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-12 pt-6 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
-          <p>© 2026 Muvira India. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <span className="hover:text-zinc-300 cursor-pointer">Terms of Service</span>
-            <span className="hover:text-zinc-300 cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-zinc-300 cursor-pointer">Shipping Policy</span>
+        <div className="my-12 border-t border-line" />
+
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.75fr_0.75fr_1fr]">
+          <div className="space-y-4">
+            <p className="text-xl font-bold tracking-[-0.04em]">Muvira</p>
+            <p className="max-w-xs text-sm leading-6 text-muted-ink">
+              {storeDescription || 'Hand-finished furniture and objects made for everyday rituals.'}
+            </p>
+            <div className="space-y-1 text-sm text-muted-ink">
+              {contactInfo.email && <p>{contactInfo.email}</p>}
+              {contactInfo.phone && <p>{contactInfo.phone}</p>}
+              {contactInfo.address && <p>{contactInfo.address}</p>}
+            </div>
           </div>
+
+          <div>
+            <p className="editorial-label">Shop</p>
+            <ul className="mt-4 space-y-3 text-sm text-muted-ink">
+              {shopLinks.map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to} className="transition-colors hover:text-cognac">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="editorial-label">Your account</p>
+            <ul className="mt-4 space-y-3 text-sm text-muted-ink">
+              {accountLinks.map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to} className="transition-colors hover:text-cognac">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="editorial-label">Delivery, considered</p>
+            <div className="mt-4 space-y-4 text-sm leading-6 text-muted-ink">
+              <p className="flex gap-3">
+                <Truck className="mt-1 h-4 w-4 shrink-0 text-cognac" />
+                Free shipping on orders over {formatPrice(shippingRules.freeShippingThresholdPaisa)}
+                .
+              </p>
+              <p>Every order is packed with care and tracked from our studio to your door.</p>
+              {contactInfo.email && (
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  className="inline-flex items-center gap-1 text-ink hover:text-cognac"
+                >
+                  Contact support <ArrowUpRight className="h-3.5 w-3.5" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 flex flex-col gap-3 border-t border-line pt-5 text-xs text-muted-ink sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Muvira. All rights reserved.</p>
+          <p className="inline-flex items-center gap-2">
+            <CreditCard className="h-4 w-4" /> Secure payments through Razorpay.
+          </p>
         </div>
       </div>
     </footer>

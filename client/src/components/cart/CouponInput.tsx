@@ -1,39 +1,29 @@
 import React, { useState } from 'react'
-import { Tag, CheckCircle, X } from 'lucide-react'
+import { CheckCircle, Tag, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 
 export const CouponInput: React.FC = () => {
   const { coupon, applyCoupon, removeCoupon } = useCart()
   const [code, setCode] = useState('')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (code.trim()) {
-      const success = applyCoupon(code)
-      if (success) setCode('')
-    }
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (code.trim() && (await applyCoupon(code))) setCode('')
   }
 
   if (coupon) {
     return (
-      <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-xs">
+      <div className="flex items-center justify-between border border-success bg-success-soft p-3 text-xs text-success">
         <div className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span className="font-semibold">{coupon.code} Applied</span>
-          <span className="text-emerald-700">
-            (
-            {coupon.discountType === 'percentage'
-              ? `${coupon.discountValue}% off`
-              : `₹${coupon.discountValue / 100} off`}
-            )
-          </span>
+          <CheckCircle className="h-4 w-4 shrink-0" />
+          <span className="font-semibold">{coupon.code} applied</span>
         </div>
         <button
+          type="button"
           onClick={removeCoupon}
-          className="p-1 text-emerald-700 hover:text-emerald-950 transition-colors"
+          className="p-1 transition-colors hover:text-ink"
           aria-label="Remove coupon"
         >
-          <X className="w-4 h-4" />
+          <X className="h-4 w-4" />
         </button>
       </div>
     )
@@ -42,19 +32,21 @@ export const CouponInput: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="flex gap-2">
       <div className="relative flex-1">
+        <label htmlFor="coupon-code" className="sr-only">
+          Promo code
+        </label>
         <input
+          id="coupon-code"
+          name="coupon"
           type="text"
-          placeholder="Promo code (e.g. WELCOME10)"
+          placeholder="Enter promo code"
           value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="w-full bg-[#F6F4EF] border border-zinc-300 rounded-xl pl-9 pr-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
+          onChange={(event) => setCode(event.target.value)}
+          className="editorial-input pl-9"
         />
-        <Tag className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-ink" />
       </div>
-      <button
-        type="submit"
-        className="px-5 py-2.5 bg-zinc-900 hover:bg-[#C88D35] text-white text-xs font-semibold rounded-xl transition-colors shrink-0 shadow-xs"
-      >
+      <button type="submit" className="editorial-button shrink-0">
         Apply
       </button>
     </form>

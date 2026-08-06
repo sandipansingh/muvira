@@ -1,44 +1,37 @@
 import React from 'react'
-import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
 export const ToastContainer: React.FC = () => {
   const { toasts, removeToast } = useToast()
-
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4">
+    <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-[min(22rem,calc(100vw-2rem))] flex-col gap-3">
       {toasts.map((toast) => {
         const isSuccess = toast.type === 'success'
         const isError = toast.type === 'error'
-
         return (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border transition-all duration-300 transform translate-y-0 ${
-              isSuccess
-                ? 'bg-zinc-900 text-white border-zinc-800'
-                : isError
-                  ? 'bg-red-950 text-red-100 border-red-800'
-                  : 'bg-white text-zinc-900 border-zinc-200'
-            }`}
+            className={`pointer-events-auto flex items-start gap-3 border p-4 text-sm ${isSuccess ? 'border-ink bg-ink text-paper' : isError ? 'border-danger bg-danger-soft text-danger' : 'border-line bg-paper text-ink'}`}
           >
             <div className="mt-0.5 shrink-0">
-              {isSuccess && <CheckCircle2 className="w-5 h-5 text-[#C88D35]" />}
-              {isError && <AlertCircle className="w-5 h-5 text-red-400" />}
-              {!isSuccess && !isError && <Info className="w-5 h-5 text-zinc-500" />}
+              {isSuccess && <CheckCircle2 className="h-5 w-5 text-cognac" />}
+              {isError && <AlertCircle className="h-5 w-5" />}
+              {!isSuccess && !isError && <Info className="h-5 w-5 text-muted-ink" />}
             </div>
-            <div className="flex-1 text-sm">
-              {toast.title && <h5 className="font-semibold mb-0.5">{toast.title}</h5>}
+            <div className="flex-1">
+              {toast.title && <h3 className="mb-0.5 font-semibold">{toast.title}</h3>}
               <p className="leading-snug">{toast.message}</p>
             </div>
             <button
+              type="button"
               onClick={() => removeToast(toast.id)}
-              className="text-zinc-400 hover:text-white transition-colors p-1"
+              className="p-1 text-current opacity-60 transition-opacity hover:opacity-100"
               aria-label="Close notification"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
           </div>
         )

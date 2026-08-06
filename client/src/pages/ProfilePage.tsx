@@ -1,105 +1,429 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { User, Package, MapPin, LogOut } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { LogOut, MapPin, Package, Pencil, Trash2, User } from 'lucide-react'
+import type { Address } from '../lib/types/cart'
+import { addressService } from '../lib/services/address.service'
+import { INDIAN_STATES } from '../lib/constants/states.constants'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
+interface AddressFormValues {
+  fullName: string
+  phone: string
+  line1: string
+  line2: string
+  city: string
+  state: string
+  pincode: string
+  isDefault: boolean
+}
+
+const emptyAddress: AddressFormValues = {
+  fullName: '',
+  phone: '',
+  line1: '',
+  line2: '',
+  city: '',
+  state: 'West Bengal',
+  pincode: '',
+  isDefault: false,
+}
+
+function addressValues(address: Address): AddressFormValues {
+  return {
+    fullName: address.fullName,
+    phone: address.phone,
+    line1: address.line1,
+    line2: address.line2 ?? '',
+    city: address.city,
+    state: address.state,
+    pincode: address.pincode,
+    isDefault: address.isDefault,
+  }
+}
+
 export const ProfilePage: React.FC = () => {
-  const { user, logout } = useAuth()
+  const { user, loading: authLoading, logout, updateProfile } = useAuth()
   const { showToast } = useToast()
+  const navigate = useNavigate()
+  const [fullName, setFullName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [addressForm, setAddressForm] = useState<AddressFormValues>(emptyAddress)
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null)
+  const [addressFormOpen, setAddressFormOpen] = useState(false)
+  const [loadingAddresses, setLoadingAddresses] = useState(true)
 
-  const [fullName, setFullName] = useState(user?.fullName || 'Priya Nair')
-  const [phone, setPhone] = useState(user?.phone || '9876543210')
+  useEffect(() => {
+    if (!authLoading && !user) navigate('/login?returnTo=/profile', { replace: true })
+  }, [authLoading, navigate, user])
 
-  const handleUpdate = (e: React.FormEvent) => {
-    e.preventDefault()
-    showToast('Profile updated successfully!', 'success')
+  useEffect(() => {
+    if (user) {
+      setFullName(user.fullName)
+      setPhone(user.phone)
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (!user) return
+    let active = true
+    const loadAddresses = async () => {
+      setLoadingAddresses(true)
+      try {
+        const response = await addressService.getAddresses()
+        if (response.success && active) setAddresses(response.data)
+      } catch (reason) {
+        if (active)
+          showToast(reason instanceof Error ? reason.message : 'Unable to load addresses.', 'error')
+      } finally {
+        if (active) setLoadingAddresses(false)
+      }
+    }
+    void loadAddresses()
+    return () => {
+      active = false
+    }
+  }, [showToast, user])
+
+  const handleProfileUpdate = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setSavingProfile(true)
+    await updateProfile(fullName, phone)
+    setSavingProfile(false)
   }
 
+  const openNewAddressForm = () => {
+    setEditingAddressId(null)
+    setAddressForm({ ...emptyAddress, fullName: fullName || user?.fullName || '' })
+    setAddressFormOpen(true)
+  }
+
+  const openEditAddressForm = (address: Address) => {
+    setEditingAddressId(address.id)
+    setAddressForm(addressValues(address))
+    setAddressFormOpen(true)
+  }
+
+  const handleAddressSave = async (event: React.FormEvent) => {
+    event.preventDefault()
+    const data = {
+      ...addressForm,
+      line2: addressForm.line2 || null,
+      country: 'India',
+      label: 'Address',
+    }
+    let response
+    try {
+      response = editingAddressId
+        ? await addressService.updateAddress(editingAddressId, data)
+        : await addressService.createAddress(data)
+    } catch (reason) {
+      showToast(reason instanceof Error ? reason.message : 'Unable to save address.', 'error')
+      return
+    }
+
+    if (!response.success) {
+      showToast(response.error.message, 'error')
+      return
+    }
+    setAddresses((previous) =>
+      editingAddressId
+        ? previous.map((address) => (address.id === response.data.id ? response.data : address))
+        : [...previous, response.data]
+    )
+    setAddressFormOpen(false)
+    showToast(editingAddressId ? 'Address updated.' : 'Address saved.', 'success')
+  }
+
+  const deleteAddress = async (id: string) => {
+    let response
+    try {
+      response = await addressService.deleteAddress(id)
+    } catch (reason) {
+      showToast(reason instanceof Error ? reason.message : 'Unable to delete address.', 'error')
+      return
+    }
+    if (!response.success) {
+      showToast(response.error.message, 'error')
+      return
+    }
+    setAddresses((previous) => previous.filter((address) => address.id !== id))
+    showToast('Address deleted.', 'info')
+  }
+
+  const setDefaultAddress = async (id: string) => {
+    let response
+    try {
+      response = await addressService.setDefaultAddress(id)
+    } catch (reason) {
+      showToast(
+        reason instanceof Error ? reason.message : 'Unable to update default address.',
+        'error'
+      )
+      return
+    }
+    if (!response.success) {
+      showToast(response.error.message, 'error')
+      return
+    }
+    setAddresses((previous) =>
+      previous.map((address) => ({ ...address, isDefault: address.id === response.data.id }))
+    )
+    showToast('Default address updated.', 'success')
+  }
+
+  if (authLoading || !user) return <main className="editorial-page" />
+
   return (
-    <main className="bg-white min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="flex items-center justify-between border-b border-zinc-200 pb-6">
+    <main className="editorial-page py-12 sm:py-16">
+      <div className="editorial-container max-w-5xl space-y-10">
+        <div className="flex items-center justify-between border-b border-line pb-6">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#C88D35]">
-              Account Overview
-            </span>
-            <h1 className="font-serif text-3xl font-bold text-zinc-900 mt-0.5">My Profile</h1>
+            <span className="editorial-label">Account overview</span>
+            <h1 className="editorial-heading mt-3 text-4xl sm:text-5xl">My profile</h1>
           </div>
           <button
+            type="button"
             onClick={logout}
-            className="px-4 py-2 bg-red-50 text-red-700 text-xs font-semibold rounded-xl hover:bg-red-100 flex items-center gap-1.5"
+            className="flex items-center gap-1.5 border border-danger px-4 py-3 text-xs font-semibold uppercase tracking-wide text-danger transition-colors hover:bg-danger-soft"
           >
-            <LogOut className="w-4 h-4" /> Sign Out
+            <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Left Quick Nav Links */}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div className="space-y-2">
             <Link
               to="/profile"
-              className="flex items-center gap-3 p-3 bg-[#F6F4EF] rounded-xl font-bold text-xs text-zinc-900 border border-zinc-200"
+              className="flex items-center gap-3 border-b-2 border-ink bg-ivory p-4 text-xs font-bold text-ink"
             >
-              <User className="w-4 h-4 text-[#C88D35]" /> Personal Info
+              <User className="h-4 w-4 text-cognac" /> Personal info
             </Link>
             <Link
               to="/orders"
-              className="flex items-center gap-3 p-3 bg-white hover:bg-[#F6F4EF] rounded-xl font-medium text-xs text-zinc-700 border border-zinc-200/80 transition-colors"
+              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink hover:bg-ivory"
             >
-              <Package className="w-4 h-4 text-zinc-500" /> My Orders
+              <Package className="h-4 w-4" /> My orders
             </Link>
-            <div className="flex items-center gap-3 p-3 bg-white rounded-xl font-medium text-xs text-zinc-700 border border-zinc-200/80">
-              <MapPin className="w-4 h-4 text-zinc-500" /> Saved Addresses (2)
-            </div>
+            <a
+              href="#addresses"
+              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink hover:bg-ivory"
+            >
+              <MapPin className="h-4 w-4" /> Saved addresses ({addresses.length})
+            </a>
           </div>
 
-          {/* Right Personal Info Form */}
-          <div className="md:col-span-2 bg-[#F6F4EF] p-6 sm:p-8 rounded-3xl border border-zinc-200/80 space-y-6">
-            <h3 className="font-serif text-xl font-bold text-zinc-900">Personal Details</h3>
+          <div className="space-y-8 md:col-span-2">
+            <div className="space-y-6 border border-line bg-ivory p-6 sm:p-8">
+              <h2 className="font-serif text-2xl font-bold text-ink">Personal details</h2>
+              <form onSubmit={handleProfileUpdate} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="profile-email"
+                    className="mb-2 block text-xs font-semibold text-ink"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="profile-email"
+                    name="email"
+                    type="email"
+                    disabled
+                    value={user.email}
+                    className="editorial-input cursor-not-allowed bg-ivory text-muted-ink"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="profile-full-name"
+                    className="mb-2 block text-xs font-semibold text-ink"
+                  >
+                    Full Name
+                  </label>
+                  <input
+                    id="profile-full-name"
+                    name="fullName"
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
+                    className="editorial-input"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="profile-phone"
+                    className="mb-2 block text-xs font-semibold text-ink"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    id="profile-phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    className="editorial-input"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={savingProfile}
+                  className="editorial-button disabled:opacity-50"
+                >
+                  {savingProfile ? 'Saving...' : 'Save Changes'}
+                </button>
+              </form>
+            </div>
 
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  disabled
-                  value={user?.email || 'priya.nair@email.com'}
-                  className="w-full bg-zinc-200/60 border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-600 cursor-not-allowed"
-                />
+            <section id="addresses" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-2xl font-bold text-ink">Saved addresses</h2>
+                <button type="button" onClick={openNewAddressForm} className="editorial-button">
+                  Add address
+                </button>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-white border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
-                />
-              </div>
+              {addressFormOpen && (
+                <form
+                  onSubmit={handleAddressSave}
+                  className="space-y-3 border border-line bg-ivory p-5"
+                >
+                  <h3 className="text-sm font-bold text-ink">
+                    {editingAddressId ? 'Edit Address' : 'Add Address'}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {(
+                      [
+                        ['fullName', 'Full name'],
+                        ['phone', 'Phone number'],
+                        ['line1', 'Address line 1'],
+                        ['line2', 'Address line 2 (optional)'],
+                        ['city', 'City'],
+                        ['pincode', 'Pincode'],
+                      ] as const
+                    ).map(([field, label]) => (
+                      <input
+                        key={field}
+                        id={`address-${field}`}
+                        name={field}
+                        type="text"
+                        required={!['line2'].includes(field)}
+                        placeholder={label}
+                        value={addressForm[field]}
+                        onChange={(event) =>
+                          setAddressForm((previous) => ({
+                            ...previous,
+                            [field]: event.target.value,
+                          }))
+                        }
+                        className="editorial-input"
+                      />
+                    ))}
+                    <select
+                      id="address-state"
+                      name="state"
+                      value={addressForm.state}
+                      onChange={(event) =>
+                        setAddressForm((previous) => ({ ...previous, state: event.target.value }))
+                      }
+                      className="editorial-input"
+                    >
+                      {INDIAN_STATES.map((state) => (
+                        <option key={state.value} value={state.value}>
+                          {state.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <label className="flex items-center gap-2 text-xs text-ink">
+                    <input
+                      type="checkbox"
+                      checked={addressForm.isDefault}
+                      onChange={(event) =>
+                        setAddressForm((previous) => ({
+                          ...previous,
+                          isDefault: event.target.checked,
+                        }))
+                      }
+                    />
+                    Use as default address
+                  </label>
+                  <div className="flex gap-2">
+                    <button type="submit" className="editorial-button">
+                      Save address
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAddressFormOpen(false)}
+                      className="editorial-button-secondary"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-white border border-zinc-300 rounded-xl px-4 py-3 text-base text-zinc-900 focus:outline-none focus:ring-2 focus:ring-[#C88D35]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="px-6 py-3 bg-zinc-900 text-white font-semibold text-xs rounded-xl hover:bg-[#C88D35] transition-colors"
-              >
-                Save Changes
-              </button>
-            </form>
+              {loadingAddresses && <div className="h-24 animate-pulse bg-ivory" />}
+              {!loadingAddresses && addresses.length === 0 && (
+                <p className="border border-line bg-ivory p-5 text-sm text-muted-ink">
+                  No saved addresses yet.
+                </p>
+              )}
+              {!loadingAddresses &&
+                addresses.map((address) => (
+                  <div
+                    key={address.id}
+                    className="flex flex-col gap-4 border-b border-line py-5 sm:flex-row sm:items-start sm:justify-between"
+                  >
+                    <div className="space-y-1 text-xs text-muted-ink">
+                      <div className="flex items-center gap-2">
+                        <strong className="text-sm text-ink">{address.fullName}</strong>
+                        {address.isDefault && (
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-success">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <p>
+                        {address.line1}
+                        {address.line2 ? `, ${address.line2}` : ''}
+                      </p>
+                      <p>
+                        {address.city}, {address.state} {address.pincode}
+                      </p>
+                      <p>{address.phone}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {!address.isDefault && (
+                        <button
+                          onClick={() => setDefaultAddress(address.id)}
+                          className="text-xs font-semibold text-muted-ink hover:text-cognac"
+                        >
+                          Set default
+                        </button>
+                      )}
+                      <button
+                        onClick={() => openEditAddressForm(address)}
+                        aria-label="Edit address"
+                        className="border border-line p-2 text-muted-ink hover:bg-ivory hover:text-ink"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => deleteAddress(address.id)}
+                        aria-label="Delete address"
+                        className="border border-line p-2 text-muted-ink hover:bg-danger-soft hover:text-danger"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </section>
           </div>
         </div>
       </div>

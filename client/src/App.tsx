@@ -29,7 +29,7 @@ export const AppContent: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-white text-zinc-900 selection:bg-[#C88D35]/20 selection:text-[#C88D35]">
+    <div className="flex min-h-screen flex-col bg-paper font-sans text-ink selection:bg-cognac-soft selection:text-ink">
       <AnnouncementBar />
       <Header onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
@@ -63,11 +63,11 @@ export const App: React.FC = () => {
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
-          <CartProvider>
-            <SiteSettingsProvider>
+          <SiteSettingsProvider>
+            <CartProvider>
               <AppContent />
-            </SiteSettingsProvider>
-          </CartProvider>
+            </CartProvider>
+          </SiteSettingsProvider>
         </AuthProvider>
       </ToastProvider>
     </BrowserRouter>

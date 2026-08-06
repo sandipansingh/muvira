@@ -1,6 +1,13 @@
-import React, { useMemo } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { MOCK_PRODUCTS, MOCK_REVIEWS } from '../mock/mockData'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { productService } from '../lib/services/product.service'
+import { reviewService } from '../lib/services/review.service'
+import type {
+  ProductDetail,
+  ProductListItem,
+  ProductReview,
+  ReviewSummary,
+} from '../lib/types/product'
 import { ImageGallery } from '../components/product/ImageGallery'
 import { ProductInfo } from '../components/product/ProductInfo'
 import { ProductAccordion } from '../components/product/ProductAccordion'
@@ -9,67 +16,111 @@ import { ProductCard } from '../components/catalog/ProductCard'
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
+  const [product, setProduct] = useState<ProductDetail | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<ProductListItem[]>([])
+  const [reviews, setReviews] = useState<ProductReview[]>([])
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({
+    avgRating: null,
+    totalReviews: 0,
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const product = useMemo(() => {
-    return MOCK_PRODUCTS.find((p) => p.slug === slug) || MOCK_PRODUCTS[0]
-  }, [slug])
+  const loadReviews = useCallback(async (productId: string) => {
+    const response = await reviewService.getProductReviews(productId)
+    if (!response.success) throw new Error(response.error.message)
+    setReviews(response.data)
+    setReviewSummary(response.summary)
+  }, [])
 
-  const relatedProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((p) => p.id !== product.id).slice(0, 4)
-  }, [product.id])
+  useEffect(() => {
+    if (!slug) return
+    let active = true
+    const loadProduct = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await productService.getProductBySlug(slug)
+        if (!response.success) throw new Error(response.error.message)
+        const productData = response.data
+        const [relatedResponse] = await Promise.all([
+          productService.getRelatedProducts(productData.id),
+          loadReviews(productData.id).catch(() => undefined),
+        ])
+        if (active) {
+          setProduct(productData)
+          if (relatedResponse.success) setRelatedProducts(relatedResponse.data)
+        }
+      } catch (reason) {
+        if (active)
+          setError(reason instanceof Error ? reason.message : 'Unable to load this product.')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    void loadProduct()
+    return () => {
+      active = false
+    }
+  }, [loadReviews, slug])
 
-  const productReviews = useMemo(() => {
-    return MOCK_REVIEWS.filter((r) => r.productId === product.id || r.productId === 'prod-1')
-  }, [product.id])
+  if (loading) return <main className="editorial-page min-h-[60vh] animate-pulse" />
+
+  if (error || !product) {
+    return (
+      <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-xl border border-line bg-ivory p-10 text-center">
+          <h1 className="editorial-heading text-3xl">Product not found</h1>
+          <p className="mt-2 text-sm text-muted-ink">
+            {error ?? 'This product is no longer available.'}
+          </p>
+          <Link to="/shop" className="editorial-button mt-6">
+            Return to shop
+          </Link>
+        </div>
+      </main>
+    )
+  }
 
   return (
-    <main className="bg-white min-h-screen py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Breadcrumb Navigation */}
-        <div className="text-xs text-zinc-500 mb-8 flex items-center gap-2">
-          <Link to="/" className="hover:text-zinc-900">
+    <main className="editorial-page py-10 sm:py-16">
+      <div className="editorial-container">
+        <div className="mb-8 flex items-center gap-2 text-xs text-muted-ink">
+          <Link to="/" className="hover:text-cognac">
             Home
           </Link>
           <span>/</span>
-          <Link to="/shop" className="hover:text-zinc-900">
+          <Link to="/shop" className="hover:text-cognac">
             Shop
           </Link>
           <span>/</span>
-          <span className="text-zinc-900 font-medium truncate">{product.name}</span>
+          <span className="truncate font-medium text-ink">{product.name}</span>
         </div>
-
-        {/* Top Split: Image Gallery & Product Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
           <ImageGallery images={product.images} title={product.name} />
           <ProductInfo product={product} />
         </div>
-
-        {/* Specifications & Accordion Section */}
         <ProductAccordion product={product} />
-
-        {/* Customer Reviews Section */}
         <ReviewsSection
           productId={product.id}
-          ratingAvg={product.rating || 4.8}
-          reviewCount={product.reviewCount || 12}
-          reviews={productReviews}
+          ratingAvg={reviewSummary.avgRating ?? product.rating ?? null}
+          reviewCount={reviewSummary.totalReviews || product.reviewCount || 0}
+          reviews={reviews}
+          onReviewSubmitted={() => loadReviews(product.id)}
         />
-
-        {/* You May Also Like Section */}
-        <div className="mt-20 pt-12 border-t border-zinc-200">
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#C88D35]">
-              Handcrafted Pairings
-            </span>
-            <h3 className="font-serif text-3xl font-bold text-zinc-900 mt-1">You May Also Like</h3>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((rel) => (
-              <ProductCard key={rel.id} product={rel} />
-            ))}
-          </div>
-        </div>
+        {relatedProducts.length > 0 && (
+          <section className="mt-20 border-t border-line pt-12">
+            <div className="mb-10">
+              <p className="editorial-label">Handcrafted pairings</p>
+              <h2 className="editorial-heading mt-3 text-4xl">You may also like</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+              {relatedProducts.map((related) => (
+                <ProductCard key={related.id} product={related} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   )

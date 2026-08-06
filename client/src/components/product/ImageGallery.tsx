@@ -7,40 +7,37 @@ interface ImageGalleryProps {
 }
 
 export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, title }) => {
-  const imageUrls =
-    images.length > 0
-      ? images.map((img) => (typeof img === 'string' ? img : img.url))
-      : [
-          'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=85',
-        ]
-
-  const [activeImage, setActiveImage] = useState(imageUrls[0])
+  const imageUrls = images.map((image) => (typeof image === 'string' ? image : image.url))
+  const [activeImage, setActiveImage] = useState(imageUrls[0] ?? '')
 
   return (
     <div className="space-y-4">
-      {/* Main Large Image Container */}
-      <div className="relative aspect-4/3 sm:aspect-square rounded-3xl overflow-hidden bg-[#F6F4EF] border border-zinc-200/80 shadow-xs group">
-        <img
-          src={activeImage}
-          alt={title}
-          className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
-        />
+      <div className="aspect-[4/3] overflow-hidden border-y border-line bg-ivory sm:aspect-square">
+        {activeImage ? (
+          <img src={activeImage} alt={title} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center text-sm text-muted-ink">
+            Image unavailable
+          </div>
+        )}
       </div>
-
-      {/* Thumbnail Bar */}
       {imageUrls.length > 1 && (
         <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
-          {imageUrls.map((img, idx) => (
+          {imageUrls.map((image, index) => (
             <button
-              key={idx}
-              onClick={() => setActiveImage(img)}
-              className={`relative w-20 h-20 rounded-xl overflow-hidden bg-[#F6F4EF] border-2 transition-all shrink-0 ${
-                activeImage === img
-                  ? 'border-[#C88D35] ring-2 ring-[#C88D35]/20'
-                  : 'border-zinc-200 opacity-60 hover:opacity-100'
+              key={`${image}-${index}`}
+              type="button"
+              onClick={() => setActiveImage(image)}
+              className={`h-20 w-20 shrink-0 overflow-hidden border transition-colors ${
+                activeImage === image ? 'border-cognac' : 'border-line opacity-60 hover:opacity-100'
               }`}
+              aria-label={`View ${title} image ${index + 1}`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" />
+              <img
+                src={image}
+                alt={`${title} view ${index + 1}`}
+                className="h-full w-full object-cover"
+              />
             </button>
           ))}
         </div>
