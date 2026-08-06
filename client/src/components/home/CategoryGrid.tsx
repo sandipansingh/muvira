@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { categoryService } from '../../lib/services/category.service'
 import type { Category } from '../../lib/types/category'
@@ -32,22 +31,13 @@ export const CategoryGrid: React.FC = () => {
   return (
     <section className="bg-white py-12 sm:py-16">
       <div className="editorial-container">
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Curated Collections
-            </span>
-            <h2 className="font-serif text-3xl font-extrabold text-slate-900 sm:text-4xl mt-1">
-              Explore Popular Categories
-            </h2>
-          </div>
-          <Link
-            to="/shop"
-            className="hidden items-center gap-1.5 text-sm font-semibold text-slate-700 hover:text-slate-900 sm:inline-flex"
-          >
-            <span>View All</span>
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
+        <div className="mb-10 text-center">
+          <h2 className="font-sans font-black text-3xl sm:text-4xl lg:text-5xl text-slate-900 tracking-tight uppercase">
+            DISCOVER OUR COLLECTIONS
+          </h2>
+          <p className="mt-2 text-sm text-slate-500 font-medium">
+            Explore handcrafted furniture, sacred idols, and artisanal home decor
+          </p>
         </div>
 
         {loading && (

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ArrowRight, ChevronLeft, ChevronRight, Leaf } from 'lucide-react'
+import { ArrowRight, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 
@@ -10,10 +10,6 @@ export const HeroSlider: React.FC = () => {
 
   const moveToNextSlide = useCallback(() => {
     setCurrentIndex((previous) => (previous + 1) % slides.length)
-  }, [slides.length])
-
-  const moveToPreviousSlide = useCallback(() => {
-    setCurrentIndex((previous) => (previous - 1 + slides.length) % slides.length)
   }, [slides.length])
 
   useEffect(() => {
@@ -28,132 +24,118 @@ export const HeroSlider: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="editorial-container my-6 h-[28rem] animate-pulse rounded-3xl bg-slate-200 sm:h-[38rem]" />
+      <div className="editorial-container my-6 h-[28rem] animate-pulse rounded-[2.5rem] bg-slate-100 sm:h-[36rem]" />
     )
   }
 
   if (slides.length === 0) return null
   const currentSlide = slides[currentIndex]
 
-  const renderFormattedTitle = (title: string) => {
-    const words = title.split(' ')
-    if (words.length < 2) {
-      return title
-    }
-    return words.map((word, idx) => {
-      if (idx === 1) {
-        return (
-          <span key={idx} className="font-serif italic font-normal text-amber-100">
-            {word}{' '}
-          </span>
-        )
-      }
-      return <span key={idx}>{word} </span>
-    })
-  }
-
   return (
-    <section className="relative w-full h-screen min-h-[640px] max-h-[1080px] -mt-20 overflow-hidden">
-      {/* Background Image Carousel */}
-      {slides.map((slide, index) => (
-        <div
-          key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            index === currentIndex ? 'opacity-100 z-10' : 'pointer-events-none opacity-0 z-0'
-          }`}
-        >
-          <img
-            src={slide.imageUrl}
-            alt={slide.title}
-            className="h-full w-full object-cover object-center"
-          />
-          {/* Dark gradient overlays for high text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
-        </div>
-      ))}
+    <section className="editorial-container py-6 sm:py-8">
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-100 via-slate-50 to-amber-50/40 p-8 sm:p-12 lg:p-16 border border-slate-200/80 shadow-xs">
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+          {/* Left Column: Rating, Headline, Callout, Dual CTAs */}
+          <div className="space-y-6 lg:col-span-6 lg:pr-4">
+            {/* Rating Badge with User Avatars */}
+            <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-xs font-semibold text-slate-800 shadow-xs">
+              <div className="flex -space-x-1.5 overflow-hidden">
+                <span className="inline-block h-6 w-6 rounded-full bg-slate-300 ring-2 ring-white text-[10px] flex items-center justify-center font-bold text-slate-700">
+                  A
+                </span>
+                <span className="inline-block h-6 w-6 rounded-full bg-orange-200 ring-2 ring-white text-[10px] flex items-center justify-center font-bold text-orange-800">
+                  R
+                </span>
+                <span className="inline-block h-6 w-6 rounded-full bg-emerald-200 ring-2 ring-white text-[10px] flex items-center justify-center font-bold text-emerald-800">
+                  M
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-amber-500">
+                <Star className="h-3.5 w-3.5 fill-amber-400" />
+                <span className="font-bold text-slate-900">4.9/5</span>
+              </div>
+              <span className="text-slate-400">|</span>
+              <span className="text-slate-600">18,131 Reviews</span>
+            </div>
 
-      {/* Content Container Overlay */}
-      <div className="relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-end px-6 sm:px-12 pb-16 sm:pb-20 text-white">
-        {/* Main Hero Headline & CTA */}
-        <div className="max-w-xl space-y-6 mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.08]">
-            {renderFormattedTitle(currentSlide.title)}
-          </h1>
+            {/* Main Headline */}
+            <h1 className="font-sans font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tight leading-[1.08] uppercase">
+              {currentSlide.title}
+            </h1>
 
-          <p className="text-sm sm:text-base leading-relaxed text-slate-200/90 max-w-md font-normal">
-            {currentSlide.subtitle}
-          </p>
+            {/* Subtitle Paragraph */}
+            <p className="text-base sm:text-lg leading-relaxed text-slate-600 max-w-lg font-medium">
+              {currentSlide.subtitle}
+            </p>
 
-          <div className="pt-2">
-            <Link
-              to={currentSlide.link}
-              className="inline-flex items-center justify-center gap-2.5 rounded-full bg-orange-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-105 active:scale-95"
-            >
-              <span>Shop now</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            {/* Feature Stat Callouts */}
+            <div className="flex items-center gap-8 border-t border-slate-200/80 pt-6">
+              <div>
+                <div className="text-2xl font-black text-slate-900">100%</div>
+                <div className="text-xs font-medium text-slate-500">Authentic Solid Craft</div>
+              </div>
+              <div className="h-8 w-px bg-slate-200" />
+              <div>
+                <div className="text-2xl font-black text-slate-900">2.4k+</div>
+                <div className="text-xs font-medium text-slate-500">Happy Homes Served</div>
+              </div>
+            </div>
+
+            {/* Dual CTA Buttons */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link
+                to={currentSlide.link}
+                className="inline-flex items-center justify-center gap-2.5 rounded-full bg-orange-600 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-105 active:scale-95"
+              >
+                <span>Shop Now</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/shop"
+                className="inline-flex items-center justify-center rounded-full border-2 border-slate-900 px-8 py-3.5 text-sm font-bold text-slate-900 transition-all hover:bg-slate-900 hover:text-white active:scale-95"
+              >
+                Explore Collections
+              </Link>
+            </div>
+
+            {/* Slide Navigation Dots */}
+            {slides.length > 1 && (
+              <div className="flex items-center gap-2 pt-4">
+                {slides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    onClick={() => setCurrentIndex(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index === currentIndex
+                        ? 'w-8 bg-slate-900'
+                        : 'w-2 bg-slate-300 hover:bg-slate-400'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Bottom Bar: Slide Indicators & Prev/Next Arrows */}
-        <div className="flex items-center justify-between border-t border-white/10 pt-4">
-          {slides.length > 1 ? (
-            <div className="flex items-center gap-2.5">
+          {/* Right Column: Product Showcase Frame */}
+          <div className="relative flex justify-center lg:col-span-6">
+            <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-xl border-4 border-white transition-all hover:scale-102">
               {slides.map((slide, index) => (
-                <button
+                <div
                   key={slide.id}
-                  type="button"
-                  onClick={() => setCurrentIndex(index)}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    index === currentIndex
-                      ? 'w-10 bg-white shadow-sm'
-                      : 'w-2.5 bg-white/40 hover:bg-white/70'
+                  className={`absolute inset-0 transition-opacity duration-700 ${
+                    index === currentIndex ? 'opacity-100' : 'pointer-events-none opacity-0'
                   }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
+                >
+                  <img
+                    src={slide.imageUrl}
+                    alt={slide.title}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               ))}
             </div>
-          ) : (
-            <div />
-          )}
-
-          {slides.length > 1 && (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={moveToPreviousSlide}
-                className="rounded-full border border-white/20 bg-black/30 p-2.5 text-white backdrop-blur-md hover:bg-white/20 transition-all"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={moveToNextSlide}
-                className="rounded-full border border-white/20 bg-black/30 p-2.5 text-white backdrop-blur-md hover:bg-white/20 transition-all"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Glassmorphism Floating Badge (Bottom Right) */}
-        <div className="absolute bottom-12 right-8 sm:bottom-20 sm:right-12 hidden md:flex flex-col justify-between rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-md shadow-2xl text-white w-56 sm:w-64 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold tracking-wider text-slate-200 uppercase">
-              Natural. Sustainable. Eco-conscious.
-            </span>
-            <Leaf className="h-5 w-5 text-emerald-400 shrink-0 ml-2" />
-          </div>
-
-          <div className="border-t border-white/10 pt-2 flex items-baseline justify-between">
-            <span className="font-serif italic text-4xl sm:text-5xl font-normal text-amber-100">
-              96%
-            </span>
-            <span className="text-xs text-slate-300 font-medium">Handcrafted Craft</span>
           </div>
         </div>
       </div>
