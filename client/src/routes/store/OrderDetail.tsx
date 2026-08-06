@@ -209,7 +209,9 @@ export const OrderDetail: React.FC = () => {
 
                 {/* Final Total */}
                 <div className="flex justify-between items-center text-darkColor font-bold py-1">
-                  <span className="text-sm md:text-base uppercase tracking-wider">Total Amount</span>
+                  <span className="text-sm md:text-base uppercase tracking-wider">
+                    Total Amount
+                  </span>
                   <span className="text-base md:text-lg text-primaryBg">
                     {formatPrice(order.totalAmount)}
                   </span>

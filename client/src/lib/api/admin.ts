@@ -764,7 +764,15 @@ export const adminApiService = {
           message: string
         },
       }
-    return { success: true, data: res.data as AnyRecord[] as any }
+    type PickupLocationItem = {
+      pickup_location: string
+      id: number
+      address: string
+      city: string
+      state: string
+      pin_code: string
+    }
+    return { success: true, data: res.data as unknown as PickupLocationItem[] }
   },
 
   async checkServiceability(params: {

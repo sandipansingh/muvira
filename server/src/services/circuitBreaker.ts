@@ -114,4 +114,3 @@ export function getBreakerStatus(): {
       state.state === 'open' ? Math.max(0, COOLDOWN_MS - (Date.now() - state.openedAt)) : null,
   }
 }
-

@@ -18,4 +18,3 @@ adminDiagnosticsRouter.get('/metrics', controller.getMetrics)
 adminDiagnosticsRouter.post('/shipments/:orderId/refresh', controller.refreshShipment)
 adminDiagnosticsRouter.get('/circuit-breaker', controller.getCircuitBreaker)
 adminDiagnosticsRouter.post('/circuit-breaker/reset', controller.resetCircuitBreaker)
-

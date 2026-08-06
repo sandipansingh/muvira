@@ -525,9 +525,7 @@ export const AdminOrderDetail: React.FC = () => {
                       <div>
                         <span className="text-sm font-semibold text-rose-700">Failed</span>
                         {order.shiprocketError && (
-                           <p className="text-xs text-rose-600 mt-0.5">
-                            {order.shiprocketError}
-                          </p>
+                          <p className="text-xs text-rose-600 mt-0.5">{order.shiprocketError}</p>
                         )}
                       </div>
                     </div>
@@ -551,9 +549,7 @@ export const AdminOrderDetail: React.FC = () => {
                     </div>
                   )}
                   {order.shipmentId && (
-                    <div className="text-xs text-secondary500">
-                      Shipment ID: {order.shipmentId}
-                    </div>
+                    <div className="text-xs text-secondary500">Shipment ID: {order.shipmentId}</div>
                   )}
                   {order.awbCode && (
                     <div className="flex items-center gap-2 p-2.5 bg-secondary100 rounded-lg">

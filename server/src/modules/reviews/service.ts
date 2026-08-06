@@ -64,16 +64,23 @@ export async function listProductReviews(
     throw new AppError(500, 'DB_ERROR', 'Failed to fetch reviews')
   }
 
-  const reviews = (data ?? []).map((r: any) => ({
-    id: r.id,
-    product_id: r.product_id,
-    user_id: r.user_id,
-    rating: r.rating,
-    comment: r.comment,
-    created_at: r.created_at,
-    updated_at: r.updated_at,
-    user_name: r.profiles?.full_name ?? null,
-  })) as (ProductReview & { user_name?: string | null })[]
+  type ReviewWithProfile = ProductReview & {
+    profiles?: { full_name: string | null } | { full_name: string | null }[] | null
+  }
+
+  const reviews = ((data as unknown as ReviewWithProfile[]) ?? []).map((r) => {
+    const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+    return {
+      id: r.id,
+      product_id: r.product_id,
+      user_id: r.user_id,
+      rating: r.rating,
+      comment: r.comment,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+      user_name: profile?.full_name ?? null,
+    }
+  }) as (ProductReview & { user_name?: string | null })[]
 
   // Compute summary (separate lightweight query for accuracy)
   const { data: aggData } = await adminSupabase
@@ -197,20 +204,32 @@ export async function adminListReviews(query: AdminReviewsQuery): Promise<{
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch reviews')
 
+  type AdminReviewRow = ProductReview & {
+    products?: { name: string; slug: string } | { name: string; slug: string }[] | null
+    profiles?:
+      | { full_name: string | null; email: string | null }
+      | { full_name: string | null; email: string | null }[]
+      | null
+  }
+
   // Flatten joined data for frontend convenience
-  const reviews = (data ?? []).map((r: any) => ({
-    id: r.id,
-    productId: r.product_id,
-    productName: r.products?.name ?? '',
-    productSlug: r.products?.slug ?? '',
-    userId: r.user_id,
-    userName: r.profiles?.full_name ?? '',
-    userEmail: r.profiles?.email ?? '',
-    rating: r.rating,
-    comment: r.comment,
-    createdAt: r.created_at,
-    updatedAt: r.updated_at,
-  }))
+  const reviews = ((data as unknown as AdminReviewRow[]) ?? []).map((r) => {
+    const product = Array.isArray(r.products) ? r.products[0] : r.products
+    const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+    return {
+      id: r.id,
+      productId: r.product_id,
+      productName: product?.name ?? '',
+      productSlug: product?.slug ?? '',
+      userId: r.user_id,
+      userName: profile?.full_name ?? '',
+      userEmail: profile?.email ?? '',
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
+    }
+  })
 
   return {
     reviews,
