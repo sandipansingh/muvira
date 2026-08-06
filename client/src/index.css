@@ -85,20 +85,18 @@
 }
 
 :root {
-  /* Warm heritage craft palette - dominant rich tones + sharp accents */
-  --bg: #f9f5ef;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #f4ede3;
-  --text: #2c2724;
-  --text-muted: #665f59;
-  --border: #e6dfd5;
-  --accent: #c65c30; /* dominant rich terracotta */
-  --accent-dark: #a74b26;
-  --accent-gold: #a77f4f; /* sharp burnished brass accent */
-  --accent-gold-light: #c5a26f;
+  --surface-2: #f6f4ef;
+  --text: #18181b;
+  --text-muted: #716e69;
+  --border: #e8e4dc;
+  --accent: #c88d35; /* warm golden cognac / amber */
+  --accent-dark: #b27b2a;
+  --accent-gold: #c88d35;
+  --accent-gold-light: #e8c58d;
 
-  /* Fallbacks for legacy tokens (gradually migrate) */
-  --primary: #c65c30;
+  --primary: #c88d35;
 }
 
 .admin-theme {
