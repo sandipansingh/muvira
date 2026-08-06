@@ -14,11 +14,7 @@ import type { Coupon } from '../../types/coupon'
 import type { OrderDetail } from '../../types/order'
 import type { DashboardStats, InventoryItem } from '../../types/dashboard'
 import type { ApiResponse, ApiPaginatedResponse } from '../../types/common'
-import type {
-  FulfillOrderInput,
-  FulfillOrderResult,
-  ServiceabilityResult,
-} from '../../types/order'
+import type { FulfillOrderInput, FulfillOrderResult, ServiceabilityResult } from '../../types/order'
 
 type AnyRecord = Record<string, unknown>
 

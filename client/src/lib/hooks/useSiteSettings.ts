@@ -46,7 +46,7 @@ export function useSiteSettings(): UseSiteSettingsReturn {
         setSettings(fresh)
         writeCache(fresh)
       }
-    } catch (err) {
+    } catch {
       // Failed to load site settings
     } finally {
       setLoading(false)

@@ -2,13 +2,7 @@ import type { Profile } from '../types/auth'
 import type { ProductListItem, ProductDetail, ProductImage, ProductReview } from '../types/product'
 import type { Category } from '../types/category'
 import type { Cart, CartItem, Address } from '../types/cart'
-import type {
-  OrderListItem,
-  OrderDetail,
-  OrderItem,
-  OrderAddress,
-  AdminNote,
-} from '../types/order'
+import type { OrderListItem, OrderDetail, OrderItem, OrderAddress, AdminNote } from '../types/order'
 import type { Coupon, CouponPreview } from '../types/coupon'
 import type { DashboardStats, InventoryItem } from '../types/dashboard'
 import type { SiteSettings } from '../types/settings'

@@ -20,7 +20,10 @@ export const addressService = {
     if (!res.success || !res.data) {
       return {
         success: false,
-        error: res.error ?? { code: 'FETCH_ADDRESSES_FAILED', message: 'Failed to fetch addresses' },
+        error: res.error ?? {
+          code: 'FETCH_ADDRESSES_FAILED',
+          message: 'Failed to fetch addresses',
+        },
       }
     }
 
@@ -125,7 +128,10 @@ export const addressService = {
     if (!res.success || !res.data) {
       return {
         success: false,
-        error: res.error ?? { code: 'SET_DEFAULT_ADDRESS_FAILED', message: 'Failed to set default address' },
+        error: res.error ?? {
+          code: 'SET_DEFAULT_ADDRESS_FAILED',
+          message: 'Failed to set default address',
+        },
       }
     }
 

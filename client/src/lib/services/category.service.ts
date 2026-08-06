@@ -20,7 +20,10 @@ export const categoryService = {
     if (!res.success || !res.data) {
       return {
         success: false,
-        error: res.error ?? { code: 'FETCH_CATEGORIES_FAILED', message: 'Failed to fetch categories' },
+        error: res.error ?? {
+          code: 'FETCH_CATEGORIES_FAILED',
+          message: 'Failed to fetch categories',
+        },
       }
     }
 

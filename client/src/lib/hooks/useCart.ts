@@ -10,9 +10,17 @@ export interface UseCartReturn {
   cart: Cart
   coupon: CouponPreview | null
   loading: boolean
-  addToCart: (productId: string, quantity: number) => Promise<{ success: boolean; productName?: string; error?: string }>
-  updateQuantity: (itemId: string, quantity: number) => Promise<{ success: boolean; couponRemoved?: boolean; error?: string }>
-  removeFromCart: (itemId: string) => Promise<{ success: boolean; couponRemoved?: boolean; error?: string }>
+  addToCart: (
+    productId: string,
+    quantity: number
+  ) => Promise<{ success: boolean; productName?: string; error?: string }>
+  updateQuantity: (
+    itemId: string,
+    quantity: number
+  ) => Promise<{ success: boolean; couponRemoved?: boolean; error?: string }>
+  removeFromCart: (
+    itemId: string
+  ) => Promise<{ success: boolean; couponRemoved?: boolean; error?: string }>
   applyCouponCode: (code: string) => Promise<{ success: boolean; error?: string }>
   removeCouponCode: () => Promise<void>
   clearCartState: () => void
@@ -24,7 +32,10 @@ export interface UseCartReturn {
  * Business logic hook for cart state, coupon application, and shipping/total amount computations.
  * Contains zero UI components or JSX rendering logic.
  */
-export function useCart(isAuthenticated = false, settings: SiteSettings | null = null): UseCartReturn {
+export function useCart(
+  isAuthenticated = false,
+  settings: SiteSettings | null = null
+): UseCartReturn {
   const [cart, setCart] = useState<Cart>(EMPTY_CART)
   const [coupon, setCoupon] = useState<CouponPreview | null>(null)
   const [loading, setLoading] = useState(false)
