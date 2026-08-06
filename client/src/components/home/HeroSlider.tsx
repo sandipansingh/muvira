@@ -74,13 +74,49 @@ export const HeroSlider: React.FC = () => {
       ))}
 
       {/* Content Container Overlay */}
-      <div className="relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-between px-6 sm:px-12 pt-28 pb-12 sm:pb-16 text-white">
-        {/* Top Info Bar */}
-        <div className="flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            Muvira Artisanal Collection
+      <div className="relative z-20 mx-auto flex h-full max-w-7xl flex-col justify-end px-6 sm:px-12 pb-16 sm:pb-20 text-white">
+        {/* Main Hero Headline & CTA */}
+        <div className="max-w-xl space-y-6 mb-8">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.08]">
+            {renderFormattedTitle(currentSlide.title)}
+          </h1>
+
+          <p className="text-sm sm:text-base leading-relaxed text-slate-200/90 max-w-md font-normal">
+            {currentSlide.subtitle}
+          </p>
+
+          <div className="pt-2">
+            <Link
+              to={currentSlide.link}
+              className="inline-flex items-center justify-center gap-2.5 rounded-full bg-orange-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-105 active:scale-95"
+            >
+              <span>Shop now</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
+        </div>
+
+        {/* Bottom Bar: Slide Indicators & Prev/Next Arrows */}
+        <div className="flex items-center justify-between border-t border-white/10 pt-4">
+          {slides.length > 1 ? (
+            <div className="flex items-center gap-2.5">
+              {slides.map((slide, index) => (
+                <button
+                  key={slide.id}
+                  type="button"
+                  onClick={() => setCurrentIndex(index)}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? 'w-10 bg-white shadow-sm'
+                      : 'w-2.5 bg-white/40 hover:bg-white/70'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <div />
+          )}
 
           {slides.length > 1 && (
             <div className="flex items-center gap-2">
@@ -104,48 +140,8 @@ export const HeroSlider: React.FC = () => {
           )}
         </div>
 
-        {/* Main Hero Headline & CTA */}
-        <div className="max-w-xl space-y-5 my-auto">
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.08]">
-            {renderFormattedTitle(currentSlide.title)}
-          </h1>
-
-          <p className="text-sm sm:text-base leading-relaxed text-slate-200/90 max-w-md font-normal">
-            {currentSlide.subtitle}
-          </p>
-
-          <div className="pt-2">
-            <Link
-              to={currentSlide.link}
-              className="inline-flex items-center justify-center gap-2.5 rounded-full bg-orange-600 px-8 py-4 text-sm font-bold text-white shadow-xl shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-105 active:scale-95"
-            >
-              <span>Shop now</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Slide Indicator Dots */}
-        {slides.length > 1 && (
-          <div className="flex items-center gap-2.5 pt-4">
-            {slides.map((slide, index) => (
-              <button
-                key={slide.id}
-                type="button"
-                onClick={() => setCurrentIndex(index)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? 'w-10 bg-white shadow-sm'
-                    : 'w-2.5 bg-white/40 hover:bg-white/70'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
-
         {/* Glassmorphism Floating Badge (Bottom Right) */}
-        <div className="absolute bottom-10 right-8 sm:bottom-16 sm:right-16 hidden sm:flex flex-col justify-between rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-md shadow-2xl text-white w-56 sm:w-64 space-y-4">
+        <div className="absolute bottom-12 right-8 sm:bottom-20 sm:right-12 hidden md:flex flex-col justify-between rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-md shadow-2xl text-white w-56 sm:w-64 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold tracking-wider text-slate-200 uppercase">
               Natural. Sustainable. Eco-conscious.

@@ -53,15 +53,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         isHomePage
           ? `fixed ${
               isOverlay
-                ? 'bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-transparent text-white py-2'
+                ? 'bg-gradient-to-b from-slate-950/80 via-slate-950/30 to-transparent text-white py-2'
                 : 'sticky border-b border-slate-200/80 bg-white/95 text-slate-900 backdrop-blur-md shadow-xs py-0'
             }`
           : 'sticky border-b border-slate-200/80 bg-white/95 text-slate-900 backdrop-blur-md shadow-xs py-0'
       }`}
     >
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between gap-4 sm:gap-8">
-          <div className="flex items-center gap-3">
+        <div className="relative flex h-20 items-center justify-between gap-4 sm:gap-8">
+          {/* Left: Mobile Menu & Nav Links */}
+          <div className="flex items-center gap-6">
             <button
               type="button"
               onClick={onOpenMobileMenu}
@@ -73,66 +74,65 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
               <Menu className="h-5 w-5" />
             </button>
 
-            <Link
-              to="/"
-              className={`flex items-center gap-2 text-2xl font-extrabold tracking-tight sm:text-3xl ${
-                isOverlay ? 'text-white font-serif' : 'text-slate-900 font-extrabold'
-              }`}
-            >
-              {isOverlay ? (
-                <span className="font-serif tracking-tight text-white">Muvira</span>
-              ) : (
-                <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent">
-                  Muvira
-                </span>
-              )}
-            </Link>
+            <nav className="hidden items-center gap-6 text-sm font-medium lg:flex">
+              {navigationLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`transition-colors ${
+                    isOverlay
+                      ? 'text-white/90 hover:text-white font-medium drop-shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 font-semibold'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
 
-          <nav className="hidden items-center gap-7 text-sm font-medium lg:flex">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`transition-colors ${
-                  isOverlay
-                    ? 'text-white/90 hover:text-white font-medium drop-shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 font-semibold'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          {/* Center: Brand Logo */}
+          <Link
+            to="/"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold sm:text-3xl tracking-tight"
+          >
+            {isOverlay ? (
+              <span className="font-serif tracking-tight text-white drop-shadow-md">Muvira</span>
+            ) : (
+              <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 bg-clip-text text-transparent font-serif font-bold">
+                Muvira
+              </span>
+            )}
+          </Link>
 
-          <div className="hidden max-w-xs flex-1 lg:block">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <input
-                type="search"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full rounded-full py-2 pl-4 pr-10 text-sm transition-all ${
-                  isOverlay
-                    ? 'bg-white/20 border border-white/30 text-white placeholder:text-white/70 backdrop-blur-md focus:bg-white focus:text-slate-900 focus:placeholder:text-slate-400 focus:outline-none'
-                    : 'border border-slate-200 bg-slate-50/80 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10'
-                }`}
-              />
-              <button
-                type="submit"
-                className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 transition-colors ${
-                  isOverlay
-                    ? 'text-white/70 hover:text-white'
-                    : 'text-slate-400 hover:text-slate-700'
-                }`}
-                aria-label="Search"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-            </form>
-          </div>
-
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Right: Search Input Bar & Icons */}
+          <div className="flex items-center gap-3">
+            <div className="hidden max-w-xs lg:block">
+              <form onSubmit={handleSearchSubmit} className="relative">
+                <input
+                  type="search"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`w-48 sm:w-60 rounded-full py-2 pl-4 pr-10 text-sm transition-all ${
+                    isOverlay
+                      ? 'bg-white/20 border border-white/30 text-white placeholder:text-white/70 backdrop-blur-md focus:bg-white focus:text-slate-900 focus:placeholder:text-slate-400 focus:outline-none'
+                      : 'border border-slate-200 bg-slate-50/80 text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10'
+                  }`}
+                />
+                <button
+                  type="submit"
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 transition-colors ${
+                    isOverlay
+                      ? 'text-white/70 hover:text-white'
+                      : 'text-slate-400 hover:text-slate-700'
+                  }`}
+                  aria-label="Search"
+                >
+                  <Search className="h-4 w-4" />
+                </button>
+              </form>
+            </div>
             <button
               type="button"
               onClick={() => setIsSearchOpen((open) => !open)}
