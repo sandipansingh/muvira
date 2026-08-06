@@ -8,6 +8,7 @@ export interface Category {
   description: string
   imageUrl: string
   sortOrder: number
+  itemCount?: number
   isActive?: boolean
   showInNavbar?: boolean
 }

@@ -5,8 +5,8 @@ export interface Profile {
   id: string
   fullName: string
   phone: string
-  role: 'user' | 'admin'
-  createdAt: string
+  role: 'user' | 'customer' | 'admin'
+  createdAt?: string
   email?: string
 }
 
