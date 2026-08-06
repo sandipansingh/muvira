@@ -101,7 +101,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <button
               type="button"
               onClick={() => addToCart(product)}
-              className="flex items-center gap-1.5 rounded-xl bg-orange-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs shadow-orange-600/20 transition-all hover:bg-orange-700 active:scale-95"
+              className="flex items-center gap-1.5 rounded-xl bg-[#7e3d1c] px-3.5 py-2 text-xs font-semibold text-white shadow-xs shadow-[#7e3d1c]/20 transition-all hover:bg-[#693116] active:scale-95"
               aria-label={`Add ${product.name} to cart`}
             >
               <ShoppingBag className="h-3.5 w-3.5" />

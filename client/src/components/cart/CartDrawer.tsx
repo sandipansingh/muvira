@@ -110,7 +110,7 @@ export const CartDrawer: React.FC = () => {
                   closeCartDrawer()
                   navigate('/shop')
                 }}
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-orange-600 px-6 py-3 text-xs font-bold text-white shadow-md shadow-orange-600/20 transition-all hover:bg-orange-700 active:scale-95"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#7e3d1c] px-6 py-3 text-xs font-bold text-white shadow-md shadow-[#7e3d1c]/20 transition-all hover:bg-[#693116] active:scale-95"
               >
                 <span>Shop the collection</span>
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -158,7 +158,7 @@ export const CartDrawer: React.FC = () => {
                 type="button"
                 onClick={openCheckout}
                 disabled={loading || hasUnmergedItems}
-                className="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-orange-600 py-3 text-xs font-bold text-white shadow-md shadow-orange-600/20 transition-all hover:bg-orange-700 active:scale-95 disabled:opacity-50"
+                className="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-[#7e3d1c] py-3 text-xs font-bold text-white shadow-md shadow-[#7e3d1c]/20 transition-all hover:bg-[#693116] active:scale-95 disabled:opacity-50"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Checkout'}</span>
                 <ArrowRight className="h-4 w-4" />

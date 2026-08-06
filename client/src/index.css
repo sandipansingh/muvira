@@ -48,9 +48,9 @@
   --color-ink: #0f172a;
   --color-muted-ink: #64748b;
   --color-line: #e2e8f0;
-  --color-cognac: #ea580c;
-  --color-cognac-dark: #c2410c;
-  --color-cognac-soft: #ffedd5;
+  --color-cognac: #7e3d1c;
+  --color-cognac-dark: #693116;
+  --color-cognac-soft: #fbf3ee;
   --color-success: #16a34a;
   --color-success-soft: #dcfce7;
   --color-danger: #dc2626;
@@ -99,7 +99,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid #ea580c;
+    outline: 2px solid #7e3d1c;
     outline-offset: 3px;
   }
 }
@@ -126,7 +126,7 @@
   }
 
   .editorial-button {
-    @apply inline-flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-semibold text-sm px-6 py-3 rounded-xl shadow-md shadow-orange-600/20 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 bg-[#7e3d1c] hover:bg-[#693116] active:bg-[#542611] text-white font-semibold text-sm px-6 py-3 rounded-xl shadow-md shadow-[#7e3d1c]/25 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .editorial-button-secondary {

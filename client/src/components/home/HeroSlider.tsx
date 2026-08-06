@@ -85,7 +85,7 @@ export const HeroSlider: React.FC = () => {
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 to={currentSlide.link}
-                className="inline-flex items-center justify-center gap-2.5 rounded-full bg-orange-600 px-8 py-4 text-sm font-bold text-white shadow-lg shadow-orange-600/30 transition-all hover:bg-orange-700 hover:scale-105 active:scale-95"
+                className="inline-flex items-center justify-center gap-2.5 rounded-full bg-[#7e3d1c] px-8 py-4 text-sm font-bold text-white shadow-lg shadow-[#7e3d1c]/25 transition-all hover:bg-[#693116] hover:scale-105 active:scale-95"
               >
                 <span>Shop Now</span>
                 <ArrowRight className="h-4 w-4" />

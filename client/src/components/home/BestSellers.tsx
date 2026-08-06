@@ -105,7 +105,7 @@ export const BestSellers: React.FC = () => {
         <div className="mt-10 text-center">
           <Link
             to="/shop"
-            className="inline-flex items-center gap-2 rounded-2xl bg-orange-600 px-7 py-3.5 text-sm font-semibold text-white shadow-md shadow-orange-600/20 transition-all hover:bg-orange-700 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-2xl bg-[#7e3d1c] px-7 py-3.5 text-sm font-semibold text-white shadow-md shadow-[#7e3d1c]/20 transition-all hover:bg-[#693116] active:scale-95"
           >
             <span>View All Products</span>
             <ArrowRight className="h-4 w-4" />

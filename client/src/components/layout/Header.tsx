@@ -114,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             >
               <ShoppingBag className="h-5 w-5" />
               {itemCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-600 px-1 text-[10px] font-bold text-white shadow-xs">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#7e3d1c] px-1 text-[10px] font-bold text-white shadow-xs">
                   {itemCount}
                 </span>
               )}
