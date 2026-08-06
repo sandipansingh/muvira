@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { categoryService } from '../../lib/services/category.service'
 import type { Category } from '../../lib/types/category'
@@ -31,19 +32,29 @@ export const CategoryGrid: React.FC = () => {
   return (
     <section className="bg-white py-12 sm:py-16">
       <div className="editorial-container">
-        <div className="mb-10 text-center">
-          <h2 className="font-sans font-black text-3xl sm:text-4xl lg:text-5xl text-slate-900 tracking-tight uppercase">
-            DISCOVER OUR COLLECTIONS
-          </h2>
-          <p className="mt-2 text-sm text-slate-500 font-medium">
-            Explore handcrafted furniture, sacred idols, and artisanal home decor
-          </p>
+        {/* Section Header with Right-Aligned Link (NovaTrend Style) */}
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="font-serif text-3xl font-bold text-slate-900 sm:text-4xl tracking-tight">
+              Shop by Categories
+            </h2>
+            <p className="mt-1 text-sm text-slate-500 font-medium">
+              Explore curated collections for every corner of your home
+            </p>
+          </div>
+          <Link
+            to="/shop"
+            className="hidden items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-[#7e3d1c] sm:inline-flex transition-colors"
+          >
+            <span>View All Categories</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
 
         {loading && (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="h-44 animate-pulse rounded-2xl bg-slate-100" />
+              <div key={item} className="h-56 animate-pulse rounded-2xl bg-slate-100" />
             ))}
           </div>
         )}
@@ -66,21 +77,26 @@ export const CategoryGrid: React.FC = () => {
               <Link
                 key={category.id}
                 to={`/shop?category=${category.slug}`}
-                className="group flex flex-col items-center rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 text-center transition-all duration-300 hover:border-slate-300 hover:bg-white hover:shadow-lg hover:-translate-y-1"
+                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 transition-all duration-300 hover:border-slate-300 hover:bg-white hover:shadow-xl hover:-translate-y-1"
               >
-                <div className="relative aspect-square w-24 h-24 sm:w-28 sm:h-28 overflow-hidden rounded-full bg-white p-2 shadow-xs group-hover:shadow-md transition-all">
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white">
                   <img
                     src={category.imageUrl}
                     alt={category.name}
-                    className="h-full w-full rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 </div>
-                <h3 className="mt-3.5 text-sm font-bold text-slate-900 group-hover:text-slate-700">
-                  {category.name}
-                </h3>
-                <p className="mt-0.5 line-clamp-1 text-xs text-slate-500 font-medium">
-                  {category.description}
-                </p>
+                <div className="mt-3 flex items-center justify-between px-1">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#7e3d1c] transition-colors">
+                      {category.name}
+                    </h3>
+                    <span className="text-[11px] font-semibold text-slate-500">Shop Now</span>
+                  </div>
+                  <div className="rounded-full bg-slate-200/60 p-1.5 text-slate-700 transition-all group-hover:bg-[#7e3d1c] group-hover:text-white">
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </div>
+                </div>
               </Link>
             ))}
           </div>

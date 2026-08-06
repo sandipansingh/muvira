@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { ArrowRight, Star } from 'lucide-react'
+import { ArrowRight, Sparkles, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 
@@ -33,53 +33,23 @@ export const HeroSlider: React.FC = () => {
 
   return (
     <section className="editorial-container py-6 sm:py-8">
-      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-100 via-slate-50 to-amber-50/40 p-8 sm:p-12 lg:p-16 border border-slate-200/80 shadow-xs">
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-100 via-slate-50 to-amber-50/30 p-8 sm:p-12 lg:p-16 border border-slate-200/80 shadow-xs">
         <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-          {/* Left Column: Rating, Headline, Callout, Dual CTAs */}
-          <div className="space-y-6 lg:col-span-6 lg:pr-4">
-            {/* Rating Badge with User Avatars */}
-            <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-xs font-semibold text-slate-800 shadow-xs">
-              <div className="flex -space-x-1.5 overflow-hidden">
-                <span className="inline-block h-6 w-6 rounded-full bg-slate-300 ring-2 ring-white text-[10px] flex items-center justify-center font-bold text-slate-700">
-                  A
-                </span>
-                <span className="inline-block h-6 w-6 rounded-full bg-orange-200 ring-2 ring-white text-[10px] flex items-center justify-center font-bold text-orange-800">
-                  R
-                </span>
-                <span className="inline-block h-6 w-6 rounded-full bg-emerald-200 ring-2 ring-white text-[10px] flex items-center justify-center font-bold text-emerald-800">
-                  M
-                </span>
-              </div>
-              <div className="flex items-center gap-1 text-amber-500">
-                <Star className="h-3.5 w-3.5 fill-amber-400" />
-                <span className="font-bold text-slate-900">4.9/5</span>
-              </div>
-              <span className="text-slate-400">|</span>
-              <span className="text-slate-600">18,131 Reviews</span>
+          {/* Left Column: Trending Tag, Headline, Subtitle, Dual CTAs, Trust Proof */}
+          <div className="space-y-6 lg:col-span-6 lg:pr-4 z-10">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#7e3d1c]/20 bg-[#7e3d1c]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#7e3d1c]">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Trending Now</span>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="font-sans font-black text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tight leading-[1.08] uppercase">
-              {currentSlide.title}
+            <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl text-slate-900 tracking-tight leading-[1.08]">
+              Discover Products You'll Love
             </h1>
 
-            {/* Subtitle Paragraph */}
             <p className="text-base sm:text-lg leading-relaxed text-slate-600 max-w-lg font-medium">
-              {currentSlide.subtitle}
+              Shop the latest handcrafted solid wood furniture, sacred idols, and artisanal decor
+              curated for modern lifestyles.
             </p>
-
-            {/* Feature Stat Callouts */}
-            <div className="flex items-center gap-8 border-t border-slate-200/80 pt-6">
-              <div>
-                <div className="text-2xl font-black text-slate-900">100%</div>
-                <div className="text-xs font-medium text-slate-500">Authentic Solid Craft</div>
-              </div>
-              <div className="h-8 w-px bg-slate-200" />
-              <div>
-                <div className="text-2xl font-black text-slate-900">2.4k+</div>
-                <div className="text-xs font-medium text-slate-500">Happy Homes Served</div>
-              </div>
-            </div>
 
             {/* Dual CTA Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -92,15 +62,45 @@ export const HeroSlider: React.FC = () => {
               </Link>
               <Link
                 to="/shop"
-                className="inline-flex items-center justify-center rounded-full border-2 border-slate-900 px-8 py-3.5 text-sm font-bold text-slate-900 transition-all hover:bg-slate-900 hover:text-white active:scale-95"
+                className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-8 py-3.5 text-sm font-bold text-slate-900 shadow-xs transition-all hover:bg-slate-100 hover:border-slate-400 active:scale-95"
               >
-                Explore Collections
+                Explore Collection
               </Link>
+            </div>
+
+            {/* Customer Trust Proof */}
+            <div className="flex items-center gap-3 border-t border-slate-200/80 pt-6">
+              <div className="flex -space-x-2 overflow-hidden">
+                <span className="inline-block h-8 w-8 rounded-full bg-slate-300 ring-2 ring-white text-xs flex items-center justify-center font-bold text-slate-700">
+                  R
+                </span>
+                <span className="inline-block h-8 w-8 rounded-full bg-amber-200 ring-2 ring-white text-xs flex items-center justify-center font-bold text-amber-800">
+                  A
+                </span>
+                <span className="inline-block h-8 w-8 rounded-full bg-[#7e3d1c]/20 ring-2 ring-white text-xs flex items-center justify-center font-bold text-[#7e3d1c]">
+                  M
+                </span>
+                <span className="inline-block h-8 w-8 rounded-full bg-emerald-200 ring-2 ring-white text-xs flex items-center justify-center font-bold text-emerald-800">
+                  S
+                </span>
+              </div>
+              <div>
+                <div className="flex items-center gap-1 text-amber-500">
+                  <Star className="h-3.5 w-3.5 fill-amber-400" />
+                  <Star className="h-3.5 w-3.5 fill-amber-400" />
+                  <Star className="h-3.5 w-3.5 fill-amber-400" />
+                  <Star className="h-3.5 w-3.5 fill-amber-400" />
+                  <Star className="h-3.5 w-3.5 fill-amber-400" />
+                </div>
+                <p className="text-xs font-semibold text-slate-600 mt-0.5">
+                  Loved by 50,000+ customers worldwide
+                </p>
+              </div>
             </div>
 
             {/* Slide Navigation Dots */}
             {slides.length > 1 && (
-              <div className="flex items-center gap-2 pt-4">
+              <div className="flex items-center gap-2 pt-2">
                 {slides.map((slide, index) => (
                   <button
                     key={slide.id}
@@ -118,9 +118,9 @@ export const HeroSlider: React.FC = () => {
             )}
           </div>
 
-          {/* Right Column: Product Showcase Frame */}
+          {/* Right Column: Hero Image with Floating Mini Product Cards (NovaTrend Style) */}
           <div className="relative flex justify-center lg:col-span-6">
-            <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-xl border-4 border-white transition-all hover:scale-102">
+            <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl border-4 border-white transition-all">
               {slides.map((slide, index) => (
                 <div
                   key={slide.id}
@@ -135,6 +135,40 @@ export const HeroSlider: React.FC = () => {
                   />
                 </div>
               ))}
+
+              {/* Floating Mini Product Card 1 (Top Left) */}
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+                <div className="h-10 w-10 overflow-hidden rounded-xl bg-slate-100">
+                  <img
+                    src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=150&q=80"
+                    alt="Accent Chair"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-slate-900 line-clamp-1">
+                    Nordic Chair
+                  </div>
+                  <div className="text-[11px] font-extrabold text-[#7e3d1c]">₹8,499</div>
+                </div>
+              </div>
+
+              {/* Floating Mini Product Card 2 (Bottom Right) */}
+              <div className="absolute bottom-4 right-4 z-20 flex items-center gap-3 rounded-2xl border border-white/80 bg-white/90 p-2.5 shadow-lg backdrop-blur-md">
+                <div className="h-10 w-10 overflow-hidden rounded-xl bg-slate-100">
+                  <img
+                    src="https://images.unsplash.com/photo-1582582621959-48d273528920?auto=format&fit=crop&w=150&q=80"
+                    alt="Brass Diya"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="text-[11px] font-bold text-slate-900 line-clamp-1">
+                    Ganesha Idol
+                  </div>
+                  <div className="text-[11px] font-extrabold text-[#7e3d1c]">₹3,499</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
