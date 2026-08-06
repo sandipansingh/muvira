@@ -36,26 +36,36 @@ export const BestSellers: React.FC = () => {
       .filter((name): name is string => Boolean(name))
     return ['All', ...Array.from(new Set(categories))]
   }, [products])
+
   const filteredProducts = products.filter(
     (product) => selectedFilter === 'All' || product.categoryName === selectedFilter
   )
 
   return (
-    <section className="bg-ivory py-16 sm:py-20">
+    <section className="bg-slate-50/60 py-12 sm:py-16 border-y border-slate-200/60">
       <div className="editorial-container">
-        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="editorial-label">Customer favorites</p>
-            <h2 className="editorial-heading mt-3 text-4xl sm:text-5xl">Our best sellers</h2>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Customer Favorites
+            </span>
+            <h2 className="font-serif text-3xl font-extrabold text-slate-900 sm:text-4xl mt-1">
+              Today's Best Deals For You!
+            </h2>
           </div>
+
           {!loading && filterOptions.length > 1 && (
-            <div className="no-scrollbar flex items-center gap-5 overflow-x-auto">
+            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
               {filterOptions.map((filter) => (
                 <button
                   key={filter}
                   type="button"
                   onClick={() => setSelectedFilter(filter)}
-                  className={`shrink-0 border-b pb-2 text-xs font-semibold transition-colors ${selectedFilter === filter ? 'border-ink text-ink' : 'border-transparent text-muted-ink hover:border-line hover:text-ink'}`}
+                  className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+                    selectedFilter === filter
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
                 >
                   {filter}
                 </button>
@@ -67,29 +77,38 @@ export const BestSellers: React.FC = () => {
         {loading && (
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="aspect-square animate-pulse bg-paper" />
+              <div key={item} className="h-80 animate-pulse rounded-2xl bg-slate-200/60" />
             ))}
           </div>
         )}
+
         {!loading && error && (
-          <p className="border border-line bg-paper p-6 text-sm text-muted-ink">{error}</p>
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
+            {error}
+          </div>
         )}
+
         {!loading && !error && filteredProducts.length === 0 && (
-          <p className="border border-line bg-paper p-6 text-sm text-muted-ink">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
             Best sellers are being updated. Please check back soon.
-          </p>
+          </div>
         )}
+
         {!loading && !error && filteredProducts.length > 0 && (
-          <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
 
-        <div className="mt-12">
-          <Link to="/shop" className="editorial-button-secondary">
-            View all products <ArrowRight className="h-4 w-4 text-cognac" />
+        <div className="mt-10 text-center">
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-2 rounded-2xl bg-orange-600 px-7 py-3.5 text-sm font-semibold text-white shadow-md shadow-orange-600/20 transition-all hover:bg-orange-700 active:scale-95"
+          >
+            <span>View All Products</span>
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

@@ -31,11 +31,15 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-3">
-          <div className="aspect-square overflow-hidden border border-line bg-ivory">
+          <div className="aspect-square overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/90 flex items-center justify-center p-4">
             {selectedImage ? (
-              <img src={selectedImage} alt={product.name} className="h-full w-full object-cover" />
+              <img
+                src={selectedImage}
+                alt={product.name}
+                className="h-full w-full object-cover rounded-xl"
+              />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-muted-ink">
+              <div className="flex h-full items-center justify-center text-xs text-slate-400 font-medium">
                 Image unavailable
               </div>
             )}
@@ -47,10 +51,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setSelectedImage(image)}
-                  className={`h-16 w-16 shrink-0 overflow-hidden border transition-colors ${
+                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border transition-all ${
                     selectedImage === image
-                      ? 'border-cognac'
-                      : 'border-line opacity-60 hover:opacity-100'
+                      ? 'border-slate-900 ring-2 ring-slate-900/10'
+                      : 'border-slate-200 opacity-60 hover:opacity-100'
                   }`}
                   aria-label={`View image ${index + 1}`}
                 >
@@ -65,69 +69,81 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
           )}
         </div>
 
-        <div className="flex flex-col justify-between gap-8">
+        <div className="flex flex-col justify-between gap-6">
           <div>
             <div className="flex items-start justify-between gap-4">
-              <p className="editorial-label text-[10px]">{categoryName}</p>
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                {categoryName}
+              </span>
               <StockBadge
                 quantity={'stock' in product ? product.stock : 10}
                 isAvailable={'inStock' in product ? product.inStock : true}
               />
             </div>
-            <h2 className="editorial-heading mt-4 text-3xl">{product.name}</h2>
-            <div className="mt-4">
+            <h2 className="font-serif text-2xl font-extrabold text-slate-900 mt-2">
+              {product.name}
+            </h2>
+            <div className="mt-3">
               {product.rating !== null && product.rating !== undefined ? (
                 <RatingStars rating={product.rating} count={product.reviewCount} size="md" />
               ) : (
-                <span className="text-xs text-muted-ink">No reviews yet</span>
+                <span className="text-xs text-slate-400">No reviews yet</span>
               )}
             </div>
-            <div className="mt-5 flex items-baseline gap-3 border-y border-line py-4">
-              <span className="text-2xl font-semibold text-ink">{formatPrice(product.price)}</span>
+            <div className="mt-4 flex items-baseline gap-3 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4">
+              <span className="text-2xl font-extrabold text-slate-900">
+                {formatPrice(product.price)}
+              </span>
               {product.salePrice && product.salePrice > product.price && (
-                <span className="text-sm text-muted-ink line-through">
+                <span className="text-sm text-slate-400 line-through">
                   {formatPrice(product.salePrice)}
                 </span>
               )}
             </div>
-            <p className="mt-5 text-sm leading-6 text-muted-ink">
+            <p className="mt-4 text-sm leading-relaxed text-slate-600 line-clamp-3">
               {'description' in product
                 ? product.description
                 : product.shortDescription || 'Description unavailable.'}
             </p>
           </div>
 
-          <div className="border-t border-line pt-5">
+          <div className="border-t border-slate-200/80 pt-4 space-y-4">
             <div className="flex items-center gap-4">
-              <span className="text-xs font-semibold text-ink">Quantity</span>
-              <div className="flex items-center border border-line">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                Quantity
+              </span>
+              <div className="flex items-center rounded-full border border-slate-200 bg-slate-100/80 p-1">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-2 text-ink hover:bg-ivory"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-slate-700 hover:bg-white transition-all font-bold"
                 >
                   −
                 </button>
-                <span className="min-w-10 border-x border-line px-3 py-2 text-center text-sm font-semibold">
+                <span className="min-w-8 text-center text-sm font-bold text-slate-900">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-3 py-2 text-ink hover:bg-ivory"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-slate-700 hover:bg-white transition-all font-bold"
                 >
                   +
                 </button>
               </div>
             </div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <button type="button" onClick={handleAddToCart} className="editorial-button">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-xs font-bold text-white shadow-md shadow-orange-600/20 transition-all hover:bg-orange-700 active:scale-95"
+              >
                 <ShoppingBag className="h-4 w-4" /> Add to cart
               </button>
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="editorial-button-secondary"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-800 shadow-xs transition-all hover:bg-slate-50"
               >
                 Full details <ArrowRight className="h-4 w-4" />
               </Link>

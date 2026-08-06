@@ -22,42 +22,58 @@ const craftPrinciples = [
 
 export const CraftsmanshipStory: React.FC = () => {
   return (
-    <section className="bg-ivory py-16 sm:py-24">
-      <div className="editorial-container grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-20">
-        <div className="border-y border-line py-3">
-          <img
-            src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1200&q=85"
-            alt="Artisan shaping timber at the Muvira workshop"
-            className="aspect-[4/5] w-full object-cover sm:aspect-[5/6]"
-          />
-          <p className="flex justify-between gap-4 py-3 text-xs text-muted-ink">
-            <span>Made slowly, in small runs</span>
-            <span>15-year warranty</span>
-          </p>
-        </div>
-
-        <div>
-          <p className="editorial-label">Our heritage & philosophy</p>
-          <h2 className="editorial-heading mt-4 max-w-2xl text-4xl leading-[0.98] sm:text-6xl">
-            Furniture made to be lived with, not around.
-          </h2>
-          <p className="mt-6 max-w-xl text-sm leading-7 text-muted-ink sm:text-base">
-            Muvira began with a simple idea: a home should feel calm, considered, and a little
-            warmer every year. Every piece starts as a sketch on our workshop floor in Jaipur and
-            Bristol. Our small team of joiners work through prototypes by hand before anything goes
-            into production—which is why most of our furniture takes 4–6 weeks to make.
-          </p>
-
-          <div className="mt-10 grid gap-x-8 sm:grid-cols-2">
-            {craftPrinciples.map(({ icon: Icon, title, text }) => (
-              <div key={title} className="flex gap-3 border-t border-line py-4">
-                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-cognac" />
-                <div>
-                  <h3 className="text-sm font-semibold text-ink">{title}</h3>
-                  <p className="mt-1 text-xs leading-5 text-muted-ink">{text}</p>
+    <section className="bg-white py-12 sm:py-16">
+      <div className="editorial-container">
+        <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-50/70 p-6 sm:p-10 lg:p-12 shadow-xs">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-5">
+              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-white shadow-md">
+                <img
+                  src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1200&q=85"
+                  alt="Artisan shaping timber at the Muvira workshop"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute bottom-3 left-3 right-3 flex justify-between gap-2 rounded-xl bg-white/90 p-3 text-xs font-semibold text-slate-800 backdrop-blur-md shadow-xs">
+                  <span>Made slowly, in small runs</span>
+                  <span>15-year warranty</span>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <div className="space-y-6 lg:col-span-7 lg:pl-4">
+              <div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  Our Heritage & Philosophy
+                </span>
+                <h2 className="font-serif text-3xl font-extrabold text-slate-900 sm:text-5xl mt-2 leading-[1.15]">
+                  Furniture made to be lived with, not around.
+                </h2>
+              </div>
+
+              <p className="text-sm sm:text-base leading-relaxed text-slate-600">
+                Muvira began with a simple idea: a home should feel calm, considered, and a little
+                warmer every year. Every piece starts as a sketch on our workshop floor. Our small
+                team of joiners work through prototypes by hand before anything goes into
+                production—which is why most of our furniture takes 4–6 weeks to make.
+              </p>
+
+              <div className="grid gap-3 sm:grid-cols-2 pt-2">
+                {craftPrinciples.map(({ icon: Icon, title, text }) => (
+                  <div
+                    key={title}
+                    className="flex items-start gap-3.5 rounded-2xl border border-slate-200/60 bg-white p-4 shadow-xs"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-800">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900">{title}</h3>
+                      <p className="mt-0.5 text-xs text-slate-500 leading-normal">{text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -4,44 +4,48 @@ import { TESTIMONIALS } from '../../content/testimonials'
 
 export const TestimonialSection: React.FC = () => {
   return (
-    <section className="bg-paper py-16 sm:py-24">
+    <section className="bg-white py-12 sm:py-16">
       <div className="editorial-container">
-        <div className="flex flex-col justify-between gap-5 border-b border-line pb-8 sm:flex-row sm:items-end">
+        <div className="mb-8 flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-6 sm:flex-row sm:items-end">
           <div>
-            <p className="editorial-label">Real homeowners</p>
-            <h2 className="editorial-heading mt-3 text-4xl sm:text-5xl">What people say</h2>
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Verified Reviews
+            </span>
+            <h2 className="font-serif text-3xl font-extrabold text-slate-900 sm:text-4xl mt-1">
+              What People Say
+            </h2>
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-ink">
-            <div className="flex text-cognac" aria-label="Five out of five stars">
+          <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-700">
+            <div className="flex text-amber-500" aria-label="Five out of five stars">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star key={star} className="h-3.5 w-3.5 fill-current" />
               ))}
             </div>
-            <span>4.9/5 average rating</span>
+            <span>4.9/5 Average Rating</span>
           </div>
         </div>
 
-        <div className="grid gap-0 md:grid-cols-3 md:divide-x md:divide-line">
+        <div className="grid gap-5 md:grid-cols-3">
           {TESTIMONIALS.map((testimonial) => (
             <figure
               key={testimonial.id}
-              className="flex flex-col justify-between border-b border-line py-8 md:border-b-0 md:px-8 first:md:pl-0 last:md:pr-0"
+              className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-6 shadow-xs transition-all hover:bg-white hover:shadow-md"
             >
               <div>
-                <Quote className="h-6 w-6 text-cognac" />
-                <blockquote className="mt-5 font-serif text-xl leading-7 text-ink">
+                <Quote className="h-7 w-7 text-slate-400 opacity-60" />
+                <blockquote className="mt-3 text-base font-medium leading-relaxed text-slate-800">
                   “{testimonial.quote}”
                 </blockquote>
               </div>
-              <figcaption className="mt-8 flex items-center gap-3">
+              <figcaption className="mt-6 flex items-center gap-3 border-t border-slate-200/60 pt-4">
                 <img
                   src={testimonial.avatar}
                   alt={`${testimonial.author}, Muvira customer`}
-                  className="h-9 w-9 rounded-full object-cover"
+                  className="h-10 w-10 rounded-full object-cover shadow-xs"
                 />
                 <div>
-                  <p className="text-sm font-semibold text-ink">{testimonial.author}</p>
-                  <p className="text-xs text-muted-ink">{testimonial.location}</p>
+                  <p className="text-sm font-bold text-slate-900">{testimonial.author}</p>
+                  <p className="text-xs text-slate-500 font-medium">{testimonial.location}</p>
                 </div>
               </figcaption>
             </figure>

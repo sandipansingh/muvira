@@ -35,7 +35,8 @@ export default {
         '3xl': '16px',
       },
       boxShadow: {
-        none: 'none',
+        xs: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        sm: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
       },
     },
   },

@@ -1,24 +1,35 @@
 import React from 'react'
+import { Award, ShieldCheck, Sparkles, Truck } from 'lucide-react'
 
 const trustFacts = [
-  ['2.4k+', 'Happy homes furnished'],
-  ['340+', 'Handcrafted designs'],
-  ['15yr', 'Solid wood warranty'],
-  ['100%', 'Responsibly sourced timber'],
+  { icon: Truck, value: '2.4k+', label: 'Happy homes furnished' },
+  { icon: Sparkles, value: '340+', label: 'Handcrafted designs' },
+  { icon: ShieldCheck, value: '15yr', label: 'Solid wood warranty' },
+  { icon: Award, value: '100%', label: 'Responsibly sourced timber' },
 ]
 
 export const TrustBadges: React.FC = () => {
   return (
-    <section className="border-b border-line bg-paper">
-      <div className="editorial-container grid grid-cols-2 divide-x divide-y divide-line md:grid-cols-4 md:divide-y-0">
-        {trustFacts.map(([value, label]) => (
-          <div key={label} className="px-4 py-7 first:pl-0 md:py-9 md:first:pl-0">
-            <p className="font-serif text-3xl font-bold tracking-[-0.04em] text-ink">{value}</p>
-            <p className="mt-2 max-w-32 text-[11px] uppercase leading-4 tracking-[0.14em] text-muted-ink">
-              {label}
-            </p>
-          </div>
-        ))}
+    <section className="bg-white py-6">
+      <div className="editorial-container">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {trustFacts.map(({ icon: Icon, value, label }) => (
+            <div
+              key={label}
+              className="flex items-center gap-3.5 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 transition-all hover:bg-white hover:shadow-md"
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-slate-800 shadow-xs border border-slate-100">
+                <Icon className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-serif text-2xl font-extrabold tracking-tight text-slate-900">
+                  {value}
+                </p>
+                <p className="text-xs font-semibold text-slate-500">{label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   )

@@ -28,7 +28,7 @@ export const HeroSlider: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="editorial-container my-6 h-[24rem] animate-pulse bg-ivory sm:h-[36rem]" />
+      <div className="editorial-container my-6 h-[24rem] animate-pulse rounded-3xl bg-slate-100 sm:h-[32rem]" />
     )
   }
 
@@ -36,70 +36,90 @@ export const HeroSlider: React.FC = () => {
   const currentSlide = slides[currentIndex]
 
   return (
-    <section className="editorial-container py-6 sm:py-10">
-      <div className="grid border-y border-line lg:grid-cols-[1.7fr_0.8fr]">
-        <div className="relative aspect-[4/3] overflow-hidden border-b border-line sm:aspect-[16/9] lg:border-b-0 lg:border-r">
-          {slides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={`absolute inset-0 transition-opacity duration-700 ${
-                index === currentIndex ? 'opacity-100' : 'pointer-events-none opacity-0'
-              }`}
-              aria-hidden={index !== currentIndex}
-            >
-              <img src={slide.imageUrl} alt={slide.title} className="h-full w-full object-cover" />
+    <section className="editorial-container py-6 sm:py-8">
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-slate-50/80 p-6 sm:p-10 lg:p-12 shadow-xs">
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
+          {/* Content Column */}
+          <div className="space-y-6 lg:col-span-6 lg:pr-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs">
+              <span className="h-2 w-2 rounded-full bg-orange-600 animate-pulse" />
+              Featured Collection
             </div>
-          ))}
-          {slides.length > 1 && (
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 sm:bottom-6 sm:left-6">
-              <button
-                type="button"
-                onClick={moveToPreviousSlide}
-                className="border border-paper bg-paper/90 p-2 text-ink transition-colors hover:bg-ivory"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={moveToNextSlide}
-                className="border border-paper bg-paper/90 p-2 text-ink transition-colors hover:bg-ivory"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-        </div>
 
-        <div className="flex flex-col justify-between bg-ivory p-6 sm:p-10 lg:p-12">
-          <div>
-            <p className="editorial-label">The new collection</p>
-            <h1 className="editorial-heading mt-5 text-4xl leading-[0.95] sm:text-6xl">
+            <h1 className="font-serif text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.1]">
               {currentSlide.title}
             </h1>
-            <p className="mt-5 max-w-sm text-sm leading-7 text-muted-ink">
+
+            <p className="max-w-md text-base leading-relaxed text-slate-600">
               {currentSlide.subtitle}
             </p>
-          </div>
-          <div className="mt-10">
-            <Link to={currentSlide.link} className="editorial-button">
-              Explore the piece <ArrowRight className="h-4 w-4 text-cognac" />
-            </Link>
+
+            <div className="pt-2 flex items-center gap-4">
+              <Link
+                to={currentSlide.link}
+                className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-orange-600 px-7 py-3.5 text-sm font-semibold text-white shadow-md shadow-orange-600/25 transition-all hover:bg-orange-700 active:scale-95"
+              >
+                <span>Explore collection</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
             {slides.length > 1 && (
-              <div className="mt-8 flex items-center gap-2" aria-label="Hero slides">
+              <div className="flex items-center gap-2 pt-4" aria-label="Hero slides">
                 {slides.map((slide, index) => (
                   <button
                     key={slide.id}
                     type="button"
                     onClick={() => setCurrentIndex(index)}
-                    className={`h-px transition-colors ${
-                      index === currentIndex ? 'w-10 bg-ink' : 'w-5 bg-line hover:bg-muted-ink'
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index === currentIndex
+                        ? 'w-8 bg-slate-900'
+                        : 'w-2 bg-slate-300 hover:bg-slate-400'
                     }`}
                     aria-label={`Go to slide ${index + 1}`}
                     aria-current={index === currentIndex}
                   />
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Image Gallery Column */}
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-white shadow-md sm:aspect-[16/10] lg:col-span-6">
+            {slides.map((slide, index) => (
+              <div
+                key={slide.id}
+                className={`absolute inset-0 transition-opacity duration-700 ${
+                  index === currentIndex ? 'opacity-100' : 'pointer-events-none opacity-0'
+                }`}
+                aria-hidden={index !== currentIndex}
+              >
+                <img
+                  src={slide.imageUrl}
+                  alt={slide.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+
+            {slides.length > 1 && (
+              <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={moveToPreviousSlide}
+                  className="rounded-full border border-slate-200 bg-white/90 p-2 text-slate-700 shadow-sm backdrop-blur-md transition-colors hover:bg-white"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={moveToNextSlide}
+                  className="rounded-full border border-slate-200 bg-white/90 p-2 text-slate-700 shadow-sm backdrop-blur-md transition-colors hover:bg-white"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
               </div>
             )}
           </div>
