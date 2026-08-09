@@ -43,7 +43,8 @@ export async function listProducts(query: ListProductsQuery) {
       id, name, slug, short_description, category_id, price_paisa,
       compare_at_price_paisa, sku, stock, is_active, is_featured,
       tags, created_at,
-      product_images ( id, url, alt_text, sort_order, is_primary )
+      product_images ( id, url, alt_text, sort_order, is_primary ),
+      categories ( id, name, slug )
     `,
       { count: 'exact' }
     )
@@ -250,7 +251,7 @@ export async function getRelatedProducts(productId: string): Promise<Product[]> 
   const { data, error } = await adminSupabase
     .from('products')
     .select(
-      'id, name, slug, short_description, price_paisa, compare_at_price_paisa, stock, product_images ( id, url, is_primary )'
+      'id, name, slug, short_description, category_id, price_paisa, compare_at_price_paisa, stock, product_images ( id, url, is_primary ), categories ( id, name, slug )'
     )
     .eq('category_id', product.category_id)
     .eq('is_active', true)
