@@ -1,66 +1,138 @@
 import { supabase } from '../supabase'
 
-/**
- * Lightweight API HTTP client for Muvira client services.
- */
-class ApiClient {
-  private baseUrl = import.meta.env.VITE_API_BASE_URL || ''
+export interface ApiErrorDetails {
+  code: string
+  message: string
+  fieldErrors?: Record<string, string[]>
+  details?: unknown
+}
 
-  private async getAuthHeader(): Promise<Record<string, string>> {
+export class ApiError extends Error {
+  readonly status: number
+  readonly code: string
+  readonly fieldErrors?: Record<string, string[]>
+  readonly details?: unknown
+
+  constructor(status: number, error: ApiErrorDetails, options?: { cause?: unknown }) {
+    super(error.message, options)
+    this.name = 'ApiError'
+    this.status = status
+    this.code = error.code
+    this.fieldErrors = error.fieldErrors
+    this.details = error.details
+  }
+}
+
+type ApiEnvelope = {
+  success?: boolean
+  error?: ApiErrorDetails
+}
+
+class ApiClient {
+  private readonly baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+
+  private async getAuthHeader(requireAuth: boolean): Promise<Record<string, string>> {
     const { data } = await supabase.auth.getSession()
     if (data.session?.access_token) {
       return { Authorization: `Bearer ${data.session.access_token}` }
     }
+
+    if (requireAuth) {
+      throw new ApiError(401, {
+        code: 'AUTH_REQUIRED',
+        message: 'Please sign in to continue.',
+      })
+    }
+
     return {}
   }
 
-  async get<T>(endpoint: string, _requireAuth = false): Promise<T> {
-    const authHeaders = await this.getAuthHeader()
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeaders,
-      },
-    })
-    return res.json()
+  private async request<T>(endpoint: string, init: RequestInit, requireAuth: boolean): Promise<T> {
+    const authHeaders = await this.getAuthHeader(requireAuth)
+    let response: Response
+
+    try {
+      response = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...init,
+        headers: {
+          Accept: 'application/json',
+          ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+          ...authHeaders,
+          ...init.headers,
+        },
+      })
+    } catch (error) {
+      throw new ApiError(
+        0,
+        {
+          code: 'NETWORK_ERROR',
+          message: 'The service is unavailable. Please check your connection and try again.',
+        },
+        { cause: error }
+      )
+    }
+
+    let body: unknown
+    try {
+      body = await this.parseBody(response)
+    } catch (error) {
+      if (response.status === 401) await supabase.auth.signOut().catch(() => undefined)
+      throw error
+    }
+    const envelope = body as ApiEnvelope | null
+
+    if (!response.ok || envelope?.success === false) {
+      const error = envelope?.error ?? {
+        code: response.status === 401 ? 'UNAUTHORIZED' : 'HTTP_ERROR',
+        message: response.statusText || 'The request could not be completed.',
+      }
+
+      if (response.status === 401) {
+        await supabase.auth.signOut().catch(() => undefined)
+      }
+
+      throw new ApiError(response.status, error)
+    }
+
+    return body as T
   }
 
-  async post<T>(endpoint: string, body?: unknown, _requireAuth = false): Promise<T> {
-    const authHeaders = await this.getAuthHeader()
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeaders,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    })
-    return res.json()
+  private async parseBody(response: Response): Promise<unknown> {
+    const text = await response.text()
+    if (!text) return null
+
+    try {
+      return JSON.parse(text) as unknown
+    } catch {
+      throw new ApiError(response.status, {
+        code: 'INVALID_RESPONSE',
+        message: 'The service returned an invalid response.',
+      })
+    }
   }
 
-  async patch<T>(endpoint: string, body?: unknown, _requireAuth = false): Promise<T> {
-    const authHeaders = await this.getAuthHeader()
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeaders,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    })
-    return res.json()
+  async get<T>(endpoint: string, requireAuth = false): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET' }, requireAuth)
   }
 
-  async delete<T>(endpoint: string, _requireAuth = false): Promise<T> {
-    const authHeaders = await this.getAuthHeader()
-    const res = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeaders,
-      },
-    })
-    return res.json()
+  async post<T>(endpoint: string, body?: unknown, requireAuth = false): Promise<T> {
+    return this.request<T>(
+      endpoint,
+      { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) },
+      requireAuth
+    )
+  }
+
+  async patch<T>(endpoint: string, body?: unknown, requireAuth = false): Promise<T> {
+    return this.request<T>(
+      endpoint,
+      { method: 'PATCH', body: body === undefined ? undefined : JSON.stringify(body) },
+      requireAuth
+    )
+  }
+
+  async delete<T>(endpoint: string, requireAuth = false): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE' }, requireAuth)
   }
 }
 

@@ -42,6 +42,8 @@ export interface OrderListItem {
   fulfillmentStep: FulfillmentStep | null
   totalAmount: number
   itemCount: number
+  firstItemName?: string
+  firstItemImage?: string
   createdAt: string
   awbCode: string | null
 }

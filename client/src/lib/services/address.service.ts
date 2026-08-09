@@ -73,7 +73,7 @@ export const addressService = {
     if (addressData.fullName !== undefined) body['full_name'] = addressData.fullName
     if (addressData.phone !== undefined) body['phone'] = addressData.phone
     if (addressData.line1 !== undefined) body['address_line1'] = addressData.line1
-    if (addressData.line2 !== undefined) body['address_line2'] = addressData.line2
+    if (addressData.line2 !== undefined) body['address_line2'] = addressData.line2 ?? ''
     if (addressData.city !== undefined) body['city'] = addressData.city
     if (addressData.state !== undefined) body['state'] = addressData.state
     if (addressData.pincode !== undefined) body['pincode'] = addressData.pincode

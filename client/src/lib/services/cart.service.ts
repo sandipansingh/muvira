@@ -18,7 +18,10 @@ export const cartApiService = {
     }>('/api/cart', true)
 
     if (!res.success || !res.data) {
-      return { success: true, data: { items: [], subtotal: 0, itemCount: 0 } }
+      return {
+        success: false,
+        error: res.error ?? { code: 'FETCH_CART_FAILED', message: 'Failed to fetch cart' },
+      }
     }
 
     return { success: true, data: buildCart(res.data) }

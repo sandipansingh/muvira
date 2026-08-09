@@ -17,7 +17,7 @@ export function mapProfile(raw: Record<string, unknown>): Profile {
     id: raw['id'] as string,
     fullName: (raw['full_name'] as string | null) ?? '',
     phone: (raw['phone'] as string | null) ?? '',
-    role: raw['role'] as 'user' | 'admin',
+    role: (raw['role'] as Profile['role'] | undefined) ?? 'customer',
     createdAt: raw['created_at'] as string,
     email: raw['email'] as string | undefined,
   }
@@ -33,19 +33,25 @@ function mapProductImage(raw: Record<string, unknown>): ProductImage {
   }
 }
 
+function mapRelation(raw: unknown): Record<string, unknown> | undefined {
+  if (Array.isArray(raw)) return raw[0] as Record<string, unknown> | undefined
+  return raw as Record<string, unknown> | undefined
+}
+
 export function mapProductListItem(raw: Record<string, unknown>): ProductListItem {
   const images = (raw['product_images'] as Record<string, unknown>[] | undefined) ?? []
   const primaryImage = images.find((img) => img['is_primary']) ?? images[0]
   const pricePaisa = raw['price_paisa'] as number
   const compareAtPaisa = raw['compare_at_price_paisa'] as number | null
 
-  const price = compareAtPaisa ?? pricePaisa
-  const salePrice = compareAtPaisa ? pricePaisa : null
-  const discountPercent = compareAtPaisa
+  const hasDiscount = compareAtPaisa !== null && compareAtPaisa > pricePaisa
+  const price = pricePaisa
+  const salePrice = hasDiscount ? compareAtPaisa : null
+  const discountPercent = hasDiscount
     ? Math.round(((compareAtPaisa - pricePaisa) / compareAtPaisa) * 100)
     : 0
 
-  const cat = raw['categories'] as Record<string, unknown> | undefined
+  const cat = mapRelation(raw['categories'])
 
   return {
     id: raw['id'] as string,
@@ -59,7 +65,7 @@ export function mapProductListItem(raw: Record<string, unknown>): ProductListIte
     inStock: (raw['stock'] as number) > 0,
     isFeatured: raw['is_featured'] as boolean,
     categoryId: raw['category_id'] as string,
-    categoryName: cat ? (cat['name'] as string) : '',
+    categoryName: (cat?.['name'] as string | undefined) ?? (raw['category_name'] as string) ?? '',
     primaryImageUrl: (primaryImage?.['url'] as string | undefined) ?? '',
     createdAt: raw['created_at'] as string,
     rating: (raw['rating'] as number | null | undefined) ?? null,
@@ -75,13 +81,14 @@ export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
   const pricePaisa = raw['price_paisa'] as number
   const compareAtPaisa = raw['compare_at_price_paisa'] as number | null
 
-  const price = compareAtPaisa ?? pricePaisa
-  const salePrice = compareAtPaisa ? pricePaisa : null
-  const discountPercent = compareAtPaisa
+  const hasDiscount = compareAtPaisa !== null && compareAtPaisa > pricePaisa
+  const price = pricePaisa
+  const salePrice = hasDiscount ? compareAtPaisa : null
+  const discountPercent = hasDiscount
     ? Math.round(((compareAtPaisa - pricePaisa) / compareAtPaisa) * 100)
     : 0
 
-  const catRaw = raw['categories'] as Record<string, unknown> | undefined
+  const catRaw = mapRelation(raw['categories'])
   const cat = catRaw ?? { id: raw['category_id'], name: '', slug: '' }
 
   return {
@@ -123,12 +130,16 @@ export function mapCategory(raw: Record<string, unknown>): Category {
     imageUrl: (raw['image_url'] as string | null) ?? '',
     sortOrder: (raw['sort_order'] as number) ?? 0,
     isActive: raw['is_active'] as boolean,
+    itemCount: (raw['item_count'] as number | undefined) ?? (raw['product_count'] as number),
     showInNavbar: raw['show_in_navbar'] as boolean | undefined,
   }
 }
 
 export function mapCartItem(raw: Record<string, unknown>): CartItem {
-  const prod = raw['products'] as Record<string, unknown> | undefined
+  const products = raw['products']
+  const prod = Array.isArray(products)
+    ? (products[0] as Record<string, unknown> | undefined)
+    : (products as Record<string, unknown> | undefined)
   const images = (prod?.['product_images'] as Record<string, unknown>[] | undefined) ?? []
   const primaryImage = images.find((img) => img['is_primary']) ?? images[0]
   const unitPrice = (prod?.['price_paisa'] as number) ?? 0
@@ -160,21 +171,22 @@ export function buildCart(rawItems: Record<string, unknown>[]): Cart {
 export function mapAddress(raw: Record<string, unknown>): Address {
   return {
     id: raw['id'] as string,
-    label: 'home',
-    fullName: raw['full_name'] as string,
-    phone: raw['phone'] as string,
-    line1: raw['address_line1'] as string,
+    label: (raw['label'] as string | undefined) ?? 'Address',
+    fullName: (raw['full_name'] as string) ?? '',
+    phone: (raw['phone'] as string) ?? '',
+    line1: (raw['address_line1'] as string) ?? '',
     line2: (raw['address_line2'] as string | null) ?? null,
-    city: raw['city'] as string,
-    state: raw['state'] as string,
-    pincode: raw['pincode'] as string,
-    country: raw['country'] as string,
-    isDefault: raw['is_default'] as boolean,
+    city: (raw['city'] as string) ?? '',
+    state: (raw['state'] as string) ?? '',
+    pincode: (raw['pincode'] as string) ?? '',
+    country: (raw['country'] as string) ?? 'India',
+    isDefault: (raw['is_default'] as boolean) ?? false,
   }
 }
 
 export function mapOrderListItem(raw: Record<string, unknown>): OrderListItem {
   const items = (raw['order_items'] as Record<string, unknown>[] | undefined) ?? []
+  const firstItem = items[0]
   return {
     id: raw['id'] as string,
     orderNumber: raw['order_number'] as string,
@@ -184,6 +196,8 @@ export function mapOrderListItem(raw: Record<string, unknown>): OrderListItem {
     fulfillmentStep: (raw['fulfillment_step'] as OrderListItem['fulfillmentStep']) ?? null,
     totalAmount: raw['total_amount_paisa'] as number,
     itemCount: items.reduce((s, i) => s + ((i['quantity'] as number) ?? 0), 0),
+    firstItemName: firstItem?.['product_name'] as string | undefined,
+    firstItemImage: firstItem?.['product_image_url'] as string | undefined,
     createdAt: raw['created_at'] as string,
     awbCode: (raw['awb_code'] as string | null) ?? null,
   }
@@ -209,7 +223,7 @@ export function mapOrderAddress(raw: Record<string, unknown>): OrderAddress {
     line2: (raw['shipping_address_line2'] as string | null) ?? null,
     city: raw['shipping_city'] as string,
     state: raw['shipping_state'] as string,
-    pincode: raw['pincode'] as string,
+    pincode: raw['shipping_pincode'] as string,
     country: raw['shipping_country'] as string,
   }
 }
@@ -373,15 +387,15 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       id: s['id'] as string,
       title: s['title'] as string,
       subtitle: (s['subtitle'] as string) ?? '',
-      imageUrl: s['imageUrl'] as string,
-      link: s['link'] as string,
+      imageUrl: (s['imageUrl'] as string) ?? (s['image_url'] as string) ?? '',
+      link: (s['link'] as string) ?? '/',
     })),
     promoBanners: bannersRaw.map((b) => ({
       id: b['id'] as string,
       title: b['title'] as string,
       subtitle: (b['subtitle'] as string) ?? '',
-      imageUrl: b['imageUrl'] as string,
-      link: b['link'] as string,
+      imageUrl: (b['imageUrl'] as string) ?? (b['image_url'] as string) ?? '',
+      link: (b['link'] as string) ?? '/',
     })),
     storeDescription:
       (raw['store_description'] as string) ??
