@@ -118,7 +118,7 @@ export const HeroSlider: React.FC = () => {
             )}
           </div>
 
-          {/* Right Column: Hero Image with Floating Mini Product Cards (NovaTrend Style) */}
+          {/* Right Column: Hero Image with Floating Mini Product Cards */}
           <div className="relative flex justify-center lg:col-span-6">
             <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl border-4 border-white transition-all">
               {slides.map((slide, index) => (

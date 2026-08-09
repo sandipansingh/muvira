@@ -32,7 +32,7 @@ export const CategoryGrid: React.FC = () => {
   return (
     <section className="bg-white py-12 sm:py-16">
       <div className="editorial-container">
-        {/* Section Header with Right-Aligned Link (NovaTrend Style) */}
+        {/* Section Header with Right-Aligned Link */}
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h2 className="font-serif text-3xl font-bold text-slate-900 sm:text-4xl tracking-tight">
