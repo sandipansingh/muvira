@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import type { Profile } from '../lib/types/auth'
+import { authApiService } from '../lib/services/auth.service'
 import { supabase } from '../lib/supabase'
 import { useToast } from './ToastContext'
 
-interface AuthContextType {
+export interface AuthContextType {
   user: Profile | null
   token: string | null
   loading: boolean
@@ -12,9 +14,26 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<boolean>
   signup: (email: string, pass: string, name: string, phone: string) => Promise<boolean>
   logout: () => Promise<void>
+  updateProfile: (fullName: string, phone: string) => Promise<boolean>
+  updateUser: (profile: Profile) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+function metadataString(session: Session, key: string): string {
+  const value = session.user.user_metadata?.[key]
+  return typeof value === 'string' ? value : ''
+}
+
+function profileFromSession(session: Session): Profile {
+  return {
+    id: session.user.id,
+    email: session.user.email ?? '',
+    fullName: metadataString(session, 'full_name'),
+    phone: metadataString(session, 'phone'),
+    role: 'customer',
+  }
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Profile | null>(null)
@@ -22,53 +41,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
   const { showToast } = useToast()
 
+  const restoreSession = useCallback(async (session: Session) => {
+    setToken(session.access_token)
+    setUser(profileFromSession(session))
+
+    try {
+      const profileResponse = await authApiService.getProfile()
+      if (profileResponse.success) setUser(profileResponse.data)
+    } catch (error) {
+      console.error('Profile restoration error', error)
+    }
+  }, [])
+
   useEffect(() => {
     let isMounted = true
 
-    async function initAuth() {
+    const initialize = async () => {
       try {
         const { data } = await supabase.auth.getSession()
-        if (data.session && isMounted) {
-          setToken(data.session.access_token)
-          setUser({
-            id: data.session.user.id,
-            email: data.session.user.email || '',
-            fullName: data.session.user.user_metadata?.full_name || 'Valued Customer',
-            phone: data.session.user.user_metadata?.phone || '',
-            role: data.session.user.user_metadata?.role || 'customer',
-          })
-        }
-      } catch (err) {
-        console.error('Auth initialization error', err)
+        if (data.session && isMounted) await restoreSession(data.session)
+      } catch (error) {
+        console.error('Auth initialization error', error)
       } finally {
         if (isMounted) setLoading(false)
       }
     }
 
-    initAuth()
+    void initialize()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        setToken(session.access_token)
-        setUser({
-          id: session.user.id,
-          email: session.user.email || '',
-          fullName: session.user.user_metadata?.full_name || 'Valued Customer',
-          phone: session.user.user_metadata?.phone || '',
-          role: session.user.user_metadata?.role || 'customer',
-        })
+        setLoading(true)
+        void restoreSession(session).finally(() => setLoading(false))
       } else {
         setToken(null)
         setUser(null)
+        setLoading(false)
       }
-      setLoading(false)
     })
 
     return () => {
       isMounted = false
       authListener.subscription.unsubscribe()
     }
-  }, [])
+  }, [restoreSession])
 
   const login = async (email: string, pass: string): Promise<boolean> => {
     try {
@@ -100,12 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase.auth.signUp({
         email,
         password: pass,
-        options: {
-          data: {
-            full_name: name,
-            phone,
-          },
-        },
+        options: { data: { full_name: name, phone } },
       })
 
       if (error) {
@@ -113,11 +124,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false
       }
 
-      if (data.session) {
-        showToast('Account created successfully!', 'success')
-      } else {
-        showToast('Please check your email to confirm registration', 'info')
-      }
+      showToast(
+        data.session
+          ? 'Account created successfully!'
+          : 'Please check your email to confirm registration',
+        data.session ? 'success' : 'info'
+      )
       return true
     } catch {
       showToast('Signup error occurred', 'error')
@@ -132,6 +144,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     showToast('Logged out successfully', 'info')
   }
 
+  const updateProfile = async (fullName: string, phone: string): Promise<boolean> => {
+    try {
+      const response = await authApiService.updateProfile({ fullName, phone })
+      if (!response.success) {
+        showToast(response.error.message, 'error')
+        return false
+      }
+
+      setUser(response.data)
+      showToast('Profile updated successfully.', 'success')
+      return true
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Unable to update profile.', 'error')
+      return false
+    }
+  }
+
+  const updateUser = (profile: Profile) => setUser(profile)
+
   return (
     <AuthContext.Provider
       value={{
@@ -143,6 +174,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         signup,
         logout,
+        updateProfile,
+        updateUser,
       }}
     >
       {children}
@@ -152,8 +185,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext)
-  if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider')
-  }
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
 }

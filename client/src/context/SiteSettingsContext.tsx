@@ -1,25 +1,62 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { settingsService } from '../lib/services/settings.service'
+import type { SiteSettings } from '../lib/types/settings'
 
-interface SiteSettings {
-  storeName: string
-  taxRatePercent: number
-  freeShippingThresholdPaisa: number
-  standardShippingFeePaisa: number
+interface SiteSettingsContextValue {
+  settings: SiteSettings
+  loading: boolean
+  error: string | null
+  refresh: () => Promise<void>
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
-  storeName: 'Muvira',
-  taxRatePercent: 18,
-  freeShippingThresholdPaisa: 100000, // ₹1,000
-  standardShippingFeePaisa: 15000, // ₹150
+  contactInfo: { email: '', phone: '', address: '' },
+  announcementBar: { enabled: false, badge: '', message: '' },
+  heroSlides: [],
+  promoBanners: [],
+  storeDescription: '',
+  shippingRules: {
+    shippingChargePaisa: 15000,
+    freeShippingThresholdPaisa: 100000,
+  },
 }
 
-const SiteSettingsContext = createContext<SiteSettings>(DEFAULT_SETTINGS)
+const SiteSettingsContext = createContext<SiteSettingsContextValue | undefined>(undefined)
 
 export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [settings] = useState<SiteSettings>(DEFAULT_SETTINGS)
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  return <SiteSettingsContext.Provider value={settings}>{children}</SiteSettingsContext.Provider>
+  const refresh = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await settingsService.getSettings()
+      if (!response.success) throw new Error(response.error.message)
+      setSettings(response.data)
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Failed to load site settings.'
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void refresh()
+  }, [refresh])
+
+  return (
+    <SiteSettingsContext.Provider value={{ settings, loading, error, refresh }}>
+      {children}
+    </SiteSettingsContext.Provider>
+  )
 }
 
-export const useSiteSettings = () => useContext(SiteSettingsContext)
+export const useSiteSettings = () => {
+  const context = useContext(SiteSettingsContext)
+  if (!context) throw new Error('useSiteSettings must be used within SiteSettingsProvider')
+  return context
+}

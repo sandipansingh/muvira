@@ -1,18 +1,21 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import type { ProductDetail, ProductListItem } from '../lib/types/product'
 import type { CartItem } from '../lib/types/cart'
-import {
-  FALLBACK_FREE_THRESHOLD_PAISA,
-  FALLBACK_SHIPPING_CHARGE_PAISA,
-} from '../lib/constants/shipping.constants'
+import type { CouponPreview } from '../lib/types/coupon'
+import { cartApiService } from '../lib/services/cart.service'
+import { couponApiService } from '../lib/services/coupon.service'
 import { MAX_CART_ITEM_QTY } from '../lib/constants/cart.constants'
+import { useAuth } from './AuthContext'
+import { useSiteSettings } from './SiteSettingsContext'
 import { useToast } from './ToastContext'
-
-interface AppliedCoupon {
-  code: string
-  discountType: 'percentage' | 'fixed'
-  discountValue: number
-}
 
 interface CartContextType {
   items: CartItem[]
@@ -20,12 +23,13 @@ interface CartContextType {
   setIsDrawerOpen: (open: boolean) => void
   openCartDrawer: () => void
   closeCartDrawer: () => void
-  addToCart: (product: ProductDetail | ProductListItem, quantity?: number) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, delta: number) => void
-  clearCart: () => void
-  coupon: AppliedCoupon | null
-  applyCoupon: (code: string) => boolean
+  addToCart: (product: ProductDetail | ProductListItem, quantity?: number) => Promise<void>
+  removeFromCart: (productId: string) => Promise<void>
+  updateQuantity: (productId: string, delta: number) => Promise<void>
+  clearCart: () => Promise<void>
+  resetAfterOrder: () => void
+  coupon: CouponPreview | null
+  applyCoupon: (code: string) => Promise<boolean>
   removeCoupon: () => void
   itemCount: number
   subtotalPaisa: number
@@ -34,154 +38,288 @@ interface CartContextType {
   totalPaisa: number
   freeShippingThresholdPaisa: number
   amountForFreeShippingPaisa: number
+  loading: boolean
+  error: string | null
+  hasUnmergedItems: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
+const CART_STORAGE_KEY = 'muvira_guest_cart_v1'
 
-const CART_STORAGE_KEY = 'muvira_cart_items_v2'
-const COUPON_STORAGE_KEY = 'muvira_applied_coupon_v2'
+function readGuestItems(): CartItem[] {
+  try {
+    const saved = localStorage.getItem(CART_STORAGE_KEY)
+    const items = saved ? (JSON.parse(saved) as unknown) : []
+    return Array.isArray(items) ? (items as CartItem[]) : []
+  } catch {
+    return []
+  }
+}
+
+function isGuestItem(item: CartItem): boolean {
+  return item.id.startsWith('guest-')
+}
+
+function productImage(product: ProductDetail | ProductListItem): string {
+  return 'images' in product ? (product.images[0]?.url ?? '') : product.primaryImageUrl
+}
+
+function buildGuestItem(product: ProductDetail | ProductListItem, quantity: number): CartItem {
+  return {
+    id: `guest-${product.id}`,
+    productId: product.id,
+    productName: product.name,
+    productSlug: product.slug,
+    productImage: productImage(product),
+    unitPrice: product.price,
+    quantity,
+    lineTotal: product.price * quantity,
+    inStock: product.inStock,
+    availableStock: product.stock,
+  }
+}
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    try {
-      const saved = localStorage.getItem(CART_STORAGE_KEY)
-      return saved ? JSON.parse(saved) : []
-    } catch {
-      return []
-    }
-  })
-
-  const [coupon, setCoupon] = useState<AppliedCoupon | null>(() => {
-    try {
-      const saved = localStorage.getItem(COUPON_STORAGE_KEY)
-      return saved ? JSON.parse(saved) : null
-    } catch {
-      return null
-    }
-  })
-
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const { user, loading: authLoading } = useAuth()
+  const { settings } = useSiteSettings()
   const { showToast } = useToast()
+  const [items, setItems] = useState<CartItem[]>(readGuestItems)
+  const [coupon, setCoupon] = useState<CouponPreview | null>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const guestItemsRef = useRef<CartItem[]>(readGuestItems())
+  const mergedUserRef = useRef<string | null>(null)
+
+  const refreshServerCart = useCallback(async (): Promise<CartItem[]> => {
+    const response = await cartApiService.getCart()
+    if (!response.success) throw new Error(response.error.message)
+    setItems(response.data.items)
+    return response.data.items
+  }, [])
 
   useEffect(() => {
+    const guestItems = items.filter(isGuestItem)
+    const persistedItems = !user && guestItems.length === 0 ? guestItemsRef.current : guestItems
+    guestItemsRef.current = persistedItems
     try {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
-    } catch (err) {
-      console.error('Failed to save cart to localStorage', err)
+      if (persistedItems.length > 0) {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(persistedItems))
+      } else localStorage.removeItem(CART_STORAGE_KEY)
+    } catch {
+      setError('Unable to save your guest cart on this device.')
     }
-  }, [items])
+  }, [items, user])
 
   useEffect(() => {
-    try {
-      if (coupon) {
-        localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(coupon))
-      } else {
-        localStorage.removeItem(COUPON_STORAGE_KEY)
+    if (authLoading) return
+
+    if (!user) {
+      mergedUserRef.current = null
+      setCoupon(null)
+      setItems(readGuestItems())
+      setLoading(false)
+      return
+    }
+
+    if (mergedUserRef.current === user.id) return
+    mergedUserRef.current = user.id
+    let active = true
+
+    const synchronizeCart = async () => {
+      setLoading(true)
+      setError(null)
+      const failedItems: CartItem[] = []
+
+      for (const item of guestItemsRef.current) {
+        try {
+          const response = await cartApiService.addToCart(item.productId, item.quantity)
+          if (!response.success) failedItems.push(item)
+        } catch {
+          failedItems.push(item)
+        }
       }
-    } catch (err) {
-      console.error('Failed to save coupon to localStorage', err)
+
+      try {
+        const response = await cartApiService.getCart()
+        if (!response.success) throw new Error(response.error.message)
+        if (active) {
+          setItems([...response.data.items, ...failedItems])
+          guestItemsRef.current = failedItems
+          if (failedItems.length > 0) {
+            setError('Some guest cart items could not be added. They remain saved for retry.')
+          }
+        }
+      } catch (reason) {
+        if (active) {
+          setItems(failedItems.length > 0 ? failedItems : guestItemsRef.current)
+          setError(reason instanceof Error ? reason.message : 'Unable to load your cart.')
+        }
+      } finally {
+        if (active) setLoading(false)
+      }
     }
-  }, [coupon])
+
+    void synchronizeCart()
+    return () => {
+      active = false
+    }
+  }, [authLoading, user])
 
   const openCartDrawer = () => setIsDrawerOpen(true)
   const closeCartDrawer = () => setIsDrawerOpen(false)
 
-  const addToCart = (product: ProductDetail | ProductListItem, quantity = 1) => {
-    const isDetail = 'images' in product
-    const imgUrl = isDetail
-      ? (product as ProductDetail).images[0]?.url || ''
-      : (product as ProductListItem).primaryImageUrl || ''
+  const addToCart = async (product: ProductDetail | ProductListItem, quantity = 1) => {
+    const requestedQuantity = Math.min(Math.max(1, quantity), MAX_CART_ITEM_QTY)
+    setError(null)
 
-    const price = product.price
-    const inStock = 'inStock' in product ? product.inStock : true
-    const stock = 'stock' in product ? product.stock : 10
+    if (!user) {
+      setItems((previous) => {
+        const existing = previous.find((item) => item.productId === product.id)
+        if (!existing) return [...previous, buildGuestItem(product, requestedQuantity)]
+        const nextQuantity = Math.min(existing.quantity + requestedQuantity, MAX_CART_ITEM_QTY)
+        return previous.map((item) =>
+          item.productId === product.id
+            ? { ...item, quantity: nextQuantity, lineTotal: item.unitPrice * nextQuantity }
+            : item
+        )
+      })
+      showToast(`Added ${product.name} to cart`, 'success')
+      openCartDrawer()
+      return
+    }
 
-    setItems((prevItems) => {
-      const existingIndex = prevItems.findIndex((item) => item.productId === product.id)
-      if (existingIndex > -1) {
-        const updated = [...prevItems]
-        const newQty = Math.min(updated[existingIndex].quantity + quantity, MAX_CART_ITEM_QTY)
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: newQty,
-          lineTotal: price * newQty,
-        }
-        return updated
-      } else {
-        const qty = Math.min(quantity, MAX_CART_ITEM_QTY)
-        const newItem: CartItem = {
-          id: `cart-${product.id}`,
-          productId: product.id,
-          productName: product.name,
-          productSlug: product.slug,
-          productImage: imgUrl,
-          unitPrice: price,
-          quantity: qty,
-          lineTotal: price * qty,
-          inStock,
-          availableStock: stock,
-        }
-        return [...prevItems, newItem]
-      }
-    })
-
-    showToast(`Added ${product.name} to cart`, 'success')
-    openCartDrawer()
+    setLoading(true)
+    try {
+      const response = await cartApiService.addToCart(product.id, requestedQuantity)
+      if (!response.success) throw new Error(response.error.message)
+      const failedGuests = guestItemsRef.current.filter((item) => item.productId !== product.id)
+      const serverItems = await refreshServerCart()
+      setItems([...serverItems, ...failedGuests])
+      showToast(`Added ${product.name} to cart`, 'success')
+      openCartDrawer()
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Unable to add this item to cart.'
+      setError(message)
+      showToast(message, 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const removeFromCart = (productId: string) => {
-    setItems((prev) => prev.filter((item) => item.productId !== productId))
-    showToast('Item removed from cart', 'info')
+  const removeFromCart = async (productId: string) => {
+    const item = items.find((candidate) => candidate.productId === productId)
+    if (!item) return
+
+    if (isGuestItem(item)) {
+      setItems((previous) => previous.filter((candidate) => candidate.productId !== productId))
+      showToast('Item removed from cart', 'info')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await cartApiService.deleteCartItem(item.id)
+      if (!response.success) throw new Error(response.error.message)
+      await refreshServerCart()
+      setCoupon(null)
+      showToast('Item removed from cart', 'info')
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Unable to remove this item.'
+      setError(message)
+      showToast(message, 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const updateQuantity = (productId: string, delta: number) => {
-    setItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.productId === productId) {
-            const newQty = item.quantity + delta
-            if (newQty <= 0) return null
-            const validQty = Math.min(newQty, MAX_CART_ITEM_QTY)
-            return {
-              ...item,
-              quantity: validQty,
-              lineTotal: item.unitPrice * validQty,
-            }
-          }
-          return item
-        })
-        .filter((item): item is CartItem => item !== null)
-    )
+  const updateQuantity = async (productId: string, delta: number) => {
+    const item = items.find((candidate) => candidate.productId === productId)
+    if (!item) return
+    const nextQuantity = item.quantity + delta
+
+    if (nextQuantity <= 0) {
+      await removeFromCart(productId)
+      return
+    }
+
+    if (isGuestItem(item)) {
+      const boundedQuantity = Math.min(nextQuantity, MAX_CART_ITEM_QTY)
+      setItems((previous) =>
+        previous.map((candidate) =>
+          candidate.productId === productId
+            ? {
+                ...candidate,
+                quantity: boundedQuantity,
+                lineTotal: candidate.unitPrice * boundedQuantity,
+              }
+            : candidate
+        )
+      )
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await cartApiService.updateCartItem(
+        item.id,
+        Math.min(nextQuantity, MAX_CART_ITEM_QTY)
+      )
+      if (!response.success) throw new Error(response.error.message)
+      await refreshServerCart()
+      setCoupon(null)
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Unable to update cart quantity.'
+      setError(message)
+      showToast(message, 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const clearCart = () => {
+  const clearCart = async () => {
+    const serverItems = items.filter((item) => !isGuestItem(item))
+    setLoading(true)
     setItems([])
     setCoupon(null)
+    guestItemsRef.current = []
+    try {
+      await Promise.all(serverItems.map((item) => cartApiService.deleteCartItem(item.id)))
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Unable to clear your cart.'
+      setError(message)
+      showToast(message, 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const applyCoupon = (code: string): boolean => {
-    const formattedCode = code.trim().toUpperCase()
-    if (formattedCode === 'WELCOME10') {
-      const newCoupon: AppliedCoupon = {
-        code: 'WELCOME10',
-        discountType: 'percentage',
-        discountValue: 10,
-      }
-      setCoupon(newCoupon)
-      showToast('10% discount applied!', 'success')
-      return true
-    } else if (formattedCode === 'FESTIVE500') {
-      const newCoupon: AppliedCoupon = {
-        code: 'FESTIVE500',
-        discountType: 'fixed',
-        discountValue: 50000,
-      }
-      setCoupon(newCoupon)
-      showToast('₹500 discount applied!', 'success')
-      return true
-    } else {
-      showToast('Invalid coupon code. Try WELCOME10', 'error')
+  const resetAfterOrder = () => {
+    setItems([])
+    setCoupon(null)
+    guestItemsRef.current = []
+  }
+
+  const applyCoupon = async (code: string): Promise<boolean> => {
+    if (!user) {
+      showToast('Please sign in to apply a coupon.', 'info')
       return false
+    }
+
+    setLoading(true)
+    try {
+      const response = await couponApiService.applyCoupon(code, subtotalPaisa)
+      if (!response.success) throw new Error(response.error.message)
+      setCoupon(response.data)
+      showToast('Coupon applied successfully.', 'success')
+      return true
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Unable to apply this coupon.'
+      setError(message)
+      showToast(message, 'error')
+      return false
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -191,33 +329,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items])
-
-  const subtotalPaisa = useMemo(
-    () => items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
-    [items]
-  )
-
-  const discountPaisa = useMemo(() => {
-    if (!coupon || subtotalPaisa === 0) return 0
-    if (coupon.discountType === 'percentage') {
-      return Math.round((subtotalPaisa * coupon.discountValue) / 100)
-    } else {
-      return Math.min(coupon.discountValue, subtotalPaisa)
-    }
-  }, [coupon, subtotalPaisa])
-
-  const freeShippingThresholdPaisa = FALLBACK_FREE_THRESHOLD_PAISA
-
-  const shippingPaisa = useMemo(() => {
-    if (subtotalPaisa === 0 || subtotalPaisa >= freeShippingThresholdPaisa) {
-      return 0
-    }
-    return FALLBACK_SHIPPING_CHARGE_PAISA
-  }, [subtotalPaisa, freeShippingThresholdPaisa])
-
-  const amountForFreeShippingPaisa = Math.max(0, freeShippingThresholdPaisa - subtotalPaisa)
-
-  const totalPaisa = Math.max(0, subtotalPaisa - discountPaisa + shippingPaisa)
+  const subtotalPaisa = useMemo(() => items.reduce((sum, item) => sum + item.lineTotal, 0), [items])
+  const discountPaisa = coupon?.discountAmount ?? 0
+  const discountedSubtotal = Math.max(0, subtotalPaisa - discountPaisa)
+  const freeShippingThresholdPaisa = settings.shippingRules.freeShippingThresholdPaisa
+  const shippingPaisa =
+    discountedSubtotal === 0 ||
+    (freeShippingThresholdPaisa > 0 && discountedSubtotal >= freeShippingThresholdPaisa)
+      ? 0
+      : settings.shippingRules.shippingChargePaisa
+  const totalPaisa = discountedSubtotal + shippingPaisa
+  const amountForFreeShippingPaisa = Math.max(0, freeShippingThresholdPaisa - discountedSubtotal)
+  const hasUnmergedItems = items.some(isGuestItem)
 
   return (
     <CartContext.Provider
@@ -231,6 +354,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeFromCart,
         updateQuantity,
         clearCart,
+        resetAfterOrder,
         coupon,
         applyCoupon,
         removeCoupon,
@@ -241,6 +365,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         totalPaisa,
         freeShippingThresholdPaisa,
         amountForFreeShippingPaisa,
+        loading,
+        error,
+        hasUnmergedItems,
       }}
     >
       {children}
@@ -249,9 +376,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 }
 
 export const useCart = () => {
-  const ctx = useContext(CartContext)
-  if (!ctx) {
-    throw new Error('useCart must be used within CartProvider')
-  }
-  return ctx
+  const context = useContext(CartContext)
+  if (!context) throw new Error('useCart must be used within CartProvider')
+  return context
 }
