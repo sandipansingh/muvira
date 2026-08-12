@@ -9,7 +9,7 @@ interface MobileMenuProps {
 }
 
 const collectionLinks = [
-  { label: 'Shop all products', to: '/shop' },
+  { label: 'Shop', to: '/shop' },
   { label: 'Living room', to: '/shop?category=living-room' },
   { label: 'Bedroom', to: '/shop?category=bedroom' },
   { label: 'Dining', to: '/shop?category=dining' },
@@ -34,48 +34,53 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
         onClick={onClose}
         aria-label="Close mobile menu"
       />
-      <aside className="relative flex h-full w-[min(88vw,24rem)] flex-col justify-between border-r border-line bg-paper">
+      <aside className="relative flex h-full w-[min(88vw,24rem)] flex-col justify-between border-r border-rule bg-paper">
         <div>
-          <div className="flex items-center justify-between border-b border-line px-6 py-5">
+          <div className="flex items-center justify-between border-b border-rule px-space-6 py-space-4">
             <Link
               to="/"
               onClick={onClose}
-              className="text-2xl font-bold tracking-[-0.06em] text-ink"
+              className="font-display text-heading-s-mobile font-bold tracking-tight text-ink"
             >
               Muvira
             </Link>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-muted-ink transition-colors hover:text-ink"
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-pill p-space-3 text-ink transition-colors duration-control hover:bg-surface"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
-          <nav className="px-6 py-6">
-            {collectionLinks.map((link, index) => (
+          <nav className="px-space-6 py-space-4">
+            {collectionLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={onClose}
-                className={`flex items-center justify-between border-b border-line py-4 text-sm font-medium text-ink transition-colors hover:text-cognac ${index === 0 ? 'text-base font-semibold' : ''}`}
+                className="flex items-center justify-between border-b border-rule py-space-4 text-body font-semibold text-ink transition-colors duration-control hover:text-terracotta"
               >
                 {link.label}
-                <ChevronRight className="h-4 w-4 text-muted-ink" />
+                <ChevronRight className="h-4 w-4 text-muted" />
               </Link>
             ))}
           </nav>
         </div>
-        <div className="border-t border-line bg-ivory px-6 py-6">
+
+        <div className="border-t border-rule bg-surface px-space-6 py-space-6">
           {isAuthenticated ? (
-            <div className="space-y-4">
+            <div className="space-y-space-4">
               <div>
-                <p className="text-sm font-semibold text-ink">{user?.fullName}</p>
-                <p className="text-xs text-muted-ink">{user?.email}</p>
+                <p className="text-body font-semibold text-ink">{user?.fullName}</p>
+                <p className="text-ui text-muted">{user?.email}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Link to="/orders" onClick={onClose} className="editorial-button-secondary">
+              <div className="grid grid-cols-2 gap-space-3">
+                <Link
+                  to="/orders"
+                  onClick={onClose}
+                  className="editorial-button-secondary px-space-3 py-space-3"
+                >
                   My orders
                 </Link>
                 <button
@@ -84,18 +89,26 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                     logout()
                     onClose()
                   }}
-                  className="border border-danger px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-danger transition-colors hover:bg-danger-soft"
+                  className="border border-danger px-space-3 py-space-3 text-ui font-semibold text-danger transition-colors duration-control hover:bg-danger-soft"
                 >
                   Sign out
                 </button>
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <Link to="/login" onClick={onClose} className="editorial-button">
+            <div className="grid grid-cols-2 gap-space-3">
+              <Link
+                to="/login"
+                onClick={onClose}
+                className="editorial-button px-space-3 py-space-3"
+              >
                 <User className="h-4 w-4" /> Sign in
               </Link>
-              <Link to="/signup" onClick={onClose} className="editorial-button-secondary">
+              <Link
+                to="/signup"
+                onClick={onClose}
+                className="editorial-button-secondary px-space-3 py-space-3"
+              >
                 Create account
               </Link>
             </div>

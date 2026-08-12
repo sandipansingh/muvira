@@ -1,144 +1,122 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, CreditCard, Mail, Phone, Truck } from 'lucide-react'
+import { CreditCard } from 'lucide-react'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
-import { formatPrice } from '../../lib/utils/format'
 
-const shopLinks = [
-  { label: 'All collections', to: '/shop' },
+const quickLinks = [
+  { label: 'Shop', to: '/shop' },
+  { label: 'Cart', to: '/cart' },
+  { label: 'Account', to: '/profile' },
+  { label: 'Orders', to: '/orders' },
+  { label: 'FAQ', to: '/#faq' },
+]
+
+const categoryLinks = [
   { label: 'Living room', to: '/shop?category=living-room' },
   { label: 'Bedroom', to: '/shop?category=bedroom' },
   { label: 'Dining', to: '/shop?category=dining' },
   { label: 'Office & decor', to: '/shop?category=office-decor' },
 ]
 
-const accountLinks = [
-  { label: 'Cart', to: '/cart' },
-  { label: 'Profile', to: '/profile' },
-  { label: 'Orders', to: '/orders' },
-  { label: 'Sign in', to: '/login' },
-]
+const footerLinkClassName =
+  'text-body text-ink transition-colors duration-control hover:text-terracotta'
 
 export const Footer: React.FC = () => {
   const { settings } = useSiteSettings()
-  const { contactInfo, shippingRules, storeDescription } = settings
+  const { contactInfo, storeDescription } = settings
   const phoneHref = contactInfo.phone.replace(/[^\d+]/g, '')
 
+  const handleNewsletterSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+  }
+
   return (
-    <footer className="border-t border-slate-200/80 bg-slate-50/90 text-slate-900">
-      <div className="editorial-container py-12 sm:py-16">
-        <div className="grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Muvira / The Studio
-            </span>
-            <h2 className="font-serif text-3xl font-extrabold text-slate-900 sm:text-5xl mt-2 leading-[1.15]">
-              Objects with a quieter point of view.
-            </h2>
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-600">
-              {storeDescription || 'Considered pieces for rooms that are made to be lived in.'}
+    <footer className="border-t border-rule bg-surface text-ink">
+      <div className="editorial-container py-space-12 sm:py-space-16">
+        <div className="grid gap-space-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-space-6">
+          <section className="border-b border-rule pb-space-8 lg:border-0 lg:pb-0">
+            <Link
+              to="/"
+              className="font-display text-heading-s-mobile font-bold tracking-tight text-ink"
+            >
+              Muvira
+            </Link>
+            <p className="mt-space-4 max-w-sm text-body text-muted">
+              {storeDescription || 'Hand-finished furniture and objects made for everyday rituals.'}
             </p>
-          </div>
-          <div className="border-t border-slate-200/80 pt-6 lg:border-t-0 lg:border-l lg:pl-8 lg:pt-0">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Speak with the studio
-            </span>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
-              Questions about a piece, delivery, or your order? We are here to help.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-space-6 space-y-space-2 text-body">
               {contactInfo.email && (
-                <a href={`mailto:${contactInfo.email}`} className="editorial-button">
-                  <Mail className="h-4 w-4" />
-                  <span>Email us</span>
+                <a href={`mailto:${contactInfo.email}`} className={footerLinkClassName}>
+                  {contactInfo.email}
                 </a>
               )}
               {contactInfo.phone && (
-                <a href={`tel:${phoneHref}`} className="editorial-button-secondary">
-                  <Phone className="h-4 w-4" />
-                  <span>Call the studio</span>
+                <a href={`tel:${phoneHref}`} className={`${footerLinkClassName} block`}>
+                  {contactInfo.phone}
                 </a>
               )}
+              {contactInfo.address && (
+                <address className="not-italic text-muted">{contactInfo.address}</address>
+              )}
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="my-10 border-t border-slate-200/80" />
+          <section className="order-3 border-b border-rule pb-space-8 lg:order-none lg:border-0 lg:pb-0">
+            <h2 className="editorial-label">Quick links</h2>
+            <ul className="mt-space-4 space-y-space-3">
+              {quickLinks.map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to} className={footerLinkClassName}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.5fr_0.75fr_0.75fr_1fr]">
-          <div className="space-y-3">
-            <p className="text-2xl font-extrabold tracking-tight text-slate-900">Muvira</p>
-            <p className="max-w-xs text-sm leading-relaxed text-slate-600">
-              {storeDescription || 'Hand-finished furniture and objects made for everyday rituals.'}
+          <section className="order-4 border-b border-rule pb-space-8 lg:order-none lg:border-0 lg:pb-0">
+            <h2 className="editorial-label">Popular highlights</h2>
+            <ul className="mt-space-4 space-y-space-3">
+              {categoryLinks.map((link) => (
+                <li key={link.to}>
+                  <Link to={link.to} className={footerLinkClassName}>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="order-2 border-b border-rule pb-space-8 lg:order-none lg:border-0 lg:pb-0">
+            <h2 className="editorial-label">Newsletter</h2>
+            <p className="mt-space-4 text-body text-muted">
+              New pieces and studio notes, occasionally.
             </p>
-            <div className="space-y-1 text-xs text-slate-500 font-medium pt-1">
-              {contactInfo.email && <p>{contactInfo.email}</p>}
-              {contactInfo.phone && <p>{contactInfo.phone}</p>}
-              {contactInfo.address && <p>{contactInfo.address}</p>}
-            </div>
-          </div>
-
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Shop
-            </span>
-            <ul className="mt-4 space-y-2.5 text-sm font-medium text-slate-600">
-              {shopLinks.map((link) => (
-                <li key={link.to}>
-                  <Link to={link.to} className="transition-colors hover:text-slate-900">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Your Account
-            </span>
-            <ul className="mt-4 space-y-2.5 text-sm font-medium text-slate-600">
-              {accountLinks.map((link) => (
-                <li key={link.to}>
-                  <Link to={link.to} className="transition-colors hover:text-slate-900">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Delivery, Considered
-            </span>
-            <div className="mt-4 space-y-3 text-sm leading-relaxed text-slate-600">
-              <p className="flex items-start gap-2.5">
-                <Truck className="mt-0.5 h-4 w-4 shrink-0 text-slate-700" />
-                <span>
-                  Free shipping on orders over{' '}
-                  {formatPrice(shippingRules.freeShippingThresholdPaisa)}.
-                </span>
-              </p>
-              <p className="text-xs text-slate-500">
-                Every order is packed with care and tracked from our studio to your door.
-              </p>
-              {contactInfo.email && (
-                <a
-                  href={`mailto:${contactInfo.email}`}
-                  className="inline-flex items-center gap-1 font-semibold text-slate-900 hover:underline text-xs pt-1"
-                >
-                  Contact support <ArrowUpRight className="h-3.5 w-3.5" />
-                </a>
-              )}
-            </div>
-          </div>
+            <form
+              className="mt-space-4 flex gap-space-2"
+              aria-label="Newsletter subscription"
+              onSubmit={handleNewsletterSubmit}
+            >
+              <label className="sr-only" htmlFor="newsletter-email">
+                Email address
+              </label>
+              <input
+                id="newsletter-email"
+                type="email"
+                placeholder="Email address"
+                className="min-w-0 flex-1 rounded-control border border-rule bg-paper px-space-3 py-space-2 text-base text-ink placeholder:text-muted focus:border-ink focus:outline-none"
+              />
+              <button type="button" className="editorial-button px-space-4 py-space-2" disabled>
+                Subscribe
+              </button>
+            </form>
+          </section>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-slate-200/80 pt-6 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-space-12 flex flex-col gap-space-3 border-t border-rule pt-space-6 text-ui text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} Muvira. All rights reserved.</p>
-          <p className="inline-flex items-center gap-1.5 font-medium text-slate-600">
-            <CreditCard className="h-4 w-4 text-slate-700" /> Secure payments through Razorpay.
+          <p className="inline-flex items-center gap-space-2 text-ink">
+            <CreditCard className="h-4 w-4" /> Secure payments through Razorpay.
           </p>
         </div>
       </div>
