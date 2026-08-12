@@ -26,7 +26,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
 }) => {
   const { coupon } = useCart()
   return (
-    <aside className="space-y-6 border border-line bg-ivory p-6 sm:p-8 lg:sticky lg:top-28">
+    <aside className="space-y-6 border-y border-line py-6 sm:py-8 lg:sticky lg:top-28">
       <h2 className="border-b border-line pb-4 font-serif text-2xl font-bold text-ink">
         Order summary
       </h2>
@@ -41,7 +41,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                   className="h-12 w-12 shrink-0 object-cover"
                 />
               ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-paper text-[10px] text-muted-ink">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center bg-surface text-[10px] text-muted-ink">
                   No image
                 </div>
               )}
@@ -90,7 +90,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         {isProcessing ? 'Processing payment...' : `Place order — ${formatPrice(totalPaisa)}`}
       </button>
       <p className="flex items-center justify-center gap-2 text-[11px] leading-4 text-muted-ink">
-        <ShieldCheck className="h-4 w-4 text-cognac" /> Final totals are confirmed by the server via
+        <ShieldCheck className="h-4 w-4 text-ink" /> Final totals are confirmed by the server via
         Razorpay.
       </p>
     </aside>

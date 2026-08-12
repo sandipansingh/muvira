@@ -184,11 +184,7 @@ export const ProfilePage: React.FC = () => {
             <span className="editorial-label">Account overview</span>
             <h1 className="editorial-heading mt-3 text-4xl sm:text-5xl">My profile</h1>
           </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="flex items-center gap-1.5 border border-danger px-4 py-3 text-xs font-semibold uppercase tracking-wide text-danger transition-colors hover:bg-danger-soft"
-          >
+          <button type="button" onClick={logout} className="editorial-button-secondary px-4">
             <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
@@ -197,26 +193,26 @@ export const ProfilePage: React.FC = () => {
           <div className="space-y-2">
             <Link
               to="/profile"
-              className="flex items-center gap-3 border-b-2 border-ink bg-ivory p-4 text-xs font-bold text-ink"
+              className="flex items-center gap-3 border-b-2 border-ink bg-surface p-4 text-xs font-bold text-ink"
             >
-              <User className="h-4 w-4 text-cognac" /> Personal info
+              <User className="h-4 w-4 text-ink" /> Personal info
             </Link>
             <Link
               to="/orders"
-              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink hover:bg-ivory"
+              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink transition-colors duration-control hover:bg-surface"
             >
               <Package className="h-4 w-4" /> My orders
             </Link>
             <a
               href="#addresses"
-              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink hover:bg-ivory"
+              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink transition-colors duration-control hover:bg-surface"
             >
               <MapPin className="h-4 w-4" /> Saved addresses ({addresses.length})
             </a>
           </div>
 
           <div className="space-y-8 md:col-span-2">
-            <div className="space-y-6 border border-line bg-ivory p-6 sm:p-8">
+            <div className="space-y-6 border-y border-line py-6 sm:py-8">
               <h2 className="font-serif text-2xl font-bold text-ink">Personal details</h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
                 <div>
@@ -232,7 +228,7 @@ export const ProfilePage: React.FC = () => {
                     type="email"
                     disabled
                     value={user.email}
-                    className="editorial-input cursor-not-allowed bg-ivory text-muted-ink"
+                    className="editorial-input cursor-not-allowed bg-surface text-muted-ink"
                   />
                 </div>
                 <div>
@@ -288,10 +284,7 @@ export const ProfilePage: React.FC = () => {
               </div>
 
               {addressFormOpen && (
-                <form
-                  onSubmit={handleAddressSave}
-                  className="space-y-3 border border-line bg-ivory p-5"
-                >
+                <form onSubmit={handleAddressSave} className="space-y-3 border-t border-line pt-5">
                   <h3 className="text-sm font-bold text-ink">
                     {editingAddressId ? 'Edit Address' : 'Add Address'}
                   </h3>
@@ -367,9 +360,9 @@ export const ProfilePage: React.FC = () => {
                 </form>
               )}
 
-              {loadingAddresses && <div className="h-24 animate-pulse bg-ivory" />}
+              {loadingAddresses && <div className="h-24 animate-pulse bg-surface" />}
               {!loadingAddresses && addresses.length === 0 && (
-                <p className="border border-line bg-ivory p-5 text-sm text-muted-ink">
+                <p className="border-y border-line py-5 text-sm text-muted-ink">
                   No saved addresses yet.
                 </p>
               )}
@@ -383,7 +376,7 @@ export const ProfilePage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <strong className="text-sm text-ink">{address.fullName}</strong>
                         {address.isDefault && (
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-success">
+                          <span className="text-[10px] font-bold uppercase tracking-wide text-muted-ink">
                             Default
                           </span>
                         )}
@@ -401,7 +394,7 @@ export const ProfilePage: React.FC = () => {
                       {!address.isDefault && (
                         <button
                           onClick={() => setDefaultAddress(address.id)}
-                          className="text-xs font-semibold text-muted-ink hover:text-cognac"
+                          className="text-xs font-semibold text-muted-ink transition-colors duration-control hover:text-terracotta"
                         >
                           Set default
                         </button>
@@ -409,14 +402,14 @@ export const ProfilePage: React.FC = () => {
                       <button
                         onClick={() => openEditAddressForm(address)}
                         aria-label="Edit address"
-                        className="border border-line p-2 text-muted-ink hover:bg-ivory hover:text-ink"
+                        className="rounded-control border border-line p-2 text-muted-ink transition-colors duration-control hover:bg-surface hover:text-ink"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => deleteAddress(address.id)}
                         aria-label="Delete address"
-                        className="border border-line p-2 text-muted-ink hover:bg-danger-soft hover:text-danger"
+                        className="rounded-control border border-line p-2 text-muted-ink transition-colors duration-control hover:bg-danger-soft hover:text-danger"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

@@ -58,12 +58,12 @@ export const OrdersHistoryPage: React.FC = () => {
         {loading && (
           <div className="space-y-4">
             {[1, 2].map((item) => (
-              <div key={item} className="h-28 animate-pulse bg-ivory" />
+              <div key={item} className="h-28 animate-pulse bg-surface" />
             ))}
           </div>
         )}
         {!loading && error && (
-          <div className="border border-warning bg-warning-soft p-8 text-center">
+          <div className="border-y border-warning py-8 text-center">
             <p className="text-sm text-warning">{error}</p>
             <button
               type="button"
@@ -75,7 +75,7 @@ export const OrdersHistoryPage: React.FC = () => {
           </div>
         )}
         {!loading && !error && orders.length === 0 && (
-          <div className="border border-line bg-ivory p-10 text-center">
+          <div className="border-y border-line py-10 text-center">
             <Package className="mx-auto h-10 w-10 text-line" />
             <p className="mt-3 text-sm text-muted-ink">You have not placed any orders yet.</p>
             <Link to="/shop" className="editorial-button mt-5">
@@ -89,7 +89,7 @@ export const OrdersHistoryPage: React.FC = () => {
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="flex flex-col gap-5 py-6 transition-colors hover:bg-ivory sm:flex-row sm:items-center sm:justify-between sm:px-4"
+                className="flex flex-col gap-5 py-6 transition-colors duration-control hover:bg-surface sm:flex-row sm:items-center sm:justify-between sm:px-4"
               >
                 <div className="flex items-center gap-4">
                   {order.firstItemImage ? (
@@ -99,7 +99,7 @@ export const OrdersHistoryPage: React.FC = () => {
                       className="h-16 w-16 shrink-0 object-cover"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-ivory">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-surface">
                       <Package className="h-6 w-6 text-line" />
                     </div>
                   )}
@@ -108,7 +108,7 @@ export const OrdersHistoryPage: React.FC = () => {
                       <span className="font-serif text-base font-bold text-ink">
                         #{order.orderNumber}
                       </span>
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-cognac">
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-ink">
                         {order.status.replaceAll('_', ' ')}
                       </span>
                     </div>

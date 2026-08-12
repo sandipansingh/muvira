@@ -22,7 +22,7 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
           <React.Fragment key={step.id}>
             <div className="flex items-center gap-2">
               <span
-                className={`flex h-7 w-7 items-center justify-center border text-xs font-semibold ${complete ? 'border-cognac bg-cognac text-paper' : current ? 'border-ink bg-ink text-paper' : 'border-line text-muted-ink'}`}
+                className={`flex h-7 w-7 items-center justify-center border text-xs font-semibold ${complete || current ? 'border-ink bg-ink text-paper' : 'border-line text-muted-ink'}`}
               >
                 {complete ? <Check className="h-4 w-4" /> : step.number}
               </span>

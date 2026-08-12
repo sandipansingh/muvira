@@ -15,7 +15,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
     <article className="flex items-center gap-4 border-b border-line pb-4">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-20 w-20 shrink-0 overflow-hidden bg-ivory"
+        className="h-20 w-20 shrink-0 overflow-hidden bg-surface"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
@@ -33,7 +33,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
       <div className="min-w-0 flex-1">
         <Link
           to={`/product/${item.productSlug}`}
-          className="block truncate font-serif text-sm font-bold text-ink hover:text-cognac"
+          className="block truncate font-serif text-sm font-bold text-ink transition-colors duration-control hover:text-terracotta"
         >
           {item.productName}
         </Link>
@@ -42,7 +42,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
           <button
             type="button"
             onClick={() => updateQuantity(item.productId, -1)}
-            className="px-2.5 py-1 text-xs font-bold text-ink hover:bg-ivory"
+            className="px-2.5 py-1 text-xs font-bold text-ink transition-colors duration-control hover:bg-surface"
             aria-label="Decrease quantity"
           >
             −
@@ -53,7 +53,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
           <button
             type="button"
             onClick={() => updateQuantity(item.productId, 1)}
-            className="px-2.5 py-1 text-xs font-bold text-ink hover:bg-ivory"
+            className="px-2.5 py-1 text-xs font-bold text-ink transition-colors duration-control hover:bg-surface"
             aria-label="Increase quantity"
           >
             +

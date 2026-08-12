@@ -71,28 +71,28 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
         <button
           type="button"
           onClick={() => setShowAddForm((open) => !open)}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-cognac hover:text-ink"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-terracotta transition-colors duration-control hover:text-ink"
         >
           <Plus className="h-3.5 w-3.5" /> Add new
         </button>
       </div>
       <div className="mt-5 space-y-3">
         {addresses.length === 0 && (
-          <p className="border border-line bg-ivory p-4 text-sm text-muted-ink">
+          <p className="border-y border-line py-4 text-sm text-muted-ink">
             No saved addresses yet. Add one to continue.
           </p>
         )}
         {addresses.map((address) => (
           <label
             key={address.id}
-            className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${selectedAddressId === address.id ? 'border-cognac bg-ivory' : 'border-line bg-paper hover:bg-ivory'}`}
+            className={`flex cursor-pointer items-start gap-3 border-b border-line py-4 pl-4 transition-colors duration-control ${selectedAddressId === address.id ? 'border-l-2 border-l-ink bg-surface' : 'hover:bg-surface'}`}
           >
             <input
               type="radio"
               name="delivery-address"
               checked={selectedAddressId === address.id}
               onChange={() => onSelectAddressId(address.id)}
-              className="mt-1 accent-cognac"
+              className="mt-1 accent-ink"
             />
             <div className="flex-1 text-xs leading-5 text-muted-ink">
               <div className="flex items-center justify-between gap-3">
@@ -100,7 +100,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
                   {address.fullName} — {address.label}
                 </span>
                 {address.isDefault && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-cognac">
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-ink">
                     Default
                   </span>
                 )}
@@ -118,10 +118,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
       </div>
 
       {showAddForm && (
-        <form
-          onSubmit={handleFormSubmit}
-          className="mt-5 space-y-3 border border-line bg-ivory p-5"
-        >
+        <form onSubmit={handleFormSubmit} className="mt-5 space-y-3 border-t border-line pt-5">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-ink">
             Enter shipping details
           </h3>

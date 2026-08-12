@@ -56,7 +56,7 @@ export const OrderDetailPage: React.FC = () => {
   if (error || !order)
     return (
       <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-xl border border-line bg-ivory p-10 text-center">
+        <div className="mx-auto max-w-xl border-y border-line py-10 text-center">
           <h1 className="editorial-heading text-3xl">Order unavailable</h1>
           <p className="mt-2 text-sm text-muted-ink">{error ?? 'We could not find this order.'}</p>
           <Link to="/orders" className="editorial-button mt-6">
@@ -74,7 +74,7 @@ export const OrderDetailPage: React.FC = () => {
       <div className="editorial-container max-w-4xl space-y-10">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-ink hover:text-cognac"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-ink transition-colors duration-control hover:text-terracotta"
         >
           <ArrowLeft className="h-4 w-4" /> Back to order history
         </Link>
@@ -84,14 +84,14 @@ export const OrderDetailPage: React.FC = () => {
             <h1 className="editorial-heading mt-3 text-4xl">#{order.orderNumber}</h1>
             <p className="mt-2 text-xs text-muted-ink">Placed on {formatDate(order.createdAt)}</p>
           </div>
-          <span className="self-start text-xs font-semibold uppercase tracking-wide text-cognac sm:self-auto">
+          <span className="self-start text-xs font-semibold uppercase tracking-wide text-muted-ink sm:self-auto">
             {order.status.replaceAll('_', ' ')}
           </span>
         </div>
 
-        <section className="space-y-5 border-y border-line bg-ivory p-6 sm:p-8">
+        <section className="space-y-5 border-y border-line py-6 sm:py-8">
           <div className="flex items-center gap-2">
-            <Truck className="h-5 w-5 text-cognac" />
+            <Truck className="h-5 w-5 text-ink" />
             <h2 className="font-serif text-2xl font-bold text-ink">Shipment tracking</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-3">
@@ -121,7 +121,7 @@ export const OrderDetailPage: React.FC = () => {
               href={trackingUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex text-xs font-semibold text-cognac hover:text-ink"
+              className="editorial-link text-xs"
             >
               Open carrier tracking
             </a>
@@ -130,7 +130,7 @@ export const OrderDetailPage: React.FC = () => {
             <div className="space-y-4 border-t border-line pt-5">
               {trackingEvents.map((event) => (
                 <div key={event.id} className="flex gap-3 text-xs">
-                  <div className="mt-1 h-2 w-2 shrink-0 bg-cognac" />
+                  <div className="mt-1 h-2 w-2 shrink-0 bg-ink" />
                   <div>
                     <p className="font-semibold text-ink">{event.status}</p>
                     <p className="text-muted-ink">
@@ -158,7 +158,7 @@ export const OrderDetailPage: React.FC = () => {
                       className="h-16 w-16 shrink-0 object-cover"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-ivory">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-surface">
                       <Package className="h-6 w-6 text-line" />
                     </div>
                   )}
@@ -180,7 +180,7 @@ export const OrderDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 gap-8 border-t border-line pt-8 sm:grid-cols-2">
           <div className="space-y-2 text-xs">
             <h2 className="flex items-center gap-1.5 text-sm font-bold text-ink">
-              <MapPin className="h-4 w-4 text-cognac" /> Shipping address
+              <MapPin className="h-4 w-4 text-ink" /> Shipping address
             </h2>
             <p className="font-medium text-ink">{order.shippingAddress.fullName}</p>
             <p className="text-muted-ink">
@@ -194,7 +194,7 @@ export const OrderDetailPage: React.FC = () => {
           </div>
           <div className="space-y-2 text-xs">
             <h2 className="flex items-center gap-1.5 text-sm font-bold text-ink">
-              <ShieldCheck className="h-4 w-4 text-cognac" /> Payment details
+              <ShieldCheck className="h-4 w-4 text-ink" /> Payment details
             </h2>
             <p className="font-medium text-ink">Razorpay online payment</p>
             <p className="font-semibold text-success">Payment status: {order.paymentStatus}</p>

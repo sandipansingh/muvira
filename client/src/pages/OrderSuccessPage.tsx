@@ -16,8 +16,8 @@ export const OrderSuccessPage: React.FC = () => {
       </main>
     )
   return (
-    <main className="editorial-page bg-ivory px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl border border-line bg-paper p-8 text-center sm:p-12">
+    <main className="editorial-page px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-2xl border-y border-line py-8 text-center sm:py-12">
         <CheckCircle className="mx-auto h-12 w-12 text-success" />
         <p className="editorial-label mt-6">Payment verified</p>
         <h1 className="editorial-heading mt-3 text-4xl">Thank you for your order</h1>
@@ -37,7 +37,7 @@ export const OrderSuccessPage: React.FC = () => {
           </Link>
         </div>
         <p className="mt-8 flex items-center justify-center gap-2 border-t border-line pt-4 text-[11px] text-muted-ink">
-          <ShieldCheck className="h-4 w-4 text-cognac" /> Secure Razorpay payment.
+          <ShieldCheck className="h-4 w-4 text-ink" /> Secure Razorpay payment.
         </p>
       </div>
     </main>

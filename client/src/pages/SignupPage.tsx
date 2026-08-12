@@ -20,8 +20,8 @@ export const SignupPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page flex items-center justify-center bg-ivory px-4 py-16">
-      <div className="w-full max-w-md border border-line bg-paper p-8 sm:p-10">
+    <main className="editorial-page flex items-center justify-center px-4 py-16">
+      <div className="w-full max-w-md border-y border-line py-8 sm:py-10">
         <div className="space-y-2 border-b border-line pb-6 text-center">
           <Link to="/" className="text-3xl font-bold tracking-[-0.06em] text-ink">
             Muvira
@@ -99,7 +99,10 @@ export const SignupPage: React.FC = () => {
         </form>
         <p className="mt-6 border-t border-line pt-5 text-center text-xs text-muted-ink">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-cognac hover:text-ink">
+          <Link
+            to="/login"
+            className="font-semibold text-terracotta transition-colors duration-control hover:text-ink"
+          >
             Sign in
           </Link>
         </p>

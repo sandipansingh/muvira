@@ -7,8 +7,8 @@ export const OrderFailurePage: React.FC = () => {
   const reason = searchParams.get('reason')
   const orderId = searchParams.get('orderId')
   return (
-    <main className="editorial-page bg-ivory px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-xl border border-line bg-paper p-8 text-center sm:p-12">
+    <main className="editorial-page px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-xl border-y border-line py-8 text-center sm:py-12">
         <AlertCircle className="mx-auto h-12 w-12 text-danger" />
         <p className="editorial-label mt-6 text-danger">Payment not completed</p>
         <h1 className="editorial-heading mt-3 text-4xl">Order could not be confirmed</h1>

@@ -241,7 +241,7 @@ export const CheckoutPage: React.FC = () => {
               </p>
             )}
             {loadingAddresses ? (
-              <div className="h-48 animate-pulse bg-ivory" />
+              <div className="h-48 animate-pulse bg-surface" />
             ) : (
               <AddressSelector
                 selectedAddressId={selectedAddressId}

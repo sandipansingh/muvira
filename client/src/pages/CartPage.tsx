@@ -53,7 +53,7 @@ export const CartPage: React.FC = () => {
           <div className="space-y-5">
             {amountForFreeShippingPaisa > 0 ? (
               <div className="flex items-center gap-3 border-y border-line py-4 text-sm text-muted-ink">
-                <Truck className="h-5 w-5 text-cognac" />
+                <Truck className="h-5 w-5 text-ink" />
                 <span>
                   Add{' '}
                   <strong className="text-ink">{formatPrice(amountForFreeShippingPaisa)}</strong>{' '}
@@ -72,7 +72,7 @@ export const CartPage: React.FC = () => {
               ))}
             </div>
           </div>
-          <aside className="border border-line bg-ivory p-6 sm:p-8">
+          <aside className="border-y border-line py-6 sm:py-8">
             <h2 className="border-b border-line pb-4 font-serif text-2xl font-bold text-ink">
               Order summary
             </h2>
