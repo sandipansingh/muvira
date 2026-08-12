@@ -56,13 +56,40 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <nav className="px-6 py-4 space-y-1">
+          <div className="px-6 py-3 border-b border-neutral-100">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-2.5">
+              Quick Categories
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { label: 'Men', href: '/shop?category=men' },
+                { label: 'Women', href: '/shop?category=women' },
+                { label: 'Children', href: '/shop?category=children' },
+                { label: 'New Arrivals', href: '/shop?sort=newest' },
+                { label: 'Best Sellers', href: '/shop?sort=popular' },
+              ].map((pill) => (
+                <Link
+                  key={pill.label}
+                  to={pill.href}
+                  onClick={onClose}
+                  className="rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs font-semibold text-neutral-800 hover:bg-neutral-900 hover:text-white transition-colors"
+                >
+                  {pill.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <nav className="px-6 py-3 space-y-0.5 overflow-y-auto max-h-[calc(100vh-280px)]">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 py-1.5">
+              Explore Collections
+            </p>
             {collectionLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={onClose}
-                className="flex items-center justify-between py-3 text-sm font-semibold text-foreground hover:text-brand transition-colors border-b border-neutral-100 last:border-none"
+                className="flex items-center justify-between py-2.5 text-sm font-semibold text-foreground hover:text-brand transition-colors border-b border-neutral-50 last:border-none"
               >
                 <span>{link.label}</span>
                 <ChevronRight className="h-4 w-4 text-neutral-400" />
