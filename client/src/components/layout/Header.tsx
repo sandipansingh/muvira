@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react'
+import { Heart, LogOut, Menu, Package, Search, ShoppingBag, User, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 
@@ -54,167 +54,190 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
   }
 
   return (
-    <header className="sticky top-3 lg:top-4 z-50 layout-container transition-all duration-300 pointer-events-none">
-      <nav
-        className={`pointer-events-auto flex items-center justify-between rounded-full px-5 sm:px-6 py-2.5 transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-premium border border-border-light/80'
-            : 'bg-white/90 backdrop-blur-md shadow-premium border border-border-light/60'
-        }`}
-      >
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-3 group shrink-0 select-none">
-          <div className="flex flex-col">
-            <span className="block font-display text-sm sm:text-base lg:text-lg font-bold tracking-[0.16em] uppercase leading-none text-foreground transition-colors group-hover:text-brand">
-              Muvira
-            </span>
-            <span className="block font-sans text-[8px] sm:text-[9px] font-semibold tracking-[0.22em] uppercase leading-none mt-1 text-muted">
-              Artisanal Living
-            </span>
-          </div>
+    <header className="sticky top-0 lg:top-3.5 z-50 transition-all duration-300 w-full">
+      {/* Mobile Header (Matches user uploaded Image 1: hamburger left, MUVIRA center, bag right, blur background) */}
+      <div className="flex lg:hidden items-center justify-between px-4 py-3 bg-white/85 backdrop-blur-md border-b border-neutral-200/70 shadow-xs">
+        <button
+          type="button"
+          onClick={onOpenMobileMenu}
+          className="p-2 -ml-1 text-foreground hover:bg-neutral-100/80 rounded-full transition-colors cursor-pointer"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-5 h-5 stroke-[2]" />
+        </button>
+
+        <Link to="/" className="flex items-center select-none">
+          <span className="font-display text-base font-bold tracking-[0.18em] uppercase text-foreground">
+            Muvira
+          </span>
         </Link>
 
-        {/* Center Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-4 xl:gap-7">
-          {navigationLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={getHref(link.to)}
-              className="font-semibold text-[13px] xl:text-sm text-foreground hover:text-brand transition-colors duration-200"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
+        <button
+          type="button"
+          onClick={openCartDrawer}
+          className="relative p-2 -mr-1 text-foreground hover:bg-neutral-100/80 rounded-full transition-colors cursor-pointer"
+          aria-label="Shopping cart"
+        >
+          <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
+          {itemCount > 0 && (
+            <span className="absolute -bottom-0.5 -left-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-bold text-white shadow-xs">
+              {itemCount}
+            </span>
+          )}
+        </button>
+      </div>
 
-        {/* Right Action Icons */}
-        <div className="flex items-center gap-1.5 sm:gap-3">
-          {/* Search Button */}
-          <button
-            type="button"
-            onClick={() => setIsSearchOpen((prev) => !prev)}
-            className="p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
-            aria-label="Search products"
-          >
-            <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-          </button>
-
-          {/* Wishlist Link */}
-          <Link
-            to="/shop"
-            className="hidden sm:flex p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
-            aria-label="Wishlist"
-          >
-            <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+      {/* Desktop Header (Floating Pill Navbar with blur effect) */}
+      <div className="hidden lg:block layout-container">
+        <nav
+          className={`flex items-center justify-between rounded-full px-6 py-2.5 transition-all duration-300 ${
+            scrolled
+              ? 'bg-white/95 backdrop-blur-md shadow-premium border border-neutral-200/80'
+              : 'bg-white/85 backdrop-blur-md shadow-premium border border-neutral-200/60'
+          }`}
+        >
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center gap-3 group shrink-0 select-none">
+            <span className="block font-display text-lg font-bold tracking-[0.16em] uppercase leading-none text-foreground transition-colors group-hover:text-brand">
+              Muvira
+            </span>
           </Link>
 
-          {/* Cart Button */}
-          <button
-            type="button"
-            onClick={openCartDrawer}
-            className="relative p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
-            aria-label="Shopping cart"
-          >
-            <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-bold text-white shadow-xs">
-                {itemCount}
-              </span>
-            )}
-          </button>
-
-          {/* User Account / Auth */}
-          <div className="relative">
-            {isAuthenticated ? (
-              <button
-                type="button"
-                onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                className="p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
-                aria-label="Account menu"
-              >
-                <User className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-              </button>
-            ) : (
+          {/* Center Desktop Navigation Links */}
+          <div className="flex items-center gap-4 xl:gap-7">
+            {navigationLinks.map((link) => (
               <Link
-                to="/login"
-                className="p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
-                aria-label="Sign in"
+                key={link.label}
+                to={getHref(link.to)}
+                className="font-semibold text-[13px] xl:text-sm text-foreground hover:text-brand transition-colors duration-200"
               >
-                <User className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                {link.label}
               </Link>
-            )}
-
-            {/* User Dropdown */}
-            {isAuthenticated && isUserMenuOpen && (
-              <div className="absolute right-0 top-full mt-3 w-56 rounded-2xl border border-border-light bg-white p-2 shadow-premium text-xs font-semibold z-50">
-                <div className="border-b border-border-light px-3 py-2.5">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted">
-                    Signed in as
-                  </p>
-                  <p className="mt-0.5 truncate font-bold text-foreground text-sm">
-                    {user?.fullName || user?.email}
-                  </p>
-                </div>
-                <Link
-                  to="/profile"
-                  onClick={() => setIsUserMenuOpen(false)}
-                  className="block rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 hover:text-brand transition-colors"
-                >
-                  My Account
-                </Link>
-                <Link
-                  to="/orders"
-                  onClick={() => setIsUserMenuOpen(false)}
-                  className="block rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 hover:text-brand transition-colors"
-                >
-                  Order History
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsUserMenuOpen(false)
-                    logout()
-                  }}
-                  className="block w-full text-left rounded-xl px-3 py-2 font-bold text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </div>
-            )}
+            ))}
           </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <button
-            type="button"
-            onClick={onOpenMobileMenu}
-            className="lg:hidden p-2 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand transition-all cursor-pointer"
-            aria-label="Toggle mobile menu"
-          >
-            <Menu className="w-4.5 h-4.5" />
-          </button>
-        </div>
-      </nav>
+          {/* Right Action Icons */}
+          <div className="flex items-center gap-2 xl:gap-3">
+            {/* Search Button */}
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen((prev) => !prev)}
+              className="p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+              aria-label="Search products"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            {/* Wishlist Link */}
+            <Link
+              to="/shop"
+              className="p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+              aria-label="Wishlist"
+            >
+              <Heart className="w-4 h-4" />
+            </Link>
+
+            {/* Cart Button */}
+            <button
+              type="button"
+              onClick={openCartDrawer}
+              className="relative p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+              aria-label="Shopping cart"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-bold text-white shadow-xs">
+                  {itemCount}
+                </span>
+              )}
+            </button>
+
+            {/* User Account / Auth */}
+            <div className="relative">
+              {isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                  className="p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+                  aria-label="Account menu"
+                >
+                  <User className="w-4 h-4" />
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  className="p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+                  aria-label="Sign in"
+                >
+                  <User className="w-4 h-4" />
+                </Link>
+              )}
+
+              {/* User Dropdown */}
+              {isAuthenticated && isUserMenuOpen && (
+                <div className="absolute right-0 top-full mt-3 w-56 rounded-2xl border border-border-light bg-white p-2 shadow-premium text-xs font-semibold z-50">
+                  <div className="border-b border-border-light px-3 py-2.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted">
+                      Signed in as
+                    </p>
+                    <p className="mt-0.5 truncate font-bold text-foreground text-sm">
+                      {user?.fullName || user?.email}
+                    </p>
+                  </div>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 transition-colors"
+                  >
+                    <User className="h-4 w-4 text-muted" />
+                    <span>My Profile</span>
+                  </Link>
+                  <Link
+                    to="/orders"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 transition-colors"
+                  >
+                    <Package className="h-4 w-4 text-muted" />
+                    <span>My Orders</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsUserMenuOpen(false)
+                      logout()
+                    }}
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </nav>
+      </div>
 
       {/* Expandable Search Overlay */}
       {isSearchOpen && (
-        <div className="pointer-events-auto mt-2 rounded-2xl border border-border-light bg-white/95 backdrop-blur-md p-3 shadow-premium animate-in fade-in slide-in-from-top-2 duration-200">
-          <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-            <Search className="w-4 h-4 text-muted shrink-0 ml-2" />
+        <div className="layout-container mt-2">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex items-center bg-white/95 backdrop-blur-md rounded-full border border-neutral-200 p-1.5 pl-5 shadow-premium"
+          >
+            <Search className="w-4 h-4 text-neutral-400 shrink-0" />
             <input
               type="search"
-              placeholder="Search handcrafted solid wood furniture, dining, decor..."
+              autoFocus
+              placeholder="Search handcrafted beds, dining tables, chairs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent border-none outline-none text-base text-foreground placeholder-neutral-400 py-1.5 px-2"
-              autoFocus
+              className="flex-1 bg-transparent border-none outline-none px-3 text-base text-foreground placeholder-neutral-400"
             />
-            <button type="submit" className="editorial-button py-2 px-5 text-xs font-bold shrink-0">
-              Search
-            </button>
             <button
               type="button"
               onClick={() => setIsSearchOpen(false)}
-              className="p-2 text-muted hover:text-foreground rounded-full"
+              className="p-2 rounded-full text-neutral-400 hover:text-foreground hover:bg-neutral-100 transition-colors cursor-pointer"
               aria-label="Close search"
             >
               <X className="w-4 h-4" />

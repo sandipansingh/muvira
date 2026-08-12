@@ -87,8 +87,8 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
         <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-0 pb-12 border-b border-neutral-200">
           {/* Left Slogan & Socials */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1 pr-0 md:pr-12">
-            <h3 className="text-2xl font-extrabold text-neutral-900 tracking-tight leading-tight max-w-[240px]">
-              Leading the way in artisanal living
+            <h3 className="text-2xl font-extrabold text-neutral-900 tracking-tight leading-tight max-w-[280px]">
+              Solid timber crafted for real homes
             </h3>
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
@@ -152,18 +152,13 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           {/* Brand Info */}
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link to="/" className="flex items-center gap-2 group w-max select-none">
-              <div className="flex flex-col">
-                <span className="font-display text-base lg:text-lg font-bold text-neutral-900 tracking-[0.16em] uppercase leading-none">
-                  Muvira
-                </span>
-                <span className="font-sans text-[8px] lg:text-[9px] font-semibold text-neutral-600 tracking-[0.22em] uppercase leading-none mt-1">
-                  Artisanal Living
-                </span>
-              </div>
+              <span className="font-display text-lg lg:text-xl font-bold text-neutral-900 tracking-[0.16em] uppercase leading-none">
+                Muvira
+              </span>
             </Link>
             <p className="text-sm text-neutral-700 font-normal leading-relaxed max-w-md">
               {storeDescription ||
-                'Muvira celebrates heirloom timber craft and bespoke Indian craftsmanship. Every piece is hand-hewn by master artisans for homes built to be lived in.'}
+                'Muvira celebrates heirloom timber craft and bespoke Indian woodworking. Every piece is hand-hewn by master artisans for homes built to be lived in.'}
             </p>
           </div>
 
@@ -283,8 +278,6 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             <Link to="/#faq" className="hover:text-brand transition-colors duration-200">
               Cancellation & Returns
             </Link>
-            <span className="hidden sm:inline text-neutral-300">|</span>
-            <span className="text-neutral-500">Secure Payments with Razorpay</span>
           </div>
         </div>
       </div>
