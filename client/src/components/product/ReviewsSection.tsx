@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
-import { CheckCircle, Star } from 'lucide-react'
+import { Star } from 'lucide-react'
 import type { ProductReview } from '../../lib/types/product'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { reviewService } from '../../lib/services/review.service'
 import { Modal } from '../common/Modal'
-import { RatingStars } from '../common/RatingStars'
 
 interface ReviewsSectionProps {
   productId: string
@@ -54,51 +53,54 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   }
 
   return (
-    <section className="mt-16 border-t border-line pt-12">
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+    <section className="mt-space-16 border-t border-rule pt-space-12">
+      <div className="mb-space-8 flex flex-col justify-between gap-space-4 sm:flex-row sm:items-end">
         <div>
-          <p className="editorial-label">Verified purchasers</p>
-          <h2 className="editorial-heading mt-3 text-3xl">Customer reviews</h2>
+          <p className="editorial-label">Reviews</p>
+          <h2 className="editorial-heading mt-space-2 text-heading-m-mobile sm:text-heading-m-desktop">
+            Customer reviews
+          </h2>
         </div>
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="editorial-button self-start sm:self-auto"
+          className="editorial-link self-start border-0 bg-transparent p-0 sm:self-auto"
         >
           Write a review
         </button>
       </div>
 
-      <div className="mb-10 grid border-y border-line md:grid-cols-3">
-        <div className="border-b border-line py-6 md:border-b-0 md:border-r md:pr-8">
-          <span className="font-serif text-5xl font-bold text-ink">
+      <div className="mb-space-12 grid border-y border-rule md:grid-cols-3">
+        <div className="border-b border-rule py-space-6 md:border-b-0 md:border-r md:pr-space-8">
+          <span className="font-display text-heading-m-mobile font-semibold text-ink sm:text-heading-m-desktop">
             {ratingAvg ? ratingAvg.toFixed(1) : '—'}
           </span>
-          {ratingAvg ? <RatingStars rating={ratingAvg} size="lg" /> : null}
-          <span className="mt-2 block text-xs text-muted-ink">Based on {reviewCount} reviews</span>
+          {ratingAvg ? <span className="ml-space-2 text-ui text-muted">out of 5</span> : null}
+          <span className="mt-space-2 block text-ui text-muted">
+            Based on {reviewCount} reviews
+          </span>
         </div>
-        <p className="py-6 text-sm leading-7 text-muted-ink md:col-span-2 md:pl-8">
+        <p className="py-space-6 text-body text-muted md:col-span-2 md:pl-space-8">
           Every review is tied to a delivered and paid order. Your feedback helps other customers
           choose pieces with confidence.
         </p>
       </div>
 
-      <div className="divide-y divide-line">
+      <div className="divide-y divide-rule">
         {reviews.length === 0 && (
-          <p className="py-6 text-sm text-muted-ink">This product does not have any reviews yet.</p>
+          <p className="py-space-6 text-body text-muted">
+            This product does not have any reviews yet.
+          </p>
         )}
         {reviews.map((review) => (
-          <article key={review.id} className="py-6">
-            <div className="flex items-start justify-between gap-3">
+          <article key={review.id} className="py-space-6">
+            <div className="flex items-start justify-between gap-space-3">
               <div>
-                <h3 className="text-sm font-semibold text-ink">
+                <h3 className="text-body font-semibold text-ink">
                   {review.userName || 'Muvira customer'}
                 </h3>
-                <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-success">
-                  <CheckCircle className="h-3 w-3" /> Verified buyer
-                </span>
               </div>
-              <time className="text-xs text-muted-ink">
+              <time className="text-ui text-muted">
                 {new Date(review.createdAt).toLocaleDateString('en-IN', {
                   month: 'short',
                   day: 'numeric',
@@ -106,32 +108,30 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 })}
               </time>
             </div>
-            <div className="mt-3">
-              <RatingStars rating={review.rating} size="sm" />
-            </div>
+            <p className="mt-space-2 text-ui font-semibold text-ink">{review.rating} out of 5</p>
             {review.comment && (
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-ink">“{review.comment}”</p>
+              <p className="mt-space-3 max-w-2xl text-body text-muted">“{review.comment}”</p>
             )}
           </article>
         ))}
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
-        <form onSubmit={handleReviewSubmit} className="space-y-5">
+        <form onSubmit={handleReviewSubmit} className="space-y-space-6">
           {!isAuthenticated && (
-            <p className="border border-warning bg-warning-soft p-3 text-xs text-warning">
+            <p className="text-ui text-warning">
               Sign in with the account used for your purchase to submit a review.
             </p>
           )}
           <div>
-            <p className="mb-2 text-xs font-semibold text-ink">Your rating</p>
-            <div className="flex gap-2">
+            <p className="mb-space-2 text-ui font-semibold text-ink">Your rating</p>
+            <div className="flex gap-space-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   onClick={() => setNewRating(star)}
-                  className="p-1 text-cognac"
+                  className="min-h-11 min-w-11 p-space-2 text-terracotta"
                   aria-label={`Rate ${star} out of 5`}
                 >
                   <Star className={`h-6 w-6 ${star <= newRating ? 'fill-current' : 'text-line'}`} />
@@ -140,7 +140,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             </div>
           </div>
           <div>
-            <label htmlFor="review-comment" className="mb-2 block text-xs font-semibold text-ink">
+            <label
+              htmlFor="review-comment"
+              className="mb-space-2 block text-ui font-semibold text-ink"
+            >
               Review
             </label>
             <textarea

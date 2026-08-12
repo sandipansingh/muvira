@@ -11,25 +11,27 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, title }) => 
   const [activeImage, setActiveImage] = useState(imageUrls[0] ?? '')
 
   return (
-    <div className="space-y-4">
-      <div className="aspect-[4/3] overflow-hidden border-y border-line bg-ivory sm:aspect-square">
+    <div className="space-y-space-4">
+      <div className="aspect-[4/3] overflow-hidden rounded-image bg-surface sm:aspect-square">
         {activeImage ? (
           <img src={activeImage} alt={title} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex h-full items-center justify-center text-sm text-muted-ink">
+          <div className="flex h-full items-center justify-center text-ui text-muted">
             Image unavailable
           </div>
         )}
       </div>
       {imageUrls.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="flex gap-space-3 overflow-x-auto py-space-1 no-scrollbar">
           {imageUrls.map((image, index) => (
             <button
               key={`${image}-${index}`}
               type="button"
               onClick={() => setActiveImage(image)}
-              className={`h-20 w-20 shrink-0 overflow-hidden border transition-colors ${
-                activeImage === image ? 'border-cognac' : 'border-line opacity-60 hover:opacity-100'
+              className={`h-20 w-20 shrink-0 overflow-hidden rounded-image border transition-colors duration-control ${
+                activeImage === image
+                  ? 'border-terracotta'
+                  : 'border-rule opacity-60 hover:opacity-100'
               }`}
               aria-label={`View ${title} image ${index + 1}`}
             >

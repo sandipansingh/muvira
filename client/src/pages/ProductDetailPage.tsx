@@ -64,17 +64,19 @@ export const ProductDetailPage: React.FC = () => {
     }
   }, [loadReviews, slug])
 
-  if (loading) return <main className="editorial-page min-h-[60vh] animate-pulse" />
+  if (loading) return <main className="editorial-page min-h-screen animate-pulse" />
 
   if (error || !product) {
     return (
-      <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-xl border border-line bg-ivory p-10 text-center">
-          <h1 className="editorial-heading text-3xl">Product not found</h1>
-          <p className="mt-2 text-sm text-muted-ink">
+      <main className="editorial-page py-space-12 sm:py-space-16">
+        <div className="editorial-container max-w-xl text-center">
+          <h1 className="editorial-heading text-heading-m-mobile sm:text-heading-m-desktop">
+            Product not found
+          </h1>
+          <p className="mt-space-2 text-body text-muted">
             {error ?? 'This product is no longer available.'}
           </p>
-          <Link to="/shop" className="editorial-button mt-6">
+          <Link to="/shop" className="editorial-button mt-space-6 min-h-11">
             Return to shop
           </Link>
         </div>
@@ -83,20 +85,23 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-10 sm:py-16">
+    <main className="editorial-page py-space-12 sm:py-space-16">
       <div className="editorial-container">
-        <div className="mb-8 flex items-center gap-2 text-xs text-muted-ink">
-          <Link to="/" className="hover:text-cognac">
+        <nav
+          className="mb-space-8 flex items-center gap-space-2 text-ui text-muted"
+          aria-label="Breadcrumb"
+        >
+          <Link to="/" className="transition-colors duration-control hover:text-terracotta">
             Home
           </Link>
           <span>/</span>
-          <Link to="/shop" className="hover:text-cognac">
+          <Link to="/shop" className="transition-colors duration-control hover:text-terracotta">
             Shop
           </Link>
           <span>/</span>
           <span className="truncate font-medium text-ink">{product.name}</span>
-        </div>
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
+        </nav>
+        <div className="grid grid-cols-1 items-start gap-space-12 lg:grid-cols-2">
           <ImageGallery images={product.images} title={product.name} />
           <ProductInfo product={product} />
         </div>
@@ -109,12 +114,14 @@ export const ProductDetailPage: React.FC = () => {
           onReviewSubmitted={() => loadReviews(product.id)}
         />
         {relatedProducts.length > 0 && (
-          <section className="mt-20 border-t border-line pt-12">
-            <div className="mb-10">
+          <section className="mt-space-24 border-t border-rule pt-space-12">
+            <div className="mb-space-8">
               <p className="editorial-label">Handcrafted pairings</p>
-              <h2 className="editorial-heading mt-3 text-4xl">You may also like</h2>
+              <h2 className="editorial-heading mt-space-2 text-heading-m-mobile sm:text-heading-m-desktop">
+                You may also like
+              </h2>
             </div>
-            <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-space-6 sm:grid-cols-2 lg:grid-cols-4">
               {relatedProducts.map((related) => (
                 <ProductCard key={related.id} product={related} />
               ))}
