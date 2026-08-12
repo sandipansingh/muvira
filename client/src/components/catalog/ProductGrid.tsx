@@ -10,7 +10,7 @@ interface ProductGridProps {
 export const ProductGrid: React.FC<ProductGridProps> = ({ products, loading = false }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
           <div key={item} className="animate-pulse border-b border-line pb-4">
             <div className="aspect-square bg-ivory" />
@@ -24,9 +24,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, loading = fa
 
   if (products.length === 0) {
     return (
-      <div className="editorial-panel p-12 text-center">
-        <h2 className="font-serif text-2xl font-bold text-ink">No products found</h2>
-        <p className="mt-2 text-sm text-muted-ink">
+      <div className="border-y border-rule py-12 text-center">
+        <h2 className="font-display text-heading-m-mobile font-bold text-ink sm:text-heading-m-desktop">
+          No products found
+        </h2>
+        <p className="mt-2 text-body text-muted">
           Try broadening your search query or selecting another category.
         </p>
       </div>
@@ -34,7 +36,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, loading = fa
   }
 
   return (
-    <div className="grid grid-cols-1 gap-x-5 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

@@ -97,10 +97,10 @@ export const ShopPage: React.FC = () => {
       <div className="editorial-container">
         <div className="mb-8">
           <p className="editorial-label">Muvira / Shop</p>
-          <h1 className="editorial-heading mt-3 text-4xl sm:text-6xl">
+          <h1 className="editorial-heading mt-3 text-display-xl-mobile sm:text-display-xl-desktop">
             {searchQuery ? `Search results for “${searchQuery}”` : 'All collections'}
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-muted-ink">
+          <p className="mt-4 max-w-xl text-body text-muted">
             Considered solid wood pieces for the home you are building, one room at a time.
           </p>
         </div>
@@ -119,9 +119,11 @@ export const ShopPage: React.FC = () => {
         )}
 
         {error ? (
-          <div className="border border-line bg-ivory p-10 text-center">
-            <h2 className="font-serif text-2xl font-bold text-ink">We could not load the shop</h2>
-            <p className="mt-2 text-sm text-muted-ink">{error}</p>
+          <div className="border-y border-rule py-12 text-center">
+            <h2 className="font-display text-heading-m-mobile font-bold text-ink sm:text-heading-m-desktop">
+              We could not load the shop
+            </h2>
+            <p className="mt-2 text-body text-muted">{error}</p>
             <button
               type="button"
               onClick={() => setRefreshToken((value) => value + 1)}
@@ -135,25 +137,25 @@ export const ShopPage: React.FC = () => {
             <ProductGrid products={products} loading={loading} />
             {!loading && totalPages > 1 && (
               <nav
-                className="mt-12 flex items-center justify-center gap-4 border-t border-line pt-6"
+                className="mt-12 flex items-center justify-center gap-4 border-t border-rule pt-6"
                 aria-label="Product pages"
               >
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => updateParams({ page: String(page - 1) })}
-                  className="editorial-button-secondary disabled:opacity-40"
+                  className="text-ui font-semibold text-ink underline decoration-rule underline-offset-4 transition-colors duration-control hover:text-terracotta hover:decoration-terracotta disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span className="text-xs font-semibold text-muted-ink">
+                <span className="text-ui font-semibold text-muted" aria-current="page">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => updateParams({ page: String(page + 1) })}
-                  className="editorial-button-secondary disabled:opacity-40"
+                  className="text-ui font-semibold text-ink underline decoration-rule underline-offset-4 transition-colors duration-control hover:text-terracotta hover:decoration-terracotta disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Next
                 </button>
