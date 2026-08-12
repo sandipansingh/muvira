@@ -30,7 +30,7 @@ export const AppContent: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen flex-col bg-paper font-sans text-ink selection:bg-cognac-soft selection:text-ink">
+    <div className="flex min-h-screen flex-col bg-white font-sans text-foreground selection:bg-brand-light selection:text-foreground">
       <AnnouncementBar />
       <Header onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />

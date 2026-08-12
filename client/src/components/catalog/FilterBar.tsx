@@ -1,4 +1,5 @@
 import React from 'react'
+import { SegmentedControl } from '../common/SegmentedControl'
 
 interface FilterBarProps {
   categories: { name: string; slug: string }[]
@@ -17,52 +18,45 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSortChange,
   totalCount,
 }) => {
+  const options = [
+    { label: 'All Products', value: 'all' },
+    ...categories.map((c) => ({ label: c.name, value: c.slug })),
+  ]
+
   return (
-    <div className="mb-8 border-y border-rule py-4">
+    <div className="mb-8 border-y border-border-light py-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
-          {['all', ...categories.map((category) => category.slug)].map((slug) => {
-            const label =
-              slug === 'all' ? 'All products' : categories.find((item) => item.slug === slug)?.name
-            const isSelected = selectedCategory === slug
-            return (
-              <button
-                key={slug}
-                type="button"
-                onClick={() => onSelectCategory(slug)}
-                className={`shrink-0 rounded-pill border px-4 py-2 text-ui font-semibold transition-colors duration-control ${
-                  isSelected
-                    ? 'border-ink bg-ink text-paper'
-                    : 'border-rule bg-paper text-ink hover:border-ink'
-                }`}
-              >
-                {label}
-              </button>
-            )
-          })}
+        <div className="no-scrollbar flex items-center overflow-x-auto pb-1 lg:pb-0">
+          <SegmentedControl
+            options={options}
+            value={selectedCategory}
+            onChange={onSelectCategory}
+            layoutId="shop-category-filter"
+            size="sm"
+          />
         </div>
 
-        <div className="flex items-center justify-between gap-4 text-ui text-muted lg:justify-end">
+        <div className="flex items-center justify-between gap-4 text-xs font-semibold text-neutral-500 lg:justify-end">
           <span aria-live="polite">
-            <strong className="font-semibold text-ink">{totalCount}</strong> products
+            <strong className="font-bold text-foreground">{totalCount}</strong> pieces found
           </span>
 
           <label
-            className="flex items-center gap-2 text-ui font-semibold text-ink"
+            className="flex items-center gap-2 text-xs font-bold text-foreground"
             htmlFor="shop-sort"
           >
-            Sort
+            <span>Sort:</span>
             <select
               id="shop-sort"
               name="sort"
               value={sortBy}
               onChange={(event) => onSortChange(event.target.value)}
-              className="min-h-12 rounded-control border border-rule bg-surface px-3 text-base font-medium text-ink transition-colors duration-control focus:border-ink focus:outline-none"
+              className="rounded-xl border border-border-light bg-neutral-50/80 py-1.5 px-3 text-xs font-semibold text-foreground transition-colors hover:border-neutral-300 focus:border-foreground focus:outline-none cursor-pointer"
             >
-              <option value="popularity">Sort: Popularity</option>
+              <option value="popularity">Popularity</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
-              <option value="newest">Sort: Newest</option>
+              <option value="newest">Newest Arrivals</option>
             </select>
           </label>
         </div>
@@ -70,3 +64,5 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     </div>
   )
 }
+
+export default FilterBar

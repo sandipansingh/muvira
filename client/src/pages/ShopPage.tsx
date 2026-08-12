@@ -93,15 +93,18 @@ export const ShopPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-12 sm:py-16">
-      <div className="editorial-container">
-        <div className="mb-8">
-          <p className="editorial-label">Muvira / Shop</p>
-          <h1 className="editorial-heading mt-3 text-display-xl-mobile sm:text-display-xl-desktop">
-            {searchQuery ? `Search results for “${searchQuery}”` : 'All collections'}
+    <main className="editorial-page py-10 sm:py-16">
+      <div className="layout-container">
+        <div className="mb-8 max-w-3xl">
+          <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2 block">
+            Muvira / Catalog
+          </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.1] font-display">
+            {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
           </h1>
-          <p className="mt-4 max-w-xl text-body text-muted">
-            Considered solid wood pieces for the home you are building, one room at a time.
+          <p className="mt-3 text-sm sm:text-base text-neutral-500 font-normal leading-relaxed">
+            Considered solid wood furniture handcrafted for the home you are building, one room at a
+            time.
           </p>
         </div>
 
@@ -119,17 +122,17 @@ export const ShopPage: React.FC = () => {
         )}
 
         {error ? (
-          <div className="border-y border-rule py-12 text-center">
-            <h2 className="font-display text-heading-m-mobile font-bold text-ink sm:text-heading-m-desktop">
-              We could not load the shop
+          <div className="border-y border-border-light py-16 text-center">
+            <h2 className="font-display text-2xl font-bold text-foreground">
+              We could not load the catalog
             </h2>
-            <p className="mt-2 text-body text-muted">{error}</p>
+            <p className="mt-2 text-sm text-neutral-500">{error}</p>
             <button
               type="button"
               onClick={() => setRefreshToken((value) => value + 1)}
               className="editorial-button mt-6"
             >
-              Try again
+              Try Again
             </button>
           </div>
         ) : (
@@ -137,25 +140,28 @@ export const ShopPage: React.FC = () => {
             <ProductGrid products={products} loading={loading} />
             {!loading && totalPages > 1 && (
               <nav
-                className="mt-12 flex items-center justify-center gap-4 border-t border-rule pt-6"
+                className="mt-12 flex items-center justify-center gap-4 border-t border-border-light pt-8"
                 aria-label="Product pages"
               >
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => updateParams({ page: String(page - 1) })}
-                  className="text-ui font-semibold text-ink underline decoration-rule underline-offset-4 transition-colors duration-control hover:text-terracotta hover:decoration-terracotta disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-xs sm:text-sm font-bold text-foreground underline decoration-border-light underline-offset-4 transition-colors hover:text-brand hover:decoration-brand disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span className="text-ui font-semibold text-muted" aria-current="page">
+                <span
+                  className="text-xs sm:text-sm font-semibold text-neutral-500"
+                  aria-current="page"
+                >
                   Page {page} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => updateParams({ page: String(page + 1) })}
-                  className="text-ui font-semibold text-ink underline decoration-rule underline-offset-4 transition-colors duration-control hover:text-terracotta hover:decoration-terracotta disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-xs sm:text-sm font-bold text-foreground underline decoration-border-light underline-offset-4 transition-colors hover:text-brand hover:decoration-brand disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -167,3 +173,5 @@ export const ShopPage: React.FC = () => {
     </main>
   )
 }
+
+export default ShopPage

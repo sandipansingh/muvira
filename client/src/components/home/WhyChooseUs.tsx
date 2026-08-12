@@ -1,55 +1,61 @@
 import React from 'react'
-import { HandHeart, Sofa, Truck } from 'lucide-react'
-
-const values = [
-  {
-    icon: HandHeart,
-    title: 'Made with care',
-    description: 'Thoughtful materials and details, considered from the start.',
-  },
-  {
-    icon: Truck,
-    title: 'Delivery you can plan for',
-    description: 'A clearer path from choosing your piece to welcoming it home.',
-  },
-  {
-    icon: Sofa,
-    title: 'Built for everyday life',
-    description: 'Furniture made for the routines that make a home yours.',
-  },
-]
+import { Award, ShieldCheck, Truck } from 'lucide-react'
+import { SectionHeader } from '../common/SectionHeader'
 
 export const WhyChooseUs: React.FC = () => {
-  return (
-    <section className="bg-surface py-12 sm:py-16">
-      <div className="editorial-container">
-        <div className="sm:text-center">
-          <span className="editorial-label">Why choose us</span>
-          <h2 className="editorial-heading mt-2 text-heading-m-mobile sm:text-heading-m-desktop">
-            Considered for real homes
-          </h2>
-          <p className="mt-4 text-body text-muted">
-            A quieter way to choose furniture for the spaces you use every day.
-          </p>
-        </div>
+  const features = [
+    {
+      icon: <Award className="w-14 h-14 stroke-[1.25]" />,
+      title: '100% Solid Timber',
+      description:
+        'Responsibly sourced solid sheesham, oak, and teak. Built without cheap veneers.',
+    },
+    {
+      icon: <ShieldCheck className="w-14 h-14 stroke-[1.25]" />,
+      title: '15-Year Warranty',
+      description:
+        'Heirloom construction with traditional mortise-and-tenon joinery designed to last generations.',
+    },
+    {
+      icon: <Truck className="w-14 h-14 stroke-[1.25]" />,
+      title: 'White-Glove Delivery',
+      description: 'Safe doorstep delivery with professional in-room assembly and zero hassle.',
+    },
+  ]
 
-        <div className="mt-8 divide-y divide-rule lg:grid lg:grid-cols-3 lg:divide-y-0">
-          {values.map(({ icon: Icon, title, description }) => (
-            <div
-              key={title}
-              className="flex gap-4 py-6 first:pt-0 last:pb-0 lg:block lg:px-6 lg:py-0 lg:text-center"
-            >
-              <Icon className="h-6 w-6 shrink-0 text-ink lg:mx-auto" aria-hidden="true" />
-              <div className="lg:mt-4">
-                <h3 className="font-display text-heading-s-mobile font-semibold text-ink sm:text-heading-s-desktop">
-                  {title}
-                </h3>
-                <p className="mt-2 text-body text-muted">{description}</p>
-              </div>
+  return (
+    <section id="why-choose-us" className="py-gap-section scroll-mt-24 bg-white layout-container">
+      <SectionHeader
+        title="Why Choose Muvira?"
+        subtitle="We provide exceptional solid wood furniture with meticulous attention to every detail"
+        align="center"
+        className="mb-6 md:mb-16"
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 max-w-[1100px] mx-auto">
+        {features.map((feature, idx) => (
+          <div
+            key={idx}
+            className="flex flex-row lg:flex-col items-center lg:items-center text-left lg:text-center group bg-neutral-50/60 lg:bg-transparent p-5 lg:p-0 rounded-2xl lg:rounded-none border border-neutral-100 lg:border-none gap-4 lg:gap-0"
+          >
+            <div className="text-neutral-800 group-hover:text-brand transition-all duration-300 transform group-hover:scale-105 ease-out lg:mb-5 shrink-0 p-2.5 lg:p-0 bg-white lg:bg-transparent rounded-xl shadow-xs lg:shadow-none">
+              {React.cloneElement(feature.icon, {
+                className: 'w-6 h-6 lg:w-14 lg:h-14 stroke-[1.5] lg:stroke-[1.25]',
+              })}
             </div>
-          ))}
-        </div>
+            <div>
+              <h3 className="text-base lg:text-2xl font-bold text-foreground tracking-tight lg:mb-2.5">
+                {feature.title}
+              </h3>
+              <p className="text-muted text-xs lg:text-sm font-normal leading-relaxed max-w-[280px] mt-0.5 lg:mt-0">
+                {feature.description}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   )
 }
+
+export default WhyChooseUs

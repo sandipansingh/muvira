@@ -14,6 +14,8 @@ export default defineConfig([
     '**/.git/**',
     'client/dist/**',
     'server/dist/**',
+    'design-reference/**',
+    'dev-scripts/**',
   ]),
 
   // Base recommended for JS/TS

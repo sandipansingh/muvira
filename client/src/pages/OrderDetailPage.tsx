@@ -56,11 +56,13 @@ export const OrderDetailPage: React.FC = () => {
   if (error || !order)
     return (
       <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-xl border-y border-line py-10 text-center">
-          <h1 className="editorial-heading text-3xl">Order unavailable</h1>
-          <p className="mt-2 text-sm text-muted-ink">{error ?? 'We could not find this order.'}</p>
+        <div className="mx-auto max-w-xl rounded-3xl border border-border-light bg-neutral-50/60 p-10 text-center shadow-premium">
+          <h1 className="font-display text-2xl font-bold text-foreground">Order unavailable</h1>
+          <p className="mt-2 text-sm text-neutral-500">
+            {error ?? 'We could not find this order.'}
+          </p>
           <Link to="/orders" className="editorial-button mt-6">
-            Back to orders
+            Back to Orders
           </Link>
         </div>
       </main>
@@ -70,46 +72,50 @@ export const OrderDetailPage: React.FC = () => {
   const trackingUrl = tracking?.tracking_url ?? order.trackingUrl
 
   return (
-    <main className="editorial-page py-12 sm:py-16">
-      <div className="editorial-container max-w-4xl space-y-10">
+    <main className="editorial-page py-10 sm:py-16">
+      <div className="layout-container max-w-4xl space-y-10">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-ink transition-colors duration-control hover:text-terracotta"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 transition-colors hover:text-brand"
         >
           <ArrowLeft className="h-4 w-4" /> Back to order history
         </Link>
-        <div className="flex flex-col justify-between gap-4 border-b border-line pb-6 sm:flex-row sm:items-end">
+        <div className="flex flex-col justify-between gap-4 border-b border-border-light pb-6 sm:flex-row sm:items-end">
           <div>
-            <p className="editorial-label">Order details</p>
-            <h1 className="editorial-heading mt-3 text-4xl">#{order.orderNumber}</h1>
-            <p className="mt-2 text-xs text-muted-ink">Placed on {formatDate(order.createdAt)}</p>
+            <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 block mb-1">
+              Order Details
+            </span>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
+              #{order.orderNumber}
+            </h1>
+            <p className="mt-1 text-xs text-neutral-500">Placed on {formatDate(order.createdAt)}</p>
           </div>
-          <span className="self-start text-xs font-semibold uppercase tracking-wide text-muted-ink sm:self-auto">
+          <span className="self-start text-xs font-bold uppercase tracking-wider text-brand bg-brand-light px-3 py-1 rounded-full sm:self-auto">
             {order.status.replaceAll('_', ' ')}
           </span>
         </div>
 
-        <section className="space-y-5 border-y border-line py-6 sm:py-8">
+        <section className="space-y-5 rounded-3xl border border-border-light bg-neutral-50/60 p-6 sm:p-8 shadow-xs">
           <div className="flex items-center gap-2">
-            <Truck className="h-5 w-5 text-ink" />
-            <h2 className="font-serif text-2xl font-bold text-ink">Shipment tracking</h2>
+            <Truck className="h-5 w-5 text-foreground" />
+            <h2 className="font-display text-xl font-bold text-foreground">Shipment Tracking</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-3">
-            <div className="border-t border-line pt-3">
-              <span className="block text-muted-ink">AWB tracking number</span>
-              <strong className="mt-1 block text-sm text-ink">
+            <div className="border-t border-border-light pt-3">
+              <span className="block text-neutral-500">AWB tracking number</span>
+              <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.awb_code ?? order.awbCode ?? 'Not assigned yet'}
               </strong>
             </div>
-            <div className="border-t border-line pt-3">
-              <span className="block text-muted-ink">Courier partner</span>
-              <strong className="mt-1 block text-sm text-ink">
+            <div className="border-t border-border-light pt-3">
+              <span className="block text-neutral-500">Courier partner</span>
+              <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.courier_name ?? order.courierName ?? 'Not assigned yet'}
               </strong>
             </div>
-            <div className="border-t border-line pt-3">
-              <span className="block text-muted-ink">Shipment status</span>
-              <strong className="mt-1 block text-sm text-ink">
+            <div className="border-t border-border-light pt-3">
+              <span className="block text-neutral-500">Shipment status</span>
+              <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.shiprocket_status ??
                   order.shiprocketStatus ??
                   order.status.replaceAll('_', ' ')}
@@ -121,23 +127,23 @@ export const OrderDetailPage: React.FC = () => {
               href={trackingUrl}
               target="_blank"
               rel="noreferrer"
-              className="editorial-link text-xs"
+              className="editorial-link text-xs inline-block"
             >
               Open carrier tracking
             </a>
           )}
           {trackingEvents.length > 0 && (
-            <div className="space-y-4 border-t border-line pt-5">
+            <div className="space-y-4 border-t border-border-light pt-5">
               {trackingEvents.map((event) => (
                 <div key={event.id} className="flex gap-3 text-xs">
-                  <div className="mt-1 h-2 w-2 shrink-0 bg-ink" />
+                  <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-foreground" />
                   <div>
-                    <p className="font-semibold text-ink">{event.status}</p>
-                    <p className="text-muted-ink">
+                    <p className="font-bold text-foreground">{event.status}</p>
+                    <p className="text-neutral-500">
                       {formatDate(event.event_time)}
                       {event.location ? ` · ${event.location}` : ''}
                     </p>
-                    {event.remarks && <p className="mt-1 text-muted-ink">{event.remarks}</p>}
+                    {event.remarks && <p className="mt-1 text-neutral-500">{event.remarks}</p>}
                   </div>
                 </div>
               ))}
@@ -146,8 +152,8 @@ export const OrderDetailPage: React.FC = () => {
         </section>
 
         <section>
-          <h2 className="mb-5 font-serif text-2xl font-bold text-ink">Ordered items</h2>
-          <div className="divide-y divide-line border-y border-line">
+          <h2 className="mb-5 font-display text-2xl font-bold text-foreground">Ordered Items</h2>
+          <div className="divide-y divide-border-light border-y border-border-light">
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center justify-between gap-4 py-4">
                 <div className="flex min-w-0 items-center gap-4">
@@ -155,21 +161,21 @@ export const OrderDetailPage: React.FC = () => {
                     <img
                       src={item.productImage}
                       alt={item.productName}
-                      className="h-16 w-16 shrink-0 object-cover"
+                      className="h-16 w-16 rounded-2xl shrink-0 object-cover border border-neutral-100"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-surface">
-                      <Package className="h-6 w-6 text-line" />
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-neutral-100">
+                      <Package className="h-6 w-6 text-neutral-300" />
                     </div>
                   )}
                   <div className="min-w-0">
-                    <h3 className="truncate font-serif text-base font-bold text-ink">
+                    <h3 className="truncate font-display text-base font-bold text-foreground">
                       {item.productName}
                     </h3>
-                    <p className="text-xs font-semibold text-muted-ink">Qty: {item.quantity}</p>
+                    <p className="text-xs font-semibold text-neutral-500">Qty: {item.quantity}</p>
                   </div>
                 </div>
-                <span className="shrink-0 text-base font-bold text-ink">
+                <span className="shrink-0 text-base font-bold text-foreground">
                   {formatPrice(item.totalPrice)}
                 </span>
               </div>
@@ -177,43 +183,45 @@ export const OrderDetailPage: React.FC = () => {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-8 border-t border-line pt-8 sm:grid-cols-2">
-          <div className="space-y-2 text-xs">
-            <h2 className="flex items-center gap-1.5 text-sm font-bold text-ink">
-              <MapPin className="h-4 w-4 text-ink" /> Shipping address
+        <div className="grid grid-cols-1 gap-8 border-t border-border-light pt-8 sm:grid-cols-2">
+          <div className="space-y-2 text-xs rounded-3xl border border-border-light p-6 bg-neutral-50/40">
+            <h2 className="flex items-center gap-1.5 text-sm font-bold text-foreground mb-3">
+              <MapPin className="h-4 w-4 text-foreground" /> Shipping Address
             </h2>
-            <p className="font-medium text-ink">{order.shippingAddress.fullName}</p>
-            <p className="text-muted-ink">
+            <p className="font-bold text-foreground">{order.shippingAddress.fullName}</p>
+            <p className="text-neutral-600">
               {order.shippingAddress.line1}
               {order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ''}
             </p>
-            <p className="text-muted-ink">
+            <p className="text-neutral-600">
               {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
               {order.shippingAddress.pincode} · {order.shippingAddress.phone}
             </p>
           </div>
-          <div className="space-y-2 text-xs">
-            <h2 className="flex items-center gap-1.5 text-sm font-bold text-ink">
-              <ShieldCheck className="h-4 w-4 text-ink" /> Payment details
+          <div className="space-y-2 text-xs rounded-3xl border border-border-light p-6 bg-neutral-50/40">
+            <h2 className="flex items-center gap-1.5 text-sm font-bold text-foreground mb-3">
+              <ShieldCheck className="h-4 w-4 text-foreground" /> Payment Details
             </h2>
-            <p className="font-medium text-ink">Razorpay online payment</p>
-            <p className="font-semibold text-success">Payment status: {order.paymentStatus}</p>
-            <div className="space-y-1 border-t border-line pt-3 text-muted-ink">
+            <p className="font-semibold text-foreground">Razorpay online payment</p>
+            <p className="font-bold text-emerald-700">Status: {order.paymentStatus}</p>
+            <div className="space-y-1.5 border-t border-border-light pt-3 text-neutral-600">
               <p className="flex justify-between">
                 <span>Subtotal</span>
-                <span>{formatPrice(order.subtotal)}</span>
+                <span className="font-semibold text-foreground">{formatPrice(order.subtotal)}</span>
               </p>
               {order.discountAmount > 0 && (
-                <p className="flex justify-between">
+                <p className="flex justify-between text-emerald-700 font-semibold">
                   <span>Discount</span>
                   <span>-{formatPrice(order.discountAmount)}</span>
                 </p>
               )}
               <p className="flex justify-between">
                 <span>Shipping</span>
-                <span>{order.shippingAmount ? formatPrice(order.shippingAmount) : 'FREE'}</span>
+                <span className="font-semibold text-foreground">
+                  {order.shippingAmount ? formatPrice(order.shippingAmount) : 'FREE'}
+                </span>
               </p>
-              <p className="flex justify-between border-t border-line pt-2 font-bold text-ink">
+              <p className="flex justify-between border-t border-border-light pt-2 font-bold text-foreground text-sm">
                 <span>Total</span>
                 <span>{formatPrice(order.totalAmount)}</span>
               </p>
@@ -224,3 +232,5 @@ export const OrderDetailPage: React.FC = () => {
     </main>
   )
 }
+
+export default OrderDetailPage

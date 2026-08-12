@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
@@ -11,26 +11,34 @@ interface HeaderProps {
 const navigationLinks = [
   { label: 'Home', to: '/' },
   { label: 'Shop', to: '/shop' },
-  { label: 'Living room', to: '/shop?category=living-room' },
+  { label: 'Living Room', to: '/shop?category=living-room' },
   { label: 'Bedroom', to: '/shop?category=bedroom' },
   { label: 'Dining', to: '/shop?category=dining' },
+  { label: 'Why Us', to: '/#why-choose-us' },
+  { label: 'FAQ', to: '/#faq' },
 ]
-
-const headerIconButtonClassName =
-  'inline-flex min-h-11 min-w-11 items-center justify-center rounded-pill p-3 text-ink transition-colors duration-control hover:bg-surface'
 
 export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
   const { itemCount, openCartDrawer } = useCart()
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleSearchSubmit = (event: React.FormEvent) => {
     event.preventDefault()
     const query = searchQuery.trim()
-
     if (!query) return
 
     navigate(`/shop?q=${encodeURIComponent(query)}`)
@@ -38,168 +46,178 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
     setIsSearchOpen(false)
   }
 
+  const getHref = (href: string) => {
+    if (href.startsWith('/#')) {
+      return location.pathname === '/' ? href.replace('/', '') : href
+    }
+    return href
+  }
+
   return (
-    <header className="sticky top-0 z-50 border-b border-rule bg-paper">
-      <div className="editorial-container">
-        <div className="flex min-h-16 items-center justify-between gap-space-4">
-          <div className="flex items-center gap-space-2">
-            <button
-              type="button"
-              onClick={onOpenMobileMenu}
-              className={`${headerIconButtonClassName} lg:hidden`}
-              aria-label="Open mobile menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-
-            <Link
-              to="/"
-              className="font-display text-heading-s-mobile font-bold tracking-tight text-ink"
-            >
+    <header className="sticky top-3 lg:top-4 z-50 layout-container transition-all duration-300 pointer-events-none">
+      <nav
+        className={`pointer-events-auto flex items-center justify-between rounded-full px-5 sm:px-6 py-2.5 transition-all duration-300 ${
+          scrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-premium border border-border-light/80'
+            : 'bg-white/90 backdrop-blur-md shadow-premium border border-border-light/60'
+        }`}
+      >
+        {/* Brand Logo */}
+        <Link to="/" className="flex items-center gap-3 group shrink-0 select-none">
+          <div className="flex flex-col">
+            <span className="block font-display text-sm sm:text-base lg:text-lg font-bold tracking-[0.16em] uppercase leading-none text-foreground transition-colors group-hover:text-brand">
               Muvira
-            </Link>
+            </span>
+            <span className="block font-sans text-[8px] sm:text-[9px] font-semibold tracking-[0.22em] uppercase leading-none mt-1 text-muted">
+              Artisanal Living
+            </span>
           </div>
+        </Link>
 
-          <nav className="hidden items-center gap-space-6 text-ui font-semibold text-muted lg:flex">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="transition-colors duration-control hover:text-terracotta"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-space-1 sm:gap-space-2">
-            <div className="relative hidden md:block">
-              <form onSubmit={handleSearchSubmit} className="relative">
-                <input
-                  type="search"
-                  placeholder="Search products"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  className="w-48 rounded-control border border-rule bg-surface py-space-2 pl-space-3 pr-10 text-base text-ink placeholder:text-muted transition-colors duration-control focus:border-ink focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-space-1 top-1/2 -translate-y-1/2 rounded-pill p-space-2 text-muted transition-colors duration-control hover:text-terracotta"
-                  aria-label="Search"
-                >
-                  <Search className="h-4 w-4" />
-                </button>
-              </form>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsSearchOpen((open) => !open)}
-              className={`${headerIconButtonClassName} md:hidden`}
-              aria-label="Search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-
+        {/* Center Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-4 xl:gap-7">
+          {navigationLinks.map((link) => (
             <Link
-              to="/shop"
-              className={`${headerIconButtonClassName} hidden sm:inline-flex`}
-              aria-label="Wishlist"
+              key={link.label}
+              to={getHref(link.to)}
+              className="font-semibold text-[13px] xl:text-sm text-foreground hover:text-brand transition-colors duration-200"
             >
-              <Heart className="h-5 w-5" />
+              {link.label}
             </Link>
+          ))}
+        </div>
 
-            <button
-              type="button"
-              onClick={openCartDrawer}
-              className={`${headerIconButtonClassName} relative`}
-              aria-label="Shopping cart"
-            >
-              <ShoppingBag className="h-5 w-5" />
-              {itemCount > 0 && (
-                <span className="absolute right-0 top-0 flex min-h-5 min-w-5 items-center justify-center rounded-pill bg-ink px-space-1 text-eyebrow-mobile font-semibold text-paper">
-                  {itemCount}
-                </span>
-              )}
-            </button>
+        {/* Right Action Icons */}
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          {/* Search Button */}
+          <button
+            type="button"
+            onClick={() => setIsSearchOpen((prev) => !prev)}
+            className="p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+            aria-label="Search products"
+          >
+            <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+          </button>
 
-            <div className="relative">
-              {isAuthenticated ? (
+          {/* Wishlist Link */}
+          <Link
+            to="/shop"
+            className="hidden sm:flex p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+            aria-label="Wishlist"
+          >
+            <Heart className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+          </Link>
+
+          {/* Cart Button */}
+          <button
+            type="button"
+            onClick={openCartDrawer}
+            className="relative p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+            aria-label="Shopping cart"
+          >
+            <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+            {itemCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-neutral-900 px-1 text-[10px] font-bold text-white shadow-xs">
+                {itemCount}
+              </span>
+            )}
+          </button>
+
+          {/* User Account / Auth */}
+          <div className="relative">
+            {isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                className="p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+                aria-label="Account menu"
+              >
+                <User className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="p-2 sm:p-2.5 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand hover:border-neutral-300 transition-all duration-200 cursor-pointer"
+                aria-label="Sign in"
+              >
+                <User className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              </Link>
+            )}
+
+            {/* User Dropdown */}
+            {isAuthenticated && isUserMenuOpen && (
+              <div className="absolute right-0 top-full mt-3 w-56 rounded-2xl border border-border-light bg-white p-2 shadow-premium text-xs font-semibold z-50">
+                <div className="border-b border-border-light px-3 py-2.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted">
+                    Signed in as
+                  </p>
+                  <p className="mt-0.5 truncate font-bold text-foreground text-sm">
+                    {user?.fullName || user?.email}
+                  </p>
+                </div>
+                <Link
+                  to="/profile"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="block rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 hover:text-brand transition-colors"
+                >
+                  My Account
+                </Link>
+                <Link
+                  to="/orders"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="block rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 hover:text-brand transition-colors"
+                >
+                  Order History
+                </Link>
                 <button
                   type="button"
-                  onClick={() => setIsUserMenuOpen((open) => !open)}
-                  className={headerIconButtonClassName}
-                  aria-label="Open account menu"
+                  onClick={() => {
+                    setIsUserMenuOpen(false)
+                    logout()
+                  }}
+                  className="block w-full text-left rounded-xl px-3 py-2 font-bold text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  <User className="h-5 w-5" />
+                  Sign Out
                 </button>
-              ) : (
-                <Link to="/login" className={headerIconButtonClassName} aria-label="Sign in">
-                  <User className="h-5 w-5" />
-                </Link>
-              )}
-
-              {isAuthenticated && isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-space-2 w-56 border border-rule bg-paper py-space-2 text-ui text-ink">
-                  <div className="border-b border-rule px-space-4 py-space-3">
-                    <p className="text-muted">Signed in as</p>
-                    <p className="mt-space-1 truncate font-semibold">{user?.fullName}</p>
-                  </div>
-                  <Link
-                    to="/profile"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="block px-space-4 py-space-3 transition-colors duration-control hover:bg-surface"
-                  >
-                    My account
-                  </Link>
-                  <Link
-                    to="/orders"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="block px-space-4 py-space-3 transition-colors duration-control hover:bg-surface"
-                  >
-                    Orders
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsUserMenuOpen(false)
-                      logout()
-                    }}
-                    className="block w-full px-space-4 py-space-3 text-left font-semibold text-danger transition-colors duration-control hover:bg-danger-soft"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
 
-      {isSearchOpen && (
-        <div className="border-t border-rule bg-surface md:hidden">
-          <form
-            onSubmit={handleSearchSubmit}
-            className="editorial-container flex items-center gap-space-2 py-space-3"
+          {/* Mobile Menu Toggle Button */}
+          <button
+            type="button"
+            onClick={onOpenMobileMenu}
+            className="lg:hidden p-2 rounded-full border border-border-light text-foreground hover:bg-neutral-50 hover:text-brand transition-all cursor-pointer"
+            aria-label="Toggle mobile menu"
           >
+            <Menu className="w-4.5 h-4.5" />
+          </button>
+        </div>
+      </nav>
+
+      {/* Expandable Search Overlay */}
+      {isSearchOpen && (
+        <div className="pointer-events-auto mt-2 rounded-2xl border border-border-light bg-white/95 backdrop-blur-md p-3 shadow-premium animate-in fade-in slide-in-from-top-2 duration-200">
+          <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+            <Search className="w-4 h-4 text-muted shrink-0 ml-2" />
             <input
               type="search"
-              placeholder="Search products"
+              placeholder="Search handcrafted solid wood furniture, dining, decor..."
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              className="min-w-0 flex-1 rounded-control border border-rule bg-paper px-space-3 py-space-2 text-base text-ink placeholder:text-muted focus:border-ink focus:outline-none"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent border-none outline-none text-base text-foreground placeholder-neutral-400 py-1.5 px-2"
               autoFocus
             />
-            <button type="submit" className="editorial-button px-space-4 py-space-2">
+            <button type="submit" className="editorial-button py-2 px-5 text-xs font-bold shrink-0">
               Search
             </button>
             <button
               type="button"
               onClick={() => setIsSearchOpen(false)}
-              className={headerIconButtonClassName}
+              className="p-2 text-muted hover:text-foreground rounded-full"
               aria-label="Close search"
             >
-              <X className="h-5 w-5" />
+              <X className="w-4 h-4" />
             </button>
           </form>
         </div>
@@ -207,3 +225,5 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
     </header>
   )
 }
+
+export default Header

@@ -177,14 +177,22 @@ export const ProfilePage: React.FC = () => {
   if (authLoading || !user) return <main className="editorial-page" />
 
   return (
-    <main className="editorial-page py-12 sm:py-16">
-      <div className="editorial-container max-w-5xl space-y-10">
-        <div className="flex items-center justify-between border-b border-line pb-6">
+    <main className="editorial-page py-10 sm:py-16">
+      <div className="layout-container max-w-5xl space-y-10">
+        <div className="flex items-center justify-between border-b border-border-light pb-6">
           <div>
-            <span className="editorial-label">Account overview</span>
-            <h1 className="editorial-heading mt-3 text-4xl sm:text-5xl">My profile</h1>
+            <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 block mb-1">
+              Account Overview
+            </span>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
+              My Profile
+            </h1>
           </div>
-          <button type="button" onClick={logout} className="editorial-button-secondary px-4">
+          <button
+            type="button"
+            onClick={logout}
+            className="editorial-button-secondary px-4 py-2 text-xs font-bold"
+          >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
@@ -193,32 +201,32 @@ export const ProfilePage: React.FC = () => {
           <div className="space-y-2">
             <Link
               to="/profile"
-              className="flex items-center gap-3 border-b-2 border-ink bg-surface p-4 text-xs font-bold text-ink"
+              className="flex items-center gap-3 rounded-2xl bg-neutral-900 text-white p-4 text-xs font-bold shadow-xs"
             >
-              <User className="h-4 w-4 text-ink" /> Personal info
+              <User className="h-4 w-4" /> Personal Info
             </Link>
             <Link
               to="/orders"
-              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink transition-colors duration-control hover:bg-surface"
+              className="flex items-center gap-3 rounded-2xl border border-border-light p-4 text-xs font-bold text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-foreground"
             >
-              <Package className="h-4 w-4" /> My orders
+              <Package className="h-4 w-4" /> My Orders
             </Link>
             <a
               href="#addresses"
-              className="flex items-center gap-3 border-b border-line p-4 text-xs font-medium text-muted-ink transition-colors duration-control hover:bg-surface"
+              className="flex items-center gap-3 rounded-2xl border border-border-light p-4 text-xs font-bold text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-foreground"
             >
-              <MapPin className="h-4 w-4" /> Saved addresses ({addresses.length})
+              <MapPin className="h-4 w-4" /> Saved Addresses ({addresses.length})
             </a>
           </div>
 
           <div className="space-y-8 md:col-span-2">
-            <div className="space-y-6 border-y border-line py-6 sm:py-8">
-              <h2 className="font-serif text-2xl font-bold text-ink">Personal details</h2>
+            <div className="space-y-6 rounded-3xl border border-border-light bg-neutral-50/60 p-6 sm:p-8">
+              <h2 className="font-display text-xl font-bold text-foreground">Personal Details</h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
                 <div>
                   <label
                     htmlFor="profile-email"
-                    className="mb-2 block text-xs font-semibold text-ink"
+                    className="mb-1.5 block text-xs font-bold text-foreground"
                   >
                     Email
                   </label>
@@ -228,13 +236,13 @@ export const ProfilePage: React.FC = () => {
                     type="email"
                     disabled
                     value={user.email}
-                    className="editorial-input cursor-not-allowed bg-surface text-muted-ink"
+                    className="editorial-input cursor-not-allowed bg-neutral-100 text-neutral-500"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="profile-full-name"
-                    className="mb-2 block text-xs font-semibold text-ink"
+                    className="mb-1.5 block text-xs font-bold text-foreground"
                   >
                     Full Name
                   </label>
@@ -251,7 +259,7 @@ export const ProfilePage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="profile-phone"
-                    className="mb-2 block text-xs font-semibold text-ink"
+                    className="mb-1.5 block text-xs font-bold text-foreground"
                   >
                     Phone Number
                   </label>
@@ -268,24 +276,34 @@ export const ProfilePage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="editorial-button disabled:opacity-50"
+                  className="editorial-button text-xs py-2.5 font-bold disabled:opacity-50"
                 >
                   {savingProfile ? 'Saving...' : 'Save Changes'}
                 </button>
               </form>
             </div>
 
-            <section id="addresses" className="space-y-4">
+            <section
+              id="addresses"
+              className="space-y-4 rounded-3xl border border-border-light bg-neutral-50/60 p-6 sm:p-8"
+            >
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-2xl font-bold text-ink">Saved addresses</h2>
-                <button type="button" onClick={openNewAddressForm} className="editorial-button">
-                  Add address
+                <h2 className="font-display text-xl font-bold text-foreground">Saved Addresses</h2>
+                <button
+                  type="button"
+                  onClick={openNewAddressForm}
+                  className="editorial-button text-xs py-2 px-4 font-bold"
+                >
+                  Add Address
                 </button>
               </div>
 
               {addressFormOpen && (
-                <form onSubmit={handleAddressSave} className="space-y-3 border-t border-line pt-5">
-                  <h3 className="text-sm font-bold text-ink">
+                <form
+                  onSubmit={handleAddressSave}
+                  className="space-y-3 rounded-2xl border border-border-light bg-white p-5 mt-4"
+                >
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
                     {editingAddressId ? 'Edit Address' : 'Add Address'}
                   </h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -323,7 +341,7 @@ export const ProfilePage: React.FC = () => {
                       onChange={(event) =>
                         setAddressForm((previous) => ({ ...previous, state: event.target.value }))
                       }
-                      className="editorial-input"
+                      className="editorial-input cursor-pointer"
                     >
                       {INDIAN_STATES.map((state) => (
                         <option key={state.value} value={state.value}>
@@ -332,7 +350,7 @@ export const ProfilePage: React.FC = () => {
                       ))}
                     </select>
                   </div>
-                  <label className="flex items-center gap-2 text-xs text-ink">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-neutral-700">
                     <input
                       type="checkbox"
                       checked={addressForm.isDefault}
@@ -342,17 +360,18 @@ export const ProfilePage: React.FC = () => {
                           isDefault: event.target.checked,
                         }))
                       }
+                      className="rounded accent-neutral-900"
                     />
                     Use as default address
                   </label>
-                  <div className="flex gap-2">
-                    <button type="submit" className="editorial-button">
+                  <div className="flex gap-2 pt-2">
+                    <button type="submit" className="editorial-button text-xs py-2.5 font-bold">
                       Save address
                     </button>
                     <button
                       type="button"
                       onClick={() => setAddressFormOpen(false)}
-                      className="editorial-button-secondary"
+                      className="editorial-button-secondary text-xs py-2.5 font-bold"
                     >
                       Cancel
                     </button>
@@ -360,9 +379,11 @@ export const ProfilePage: React.FC = () => {
                 </form>
               )}
 
-              {loadingAddresses && <div className="h-24 animate-pulse bg-surface" />}
+              {loadingAddresses && (
+                <div className="h-24 rounded-2xl animate-pulse bg-neutral-100" />
+              )}
               {!loadingAddresses && addresses.length === 0 && (
-                <p className="border-y border-line py-5 text-sm text-muted-ink">
+                <p className="border-y border-border-light py-5 text-sm text-neutral-500">
                   No saved addresses yet.
                 </p>
               )}
@@ -370,18 +391,20 @@ export const ProfilePage: React.FC = () => {
                 addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="flex flex-col gap-4 border-b border-line py-5 sm:flex-row sm:items-start sm:justify-between"
+                    className="flex flex-col gap-4 rounded-2xl border border-border-light bg-white p-4 sm:flex-row sm:items-start sm:justify-between"
                   >
-                    <div className="space-y-1 text-xs text-muted-ink">
+                    <div className="space-y-1 text-xs text-neutral-500">
                       <div className="flex items-center gap-2">
-                        <strong className="text-sm text-ink">{address.fullName}</strong>
+                        <strong className="text-sm font-bold text-foreground">
+                          {address.fullName}
+                        </strong>
                         {address.isDefault && (
-                          <span className="text-[10px] font-bold uppercase tracking-wide text-muted-ink">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-brand bg-brand-light px-2 py-0.5 rounded-full">
                             Default
                           </span>
                         )}
                       </div>
-                      <p>
+                      <p className="text-neutral-700 font-medium">
                         {address.line1}
                         {address.line2 ? `, ${address.line2}` : ''}
                       </p>
@@ -394,7 +417,7 @@ export const ProfilePage: React.FC = () => {
                       {!address.isDefault && (
                         <button
                           onClick={() => setDefaultAddress(address.id)}
-                          className="text-xs font-semibold text-muted-ink transition-colors duration-control hover:text-terracotta"
+                          className="text-xs font-bold text-neutral-500 hover:text-brand transition-colors cursor-pointer"
                         >
                           Set default
                         </button>
@@ -402,16 +425,16 @@ export const ProfilePage: React.FC = () => {
                       <button
                         onClick={() => openEditAddressForm(address)}
                         aria-label="Edit address"
-                        className="rounded-control border border-line p-2 text-muted-ink transition-colors duration-control hover:bg-surface hover:text-ink"
+                        className="rounded-full border border-border-light p-2 text-neutral-500 hover:bg-neutral-50 hover:text-foreground cursor-pointer transition-colors"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => deleteAddress(address.id)}
                         aria-label="Delete address"
-                        className="rounded-control border border-line p-2 text-muted-ink transition-colors duration-control hover:bg-danger-soft hover:text-danger"
+                        className="rounded-full border border-border-light p-2 text-neutral-500 hover:bg-red-50 hover:text-red-600 cursor-pointer transition-colors"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
@@ -423,3 +446,5 @@ export const ProfilePage: React.FC = () => {
     </main>
   )
 }
+
+export default ProfilePage

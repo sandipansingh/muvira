@@ -19,19 +19,22 @@ export const LoginPage: React.FC = () => {
 
   return (
     <main className="editorial-page flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md border-y border-line py-8 sm:py-10">
-        <div className="space-y-2 border-b border-line pb-6 text-center">
-          <Link to="/" className="text-3xl font-bold tracking-[-0.06em] text-ink">
+      <div className="w-full max-w-md rounded-3xl border border-border-light bg-neutral-50/60 p-8 sm:p-10 shadow-premium">
+        <div className="space-y-2 border-b border-border-light pb-6 text-center">
+          <Link
+            to="/"
+            className="font-display text-2xl font-bold tracking-wider uppercase text-foreground"
+          >
             Muvira
           </Link>
-          <h1 className="editorial-heading text-3xl">Welcome back</h1>
-          <p className="text-sm text-muted-ink">
-            Sign in to track orders and manage saved addresses.
+          <h1 className="font-display text-2xl font-bold text-foreground">Welcome back</h1>
+          <p className="text-xs text-neutral-500">
+            Sign in to track orders and manage saved delivery addresses.
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-5 pt-6">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-6">
           <div>
-            <label htmlFor="login-email" className="mb-2 block text-xs font-semibold text-ink">
+            <label htmlFor="login-email" className="mb-1.5 block text-xs font-bold text-foreground">
               Email address
             </label>
             <input
@@ -46,7 +49,10 @@ export const LoginPage: React.FC = () => {
             />
           </div>
           <div>
-            <label htmlFor="login-password" className="mb-2 block text-xs font-semibold text-ink">
+            <label
+              htmlFor="login-password"
+              className="mb-1.5 block text-xs font-bold text-foreground"
+            >
               Password
             </label>
             <input
@@ -60,16 +66,17 @@ export const LoginPage: React.FC = () => {
               className="editorial-input"
             />
           </div>
-          <button type="submit" disabled={loading} className="editorial-button w-full">
+          <button
+            type="submit"
+            disabled={loading}
+            className="editorial-button w-full py-3 text-sm font-bold mt-2"
+          >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-        <p className="mt-6 border-t border-line pt-5 text-center text-xs text-muted-ink">
-          Do not have an account?{' '}
-          <Link
-            to="/signup"
-            className="font-semibold text-terracotta transition-colors duration-control hover:text-ink"
-          >
+        <p className="mt-6 border-t border-border-light pt-5 text-center text-xs text-neutral-500">
+          Don&apos;t have an account?{' '}
+          <Link to="/signup" className="font-bold text-brand hover:underline transition-colors">
             Create account
           </Link>
         </p>
@@ -77,3 +84,5 @@ export const LoginPage: React.FC = () => {
     </main>
   )
 }
+
+export default LoginPage

@@ -12,10 +12,10 @@ interface CartItemRowProps {
 export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart()
   return (
-    <article className="flex items-center gap-4 border-b border-line pb-4">
+    <article className="flex items-center gap-4 border-b border-border-light pb-4">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-20 w-20 shrink-0 overflow-hidden bg-surface"
+        className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-neutral-100 border border-neutral-100"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
@@ -25,7 +25,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-xs text-muted-ink">
+          <div className="flex h-full items-center justify-center text-xs text-neutral-400">
             No image
           </div>
         )}
@@ -33,27 +33,27 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
       <div className="min-w-0 flex-1">
         <Link
           to={`/product/${item.productSlug}`}
-          className="block truncate font-serif text-sm font-bold text-ink transition-colors duration-control hover:text-terracotta"
+          className="block truncate font-display text-sm font-bold text-foreground transition-colors hover:text-brand"
         >
           {item.productName}
         </Link>
-        <p className="mt-1 text-xs font-semibold text-ink">{formatPrice(item.unitPrice)}</p>
-        <div className="mt-3 flex items-center border border-line">
+        <p className="mt-1 text-xs font-bold text-foreground">{formatPrice(item.unitPrice)}</p>
+        <div className="mt-2.5 inline-flex items-center border border-border-light rounded-full overflow-hidden bg-neutral-50/60">
           <button
             type="button"
             onClick={() => updateQuantity(item.productId, -1)}
-            className="px-2.5 py-1 text-xs font-bold text-ink transition-colors duration-control hover:bg-surface"
+            className="px-3 py-1 text-xs font-bold text-foreground transition-colors hover:bg-neutral-100 cursor-pointer"
             aria-label="Decrease quantity"
           >
             −
           </button>
-          <span className="border-x border-line px-3 py-1 text-xs font-bold text-ink">
+          <span className="border-x border-border-light px-3 py-1 text-xs font-bold text-foreground">
             {item.quantity}
           </span>
           <button
             type="button"
             onClick={() => updateQuantity(item.productId, 1)}
-            className="px-2.5 py-1 text-xs font-bold text-ink transition-colors duration-control hover:bg-surface"
+            className="px-3 py-1 text-xs font-bold text-foreground transition-colors hover:bg-neutral-100 cursor-pointer"
             aria-label="Increase quantity"
           >
             +
@@ -63,7 +63,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
       <button
         type="button"
         onClick={() => removeFromCart(item.productId)}
-        className="p-1.5 text-muted-ink transition-colors hover:text-danger"
+        className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-full hover:bg-red-50 cursor-pointer"
         aria-label={`Remove ${item.productName}`}
       >
         <Trash2 className="h-4 w-4" />
@@ -71,3 +71,5 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
     </article>
   )
 }
+
+export default CartItemRow

@@ -8,3 +8,5 @@ supabase/migrations
 client/dist
 server/dist
 .git
+design-reference
+dev-scripts

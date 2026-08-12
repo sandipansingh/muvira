@@ -1,65 +1,50 @@
 import React, { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ArrowDown } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { AccordionItem } from '../common/Accordion'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 const FAQ_ITEMS = [
   {
+    id: 'timber',
+    question: 'What types of wood do you use for your furniture?',
+    answer:
+      'We work exclusively with kiln-dried, seasoned solid timbers including North Indian Sheesham (Indian Rosewood), Teak, and White Oak. We never use particle board, MDF, or cheap paper veneers.',
+  },
+  {
+    id: 'customization',
+    question: 'Can I customize dimensions or wood stain finishes?',
+    answer:
+      'Yes! Many of our dining tables, beds, and storage units can be tailored to custom dimensions or finished in natural matte, walnut, or honey teak tones. Reach out to our design team with your requirements.',
+  },
+  {
     id: 'delivery',
-    question: 'Where do you deliver, and how long will it take?',
+    question: 'How does shipping and assembly work across India?',
     answer:
-      'Delivery availability and timing can vary by location and item. Contact us before ordering for the latest guidance for your address.',
-  },
-  {
-    id: 'tracking',
-    question: 'How can I track my order?',
-    answer:
-      'Order updates are shared as they become available. If you need help locating an order, contact us with your order details.',
-  },
-  {
-    id: 'returns',
-    question: 'What is your returns and exchanges process?',
-    answer:
-      'Returns and exchanges are reviewed case by case. Reach out with your order details and our team will guide you through the next steps.',
-  },
-  {
-    id: 'dimensions',
-    question: 'How do I check dimensions and sizing?',
-    answer:
-      'Product pages list the dimensions and details available for each piece. Contact us if you need help deciding whether an item will suit your space.',
-  },
-  {
-    id: 'care',
-    question: 'How should I care for my furniture?',
-    answer:
-      'Care guidance can differ by material and finish. Refer to the product details for your piece, or contact us for more specific advice.',
-  },
-  {
-    id: 'payments',
-    question: 'Which payment methods can I use?',
-    answer: 'The payment options available for your order are shown during checkout.',
-  },
-  {
-    id: 'assembly',
-    question: 'Do you provide installation or assembly?',
-    answer:
-      'Assembly requirements can vary by product and delivery location. Contact us before ordering to confirm what applies to your piece.',
+      'We offer complimentary insured doorstep delivery across major metro cities in India. For complex pieces like beds and large dining sets, our white-glove logistics partner includes free in-room assembly.',
   },
   {
     id: 'warranty',
-    question: 'Is there a warranty?',
+    question: 'What does your 15-year warranty cover?',
     answer:
-      'Warranty terms can vary by product. Contact us with the item you are considering and we will share the relevant details.',
+      'Our warranty covers all structural integrity, joint stability, and solid timber against manufacturing defects, termite infestation, and seasonal wood warping under normal indoor residential use.',
   },
   {
-    id: 'made-to-order',
-    question: 'Are any pieces made to order?',
+    id: 'maintenance',
+    question: 'How should I care for and maintain solid wood furniture?',
     answer:
-      'Lead times can vary by piece. Contact us before ordering for the latest information about the item you have in mind.',
+      'Simply dust with a soft, dry cotton cloth. Avoid harsh chemical sprays. For natural oil finishes, applying a light coat of natural beeswax once a year keeps the wood rich and moisture-resistant.',
+  },
+  {
+    id: 'returns',
+    question: 'What is your 30-day home trial and return policy?',
+    answer:
+      'We want you to love your pieces in your own home. If a standard catalog piece does not suit your space, notify us within 30 days of delivery for a smooth return or exchange.',
   },
 ]
 
 export const FaqSection: React.FC = () => {
-  const [openQuestionId, setOpenQuestionId] = useState<string | null>(null)
+  const [activeIndex, setActiveIndex] = useState<number | null>(0)
   const { settings } = useSiteSettings()
   const { contactInfo } = settings
   const contactHref = contactInfo.email
@@ -68,77 +53,101 @@ export const FaqSection: React.FC = () => {
       ? `tel:${contactInfo.phone.replace(/[^\d+]/g, '')}`
       : null
 
+  const toggleAccordion = (index: number) => {
+    setActiveIndex(activeIndex === index ? null : index)
+  }
+
   return (
-    <section id="faq" className="scroll-mt-space-12 bg-surface py-space-12 md:py-space-16">
-      <div className="editorial-container">
-        <div className="mb-space-8 grid gap-space-6 lg:grid-cols-12 lg:items-end">
-          <div className="lg:col-span-5">
-            <p className="editorial-label">FAQ</p>
-            <h2 className="editorial-heading mt-space-2 text-display-l-mobile lg:text-display-l-desktop">
-              Questions, answered plainly.
-            </h2>
+    <section id="faq" className="pt-gap-section pb-gap-major scroll-mt-24 layout-container">
+      {/* Header Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 md:mb-16 items-end">
+        <div className="lg:col-span-2 text-left">
+          <div className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3">
+            FAQ
           </div>
-          <div className="lg:col-span-7">
-            <p className="max-w-xl text-body text-muted">
-              Didn&apos;t see your question?{' '}
-              {contactHref ? (
-                <a href={contactHref} className="editorial-link">
-                  reach out to us
-                </a>
-              ) : (
-                'Please reach out to us for help.'
-              )}
-            </p>
-          </div>
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.1] max-w-2xl font-display">
+            Questions, Answered Plainly.
+          </h2>
+        </div>
+        <div className="text-left lg:pl-8 border-l-0 lg:border-l lg:border-border-light">
+          <h4 className="text-base font-bold text-foreground mb-1">
+            Didn&apos;t see your question?
+          </h4>
+          <p className="text-sm text-neutral-500 leading-relaxed font-normal">
+            Our workshop team is here to help &mdash; just{' '}
+            {contactHref ? (
+              <a
+                href={contactHref}
+                className="text-neutral-900 font-bold underline hover:text-brand transition-colors duration-200"
+              >
+                reach out
+              </a>
+            ) : (
+              <Link
+                to="/#contact"
+                className="text-neutral-900 font-bold underline hover:text-brand transition-colors duration-200"
+              >
+                reach out
+              </Link>
+            )}{' '}
+            and we&apos;ll reply shortly.
+          </p>
+        </div>
+      </div>
+
+      {/* Body Grid: Left Image + Right Accordions */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="hidden lg:block lg:col-span-5 relative w-full h-[520px]">
+          <img
+            src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1200&q=85"
+            alt="Artisan shaping timber at the workshop"
+            className="w-full h-full object-cover rounded-[32px] shadow-sm"
+          />
         </div>
 
-        <div className="grid gap-space-8 lg:grid-cols-12 lg:items-stretch">
-          <div className="aspect-[5/4] overflow-hidden rounded-image bg-paper lg:col-span-5 lg:aspect-auto">
-            <img
-              src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1200&q=85"
-              alt="Artisan shaping timber in a workshop"
-              className="h-full w-full object-cover"
-            />
-          </div>
-
-          <div className="border-t border-rule lg:col-span-7">
-            {FAQ_ITEMS.map((item) => {
-              const isOpen = openQuestionId === item.id
-              const answerId = `faq-answer-${item.id}`
-
-              return (
-                <div key={item.id} className="border-b border-rule">
-                  <button
-                    type="button"
-                    onClick={() => setOpenQuestionId(isOpen ? null : item.id)}
-                    aria-expanded={isOpen}
-                    aria-controls={answerId}
-                    className="flex min-h-11 w-full items-center justify-between gap-space-4 py-space-4 text-left text-body font-semibold text-ink"
-                  >
-                    {item.question}
-                    <ChevronDown
-                      className={`h-5 w-5 shrink-0 transition-transform duration-control motion-reduce:transition-none ${
-                        isOpen ? 'rotate-180' : ''
-                      }`}
-                      aria-hidden="true"
-                    />
-                  </button>
-                  <div
-                    id={answerId}
-                    className={`grid overflow-hidden transition-[grid-template-rows,opacity] duration-accordion motion-reduce:transition-none ${
-                      isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        <div className="col-span-1 lg:col-span-7 flex flex-col gap-4">
+          {FAQ_ITEMS.map((faq, index) => {
+            const isOpen = activeIndex === index
+            const trigger = (
+              <div className="w-full px-6 py-5 flex items-center justify-between text-left group">
+                <span className="text-sm md:text-base font-semibold text-neutral-800 tracking-tight transition-colors duration-200 group-hover:text-neutral-950">
+                  {faq.question}
+                </span>
+                <span
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 ml-4 ${
+                    isOpen
+                      ? 'bg-neutral-900 text-white'
+                      : 'bg-neutral-100 text-neutral-800 group-hover:bg-neutral-200'
+                  }`}
+                >
+                  <ArrowDown
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      isOpen ? 'rotate-180' : ''
                     }`}
-                  >
-                    <div className="overflow-hidden">
-                      <p className="pb-space-6 text-body text-muted">{item.answer}</p>
-                    </div>
-                  </div>
+                  />
+                </span>
+              </div>
+            )
+
+            return (
+              <AccordionItem
+                key={faq.id}
+                isOpen={isOpen}
+                onToggle={() => toggleAccordion(index)}
+                trigger={trigger}
+                duration={0.25}
+                className="bg-white border border-border-light rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all duration-300 overflow-hidden"
+              >
+                <div className="px-6 pb-6 text-sm text-neutral-500 leading-relaxed pt-2 border-t border-border-light/60">
+                  {faq.answer}
                 </div>
-              )
-            })}
-          </div>
+              </AccordionItem>
+            )
+          })}
         </div>
       </div>
     </section>
   )
 }
+
+export default FaqSection

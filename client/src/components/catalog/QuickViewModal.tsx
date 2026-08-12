@@ -31,15 +31,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-3">
-          <div className="aspect-square overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/90 flex items-center justify-center p-4">
+          <div className="aspect-square overflow-hidden rounded-2xl border border-border-light bg-neutral-100 flex items-center justify-center">
             {selectedImage ? (
-              <img
-                src={selectedImage}
-                alt={product.name}
-                className="h-full w-full object-cover rounded-xl"
-              />
+              <img src={selectedImage} alt={product.name} className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-slate-400 font-medium">
+              <div className="flex h-full items-center justify-center text-xs text-neutral-400 font-medium">
                 Image unavailable
               </div>
             )}
@@ -51,10 +47,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setSelectedImage(image)}
-                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border transition-all ${
+                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border transition-all cursor-pointer ${
                     selectedImage === image
-                      ? 'border-slate-900 ring-2 ring-slate-900/10'
-                      : 'border-slate-200 opacity-60 hover:opacity-100'
+                      ? 'border-neutral-900 ring-2 ring-neutral-900/10'
+                      : 'border-border-light opacity-60 hover:opacity-100'
                   }`}
                   aria-label={`View image ${index + 1}`}
                 >
@@ -72,7 +68,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
         <div className="flex flex-col justify-between gap-6">
           <div>
             <div className="flex items-start justify-between gap-4">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
                 {categoryName}
               </span>
               <StockBadge
@@ -80,53 +76,51 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 isAvailable={'inStock' in product ? product.inStock : true}
               />
             </div>
-            <h2 className="font-serif text-2xl font-extrabold text-slate-900 mt-2">
-              {product.name}
-            </h2>
+            <h2 className="font-display text-2xl font-bold text-foreground mt-2">{product.name}</h2>
             <div className="mt-3">
               {product.rating !== null && product.rating !== undefined ? (
                 <RatingStars rating={product.rating} count={product.reviewCount} size="md" />
               ) : (
-                <span className="text-xs text-slate-400">No reviews yet</span>
+                <span className="text-xs text-neutral-400">No reviews yet</span>
               )}
             </div>
-            <div className="mt-4 flex items-baseline gap-3 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4">
-              <span className="text-2xl font-extrabold text-slate-900">
+            <div className="mt-4 flex items-baseline gap-3">
+              <span className="text-2xl font-bold text-foreground">
                 {formatPrice(product.price)}
               </span>
               {product.salePrice && product.salePrice > product.price && (
-                <span className="text-sm text-slate-400 line-through">
+                <span className="text-sm text-neutral-400 line-through">
                   {formatPrice(product.salePrice)}
                 </span>
               )}
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-slate-600 line-clamp-3">
+            <p className="mt-4 text-sm leading-relaxed text-neutral-600 line-clamp-3">
               {'description' in product
                 ? product.description
                 : product.shortDescription || 'Description unavailable.'}
             </p>
           </div>
 
-          <div className="border-t border-slate-200/80 pt-4 space-y-4">
+          <div className="border-t border-border-light pt-4 space-y-4">
             <div className="flex items-center gap-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
                 Quantity
               </span>
-              <div className="flex items-center rounded-full border border-slate-200 bg-slate-100/80 p-1">
+              <div className="flex items-center rounded-full border border-border-light bg-neutral-50/60 p-1">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-slate-700 hover:bg-white transition-all font-bold"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-neutral-100 transition-all font-bold cursor-pointer"
                 >
                   −
                 </button>
-                <span className="min-w-8 text-center text-sm font-bold text-slate-900">
+                <span className="min-w-8 text-center text-sm font-bold text-foreground">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-slate-700 hover:bg-white transition-all font-bold"
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-neutral-100 transition-all font-bold cursor-pointer"
                 >
                   +
                 </button>
@@ -136,16 +130,16 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7e3d1c] px-5 py-3 text-xs font-bold text-white shadow-md shadow-[#7e3d1c]/20 transition-all hover:bg-[#693116] active:scale-95"
+                className="editorial-button text-xs py-3 font-bold"
               >
-                <ShoppingBag className="h-4 w-4" /> Add to cart
+                <ShoppingBag className="h-4 w-4" /> Add to Cart
               </button>
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-800 shadow-xs transition-all hover:bg-slate-50"
+                className="editorial-button-secondary text-xs py-3 font-bold text-center justify-center"
               >
-                Full details <ArrowRight className="h-4 w-4" />
+                Full Details <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
@@ -154,3 +148,5 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
     </Modal>
   )
 }
+
+export default QuickViewModal

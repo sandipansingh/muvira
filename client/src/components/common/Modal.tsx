@@ -36,34 +36,45 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
     >
       <button
         type="button"
-        className="fixed inset-0 bg-ink/60"
+        className="fixed inset-0 bg-black/50 backdrop-blur-xs cursor-pointer"
         onClick={onClose}
         aria-label="Close dialog"
       />
       <div
-        className={`relative z-10 flex max-h-[90vh] w-full ${widthClass} flex-col overflow-hidden border border-line bg-paper`}
+        className={`relative z-10 flex max-h-[90vh] w-full ${widthClass} flex-col overflow-hidden rounded-[2rem] border border-border-light bg-white shadow-2xl`}
       >
-        {title && (
-          <div className="flex items-center justify-between border-b border-line px-6 py-4">
-            <h2 className="font-serif text-xl font-bold text-ink">{title}</h2>
+        {title ? (
+          <div className="flex items-center justify-between border-b border-border-light px-6 py-4">
+            <h2 className="font-display text-lg font-bold text-foreground">{title}</h2>
             <button
               type="button"
               onClick={onClose}
-              className="p-1 text-muted-ink transition-colors hover:text-ink"
+              className="p-1.5 rounded-full border border-border-light text-neutral-500 hover:bg-neutral-50 hover:text-foreground transition-colors cursor-pointer"
               aria-label="Close dialog"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 z-20 p-2 rounded-full border border-border-light bg-white/90 backdrop-blur-xs text-neutral-500 hover:bg-neutral-50 hover:text-foreground transition-colors cursor-pointer shadow-xs"
+            aria-label="Close dialog"
+          >
+            <X className="h-4 w-4" />
+          </button>
         )}
-        <div className="overflow-y-auto p-6">{children}</div>
+        <div className="overflow-y-auto p-6 dropdown-scrollbar">{children}</div>
       </div>
     </div>
   )
 }
+
+export default Modal

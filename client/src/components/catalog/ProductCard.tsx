@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { Eye, Heart, ShoppingBag } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import type { ProductDetail, ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
+import { FavoriteButton } from '../common/FavoriteButton'
 import { QuickViewModal } from './QuickViewModal'
 
 interface ProductCardProps {
@@ -19,86 +20,99 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const categoryName = isDetail ? product.category.name : product.categoryName
   const hasDiscount = Boolean(product.salePrice && product.salePrice > product.price)
 
+  const handleWishlistToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsWishlisted((prev) => !prev)
+  }
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addToCart(product)
+  }
+
   return (
     <>
-      <article className="group flex h-full flex-col overflow-hidden rounded-image border border-rule bg-paper">
-        <div className="relative aspect-square bg-surface">
-          <Link to={`/product/${product.slug}`} className="block h-full w-full">
+      <div className="group relative bg-white rounded-[2rem] shadow-none flex flex-col h-full justify-between cursor-pointer border border-neutral-100 overflow-hidden transition-all duration-300">
+        <div>
+          {/* Flush Image Container with curvy bottom border radius */}
+          <div className="relative w-full aspect-[4/3] bg-neutral-100 z-0 rounded-b-[1.5rem] overflow-hidden">
             {primaryImage ? (
               <img
                 src={primaryImage}
                 alt={product.name}
-                className="h-full w-full object-cover transition-transform duration-control group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
               />
             ) : (
-              <div className="flex h-full items-center justify-center p-4 text-center text-ui text-muted">
+              <div className="flex h-full items-center justify-center p-4 text-center text-xs text-neutral-400">
                 Image unavailable
               </div>
             )}
-          </Link>
 
-          {product.discountPercent > 0 && (
-            <span className="absolute left-3 top-3 border border-rule bg-paper px-2 py-1 text-eyebrow-mobile font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-ink md:text-eyebrow-desktop">
-              {product.discountPercent}% off
+            {/* Discount Badge */}
+            {product.discountPercent > 0 && (
+              <div className="absolute top-3.5 left-3.5 z-20 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider select-none shadow-xs">
+                {product.discountPercent}% OFF
+              </div>
+            )}
+
+            {/* Top Right Wishlist Button */}
+            <div className="absolute top-3.5 right-3.5 z-20">
+              <FavoriteButton
+                isFavorite={isWishlisted}
+                onToggle={handleWishlistToggle}
+                variant="solid"
+                size="sm"
+                aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+              />
+            </div>
+          </div>
+
+          {/* Text Content Block */}
+          <div className="px-4 sm:px-5 pt-3.5 sm:pt-4 pb-1">
+            <span className="block text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1">
+              {categoryName}
             </span>
-          )}
+
+            <h3 className="font-bold text-sm sm:text-base text-foreground leading-snug line-clamp-1 group-hover:text-brand transition-colors duration-200">
+              {product.name}
+            </h3>
+          </div>
+        </div>
+
+        {/* Pricing & Quick Add Row */}
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-2 flex items-center justify-between mt-auto">
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-bold text-sm sm:text-base text-foreground">
+              {formatPrice(product.price)}
+            </span>
+            {hasDiscount && (
+              <span className="text-xs text-neutral-400 line-through">
+                {formatPrice(product.salePrice!)}
+              </span>
+            )}
+          </div>
 
           <button
             type="button"
-            onClick={() => setIsWishlisted((wishlisted) => !wishlisted)}
-            className="absolute right-3 top-3 flex h-12 w-12 items-center justify-center rounded-control border border-rule bg-paper text-ink transition-colors duration-control hover:border-ink"
-            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-            aria-pressed={isWishlisted}
+            onClick={handleAddToCart}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-neutral-900 hover:bg-brand text-white flex items-center justify-center transition-all duration-200 shadow-xs active:scale-95 cursor-pointer"
+            aria-label={`Add ${product.name} to cart`}
+            title="Add to cart"
           >
-            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
+            <Plus className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col p-4">
-          <span className="text-eyebrow-mobile font-semibold uppercase tracking-[var(--tracking-eyebrow)] text-muted md:text-eyebrow-desktop">
-            {categoryName}
-          </span>
-
-          <Link to={`/product/${product.slug}`} className="mt-2 block">
-            <h3 className="line-clamp-2 text-body font-semibold text-ink transition-colors duration-control group-hover:text-terracotta">
-              {product.name}
-            </h3>
-          </Link>
-
-          <div className="mt-auto flex flex-col items-start gap-3 border-t border-rule pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0 text-ui font-semibold text-ink">
-              <span>{formatPrice(product.price)}</span>
-              {hasDiscount && (
-                <span className="ml-2 text-muted line-through">
-                  {formatPrice(product.salePrice!)}
-                </span>
-              )}
-            </div>
-
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsQuickViewOpen(true)}
-                className="flex h-12 w-12 items-center justify-center rounded-control text-muted transition-colors duration-control hover:text-ink"
-                aria-label={`Quick view ${product.name}`}
-                title="Quick view"
-              >
-                <Eye className="h-4 w-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => addToCart(product)}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-control bg-terracotta px-3 text-ui font-semibold text-paper transition-colors duration-control hover:bg-terracotta-hover"
-                aria-label={`Add ${product.name} to cart`}
-              >
-                <ShoppingBag className="h-4 w-4" />
-                <span>Add</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </article>
+        {/* Full Card Link Overlay */}
+        <Link
+          to={`/product/${product.slug}`}
+          className="absolute inset-0 z-10 cursor-pointer"
+          aria-label={`View ${product.name}`}
+        />
+      </div>
 
       <QuickViewModal
         product={product}
@@ -108,3 +122,5 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     </>
   )
 }
+
+export default ProductCard

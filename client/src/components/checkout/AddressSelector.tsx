@@ -65,51 +65,55 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   }
 
   return (
-    <section className="border-b border-line pb-6">
+    <section className="border-b border-border-light pb-6">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-serif text-2xl font-bold text-ink">Delivery address</h2>
+        <h2 className="font-display text-xl font-bold text-foreground">Delivery Address</h2>
         <button
           type="button"
           onClick={() => setShowAddForm((open) => !open)}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-terracotta transition-colors duration-control hover:text-ink"
+          className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:underline cursor-pointer"
         >
           <Plus className="h-3.5 w-3.5" /> Add new
         </button>
       </div>
       <div className="mt-5 space-y-3">
         {addresses.length === 0 && (
-          <p className="border-y border-line py-4 text-sm text-muted-ink">
+          <p className="border-y border-border-light py-4 text-xs sm:text-sm text-neutral-500">
             No saved addresses yet. Add one to continue.
           </p>
         )}
         {addresses.map((address) => (
           <label
             key={address.id}
-            className={`flex cursor-pointer items-start gap-3 border-b border-line py-4 pl-4 transition-colors duration-control ${selectedAddressId === address.id ? 'border-l-2 border-l-ink bg-surface' : 'hover:bg-surface'}`}
+            className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-all ${
+              selectedAddressId === address.id
+                ? 'border-neutral-900 bg-neutral-50/80 shadow-xs'
+                : 'border-border-light hover:bg-neutral-50/50'
+            }`}
           >
             <input
               type="radio"
               name="delivery-address"
               checked={selectedAddressId === address.id}
               onChange={() => onSelectAddressId(address.id)}
-              className="mt-1 accent-ink"
+              className="mt-1 accent-neutral-900"
             />
-            <div className="flex-1 text-xs leading-5 text-muted-ink">
+            <div className="flex-1 text-xs leading-5 text-neutral-500">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-ink">
+                <span className="text-sm font-bold text-foreground">
                   {address.fullName} — {address.label}
                 </span>
                 {address.isDefault && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-ink">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand bg-brand-light px-2 py-0.5 rounded-full">
                     Default
                   </span>
                 )}
               </div>
-              <p>
+              <p className="text-neutral-700 font-medium mt-0.5">
                 {address.streetAddress}
                 {address.apartment ? `, ${address.apartment}` : ''}
               </p>
-              <p>
+              <p className="text-neutral-500">
                 {address.city}, {address.state} {address.pincode} · {address.phone}
               </p>
             </div>
@@ -118,8 +122,11 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleFormSubmit} className="mt-5 space-y-3 border-t border-line pt-5">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-ink">
+        <form
+          onSubmit={handleFormSubmit}
+          className="mt-5 space-y-3 rounded-2xl border border-border-light bg-neutral-50/50 p-5"
+        >
+          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
             Enter shipping details
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -179,7 +186,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               name="state"
               value={state}
               onChange={(event) => setState(event.target.value)}
-              className="editorial-input"
+              className="editorial-input cursor-pointer"
             >
               {INDIAN_STATES.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -199,13 +206,13 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="editorial-button">
+            <button type="submit" className="editorial-button text-xs py-2.5 font-bold">
               Save address
             </button>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="editorial-button-secondary"
+              className="editorial-button-secondary text-xs py-2.5 font-bold"
             >
               Cancel
             </button>
@@ -215,3 +222,5 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
     </section>
   )
 }
+
+export default AddressSelector

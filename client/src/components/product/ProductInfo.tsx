@@ -16,51 +16,59 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
   const hasDiscount = Boolean(product.salePrice && product.salePrice > product.price)
 
   return (
-    <div className="space-y-space-6">
-      <div className="flex items-start justify-between gap-space-4">
-        <span className="editorial-label">{product.category.name}</span>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4">
+        <span className="text-xs font-bold uppercase tracking-widest text-neutral-400">
+          {product.category.name}
+        </span>
         <StockBadge quantity={product.stock} isAvailable={product.inStock} />
       </div>
 
-      <h1 className="editorial-heading text-display-l-mobile sm:text-display-l-desktop">
+      <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight leading-[1.15] font-display">
         {product.name}
       </h1>
 
-      <div className="flex flex-wrap items-baseline gap-space-3">
-        <span className="text-heading-m-mobile font-semibold text-terracotta sm:text-heading-m-desktop">
+      <div className="flex flex-wrap items-baseline gap-3">
+        <span className="text-2xl sm:text-3xl font-bold text-foreground">
           {formatPrice(product.price)}
         </span>
         {hasDiscount && (
-          <span className="text-body text-muted line-through">
+          <span className="text-base text-neutral-400 line-through">
             {formatPrice(product.salePrice!)}
           </span>
         )}
         {product.discountPercent > 0 && (
-          <span className="text-ui font-semibold text-muted">{product.discountPercent}% off</span>
+          <span className="text-xs font-bold text-brand bg-brand-light px-2.5 py-0.5 rounded-full">
+            {product.discountPercent}% OFF
+          </span>
         )}
       </div>
 
-      <p className="max-w-xl text-body text-ink">{product.description}</p>
+      <p className="max-w-xl text-sm sm:text-base text-neutral-600 font-normal leading-relaxed">
+        {product.description}
+      </p>
 
-      <div className="space-y-space-6 border-t border-rule pt-space-6">
-        <div className="flex items-center gap-space-4">
-          <span className="text-ui font-semibold text-ink">Quantity</span>
-          <div className="flex items-center border border-rule">
+      <div className="space-y-6 border-t border-border-light pt-6">
+        <div className="flex items-center gap-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+            Quantity
+          </span>
+          <div className="flex items-center border border-border-light rounded-full overflow-hidden bg-neutral-50/60">
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="flex min-h-11 min-w-11 items-center justify-center text-body font-semibold text-ink transition-colors duration-control hover:bg-surface"
+              className="flex h-10 w-10 items-center justify-center text-sm font-bold text-foreground transition-colors hover:bg-neutral-100 cursor-pointer"
               aria-label="Decrease quantity"
             >
               −
             </button>
-            <span className="flex min-h-11 min-w-11 items-center justify-center border-x border-rule text-ui font-semibold text-ink">
+            <span className="flex h-10 w-10 items-center justify-center text-xs font-bold text-foreground">
               {quantity}
             </span>
             <button
               type="button"
               onClick={() => setQuantity(quantity + 1)}
-              className="flex min-h-11 min-w-11 items-center justify-center text-body font-semibold text-ink transition-colors duration-control hover:bg-surface"
+              className="flex h-10 w-10 items-center justify-center text-sm font-bold text-foreground transition-colors hover:bg-neutral-100 cursor-pointer"
               aria-label="Increase quantity"
             >
               +
@@ -68,21 +76,21 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
           </div>
         </div>
 
-        <div className="flex gap-space-3">
+        <div className="flex gap-3">
           <button
             type="button"
             onClick={() => addToCart(product, quantity)}
-            className="editorial-button min-h-11 flex-1"
+            className="editorial-button min-h-12 flex-1 rounded-full text-sm font-bold"
           >
             <ShoppingBag className="h-4 w-4" />
-            <span>Add to cart</span>
+            <span>Add to Cart</span>
           </button>
 
           <button
             type="button"
-            onClick={() => setIsWishlisted((wishlisted) => !wishlisted)}
-            className={`flex min-h-11 min-w-11 items-center justify-center rounded-control border border-rule bg-paper transition-colors duration-control hover:border-ink ${
-              isWishlisted ? 'text-ink' : 'text-muted'
+            onClick={() => setIsWishlisted((prev) => !prev)}
+            className={`flex h-12 w-12 items-center justify-center rounded-full border border-border-light bg-white transition-all hover:bg-neutral-50 cursor-pointer ${
+              isWishlisted ? 'text-red-500' : 'text-neutral-600'
             }`}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
             aria-pressed={isWishlisted}
@@ -92,20 +100,22 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         </div>
       </div>
 
-      <ul className="grid border-y border-rule sm:grid-cols-3">
-        <li className="flex items-center gap-space-2 border-b border-rule py-space-3 sm:border-b-0 sm:border-r sm:pr-space-4">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-ink" aria-hidden="true" />
-          <span className="text-ui text-ink">15-year warranty</span>
+      <ul className="grid border-y border-border-light sm:grid-cols-3 py-1">
+        <li className="flex items-center gap-2.5 border-b border-border-light py-3 sm:border-b-0 sm:border-r sm:pr-4">
+          <ShieldCheck className="h-4 w-4 shrink-0 text-foreground" aria-hidden="true" />
+          <span className="text-xs font-semibold text-neutral-700">15-year warranty</span>
         </li>
-        <li className="flex items-center gap-space-2 border-b border-rule py-space-3 sm:border-b-0 sm:px-space-4 sm:border-r">
-          <Truck className="h-4 w-4 shrink-0 text-ink" aria-hidden="true" />
-          <span className="text-ui text-ink">Free door delivery</span>
+        <li className="flex items-center gap-2.5 border-b border-border-light py-3 sm:border-b-0 sm:px-4 sm:border-r">
+          <Truck className="h-4 w-4 shrink-0 text-foreground" aria-hidden="true" />
+          <span className="text-xs font-semibold text-neutral-700">Free door delivery</span>
         </li>
-        <li className="flex items-center gap-space-2 py-space-3 sm:pl-space-4">
-          <RotateCcw className="h-4 w-4 shrink-0 text-ink" aria-hidden="true" />
-          <span className="text-ui text-ink">30-day easy returns</span>
+        <li className="flex items-center gap-2.5 py-3 sm:pl-4">
+          <RotateCcw className="h-4 w-4 shrink-0 text-foreground" aria-hidden="true" />
+          <span className="text-xs font-semibold text-neutral-700">30-day returns</span>
         </li>
       </ul>
     </div>
   )
 }
+
+export default ProductInfo
