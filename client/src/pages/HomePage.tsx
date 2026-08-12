@@ -11,8 +11,8 @@ export const HomePage: React.FC = () => {
   return (
     <main className="editorial-page">
       <HeroSlider />
-      <TrustBadges />
       <CategoryGrid />
+      <TrustBadges />
       <BestSellers />
       <PromoGrid />
       <CraftsmanshipStory />

@@ -11,11 +11,12 @@ export const CategoryGrid: React.FC = () => {
 
   useEffect(() => {
     let active = true
+
     const loadCategories = async () => {
       try {
         const response = await categoryService.getCategories()
         if (!response.success) throw new Error(response.error.message)
-        if (active) setCategories(response.data.sort((a, b) => a.sortOrder - b.sortOrder))
+        if (active) setCategories([...response.data].sort((a, b) => a.sortOrder - b.sortOrder))
       } catch (reason) {
         if (active)
           setError(reason instanceof Error ? reason.message : 'Unable to load categories.')
@@ -23,79 +24,72 @@ export const CategoryGrid: React.FC = () => {
         if (active) setLoading(false)
       }
     }
+
     void loadCategories()
+
     return () => {
       active = false
     }
   }, [])
 
+  const visibleCategories = categories.slice(0, 4)
+
   return (
-    <section className="bg-white py-12 sm:py-16">
+    <section className="py-space-12 md:py-space-16">
       <div className="editorial-container">
-        {/* Section Header with Right-Aligned Link */}
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <div>
-            <h2 className="font-serif text-3xl font-bold text-slate-900 sm:text-4xl tracking-tight">
-              Shop by Categories
-            </h2>
-            <p className="mt-1 text-sm text-slate-500 font-medium">
-              Explore curated collections for every corner of your home
-            </p>
-          </div>
-          <Link
-            to="/shop"
-            className="hidden items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-[#7e3d1c] sm:inline-flex transition-colors"
-          >
-            <span>View All Categories</span>
-            <ArrowRight className="h-4 w-4" />
+        <div className="mb-space-8 flex items-end justify-between gap-space-4">
+          <h2 className="editorial-heading text-heading-m-mobile lg:text-heading-m-desktop">
+            Shop by category
+          </h2>
+          <Link to="/shop" className="editorial-link inline-flex items-center gap-space-2 text-ui">
+            View all
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
 
         {loading && (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="h-56 animate-pulse rounded-2xl bg-slate-100" />
+          <div className="flex gap-space-4 overflow-hidden lg:grid lg:grid-cols-4" aria-busy="true">
+            {[1, 2, 3, 4].map((item) => (
+              <div
+                key={item}
+                className="aspect-[4/3] basis-4/5 shrink-0 animate-pulse bg-surface lg:basis-auto"
+              />
             ))}
           </div>
         )}
 
-        {!loading && error && (
-          <p className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
-            {error}
-          </p>
-        )}
+        {!loading && error && <p className="text-body text-muted">{error}</p>}
 
-        {!loading && !error && categories.length === 0 && (
-          <p className="rounded-2xl border border-slate-200 bg-slate-50 p-6 text-sm text-slate-500">
+        {!loading && !error && visibleCategories.length === 0 && (
+          <p className="text-body text-muted">
             Collections are being updated. Please check back soon.
           </p>
         )}
 
-        {!loading && !error && categories.length > 0 && (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {categories.map((category) => (
+        {!loading && !error && visibleCategories.length > 0 && (
+          <div className="no-scrollbar flex snap-x snap-mandatory gap-space-4 overflow-x-auto pb-space-2 lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+            {visibleCategories.map((category) => (
               <Link
                 key={category.id}
                 to={`/shop?category=${category.slug}`}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 transition-all duration-300 hover:border-slate-300 hover:bg-white hover:shadow-xl hover:-translate-y-1"
+                className="group basis-4/5 shrink-0 snap-start lg:basis-auto"
               >
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-white">
+                <div className="aspect-[4/3] overflow-hidden rounded-image bg-surface">
                   <img
                     src={category.imageUrl}
                     alt={category.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="h-full w-full object-cover"
                   />
                 </div>
-                <div className="mt-3 flex items-center justify-between px-1">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#7e3d1c] transition-colors">
-                      {category.name}
-                    </h3>
-                    <span className="text-[11px] font-semibold text-slate-500">Shop Now</span>
-                  </div>
-                  <div className="rounded-full bg-slate-200/60 p-1.5 text-slate-700 transition-all group-hover:bg-[#7e3d1c] group-hover:text-white">
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </div>
+                <div className="mt-space-3">
+                  <h3 className="text-body font-semibold text-ink transition-colors duration-control group-hover:text-terracotta">
+                    {category.name}
+                  </h3>
+                  {category.itemCount !== undefined && (
+                    <p className="mt-space-1 text-ui text-muted">
+                      {category.itemCount} {category.itemCount === 1 ? 'product' : 'products'}
+                    </p>
+                  )}
                 </div>
               </Link>
             ))}
