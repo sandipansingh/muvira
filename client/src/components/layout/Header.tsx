@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         scrolled ? 'border-b border-neutral-200/80 shadow-xs' : 'border-b border-neutral-100/60'
       }`}
     >
-      <div className="relative layout-container py-2 sm:py-2.5 flex items-center justify-between gap-4">
+      <div className="relative layout-container py-1.5 sm:py-2 flex items-center justify-between gap-4">
         {/* Left: Hamburger Menu Button (Functional on Desktop & Mobile) */}
         <div className="flex items-center gap-2">
           <button
@@ -62,11 +62,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           </button>
         </div>
 
-        {/* Center: Brand Logo (Centered in exact middle of navbar) */}
+        {/* Center: Brand Logo (Centered in exact middle of navbar, First Word Caps) */}
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
           <Link to="/" className="flex items-center select-none group">
-            <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground lowercase transition-colors group-hover:text-neutral-700">
-              muvira
+            <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground transition-colors group-hover:text-neutral-700">
+              Muvira
             </span>
           </Link>
         </div>
