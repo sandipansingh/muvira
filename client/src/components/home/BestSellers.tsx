@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { productService } from '../../lib/services/product.service'
 import type { ProductListItem } from '../../lib/types/product'
-import { SectionHeader } from '../common/SectionHeader'
-import { SeeAllLink } from '../common/SeeAllLink'
 import { SegmentedControl } from '../common/SegmentedControl'
 import { ProductCard } from '../catalog/ProductCard'
 
@@ -17,7 +16,11 @@ export const BestSellers: React.FC = () => {
     let active = true
     const loadBestSellers = async () => {
       try {
-        const response = await productService.getProducts({ page: 1, limit: 8, sort: 'popularity' })
+        const response = await productService.getProducts({
+          page: 1,
+          limit: 8,
+          sort: 'popularity',
+        })
         if (!response.success) throw new Error(response.error.message)
         if (active) setProducts(response.data)
       } catch (reason) {
@@ -37,34 +40,46 @@ export const BestSellers: React.FC = () => {
       .map((product) => product.categoryName)
       .filter((name): name is string => Boolean(name))
     const unique = ['All', ...Array.from(new Set(categories))]
-    return unique.slice(0, 4).map((c) => ({ label: c, value: c }))
+    return unique.slice(0, 5).map((c) => ({ label: c, value: c }))
   }, [products])
 
   const filteredProducts = products.filter(
     (product) => selectedFilter === 'All' || product.categoryName === selectedFilter
   )
 
-  const rightSlot = (
-    <div className="flex flex-wrap items-center justify-between sm:justify-start gap-3 sm:gap-6 w-full sm:w-auto">
-      {filterOptions.length > 1 && (
-        <SegmentedControl
-          options={filterOptions}
-          value={selectedFilter}
-          onChange={(v) => setSelectedFilter(v)}
-          layoutId="muvira-featured-filter"
-        />
-      )}
-      <SeeAllLink href="/shop" label="See All" />
-    </div>
-  )
-
   return (
-    <section id="featured-pieces" className="py-gap-section layout-container overflow-hidden">
-      <SectionHeader
-        title="Explore Featured Pieces"
-        subtitle="Heirloom solid wood furniture handcrafted for everyday living"
-        rightSlot={rightSlot}
-      />
+    <section id="featured-pieces" className="py-8 sm:py-12 layout-container overflow-hidden">
+      {/* Section Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+        <div>
+          <span className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1.5">
+            Featured
+          </span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-neutral-900 font-display">
+            Our Best Sellers
+          </h2>
+        </div>
+
+        {/* Right Controls: Category Pills & View All */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {filterOptions.length > 1 && (
+            <SegmentedControl
+              options={filterOptions}
+              value={selectedFilter}
+              onChange={(v) => setSelectedFilter(v)}
+              layoutId="muvira-featured-filter"
+              variant="pill"
+              size="sm"
+            />
+          )}
+          <Link
+            to="/shop"
+            className="rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 px-4 py-1.5 text-xs font-semibold text-neutral-800 transition-all shadow-xs shrink-0"
+          >
+            View all
+          </Link>
+        </div>
+      </div>
 
       {loading && (
         <div
