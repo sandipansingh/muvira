@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             <img
               src="/logo.png"
               alt="Muvira"
-              className="h-6 sm:h-7 md:h-8 w-auto object-contain transition-transform group-hover:scale-105"
+              className="h-8 sm:h-9 md:h-10.5 w-auto object-contain transition-transform group-hover:scale-105"
             />
             <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground transition-colors group-hover:text-neutral-700">
               Muvira
