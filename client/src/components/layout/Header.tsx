@@ -64,7 +64,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
         {/* Center: Brand Logo (Centered in exact middle of navbar, First Word Caps) */}
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
-          <Link to="/" className="flex items-center select-none group">
+          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 select-none group">
+            <img
+              src="/logo.png"
+              alt="Muvira"
+              className="h-6 sm:h-7 md:h-8 w-auto object-contain transition-transform group-hover:scale-105"
+            />
             <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground transition-colors group-hover:text-neutral-700">
               Muvira
             </span>

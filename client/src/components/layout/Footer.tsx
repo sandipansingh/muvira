@@ -151,7 +151,12 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pt-16 mb-12">
           {/* Brand Info */}
           <div className="lg:col-span-4 flex flex-col gap-4">
-            <Link to="/" className="flex items-center gap-2 group w-max select-none">
+            <Link to="/" className="flex items-center gap-2.5 group w-max select-none">
+              <img
+                src="/logo.png"
+                alt="Muvira"
+                className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
+              />
               <span className="font-display text-lg lg:text-xl font-bold text-neutral-900 tracking-[0.16em] uppercase leading-none">
                 Muvira
               </span>

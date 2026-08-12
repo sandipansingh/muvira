@@ -1,5 +1,5 @@
 import React from 'react'
-import { ChevronRight, User, X } from 'lucide-react'
+import { ChevronRight, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
@@ -43,9 +43,10 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <Link
               to="/"
               onClick={onClose}
-              className="font-display text-base font-bold tracking-wider uppercase text-foreground"
+              className="flex items-center gap-2 font-display text-base font-bold tracking-wider uppercase text-foreground"
             >
-              Muvira
+              <img src="/logo.png" alt="Muvira" className="h-6 w-auto object-contain" />
+              <span>Muvira</span>
             </Link>
             <button
               type="button"
@@ -98,8 +99,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           </nav>
         </div>
 
-        <div className="border-t border-border-light bg-neutral-50/70 p-6">
-          {isAuthenticated ? (
+        {isAuthenticated && (
+          <div className="border-t border-border-light bg-neutral-50/70 p-6">
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-bold text-foreground">{user?.fullName}</p>
@@ -125,25 +126,8 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 </button>
               </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                to="/login"
-                onClick={onClose}
-                className="editorial-button py-2.5 text-xs text-center justify-center font-bold"
-              >
-                <User className="h-3.5 w-3.5" /> Sign In
-              </Link>
-              <Link
-                to="/signup"
-                onClick={onClose}
-                className="editorial-button-secondary py-2.5 text-xs text-center justify-center font-bold"
-              >
-                Sign Up
-              </Link>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </aside>
     </div>
   )

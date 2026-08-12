@@ -23,9 +23,14 @@ export const LoginPage: React.FC = () => {
         <div className="space-y-2 border-b border-border-light pb-6 text-center">
           <Link
             to="/"
-            className="font-display text-2xl font-bold tracking-wider uppercase text-foreground"
+            className="inline-flex items-center gap-2 font-display text-2xl font-bold tracking-wider uppercase text-foreground group justify-center"
           >
-            Muvira
+            <img
+              src="/logo.png"
+              alt="Muvira"
+              className="h-7 w-auto object-contain transition-transform group-hover:scale-105"
+            />
+            <span>Muvira</span>
           </Link>
           <h1 className="font-display text-2xl font-bold text-foreground">Welcome back</h1>
           <p className="text-xs text-neutral-500">
