@@ -230,18 +230,18 @@ export const HeroSlider: React.FC = () => {
       </div>
 
       {/* Main Curved Hero Banner (Matches off.vstore layout reference) */}
-      <div className="relative w-full min-h-[500px] sm:min-h-[560px] lg:h-[75vh] max-h-[740px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-[#E2DCD4] shadow-premium flex flex-col justify-between p-6 sm:p-10 lg:p-14">
+      <div className="relative w-full min-h-[440px] sm:min-h-[480px] md:min-h-[520px] lg:min-h-[560px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-[#E5DFD6] shadow-premium flex flex-col justify-between p-6 sm:p-10 lg:p-12">
         {/* Background Watermark Typography */}
-        <div className="absolute left-6 sm:left-12 bottom-6 sm:bottom-8 z-0 pointer-events-none select-none text-white/40 sm:text-white/45 font-display font-black text-5xl sm:text-8xl lg:text-[130px] tracking-[0.2em] uppercase leading-none">
+        <div className="absolute left-6 sm:left-10 bottom-4 sm:bottom-6 z-0 pointer-events-none select-none text-white/30 sm:text-white/35 font-display font-black text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.2em] uppercase leading-none">
           LUXURIOUS
         </div>
 
         {/* Top-Right Slider Navigation Controls */}
-        <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-30 flex items-center gap-2">
+        <div className="absolute top-5 right-5 sm:top-6 sm:right-6 z-30 flex items-center gap-2">
           <button
             type="button"
             onClick={prevSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/85 hover:bg-white text-neutral-800 border border-neutral-200/80 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 border border-neutral-200/80 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -249,7 +249,7 @@ export const HeroSlider: React.FC = () => {
           <button
             type="button"
             onClick={nextSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/85 hover:bg-white text-neutral-800 border border-neutral-200/80 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 hover:bg-white text-neutral-800 border border-neutral-200/80 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Next slide"
           >
             <ChevronRight className="w-4 h-4" />
@@ -257,8 +257,8 @@ export const HeroSlider: React.FC = () => {
         </div>
 
         {/* Architectural Circular / Arch Cutout Window Framing the Slide Image */}
-        <div className="absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 lg:right-20 z-10 hidden sm:flex items-center justify-center pointer-events-none">
-          <div className="w-[260px] h-[260px] sm:w-[340px] sm:h-[340px] lg:w-[460px] lg:h-[460px] rounded-full overflow-hidden border-[8px] sm:border-[12px] border-white/50 shadow-2xl bg-neutral-300 relative pointer-events-auto">
+        <div className="absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 lg:right-14 z-10 hidden sm:flex items-center justify-center pointer-events-none">
+          <div className="w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] md:w-[340px] md:h-[340px] lg:w-[380px] lg:h-[380px] xl:w-[410px] xl:h-[410px] rounded-full overflow-hidden border-[6px] sm:border-[8px] lg:border-[10px] border-white/60 shadow-xl bg-neutral-200 relative pointer-events-auto">
             <AnimatePresence mode="wait">
               <motion.img
                 key={currentSlide.id}
@@ -282,7 +282,7 @@ export const HeroSlider: React.FC = () => {
               src={currentSlide.imageUrl}
               alt={currentSlide.title}
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.35 }}
+              animate={{ opacity: 0.3 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
               className="w-full h-full object-cover"
@@ -291,19 +291,19 @@ export const HeroSlider: React.FC = () => {
         </div>
 
         {/* Left Side Content */}
-        <div className="relative z-20 max-w-xl flex-1 flex flex-col justify-center">
+        <div className="relative z-20 max-w-md lg:max-w-lg flex-1 flex flex-col justify-center my-auto">
           <motion.div
             key={`text-${currentSlide.id}`}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-900 leading-[1.08] font-display">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 leading-[1.1] font-display">
               {currentSlide.title}
             </h1>
 
             {currentSlide.subtitle && (
-              <div className="mt-3.5 sm:mt-5 text-xs sm:text-sm text-neutral-700 font-normal leading-relaxed max-w-md flex items-start gap-2">
+              <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-neutral-700 font-medium leading-relaxed max-w-md flex items-start gap-2">
                 <ArrowDownRight className="w-4 h-4 text-neutral-600 shrink-0 mt-0.5" />
                 <span>{currentSlide.subtitle}</span>
               </div>
@@ -332,7 +332,7 @@ export const HeroSlider: React.FC = () => {
         </div>
 
         {/* Right-Side Sub-Badge Text (Matches off.vstore) */}
-        <div className="hidden lg:block absolute right-12 bottom-10 z-20 max-w-[220px] text-right pointer-events-none select-none">
+        <div className="hidden lg:block absolute right-10 bottom-8 z-20 max-w-[200px] text-right pointer-events-none select-none">
           <p className="text-xs text-neutral-600 font-medium leading-relaxed">
             Transforming into stylish &amp; functional pieces
           </p>

@@ -45,40 +45,33 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white/95 backdrop-blur-md ${
-        scrolled ? 'border-b border-neutral-200/80 shadow-xs' : 'border-b border-transparent'
+      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white/80 backdrop-blur-2xl ${
+        scrolled ? 'border-b border-neutral-200/80 shadow-xs' : 'border-b border-neutral-100/60'
       }`}
     >
-      <div className="layout-container py-3 sm:py-3.5 flex items-center justify-between gap-4">
-        {/* Left: Hamburger Menu Button */}
-        <div className="flex items-center gap-2">
+      <div className="layout-container py-2 sm:py-2.5 flex items-center justify-between gap-4">
+        {/* Left: Hamburger Menu Button (Mobile Only) */}
+        <div className="flex items-center gap-2 md:hidden">
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="p-2 -ml-1 text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+            className="p-1.5 -ml-1 text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
             aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5 stroke-[2]" />
           </button>
         </div>
 
-        {/* Center: Brand Logo (Matches off.vstore geometric downward chevron + brand) */}
-        <Link to="/" className="flex items-center gap-1.5 select-none group">
-          <svg
-            className="w-4 h-4 text-foreground fill-current transition-transform duration-200 group-hover:scale-110"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path d="M12 21L2 5h20L12 21z" />
-          </svg>
-          <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-foreground lowercase">
+        {/* Center/Left: Brand Logo (Icon removed, font size increased) */}
+        <Link to="/" className="flex items-center select-none group">
+          <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground lowercase transition-colors group-hover:text-neutral-700">
             muvira
           </span>
         </Link>
 
         {/* Right: Text Links (About, FAQs), Search, User, Cart */}
-        <div className="flex items-center gap-3 sm:gap-5">
-          <div className="hidden md:flex items-center gap-4 text-xs font-semibold text-neutral-700">
+        <div className="flex items-center gap-3 sm:gap-6">
+          <div className="hidden md:flex items-center gap-5 text-xs font-semibold text-neutral-700">
             <Link
               to={getHref('/#why-choose-us')}
               className="hover:text-foreground transition-colors"
@@ -182,7 +175,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
       {/* Expandable Search Input Row (Mobile or Toggle) */}
       {isSearchOpen && (
-        <div className="layout-container pb-3">
+        <div className="layout-container pb-2.5">
           <form
             onSubmit={handleSearchSubmit}
             className="flex items-center bg-white rounded-full border border-neutral-200 p-1 pl-4 shadow-xs"
