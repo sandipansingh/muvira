@@ -124,19 +124,19 @@ export const HeroSlider: React.FC = () => {
       onMouseLeave={() => setIsPaused(false)}
       aria-label="Hero section"
     >
-      {/* Sub-Header / Filter & Search Toolbar (Matches off.vstore reference) */}
-      <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2.5 sm:gap-3 flex-wrap lg:flex-nowrap text-xs">
-        {/* Left Dropdown Selectors */}
-        <div className="flex items-center gap-2">
+      {/* Sub-Header / Filter & Search Toolbar (Optimized for Mobile & Desktop) */}
+      <div className="mb-3 sm:mb-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2 sm:gap-3 text-xs">
+        {/* Top Controls Row (Dropdowns & Search Input) */}
+        <div className="flex items-center gap-2 flex-1">
           {/* Categories Dropdown */}
-          <div ref={categoriesRef} className="relative">
+          <div ref={categoriesRef} className="relative shrink-0">
             <button
               type="button"
               onClick={() => {
                 setIsCategoriesOpen((prev) => !prev)
                 setIsSortOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-800 hover:border-neutral-400 hover:bg-neutral-50 transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 sm:px-3.5 py-1.5 font-medium text-neutral-800 hover:border-neutral-400 hover:bg-neutral-50 transition-all shadow-xs cursor-pointer text-xs"
             >
               <span>Categories</span>
               <ChevronDown
@@ -163,14 +163,14 @@ export const HeroSlider: React.FC = () => {
           </div>
 
           {/* New Product Dropdown */}
-          <div ref={sortRef} className="relative">
+          <div ref={sortRef} className="relative shrink-0">
             <button
               type="button"
               onClick={() => {
                 setIsSortOpen((prev) => !prev)
                 setIsCategoriesOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-800 hover:border-neutral-400 hover:bg-neutral-50 transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 sm:px-3.5 py-1.5 font-medium text-neutral-800 hover:border-neutral-400 hover:bg-neutral-50 transition-all shadow-xs cursor-pointer text-xs"
             >
               <span>New Product</span>
               <ChevronDown
@@ -195,33 +195,33 @@ export const HeroSlider: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Center Search Pill */}
+          <form onSubmit={handleSearchSubmit} className="flex-1 min-w-[120px] relative">
+            <input
+              type="search"
+              placeholder="search..."
+              value={quickSearch}
+              onChange={(e) => setQuickSearch(e.target.value)}
+              className="w-full rounded-full border border-neutral-200 bg-white py-1.5 pl-3.5 pr-8 text-xs font-medium text-neutral-900 placeholder-neutral-400 outline-none focus:border-neutral-400 shadow-xs transition-colors"
+            />
+            <button
+              type="submit"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-900 cursor-pointer"
+              aria-label="Search"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+          </form>
         </div>
 
-        {/* Center Search Pill */}
-        <form onSubmit={handleSearchSubmit} className="flex-1 max-w-sm min-w-[200px] relative">
-          <input
-            type="search"
-            placeholder="search..."
-            value={quickSearch}
-            onChange={(e) => setQuickSearch(e.target.value)}
-            className="w-full rounded-full border border-neutral-200 bg-white py-1.5 pl-4 pr-8 text-xs font-medium text-neutral-900 placeholder-neutral-400 outline-none focus:border-neutral-400 shadow-xs transition-colors"
-          />
-          <button
-            type="submit"
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-900 cursor-pointer"
-            aria-label="Search"
-          >
-            <Search className="w-3.5 h-3.5" />
-          </button>
-        </form>
-
-        {/* Right Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        {/* Right Category Filter Pills (Horizontal scrollable on mobile) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 shrink-0">
           {QUICK_CATEGORY_PILLS.map((pill) => (
             <Link
               key={pill.label}
               to={pill.href}
-              className="rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-700 hover:border-neutral-400 hover:text-neutral-950 hover:bg-neutral-50 transition-all shadow-xs shrink-0"
+              className="rounded-full border border-neutral-200 bg-white px-3 sm:px-3.5 py-1.5 font-medium text-neutral-700 hover:border-neutral-400 hover:text-neutral-950 hover:bg-neutral-50 transition-all shadow-xs shrink-0 text-xs"
             >
               {pill.label}
             </Link>
@@ -229,15 +229,15 @@ export const HeroSlider: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Curved Hero Banner (Matches off.vstore layout reference) */}
-      <div className="relative w-full min-h-[440px] sm:min-h-[480px] md:min-h-[520px] lg:min-h-[560px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-[#E5DFD6] shadow-premium flex flex-col justify-between p-6 sm:p-10 lg:p-12">
+      {/* Main Curved Hero Banner (Mobile & Desktop Responsive) */}
+      <div className="relative w-full min-h-[460px] sm:min-h-[500px] lg:min-h-[560px] rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden bg-[#E5DFD6] shadow-premium flex flex-col sm:flex-row items-center sm:items-stretch justify-between p-6 sm:p-10 lg:p-12">
         {/* Background Watermark Typography */}
-        <div className="absolute left-6 sm:left-10 bottom-4 sm:bottom-6 z-0 pointer-events-none select-none text-white/30 sm:text-white/35 font-display font-black text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.2em] uppercase leading-none">
+        <div className="absolute left-4 sm:left-10 bottom-3 sm:bottom-6 z-0 pointer-events-none select-none text-white/30 sm:text-white/35 font-display font-black text-4xl sm:text-6xl md:text-7xl lg:text-8xl tracking-[0.2em] uppercase leading-none">
           LUXURIOUS
         </div>
 
         {/* Top-Right Slider Navigation Controls */}
-        <div className="absolute top-5 right-5 sm:top-6 sm:right-6 z-30 flex items-center gap-2">
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 flex items-center gap-2">
           <button
             type="button"
             onClick={prevSlide}
@@ -256,61 +256,27 @@ export const HeroSlider: React.FC = () => {
           </button>
         </div>
 
-        {/* Architectural Circular / Arch Cutout Window Framing the Slide Image */}
-        <div className="absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 lg:right-14 z-10 hidden sm:flex items-center justify-center pointer-events-none">
-          <div className="w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] md:w-[340px] md:h-[340px] lg:w-[380px] lg:h-[380px] xl:w-[410px] xl:h-[410px] rounded-full overflow-hidden border-[6px] sm:border-[8px] lg:border-[10px] border-white/60 shadow-xl bg-neutral-200 relative pointer-events-auto">
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={currentSlide.id}
-                src={currentSlide.imageUrl}
-                alt={currentSlide.title}
-                initial={{ opacity: 0, scale: 1.06 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: 'easeInOut' }}
-                className="w-full h-full object-cover"
-              />
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Mobile Full-Bleed Background for small screens */}
-        <div className="absolute inset-0 sm:hidden z-0">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={currentSlide.id}
-              src={currentSlide.imageUrl}
-              alt={currentSlide.title}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="w-full h-full object-cover"
-            />
-          </AnimatePresence>
-        </div>
-
-        {/* Left Side Content */}
-        <div className="relative z-20 max-w-md lg:max-w-lg flex-1 flex flex-col justify-center my-auto">
+        {/* Left Side Content Block */}
+        <div className="relative z-20 max-w-md lg:max-w-lg flex-1 flex flex-col justify-center order-2 sm:order-1 mt-4 sm:mt-0 text-center sm:text-left">
           <motion.div
             key={`text-${currentSlide.id}`}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
           >
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 leading-[1.1] font-display">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 leading-[1.15] font-display">
               {currentSlide.title}
             </h1>
 
             {currentSlide.subtitle && (
-              <div className="mt-3 sm:mt-4 text-xs sm:text-sm text-neutral-700 font-medium leading-relaxed max-w-md flex items-start gap-2">
-                <ArrowDownRight className="w-4 h-4 text-neutral-600 shrink-0 mt-0.5" />
+              <div className="mt-2.5 sm:mt-4 text-xs sm:text-sm text-neutral-700 font-medium leading-relaxed max-w-md flex items-center sm:items-start justify-center sm:justify-start gap-1.5">
+                <ArrowDownRight className="w-4 h-4 text-neutral-600 shrink-0" />
                 <span>{currentSlide.subtitle}</span>
               </div>
             )}
 
             {/* Bottom Actions */}
-            <div className="mt-6 sm:mt-8 flex items-center gap-4">
+            <div className="mt-5 sm:mt-8 flex items-center justify-center sm:justify-start gap-4">
               <Link
                 to={currentSlide.link || '/shop'}
                 className="group inline-flex items-center gap-3 rounded-full bg-white pl-5 pr-2 py-2 text-xs sm:text-sm font-bold text-neutral-900 transition-all hover:bg-neutral-50 hover:shadow-md active:scale-98 cursor-pointer shadow-xs border border-neutral-100"
@@ -331,7 +297,25 @@ export const HeroSlider: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* Right-Side Sub-Badge Text (Matches off.vstore) */}
+        {/* Architectural Circular / Arch Cutout Window Framing the Slide Image (Visible on Mobile & Desktop) */}
+        <div className="relative z-10 flex items-center justify-center order-1 sm:order-2 sm:absolute sm:top-1/2 sm:-translate-y-1/2 sm:right-10 lg:right-14">
+          <div className="w-[180px] h-[180px] sm:w-[280px] sm:h-[280px] md:w-[340px] md:h-[340px] lg:w-[380px] lg:h-[380px] xl:w-[410px] xl:h-[410px] rounded-full overflow-hidden border-[5px] sm:border-[8px] lg:border-[10px] border-white/60 shadow-xl bg-neutral-200 relative shrink-0">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentSlide.id}
+                src={currentSlide.imageUrl}
+                alt={currentSlide.title}
+                initial={{ opacity: 0, scale: 1.06 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: 'easeInOut' }}
+                className="w-full h-full object-cover"
+              />
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Right-Side Sub-Badge Text (Desktop only) */}
         <div className="hidden lg:block absolute right-10 bottom-8 z-20 max-w-[200px] text-right pointer-events-none select-none">
           <p className="text-xs text-neutral-600 font-medium leading-relaxed">
             Transforming into stylish &amp; functional pieces
