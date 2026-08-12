@@ -22,6 +22,7 @@ import { OrderFailurePage } from './pages/OrderFailurePage'
 import { OrdersHistoryPage } from './pages/OrdersHistoryPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { ReviewsPage } from './pages/ReviewsPage'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 
@@ -39,6 +40,7 @@ export const AppContent: React.FC = () => {
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/product/:slug" element={<ProductDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
