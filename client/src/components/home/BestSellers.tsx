@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { productService } from '../../lib/services/product.service'
 import type { ProductListItem } from '../../lib/types/product'
@@ -42,75 +41,65 @@ export const BestSellers: React.FC = () => {
   )
 
   return (
-    <section className="bg-slate-50/60 py-12 sm:py-16 border-y border-slate-200/60">
+    <section className="bg-paper py-12 sm:py-16">
       <div className="editorial-container">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex items-end justify-between gap-6">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Customer Favorites
-            </span>
-            <h2 className="font-serif text-3xl font-extrabold text-slate-900 sm:text-4xl mt-1">
-              Today's Best Deals For You!
+            <span className="editorial-label">Featured pieces</span>
+            <h2 className="editorial-heading mt-2 text-heading-m-mobile sm:text-heading-m-desktop">
+              Furniture for the way you live
             </h2>
           </div>
 
-          {!loading && filterOptions.length > 1 && (
-            <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
-              {filterOptions.map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setSelectedFilter(filter)}
-                  className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
-                    selectedFilter === filter
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
-          )}
+          <Link to="/shop" className="editorial-link shrink-0 text-ui">
+            View all products
+          </Link>
         </div>
 
+        {!loading && filterOptions.length > 1 && (
+          <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto pb-1">
+            {filterOptions.map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => setSelectedFilter(filter)}
+                className={`shrink-0 rounded-pill border px-4 py-2 text-ui font-semibold transition-colors duration-control ${
+                  selectedFilter === filter
+                    ? 'border-ink bg-ink text-paper'
+                    : 'border-rule bg-paper text-ink hover:border-ink'
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+        )}
+
         {loading && (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
             {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="h-80 animate-pulse rounded-2xl bg-slate-200/60" />
+              <div key={item} className="aspect-square animate-pulse bg-surface" />
             ))}
           </div>
         )}
 
         {!loading && error && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
-            {error}
-          </div>
+          <div className="mt-8 border-y border-rule py-6 text-body text-muted">{error}</div>
         )}
 
         {!loading && !error && filteredProducts.length === 0 && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
+          <div className="mt-8 border-y border-rule py-6 text-body text-muted">
             Best sellers are being updated. Please check back soon.
           </div>
         )}
 
         {!loading && !error && filteredProducts.length > 0 && (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
-
-        <div className="mt-10 text-center">
-          <Link
-            to="/shop"
-            className="inline-flex items-center gap-2 rounded-2xl bg-[#7e3d1c] px-7 py-3.5 text-sm font-semibold text-white shadow-md shadow-[#7e3d1c]/20 transition-all hover:bg-[#693116] active:scale-95"
-          >
-            <span>View All Products</span>
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
       </div>
     </section>
   )
