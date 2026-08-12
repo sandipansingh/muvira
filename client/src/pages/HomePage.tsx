@@ -1,6 +1,7 @@
 import React from 'react'
 import { BestSellers } from '../components/home/BestSellers'
 import { CategoryGrid } from '../components/home/CategoryGrid'
+import { FaqSection } from '../components/home/FaqSection'
 import { HeroSlider } from '../components/home/HeroSlider'
 import { TestimonialSection } from '../components/home/TestimonialSection'
 import { WhyChooseUs } from '../components/home/WhyChooseUs'
@@ -13,6 +14,7 @@ export const HomePage: React.FC = () => {
       <BestSellers />
       <WhyChooseUs />
       <TestimonialSection />
+      <FaqSection />
     </main>
   )
 }
