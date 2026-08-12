@@ -26,7 +26,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 lg:hidden animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
       aria-label="Main menu"

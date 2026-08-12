@@ -49,9 +49,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         scrolled ? 'border-b border-neutral-200/80 shadow-xs' : 'border-b border-neutral-100/60'
       }`}
     >
-      <div className="layout-container py-2 sm:py-2.5 flex items-center justify-between gap-4">
-        {/* Left: Hamburger Menu Button (Mobile Only) */}
-        <div className="flex items-center gap-2 md:hidden">
+      <div className="relative layout-container py-2 sm:py-2.5 flex items-center justify-between gap-4">
+        {/* Left: Hamburger Menu Button (Functional on Desktop & Mobile) */}
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onOpenMobileMenu}
@@ -62,12 +62,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           </button>
         </div>
 
-        {/* Center/Left: Brand Logo (Icon removed, font size increased) */}
-        <Link to="/" className="flex items-center select-none group">
-          <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground lowercase transition-colors group-hover:text-neutral-700">
-            muvira
-          </span>
-        </Link>
+        {/* Center: Brand Logo (Centered in exact middle of navbar) */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
+          <Link to="/" className="flex items-center select-none group">
+            <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground lowercase transition-colors group-hover:text-neutral-700">
+              muvira
+            </span>
+          </Link>
+        </div>
 
         {/* Right: Text Links (About, FAQs), Search, User, Cart */}
         <div className="flex items-center gap-3 sm:gap-6">
