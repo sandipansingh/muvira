@@ -25,13 +25,9 @@ export const SignupPage: React.FC = () => {
         <div className="space-y-2 border-b border-border-light pb-6 text-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 font-display text-2xl font-bold tracking-wider uppercase text-foreground group justify-center"
+            className="inline-flex items-center gap-2 font-display text-2xl font-bold tracking-wider uppercase text-foreground justify-center leading-none"
           >
-            <img
-              src="/logo.png"
-              alt="Muvira"
-              className="h-7 w-auto object-contain transition-transform group-hover:scale-105"
-            />
+            <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
             <span>Muvira</span>
           </Link>
           <h1 className="font-display text-2xl font-bold text-foreground">Create an Account</h1>
