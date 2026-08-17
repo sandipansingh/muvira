@@ -153,7 +153,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link to="/" className="flex items-center gap-2.5 w-max select-none">
               <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
-              <span className="font-display text-lg lg:text-xl font-bold text-neutral-900 tracking-[0.16em] uppercase leading-none">
+              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-bold text-neutral-900 tracking-[0.16em] uppercase leading-none">
                 Muvira
               </span>
             </Link>
@@ -214,7 +214,6 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   { name: 'Shop All', href: '/shop' },
                   { name: 'My Cart', href: '/cart' },
                   { name: 'Customer Reviews', href: '/reviews' },
-                  { name: 'Why Choose Us', href: '/#why-choose-us' },
                   { name: 'FAQs', href: '/#faq' },
                   { name: 'Track Orders', href: '/orders' },
                 ].map((link) => (

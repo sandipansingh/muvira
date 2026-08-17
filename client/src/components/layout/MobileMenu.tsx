@@ -14,7 +14,6 @@ const collectionLinks = [
   { label: 'Living Room', to: '/shop?category=living-room' },
   { label: 'Bedroom', to: '/shop?category=bedroom' },
   { label: 'Dining', to: '/shop?category=dining' },
-  { label: 'Why Choose Us', to: '/#why-choose-us' },
   { label: 'Customer Reviews', to: '/reviews' },
   { label: 'FAQ', to: '/#faq' },
 ]

@@ -11,9 +11,9 @@ Modern full-stack e-commerce platform.
 
 ```bash
 npm install
-cd client && npm install
-cd ../server && npm install
 ```
+*(This automatically runs `postinstall` to install dependencies in both `client` and `server`)*
+
 
 ### 2. Setup environment variables
 
