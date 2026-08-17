@@ -184,7 +184,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             : item
         )
       })
-      showToast(`Added ${product.name} to cart`, 'success')
+      showToast(product.name, 'success', 'Added to Cart')
       openCartDrawer()
       return
     }
@@ -196,7 +196,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const failedGuests = guestItemsRef.current.filter((item) => item.productId !== product.id)
       const serverItems = await refreshServerCart()
       setItems([...serverItems, ...failedGuests])
-      showToast(`Added ${product.name} to cart`, 'success')
+      showToast(product.name, 'success', 'Added to Cart')
       openCartDrawer()
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Unable to add this item to cart.'

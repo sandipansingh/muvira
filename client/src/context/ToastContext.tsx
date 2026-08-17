@@ -9,7 +9,7 @@ export interface ToastMessage {
 
 interface ToastContextType {
   toasts: ToastMessage[]
-  showToast: (message: string, type?: 'success' | 'error' | 'info', title?: string) => void
+  showToast: (arg1: string, arg2?: 'success' | 'error' | 'info' | string, arg3?: string) => void
   removeToast: (id: string) => void
 }
 
@@ -23,7 +23,25 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [])
 
   const showToast = useCallback(
-    (message: string, type: 'success' | 'error' | 'info' = 'success', title?: string) => {
+    (arg1: string, arg2?: 'success' | 'error' | 'info' | string, arg3?: string) => {
+      let type: 'success' | 'error' | 'info' = 'success'
+      let title: string | undefined
+      let message = ''
+
+      if ((arg1 === 'success' || arg1 === 'error' || arg1 === 'info') && arg3 !== undefined) {
+        // motherindiatourtravels signature: showToast(type, title, message)
+        type = arg1
+        title = arg2
+        message = arg3
+      } else {
+        // standard signature: showToast(message, type, title)
+        message = arg1
+        if (arg2 === 'success' || arg2 === 'error' || arg2 === 'info') {
+          type = arg2
+        }
+        title = arg3
+      }
+
       const id = Math.random().toString(36).substring(2, 9)
       setToasts((prev) => [...prev, { id, message, type, title }])
       setTimeout(() => {

@@ -49,42 +49,35 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         scrolled ? 'border-b border-neutral-200/80 shadow-xs' : 'border-b border-neutral-100/60'
       }`}
     >
-      <div className="relative layout-container py-1.5 sm:py-2 flex items-center justify-between gap-4">
+      <div className="relative layout-container py-3 sm:py-4 flex items-center justify-between gap-4">
         {/* Left: Hamburger Menu Button (Functional on Desktop & Mobile) */}
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={onOpenMobileMenu}
-            className="p-1.5 -ml-1 text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+            className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
             aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5 stroke-[2]" />
           </button>
         </div>
 
-        {/* Center: Brand Logo (Centered in exact middle of navbar, Midline Aligned, No Hover Effect) */}
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
           <Link to="/" className="flex items-center gap-2.5 select-none">
             <img
               src="/logo.png"
               alt="Muvira"
-              className="h-6 sm:h-7 md:h-7.5 w-auto object-contain shrink-0"
+              className="h-7 sm:h-8 md:h-8.5 w-auto object-contain shrink-0"
             />
-            <span className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground leading-none">
+            <span className="translate-y-[2px] font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground leading-none">
               Muvira
             </span>
           </Link>
         </div>
 
-        {/* Right: Text Links (About, FAQs), Search, User, Cart */}
+        {/* Right: Text Links, Search, User, Cart */}
         <div className="flex items-center gap-3 sm:gap-6">
           <div className="hidden md:flex items-center gap-5 text-xs font-semibold text-neutral-700">
-            <Link
-              to={getHref('/#why-choose-us')}
-              className="hover:text-foreground transition-colors"
-            >
-              About
-            </Link>
             <Link to={getHref('/#faq')} className="hover:text-foreground transition-colors">
               FAQs
             </Link>
@@ -94,19 +87,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           <button
             type="button"
             onClick={() => setIsSearchOpen((prev) => !prev)}
-            className="p-1.5 text-neutral-700 hover:text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer md:hidden"
+            className="flex h-10 w-10 items-center justify-center text-neutral-700 hover:text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer md:hidden"
             aria-label="Search products"
           >
             <Search className="w-5 h-5 stroke-[1.75]" />
           </button>
 
           {/* User Account / Auth */}
-          <div className="relative">
+          <div className="relative flex items-center justify-center">
             {isAuthenticated ? (
               <button
                 type="button"
                 onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                className="p-1.5 text-neutral-700 hover:text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center text-neutral-700 hover:text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
                 aria-label="Account menu"
               >
                 <User className="w-5 h-5 stroke-[1.75]" />
@@ -114,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             ) : (
               <Link
                 to="/login"
-                className="p-1.5 text-neutral-700 hover:text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center text-neutral-700 hover:text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
                 aria-label="Sign in"
               >
                 <User className="w-5 h-5 stroke-[1.75]" />
@@ -167,12 +160,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           <button
             type="button"
             onClick={openCartDrawer}
-            className="relative p-1.5 -mr-1 text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
+            className="relative flex h-10 w-10 items-center justify-center text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
             aria-label="Shopping cart"
           >
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-900 px-1 text-[9px] font-bold text-white shadow-xs">
+              <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-neutral-900 px-1 text-[9px] font-bold text-white shadow-xs">
                 {itemCount}
               </span>
             )}
