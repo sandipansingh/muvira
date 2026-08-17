@@ -13,6 +13,8 @@
     "format:check": "prettier --check .",
     "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
     "build": "cd client && npm run build && cd ../server && npm run build",
+    "postinstall": "cd client && npm install && cd ../server && npm install",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
     "prepare": "husky"
   },
   "devDependencies": {
