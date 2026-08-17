@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import { ArrowRight, ShoppingBag } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { ArrowRight, Check, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { ProductDetail, ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
+import { useToast } from '../../context/ToastContext'
 import { RatingStars } from '../common/RatingStars'
 import { StockBadge } from '../common/StockBadge'
 import { Modal } from '../common/Modal'
@@ -16,15 +17,31 @@ interface QuickViewModalProps {
 
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClose }) => {
   const { addToCart } = useCart()
+  const { showToast } = useToast()
   const isDetail = 'images' in product
   const images = isDetail ? product.images.map((image) => image.url) : [product.primaryImageUrl]
   const categoryName = isDetail ? product.category.name : product.categoryName
   const [selectedImage, setSelectedImage] = useState(images[0] || '')
   const [quantity, setQuantity] = useState(1)
+  const [added, setAdded] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      const initialImg = isDetail ? product.images[0]?.url : product.primaryImageUrl
+      setSelectedImage(initialImg || '')
+      setQuantity(1)
+      setAdded(false)
+    }
+  }, [isOpen, product, isDetail])
 
   const handleAddToCart = () => {
     addToCart(product, quantity)
-    onClose()
+    setAdded(true)
+    showToast(`Added ${quantity} × ${product.name} to your cart`, 'success')
+    setTimeout(() => {
+      onClose()
+      setAdded(false)
+    }, 600)
   }
 
   return (
@@ -130,9 +147,18 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="editorial-button text-xs py-3 font-bold"
+                disabled={added}
+                className="editorial-button text-xs py-3 font-bold cursor-pointer"
               >
-                <ShoppingBag className="h-4 w-4" /> Add to Cart
+                {added ? (
+                  <>
+                    <Check className="h-4 w-4" /> Added to Cart
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="h-4 w-4" /> Add to Cart
+                  </>
+                )}
               </button>
               <Link
                 to={`/product/${product.slug}`}
