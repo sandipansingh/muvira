@@ -44,7 +44,7 @@ const FAQ_ITEMS = [
 ]
 
 export const FaqSection: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(0)
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const { settings } = useSiteSettings()
   const { contactInfo } = settings
   const contactHref = contactInfo.email
