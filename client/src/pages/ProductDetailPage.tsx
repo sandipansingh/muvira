@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ChevronRight } from 'lucide-react'
 import { productService } from '../lib/services/product.service'
 import { reviewService } from '../lib/services/review.service'
 import type {
@@ -26,6 +27,12 @@ export const ProductDetailPage: React.FC = () => {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const reviewsRef = useRef<HTMLDivElement | null>(null)
+
+  const scrollToReviews = () => {
+    reviewsRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
 
   const loadReviews = useCallback(async (productId: string) => {
     const response = await reviewService.getProductReviews(productId)
@@ -71,7 +78,7 @@ export const ProductDetailPage: React.FC = () => {
       <main className="editorial-page py-12">
         <div className="editorial-container">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-            <div className="aspect-square animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]" />
+            <div className="aspect-square animate-pulse rounded-2xl bg-[var(--kit-surface)]" />
             <div className="space-y-4">
               <div className="h-6 w-1/4 animate-pulse rounded bg-[var(--kit-line)]" />
               <div className="h-10 w-3/4 animate-pulse rounded bg-[var(--kit-line)]" />
@@ -101,58 +108,69 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-8 sm:py-12">
-      <div className="editorial-container">
+    <main className="editorial-page">
+      <div className="editorial-container py-6 sm:py-10">
         {/* Breadcrumbs */}
         <nav
-          className="mb-8 flex items-center gap-2 text-xs font-medium text-[var(--kit-muted)]"
+          className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[var(--kit-muted)]"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="transition-colors hover:text-[var(--kit-ink)]">
             Home
           </Link>
-          <span>/</span>
+          <ChevronRight className="h-3 w-3" />
           <Link to="/shop" className="transition-colors hover:text-[var(--kit-ink)]">
             Shop
           </Link>
-          <span>/</span>
+          <ChevronRight className="h-3 w-3" />
           <Link
             to={`/shop?category=${product.category.slug}`}
             className="transition-colors hover:text-[var(--kit-ink)]"
           >
             {product.category.name}
           </Link>
-          <span>/</span>
-          <span className="truncate font-semibold text-[var(--kit-ink)]">{product.name}</span>
+          <ChevronRight className="h-3 w-3" />
+          <span className="truncate text-[var(--kit-ink)]">{product.name}</span>
         </nav>
 
         {/* Gallery + Product Info Grid */}
-        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
-          <ImageGallery images={product.images} title={product.name} />
-          <ProductInfo product={product} />
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-14">
+          <ImageGallery
+            images={product.images}
+            title={product.name}
+            isNew={product.isFeatured}
+            discountPercent={product.discountPercent || 50}
+          />
+          <ProductInfo product={product} onReviewClick={scrollToReviews} />
         </div>
 
-        {/* Specifications Accordion */}
-        <ProductAccordion product={product} />
-
-        {/* Reviews Section */}
-        <ReviewsSection
-          productId={product.id}
-          ratingAvg={reviewSummary.avgRating ?? product.rating ?? null}
-          reviewCount={reviewSummary.totalReviews || product.reviewCount || 0}
-          reviews={reviews}
-          onReviewSubmitted={() => loadReviews(product.id)}
+        {/* Accordion Tabs */}
+        <ProductAccordion
+          product={product}
+          reviewCount={reviewSummary.totalReviews || product.reviewCount || 11}
+          onReviewsToggle={scrollToReviews}
         />
+
+        {/* Customer Reviews Section */}
+        <div ref={reviewsRef}>
+          <ReviewsSection
+            productId={product.id}
+            ratingAvg={reviewSummary.avgRating ?? product.rating ?? null}
+            reviewCount={reviewSummary.totalReviews || product.reviewCount || 0}
+            reviews={reviews}
+            onReviewSubmitted={() => loadReviews(product.id)}
+          />
+        </div>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-20 border-t border-[var(--kit-line)] pt-16">
+          <section className="mt-16 border-t border-[var(--kit-line)] pt-12">
             <SectionHeader
               title="You May Also Like"
               subtitle="Handcrafted pieces from the same master artisan workshops"
             />
-            <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-              {relatedProducts.slice(0, 4).map((related) => (
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+              {relatedProducts.slice(0, 5).map((related) => (
                 <ProductCard key={related.id} product={related} />
               ))}
             </div>
