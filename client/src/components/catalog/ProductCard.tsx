@@ -181,11 +181,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               className="border border-[var(--kit-line)] bg-[var(--kit-paper)] shadow-none"
             />
           </div>
-          <div className="absolute inset-x-3 bottom-3 hidden gap-2 sm:flex">
+          <div className="absolute inset-x-3 bottom-3 z-10 hidden gap-2 sm:flex">
             <button
               type="button"
               onClick={handleAddToCart}
-              className="kit-button min-h-10 flex-1 px-3 text-xs opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              className="kit-button min-h-10 flex-1 px-3 text-xs opacity-0 shadow-[var(--kit-shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100"
               aria-label={`Add ${product.name} to cart`}
             >
               {isAdded ? <Check className="h-4 w-4" /> : null}
@@ -194,20 +194,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleOpenQuickView}
-              className="kit-button-secondary h-10 min-h-10 w-10 p-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              className="kit-button-secondary h-10 min-h-10 w-10 p-0 text-[var(--kit-ink)] opacity-0 shadow-[var(--kit-shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100"
               aria-label={`Quick view ${product.name}`}
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-4 w-4 shrink-0 text-[var(--kit-ink)]" strokeWidth={2.5} />
             </button>
           </div>
           <div className="absolute bottom-3 right-3 flex gap-1.5 sm:hidden">
             <button
               type="button"
               onClick={handleOpenQuickView}
-              className="kit-button-secondary h-9 min-h-9 w-9 p-0"
+              className="kit-button-secondary h-9 min-h-9 w-9 border-[var(--kit-ink)] p-0 text-[var(--kit-ink)] shadow-[var(--kit-shadow-overlay)]"
               aria-label={`Quick view ${product.name}`}
             >
-              <Eye className="h-3.5 w-3.5" />
+              <Eye className="h-3.5 w-3.5 shrink-0 text-[var(--kit-ink)]" strokeWidth={2.5} />
             </button>
             <button
               type="button"

@@ -48,9 +48,9 @@ export const CategoryGrid: React.FC = () => {
   const visibleCategories = categories.length > 0 ? categories : []
 
   return (
-    <section className="editorial-container overflow-hidden py-12 sm:py-16">
+    <section className="editorial-container overflow-hidden py-10 sm:py-14">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
+      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-end">
         <div>
           <span className="kit-eyebrow mb-1.5 block">Catalogs</span>
           <h2 className="kit-heading text-h2">Fresh arrivals and new selections.</h2>
@@ -88,7 +88,7 @@ export const CategoryGrid: React.FC = () => {
           {[1, 2, 3, 4].map((item) => (
             <div
               key={item}
-              className="aspect-[3/4] w-[260px] shrink-0 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
+              className="aspect-[4/3] w-[220px] shrink-0 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
             />
           ))}
         </div>
@@ -105,16 +105,16 @@ export const CategoryGrid: React.FC = () => {
       {!loading && !error && visibleCategories.length > 0 && (
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-4 sm:pb-0 sm:grid sm:grid-cols-2 lg:grid-cols-4"
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 no-scrollbar sm:grid sm:grid-cols-2 sm:gap-6 sm:pb-0 lg:grid-cols-4"
         >
           {visibleCategories.map((category) => (
             <Link
               key={category.id}
               to={`/shop?category=${category.slug}`}
-              className="group relative flex w-[260px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
+              className="group w-[220px] shrink-0 snap-start sm:w-auto"
             >
               {/* Image Area */}
-              <div className="relative aspect-[3/4] overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]">
                 <img
                   src={category.imageUrl}
                   alt={category.name}
@@ -124,9 +124,9 @@ export const CategoryGrid: React.FC = () => {
               </div>
 
               {/* Title & Action Link */}
-              <div className="flex items-center justify-between px-4 pb-4 pt-3">
+              <div className="flex items-start justify-between gap-4 border-b border-[var(--kit-line)] py-3">
                 <div>
-                  <h3 className="kit-product-card__name text-base sm:text-lg">{category.name}</h3>
+                  <h3 className="kit-product-card__name text-sm sm:text-base">{category.name}</h3>
                   {category.itemCount !== undefined && (
                     <p className="kit-product-card__meta mt-1 font-medium">
                       {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
@@ -134,9 +134,9 @@ export const CategoryGrid: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--kit-radius-control)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors group-hover:bg-[var(--kit-ink)] group-hover:text-white ml-2">
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </div>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--kit-line)] text-[var(--kit-ink)] transition-colors group-hover:border-[var(--kit-ink)] group-hover:bg-[var(--kit-ink)] group-hover:text-[var(--kit-white)]">
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
               </div>
             </Link>
           ))}
