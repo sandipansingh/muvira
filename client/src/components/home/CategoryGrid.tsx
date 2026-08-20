@@ -6,16 +6,15 @@ import type { Category } from '../../lib/types/category'
 
 interface CategoryTileProps {
   category: Category
-  featured?: boolean
 }
 
-const CategoryTile: React.FC<CategoryTileProps> = ({ category, featured = false }) => {
+const CategoryTile: React.FC<CategoryTileProps> = ({ category }) => {
   return (
     <Link
       to={`/shop?category=${category.slug}`}
-      className={`group block ${featured ? 'w-[280px] sm:w-auto' : 'w-[220px] sm:w-auto'}`}
+      className="group block w-[220px] shrink-0 snap-start sm:w-auto"
     >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]">
         <img
           src={category.imageUrl}
           alt={category.name}
@@ -24,17 +23,9 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ category, featured = false 
         />
       </div>
 
-      <div
-        className={`flex items-start justify-between gap-4 border-b border-[var(--kit-line)] py-3 ${
-          featured ? 'sm:py-4' : ''
-        }`}
-      >
+      <div className="flex items-start justify-between gap-4 border-b border-[var(--kit-line)] py-3">
         <div>
-          <h3
-            className={`kit-product-card__name ${featured ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}
-          >
-            {category.name}
-          </h3>
+          <h3 className="kit-product-card__name text-sm sm:text-base">{category.name}</h3>
           {category.itemCount !== undefined && (
             <p className="kit-product-card__meta mt-1 font-medium">
               {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
@@ -134,7 +125,7 @@ export const CategoryGrid: React.FC = () => {
           {[1, 2, 3, 4].map((item) => (
             <div
               key={item}
-              className="aspect-[4/3] w-[220px] shrink-0 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
+              className="aspect-[16/10] w-[220px] shrink-0 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
             />
           ))}
         </div>
@@ -152,22 +143,11 @@ export const CategoryGrid: React.FC = () => {
         <div>
           <div
             ref={scrollContainerRef}
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 no-scrollbar lg:hidden"
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:pb-0 xl:grid-cols-5"
           >
-            {visibleCategories.map((category, index) => (
-              <CategoryTile key={category.id} category={category} featured={index === 0} />
+            {visibleCategories.map((category) => (
+              <CategoryTile key={category.id} category={category} />
             ))}
-          </div>
-
-          <div className="hidden gap-6 lg:grid lg:grid-cols-[1.25fr_1fr]">
-            <CategoryTile category={visibleCategories[0]} featured />
-            {visibleCategories.length > 1 && (
-              <div className="grid grid-cols-2 gap-6">
-                {visibleCategories.slice(1).map((category) => (
-                  <CategoryTile key={category.id} category={category} />
-                ))}
-              </div>
-            )}
           </div>
         </div>
       )}
