@@ -17,7 +17,7 @@ export const OrdersHistoryPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/login?returnTo=/orders', { replace: true })
+    if (!authLoading && !user) navigate('/signin?returnTo=/orders', { replace: true })
   }, [authLoading, navigate, user])
 
   useEffect(() => {

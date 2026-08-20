@@ -76,7 +76,7 @@ export const CheckoutPage: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/login?returnTo=/checkout', { replace: true })
+    if (!authLoading && !user) navigate('/signin?returnTo=/checkout', { replace: true })
   }, [authLoading, navigate, user])
 
   useEffect(() => {

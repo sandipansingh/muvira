@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ToastProvider } from './context/ToastContext'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
@@ -23,8 +23,8 @@ import { OrdersHistoryPage } from './pages/OrdersHistoryPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { ReviewsPage } from './pages/ReviewsPage'
-import { LoginPage } from './pages/LoginPage'
-import { SignupPage } from './pages/SignupPage'
+import { SignInPage } from './pages/SignInPage'
+import { SignUpPage } from './pages/SignUpPage'
 
 export const AppContent: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -50,8 +50,9 @@ export const AppContent: React.FC = () => {
           <Route path="/orders/failure" element={<OrderFailurePage />} />
           <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/login" element={<Navigate to="/signin" replace />} />
         </Routes>
       </div>
 

@@ -106,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
               </button>
             ) : (
               <Link
-                to="/login"
+                to="/signin"
                 className="flex h-10 w-10 items-center justify-center text-neutral-700 hover:text-foreground hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
                 aria-label="Sign in"
               >

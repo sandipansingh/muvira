@@ -256,7 +256,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           ) : (
             <div className="pt-2">
               <Link
-                to="/login"
+                to="/signin"
                 onClick={onClose}
                 className="w-full py-3.5 px-4 bg-theme-dark hover:bg-black text-white text-sm font-semibold rounded-lg text-center block transition-colors shadow-xs active:scale-98"
               >

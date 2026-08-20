@@ -56,7 +56,7 @@ export const ProfilePage: React.FC = () => {
   const [loadingAddresses, setLoadingAddresses] = useState(true)
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/login?returnTo=/profile', { replace: true })
+    if (!authLoading && !user) navigate('/signin?returnTo=/profile', { replace: true })
   }, [authLoading, navigate, user])
 
   useEffect(() => {

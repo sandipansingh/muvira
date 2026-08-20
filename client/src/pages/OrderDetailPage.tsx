@@ -16,7 +16,7 @@ export const OrderDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!authLoading && !user) navigate(`/login?returnTo=/orders/${id ?? ''}`, { replace: true })
+    if (!authLoading && !user) navigate(`/signin?returnTo=/orders/${id ?? ''}`, { replace: true })
   }, [authLoading, id, navigate, user])
 
   useEffect(() => {
