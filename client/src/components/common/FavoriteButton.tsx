@@ -24,7 +24,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   const variantClasses =
     variant === 'glass'
       ? 'bg-white/20 backdrop-blur-md border border-white/25 text-white hover:bg-white/30'
-      : 'bg-white text-neutral-800 border border-neutral-100 shadow-sm hover:bg-neutral-50 hover:text-brand'
+      : 'bg-[var(--kit-paper)] text-[var(--kit-ink)] border border-[var(--kit-line)] shadow-none hover:bg-[var(--kit-surface)]'
 
   return (
     <button
@@ -32,7 +32,7 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       onClick={onToggle}
       aria-label={ariaLabel}
       aria-pressed={isFavorite}
-      className={`rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${sizeClasses} ${variantClasses} ${className}`}
+      className={`flex items-center justify-center rounded-[var(--kit-radius-control)] transition-colors duration-200 cursor-pointer ${sizeClasses} ${variantClasses} ${className}`}
     >
       <Heart
         className={`${iconSizes} transition-colors ${

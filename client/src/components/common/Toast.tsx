@@ -43,7 +43,7 @@ export const ToastContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.94 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="pointer-events-auto flex items-center gap-2.5 rounded-2xl border border-neutral-200/80 bg-white/95 py-2 pl-2.5 pr-3 shadow-lg backdrop-blur-md"
+            className="kit-overlay-panel pointer-events-auto flex items-center gap-2.5 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] py-2 pl-2.5 pr-3"
           >
             {renderIcon(toast.type)}
 

@@ -29,7 +29,7 @@ export const RatingStars: React.FC<RatingStarsProps> = ({
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
       <div
-        className="flex items-center gap-0.5 text-[#343839]"
+        className="flex items-center gap-0.5 text-[var(--kit-text)]"
         aria-label={`${rating.toFixed(1)} out of 5 stars`}
       >
         {[1, 2, 3, 4, 5].map((star) => (
@@ -37,14 +37,16 @@ export const RatingStars: React.FC<RatingStarsProps> = ({
             key={star}
             className={`${iconSize} ${
               star <= roundedRating
-                ? 'fill-[#343839] text-[#343839]'
+                ? 'fill-[var(--kit-text)] text-[var(--kit-text)]'
                 : 'text-neutral-300 fill-neutral-100'
             }`}
           />
         ))}
       </div>
-      {showText && <span className="text-xs font-bold text-foreground">{rating.toFixed(1)}</span>}
-      {count !== undefined && <span className="text-xs text-neutral-400">({count})</span>}
+      {showText && (
+        <span className="text-xs font-bold text-[var(--kit-ink)]">{rating.toFixed(1)}</span>
+      )}
+      {count !== undefined && <span className="text-xs text-[var(--kit-muted)]">({count})</span>}
     </div>
   )
 }

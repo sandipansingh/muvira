@@ -8,10 +8,10 @@ export const AnnouncementBar: React.FC = () => {
   if (loading || !announcement.enabled || !announcement.message) return null
 
   return (
-    <div className="bg-neutral-950 px-4 py-2 text-center text-xs font-medium text-neutral-200">
+    <div className="border-b border-[var(--kit-line)] bg-[var(--kit-surface)] px-4 py-2 text-center text-xs font-medium text-[var(--kit-ink)]">
       <div className="mx-auto flex max-w-7xl items-center justify-center gap-2">
         {announcement.badge && (
-          <strong className="rounded-full bg-neutral-800 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+          <strong className="kit-status-badge min-h-5 px-2 text-[10px]">
             {announcement.badge}
           </strong>
         )}

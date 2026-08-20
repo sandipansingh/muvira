@@ -59,8 +59,7 @@ export function SegmentedControl<T extends string = string>({
     )
   }
 
-  // Pill variant (Matches off.vstore reference design: rounded-full filter pills)
-  const paddingClass = size === 'sm' ? 'py-1.5 px-3.5 text-xs' : 'py-2 px-4.5 text-xs sm:text-sm'
+  const paddingClass = size === 'sm' ? 'py-2 px-3 text-xs' : 'py-2.5 px-4 text-xs sm:text-sm'
 
   return (
     <div className={`flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 ${className}`}>
@@ -71,10 +70,10 @@ export function SegmentedControl<T extends string = string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`relative ${paddingClass} rounded-full font-semibold transition-all duration-200 cursor-pointer shrink-0 border select-none ${
+            className={`relative ${paddingClass} rounded-[var(--kit-radius-control)] font-semibold transition-colors duration-200 cursor-pointer shrink-0 border select-none ${
               isActive
-                ? 'bg-neutral-900 text-white border-neutral-900 shadow-xs'
-                : 'bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400 hover:bg-neutral-50'
+                ? 'bg-[var(--kit-ink)] text-white border-[var(--kit-ink)]'
+                : 'bg-[var(--kit-paper)] text-[var(--kit-muted)] border-[var(--kit-line)] hover:border-[var(--kit-ink)] hover:bg-[var(--kit-surface)]'
             }`}
           >
             {opt.label}
