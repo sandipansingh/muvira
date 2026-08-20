@@ -29,117 +29,115 @@ export const SignInPage: React.FC = () => {
   }
 
   return (
-    <main className="flex min-h-screen md:h-screen w-full items-center justify-center bg-white p-3 sm:p-5 md:p-6 lg:p-8 overflow-y-auto md:overflow-hidden">
-      <div className="w-full max-w-5xl md:h-[88vh] md:max-h-[720px] rounded-3xl bg-white p-3 sm:p-4 md:p-6 lg:p-8 shadow-xs border border-neutral-100 flex flex-col justify-center">
-        <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 md:gap-8 lg:gap-12 w-full h-full">
-          {/* Left Column: Visual Hero Card */}
-          <div className="h-[220px] sm:h-[260px] md:h-full w-full">
-            <AuthHeroCard className="h-full min-h-full" />
-          </div>
+    <main className="flex min-h-screen md:h-screen w-full items-center justify-center bg-white p-4 sm:p-6 lg:p-10 overflow-y-auto md:overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 items-stretch gap-8 lg:gap-16 w-full max-w-6xl md:h-[88vh] md:max-h-[720px]">
+        {/* Left Column: Visual Hero Card */}
+        <div className="h-[240px] sm:h-[300px] md:h-full w-full">
+          <AuthHeroCard className="h-full min-h-full" />
+        </div>
 
-          {/* Right Column: Sign In Form */}
-          <div className="flex flex-col justify-center px-2 py-3 sm:px-6 sm:py-6 md:px-8">
-            <div className="mx-auto w-full max-w-[400px]">
-              {/* Header Title and Switcher */}
-              <div className="space-y-1.5 sm:space-y-2">
-                <h1 className="font-display text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
-                  Sign In
-                </h1>
-                <p className="text-sm text-neutral-500">
-                  Don&apos;t have an account yet?{' '}
-                  <Link
-                    to="/signup"
-                    className="font-medium text-[#38CB89] hover:underline transition-colors"
-                  >
-                    Sign Up
-                  </Link>
-                </p>
+        {/* Right Column: Sign In Form */}
+        <div className="flex flex-col justify-center px-2 py-4 sm:px-6 md:px-8">
+          <div className="mx-auto w-full max-w-[400px]">
+            {/* Header Title and Switcher */}
+            <div className="space-y-1.5 sm:space-y-2">
+              <h1 className="font-display text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+                Sign In
+              </h1>
+              <p className="text-sm text-neutral-500">
+                Don&apos;t have an account yet?{' '}
+                <Link
+                  to="/signup"
+                  className="font-medium text-[#38CB89] hover:underline transition-colors"
+                >
+                  Sign Up
+                </Link>
+              </p>
+            </div>
+
+            {/* Form Controls */}
+            <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-5 sm:space-y-6">
+              {/* Username/Email Input */}
+              <div className="relative border-b border-neutral-300">
+                <input
+                  id="signin-email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Your username or email address"
+                  className="w-full bg-transparent py-3 text-base text-neutral-900 placeholder:text-neutral-400 outline-none focus:outline-none focus:ring-0 border-none"
+                  autoComplete="email"
+                />
               </div>
 
-              {/* Form Controls */}
-              <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-5 sm:space-y-6">
-                {/* Username/Email Input */}
-                <div className="relative border-b border-neutral-300">
+              {/* Password Input with Show/Hide Toggle */}
+              <div className="relative flex items-center border-b border-neutral-300">
+                <input
+                  id="signin-password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Password"
+                  className="w-full bg-transparent py-3 pr-10 text-base text-neutral-900 placeholder:text-neutral-400 outline-none focus:outline-none focus:ring-0 border-none"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-0 p-1 text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer outline-none focus:outline-none"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 stroke-[1.75]" />
+                  ) : (
+                    <Eye className="h-5 w-5 stroke-[1.75]" />
+                  )}
+                </button>
+              </div>
+
+              {/* Remember Me and Forgot Password */}
+              <div className="flex items-center justify-between gap-2 pt-1 text-sm">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-neutral-600">
                   <input
-                    id="signin-email"
-                    name="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="Your username or email address"
-                    className="w-full bg-transparent py-3 text-base text-neutral-900 placeholder:text-neutral-400 outline-none focus:outline-none focus:ring-0 border-none"
-                    autoComplete="email"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                    className="h-4 w-4 rounded border-neutral-300 text-[#2D6A7E] focus:ring-[#2D6A7E]"
                   />
-                </div>
+                  <span className="text-xs sm:text-sm">Remember me</span>
+                </label>
 
-                {/* Password Input with Show/Hide Toggle */}
-                <div className="relative flex items-center border-b border-neutral-300">
-                  <input
-                    id="signin-password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="Password"
-                    className="w-full bg-transparent py-3 pr-10 text-base text-neutral-900 placeholder:text-neutral-400 outline-none focus:outline-none focus:ring-0 border-none"
-                    autoComplete="current-password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-0 p-1 text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer outline-none focus:outline-none"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5 stroke-[1.75]" />
-                    ) : (
-                      <Eye className="h-5 w-5 stroke-[1.75]" />
-                    )}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPasswordOpen(true)}
+                  className="text-xs sm:text-sm font-semibold text-neutral-900 hover:text-black hover:underline cursor-pointer transition-colors"
+                >
+                  Forgot password?
+                </button>
+              </div>
 
-                {/* Remember Me and Forgot Password */}
-                <div className="flex items-center justify-between gap-2 pt-1 text-sm">
-                  <label className="flex items-center gap-2 cursor-pointer select-none text-neutral-600">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(event) => setRememberMe(event.target.checked)}
-                      className="h-4 w-4 rounded border-neutral-300 text-[#2D6A7E] focus:ring-[#2D6A7E]"
-                    />
-                    <span className="text-xs sm:text-sm">Remember me</span>
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsForgotPasswordOpen(true)}
-                    className="text-xs sm:text-sm font-semibold text-neutral-900 hover:text-black hover:underline cursor-pointer transition-colors"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-
-                {/* Submit Action Button */}
-                <div className="pt-1 sm:pt-2">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="inline-flex w-full items-center justify-center rounded-lg bg-[#2D6A7E] py-3.5 text-sm sm:text-base font-semibold text-white shadow-xs transition-colors hover:bg-[#235868] active:bg-[#1c4856] disabled:opacity-60 cursor-pointer"
-                  >
-                    {loading ? (
-                      <span className="inline-flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Signing in...</span>
-                      </span>
-                    ) : (
-                      <span>Sign In</span>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
+              {/* Submit Action Button */}
+              <div className="pt-1 sm:pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-[#2D6A7E] py-3.5 text-sm sm:text-base font-semibold text-white shadow-xs transition-colors hover:bg-[#235868] active:bg-[#1c4856] disabled:opacity-60 cursor-pointer"
+                >
+                  {loading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Signing in...</span>
+                    </span>
+                  ) : (
+                    <span>Sign In</span>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
