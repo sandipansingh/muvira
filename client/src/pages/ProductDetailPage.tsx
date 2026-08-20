@@ -68,14 +68,14 @@ export const ProductDetailPage: React.FC = () => {
   if (loading) {
     return (
       <main className="editorial-page py-12">
-        <div className="layout-container">
+        <div className="editorial-container">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-            <div className="aspect-square rounded-[2rem] animate-pulse bg-neutral-100" />
+            <div className="aspect-square animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]" />
             <div className="space-y-4">
-              <div className="h-6 w-1/4 rounded-full animate-pulse bg-neutral-100" />
-              <div className="h-10 w-3/4 rounded-2xl animate-pulse bg-neutral-100" />
-              <div className="h-6 w-1/3 rounded-full animate-pulse bg-neutral-100" />
-              <div className="h-24 w-full rounded-2xl animate-pulse bg-neutral-100" />
+              <div className="h-6 w-1/4 animate-pulse rounded bg-[var(--kit-line)]" />
+              <div className="h-10 w-3/4 animate-pulse rounded bg-[var(--kit-line)]" />
+              <div className="h-6 w-1/3 animate-pulse rounded bg-[var(--kit-line)]" />
+              <div className="h-24 w-full animate-pulse rounded bg-[var(--kit-line)]" />
             </div>
           </div>
         </div>
@@ -86,12 +86,12 @@ export const ProductDetailPage: React.FC = () => {
   if (error || !product) {
     return (
       <main className="editorial-page py-16 sm:py-24">
-        <div className="layout-container max-w-xl text-center">
-          <h1 className="font-display text-3xl font-bold text-foreground">Product not found</h1>
-          <p className="mt-2 text-sm text-neutral-500">
+        <div className="editorial-container max-w-xl text-center">
+          <h1 className="kit-heading text-3xl">Product not found</h1>
+          <p className="kit-body-copy mt-2 text-sm">
             {error ?? 'This product is no longer available.'}
           </p>
-          <Link to="/shop" className="editorial-button mt-6">
+          <Link to="/shop" className="kit-button mt-6">
             Return to Shop
           </Link>
         </div>
@@ -101,28 +101,28 @@ export const ProductDetailPage: React.FC = () => {
 
   return (
     <main className="editorial-page py-8 sm:py-12">
-      <div className="layout-container">
+      <div className="editorial-container">
         {/* Breadcrumbs */}
         <nav
-          className="mb-8 flex items-center gap-2 text-xs font-semibold text-neutral-400"
+          className="mb-8 flex items-center gap-2 text-xs font-medium text-[var(--kit-muted)]"
           aria-label="Breadcrumb"
         >
-          <Link to="/" className="hover:text-brand transition-colors">
+          <Link to="/" className="transition-colors hover:text-[var(--kit-ink)]">
             Home
           </Link>
           <span>/</span>
-          <Link to="/shop" className="hover:text-brand transition-colors">
+          <Link to="/shop" className="transition-colors hover:text-[var(--kit-ink)]">
             Shop
           </Link>
           <span>/</span>
           <Link
             to={`/shop?category=${product.category.slug}`}
-            className="hover:text-brand transition-colors"
+            className="transition-colors hover:text-[var(--kit-ink)]"
           >
             {product.category.name}
           </Link>
           <span>/</span>
-          <span className="truncate font-bold text-foreground">{product.name}</span>
+          <span className="truncate font-semibold text-[var(--kit-ink)]">{product.name}</span>
         </nav>
 
         {/* Gallery + Product Info Grid */}
@@ -145,12 +145,12 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-20 border-t border-border-light pt-16">
+          <section className="mt-20 border-t border-[var(--kit-line)] pt-16">
             <SectionHeader
               title="You May Also Like"
               subtitle="Handcrafted pieces from the same master artisan workshops"
             />
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4 mt-8">
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
               {relatedProducts.slice(0, 4).map((related) => (
                 <ProductCard key={related.id} product={related} />
               ))}

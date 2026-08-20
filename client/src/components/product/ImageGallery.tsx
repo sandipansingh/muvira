@@ -12,7 +12,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, title }) => 
 
   return (
     <div className="space-y-4">
-      <div className="aspect-[4/3] overflow-hidden rounded-[2rem] bg-neutral-100 border border-neutral-100 shadow-sm sm:aspect-square">
+      <div className="aspect-square overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]">
         {activeImage ? (
           <img src={activeImage} alt={title} className="h-full w-full object-cover" />
         ) : (
@@ -28,10 +28,10 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({ images, title }) => 
               key={`${image}-${index}`}
               type="button"
               onClick={() => setActiveImage(image)}
-              className={`h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 transition-all cursor-pointer ${
+              className={`h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-[var(--kit-radius-control)] border-2 transition-colors ${
                 activeImage === image
-                  ? 'border-neutral-900 shadow-xs'
-                  : 'border-border-light opacity-70 hover:opacity-100'
+                  ? 'border-[var(--kit-ink)]'
+                  : 'border-[var(--kit-line)] opacity-70 hover:opacity-100'
               }`}
               aria-label={`View ${title} image ${index + 1}`}
             >

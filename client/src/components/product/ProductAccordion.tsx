@@ -20,23 +20,25 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({ product }) =
   const metadataEntries = Object.entries(product.metadata || {})
 
   return (
-    <div className="mt-16 border-t border-border-light">
+    <div className="mt-16 border-t border-[var(--kit-line)]">
       {sections.map((section) => {
         const isOpen = openSection === section.id
         const contentId = `product-detail-${section.id}`
         return (
-          <div key={section.id} className="border-b border-border-light">
+          <div key={section.id} className="border-b border-[var(--kit-line)]">
             <button
               type="button"
               onClick={() => setOpenSection(isOpen ? null : section.id)}
-              className="flex min-h-12 w-full items-center justify-between gap-4 py-5 text-left font-display text-base sm:text-lg font-bold text-foreground transition-colors hover:text-brand cursor-pointer"
+              className="flex min-h-12 w-full cursor-pointer items-center justify-between gap-4 py-5 text-left font-display text-base font-bold text-[var(--kit-ink)] transition-colors hover:text-[var(--kit-muted)] sm:text-lg"
               aria-expanded={isOpen}
               aria-controls={contentId}
             >
               <span>{section.label}</span>
               <span
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 ${
-                  isOpen ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-800'
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--kit-radius-control)] transition-colors duration-200 ${
+                  isOpen
+                    ? 'bg-[var(--kit-ink)] text-white'
+                    : 'bg-[var(--kit-surface)] text-[var(--kit-ink)]'
                 }`}
               >
                 <ChevronDown
@@ -60,7 +62,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({ product }) =
                       metadataEntries.map(([key, value]) => (
                         <div
                           key={key}
-                          className="flex justify-between gap-4 border-t border-neutral-100 pt-3"
+                          className="flex justify-between gap-4 border-t border-[var(--kit-line)] pt-3"
                         >
                           <span className="font-semibold text-foreground">{key}</span>
                           <span>{value}</span>

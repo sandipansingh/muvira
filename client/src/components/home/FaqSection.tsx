@@ -58,22 +58,20 @@ export const FaqSection: React.FC = () => {
   }
 
   return (
-    <section id="faq" className="pt-gap-section pb-gap-major scroll-mt-24 layout-container">
+    <section id="faq" className="editorial-container scroll-mt-24 pb-20 pt-12 sm:pb-24 sm:pt-16">
       {/* Header Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 md:mb-16 items-end">
         <div className="lg:col-span-2 text-left">
-          <div className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-3">
-            FAQ
-          </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.1] max-w-2xl font-display">
+          <div className="kit-eyebrow mb-3">FAQ</div>
+          <h2 className="kit-heading max-w-2xl text-3xl leading-[1.1] md:text-5xl">
             Questions, Answered Plainly.
           </h2>
         </div>
         <div className="text-left lg:pl-8 border-l-0 lg:border-l lg:border-border-light">
-          <h4 className="text-base font-bold text-foreground mb-1">
+          <h4 className="font-display text-base font-bold text-foreground mb-1">
             Didn&apos;t see your question?
           </h4>
-          <p className="text-sm text-neutral-500 leading-relaxed font-normal">
+          <p className="kit-body-copy text-sm">
             Our workshop team is here to help &mdash; just{' '}
             {contactHref ? (
               <a
@@ -97,24 +95,24 @@ export const FaqSection: React.FC = () => {
 
       {/* Body Grid: Left Image + Right Accordions */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="hidden lg:block lg:col-span-5 relative w-full h-[520px]">
+        <div className="relative hidden h-[520px] w-full lg:col-span-5 lg:block">
           <img
             src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1200&q=85"
             alt="Artisan shaping timber at the workshop"
-            className="w-full h-full object-cover rounded-[32px] shadow-sm"
+            className="h-full w-full rounded-[var(--kit-radius-card)] object-cover"
           />
         </div>
 
-        <div className="col-span-1 lg:col-span-7 flex flex-col gap-4">
+        <div className="col-span-1 flex flex-col gap-0 lg:col-span-7">
           {FAQ_ITEMS.map((faq, index) => {
             const isOpen = activeIndex === index
             const trigger = (
-              <div className="w-full px-6 py-5 flex items-center justify-between text-left group">
-                <span className="text-sm md:text-base font-semibold text-neutral-800 tracking-tight transition-colors duration-200 group-hover:text-neutral-950">
+              <div className="group flex w-full items-center justify-between px-0 py-5 text-left">
+                <span className="text-sm font-semibold tracking-tight text-neutral-800 transition-colors duration-200 group-hover:text-neutral-950 md:text-base">
                   {faq.question}
                 </span>
                 <span
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 ml-4 ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--kit-radius-control)] transition-colors duration-200 ml-4 ${
                     isOpen
                       ? 'bg-neutral-900 text-white'
                       : 'bg-neutral-100 text-neutral-800 group-hover:bg-neutral-200'
@@ -136,9 +134,9 @@ export const FaqSection: React.FC = () => {
                 onToggle={() => toggleAccordion(index)}
                 trigger={trigger}
                 duration={0.25}
-                className="bg-white border border-border-light rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] transition-all duration-300 overflow-hidden"
+                className="overflow-hidden border-b border-[var(--kit-line)]"
               >
-                <div className="px-6 pb-6 text-sm text-neutral-500 leading-relaxed pt-2 border-t border-border-light/60">
+                <div className="pb-6 pt-2 text-sm leading-relaxed text-neutral-500">
                   {faq.answer}
                 </div>
               </AccordionItem>

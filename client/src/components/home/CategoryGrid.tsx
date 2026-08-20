@@ -48,14 +48,12 @@ export const CategoryGrid: React.FC = () => {
   const visibleCategories = categories.length > 0 ? categories : []
 
   return (
-    <section className="py-8 sm:py-14 layout-container overflow-hidden">
+    <section className="editorial-container overflow-hidden py-12 sm:py-16">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
         <div>
-          <span className="text-h7 text-neutral-400 mb-1.5 block">Catalogs</span>
-          <h2 className="text-h2 text-theme-dark font-display tracking-tight">
-            Fresh arrivals and new selections.
-          </h2>
+          <span className="kit-eyebrow mb-1.5 block">Catalogs</span>
+          <h2 className="kit-heading text-h2">Fresh arrivals and new selections.</h2>
         </div>
 
         {/* Right Controls */}
@@ -63,7 +61,7 @@ export const CategoryGrid: React.FC = () => {
           <button
             type="button"
             onClick={scrollLeft}
-            className="w-9 h-9 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 text-theme-dark flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] cursor-pointer"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -71,15 +69,12 @@ export const CategoryGrid: React.FC = () => {
           <button
             type="button"
             onClick={scrollRight}
-            className="w-9 h-9 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 text-theme-dark flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] cursor-pointer"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
-          <Link
-            to="/shop"
-            className="rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 px-4 py-2 text-xs font-semibold text-theme-dark transition-all shadow-xs"
-          >
+          <Link to="/shop" className="kit-button-secondary min-h-10 px-4 py-2 text-xs">
             View all
           </Link>
         </div>
@@ -93,16 +88,16 @@ export const CategoryGrid: React.FC = () => {
           {[1, 2, 3, 4].map((item) => (
             <div
               key={item}
-              className="aspect-[3/4] w-[260px] sm:w-auto shrink-0 rounded-2xl animate-pulse bg-theme-card"
+              className="aspect-[3/4] w-[260px] shrink-0 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
             />
           ))}
         </div>
       )}
 
-      {!loading && error && <p className="text-sm text-theme-muted">{error}</p>}
+      {!loading && error && <p className="kit-body-copy text-sm">{error}</p>}
 
       {!loading && !error && visibleCategories.length === 0 && (
-        <p className="text-sm text-theme-muted">
+        <p className="kit-body-copy text-sm">
           Collections are being updated. Please check back soon.
         </p>
       )}
@@ -116,32 +111,30 @@ export const CategoryGrid: React.FC = () => {
             <Link
               key={category.id}
               to={`/shop?category=${category.slug}`}
-              className="group relative w-[260px] sm:w-auto shrink-0 snap-start bg-theme-card rounded-2xl border border-neutral-200/60 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+              className="group relative flex w-[260px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
             >
               {/* Image Area */}
-              <div className="relative aspect-[3/4] overflow-hidden p-3">
+              <div className="relative aspect-[3/4] overflow-hidden">
                 <img
                   src={category.imageUrl}
                   alt={category.name}
-                  className="h-full w-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
                   loading="lazy"
                 />
               </div>
 
               {/* Title & Action Link */}
-              <div className="px-5 pb-5 pt-1 flex items-center justify-between">
+              <div className="flex items-center justify-between px-4 pb-4 pt-3">
                 <div>
-                  <h3 className="font-semibold text-base sm:text-lg text-theme-dark leading-snug group-hover:text-brand transition-colors">
-                    {category.name}
-                  </h3>
+                  <h3 className="kit-product-card__name text-base sm:text-lg">{category.name}</h3>
                   {category.itemCount !== undefined && (
-                    <p className="text-xs text-theme-muted font-medium mt-0.5">
+                    <p className="kit-product-card__meta mt-1 font-medium">
                       {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
                     </p>
                   )}
                 </div>
 
-                <div className="w-8 h-8 rounded-full bg-white shadow-xs flex items-center justify-center text-theme-dark group-hover:bg-theme-dark group-hover:text-white transition-all duration-300 shrink-0 ml-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--kit-radius-control)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors group-hover:bg-[var(--kit-ink)] group-hover:text-white ml-2">
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>

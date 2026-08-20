@@ -53,54 +53,54 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   }
 
   return (
-    <section className="mt-space-16 border-t border-rule pt-space-12">
+    <section className="mt-16 border-t border-[var(--kit-line)] pt-12">
       <div className="mb-space-8 flex flex-col justify-between gap-space-4 sm:flex-row sm:items-end">
         <div>
-          <p className="editorial-label">Reviews</p>
-          <h2 className="editorial-heading mt-space-2 text-heading-m-mobile sm:text-heading-m-desktop">
-            Customer reviews
-          </h2>
+          <p className="kit-eyebrow">Reviews</p>
+          <h2 className="kit-heading mt-2 text-2xl sm:text-3xl">Customer reviews</h2>
         </div>
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="editorial-link self-start border-0 bg-transparent p-0 sm:self-auto"
+          className="self-start border-0 bg-transparent p-0 text-sm font-semibold text-[var(--kit-ink)] underline underline-offset-4 transition-colors hover:text-[var(--kit-muted)] sm:self-auto"
         >
           Write a review
         </button>
       </div>
 
-      <div className="mb-space-12 grid border-y border-rule md:grid-cols-3">
-        <div className="border-b border-rule py-space-6 md:border-b-0 md:border-r md:pr-space-8">
-          <span className="font-display text-heading-m-mobile font-semibold text-ink sm:text-heading-m-desktop">
+      <div className="mb-12 grid border-y border-[var(--kit-line)] md:grid-cols-3">
+        <div className="border-b border-[var(--kit-line)] py-6 md:border-b-0 md:border-r md:pr-8">
+          <span className="font-display text-2xl font-semibold text-[var(--kit-ink)] sm:text-3xl">
             {ratingAvg ? ratingAvg.toFixed(1) : '—'}
           </span>
-          {ratingAvg ? <span className="ml-space-2 text-ui text-muted">out of 5</span> : null}
-          <span className="mt-space-2 block text-ui text-muted">
+          {ratingAvg ? (
+            <span className="ml-2 text-sm text-[var(--kit-muted)]">out of 5</span>
+          ) : null}
+          <span className="mt-2 block text-sm text-[var(--kit-muted)]">
             Based on {reviewCount} reviews
           </span>
         </div>
-        <p className="py-space-6 text-body text-muted md:col-span-2 md:pl-space-8">
+        <p className="py-6 text-base leading-relaxed text-[var(--kit-muted)] md:col-span-2 md:pl-8">
           Every review is tied to a delivered and paid order. Your feedback helps other customers
           choose pieces with confidence.
         </p>
       </div>
 
-      <div className="divide-y divide-rule">
+      <div className="divide-y divide-[var(--kit-line)]">
         {reviews.length === 0 && (
-          <p className="py-space-6 text-body text-muted">
+          <p className="py-6 text-base text-[var(--kit-muted)]">
             This product does not have any reviews yet.
           </p>
         )}
         {reviews.map((review) => (
-          <article key={review.id} className="py-space-6">
-            <div className="flex items-start justify-between gap-space-3">
+          <article key={review.id} className="py-6">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-body font-semibold text-ink">
+                <h3 className="text-base font-semibold text-[var(--kit-ink)]">
                   {review.userName || 'Muvira customer'}
                 </h3>
               </div>
-              <time className="text-ui text-muted">
+              <time className="text-sm text-[var(--kit-muted)]">
                 {new Date(review.createdAt).toLocaleDateString('en-IN', {
                   month: 'short',
                   day: 'numeric',
@@ -108,30 +108,34 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 })}
               </time>
             </div>
-            <p className="mt-space-2 text-ui font-semibold text-ink">{review.rating} out of 5</p>
+            <p className="mt-2 text-sm font-semibold text-[var(--kit-ink)]">
+              {review.rating} out of 5
+            </p>
             {review.comment && (
-              <p className="mt-space-3 max-w-2xl text-body text-muted">“{review.comment}”</p>
+              <p className="mt-3 max-w-2xl text-base leading-relaxed text-[var(--kit-muted)]">
+                “{review.comment}”
+              </p>
             )}
           </article>
         ))}
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
-        <form onSubmit={handleReviewSubmit} className="space-y-space-6">
+        <form onSubmit={handleReviewSubmit} className="space-y-6">
           {!isAuthenticated && (
-            <p className="text-ui text-warning">
+            <p className="text-sm text-warning">
               Sign in with the account used for your purchase to submit a review.
             </p>
           )}
           <div>
-            <p className="mb-space-2 text-ui font-semibold text-ink">Your rating</p>
-            <div className="flex gap-space-2">
+            <p className="mb-2 text-sm font-semibold text-[var(--kit-ink)]">Your rating</p>
+            <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
                   type="button"
                   onClick={() => setNewRating(star)}
-                  className="min-h-11 min-w-11 p-space-2 text-terracotta"
+                  className="min-h-11 min-w-11 p-2 text-[var(--kit-ink)]"
                   aria-label={`Rate ${star} out of 5`}
                 >
                   <Star className={`h-6 w-6 ${star <= newRating ? 'fill-current' : 'text-line'}`} />
@@ -142,7 +146,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <div>
             <label
               htmlFor="review-comment"
-              className="mb-space-2 block text-ui font-semibold text-ink"
+              className="mb-2 block text-sm font-semibold text-[var(--kit-ink)]"
             >
               Review
             </label>
@@ -159,7 +163,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             type="submit"
             disabled={submitting || !isAuthenticated}
-            className="editorial-button w-full"
+            className="kit-button w-full"
           >
             {submitting ? 'Saving review...' : 'Submit review'}
           </button>

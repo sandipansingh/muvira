@@ -1,5 +1,4 @@
 import React from 'react'
-import { SegmentedControl } from '../common/SegmentedControl'
 
 interface FilterBarProps {
   categories: { name: string; slug: string }[]
@@ -18,40 +17,53 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onSortChange,
   totalCount,
 }) => {
-  const options = [
-    { label: 'All Products', value: 'all' },
-    ...categories.map((c) => ({ label: c.name, value: c.slug })),
-  ]
-
   return (
-    <div className="mb-8 border-y border-border-light py-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="no-scrollbar flex items-center overflow-x-auto pb-1 lg:pb-0">
-          <SegmentedControl
-            options={options}
-            value={selectedCategory}
-            onChange={onSelectCategory}
-            layoutId="shop-category-filter"
-            size="sm"
-          />
+    <div className="mb-10 grid gap-8 border-y border-[var(--kit-line)] py-6 lg:grid-cols-[12rem_1fr]">
+      <div>
+        <p className="kit-eyebrow mb-3">Categories</p>
+        <div className="no-scrollbar flex gap-2 overflow-x-auto lg:flex-col lg:gap-1">
+          {[{ name: 'All Products', slug: 'all' }, ...categories].map((category) => {
+            const isSelected = selectedCategory === category.slug
+            return (
+              <button
+                key={category.slug}
+                type="button"
+                onClick={() => onSelectCategory(category.slug)}
+                className={`shrink-0 border-b-2 px-1 py-2 text-left text-sm transition-colors lg:w-full ${
+                  isSelected
+                    ? 'border-[var(--kit-ink)] font-semibold text-[var(--kit-ink)]'
+                    : 'border-transparent text-[var(--kit-muted)] hover:text-[var(--kit-ink)]'
+                }`}
+                aria-pressed={isSelected}
+              >
+                {category.name}
+              </button>
+            )
+          })}
         </div>
-
-        <div className="flex items-center justify-between gap-4 text-xs font-semibold text-neutral-500 lg:justify-end">
+      </div>
+      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+        <div>
+          <p className="kit-eyebrow mb-2">Collection</p>
+          <p className="font-display text-xl font-semibold text-[var(--kit-ink)]">
+            Thoughtful pieces for lived-in rooms
+          </p>
+        </div>
+        <div className="flex items-center justify-between gap-4 text-sm text-[var(--kit-muted)] lg:justify-end">
           <span aria-live="polite">
-            <strong className="font-bold text-foreground">{totalCount}</strong> pieces found
+            <strong className="font-semibold text-[var(--kit-ink)]">{totalCount}</strong> pieces
           </span>
-
           <label
-            className="flex items-center gap-2 text-xs font-bold text-foreground"
+            className="flex items-center gap-2 font-semibold text-[var(--kit-ink)]"
             htmlFor="shop-sort"
           >
-            <span>Sort:</span>
+            <span>Sort by</span>
             <select
               id="shop-sort"
               name="sort"
               value={sortBy}
               onChange={(event) => onSortChange(event.target.value)}
-              className="rounded-xl border border-border-light bg-neutral-50/80 py-1.5 px-3 text-xs font-semibold text-foreground transition-colors hover:border-neutral-300 focus:border-foreground focus:outline-none cursor-pointer"
+              className="kit-input h-11 min-h-11 w-auto cursor-pointer py-2 text-base"
             >
               <option value="popularity">Popularity</option>
               <option value="price_asc">Price: Low to High</option>

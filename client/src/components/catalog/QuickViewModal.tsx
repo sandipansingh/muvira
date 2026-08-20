@@ -48,7 +48,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-3">
-          <div className="aspect-square overflow-hidden rounded-2xl border border-border-light bg-theme-card flex items-center justify-center">
+          <div className="kit-media-tile flex items-center justify-center">
             {selectedImage ? (
               <img src={selectedImage} alt={product.name} className="h-full w-full object-cover" />
             ) : (
@@ -64,10 +64,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setSelectedImage(image)}
-                  className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border transition-all cursor-pointer ${
+                  className={`h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-[var(--kit-radius-control)] border transition-colors ${
                     selectedImage === image
-                      ? 'border-neutral-900 ring-2 ring-neutral-900/10'
-                      : 'border-border-light opacity-60 hover:opacity-100'
+                      ? 'border-[var(--kit-ink)]'
+                      : 'border-[var(--kit-line)] opacity-60 hover:opacity-100'
                   }`}
                   aria-label={`View image ${index + 1}`}
                 >
@@ -85,15 +85,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
         <div className="flex flex-col justify-between gap-6">
           <div>
             <div className="flex items-start justify-between gap-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-                {categoryName}
-              </span>
+              <span className="kit-eyebrow">{categoryName}</span>
               <StockBadge
                 quantity={'stock' in product ? product.stock : 10}
                 isAvailable={'inStock' in product ? product.inStock : true}
               />
             </div>
-            <h2 className="text-2xl font-bold text-theme-dark mt-2 font-display">{product.name}</h2>
+            <h2 className="kit-heading mt-2 text-2xl">{product.name}</h2>
             <div className="mt-3">
               {product.rating !== null && product.rating !== undefined ? (
                 <RatingStars
@@ -107,42 +105,40 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               )}
             </div>
             <div className="mt-4 flex items-baseline gap-3">
-              <span className="text-2xl font-bold text-theme-dark">
+              <span className="font-display text-2xl font-bold text-[var(--kit-ink)]">
                 {formatPrice(product.price)}
               </span>
               {product.salePrice && product.salePrice > product.price && (
-                <span className="text-sm text-theme-muted line-through">
+                <span className="kit-product-card__meta line-through">
                   {formatPrice(product.salePrice)}
                 </span>
               )}
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-neutral-600 line-clamp-3">
+            <p className="kit-body-copy mt-4 line-clamp-3 text-sm">
               {'description' in product
                 ? product.description
                 : product.shortDescription || 'Description unavailable.'}
             </p>
           </div>
 
-          <div className="border-t border-border-light pt-4 space-y-4">
+          <div className="space-y-4 border-t border-[var(--kit-line)] pt-4">
             <div className="flex items-center gap-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
-                Quantity
-              </span>
-              <div className="flex items-center rounded-full border border-border-light bg-neutral-50/60 p-1">
+              <span className="kit-eyebrow">Quantity</span>
+              <div className="flex items-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-surface)] p-1">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-neutral-100 transition-all font-bold cursor-pointer"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] font-bold text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-line)]"
                 >
                   −
                 </button>
-                <span className="min-w-8 text-center text-sm font-bold text-foreground">
+                <span className="min-w-8 text-center text-sm font-bold text-[var(--kit-ink)]">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-neutral-100 transition-all font-bold cursor-pointer"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] font-bold text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-line)]"
                 >
                   +
                 </button>
@@ -153,7 +149,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 type="button"
                 onClick={handleAddToCart}
                 disabled={added}
-                className="py-3 px-5 bg-theme-dark hover:bg-black text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
+                className="kit-button px-5 text-xs"
               >
                 {added ? (
                   <>

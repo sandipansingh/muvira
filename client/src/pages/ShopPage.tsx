@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
@@ -94,16 +94,42 @@ export const ShopPage: React.FC = () => {
 
   return (
     <main className="editorial-page py-10 sm:py-16">
-      <div className="layout-container">
-        <div className="mb-8 max-w-3xl">
-          <span className="text-h7 text-neutral-400 mb-2 block">Muvira / Catalog</span>
-          <h1 className="text-h1 text-theme-dark font-display">
+      <div className="editorial-container">
+        <header className="kit-page-header mb-10">
+          <nav
+            className="flex items-center gap-2 text-xs font-medium text-[var(--kit-muted)]"
+            aria-label="Breadcrumb"
+          >
+            <Link to="/" className="transition-colors hover:text-[var(--kit-ink)]">
+              Home
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span className="text-[var(--kit-ink)]">Shop</span>
+          </nav>
+          <span className="kit-eyebrow">Muvira / Catalog</span>
+          <h1 className="kit-heading text-4xl sm:text-6xl">
             {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
           </h1>
-          <p className="mt-3 text-body-16 text-theme-muted font-normal leading-relaxed">
+          <p className="kit-body-copy max-w-2xl">
             Considered solid wood furniture handcrafted for the home you are building, one room at a
             time.
           </p>
+        </header>
+
+        <div className="mb-10 grid min-h-40 items-center overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] px-6 py-8 sm:px-10 lg:grid-cols-[1fr_18rem]">
+          <div>
+            <p className="kit-eyebrow mb-2">Made for daily living</p>
+            <p className="max-w-xl font-display text-2xl font-semibold tracking-tight text-[var(--kit-ink)] sm:text-3xl">
+              Pieces that make a room feel considered.
+            </p>
+          </div>
+          {categories[0]?.imageUrl ? (
+            <img
+              src={categories[0].imageUrl}
+              alt="Muvira furniture collection"
+              className="hidden h-40 w-full rounded-[var(--kit-radius-card)] object-cover lg:block"
+            />
+          ) : null}
         </div>
 
         {!categoriesLoading && (
@@ -128,7 +154,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setRefreshToken((value) => value + 1)}
-              className="editorial-button mt-6"
+              className="kit-button mt-6"
             >
               Try Again
             </button>
@@ -138,28 +164,25 @@ export const ShopPage: React.FC = () => {
             <ProductGrid products={products} loading={loading} />
             {!loading && totalPages > 1 && (
               <nav
-                className="mt-12 flex items-center justify-center gap-4 border-t border-border-light pt-8"
+                className="mt-12 flex items-center justify-center gap-6 border-t border-[var(--kit-line)] pt-8"
                 aria-label="Product pages"
               >
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => updateParams({ page: String(page - 1) })}
-                  className="text-xs sm:text-sm font-bold text-foreground underline decoration-border-light underline-offset-4 transition-colors hover:text-brand hover:decoration-brand disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-semibold text-[var(--kit-ink)] underline decoration-[var(--kit-line)] underline-offset-4 transition-colors hover:decoration-[var(--kit-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span
-                  className="text-xs sm:text-sm font-semibold text-neutral-500"
-                  aria-current="page"
-                >
+                <span className="text-sm font-medium text-[var(--kit-muted)]" aria-current="page">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => updateParams({ page: String(page + 1) })}
-                  className="text-xs sm:text-sm font-bold text-foreground underline decoration-border-light underline-offset-4 transition-colors hover:text-brand hover:decoration-brand disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-semibold text-[var(--kit-ink)] underline decoration-[var(--kit-line)] underline-offset-4 transition-colors hover:decoration-[var(--kit-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Next
                 </button>

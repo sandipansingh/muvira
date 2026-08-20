@@ -48,12 +48,12 @@ export const BestSellers: React.FC = () => {
   )
 
   return (
-    <section id="featured-pieces" className="py-8 sm:py-14 layout-container overflow-hidden">
+    <section id="featured-pieces" className="editorial-container overflow-hidden py-12 sm:py-16">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
         <div>
-          <span className="text-h7 text-neutral-400 mb-1.5 block">Featured</span>
-          <h2 className="text-h2 text-theme-dark font-display tracking-tight">Our Best Sellers</h2>
+          <span className="kit-eyebrow mb-1.5 block">Featured</span>
+          <h2 className="kit-heading text-h2">Our Best Sellers</h2>
         </div>
 
         {/* Right Controls: Category Pills & View All */}
@@ -68,10 +68,7 @@ export const BestSellers: React.FC = () => {
               size="sm"
             />
           )}
-          <Link
-            to="/shop"
-            className="rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 px-4 py-2 text-xs font-semibold text-theme-dark transition-all shadow-xs shrink-0"
-          >
+          <Link to="/shop" className="kit-button-secondary min-h-10 shrink-0 px-4 py-2 text-xs">
             View all
           </Link>
         </div>
@@ -85,23 +82,21 @@ export const BestSellers: React.FC = () => {
           {[1, 2, 3, 4].map((item) => (
             <div
               key={item}
-              className="flex flex-col gap-2 w-[280px] sm:w-auto shrink-0 animate-pulse"
+              className="flex w-[280px] shrink-0 animate-pulse flex-col gap-2 sm:w-auto"
             >
-              <div className="aspect-[3/4] sm:aspect-square rounded-xl bg-theme-card" />
-              <div className="h-3 w-16 bg-neutral-200 rounded" />
-              <div className="h-4 w-3/4 bg-neutral-200 rounded" />
-              <div className="h-4 w-1/3 bg-neutral-200 rounded" />
+              <div className="aspect-[3/4] rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:aspect-square" />
+              <div className="h-3 w-16 rounded bg-[var(--kit-line)]" />
+              <div className="h-4 w-3/4 rounded bg-[var(--kit-line)]" />
+              <div className="h-4 w-1/3 rounded bg-[var(--kit-line)]" />
             </div>
           ))}
         </div>
       )}
 
-      {!loading && error && (
-        <div className="py-8 text-center text-sm text-theme-muted">{error}</div>
-      )}
+      {!loading && error && <div className="kit-body-copy py-8 text-center text-sm">{error}</div>}
 
       {!loading && !error && filteredProducts.length === 0 && (
-        <div className="py-8 text-center text-sm text-neutral-500">
+        <div className="kit-body-copy py-8 text-center text-sm">
           Featured pieces are being updated. Please check back soon.
         </div>
       )}
