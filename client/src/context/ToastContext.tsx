@@ -43,7 +43,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
 
       const id = Math.random().toString(36).substring(2, 9)
-      setToasts((prev) => [...prev, { id, message, type, title }])
+      setToasts((prev) => [...prev.slice(-4), { id, message, type, title }])
       setTimeout(() => {
         removeToast(id)
       }, 4000)

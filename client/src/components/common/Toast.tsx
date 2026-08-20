@@ -1,74 +1,142 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react'
 import { useToast } from '../../context/ToastContext'
 
+const MAX_VISIBLE_TOASTS = 5
+const TOAST_GAP_UNHOVERED = 12
+const TOAST_HEIGHT_HOVERED = 68
+
 export const ToastContainer: React.FC = () => {
   const { toasts, removeToast } = useToast()
+  const [isHovered, setIsHovered] = useState(false)
+
+  const visibleToasts = toasts.slice(-MAX_VISIBLE_TOASTS)
+  const total = visibleToasts.length
 
   const renderIcon = (type: 'success' | 'error' | 'info') => {
     switch (type) {
       case 'error':
         return (
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600 border border-red-100">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-100 bg-red-50 text-red-600">
             <AlertCircle className="h-4 w-4" />
           </div>
         )
       case 'success':
         return (
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600">
             <CheckCircle2 className="h-4 w-4" />
           </div>
         )
       case 'info':
       default:
         return (
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600">
             <Info className="h-4 w-4" />
           </div>
         )
     }
   }
 
+  if (total === 0) return null
+
+  const containerHeight = isHovered
+    ? total * TOAST_HEIGHT_HOVERED + 20
+    : 72 + (total - 1) * TOAST_GAP_UNHOVERED + 10
+
   return (
     <div
-      className="pointer-events-none fixed bottom-5 right-5 z-[99999] flex w-auto max-w-[min(21rem,calc(100vw-2.5rem))] flex-col gap-2"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="pointer-events-auto fixed bottom-6 right-6 z-[99999] flex select-none items-end justify-end"
+      style={{
+        width: 380,
+        maxWidth: 'calc(100vw - 2rem)',
+        height: containerHeight,
+      }}
       aria-live="polite"
     >
-      <AnimatePresence>
-        {toasts.map((toast) => (
-          <motion.div
-            key={toast.id}
-            initial={{ opacity: 0, y: 16, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.94 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="kit-overlay-panel pointer-events-auto flex items-center gap-2.5 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] py-2 pl-2.5 pr-3"
-          >
-            {renderIcon(toast.type)}
+      <div className="relative h-full w-full">
+        <AnimatePresence mode="popLayout">
+          {visibleToasts.map((toast, index) => {
+            const offsetFromTop = total - 1 - index
+            const isFront = offsetFromTop === 0
 
-            <div className="flex flex-col text-left flex-1 min-w-0">
-              {toast.title && (
-                <span className="text-[11px] font-bold text-neutral-900 leading-tight truncate">
-                  {toast.title}
-                </span>
-              )}
-              <span className="text-xs font-medium text-neutral-700 leading-snug line-clamp-2">
-                {toast.message}
-              </span>
-            </div>
+            const targetY = isHovered
+              ? -offsetFromTop * TOAST_HEIGHT_HOVERED
+              : -offsetFromTop * TOAST_GAP_UNHOVERED
 
-            <button
-              type="button"
-              onClick={() => removeToast(toast.id)}
-              className="ml-1 shrink-0 p-1 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-full transition-colors cursor-pointer"
-              aria-label="Dismiss notification"
-            >
-              <X className="h-3.5 w-3.5 text-neutral-400" />
-            </button>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            const targetScale = isHovered ? 1 : Math.max(0.8, 1 - offsetFromTop * 0.05)
+            const targetOpacity = isHovered
+              ? 1
+              : offsetFromTop >= 4
+                ? 0.4
+                : Math.max(0.6, 1 - offsetFromTop * 0.12)
+
+            return (
+              <motion.div
+                key={toast.id}
+                layout
+                initial={{ opacity: 0, y: 24, scale: 0.88 }}
+                animate={{
+                  opacity: targetOpacity,
+                  y: targetY,
+                  scale: targetScale,
+                  zIndex: total - offsetFromTop,
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.8,
+                  y: 16,
+                  transition: { duration: 0.18, ease: 'easeIn' },
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 400,
+                  damping: 32,
+                  mass: 0.8,
+                }}
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  transformOrigin: 'bottom center',
+                }}
+                className={`flex w-full items-center gap-3 rounded-2xl border border-neutral-200/90 bg-white/95 p-3.5 backdrop-blur-md transition-shadow duration-200 ${
+                  isFront || isHovered
+                    ? 'shadow-[0_12px_32px_rgba(0,0,0,0.12)]'
+                    : 'shadow-[0_4px_16px_rgba(0,0,0,0.06)]'
+                }`}
+              >
+                {renderIcon(toast.type)}
+
+                <div className="flex min-w-0 flex-1 flex-col text-left">
+                  {toast.title && (
+                    <span className="truncate text-xs font-bold leading-snug text-neutral-900">
+                      {toast.title}
+                    </span>
+                  )}
+                  <span className="line-clamp-2 text-xs font-medium leading-snug text-neutral-700">
+                    {toast.message}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeToast(toast.id)
+                  }}
+                  className="shrink-0 cursor-pointer rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+                  aria-label="Dismiss notification"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+      </div>
     </div>
   )
 }
