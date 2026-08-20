@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ArrowRight, Star, ThumbsUp } from 'lucide-react'
+import { Star, ThumbsUp } from 'lucide-react'
 import type { ProductReview } from '../../lib/types/product'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -9,13 +9,14 @@ import { Modal } from '../common/Modal'
 
 interface ReviewsSectionProps {
   productId: string
+  productName?: string
   ratingAvg: number | null
   reviewCount: number
   reviews: ProductReview[]
   onReviewSubmitted?: () => Promise<void>
 }
 
-/* Sample reviewer avatar images matching design reference aesthetics */
+/* Reviewer avatars matching design reference aesthetics */
 const sampleAvatars = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
@@ -24,8 +25,11 @@ const sampleAvatars = [
   'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=120&q=80',
 ]
 
+const reactionEmojis = ['❤️', '👏', '👍', '😄', '😮']
+
 export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   productId,
+  productName = 'Tray Table',
   ratingAvg,
   reviewCount,
   reviews,
@@ -67,7 +71,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   const effectiveRating = ratingAvg ?? 5
   const totalReviewDisplay = reviewCount || 11
 
-  /* Fallback mock reviews matching reference design */
+  /* Fallback mock reviews matching design reference */
   const displayReviews =
     reviews.length > 0
       ? reviews
@@ -79,7 +83,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             userName: 'Sofia Harvertz',
             rating: 5,
             comment:
-              "Bought it 3 weeks ago and now some users ask to say 'Awesome product!'. I really enjoy it. Light and easy to move around with removable tray top, handy for serving snacks.",
+              'I bought it 3 weeks ago and now come back just to say "Awesome Product!". I really enjoy it. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint non provident.',
             createdAt: new Date().toISOString(),
           },
           {
@@ -89,7 +93,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             userName: 'Nicolas Jensen',
             rating: 5,
             comment:
-              "Bought it 3 weeks ago and now some users ask to say 'Awesome product!'. I really enjoy it. The craft and finish are exceptional.",
+              'I bought it 3 weeks ago and now come back just to say "Awesome Product!". I really enjoy it. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint non provident.',
             createdAt: new Date().toISOString(),
           },
           {
@@ -99,7 +103,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             userName: 'Nicolas Jensen',
             rating: 5,
             comment:
-              "Bought it 3 weeks ago and now some users ask to say 'Awesome product!'. Very sturdy and complements the rest of my room perfectly.",
+              'I bought it 3 weeks ago and now come back just to say "Awesome Product!". I really enjoy it. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint non provident.',
             createdAt: new Date().toISOString(),
           },
           {
@@ -109,7 +113,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             userName: 'Nicolas Jensen',
             rating: 5,
             comment:
-              "Bought it 3 weeks ago and now some users ask to say 'Awesome product!'. Delivery was prompt and packaging was completely secure.",
+              'I bought it 3 weeks ago and now come back just to say "Awesome Product!". I really enjoy it. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint non provident.',
             createdAt: new Date().toISOString(),
           },
           {
@@ -119,93 +123,103 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             userName: 'Nicolas Jensen',
             rating: 5,
             comment:
-              "Bought it 3 weeks ago and now some users ask to say 'Awesome product!'. Highly recommend this piece to anyone wanting a modern aesthetic.",
+              'I bought it 3 weeks ago and now come back just to say "Awesome Product!". I really enjoy it. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint non provident.',
             createdAt: new Date().toISOString(),
           },
         ]
 
   return (
-    <div className="pt-2">
-      {/* Customer Reviews Heading */}
-      <h3 className="font-display text-xl font-bold text-[var(--kit-ink)] sm:text-2xl">
-        Customer Reviews
-      </h3>
-
-      {/* Rating Summary Row */}
-      <div className="mt-3 flex items-center justify-between border-b border-[var(--kit-line)] pb-5">
-        <div className="flex items-center gap-2">
+    <div className="py-6">
+      {/* Customer Reviews Heading & Rating Info */}
+      <div className="space-y-1">
+        <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-3xl">
+          Customer Reviews
+        </h3>
+        <div className="flex items-center gap-2 pt-1">
           <RatingStars rating={effectiveRating} size="sm" />
-          <span className="text-sm text-[var(--kit-muted)]">{totalReviewDisplay} Reviews</span>
+          <span className="text-xs font-semibold text-[var(--kit-ink)]">
+            {totalReviewDisplay} Reviews
+          </span>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="text-xs font-semibold text-[var(--kit-ink)] underline underline-offset-4 transition-colors hover:text-[var(--kit-muted)] cursor-pointer"
-        >
-          Write review
-        </button>
+        <p className="text-xs text-[var(--kit-muted)]">{productName}</p>
       </div>
 
-      {/* Share your thoughts input bar */}
-      <div className="my-5 relative flex items-center rounded-full border border-[var(--kit-line)] bg-[var(--kit-surface)] px-4 py-2.5">
+      {/* Write Review Pill Card with Reactions & Button */}
+      <div className="mt-6 flex flex-col gap-3 rounded-2xl sm:rounded-full border border-[var(--kit-line)] bg-white p-2.5 sm:flex-row sm:items-center sm:justify-between shadow-xs">
         <input
           type="text"
-          placeholder="Share your thoughts"
+          placeholder="Write your review..."
           onClick={() => setIsModalOpen(true)}
           readOnly
-          className="w-full bg-transparent text-base text-[var(--kit-ink)] placeholder-[var(--kit-muted)] outline-none cursor-pointer"
+          className="w-full bg-transparent px-3 text-sm sm:text-base text-[var(--kit-ink)] placeholder-[var(--kit-muted)] outline-none cursor-pointer"
         />
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-[var(--kit-ink)] text-white transition-opacity hover:opacity-90"
-          aria-label="Write review"
-        >
-          <ArrowRight className="h-4 w-4" />
-        </button>
+        <div className="flex items-center justify-between sm:justify-end gap-3 px-2 sm:px-0">
+          <div className="flex items-center gap-1.5 text-base">
+            {reactionEmojis.map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="cursor-pointer transition-transform hover:scale-125"
+                aria-label={`React with ${emoji}`}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="rounded-full bg-[#141718] px-5 py-2 text-xs font-semibold text-white transition-colors hover:bg-black cursor-pointer whitespace-nowrap"
+          >
+            Write Review
+          </button>
+        </div>
       </div>
 
       {/* Review Count & Sort Header */}
-      <div className="flex items-center justify-between py-4 border-b border-[var(--kit-line)]">
-        <h4 className="font-display text-lg font-bold text-[var(--kit-ink)]">
+      <div className="mt-10 flex items-center justify-between border-b border-[var(--kit-line)] pb-4">
+        <h4 className="font-display text-xl sm:text-2xl font-bold text-[var(--kit-ink)]">
           {displayReviews.length} Reviews
         </h4>
-        <select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-          className="bg-transparent text-sm font-semibold text-[var(--kit-ink)] outline-none cursor-pointer"
-          aria-label="Sort reviews"
-        >
-          <option value="Newest">Newest</option>
-          <option value="Highest">Highest Rating</option>
-          <option value="Lowest">Lowest Rating</option>
-        </select>
+        <div className="relative">
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="cursor-pointer rounded-lg border border-[var(--kit-line)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--kit-ink)] outline-none"
+            aria-label="Sort reviews"
+          >
+            <option value="Newest">Newest</option>
+            <option value="Highest">Highest Rating</option>
+            <option value="Lowest">Lowest Rating</option>
+          </select>
+        </div>
       </div>
 
       {/* Reviews List */}
       <div className="divide-y divide-[var(--kit-line)]">
         {displayReviews.slice(0, visibleCount).map((review, idx) => (
-          <article key={review.id} className="py-5">
-            <div className="flex items-start gap-3.5">
+          <article key={review.id} className="py-6 sm:py-8">
+            <div className="flex items-start gap-4 sm:gap-6">
               <img
                 src={sampleAvatars[idx % sampleAvatars.length]}
                 alt={review.userName || 'Reviewer'}
-                className="h-11 w-11 rounded-full object-cover shrink-0"
+                className="h-12 w-12 sm:h-14 sm:w-14 rounded-full object-cover shrink-0"
               />
-              <div className="space-y-1.5 flex-1 min-w-0">
-                <h5 className="font-display text-sm font-bold text-[var(--kit-ink)]">
+              <div className="space-y-2 flex-1 min-w-0">
+                <h5 className="font-display text-base font-bold text-[var(--kit-ink)]">
                   {review.userName || 'Customer'}
                 </h5>
                 <RatingStars rating={review.rating} size="xs" />
-                <p className="mt-2 text-sm leading-relaxed text-[var(--kit-muted)]">
+                <p className="pt-1 text-sm leading-relaxed text-[var(--kit-muted)] sm:text-base">
                   {review.comment}
                 </p>
 
                 {/* Like & Reply Action links */}
-                <div className="flex items-center gap-4 pt-1.5 text-xs font-semibold text-[var(--kit-muted)]">
+                <div className="flex items-center gap-5 pt-2 text-xs font-semibold text-[var(--kit-muted)]">
                   <button
                     type="button"
-                    className="flex items-center gap-1 hover:text-[var(--kit-ink)] transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 hover:text-[var(--kit-ink)] transition-colors cursor-pointer"
                   >
                     <ThumbsUp className="h-3.5 w-3.5" />
                     <span>Like</span>
@@ -225,11 +239,11 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
       {/* Load More Button */}
       {visibleCount < displayReviews.length && (
-        <div className="mt-6 flex justify-center pb-2">
+        <div className="mt-8 flex justify-center pb-4">
           <button
             type="button"
             onClick={() => setVisibleCount((prev) => prev + 5)}
-            className="rounded-full border border-[var(--kit-ink)] px-8 py-2 text-sm font-semibold text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-ink)] hover:text-white cursor-pointer"
+            className="rounded-full border border-[var(--kit-ink)] px-8 py-2.5 text-sm font-semibold text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-ink)] hover:text-white cursor-pointer"
           >
             Load more
           </button>

@@ -36,7 +36,7 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   const handleToggleSection = (sectionId: string) => {
-    setOpenAccordionSection((prev) => (prev === sectionId ? null : sectionId))
+    setOpenAccordionSection(sectionId)
   }
 
   const loadReviews = useCallback(async (productId: string) => {
