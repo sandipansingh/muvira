@@ -96,9 +96,7 @@ export const ShopPage: React.FC = () => {
     <main className="editorial-page py-10 sm:py-16">
       <div className="layout-container">
         <div className="mb-8 max-w-3xl">
-          <span className="text-h7 text-neutral-400 mb-2 block">
-            Muvira / Catalog
-          </span>
+          <span className="text-h7 text-neutral-400 mb-2 block">Muvira / Catalog</span>
           <h1 className="text-h1 text-theme-dark font-display">
             {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
           </h1>

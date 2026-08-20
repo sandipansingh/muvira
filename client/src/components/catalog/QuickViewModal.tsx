@@ -96,7 +96,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             <h2 className="text-2xl font-bold text-theme-dark mt-2 font-display">{product.name}</h2>
             <div className="mt-3">
               {product.rating !== null && product.rating !== undefined ? (
-                <RatingStars rating={product.rating} count={product.reviewCount} size="md" showText />
+                <RatingStars
+                  rating={product.rating}
+                  count={product.reviewCount}
+                  size="md"
+                  showText
+                />
               ) : (
                 <span className="text-xs text-neutral-400">No reviews yet</span>
               )}

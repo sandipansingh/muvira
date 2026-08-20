@@ -43,9 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     e.stopPropagation()
     setIsWishlisted((prev) => !prev)
     showToast(
-      isWishlisted
-        ? `Removed ${product.name} from wishlist`
-        : `Added ${product.name} to wishlist`,
+      isWishlisted ? `Removed ${product.name} from wishlist` : `Added ${product.name} to wishlist`,
       'info'
     )
   }
@@ -57,8 +55,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     setIsAdded(true)
     showToast(`Added ${product.name} to your cart`, 'success')
     setTimeout(() => {
-      setIsAdded(false), 2000
-    })
+      setIsAdded(false)
+    }, 2000)
   }
 
   const handleOpenQuickView = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -104,9 +102,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {/* Badges */}
             <div className="absolute top-3.5 left-3.5 z-20 flex flex-col gap-1.5 pointer-events-none">
               <span className="badge-new">NEW</span>
-              {discountPercent > 0 && (
-                <span className="badge-discount">-{discountPercent}%</span>
-              )}
+              {discountPercent > 0 && <span className="badge-discount">-{discountPercent}%</span>}
             </div>
           </div>
 
@@ -209,9 +205,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {/* Top-Left Badges: NEW and Discount % */}
           <div className="absolute top-3 left-3 z-20 flex flex-col gap-1.5 pointer-events-none">
             <span className="badge-new">NEW</span>
-            {discountPercent > 0 && (
-              <span className="badge-discount">-{discountPercent}%</span>
-            )}
+            {discountPercent > 0 && <span className="badge-discount">-{discountPercent}%</span>}
           </div>
 
           {/* Top-Right Favorite / Wishlist Button */}
@@ -267,7 +261,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               aria-label={`Add ${product.name} to cart`}
               title="Add to cart"
             >
-              {isAdded ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Plus className="w-3.5 h-3.5" />}
+              {isAdded ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Plus className="w-3.5 h-3.5" />
+              )}
             </button>
           </div>
         </div>

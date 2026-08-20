@@ -52,12 +52,8 @@ export const BestSellers: React.FC = () => {
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
         <div>
-          <span className="text-h7 text-neutral-400 mb-1.5 block">
-            Featured
-          </span>
-          <h2 className="text-h2 text-theme-dark font-display tracking-tight">
-            Our Best Sellers
-          </h2>
+          <span className="text-h7 text-neutral-400 mb-1.5 block">Featured</span>
+          <h2 className="text-h2 text-theme-dark font-display tracking-tight">Our Best Sellers</h2>
         </div>
 
         {/* Right Controls: Category Pills & View All */}
@@ -87,7 +83,10 @@ export const BestSellers: React.FC = () => {
           aria-busy="true"
         >
           {[1, 2, 3, 4].map((item) => (
-            <div key={item} className="flex flex-col gap-2 w-[280px] sm:w-auto shrink-0 animate-pulse">
+            <div
+              key={item}
+              className="flex flex-col gap-2 w-[280px] sm:w-auto shrink-0 animate-pulse"
+            >
               <div className="aspect-[3/4] sm:aspect-square rounded-xl bg-theme-card" />
               <div className="h-3 w-16 bg-neutral-200 rounded" />
               <div className="h-4 w-3/4 bg-neutral-200 rounded" />

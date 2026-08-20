@@ -52,9 +52,7 @@ export const CategoryGrid: React.FC = () => {
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
         <div>
-          <span className="text-h7 text-neutral-400 mb-1.5 block">
-            Catalogs
-          </span>
+          <span className="text-h7 text-neutral-400 mb-1.5 block">Catalogs</span>
           <h2 className="text-h2 text-theme-dark font-display tracking-tight">
             Fresh arrivals and new selections.
           </h2>

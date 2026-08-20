@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronDown, Heart, LogOut, Package, Search, ShoppingBag, User, X } from 'lucide-react'
+import { ChevronDown, Heart, LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
