@@ -26,8 +26,8 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
 }) => {
   const { coupon } = useCart()
   return (
-    <aside className="space-y-6 rounded-3xl border border-border-light bg-neutral-50/60 p-6 sm:p-8 lg:sticky lg:top-28">
-      <h2 className="border-b border-border-light pb-4 font-display text-xl font-bold text-foreground">
+    <aside className="kit-panel space-y-6 p-6 sm:p-8 lg:sticky lg:top-28">
+      <h2 className="border-b border-[var(--kit-line)] pb-4 font-display text-xl font-bold text-[var(--kit-ink)]">
         Order Summary
       </h2>
       <div className="max-h-60 space-y-3 overflow-y-auto dropdown-scrollbar">
@@ -46,23 +46,23 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate font-semibold text-foreground">{item.productName}</p>
-                <p className="text-neutral-500">Qty: {item.quantity}</p>
+                <p className="truncate font-semibold text-[var(--kit-ink)]">{item.productName}</p>
+                <p className="text-[var(--kit-muted)]">Qty: {item.quantity}</p>
               </div>
             </div>
-            <span className="shrink-0 font-semibold text-foreground">
+            <span className="shrink-0 font-semibold text-[var(--kit-ink)]">
               {formatPrice(item.unitPrice * item.quantity)}
             </span>
           </div>
         ))}
       </div>
-      <div className="border-t border-border-light pt-4">
+      <div className="border-t border-[var(--kit-line)] pt-4">
         <CouponInput />
       </div>
-      <div className="space-y-2 border-t border-border-light pt-4 text-xs text-neutral-600">
+      <div className="space-y-2 border-t border-[var(--kit-line)] pt-4 text-xs text-[var(--kit-muted)]">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span className="font-semibold text-foreground">{formatPrice(subtotalPaisa)}</span>
+          <span className="font-semibold text-[var(--kit-ink)]">{formatPrice(subtotalPaisa)}</span>
         </div>
         {discountPaisa > 0 && (
           <div className="flex justify-between font-semibold text-emerald-700">
@@ -72,11 +72,11 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         )}
         <div className="flex justify-between">
           <span>Shipping</span>
-          <span className="font-semibold text-foreground">
+          <span className="font-semibold text-[var(--kit-ink)]">
             {shippingPaisa === 0 ? 'FREE' : formatPrice(shippingPaisa)}
           </span>
         </div>
-        <div className="flex justify-between border-t border-border-light pt-4 text-lg font-bold text-foreground">
+        <div className="flex justify-between border-t border-[var(--kit-line)] pt-4 text-lg font-bold text-[var(--kit-ink)]">
           <span>Total</span>
           <span>{formatPrice(totalPaisa)}</span>
         </div>
@@ -85,7 +85,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         type="button"
         onClick={onPlaceOrder}
         disabled={isProcessing || items.length === 0}
-        className="editorial-button w-full py-3.5 text-sm font-bold"
+        className="kit-button w-full py-3.5 text-sm"
       >
         {isProcessing ? 'Processing payment...' : `Place order — ${formatPrice(totalPaisa)}`}
       </button>

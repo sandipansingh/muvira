@@ -178,15 +178,11 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <main className="editorial-page py-10 sm:py-16">
-      <div className="layout-container max-w-5xl space-y-10">
-        <div className="flex items-center justify-between border-b border-border-light pb-6">
+      <div className="editorial-container max-w-5xl space-y-10">
+        <div className="flex items-center justify-between border-b border-[var(--kit-line)] pb-6">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 block mb-1">
-              Account Overview
-            </span>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
-              My Profile
-            </h1>
+            <span className="kit-eyebrow mb-1 block">Account Overview</span>
+            <h1 className="kit-heading text-4xl sm:text-6xl">My Profile</h1>
           </div>
           <button
             type="button"
@@ -201,27 +197,29 @@ export const ProfilePage: React.FC = () => {
           <div className="space-y-2">
             <Link
               to="/profile"
-              className="flex items-center gap-3 rounded-2xl bg-neutral-900 text-white p-4 text-xs font-bold shadow-xs"
+              className="flex items-center gap-3 rounded-[var(--kit-radius-control)] bg-[var(--kit-ink)] p-4 text-xs font-bold text-white"
             >
               <User className="h-4 w-4" /> Personal Info
             </Link>
             <Link
               to="/orders"
-              className="flex items-center gap-3 rounded-2xl border border-border-light p-4 text-xs font-bold text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-foreground"
+              className="flex items-center gap-3 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] p-4 text-xs font-bold text-[var(--kit-muted)] transition-colors hover:bg-[var(--kit-surface)] hover:text-[var(--kit-ink)]"
             >
               <Package className="h-4 w-4" /> My Orders
             </Link>
             <a
               href="#addresses"
-              className="flex items-center gap-3 rounded-2xl border border-border-light p-4 text-xs font-bold text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-foreground"
+              className="flex items-center gap-3 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] p-4 text-xs font-bold text-[var(--kit-muted)] transition-colors hover:bg-[var(--kit-surface)] hover:text-[var(--kit-ink)]"
             >
               <MapPin className="h-4 w-4" /> Saved Addresses ({addresses.length})
             </a>
           </div>
 
           <div className="space-y-8 md:col-span-2">
-            <div className="space-y-6 rounded-3xl border border-border-light bg-neutral-50/60 p-6 sm:p-8">
-              <h2 className="font-display text-xl font-bold text-foreground">Personal Details</h2>
+            <div className="kit-panel space-y-6 p-6 sm:p-8">
+              <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">
+                Personal Details
+              </h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
                 <div>
                   <label
@@ -283,12 +281,11 @@ export const ProfilePage: React.FC = () => {
               </form>
             </div>
 
-            <section
-              id="addresses"
-              className="space-y-4 rounded-3xl border border-border-light bg-neutral-50/60 p-6 sm:p-8"
-            >
+            <section id="addresses" className="kit-panel space-y-4 p-6 sm:p-8">
               <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl font-bold text-foreground">Saved Addresses</h2>
+                <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">
+                  Saved Addresses
+                </h2>
                 <button
                   type="button"
                   onClick={openNewAddressForm}
@@ -299,10 +296,7 @@ export const ProfilePage: React.FC = () => {
               </div>
 
               {addressFormOpen && (
-                <form
-                  onSubmit={handleAddressSave}
-                  className="space-y-3 rounded-2xl border border-border-light bg-white p-5 mt-4"
-                >
+                <form onSubmit={handleAddressSave} className="kit-soft-panel mt-4 space-y-3 p-5">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
                     {editingAddressId ? 'Edit Address' : 'Add Address'}
                   </h3>
@@ -380,7 +374,7 @@ export const ProfilePage: React.FC = () => {
               )}
 
               {loadingAddresses && (
-                <div className="h-24 rounded-2xl animate-pulse bg-neutral-100" />
+                <div className="h-24 animate-pulse rounded-[var(--kit-radius-control)] bg-[var(--kit-surface)]" />
               )}
               {!loadingAddresses && addresses.length === 0 && (
                 <p className="border-y border-border-light py-5 text-sm text-neutral-500">
@@ -391,18 +385,14 @@ export const ProfilePage: React.FC = () => {
                 addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="flex flex-col gap-4 rounded-2xl border border-border-light bg-white p-4 sm:flex-row sm:items-start sm:justify-between"
+                    className="flex flex-col gap-4 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] p-4 sm:flex-row sm:items-start sm:justify-between"
                   >
                     <div className="space-y-1 text-xs text-neutral-500">
                       <div className="flex items-center gap-2">
                         <strong className="text-sm font-bold text-foreground">
                           {address.fullName}
                         </strong>
-                        {address.isDefault && (
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-brand bg-brand-light px-2 py-0.5 rounded-full">
-                            Default
-                          </span>
-                        )}
+                        {address.isDefault && <span className="kit-status-badge">Default</span>}
                       </div>
                       <p className="text-neutral-700 font-medium">
                         {address.line1}

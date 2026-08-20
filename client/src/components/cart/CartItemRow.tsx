@@ -12,10 +12,10 @@ interface CartItemRowProps {
 export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart()
   return (
-    <article className="flex items-center gap-4 border-b border-border-light pb-4">
+    <article className="flex items-center gap-4 border-b border-[var(--kit-line)] pb-4">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-neutral-100 border border-neutral-100"
+        className="h-20 w-20 shrink-0 overflow-hidden rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-surface)]"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
@@ -33,11 +33,13 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
       <div className="min-w-0 flex-1">
         <Link
           to={`/product/${item.productSlug}`}
-          className="block truncate font-display text-sm font-bold text-foreground transition-colors hover:text-brand"
+          className="block truncate font-display text-sm font-bold text-[var(--kit-ink)] transition-colors hover:text-[var(--kit-muted)]"
         >
           {item.productName}
         </Link>
-        <p className="mt-1 text-xs font-bold text-foreground">{formatPrice(item.unitPrice)}</p>
+        <p className="mt-1 text-xs font-bold text-[var(--kit-ink)]">
+          {formatPrice(item.unitPrice)}
+        </p>
         <div className="mt-2.5 inline-flex items-center border border-border-light rounded-full overflow-hidden bg-neutral-50/60">
           <button
             type="button"

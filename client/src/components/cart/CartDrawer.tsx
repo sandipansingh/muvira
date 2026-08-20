@@ -49,40 +49,40 @@ export const CartDrawer: React.FC = () => {
         aria-label="Close cart"
       />
       <aside
-        className="fixed inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-border-light bg-white shadow-2xl"
+        className="kit-overlay-panel fixed inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-[var(--kit-line)] bg-[var(--kit-paper)]"
         aria-label="Shopping cart"
       >
-        <div className="flex items-center justify-between border-b border-border-light px-6 py-5">
+        <div className="flex items-center justify-between border-b border-[var(--kit-line)] px-6 py-5">
           <div className="flex items-center gap-3">
-            <ShoppingBag className="h-5 w-5 text-foreground" />
-            <h2 className="font-display text-lg font-bold text-foreground">Your Cart</h2>
-            <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-bold text-foreground">
+            <ShoppingBag className="h-5 w-5 text-[var(--kit-ink)]" />
+            <h2 className="font-display text-lg font-bold text-[var(--kit-ink)]">Your Cart</h2>
+            <span className="rounded-[var(--kit-radius-control)] bg-[var(--kit-surface)] px-2.5 py-0.5 text-xs font-bold text-[var(--kit-ink)]">
               {items.reduce((total, item) => total + item.quantity, 0)}
             </span>
           </div>
           <button
             type="button"
             onClick={closeCartDrawer}
-            className="p-2 rounded-full border border-border-light text-foreground hover:bg-neutral-50 transition-colors cursor-pointer"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-surface)]"
             aria-label="Close cart"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="border-b border-border-light px-6 py-3.5 text-xs font-medium">
+        <div className="border-b border-[var(--kit-line)] px-6 py-3.5 text-xs font-medium">
           {amountForFreeShippingPaisa > 0 ? (
             <div className="space-y-2">
-              <p className="flex items-center gap-2 text-neutral-600">
-                <Truck className="h-4 w-4 text-foreground" /> Add{' '}
-                <strong className="font-bold text-foreground">
+              <p className="flex items-center gap-2 text-[var(--kit-muted)]">
+                <Truck className="h-4 w-4 text-[var(--kit-ink)]" /> Add{' '}
+                <strong className="font-bold text-[var(--kit-ink)]">
                   {formatPrice(amountForFreeShippingPaisa)}
                 </strong>{' '}
                 for free shipping.
               </p>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-100">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--kit-surface)]">
                 <div
-                  className="h-full rounded-full bg-neutral-900 transition-all duration-300"
+                  className="h-full rounded-full bg-[var(--kit-ink)] transition-all duration-300"
                   style={{ width: `${freeShippingPercent}%` }}
                 />
               </div>
@@ -122,12 +122,14 @@ export const CartDrawer: React.FC = () => {
         </div>
 
         {items.length > 0 && (
-          <div className="space-y-4 border-t border-border-light p-6 bg-neutral-50/50">
+          <div className="space-y-4 border-t border-[var(--kit-line)] bg-[var(--kit-surface)] p-6">
             <CouponInput />
-            <div className="space-y-2 border-t border-border-light pt-4 text-xs font-medium text-neutral-600">
+            <div className="space-y-2 border-t border-[var(--kit-line)] pt-4 text-xs font-medium text-[var(--kit-muted)]">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-bold text-foreground">{formatPrice(subtotalPaisa)}</span>
+                <span className="font-bold text-[var(--kit-ink)]">
+                  {formatPrice(subtotalPaisa)}
+                </span>
               </div>
               {discountPaisa > 0 && (
                 <div className="flex justify-between font-bold text-emerald-700">
@@ -141,7 +143,7 @@ export const CartDrawer: React.FC = () => {
                   {shippingPaisa === 0 ? 'FREE' : formatPrice(shippingPaisa)}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-border-light pt-3 text-base font-bold text-foreground">
+              <div className="flex justify-between border-t border-[var(--kit-line)] pt-3 text-base font-bold text-[var(--kit-ink)]">
                 <span>Total</span>
                 <span>{formatPrice(totalPaisa)}</span>
               </div>

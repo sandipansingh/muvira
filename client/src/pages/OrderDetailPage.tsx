@@ -57,7 +57,7 @@ export const OrderDetailPage: React.FC = () => {
     return (
       <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-xl rounded-3xl border border-border-light bg-neutral-50/60 p-10 text-center shadow-premium">
-          <h1 className="font-display text-2xl font-bold text-foreground">Order unavailable</h1>
+          <h1 className="kit-heading text-3xl">Order unavailable</h1>
           <p className="mt-2 text-sm text-neutral-500">
             {error ?? 'We could not find this order.'}
           </p>
@@ -73,7 +73,7 @@ export const OrderDetailPage: React.FC = () => {
 
   return (
     <main className="editorial-page py-10 sm:py-16">
-      <div className="layout-container max-w-4xl space-y-10">
+      <div className="editorial-container max-w-4xl space-y-10">
         <Link
           to="/orders"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 transition-colors hover:text-brand"
@@ -82,38 +82,36 @@ export const OrderDetailPage: React.FC = () => {
         </Link>
         <div className="flex flex-col justify-between gap-4 border-b border-border-light pb-6 sm:flex-row sm:items-end">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 block mb-1">
-              Order Details
-            </span>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
-              #{order.orderNumber}
-            </h1>
+            <span className="kit-eyebrow mb-1 block">Order Details</span>
+            <h1 className="kit-heading text-4xl sm:text-6xl">#{order.orderNumber}</h1>
             <p className="mt-1 text-xs text-neutral-500">Placed on {formatDate(order.createdAt)}</p>
           </div>
-          <span className="self-start text-xs font-bold uppercase tracking-wider text-brand bg-brand-light px-3 py-1 rounded-full sm:self-auto">
+          <span className="kit-status-badge self-start sm:self-auto">
             {order.status.replaceAll('_', ' ')}
           </span>
         </div>
 
-        <section className="space-y-5 rounded-3xl border border-border-light bg-neutral-50/60 p-6 sm:p-8 shadow-xs">
+        <section className="kit-panel space-y-5 p-6 sm:p-8">
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-foreground" />
-            <h2 className="font-display text-xl font-bold text-foreground">Shipment Tracking</h2>
+            <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">
+              Shipment Tracking
+            </h2>
           </div>
           <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-3">
-            <div className="border-t border-border-light pt-3">
+            <div className="border-t border-[var(--kit-line)] pt-3">
               <span className="block text-neutral-500">AWB tracking number</span>
               <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.awb_code ?? order.awbCode ?? 'Not assigned yet'}
               </strong>
             </div>
-            <div className="border-t border-border-light pt-3">
+            <div className="border-t border-[var(--kit-line)] pt-3">
               <span className="block text-neutral-500">Courier partner</span>
               <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.courier_name ?? order.courierName ?? 'Not assigned yet'}
               </strong>
             </div>
-            <div className="border-t border-border-light pt-3">
+            <div className="border-t border-[var(--kit-line)] pt-3">
               <span className="block text-neutral-500">Shipment status</span>
               <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.shiprocket_status ??
@@ -133,7 +131,7 @@ export const OrderDetailPage: React.FC = () => {
             </a>
           )}
           {trackingEvents.length > 0 && (
-            <div className="space-y-4 border-t border-border-light pt-5">
+            <div className="space-y-4 border-t border-[var(--kit-line)] pt-5">
               {trackingEvents.map((event) => (
                 <div key={event.id} className="flex gap-3 text-xs">
                   <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-foreground" />
@@ -152,8 +150,8 @@ export const OrderDetailPage: React.FC = () => {
         </section>
 
         <section>
-          <h2 className="mb-5 font-display text-2xl font-bold text-foreground">Ordered Items</h2>
-          <div className="divide-y divide-border-light border-y border-border-light">
+          <h2 className="kit-heading mb-5 text-2xl">Ordered Items</h2>
+          <div className="divide-y divide-[var(--kit-line)] border-y border-[var(--kit-line)]">
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center justify-between gap-4 py-4">
                 <div className="flex min-w-0 items-center gap-4">
@@ -184,7 +182,7 @@ export const OrderDetailPage: React.FC = () => {
         </section>
 
         <div className="grid grid-cols-1 gap-8 border-t border-border-light pt-8 sm:grid-cols-2">
-          <div className="space-y-2 text-xs rounded-3xl border border-border-light p-6 bg-neutral-50/40">
+          <div className="kit-panel space-y-2 p-6 text-xs">
             <h2 className="flex items-center gap-1.5 text-sm font-bold text-foreground mb-3">
               <MapPin className="h-4 w-4 text-foreground" /> Shipping Address
             </h2>
@@ -198,7 +196,7 @@ export const OrderDetailPage: React.FC = () => {
               {order.shippingAddress.pincode} · {order.shippingAddress.phone}
             </p>
           </div>
-          <div className="space-y-2 text-xs rounded-3xl border border-border-light p-6 bg-neutral-50/40">
+          <div className="kit-panel space-y-2 p-6 text-xs">
             <h2 className="flex items-center gap-1.5 text-sm font-bold text-foreground mb-3">
               <ShieldCheck className="h-4 w-4 text-foreground" /> Payment Details
             </h2>

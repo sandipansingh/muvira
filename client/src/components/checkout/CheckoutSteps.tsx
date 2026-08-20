@@ -13,7 +13,7 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
   ]
   return (
     <nav
-      className="flex items-center border-y border-border-light py-4"
+      className="kit-stepper border-y border-[var(--kit-line)] py-4"
       aria-label="Checkout progress"
     >
       {steps.map((step, index) => {
@@ -23,23 +23,19 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
         const current = currentStep === step.id
         return (
           <React.Fragment key={step.id}>
-            <div className="flex items-center gap-2">
+            <div className="kit-stepper__item" data-active={complete || current}>
               <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                className={`kit-stepper__marker text-xs font-bold ${
                   complete || current
-                    ? 'bg-neutral-900 text-white'
-                    : 'border border-border-light text-neutral-400 bg-neutral-50'
+                    ? ''
+                    : 'border border-[var(--kit-line)] bg-[var(--kit-surface)]'
                 }`}
               >
                 {complete ? <Check className="h-4 w-4" /> : step.number}
               </span>
-              <span
-                className={`text-xs font-bold ${current ? 'text-foreground' : 'text-neutral-400'}`}
-              >
-                {step.label}
-              </span>
+              <span className="truncate">{step.label}</span>
             </div>
-            {index < steps.length - 1 && <div className="mx-4 h-px flex-1 bg-border-light" />}
+            {index < steps.length - 1 && <div className="hidden" aria-hidden="true" />}
           </React.Fragment>
         )
       })}

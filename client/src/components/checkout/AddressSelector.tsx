@@ -65,30 +65,30 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   }
 
   return (
-    <section className="border-b border-border-light pb-6">
+    <section className="border-b border-[var(--kit-line)] pb-6">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-display text-xl font-bold text-foreground">Delivery Address</h2>
+        <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">Delivery Address</h2>
         <button
           type="button"
           onClick={() => setShowAddForm((open) => !open)}
-          className="inline-flex items-center gap-1 text-xs font-bold text-brand hover:underline cursor-pointer"
+          className="inline-flex cursor-pointer items-center gap-1 text-xs font-bold text-[var(--kit-ink)] hover:underline"
         >
           <Plus className="h-3.5 w-3.5" /> Add new
         </button>
       </div>
       <div className="mt-5 space-y-3">
         {addresses.length === 0 && (
-          <p className="border-y border-border-light py-4 text-xs sm:text-sm text-neutral-500">
+          <p className="border-y border-[var(--kit-line)] py-4 text-xs text-[var(--kit-muted)] sm:text-sm">
             No saved addresses yet. Add one to continue.
           </p>
         )}
         {addresses.map((address) => (
           <label
             key={address.id}
-            className={`flex cursor-pointer items-start gap-3 rounded-2xl border p-4 transition-all ${
+            className={`flex cursor-pointer items-start gap-3 rounded-[var(--kit-radius-control)] border p-4 transition-colors ${
               selectedAddressId === address.id
-                ? 'border-neutral-900 bg-neutral-50/80 shadow-xs'
-                : 'border-border-light hover:bg-neutral-50/50'
+                ? 'border-[var(--kit-ink)] bg-[var(--kit-surface)]'
+                : 'border-[var(--kit-line)] hover:bg-[var(--kit-surface)]'
             }`}
           >
             <input
@@ -100,20 +100,16 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             />
             <div className="flex-1 text-xs leading-5 text-neutral-500">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-bold text-foreground">
+                <span className="text-sm font-bold text-[var(--kit-ink)]">
                   {address.fullName} — {address.label}
                 </span>
-                {address.isDefault && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-brand bg-brand-light px-2 py-0.5 rounded-full">
-                    Default
-                  </span>
-                )}
+                {address.isDefault && <span className="kit-status-badge">Default</span>}
               </div>
-              <p className="text-neutral-700 font-medium mt-0.5">
+              <p className="mt-0.5 font-medium text-[var(--kit-text)]">
                 {address.streetAddress}
                 {address.apartment ? `, ${address.apartment}` : ''}
               </p>
-              <p className="text-neutral-500">
+              <p className="text-[var(--kit-muted)]">
                 {address.city}, {address.state} {address.pincode} · {address.phone}
               </p>
             </div>
@@ -122,10 +118,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
       </div>
 
       {showAddForm && (
-        <form
-          onSubmit={handleFormSubmit}
-          className="mt-5 space-y-3 rounded-2xl border border-border-light bg-neutral-50/50 p-5"
-        >
+        <form onSubmit={handleFormSubmit} className="kit-soft-panel mt-5 space-y-3 p-5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
             Enter shipping details
           </h3>
@@ -206,13 +199,13 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="editorial-button text-xs py-2.5 font-bold">
+            <button type="submit" className="kit-button text-xs">
               Save address
             </button>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="editorial-button-secondary text-xs py-2.5 font-bold"
+              className="kit-button-secondary text-xs"
             >
               Cancel
             </button>

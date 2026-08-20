@@ -7,7 +7,7 @@ import { SectionHeader } from '../components/common/SectionHeader'
 export const ReviewsPage: React.FC = () => {
   return (
     <main className="editorial-page py-10 sm:py-16">
-      <div className="layout-container">
+      <div className="editorial-container">
         {/* Breadcrumb */}
         <nav
           className="mb-8 flex items-center gap-2 text-xs font-semibold text-neutral-400"
@@ -30,7 +30,7 @@ export const ReviewsPage: React.FC = () => {
           {TESTIMONIALS.map((testimonial) => (
             <div
               key={testimonial.id}
-              className="rounded-[2rem] border border-border-light bg-white p-6 sm:p-8 flex flex-col justify-between shadow-none hover:shadow-card transition-all"
+              className="kit-panel flex flex-col justify-between p-6 sm:p-8"
             >
               <div>
                 <div className="flex items-center gap-1 text-amber-500 mb-4">
@@ -38,7 +38,7 @@ export const ReviewsPage: React.FC = () => {
                     <Star key={s} className="w-4 h-4 fill-current" />
                   ))}
                 </div>
-                <blockquote className="text-sm sm:text-base text-neutral-700 font-normal leading-relaxed">
+                <blockquote className="kit-body-copy text-sm sm:text-base">
                   “{testimonial.quote}”
                 </blockquote>
               </div>
@@ -52,8 +52,10 @@ export const ReviewsPage: React.FC = () => {
                   className="w-10 h-10 rounded-full object-cover shrink-0 border border-neutral-100"
                 />
                 <div>
-                  <p className="text-sm font-bold text-foreground">{testimonial.author}</p>
-                  <p className="text-xs text-neutral-400 font-normal">{testimonial.location}</p>
+                  <p className="text-sm font-bold text-[var(--kit-ink)]">{testimonial.author}</p>
+                  <p className="text-xs font-normal text-[var(--kit-muted)]">
+                    {testimonial.location}
+                  </p>
                 </div>
               </div>
             </div>

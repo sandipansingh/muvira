@@ -9,24 +9,18 @@ export const OrderSuccessPage: React.FC = () => {
   if (!orderId)
     return (
       <main className="editorial-page px-4 py-20 text-center">
-        <h1 className="font-display text-2xl font-bold text-foreground">
-          Order confirmation unavailable
-        </h1>
-        <Link to="/orders" className="editorial-button mt-6">
+        <h1 className="kit-heading text-2xl">Order confirmation unavailable</h1>
+        <Link to="/orders" className="kit-button mt-6">
           View orders
         </Link>
       </main>
     )
   return (
     <main className="editorial-page px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl rounded-3xl border border-border-light bg-neutral-50/60 p-8 text-center sm:p-12 shadow-premium">
+      <div className="kit-panel mx-auto max-w-2xl p-8 text-center sm:p-12">
         <CheckCircle className="mx-auto h-12 w-12 text-emerald-600" />
-        <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 mt-6 block">
-          Payment Verified
-        </span>
-        <h1 className="font-display mt-2 text-3xl sm:text-4xl font-bold text-foreground">
-          Thank you for your order
-        </h1>
+        <span className="kit-eyebrow mt-6 block text-emerald-700">Payment Verified</span>
+        <h1 className="kit-heading mt-2 text-4xl sm:text-6xl">Thank you for your order</h1>
         <p className="mt-3 text-sm font-semibold text-neutral-700">
           Order reference: #{orderNumber ?? orderId}
         </p>
@@ -35,17 +29,14 @@ export const OrderSuccessPage: React.FC = () => {
           order details.
         </p>
         <div className="flex flex-col justify-center gap-3 pt-8 sm:flex-row">
-          <Link
-            to={`/orders/${encodeURIComponent(orderId)}`}
-            className="editorial-button py-3 font-bold text-sm"
-          >
+          <Link to={`/orders/${encodeURIComponent(orderId)}`} className="kit-button py-3 text-sm">
             <Package className="h-4 w-4" /> Track Order
           </Link>
-          <Link to="/shop" className="editorial-button-secondary py-3 font-bold text-sm">
+          <Link to="/shop" className="kit-button-secondary py-3 text-sm">
             Continue Shopping <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-        <p className="mt-8 flex items-center justify-center gap-2 border-t border-border-light pt-4 text-[11px] text-neutral-400">
+        <p className="mt-8 flex items-center justify-center gap-2 border-t border-[var(--kit-line)] pt-4 text-[11px] text-[var(--kit-muted)]">
           <ShieldCheck className="h-4 w-4 text-foreground" /> Secure Razorpay payment verification.
         </p>
       </div>

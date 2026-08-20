@@ -49,26 +49,25 @@ export const OrdersHistoryPage: React.FC = () => {
 
   return (
     <main className="editorial-page py-10 sm:py-16">
-      <div className="layout-container max-w-4xl">
+      <div className="editorial-container max-w-4xl">
         <div className="mb-10 border-b border-border-light pb-6">
-          <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2 block">
-            Account / Purchases
-          </span>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
-            Order History
-          </h1>
-          <p className="mt-2 text-sm text-neutral-500">Track your past purchases and deliveries.</p>
+          <span className="kit-eyebrow mb-2 block">Account / Purchases</span>
+          <h1 className="kit-heading text-4xl sm:text-6xl">Order History</h1>
+          <p className="kit-body-copy mt-2 text-sm">Track your past purchases and deliveries.</p>
         </div>
         {loading && (
           <div className="space-y-4">
             {[1, 2].map((item) => (
-              <div key={item} className="h-28 rounded-2xl animate-pulse bg-neutral-100" />
+              <div
+                key={item}
+                className="h-28 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]"
+              />
             ))}
           </div>
         )}
         {!loading && error && (
-          <div className="border-y border-amber-200 py-8 text-center bg-amber-50 rounded-2xl">
-            <p className="text-sm text-amber-800 font-semibold">{error}</p>
+          <div className="border-y border-warning bg-warning-soft py-8 text-center">
+            <p className="text-sm font-semibold text-warning">{error}</p>
             <button
               type="button"
               onClick={() => setRefreshToken((current) => current + 1)}
@@ -79,7 +78,7 @@ export const OrdersHistoryPage: React.FC = () => {
           </div>
         )}
         {!loading && !error && orders.length === 0 && (
-          <div className="border-y border-border-light py-12 text-center">
+          <div className="border-y border-[var(--kit-line)] py-12 text-center">
             <Package className="mx-auto h-10 w-10 text-neutral-300" />
             <p className="mt-3 text-sm text-neutral-500">You have not placed any orders yet.</p>
             <Link to="/shop" className="editorial-button mt-5">
@@ -88,12 +87,12 @@ export const OrdersHistoryPage: React.FC = () => {
           </div>
         )}
         {!loading && !error && orders.length > 0 && (
-          <div className="divide-y divide-border-light border-y border-border-light">
+          <div className="divide-y divide-[var(--kit-line)] border-y border-[var(--kit-line)]">
             {orders.map((order) => (
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="flex flex-col gap-5 py-6 transition-colors hover:bg-neutral-50 sm:flex-row sm:items-center sm:justify-between sm:px-4 rounded-xl"
+                className="flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--kit-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-4"
               >
                 <div className="flex items-center gap-4">
                   {order.firstItemImage ? (
@@ -112,9 +111,7 @@ export const OrdersHistoryPage: React.FC = () => {
                       <span className="font-display text-base font-bold text-foreground">
                         #{order.orderNumber}
                       </span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-brand bg-brand-light px-2 py-0.5 rounded-full">
-                        {order.status.replaceAll('_', ' ')}
-                      </span>
+                      <span className="kit-status-badge">{order.status.replaceAll('_', ' ')}</span>
                     </div>
                     <p className="mt-1 text-xs font-semibold text-foreground">
                       {order.firstItemName ?? `${order.itemCount} item(s)`}

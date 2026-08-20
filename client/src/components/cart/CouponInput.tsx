@@ -12,15 +12,15 @@ export const CouponInput: React.FC = () => {
 
   if (coupon) {
     return (
-      <div className="flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50/90 p-3.5 text-xs text-emerald-950">
+      <div className="flex items-center justify-between rounded-[var(--kit-radius-control)] border border-success bg-success-soft p-3.5 text-xs text-success">
         <div className="flex items-center gap-2">
-          <CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" />
+          <CheckCircle className="h-4 w-4 shrink-0 text-success" />
           <span className="font-bold">{coupon.code} applied</span>
         </div>
         <button
           type="button"
           onClick={removeCoupon}
-          className="p-1 rounded-full text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
+          className="cursor-pointer rounded-[var(--kit-radius-control)] p-1 text-success transition-colors hover:bg-success-soft"
           aria-label="Remove coupon"
         >
           <X className="h-4 w-4" />
@@ -42,11 +42,11 @@ export const CouponInput: React.FC = () => {
           placeholder="Enter promo code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="editorial-input pl-9 text-xs"
+          className="editorial-input pl-9 text-base"
         />
         <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
       </div>
-      <button type="submit" className="editorial-button shrink-0 text-xs py-2 px-4 font-bold">
+      <button type="submit" className="kit-button shrink-0 px-4 text-xs">
         Apply
       </button>
     </form>
