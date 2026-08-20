@@ -48,7 +48,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="space-y-3">
-          <div className="aspect-square overflow-hidden rounded-2xl border border-border-light bg-neutral-100 flex items-center justify-center">
+          <div className="aspect-square overflow-hidden rounded-2xl border border-border-light bg-theme-card flex items-center justify-center">
             {selectedImage ? (
               <img src={selectedImage} alt={product.name} className="h-full w-full object-cover" />
             ) : (
@@ -93,20 +93,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 isAvailable={'inStock' in product ? product.inStock : true}
               />
             </div>
-            <h2 className="font-display text-2xl font-bold text-foreground mt-2">{product.name}</h2>
+            <h2 className="text-2xl font-bold text-theme-dark mt-2 font-display">{product.name}</h2>
             <div className="mt-3">
               {product.rating !== null && product.rating !== undefined ? (
-                <RatingStars rating={product.rating} count={product.reviewCount} size="md" />
+                <RatingStars rating={product.rating} count={product.reviewCount} size="md" showText />
               ) : (
                 <span className="text-xs text-neutral-400">No reviews yet</span>
               )}
             </div>
             <div className="mt-4 flex items-baseline gap-3">
-              <span className="text-2xl font-bold text-foreground">
+              <span className="text-2xl font-bold text-theme-dark">
                 {formatPrice(product.price)}
               </span>
               {product.salePrice && product.salePrice > product.price && (
-                <span className="text-sm text-neutral-400 line-through">
+                <span className="text-sm text-theme-muted line-through">
                   {formatPrice(product.salePrice)}
                 </span>
               )}
@@ -148,11 +148,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 type="button"
                 onClick={handleAddToCart}
                 disabled={added}
-                className="editorial-button text-xs py-3 font-bold cursor-pointer"
+                className="py-3 px-5 bg-theme-dark hover:bg-black text-white text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-98"
               >
                 {added ? (
                   <>
-                    <Check className="h-4 w-4" /> Added to Cart
+                    <Check className="h-4 w-4 text-emerald-400" /> Added to Cart
                   </>
                 ) : (
                   <>
