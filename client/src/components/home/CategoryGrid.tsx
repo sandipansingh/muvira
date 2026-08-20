@@ -1,51 +1,42 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { categoryService } from '../../lib/services/category.service'
 import type { Category } from '../../lib/types/category'
 
-interface CategoryTileProps {
-  category: Category
-}
-
-const CategoryTile: React.FC<CategoryTileProps> = ({ category }) => {
-  return (
-    <Link
-      to={`/shop?category=${category.slug}`}
-      className="group block w-[220px] shrink-0 snap-start sm:w-auto"
-    >
-      <div className="relative aspect-[16/10] overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]">
-        <img
-          src={category.imageUrl}
-          alt={category.name}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
-          loading="lazy"
-        />
-      </div>
-
-      <div className="flex items-start justify-between gap-4 border-b border-[var(--kit-line)] py-3">
-        <div>
-          <h3 className="kit-product-card__name text-sm sm:text-base">{category.name}</h3>
-          {category.itemCount !== undefined && (
-            <p className="kit-product-card__meta mt-1 font-medium">
-              {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
-            </p>
-          )}
-        </div>
-
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--kit-line)] text-[var(--kit-ink)] transition-colors group-hover:border-[var(--kit-ink)] group-hover:bg-[var(--kit-ink)] group-hover:text-[var(--kit-white)]">
-          <ArrowRight className="h-3.5 w-3.5" />
-        </span>
-      </div>
-    </Link>
-  )
-}
+const FALLBACK_COLLECTIONS: Category[] = [
+  {
+    id: 'col-1',
+    name: 'Headband',
+    slug: 'headband',
+    description: 'Premium over-ear headphones and sound gear',
+    imageUrl:
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=85',
+    sortOrder: 1,
+  },
+  {
+    id: 'col-2',
+    name: 'Earbuds',
+    slug: 'earbuds',
+    description: 'True wireless earbuds with noise cancellation',
+    imageUrl:
+      'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=85',
+    sortOrder: 2,
+  },
+  {
+    id: 'col-3',
+    name: 'Accessories',
+    slug: 'accessories',
+    description: 'Charging cables, adapters, and gear bags',
+    imageUrl:
+      'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=600&q=85',
+    sortOrder: 3,
+  },
+]
 
 export const CategoryGrid: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let active = true
@@ -53,11 +44,12 @@ export const CategoryGrid: React.FC = () => {
     const loadCategories = async () => {
       try {
         const response = await categoryService.getCategories()
-        if (!response.success) throw new Error(response.error.message)
-        if (active) setCategories([...response.data].sort((a, b) => a.sortOrder - b.sortOrder))
-      } catch (reason) {
-        if (active)
-          setError(reason instanceof Error ? reason.message : 'Unable to load categories.')
+        if (response.success && active && response.data.length > 0) {
+          const sorted = [...response.data].sort((a, b) => a.sortOrder - b.sortOrder)
+          setCategories(sorted)
+        }
+      } catch {
+        // Fallback used on error
       } finally {
         if (active) setLoading(false)
       }
@@ -70,84 +62,120 @@ export const CategoryGrid: React.FC = () => {
     }
   }, [])
 
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' })
-    }
-  }
+  const activeCategories =
+    categories.length >= 3
+      ? categories.slice(0, 3)
+      : [
+          categories[0] || FALLBACK_COLLECTIONS[0],
+          categories[1] || FALLBACK_COLLECTIONS[1],
+          categories[2] || FALLBACK_COLLECTIONS[2],
+        ]
 
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' })
-    }
-  }
-
-  const visibleCategories = categories.length > 0 ? categories : []
+  const [mainCategory, secondCategory, thirdCategory] = activeCategories
 
   return (
-    <section className="editorial-container overflow-hidden py-10 sm:py-14">
+    <section id="shop-collection" className="editorial-container py-10 sm:py-14">
       {/* Section Header */}
-      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-end">
+      <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
         <div>
-          <span className="kit-eyebrow mb-1.5 block">Catalogs</span>
-          <h2 className="kit-heading text-h2">Fresh arrivals and new selections.</h2>
+          <span className="kit-eyebrow mb-1.5 block">Featured</span>
+          <h2 className="kit-heading text-h2">Shop Collection</h2>
         </div>
 
-        {/* Right Controls */}
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={scrollLeft}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] lg:hidden"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <button
-            type="button"
-            onClick={scrollRight}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] lg:hidden"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-          <Link to="/shop" className="kit-button-secondary min-h-10 px-4 py-2 text-xs">
-            View all
-          </Link>
-        </div>
+        {/* View All Categories Link */}
+        <Link to="/shop" className="kit-button-secondary min-h-10 shrink-0 px-4 py-2 text-xs">
+          View all categories
+        </Link>
       </div>
 
-      {loading && (
-        <div
-          className="flex gap-4 sm:gap-6 overflow-hidden sm:grid sm:grid-cols-2 lg:grid-cols-4"
-          aria-busy="true"
-        >
-          {[1, 2, 3, 4].map((item) => (
-            <div
-              key={item}
-              className="aspect-[16/10] w-[220px] shrink-0 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:w-auto"
-            />
-          ))}
+      {loading ? (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2" aria-busy="true">
+          <div className="min-h-[380px] animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:min-h-[460px]" />
+          <div className="flex flex-col gap-6">
+            <div className="min-h-[180px] animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:min-h-[218px]" />
+            <div className="min-h-[180px] animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:min-h-[218px]" />
+          </div>
         </div>
-      )}
-
-      {!loading && error && <p className="kit-body-copy text-sm">{error}</p>}
-
-      {!loading && !error && visibleCategories.length === 0 && (
-        <p className="kit-body-copy text-sm">
-          Collections are being updated. Please check back soon.
-        </p>
-      )}
-
-      {!loading && !error && visibleCategories.length > 0 && (
-        <div>
-          <div
-            ref={scrollContainerRef}
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 no-scrollbar lg:grid lg:grid-cols-4 lg:gap-6 lg:overflow-visible lg:pb-0 xl:grid-cols-5"
+      ) : (
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2">
+          {/* Left Large Card */}
+          <Link
+            to={`/shop?category=${mainCategory.slug}`}
+            className="group relative flex min-h-[380px] flex-col justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] p-6 transition-all sm:min-h-[460px] sm:p-10 lg:min-h-[500px]"
           >
-            {visibleCategories.map((category) => (
-              <CategoryTile key={category.id} category={category} />
-            ))}
+            {/* Center Image */}
+            <div className="flex flex-1 items-center justify-center p-4">
+              <img
+                src={mainCategory.imageUrl}
+                alt={mainCategory.name}
+                className="max-h-[240px] w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[300px]"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Bottom Content */}
+            <div className="mt-4">
+              <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-3xl">
+                {mainCategory.name}
+              </h3>
+              <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                <span>Collection</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+              </div>
+            </div>
+          </Link>
+
+          {/* Right Column: 2 Stacked Cards */}
+          <div className="flex flex-col gap-5 sm:gap-6">
+            {/* Top Right Card */}
+            <Link
+              to={`/shop?category=${secondCategory.slug}`}
+              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
+            >
+              <div className="z-10 flex max-w-[55%] flex-col justify-center">
+                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-2xl">
+                  {secondCategory.name}
+                </h3>
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                  <span>Collection</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                </div>
+              </div>
+
+              <div className="flex h-full w-[45%] items-center justify-end">
+                <img
+                  src={secondCategory.imageUrl}
+                  alt={secondCategory.name}
+                  className="max-h-[140px] w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[170px]"
+                  loading="lazy"
+                />
+              </div>
+            </Link>
+
+            {/* Bottom Right Card */}
+            <Link
+              to={`/shop?category=${thirdCategory.slug}`}
+              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
+            >
+              <div className="z-10 flex max-w-[55%] flex-col justify-center">
+                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-2xl">
+                  {thirdCategory.name}
+                </h3>
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                  <span>Collection</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                </div>
+              </div>
+
+              <div className="flex h-full w-[45%] items-center justify-end">
+                <img
+                  src={thirdCategory.imageUrl}
+                  alt={thirdCategory.name}
+                  className="max-h-[140px] w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-[170px]"
+                  loading="lazy"
+                />
+              </div>
+            </Link>
           </div>
         </div>
       )}
