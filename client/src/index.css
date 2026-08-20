@@ -618,9 +618,8 @@ body {
 }
 
 .editorial-container {
-  max-width: 1200px;
+  max-width: 1800px;
   margin-inline: auto;
-  padding-inline: 1rem;
 }
 
 .kit-page-header {
