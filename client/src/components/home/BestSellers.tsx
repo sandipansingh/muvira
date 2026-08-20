@@ -18,7 +18,7 @@ export const BestSellers: React.FC = () => {
       try {
         const response = await productService.getProducts({
           page: 1,
-          limit: 8,
+          limit: 10,
           sort: 'popularity',
         })
         if (!response.success) throw new Error(response.error.message)
@@ -48,16 +48,16 @@ export const BestSellers: React.FC = () => {
   )
 
   return (
-    <section id="featured-pieces" className="editorial-container overflow-hidden py-12 sm:py-16">
+    <section id="featured-pieces" className="editorial-container overflow-hidden py-10 sm:py-14">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
+      <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-end">
         <div>
           <span className="kit-eyebrow mb-1.5 block">Featured</span>
           <h2 className="kit-heading text-h2">Our Best Sellers</h2>
         </div>
 
         {/* Right Controls: Category Pills & View All */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-wrap items-center gap-3">
           {filterOptions.length > 1 && (
             <SegmentedControl
               options={filterOptions}
@@ -68,7 +68,10 @@ export const BestSellers: React.FC = () => {
               size="sm"
             />
           )}
-          <Link to="/shop" className="kit-button-secondary min-h-10 shrink-0 px-4 py-2 text-xs">
+          <Link
+            to="/shop?sort=popularity"
+            className="kit-button-secondary min-h-10 shrink-0 px-4 py-2 text-xs"
+          >
             View all
           </Link>
         </div>
@@ -76,15 +79,15 @@ export const BestSellers: React.FC = () => {
 
       {loading && (
         <div
-          className="flex gap-4 sm:gap-6 overflow-hidden sm:grid sm:grid-cols-2 lg:grid-cols-4"
+          className="flex gap-4 overflow-hidden sm:gap-5 lg:grid lg:grid-cols-5"
           aria-busy="true"
         >
-          {[1, 2, 3, 4].map((item) => (
+          {[1, 2, 3, 4, 5].map((item) => (
             <div
               key={item}
-              className="flex w-[280px] shrink-0 animate-pulse flex-col gap-2 sm:w-auto"
+              className="flex w-[240px] shrink-0 animate-pulse flex-col gap-2 sm:w-[280px] lg:w-auto"
             >
-              <div className="aspect-[3/4] rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:aspect-square" />
+              <div className="aspect-square rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]" />
               <div className="h-3 w-16 rounded bg-[var(--kit-line)]" />
               <div className="h-4 w-3/4 rounded bg-[var(--kit-line)]" />
               <div className="h-4 w-1/3 rounded bg-[var(--kit-line)]" />
@@ -107,11 +110,11 @@ export const BestSellers: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="flex overflow-x-auto gap-4 sm:gap-6 snap-x snap-mandatory no-scrollbar pb-4 sm:pb-0 sm:grid sm:grid-cols-2 lg:grid-cols-4"
+          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 no-scrollbar sm:gap-5 sm:pb-0 lg:grid lg:grid-cols-5 lg:overflow-visible"
         >
           {filteredProducts.map((product) => (
-            <div key={product.id} className="w-[280px] sm:w-auto shrink-0 snap-start">
-              <ProductCard product={product} />
+            <div key={product.id} className="w-[240px] shrink-0 snap-start sm:w-[280px] lg:w-auto">
+              <ProductCard product={product} badgeText="HOT" />
             </div>
           ))}
         </motion.div>
