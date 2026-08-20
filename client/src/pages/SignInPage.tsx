@@ -29,19 +29,19 @@ export const SignInPage: React.FC = () => {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-white px-4 py-6 sm:px-6 sm:py-10 md:py-12">
-      <div className="w-full max-w-5xl rounded-3xl bg-white p-3 sm:p-4 md:p-6 lg:p-8 shadow-xs border border-neutral-100 min-h-[85vh] flex flex-col justify-center">
-        <div className="grid grid-cols-1 items-stretch gap-8 md:grid-cols-2 lg:gap-12 w-full">
+    <main className="flex min-h-screen md:h-screen w-full items-center justify-center bg-white p-3 sm:p-5 md:p-6 lg:p-8 overflow-y-auto md:overflow-hidden">
+      <div className="w-full max-w-5xl md:h-[88vh] md:max-h-[720px] rounded-3xl bg-white p-3 sm:p-4 md:p-6 lg:p-8 shadow-xs border border-neutral-100 flex flex-col justify-center">
+        <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 md:gap-8 lg:gap-12 w-full h-full">
           {/* Left Column: Visual Hero Card */}
-          <div className="h-[280px] sm:h-[340px] md:h-full md:min-h-[580px]">
+          <div className="h-[220px] sm:h-[260px] md:h-full w-full">
             <AuthHeroCard className="h-full min-h-full" />
           </div>
 
           {/* Right Column: Sign In Form */}
-          <div className="flex flex-col justify-center px-2 py-4 sm:px-6 sm:py-8 md:px-8">
+          <div className="flex flex-col justify-center px-2 py-3 sm:px-6 sm:py-6 md:px-8">
             <div className="mx-auto w-full max-w-[400px]">
               {/* Header Title and Switcher */}
-              <div className="space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <h1 className="font-display text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
                   Sign In
                 </h1>
@@ -57,9 +57,9 @@ export const SignInPage: React.FC = () => {
               </div>
 
               {/* Form Controls */}
-              <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+              <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-5 sm:space-y-6">
                 {/* Username/Email Input */}
-                <div className="relative border-b border-neutral-300 focus-within:border-neutral-900 transition-colors">
+                <div className="relative border-b border-neutral-300">
                   <input
                     id="signin-email"
                     name="email"
@@ -68,13 +68,13 @@ export const SignInPage: React.FC = () => {
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     placeholder="Your username or email address"
-                    className="w-full bg-transparent py-3 text-base text-neutral-900 placeholder:text-neutral-400 focus:outline-hidden"
+                    className="w-full bg-transparent py-3 text-base text-neutral-900 placeholder:text-neutral-400 outline-none focus:outline-none focus:ring-0 border-none"
                     autoComplete="email"
                   />
                 </div>
 
                 {/* Password Input with Show/Hide Toggle */}
-                <div className="relative flex items-center border-b border-neutral-300 focus-within:border-neutral-900 transition-colors">
+                <div className="relative flex items-center border-b border-neutral-300">
                   <input
                     id="signin-password"
                     name="password"
@@ -83,13 +83,13 @@ export const SignInPage: React.FC = () => {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Password"
-                    className="w-full bg-transparent py-3 pr-10 text-base text-neutral-900 placeholder:text-neutral-400 focus:outline-hidden"
+                    className="w-full bg-transparent py-3 pr-10 text-base text-neutral-900 placeholder:text-neutral-400 outline-none focus:outline-none focus:ring-0 border-none"
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-0 p-1 text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
+                    className="absolute right-0 p-1 text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer outline-none focus:outline-none"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -122,7 +122,7 @@ export const SignInPage: React.FC = () => {
                 </div>
 
                 {/* Submit Action Button */}
-                <div className="pt-2">
+                <div className="pt-1 sm:pt-2">
                   <button
                     type="submit"
                     disabled={loading}
