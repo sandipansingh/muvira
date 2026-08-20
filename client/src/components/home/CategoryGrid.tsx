@@ -4,6 +4,52 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { categoryService } from '../../lib/services/category.service'
 import type { Category } from '../../lib/types/category'
 
+interface CategoryTileProps {
+  category: Category
+  featured?: boolean
+}
+
+const CategoryTile: React.FC<CategoryTileProps> = ({ category, featured = false }) => {
+  return (
+    <Link
+      to={`/shop?category=${category.slug}`}
+      className={`group block ${featured ? 'w-[280px] sm:w-auto' : 'w-[220px] sm:w-auto'}`}
+    >
+      <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]">
+        <img
+          src={category.imageUrl}
+          alt={category.name}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+          loading="lazy"
+        />
+      </div>
+
+      <div
+        className={`flex items-start justify-between gap-4 border-b border-[var(--kit-line)] py-3 ${
+          featured ? 'sm:py-4' : ''
+        }`}
+      >
+        <div>
+          <h3
+            className={`kit-product-card__name ${featured ? 'text-base sm:text-lg' : 'text-sm sm:text-base'}`}
+          >
+            {category.name}
+          </h3>
+          {category.itemCount !== undefined && (
+            <p className="kit-product-card__meta mt-1 font-medium">
+              {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
+            </p>
+          )}
+        </div>
+
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--kit-line)] text-[var(--kit-ink)] transition-colors group-hover:border-[var(--kit-ink)] group-hover:bg-[var(--kit-ink)] group-hover:text-[var(--kit-white)]">
+          <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+      </div>
+    </Link>
+  )
+}
+
 export const CategoryGrid: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -61,7 +107,7 @@ export const CategoryGrid: React.FC = () => {
           <button
             type="button"
             onClick={scrollLeft}
-            className="flex h-10 w-10 items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] cursor-pointer"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] lg:hidden"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -69,7 +115,7 @@ export const CategoryGrid: React.FC = () => {
           <button
             type="button"
             onClick={scrollRight}
-            className="flex h-10 w-10 items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] cursor-pointer"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] lg:hidden"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-4 h-4" />
@@ -103,43 +149,26 @@ export const CategoryGrid: React.FC = () => {
       )}
 
       {!loading && !error && visibleCategories.length > 0 && (
-        <div
-          ref={scrollContainerRef}
-          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 no-scrollbar sm:grid sm:grid-cols-2 sm:gap-6 sm:pb-0 lg:grid-cols-4"
-        >
-          {visibleCategories.map((category) => (
-            <Link
-              key={category.id}
-              to={`/shop?category=${category.slug}`}
-              className="group w-[220px] shrink-0 snap-start sm:w-auto"
-            >
-              {/* Image Area */}
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]">
-                <img
-                  src={category.imageUrl}
-                  alt={category.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
-                  loading="lazy"
-                />
-              </div>
+        <div>
+          <div
+            ref={scrollContainerRef}
+            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 no-scrollbar lg:hidden"
+          >
+            {visibleCategories.map((category, index) => (
+              <CategoryTile key={category.id} category={category} featured={index === 0} />
+            ))}
+          </div>
 
-              {/* Title & Action Link */}
-              <div className="flex items-start justify-between gap-4 border-b border-[var(--kit-line)] py-3">
-                <div>
-                  <h3 className="kit-product-card__name text-sm sm:text-base">{category.name}</h3>
-                  {category.itemCount !== undefined && (
-                    <p className="kit-product-card__meta mt-1 font-medium">
-                      {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
-                    </p>
-                  )}
-                </div>
-
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--kit-line)] text-[var(--kit-ink)] transition-colors group-hover:border-[var(--kit-ink)] group-hover:bg-[var(--kit-ink)] group-hover:text-[var(--kit-white)]">
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
+          <div className="hidden gap-6 lg:grid lg:grid-cols-[1.25fr_1fr]">
+            <CategoryTile category={visibleCategories[0]} featured />
+            {visibleCategories.length > 1 && (
+              <div className="grid grid-cols-2 gap-6">
+                {visibleCategories.slice(1).map((category) => (
+                  <CategoryTile key={category.id} category={category} />
+                ))}
               </div>
-            </Link>
-          ))}
+            )}
+          </div>
         </div>
       )}
     </section>
