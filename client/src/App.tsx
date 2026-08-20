@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ToastProvider } from './context/ToastContext'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
@@ -26,7 +26,7 @@ import { ReviewsPage } from './pages/ReviewsPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignUpPage } from './pages/SignUpPage'
 
-export const AppContent: React.FC = () => {
+const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
@@ -35,10 +35,29 @@ export const AppContent: React.FC = () => {
       <Header onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       <CartDrawer />
-      <ToastContainer />
 
       <div className="flex-1">
-        <Routes>
+        <Outlet />
+      </div>
+
+      <Footer />
+    </div>
+  )
+}
+
+export const AppContent: React.FC = () => {
+  return (
+    <div className="font-sans text-foreground selection:bg-brand-light selection:text-foreground">
+      <ToastContainer />
+
+      <Routes>
+        {/* Standalone auth routes without navbar or footer */}
+        <Route path="/signin" element={<SignInPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/login" element={<Navigate to="/signin" replace />} />
+
+        {/* Store routes wrapped in standard app shell */}
+        <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/shop" element={<ShopPage />} />
@@ -50,13 +69,8 @@ export const AppContent: React.FC = () => {
           <Route path="/orders/failure" element={<OrderFailurePage />} />
           <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/signin" element={<SignInPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<Navigate to="/signin" replace />} />
-        </Routes>
-      </div>
-
-      <Footer />
+        </Route>
+      </Routes>
     </div>
   )
 }

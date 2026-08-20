@@ -29,11 +29,11 @@ export const SignInPage: React.FC = () => {
   }
 
   return (
-    <main className="flex min-h-[calc(100vh-140px)] items-center justify-center px-4 py-8 sm:px-6 sm:py-12 md:py-16">
-      <div className="w-full max-w-5xl rounded-3xl bg-white p-3 sm:p-4 md:p-6 lg:p-8 shadow-xs border border-neutral-100">
-        <div className="grid grid-cols-1 items-stretch gap-8 md:grid-cols-2 lg:gap-12">
+    <main className="flex min-h-screen items-center justify-center bg-white px-4 py-6 sm:px-6 sm:py-10 md:py-12">
+      <div className="w-full max-w-5xl rounded-3xl bg-white p-3 sm:p-4 md:p-6 lg:p-8 shadow-xs border border-neutral-100 min-h-[85vh] flex flex-col justify-center">
+        <div className="grid grid-cols-1 items-stretch gap-8 md:grid-cols-2 lg:gap-12 w-full">
           {/* Left Column: Visual Hero Card */}
-          <div className="h-[280px] sm:h-[340px] md:h-full md:min-h-[540px]">
+          <div className="h-[280px] sm:h-[340px] md:h-full md:min-h-[580px]">
             <AuthHeroCard className="h-full min-h-full" />
           </div>
 
