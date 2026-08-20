@@ -36,6 +36,7 @@ export const ProductDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (!slug) return
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     let active = true
     const loadProduct = async () => {
       setLoading(true)

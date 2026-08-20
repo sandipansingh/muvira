@@ -11,6 +11,7 @@ import { Footer } from './components/layout/Footer'
 import { MobileMenu } from './components/layout/MobileMenu'
 import { CartDrawer } from './components/cart/CartDrawer'
 import { ToastContainer } from './components/common/Toast'
+import { ScrollToTop } from './components/common/ScrollToTop'
 
 import { HomePage } from './pages/HomePage'
 import { ShopPage } from './pages/ShopPage'
@@ -48,6 +49,7 @@ const MainLayout: React.FC = () => {
 export const AppContent: React.FC = () => {
   return (
     <div className="font-sans text-foreground selection:bg-brand-light selection:text-foreground">
+      <ScrollToTop />
       <ToastContainer />
 
       <Routes>
