@@ -14,6 +14,7 @@ interface ProductCardProps {
   variant?: 'vertical' | 'horizontal'
   showDescription?: boolean
   className?: string
+  badgeText?: string
 }
 
 const getPrimaryImage = (product: ProductListItem | ProductDetail) => {
@@ -36,6 +37,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   variant = 'vertical',
   showDescription = false,
   className = '',
+  badgeText,
 }) => {
   const { addToCart } = useCart()
   const { showToast } = useToast()
@@ -98,7 +100,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               )}
             </Link>
             <div className="absolute left-3 top-3 flex flex-col gap-1.5">
-              <span className="kit-neutral-badge">New</span>
+              {badgeText !== '' && (
+                <span className="kit-neutral-badge font-bold uppercase">{badgeText ?? 'NEW'}</span>
+              )}
               {discountPercent > 0 && <span className="kit-status-badge">-{discountPercent}%</span>}
             </div>
           </div>
@@ -168,7 +172,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </Link>
           <div className="absolute left-3 top-3 flex flex-col gap-1.5">
-            <span className="kit-neutral-badge">New</span>
+            {badgeText !== '' && (
+              <span className="kit-neutral-badge font-bold uppercase">{badgeText ?? 'NEW'}</span>
+            )}
             {discountPercent > 0 && <span className="kit-status-badge">-{discountPercent}%</span>}
           </div>
           <div className="absolute right-3 top-3">
