@@ -96,13 +96,13 @@ export const ShopPage: React.FC = () => {
     <main className="editorial-page py-10 sm:py-16">
       <div className="layout-container">
         <div className="mb-8 max-w-3xl">
-          <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2 block">
+          <span className="text-h7 text-neutral-400 mb-2 block">
             Muvira / Catalog
           </span>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-[1.1] font-display">
+          <h1 className="text-h1 text-theme-dark font-display">
             {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-neutral-500 font-normal leading-relaxed">
+          <p className="mt-3 text-body-16 text-theme-muted font-normal leading-relaxed">
             Considered solid wood furniture handcrafted for the home you are building, one room at a
             time.
           </p>
