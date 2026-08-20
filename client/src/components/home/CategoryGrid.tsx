@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import { categoryService } from '../../lib/services/category.service'
 import type { Category } from '../../lib/types/category'
 
@@ -48,24 +48,24 @@ export const CategoryGrid: React.FC = () => {
   const visibleCategories = categories.length > 0 ? categories : []
 
   return (
-    <section className="py-8 sm:py-12 layout-container overflow-hidden">
-      {/* Section Header (Matches off.vstore Catalogs header) */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+    <section className="py-8 sm:py-14 layout-container overflow-hidden">
+      {/* Section Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
         <div>
-          <span className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1.5">
+          <span className="text-h7 text-neutral-400 mb-1.5 block">
             Catalogs
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-neutral-900 font-display">
+          <h2 className="text-h2 text-theme-dark font-display tracking-tight">
             Fresh arrivals and new selections.
           </h2>
         </div>
 
-        {/* Right Controls: Arrow buttons + View All pill */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        {/* Right Controls */}
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <button
             type="button"
             onClick={scrollLeft}
-            className="w-8 h-8 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95"
+            className="w-9 h-9 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 text-theme-dark flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -73,14 +73,14 @@ export const CategoryGrid: React.FC = () => {
           <button
             type="button"
             onClick={scrollRight}
-            className="w-8 h-8 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 text-neutral-700 flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95"
+            className="w-9 h-9 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 text-theme-dark flex items-center justify-center transition-all shadow-xs cursor-pointer active:scale-95"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
           <Link
             to="/shop"
-            className="rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 px-4 py-1.5 text-xs font-semibold text-neutral-800 transition-all shadow-xs"
+            className="rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 px-4 py-2 text-xs font-semibold text-theme-dark transition-all shadow-xs"
           >
             View all
           </Link>
@@ -95,16 +95,16 @@ export const CategoryGrid: React.FC = () => {
           {[1, 2, 3, 4].map((item) => (
             <div
               key={item}
-              className="aspect-[3/4] w-[260px] sm:w-auto shrink-0 rounded-[2rem] animate-pulse bg-neutral-100"
+              className="aspect-[3/4] w-[260px] sm:w-auto shrink-0 rounded-2xl animate-pulse bg-theme-card"
             />
           ))}
         </div>
       )}
 
-      {!loading && error && <p className="text-sm text-neutral-500">{error}</p>}
+      {!loading && error && <p className="text-sm text-theme-muted">{error}</p>}
 
       {!loading && !error && visibleCategories.length === 0 && (
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-theme-muted">
           Collections are being updated. Please check back soon.
         </p>
       )}
@@ -118,36 +118,34 @@ export const CategoryGrid: React.FC = () => {
             <Link
               key={category.id}
               to={`/shop?category=${category.slug}`}
-              className="group relative w-[260px] sm:w-auto shrink-0 snap-start bg-neutral-50/50 rounded-[2rem] border border-neutral-200/80 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+              className="group relative w-[260px] sm:w-auto shrink-0 snap-start bg-theme-card rounded-2xl border border-neutral-200/60 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between"
             >
               {/* Image Area */}
-              <div className="relative aspect-[3/4] bg-neutral-100 overflow-hidden rounded-[1.8rem] m-2">
+              <div className="relative aspect-[3/4] overflow-hidden p-3">
                 <img
                   src={category.imageUrl}
                   alt={category.name}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover rounded-xl transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-
-                {/* Add Collections + Pill Badge */}
-                <div className="absolute top-3 right-3 z-10">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-neutral-800 shadow-xs border border-white/40 group-hover:bg-white transition-colors select-none">
-                    <span>Add collections</span>
-                    <Plus className="w-3 h-3 text-neutral-600" />
-                  </span>
-                </div>
               </div>
 
-              {/* Title & Item Count */}
-              <div className="px-5 pb-5 pt-2">
-                <h3 className="font-bold text-base text-neutral-900 leading-snug group-hover:text-brand transition-colors">
-                  {category.name}
-                </h3>
-                {category.itemCount !== undefined && (
-                  <p className="mt-1 text-xs text-neutral-500 font-medium">
-                    {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
-                  </p>
-                )}
+              {/* Title & Action Link */}
+              <div className="px-5 pb-5 pt-1 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-base sm:text-lg text-theme-dark leading-snug group-hover:text-brand transition-colors">
+                    {category.name}
+                  </h3>
+                  {category.itemCount !== undefined && (
+                    <p className="text-xs text-theme-muted font-medium mt-0.5">
+                      {category.itemCount} {category.itemCount === 1 ? 'piece' : 'pieces'}
+                    </p>
+                  )}
+                </div>
+
+                <div className="w-8 h-8 rounded-full bg-white shadow-xs flex items-center justify-center text-theme-dark group-hover:bg-theme-dark group-hover:text-white transition-all duration-300 shrink-0 ml-2">
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
               </div>
             </Link>
           ))}

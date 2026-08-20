@@ -48,14 +48,14 @@ export const BestSellers: React.FC = () => {
   )
 
   return (
-    <section id="featured-pieces" className="py-8 sm:py-12 layout-container overflow-hidden">
+    <section id="featured-pieces" className="py-8 sm:py-14 layout-container overflow-hidden">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
         <div>
-          <span className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1.5">
+          <span className="text-h7 text-neutral-400 mb-1.5 block">
             Featured
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-neutral-900 font-display">
+          <h2 className="text-h2 text-theme-dark font-display tracking-tight">
             Our Best Sellers
           </h2>
         </div>
@@ -74,7 +74,7 @@ export const BestSellers: React.FC = () => {
           )}
           <Link
             to="/shop"
-            className="rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 px-4 py-1.5 text-xs font-semibold text-neutral-800 transition-all shadow-xs shrink-0"
+            className="rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 px-4 py-2 text-xs font-semibold text-theme-dark transition-all shadow-xs shrink-0"
           >
             View all
           </Link>
@@ -87,16 +87,18 @@ export const BestSellers: React.FC = () => {
           aria-busy="true"
         >
           {[1, 2, 3, 4].map((item) => (
-            <div
-              key={item}
-              className="aspect-[4/3] w-[280px] sm:w-auto shrink-0 rounded-[2rem] animate-pulse bg-neutral-100"
-            />
+            <div key={item} className="flex flex-col gap-2 w-[280px] sm:w-auto shrink-0 animate-pulse">
+              <div className="aspect-[3/4] sm:aspect-square rounded-xl bg-theme-card" />
+              <div className="h-3 w-16 bg-neutral-200 rounded" />
+              <div className="h-4 w-3/4 bg-neutral-200 rounded" />
+              <div className="h-4 w-1/3 bg-neutral-200 rounded" />
+            </div>
           ))}
         </div>
       )}
 
       {!loading && error && (
-        <div className="py-8 text-center text-sm text-neutral-500">{error}</div>
+        <div className="py-8 text-center text-sm text-theme-muted">{error}</div>
       )}
 
       {!loading && !error && filteredProducts.length === 0 && (
