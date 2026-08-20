@@ -12,7 +12,6 @@ import type {
 import { ImageGallery } from '../components/product/ImageGallery'
 import { ProductInfo } from '../components/product/ProductInfo'
 import { ProductAccordion } from '../components/product/ProductAccordion'
-import { ReviewsSection } from '../components/product/ReviewsSection'
 import { ProductCard } from '../components/catalog/ProductCard'
 import { SectionHeader } from '../components/common/SectionHeader'
 
@@ -27,11 +26,17 @@ export const ProductDetailPage: React.FC = () => {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [openAccordionSection, setOpenAccordionSection] = useState<string | null>('additional_info')
 
-  const reviewsRef = useRef<HTMLDivElement | null>(null)
+  const accordionRef = useRef<HTMLDivElement | null>(null)
 
-  const scrollToReviews = () => {
-    reviewsRef.current?.scrollIntoView({ behavior: 'smooth' })
+  const handleReviewClick = () => {
+    setOpenAccordionSection('reviews')
+    accordionRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const handleToggleSection = (sectionId: string) => {
+    setOpenAccordionSection((prev) => (prev === sectionId ? null : sectionId))
   }
 
   const loadReviews = useCallback(async (productId: string) => {
@@ -141,23 +146,18 @@ export const ProductDetailPage: React.FC = () => {
             isNew={product.isFeatured}
             discountPercent={product.discountPercent || 50}
           />
-          <ProductInfo product={product} onReviewClick={scrollToReviews} />
+          <ProductInfo product={product} onReviewClick={handleReviewClick} />
         </div>
 
-        {/* Accordion Tabs */}
-        <ProductAccordion
-          product={product}
-          reviewCount={reviewSummary.totalReviews || product.reviewCount || 11}
-          onReviewsToggle={scrollToReviews}
-        />
-
-        {/* Customer Reviews Section */}
-        <div ref={reviewsRef}>
-          <ReviewsSection
-            productId={product.id}
-            ratingAvg={reviewSummary.avgRating ?? product.rating ?? null}
-            reviewCount={reviewSummary.totalReviews || product.reviewCount || 0}
+        {/* Accordion Tabs (Embedded Additional Info, Questions, and Customer Reviews) */}
+        <div ref={accordionRef}>
+          <ProductAccordion
+            product={product}
             reviews={reviews}
+            ratingAvg={reviewSummary.avgRating ?? product.rating ?? null}
+            reviewCount={reviewSummary.totalReviews || product.reviewCount || 11}
+            openSection={openAccordionSection}
+            onToggleSection={handleToggleSection}
             onReviewSubmitted={() => loadReviews(product.id)}
           />
         </div>
