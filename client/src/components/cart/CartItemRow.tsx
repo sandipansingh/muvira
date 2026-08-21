@@ -104,10 +104,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
   }
 
   return (
-    <article className="flex gap-3.5 border-b border-[var(--kit-line)] pb-4">
+    <article className="flex gap-3 border-b border-[var(--kit-line)] pb-3.5">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--kit-line)] bg-[var(--kit-surface)]"
+        className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[var(--kit-line)] bg-[var(--kit-surface)]"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
@@ -117,16 +117,16 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-xs text-neutral-400">
+          <div className="flex h-full items-center justify-center text-[10px] text-neutral-400">
             No image
           </div>
         )}
       </Link>
       <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start justify-between gap-1.5">
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 font-display text-xs font-bold leading-snug text-[var(--kit-ink)] transition-colors hover:text-neutral-600"
+            className="line-clamp-2 font-display text-xs font-semibold leading-snug text-[var(--kit-ink)] transition-colors hover:text-neutral-600"
           >
             {item.productName}
           </Link>
@@ -134,36 +134,36 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             type="button"
             onClick={() => removeFromCart(item.productId)}
             disabled={loading}
-            className="shrink-0 cursor-pointer rounded-lg p-1 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+            className="shrink-0 cursor-pointer rounded p-0.5 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
             aria-label={`Remove ${item.productName}`}
             title="Remove item"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <div className="inline-flex items-center rounded-lg border border-[var(--kit-line)] bg-[var(--kit-surface)] p-0.5">
+        <div className="mt-1.5 flex items-center justify-between gap-2">
+          <div className="inline-flex items-center rounded-md border border-[var(--kit-line)] bg-[var(--kit-surface)] p-0.5">
             <button
               type="button"
               onClick={() => updateQuantity(item.productId, -1)}
               disabled={loading}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
               aria-label="Decrease quantity"
             >
-              <Minus className="h-3 w-3" />
+              <Minus className="h-2.5 w-2.5" />
             </button>
-            <span className="w-7 text-center text-xs font-bold text-[var(--kit-ink)]">
+            <span className="w-6 text-center text-xs font-bold text-[var(--kit-ink)]">
               {item.quantity}
             </span>
             <button
               type="button"
               onClick={() => updateQuantity(item.productId, 1)}
               disabled={loading}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
               aria-label="Increase quantity"
             >
-              <Plus className="h-3 w-3" />
+              <Plus className="h-2.5 w-2.5" />
             </button>
           </div>
 

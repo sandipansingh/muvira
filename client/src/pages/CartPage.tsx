@@ -138,7 +138,7 @@ export const CartPage: React.FC = () => {
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
                   <Truck className="h-5 w-5" />
                 </div>
-                <span>🎉 Free doorstep delivery is unlocked for this order!</span>
+                <span>Free doorstep delivery is unlocked for this order.</span>
               </div>
             )}
 
