@@ -340,7 +340,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       : settings.shippingRules.shippingChargePaisa
   const totalPaisa = discountedSubtotal + shippingPaisa
   const amountForFreeShippingPaisa = Math.max(0, freeShippingThresholdPaisa - discountedSubtotal)
-  const hasUnmergedItems = items.some(isGuestItem)
+  const hasUnmergedItems = Boolean(user && items.some(isGuestItem))
 
   return (
     <CartContext.Provider

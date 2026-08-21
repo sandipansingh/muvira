@@ -1,21 +1,113 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Trash2 } from 'lucide-react'
+import { Minus, Plus, Trash2 } from 'lucide-react'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
 
 interface CartItemRowProps {
   item: CartItem
+  variant?: 'compact' | 'full'
 }
 
-export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
-  const { updateQuantity, removeFromCart } = useCart()
+export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compact' }) => {
+  const { updateQuantity, removeFromCart, loading } = useCart()
+
+  if (variant === 'full') {
+    return (
+      <article className="group relative flex flex-col gap-4 rounded-2xl border border-[var(--kit-line)] bg-[var(--kit-paper)] p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5 transition-shadow hover:shadow-xs">
+        <Link
+          to={`/product/${item.productSlug}`}
+          className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--kit-line)] bg-[var(--kit-surface)] sm:h-28 sm:w-28"
+          aria-label={`View ${item.productName}`}
+        >
+          {item.productImage ? (
+            <img
+              src={item.productImage}
+              alt={item.productName}
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-xs text-neutral-400">
+              No image
+            </div>
+          )}
+        </Link>
+
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <Link
+                to={`/product/${item.productSlug}`}
+                className="font-display text-base sm:text-lg font-bold text-[var(--kit-ink)] transition-colors hover:text-neutral-600 line-clamp-2"
+              >
+                {item.productName}
+              </Link>
+              <div className="mt-1 flex items-center gap-2 text-xs font-medium text-emerald-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <span>In Stock & Ready to Ship</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => removeFromCart(item.productId)}
+              disabled={loading}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg p-2 text-xs font-semibold text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+              aria-label={`Remove ${item.productName} from cart`}
+              title="Remove item"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Remove</span>
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center rounded-lg border border-[var(--kit-line)] bg-[var(--kit-surface)] p-0.5">
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(item.productId, -1)}
+                  disabled={loading}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+                <span className="w-10 text-center text-sm font-bold text-[var(--kit-ink)]">
+                  {item.quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => updateQuantity(item.productId, 1)}
+                  disabled={loading}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <span className="text-xs text-[var(--kit-muted)]">
+                {formatPrice(item.unitPrice)} each
+              </span>
+            </div>
+
+            <div className="text-right">
+              <span className="block text-xs font-medium text-[var(--kit-muted)]">Subtotal</span>
+              <span className="font-display text-base font-bold text-[var(--kit-ink)] sm:text-lg">
+                {formatPrice(item.lineTotal)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+    )
+  }
+
   return (
-    <article className="flex items-center gap-4 border-b border-[var(--kit-line)] pb-4">
+    <article className="flex gap-3.5 border-b border-[var(--kit-line)] pb-4">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-20 w-20 shrink-0 overflow-hidden rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-surface)]"
+        className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--kit-line)] bg-[var(--kit-surface)]"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
@@ -30,46 +122,63 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item }) => {
           </div>
         )}
       </Link>
-      <div className="min-w-0 flex-1">
-        <Link
-          to={`/product/${item.productSlug}`}
-          className="block truncate font-display text-sm font-bold text-[var(--kit-ink)] transition-colors hover:text-[var(--kit-muted)]"
-        >
-          {item.productName}
-        </Link>
-        <p className="mt-1 text-xs font-bold text-[var(--kit-ink)]">
-          {formatPrice(item.unitPrice)}
-        </p>
-        <div className="mt-2.5 inline-flex items-center border border-border-light rounded-full overflow-hidden bg-neutral-50/60">
+      <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
+        <div className="flex items-start justify-between gap-2">
+          <Link
+            to={`/product/${item.productSlug}`}
+            className="line-clamp-2 font-display text-xs font-bold leading-snug text-[var(--kit-ink)] transition-colors hover:text-neutral-600"
+          >
+            {item.productName}
+          </Link>
           <button
             type="button"
-            onClick={() => updateQuantity(item.productId, -1)}
-            className="px-3 py-1 text-xs font-bold text-foreground transition-colors hover:bg-neutral-100 cursor-pointer"
-            aria-label="Decrease quantity"
+            onClick={() => removeFromCart(item.productId)}
+            disabled={loading}
+            className="shrink-0 cursor-pointer rounded-lg p-1 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+            aria-label={`Remove ${item.productName}`}
+            title="Remove item"
           >
-            −
-          </button>
-          <span className="border-x border-border-light px-3 py-1 text-xs font-bold text-foreground">
-            {item.quantity}
-          </span>
-          <button
-            type="button"
-            onClick={() => updateQuantity(item.productId, 1)}
-            className="px-3 py-1 text-xs font-bold text-foreground transition-colors hover:bg-neutral-100 cursor-pointer"
-            aria-label="Increase quantity"
-          >
-            +
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
+
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="inline-flex items-center rounded-lg border border-[var(--kit-line)] bg-[var(--kit-surface)] p-0.5">
+            <button
+              type="button"
+              onClick={() => updateQuantity(item.productId, -1)}
+              disabled={loading}
+              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="h-3 w-3" />
+            </button>
+            <span className="w-7 text-center text-xs font-bold text-[var(--kit-ink)]">
+              {item.quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => updateQuantity(item.productId, 1)}
+              disabled={loading}
+              className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--kit-ink)] transition-colors hover:bg-[var(--kit-paper)] disabled:opacity-40"
+              aria-label="Increase quantity"
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+          </div>
+
+          <div className="text-right">
+            <p className="font-display text-xs font-bold text-[var(--kit-ink)]">
+              {formatPrice(item.lineTotal)}
+            </p>
+            {item.quantity > 1 && (
+              <p className="text-[10px] text-[var(--kit-muted)]">
+                {formatPrice(item.unitPrice)} ea
+              </p>
+            )}
+          </div>
+        </div>
       </div>
-      <button
-        type="button"
-        onClick={() => removeFromCart(item.productId)}
-        className="p-2 text-neutral-400 hover:text-red-600 transition-colors rounded-full hover:bg-red-50 cursor-pointer"
-        aria-label={`Remove ${item.productName}`}
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
     </article>
   )
 }

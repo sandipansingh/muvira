@@ -1,29 +1,49 @@
 import React, { useState } from 'react'
-import { CheckCircle, Tag, X } from 'lucide-react'
+import { CheckCircle, Loader2, Tag, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
+import { formatPrice } from '../../lib/utils/format'
 
 export const CouponInput: React.FC = () => {
   const { coupon, applyCoupon, removeCoupon } = useCart()
   const [code, setCode] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    if (code.trim() && (await applyCoupon(code))) setCode('')
+    const trimmedCode = code.trim().toUpperCase()
+    if (!trimmedCode || isSubmitting) return
+
+    setIsSubmitting(true)
+    try {
+      const success = await applyCoupon(trimmedCode)
+      if (success) setCode('')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (coupon) {
     return (
-      <div className="flex items-center justify-between rounded-[var(--kit-radius-control)] border border-success bg-success-soft p-3.5 text-xs text-success">
-        <div className="flex items-center gap-2">
-          <CheckCircle className="h-4 w-4 shrink-0 text-success" />
-          <span className="font-bold">{coupon.code} applied</span>
+      <div className="flex items-center justify-between rounded-[var(--kit-radius-control)] border border-emerald-300 bg-emerald-50/90 px-3.5 py-2.5 text-xs text-emerald-800 transition-all">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <CheckCircle className="h-3.5 w-3.5" />
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5 font-medium">
+            <span className="font-bold tracking-wider text-emerald-950 uppercase">
+              {coupon.code}
+            </span>
+            <span className="text-emerald-700">(-{formatPrice(coupon.discountAmount)} off)</span>
+          </div>
         </div>
         <button
           type="button"
           onClick={removeCoupon}
-          className="cursor-pointer rounded-[var(--kit-radius-control)] p-1 text-success transition-colors hover:bg-success-soft"
+          className="cursor-pointer rounded-full p-1 text-emerald-700 transition-colors hover:bg-emerald-200/60"
           aria-label="Remove coupon"
+          title="Remove coupon"
         >
-          <X className="h-4 w-4" />
+          <X className="h-3.5 w-3.5" />
         </button>
       </div>
     )
@@ -35,6 +55,9 @@ export const CouponInput: React.FC = () => {
         <label htmlFor="coupon-code" className="sr-only">
           Promo code
         </label>
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-neutral-400">
+          <Tag className="h-4 w-4" />
+        </div>
         <input
           id="coupon-code"
           name="coupon"
@@ -42,12 +65,15 @@ export const CouponInput: React.FC = () => {
           placeholder="Enter promo code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="editorial-input pl-9 text-base"
+          className="w-full min-h-[2.75rem] rounded-[var(--kit-radius-control)] border border-[var(--kit-field-border)] bg-[var(--kit-paper)] py-2 pl-10 pr-3 text-base sm:text-sm font-medium text-[var(--kit-ink)] placeholder:text-neutral-400 outline-none transition-all duration-200 focus:border-[var(--kit-ink)] focus:ring-1 focus:ring-[var(--kit-ink)] uppercase"
         />
-        <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
       </div>
-      <button type="submit" className="kit-button shrink-0 px-4 text-xs">
-        Apply
+      <button
+        type="submit"
+        disabled={!code.trim() || isSubmitting}
+        className="kit-button shrink-0 px-4 text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
       </button>
     </form>
   )
