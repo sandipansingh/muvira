@@ -23,18 +23,13 @@ interface ReviewFeedback {
   dislikes: number
 }
 
-interface EnrichedReview extends ProductReview {
-  title?: string
-}
-
-/* Authentic editorial reviews with headlines for handcrafted craft products */
-const fallbackReviews: EnrichedReview[] = [
+/* Authentic editorial reviews for handcrafted craft products */
+const fallbackReviews: ProductReview[] = [
   {
     id: 'mock-1',
     productId: '',
     userId: 'u1',
     userName: 'Sofia Harvertz',
-    title: 'Exquisite stone detailing and substantial weight',
     rating: 5,
     comment:
       'The craftsmanship on this piece is truly remarkable. The natural stone texture is smooth, the detailing is sharp, and it arrived in pristine wooden crate packaging. A stunning centerpiece for our home.',
@@ -45,7 +40,6 @@ const fallbackReviews: EnrichedReview[] = [
     productId: '',
     userId: 'u2',
     userName: 'Nicolas Jensen',
-    title: 'Masterclass in handcrafted stone carving',
     rating: 5,
     comment:
       'Exceeded my expectations in quality and weight. You can immediately tell it is hand-hewn by master artisans. It has that genuine heirloom feel you rarely find nowadays.',
@@ -56,7 +50,6 @@ const fallbackReviews: EnrichedReview[] = [
     productId: '',
     userId: 'u3',
     userName: 'Priya Sharma',
-    title: 'Perfect sacred aura for our home temple',
     rating: 4,
     comment:
       'Delivered within 3 days in robust packaging. The finish and natural grain give it an authentic, sacred aura. Very pleased with Muvira’s service and product quality.',
@@ -67,7 +60,6 @@ const fallbackReviews: EnrichedReview[] = [
     productId: '',
     userId: 'u4',
     userName: 'Rajesh Nair',
-    title: 'Impeccable packing and heirloom build',
     rating: 5,
     comment:
       'Sturdy, beautifully balanced, and matches our prayer room decor perfectly. Premium packaging ensured zero transit damage. Will definitely order from here again.',
@@ -78,7 +70,6 @@ const fallbackReviews: EnrichedReview[] = [
     productId: '',
     userId: 'u5',
     userName: 'Ananya Mukherjee',
-    title: 'Subtle natural grain, highly satisfied',
     rating: 5,
     comment:
       'Solid natural stone with intricate detailing. The proportions are just right, and it feels built to last generations.',
@@ -115,7 +106,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newRating, setNewRating] = useState(5)
   const [hoverRating, setHoverRating] = useState<number | null>(null)
-  const [newTitle, setNewTitle] = useState('')
   const [newComment, setNewComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [selectedStarFilter, setSelectedStarFilter] = useState<number | null>(null)
@@ -125,7 +115,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   const { isAuthenticated } = useAuth()
   const { showToast } = useToast()
 
-  const allReviews: EnrichedReview[] = useMemo(() => {
+  const allReviews: ProductReview[] = useMemo(() => {
     return reviews.length > 0 ? reviews : fallbackReviews
   }, [reviews])
 
@@ -191,14 +181,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
     }
     setSubmitting(true)
     try {
-      const fullComment = newTitle.trim()
-        ? `${newTitle.trim()}\n\n${newComment.trim()}`
-        : newComment.trim()
-      const response = await reviewService.submitReview(productId, newRating, fullComment)
+      const response = await reviewService.submitReview(productId, newRating, newComment.trim())
       if (response.success) {
         showToast('Your review has been submitted successfully.', 'success')
         setIsModalOpen(false)
-        setNewTitle('')
         setNewComment('')
         setNewRating(5)
         await onReviewSubmitted?.()
@@ -255,12 +241,12 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   }
 
   return (
-    <div className="py-8 space-y-10">
+    <div className="space-y-10 py-8">
       {/* ── 1. Luxury Editorial Rating Dashboard ── */}
       <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/50 p-6 lg:p-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-10 items-center">
+        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
           {/* Column A: Overall Score & Recommendation */}
-          <div className="md:col-span-4 space-y-3">
+          <div className="space-y-3 md:col-span-4">
             <div className="flex items-baseline gap-2">
               <span className="font-display text-5xl font-bold tracking-tight text-neutral-900">
                 {effectiveRating.toFixed(1)}
@@ -278,7 +264,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           </div>
 
           {/* Column B: Rating Distribution Breakdown Histogram */}
-          <div className="md:col-span-5 space-y-2 border-y md:border-y-0 md:border-x border-neutral-200/70 py-6 md:py-0 md:px-8">
+          <div className="space-y-2 border-y border-neutral-200/70 py-6 md:col-span-5 md:border-x md:border-y-0 md:px-8 md:py-0">
             {([5, 4, 3, 2, 1] as const).map((stars) => {
               const count = distribution.counts[stars] || 0
               const percent = distribution.percentages[stars] || 0
@@ -302,7 +288,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="w-8 text-right font-medium text-neutral-400 text-[11px]">
+                  <span className="w-8 text-right text-[11px] font-medium text-neutral-400">
                     {count}
                   </span>
                 </button>
@@ -311,7 +297,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           </div>
 
           {/* Column C: Write a Review Call to Action */}
-          <div className="md:col-span-3 flex flex-col items-start md:items-center justify-center text-left md:text-center space-y-3">
+          <div className="flex flex-col items-start justify-center space-y-3 text-left md:col-span-3 md:items-center md:text-center">
             <p className="text-xs font-semibold text-neutral-800">
               Share your experience with this craft piece
             </p>
@@ -331,7 +317,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       </div>
 
       {/* ── 2. Interactive Filter Chips & Sort Ribbon ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200/80 pb-4">
+      <div className="flex flex-col justify-between gap-4 border-b border-neutral-200/80 pb-4 sm:flex-row sm:items-center">
         {/* Filter Chips */}
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -395,7 +381,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             type="button"
             onClick={() => setSelectedStarFilter(null)}
-            className="mt-3 text-xs font-bold text-neutral-900 underline underline-offset-4 cursor-pointer hover:text-brand"
+            className="mt-3 cursor-pointer text-xs font-bold text-neutral-900 underline underline-offset-4 hover:text-brand"
           >
             Clear filters
           </button>
@@ -405,39 +391,31 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           {filteredAndSortedReviews.slice(0, visibleCount).map((review) => {
             const itemFeedback = feedback[review.id] || { likes: 0, dislikes: 0 }
             return (
-              <article key={review.id} className="py-7 sm:py-8 space-y-3">
-                {/* Header: Stars + Review Title */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
+              <article key={review.id} className="space-y-3 py-7 sm:py-8">
+                {/* Header: Stars + Reviewer Metadata */}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
                     <RatingStars rating={review.rating} size="xs" />
-                    {review.title && (
-                      <h5 className="font-display text-base font-bold text-neutral-900 tracking-tight">
-                        {review.title}
-                      </h5>
-                    )}
-                  </div>
-                  {/* Metadata line: Author, Date, Verified Badge */}
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
-                    <span className="font-semibold text-neutral-900">
+                    <span className="text-xs font-semibold text-neutral-900">
                       {review.userName || 'Verified Customer'}
                     </span>
-                    <span>•</span>
-                    <span>{formatReviewDate(review.createdAt)}</span>
-                    <span>•</span>
-                    <span className="inline-flex items-center gap-1 font-medium text-emerald-700">
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700">
                       <Check className="h-3 w-3 shrink-0 stroke-[2.5]" />
                       <span>Verified Buyer</span>
                     </span>
                   </div>
+                  <span className="text-[11px] text-neutral-400">
+                    {formatReviewDate(review.createdAt)}
+                  </span>
                 </div>
 
                 {/* Body Content */}
-                <p className="text-sm leading-relaxed text-neutral-700 font-normal sm:text-base">
+                <p className="text-sm font-normal leading-relaxed text-neutral-700 sm:text-base">
                   {review.comment}
                 </p>
 
                 {/* Helpful / Dislike Interactions */}
-                <div className="pt-2 flex items-center gap-4 text-xs font-medium text-neutral-500">
+                <div className="flex items-center gap-4 pt-1 text-xs font-medium text-neutral-500">
                   <span className="text-[11px] text-neutral-400">Was this review helpful?</span>
                   <div className="flex items-center gap-2">
                     <button
@@ -481,7 +459,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
       {/* ── 4. Load More Button ── */}
       {visibleCount < filteredAndSortedReviews.length && (
-        <div className="pt-4 flex justify-center">
+        <div className="flex justify-center pt-4">
           <button
             type="button"
             onClick={() => setVisibleCount((prev) => prev + 5)}
@@ -496,14 +474,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
         <form onSubmit={handleReviewSubmit} className="space-y-6">
           {!isAuthenticated && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 text-xs font-medium text-amber-900 leading-relaxed">
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 text-xs font-medium leading-relaxed text-amber-900">
               Please sign in with the account used for your purchase to submit a verified review.
             </div>
           )}
 
           {productName && (
             <div className="border-b border-neutral-100 pb-3">
-              <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
+              <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                 Product
               </span>
               <p className="font-display text-sm font-bold text-neutral-900">{productName}</p>
@@ -542,24 +520,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 {ratingLabels[hoverRating ?? newRating]} ({hoverRating ?? newRating}/5)
               </span>
             </div>
-          </div>
-
-          {/* Review Title */}
-          <div>
-            <label
-              htmlFor="review-title"
-              className="mb-2 block text-xs font-bold uppercase tracking-wider text-neutral-700"
-            >
-              Review headline
-            </label>
-            <input
-              id="review-title"
-              type="text"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="e.g. Heirloom quality with stunning stone texture"
-              className="editorial-input w-full p-3.5 text-base"
-            />
           </div>
 
           {/* Review Commentary */}
