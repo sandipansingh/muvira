@@ -8,6 +8,7 @@ This file outlines repository requirements for version control, incremental git 
 
 - **Commit Incrementally & Frequently**: Do NOT make a single giant commit at the end of a task or feature. Commit locally as you complete logical sub-steps, milestones, or refactoring phases.
 - **Group Similar & Logical Changes**: Group related files, components, or feature edits into distinct, cohesive local commits (e.g., schema/database updates, UI component changes, backend handlers, documentation updates).
+- **One Commit Per Issue**: For any single user request or issue fix, all related edits and follow-up tweaks must be combined into a single clean commit. Avoid leaving multiple fragmented commits for the same task; squash or amend iterative tweaks into one commit per issue.
 
 ---
 

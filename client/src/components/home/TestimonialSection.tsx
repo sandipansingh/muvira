@@ -1,33 +1,31 @@
 import React from 'react'
+import { Star } from 'lucide-react'
 import { TESTIMONIALS } from '../../content/testimonials'
 import { SectionHeader } from '../common/SectionHeader'
-import { SeeAllLink } from '../common/SeeAllLink'
 import { Marquee } from '../common/Marquee'
 
 const ReviewCard: React.FC<{
   quote: string
   author: string
-  location: string
-  avatar?: string
-}> = ({ quote, author, location, avatar }) => {
-  const profileImg =
-    avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop'
-
+  rating?: number
+}> = ({ quote, author, rating = 5 }) => {
   return (
-    <div className="relative h-full w-72 sm:w-80 cursor-pointer overflow-hidden rounded-2xl border border-border-light bg-white p-4.5 shadow-none hover:bg-neutral-50 transition-colors duration-200 flex flex-col justify-between">
-      <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-3">
-          <img
-            className="w-9 h-9 rounded-full object-cover shrink-0 border border-neutral-100"
-            alt={author}
-            src={profileImg}
-          />
-          <div className="flex flex-col min-w-0">
-            <p className="text-sm font-bold text-foreground truncate">{author}</p>
-            <p className="text-[11px] text-muted font-normal">{location}</p>
+    <div className="relative flex h-full w-72 flex-col justify-between overflow-hidden rounded-2xl border border-border-light bg-white p-4 shadow-none transition-colors duration-200 hover:bg-neutral-50 sm:w-80">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <p className="truncate text-sm font-bold text-foreground">{author}</p>
+          <div className="flex items-center gap-0.5 shrink-0">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`h-3 w-3 ${
+                  i < (rating || 5) ? 'fill-amber-400 text-amber-400' : 'text-neutral-200'
+                }`}
+              />
+            ))}
           </div>
         </div>
-        <p className="text-xs sm:text-[13px] line-clamp-3 text-neutral-700 font-normal leading-relaxed">
+        <p className="text-xs font-normal leading-relaxed text-neutral-700 sm:text-[13px] line-clamp-3">
           “{quote}”
         </p>
       </div>
@@ -46,7 +44,6 @@ export const TestimonialSection: React.FC = () => {
         title="What Our Customers Say"
         subtitle="Hear from homeowners about their recent Muvira handcrafted pieces"
         mobileLayout="row"
-        rightSlot={<SeeAllLink href="/reviews" label="See All Reviews" />}
       />
 
       <div className="relative flex w-full flex-col items-center justify-center overflow-hidden py-4 select-none mt-4">
@@ -56,13 +53,7 @@ export const TestimonialSection: React.FC = () => {
           style={{ '--duration': '70s' } as React.CSSProperties}
         >
           {firstRow.map((t) => (
-            <ReviewCard
-              key={t.id}
-              quote={t.quote}
-              author={t.author}
-              location={t.location}
-              avatar={t.avatar}
-            />
+            <ReviewCard key={t.id} quote={t.quote} author={t.author} rating={t.rating} />
           ))}
         </Marquee>
 
@@ -73,13 +64,7 @@ export const TestimonialSection: React.FC = () => {
           style={{ '--duration': '70s' } as React.CSSProperties}
         >
           {secondRow.map((t) => (
-            <ReviewCard
-              key={`rev-${t.id}`}
-              quote={t.quote}
-              author={t.author}
-              location={t.location}
-              avatar={t.avatar}
-            />
+            <ReviewCard key={`rev-${t.id}`} quote={t.quote} author={t.author} rating={t.rating} />
           ))}
         </Marquee>
 
