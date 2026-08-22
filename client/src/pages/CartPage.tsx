@@ -212,7 +212,6 @@ export const CartPage: React.FC = () => {
               className="kit-button w-full py-3.5 text-sm font-bold shadow-xs hover:shadow-sm"
             >
               <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
-              <ArrowRight className="h-4 w-4" />
             </button>
 
             {/* Trust Badges */}

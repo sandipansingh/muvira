@@ -134,7 +134,6 @@ export const CartDrawer: React.FC = () => {
                 className="kit-button col-span-2 h-10 !min-h-0 rounded-lg py-0 !text-xs font-bold shadow-xs"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
-                <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
