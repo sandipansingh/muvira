@@ -43,10 +43,6 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               >
                 {item.productName}
               </Link>
-              <div className="mt-1 flex items-center gap-2 text-xs font-medium text-emerald-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span>In Stock & Ready to Ship</span>
-              </div>
             </div>
             <button
               type="button"

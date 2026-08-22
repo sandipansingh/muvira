@@ -1,13 +1,5 @@
 import React from 'react'
-import {
-  ArrowLeft,
-  ArrowRight,
-  RotateCcw,
-  ShieldCheck,
-  ShoppingBag,
-  Trash2,
-  Truck,
-} from 'lucide-react'
+import { ArrowLeft, ArrowRight, ShoppingBag, Trash2 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/utils/format'
@@ -22,26 +14,12 @@ export const CartPage: React.FC = () => {
     discountPaisa,
     shippingPaisa,
     totalPaisa,
-    amountForFreeShippingPaisa,
-    freeShippingThresholdPaisa,
     loading,
     error,
     hasUnmergedItems,
     clearCart,
   } = useCart()
   const navigate = useNavigate()
-
-  const freeShippingPercent =
-    freeShippingThresholdPaisa > 0
-      ? Math.min(
-          100,
-          Math.round(
-            ((freeShippingThresholdPaisa - amountForFreeShippingPaisa) /
-              freeShippingThresholdPaisa) *
-              100
-          )
-        )
-      : 0
 
   if (items.length === 0) {
     return (
@@ -108,40 +86,6 @@ export const CartPage: React.FC = () => {
         <div className="grid items-start gap-10 lg:grid-cols-[1.6fr_1fr] xl:gap-14">
           {/* Items Section */}
           <div className="space-y-6">
-            {/* Free Shipping Banner Card */}
-            {amountForFreeShippingPaisa > 0 ? (
-              <div className="rounded-2xl border border-[var(--kit-line)] bg-[var(--kit-surface)] p-4 sm:p-5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--kit-paper)] text-[var(--kit-ink)] border border-[var(--kit-line)]">
-                    <Truck className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-semibold text-[var(--kit-ink)]">
-                      Add{' '}
-                      <span className="font-bold text-[var(--kit-ink)]">
-                        {formatPrice(amountForFreeShippingPaisa)}
-                      </span>{' '}
-                      more to unlock{' '}
-                      <span className="text-emerald-700 font-bold">FREE Doorstep Delivery</span>
-                    </p>
-                    <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-neutral-200">
-                      <div
-                        className="h-full rounded-full bg-[var(--kit-ink)] transition-all duration-300"
-                        style={{ width: `${freeShippingPercent}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-xs sm:text-sm font-semibold text-emerald-900">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                  <Truck className="h-5 w-5" />
-                </div>
-                <span>Free doorstep delivery is unlocked for this order.</span>
-              </div>
-            )}
-
             {/* Cart Items List */}
             <div className="space-y-4">
               {items.map((item) => (
@@ -213,22 +157,6 @@ export const CartPage: React.FC = () => {
             >
               <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
             </button>
-
-            {/* Trust Badges */}
-            <div className="space-y-3 border-t border-[var(--kit-line)] pt-5 text-xs text-[var(--kit-muted)]">
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
-                <span>100% Safe & Secure Payments with Razorpay</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Truck className="h-4 w-4 shrink-0 text-emerald-600" />
-                <span>Express Insured Shipping across India</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <RotateCcw className="h-4 w-4 shrink-0 text-emerald-600" />
-                <span>7-Day Replacement for Transit Damage</span>
-              </div>
-            </div>
           </aside>
         </div>
       </div>
