@@ -50,7 +50,7 @@ export const CouponInput: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
+    <form onSubmit={handleSubmit} className="flex h-12 items-stretch gap-2">
       <div className="relative flex-1">
         <label htmlFor="coupon-code" className="sr-only">
           Promo code
@@ -65,13 +65,13 @@ export const CouponInput: React.FC = () => {
           placeholder="Enter promo code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="w-full min-h-[2.35rem] rounded-lg border border-[var(--kit-field-border)] bg-[var(--kit-paper)] py-1.5 pl-8.5 pr-2.5 text-xs font-medium text-[var(--kit-ink)] placeholder:text-neutral-400 placeholder:normal-case outline-none transition-all duration-200 focus:border-[var(--kit-ink)] focus:ring-1 focus:ring-[var(--kit-ink)] uppercase"
+          className="h-full w-full rounded-lg border border-[var(--kit-field-border)] bg-[var(--kit-paper)] py-1.5 pl-10 pr-2.5 text-base font-medium text-[var(--kit-ink)] placeholder:text-neutral-400 placeholder:normal-case outline-none transition-all duration-200 focus:border-[var(--kit-ink)] focus:ring-1 focus:ring-[var(--kit-ink)] uppercase"
         />
       </div>
       <button
         type="submit"
         disabled={!code.trim() || isSubmitting}
-        className="kit-button shrink-0 min-h-[2.35rem] px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="kit-button h-full shrink-0 px-3.5 py-1.5 text-base font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
       </button>

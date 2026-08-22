@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, ShieldCheck, ShoppingBag, Truck, X } from 'lucide-react'
+import { ArrowRight, ShieldCheck, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { formatPrice } from '../../lib/utils/format'
@@ -15,25 +15,11 @@ export const CartDrawer: React.FC = () => {
     discountPaisa,
     shippingPaisa,
     totalPaisa,
-    amountForFreeShippingPaisa,
-    freeShippingThresholdPaisa,
     hasUnmergedItems,
     loading,
   } = useCart()
   const navigate = useNavigate()
   if (!isDrawerOpen) return null
-
-  const freeShippingPercent =
-    freeShippingThresholdPaisa > 0
-      ? Math.min(
-          100,
-          Math.round(
-            ((freeShippingThresholdPaisa - amountForFreeShippingPaisa) /
-              freeShippingThresholdPaisa) *
-              100
-          )
-        )
-      : 0
 
   const openCheckout = () => {
     closeCartDrawer()
@@ -71,35 +57,6 @@ export const CartDrawer: React.FC = () => {
           >
             <X className="h-4 w-4" />
           </button>
-        </div>
-
-        {/* Free Shipping Banner */}
-        <div className="border-b border-[var(--kit-line)] bg-[var(--kit-surface)]/60 px-5 py-2.5 text-xs font-medium">
-          {amountForFreeShippingPaisa > 0 ? (
-            <div className="space-y-1.5">
-              <p className="flex items-center gap-1.5 text-[11px] text-[var(--kit-muted)]">
-                <Truck className="h-3.5 w-3.5 shrink-0 text-[var(--kit-ink)]" />
-                <span>
-                  Add{' '}
-                  <strong className="font-bold text-[var(--kit-ink)]">
-                    {formatPrice(amountForFreeShippingPaisa)}
-                  </strong>{' '}
-                  more for free shipping.
-                </span>
-              </p>
-              <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200">
-                <div
-                  className="h-full rounded-full bg-[var(--kit-ink)] transition-all duration-300"
-                  style={{ width: `${freeShippingPercent}%` }}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800">
-              <Truck className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-              <span>Free shipping unlocked for this order!</span>
-            </div>
-          )}
         </div>
 
         {/* Cart Items List */}
