@@ -3,23 +3,16 @@ import { Heart, ShoppingBag } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
-import { RatingStars } from '../common/RatingStars'
 
 interface ProductInfoProps {
   product: ProductDetail
   onReviewClick?: () => void
 }
 
-interface ColorOption {
-  name: string
-  image?: string
-}
-
-export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick }) => {
+export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
   const { addToCart } = useCart()
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
-  const [selectedColor, setSelectedColor] = useState('Black')
 
   /* Simulated real-time offer countdown timer */
   const [timeLeft, setTimeLeft] = useState({
@@ -48,34 +41,10 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
       ? product.salePrice
       : Math.round(product.price * 1.5)
 
-  /* Measurements info from metadata or fallback demo */
-  const measurements =
-    product.metadata?.Measurements || product.metadata?.Dimensions || '17 1/2 × 20 5/8 "'
-
-  /* Color variant options matching design reference */
-  const colorOptions: ColorOption[] = [
-    { name: 'Black', image: product.images[0]?.url },
-    { name: 'Brown', image: product.images[1]?.url || product.images[0]?.url },
-    { name: 'Red', image: product.images[2]?.url || product.images[0]?.url },
-    { name: 'White', image: product.images[3]?.url || product.images[0]?.url },
-  ]
-
   const formatTwoDigits = (num: number) => String(num).padStart(2, '0')
 
   return (
     <div className="space-y-6">
-      {/* 5-Star Rating & Review Count Link */}
-      <div className="flex items-center gap-2">
-        <RatingStars rating={product.rating ?? 5} size="sm" />
-        <button
-          type="button"
-          onClick={onReviewClick}
-          className="text-xs font-semibold text-[var(--kit-ink)] transition-colors hover:underline cursor-pointer"
-        >
-          {product.reviewCount ?? 11} Reviews
-        </button>
-      </div>
-
       {/* Product Title */}
       <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-4xl">
         {product.name}
@@ -126,46 +95,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             </span>
             <span className="text-[10px] text-[var(--kit-muted)]">Secs</span>
           </div>
-        </div>
-      </div>
-
-      {/* Measurements */}
-      <div className="space-y-1 border-t border-[var(--kit-line)] pt-4 text-xs">
-        <p className="font-semibold text-[var(--kit-muted)] uppercase tracking-wide">
-          Measurements
-        </p>
-        <p className="font-bold text-[var(--kit-ink)] text-sm">{measurements}</p>
-      </div>
-
-      {/* Color Variant Selector */}
-      <div className="space-y-3 border-t border-[var(--kit-line)] pt-4">
-        <div className="flex items-center gap-1 text-sm font-semibold text-[var(--kit-muted)]">
-          <span>Choose Color</span>
-          <span>&gt;</span>
-          <span className="ml-1 font-bold text-[var(--kit-ink)]">{selectedColor}</span>
-        </div>
-        <div className="flex gap-3">
-          {colorOptions.map((option) => (
-            <button
-              key={option.name}
-              type="button"
-              onClick={() => setSelectedColor(option.name)}
-              className={`h-16 w-16 cursor-pointer overflow-hidden rounded-xl transition-all ${
-                selectedColor === option.name
-                  ? 'border-2 border-[var(--kit-ink)] ring-2 ring-[var(--kit-ink)]/20'
-                  : 'border border-[var(--kit-line)] opacity-70 hover:opacity-100'
-              }`}
-              aria-label={`Select color ${option.name}`}
-            >
-              {option.image ? (
-                <img src={option.image} alt={option.name} className="h-full w-full object-cover" />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center text-xs font-semibold">
-                  {option.name}
-                </span>
-              )}
-            </button>
-          ))}
         </div>
       </div>
 
