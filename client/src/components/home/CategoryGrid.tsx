@@ -118,9 +118,9 @@ export const CategoryGrid: React.FC = () => {
               <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-3xl">
                 {mainCategory.name}
               </h3>
-              <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
-                <span>Collection</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+              <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                <span className="leading-none">Collection</span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
               </div>
             </div>
           </Link>
@@ -136,9 +136,9 @@ export const CategoryGrid: React.FC = () => {
                 <h3 className="font-display text-xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-2xl">
                   {secondCategory.name}
                 </h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
-                  <span>Collection</span>
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                  <span className="leading-none">Collection</span>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>
               </div>
 
@@ -161,9 +161,9 @@ export const CategoryGrid: React.FC = () => {
                 <h3 className="font-display text-xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-2xl">
                   {thirdCategory.name}
                 </h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
-                  <span>Collection</span>
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                  <span className="leading-none">Collection</span>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>
               </div>
 

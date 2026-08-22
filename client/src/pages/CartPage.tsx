@@ -34,8 +34,8 @@ export const CartPage: React.FC = () => {
             decor and statues.
           </p>
           <Link to="/shop" className="kit-button mt-8 gap-2.5 px-6 py-3 text-sm font-semibold">
-            <span>Explore Handcrafted Collections</span>
-            <ArrowRight className="h-4 w-4" />
+            <span className="leading-none">Explore Handcrafted Collections</span>
+            <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
         </div>
       </main>
@@ -70,10 +70,10 @@ export const CartPage: React.FC = () => {
             type="button"
             onClick={clearCart}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 self-start text-xs font-semibold text-neutral-400 hover:text-red-600 transition-colors disabled:opacity-50 cursor-pointer"
+            className="inline-flex cursor-pointer items-center gap-1.5 self-start text-xs font-semibold leading-none text-neutral-400 transition-colors hover:text-red-600 disabled:opacity-50"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-            <span>Clear Cart</span>
+            <Trash2 className="h-3.5 w-3.5 shrink-0" />
+            <span className="leading-none">Clear Cart</span>
           </button>
         </div>
 
@@ -97,10 +97,10 @@ export const CartPage: React.FC = () => {
             <div className="pt-2">
               <Link
                 to="/shop"
-                className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[var(--kit-ink)] hover:underline"
+                className="inline-flex items-center gap-2 text-xs font-semibold leading-none text-[var(--kit-ink)] hover:underline sm:text-sm"
               >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Continue Shopping</span>
+                <ArrowLeft className="h-4 w-4 shrink-0" />
+                <span className="leading-none">Continue Shopping</span>
               </Link>
             </div>
           </div>

@@ -117,9 +117,9 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </h3>
             <div className="w-full max-w-[320px]">
               {subscribed ? (
-                <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full py-2.5 px-4 text-xs font-semibold">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>Subscribed successfully!</span>
+                <div className="flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-700">
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">Subscribed successfully!</span>
                 </div>
               ) : (
                 <form
@@ -136,10 +136,10 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   />
                   <button
                     type="submit"
-                    className="w-10 h-10 rounded-full bg-brand hover:bg-brand-hover text-white flex items-center justify-center transition-all duration-300 shrink-0 cursor-pointer shadow-xs"
+                    className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-brand text-white shadow-xs transition-all duration-300 hover:bg-brand-hover"
                     aria-label="Subscribe to newsletter"
                   >
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="h-4 w-4 shrink-0" />
                   </button>
                 </form>
               )}
@@ -169,26 +169,26 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
               Contact
             </h4>
             <ul className="flex flex-col gap-3 text-sm text-neutral-800 font-medium">
-              <li className="flex items-start gap-2.5">
-                <Phone className="w-4 h-4 text-neutral-400 shrink-0 mt-0.5" />
+              <li className="flex items-center gap-2.5">
+                <Phone className="h-4 w-4 shrink-0 text-neutral-400" />
                 <a
                   href={`tel:${phoneNum.replace(/[^\d+]/g, '')}`}
-                  className="hover:text-brand transition-colors duration-200"
+                  className="hover:text-brand transition-colors duration-200 leading-none"
                 >
                   {phoneNum}
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-neutral-400 shrink-0" />
+                <Mail className="h-4 w-4 shrink-0 text-neutral-400" />
                 <a
                   href={`mailto:${emailAddress}`}
-                  className="hover:text-brand transition-colors duration-200 break-all"
+                  className="break-all leading-none transition-colors duration-200 hover:text-brand"
                 >
                   {emailAddress}
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-neutral-400 shrink-0 mt-0.5" />
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
                 <span className="text-xs leading-relaxed text-neutral-600">{storeAddress}</span>
               </li>
               <li className="pt-2 border-t border-neutral-200/60 mt-1">

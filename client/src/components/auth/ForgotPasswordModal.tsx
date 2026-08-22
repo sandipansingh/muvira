@@ -124,17 +124,17 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2D6A7E] py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#235868] disabled:opacity-60 cursor-pointer"
+                className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#2D6A7E] py-3.5 text-sm font-semibold leading-none text-white transition-colors hover:bg-[#235868] disabled:opacity-60"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Sending link...</span>
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                    <span className="leading-none">Sending link...</span>
                   </>
                 ) : (
                   <>
-                    <span>Send Reset Link</span>
-                    <ArrowRight className="h-4 w-4" />
+                    <span className="leading-none">Send Reset Link</span>
+                    <ArrowRight className="h-4 w-4 shrink-0" />
                   </>
                 )}
               </button>

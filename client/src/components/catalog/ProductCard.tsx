@@ -126,8 +126,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </div>
             <div className="mt-6 flex gap-2">
               <button type="button" onClick={handleAddToCart} className="kit-button flex-1 text-xs">
-                {isAdded ? <Check className="h-4 w-4" /> : null}
-                {isAdded ? 'Added' : 'Add to cart'}
+                {isAdded ? <Check className="h-4 w-4 shrink-0" /> : null}
+                <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
               </button>
               <button
                 type="button"
@@ -194,8 +194,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               className="kit-button min-h-10 flex-1 px-3 text-xs opacity-0 shadow-[var(--kit-shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100"
               aria-label={`Add ${product.name} to cart`}
             >
-              {isAdded ? <Check className="h-4 w-4" /> : null}
-              {isAdded ? 'Added' : 'Add to cart'}
+              {isAdded ? <Check className="h-4 w-4 shrink-0" /> : null}
+              <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
             </button>
             <button
               type="button"

@@ -73,7 +73,11 @@ export const CouponInput: React.FC = () => {
         disabled={!code.trim() || isSubmitting}
         className="kit-button h-full !min-h-0 shrink-0 rounded-lg px-3.5 py-0 !text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
+        {isSubmitting ? (
+          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+        ) : (
+          <span className="leading-none">Apply</span>
+        )}
       </button>
     </form>
   )

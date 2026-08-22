@@ -206,8 +206,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             }`}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           >
-            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
-            <span>Wishlist</span>
+            <Heart className={`h-4 w-4 shrink-0 ${isWishlisted ? 'fill-current' : ''}`} />
+            <span className="leading-none">Wishlist</span>
           </button>
         </div>
 
@@ -217,8 +217,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           onClick={() => addToCart(product, quantity)}
           className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#141718] text-base font-semibold text-white transition-colors hover:bg-black"
         >
-          <ShoppingBag className="h-5 w-5" />
-          <span>Add to Cart</span>
+          <ShoppingBag className="h-5 w-5 shrink-0" />
+          <span className="leading-none">Add to Cart</span>
         </button>
       </div>
 

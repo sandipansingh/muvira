@@ -153,11 +153,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               >
                 {added ? (
                   <>
-                    <Check className="h-4 w-4 text-emerald-400" /> Added to Cart
+                    <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+                    <span className="leading-none">Added to Cart</span>
                   </>
                 ) : (
                   <>
-                    <ShoppingBag className="h-4 w-4" /> Add to Cart
+                    <ShoppingBag className="h-4 w-4 shrink-0" />
+                    <span className="leading-none">Add to Cart</span>
                   </>
                 )}
               </button>
@@ -166,7 +168,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 onClick={onClose}
                 className="editorial-button-secondary text-xs py-3 font-bold text-center justify-center"
               >
-                Full Details <ArrowRight className="h-4 w-4" />
+                <span className="leading-none">Full Details</span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
               </Link>
             </div>
           </div>

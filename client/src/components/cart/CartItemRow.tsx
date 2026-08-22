@@ -48,12 +48,12 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               type="button"
               onClick={() => removeFromCart(item.productId)}
               disabled={loading}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg p-2 text-xs font-semibold text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold leading-none text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
               aria-label={`Remove ${item.productName} from cart`}
               title="Remove item"
             >
-              <Trash2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Remove</span>
+              <Trash2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden leading-none sm:inline">Remove</span>
             </button>
           </div>
 
@@ -130,11 +130,11 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             type="button"
             onClick={() => removeFromCart(item.productId)}
             disabled={loading}
-            className="shrink-0 cursor-pointer rounded p-0.5 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+            className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
             aria-label={`Remove ${item.productName}`}
             title="Remove item"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-3.5 w-3.5 shrink-0" />
           </button>
         </div>
 

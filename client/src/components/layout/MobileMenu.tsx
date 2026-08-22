@@ -235,10 +235,10 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 <Link
                   to="/orders"
                   onClick={onClose}
-                  className="py-2.5 px-3 rounded-lg border border-neutral-200 text-xs font-semibold text-center text-theme-dark hover:bg-neutral-50 transition-colors flex items-center justify-center gap-1.5"
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2.5 text-center text-xs font-semibold text-theme-dark transition-colors hover:bg-neutral-50"
                 >
-                  <Package className="h-3.5 w-3.5" />
-                  <span>Orders</span>
+                  <Package className="h-3.5 w-3.5 shrink-0" />
+                  <span className="leading-none">Orders</span>
                 </Link>
                 <button
                   type="button"
@@ -246,10 +246,10 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                     logout()
                     onClose()
                   }}
-                  className="py-2.5 px-3 rounded-lg border border-red-200 text-xs font-semibold text-center text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-red-200 px-3 py-2.5 text-center text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
                 >
-                  <LogOut className="h-3.5 w-3.5" />
-                  <span>Sign Out</span>
+                  <LogOut className="h-3.5 w-3.5 shrink-0" />
+                  <span className="leading-none">Sign Out</span>
                 </button>
               </div>
             </div>

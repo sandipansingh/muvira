@@ -20,10 +20,12 @@ export const OrderFailurePage: React.FC = () => {
         )}
         <div className="flex flex-col justify-center gap-3 pt-8 sm:flex-row">
           <Link to="/checkout" className="kit-button py-3 text-sm">
-            <RefreshCw className="h-4 w-4" /> Retry Payment
+            <RefreshCw className="h-4 w-4 shrink-0" />
+            <span className="leading-none">Retry Payment</span>
           </Link>
           <Link to="/cart" className="kit-button-secondary py-3 text-sm">
-            Return to Cart <ArrowRight className="h-4 w-4" />
+            <span className="leading-none">Return to Cart</span>
+            <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
         </div>
       </div>

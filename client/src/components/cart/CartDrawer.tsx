@@ -80,8 +80,8 @@ export const CartDrawer: React.FC = () => {
                 }}
                 className="kit-button mt-5 px-4 py-2 text-xs font-semibold"
               >
-                <span>Shop the collection</span>
-                <ArrowRight className="h-3.5 w-3.5" />
+                <span className="leading-none">Shop the collection</span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0" />
               </button>
             </div>
           ) : (

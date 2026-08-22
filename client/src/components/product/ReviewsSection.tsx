@@ -219,10 +219,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 <div className="flex items-center gap-5 pt-2 text-xs font-semibold text-[var(--kit-muted)]">
                   <button
                     type="button"
-                    className="flex items-center gap-1.5 hover:text-[var(--kit-ink)] transition-colors cursor-pointer"
+                    className="flex cursor-pointer items-center gap-1.5 leading-none transition-colors hover:text-[var(--kit-ink)]"
                   >
-                    <ThumbsUp className="h-3.5 w-3.5" />
-                    <span>Like</span>
+                    <ThumbsUp className="h-3.5 w-3.5 shrink-0" />
+                    <span className="leading-none">Like</span>
                   </button>
                   <button
                     type="button"

@@ -164,6 +164,60 @@ html {
   box-sizing: border-box;
 }
 
+:is(.flex, .inline-flex):not(.flex-col) > svg {
+  flex-shrink: 0;
+}
+
+:is(
+  .kit-button,
+  .kit-button-secondary,
+  .editorial-button,
+  .editorial-button-secondary,
+  .btn-dark-xl,
+  .btn-dark-lg,
+  .btn-dark-md,
+  .btn-dark-sm,
+  .btn-dark-xs
+) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+:is(
+    .kit-button,
+    .kit-button-secondary,
+    .editorial-button,
+    .editorial-button-secondary,
+    .btn-dark-xl,
+    .btn-dark-lg,
+    .btn-dark-md,
+    .btn-dark-sm,
+    .btn-dark-xs
+  )
+  > svg {
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Optical vertical alignment for icons alongside text in Poppins font */
+:is(.flex, .inline-flex):not(.flex-col) > svg:not(:only-child),
+:is(
+    .kit-button,
+    .kit-button-secondary,
+    .editorial-button,
+    .editorial-button-secondary,
+    .btn-dark-xl,
+    .btn-dark-lg,
+    .btn-dark-md,
+    .btn-dark-sm,
+    .btn-dark-xs
+  )
+  > svg:not(:only-child) {
+  translate: 0 -1px;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);

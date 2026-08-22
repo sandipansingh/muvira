@@ -76,9 +76,10 @@ export const OrderDetailPage: React.FC = () => {
       <div className="editorial-container max-w-4xl space-y-10">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-500 transition-colors hover:text-brand"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-neutral-500 transition-colors hover:text-brand"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to order history
+          <ArrowLeft className="h-4 w-4 shrink-0" />
+          <span className="leading-none">Back to order history</span>
         </Link>
         <div className="flex flex-col justify-between gap-4 border-b border-border-light pb-6 sm:flex-row sm:items-end">
           <div>
@@ -183,8 +184,9 @@ export const OrderDetailPage: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-8 border-t border-border-light pt-8 sm:grid-cols-2">
           <div className="kit-panel space-y-2 p-6 text-xs">
-            <h2 className="flex items-center gap-1.5 text-sm font-bold text-foreground mb-3">
-              <MapPin className="h-4 w-4 text-foreground" /> Shipping Address
+            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-bold leading-none text-foreground">
+              <MapPin className="h-4 w-4 shrink-0 text-foreground" />
+              <span className="leading-none">Shipping Address</span>
             </h2>
             <p className="font-bold text-foreground">{order.shippingAddress.fullName}</p>
             <p className="text-neutral-600">
@@ -197,8 +199,9 @@ export const OrderDetailPage: React.FC = () => {
             </p>
           </div>
           <div className="kit-panel space-y-2 p-6 text-xs">
-            <h2 className="flex items-center gap-1.5 text-sm font-bold text-foreground mb-3">
-              <ShieldCheck className="h-4 w-4 text-foreground" /> Payment Details
+            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-bold leading-none text-foreground">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-foreground" />
+              <span className="leading-none">Payment Details</span>
             </h2>
             <p className="font-semibold text-foreground">Razorpay online payment</p>
             <p className="font-bold text-emerald-700">Status: {order.paymentStatus}</p>

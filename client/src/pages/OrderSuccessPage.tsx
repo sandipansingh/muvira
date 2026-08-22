@@ -30,14 +30,17 @@ export const OrderSuccessPage: React.FC = () => {
         </p>
         <div className="flex flex-col justify-center gap-3 pt-8 sm:flex-row">
           <Link to={`/orders/${encodeURIComponent(orderId)}`} className="kit-button py-3 text-sm">
-            <Package className="h-4 w-4" /> Track Order
+            <Package className="h-4 w-4 shrink-0" />
+            <span className="leading-none">Track Order</span>
           </Link>
           <Link to="/shop" className="kit-button-secondary py-3 text-sm">
-            Continue Shopping <ArrowRight className="h-4 w-4" />
+            <span className="leading-none">Continue Shopping</span>
+            <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
         </div>
         <p className="mt-8 flex items-center justify-center gap-2 border-t border-[var(--kit-line)] pt-4 text-[11px] text-[var(--kit-muted)]">
-          <ShieldCheck className="h-4 w-4 text-foreground" /> Secure Razorpay payment verification.
+          <ShieldCheck className="h-4 w-4 shrink-0 text-foreground" />
+          <span className="leading-none">Secure Razorpay payment verification.</span>
         </p>
       </div>
     </main>

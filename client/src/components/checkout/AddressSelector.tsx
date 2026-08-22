@@ -71,9 +71,10 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
         <button
           type="button"
           onClick={() => setShowAddForm((open) => !open)}
-          className="inline-flex cursor-pointer items-center gap-1 text-xs font-bold text-[var(--kit-ink)] hover:underline"
+          className="inline-flex cursor-pointer items-center gap-1 text-xs font-bold leading-none text-[var(--kit-ink)] hover:underline"
         >
-          <Plus className="h-3.5 w-3.5" /> Add new
+          <Plus className="h-3.5 w-3.5 shrink-0" />
+          <span className="leading-none">Add new</span>
         </button>
       </div>
       <div className="mt-5 space-y-3">

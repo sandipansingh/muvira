@@ -130,16 +130,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
                   onClick={() => setIsUserMenuOpen(false)}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 transition-colors"
                 >
-                  <User className="h-4 w-4 text-muted" />
-                  <span>My Profile</span>
+                  <User className="h-4 w-4 shrink-0 text-muted" />
+                  <span className="leading-none">My Profile</span>
                 </Link>
                 <Link
                   to="/orders"
                   onClick={() => setIsUserMenuOpen(false)}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-foreground hover:bg-neutral-50 transition-colors"
                 >
-                  <Package className="h-4 w-4 text-muted" />
-                  <span>My Orders</span>
+                  <Package className="h-4 w-4 shrink-0 text-muted" />
+                  <span className="leading-none">My Orders</span>
                 </Link>
                 <button
                   type="button"
@@ -147,10 +147,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
                     setIsUserMenuOpen(false)
                     logout()
                   }}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  <span className="leading-none">Sign Out</span>
                 </button>
               </div>
             )}

@@ -117,7 +117,8 @@ export const OrdersHistoryPage: React.FC = () => {
                       {order.firstItemName ?? `${order.itemCount} item(s)`}
                     </p>
                     <p className="mt-1 flex items-center gap-1 text-[11px] text-neutral-400">
-                      <Clock className="h-3 w-3" /> Placed on {formatDate(order.createdAt)}
+                      <Clock className="h-3 w-3 shrink-0" />
+                      <span className="leading-none">Placed on {formatDate(order.createdAt)}</span>
                     </p>
                   </div>
                 </div>

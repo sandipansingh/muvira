@@ -103,13 +103,15 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         disabled={isProcessing || items.length === 0}
         className="kit-button w-full py-3.5 text-sm font-bold shadow-xs hover:shadow-sm"
       >
-        <Lock className="h-4 w-4" />
-        <span>{isProcessing ? 'Processing payment...' : `Pay ${formatPrice(totalPaisa)}`}</span>
+        <Lock className="h-4 w-4 shrink-0" />
+        <span className="leading-none">
+          {isProcessing ? 'Processing payment...' : `Pay ${formatPrice(totalPaisa)}`}
+        </span>
       </button>
 
       <div className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-[var(--kit-muted)]">
         <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
-        <span>Guaranteed 256-bit SSL encrypted payment</span>
+        <span className="leading-none">Guaranteed 256-bit SSL encrypted payment</span>
       </div>
     </aside>
   )

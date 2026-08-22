@@ -189,7 +189,8 @@ export const ProfilePage: React.FC = () => {
             onClick={logout}
             className="editorial-button-secondary px-4 py-2 text-xs font-bold"
           >
-            <LogOut className="h-4 w-4" /> Sign out
+            <LogOut className="h-4 w-4 shrink-0" />
+            <span className="leading-none">Sign out</span>
           </button>
         </div>
 
@@ -199,19 +200,22 @@ export const ProfilePage: React.FC = () => {
               to="/profile"
               className="flex items-center gap-3 rounded-[var(--kit-radius-control)] bg-[var(--kit-ink)] p-4 text-xs font-bold text-white"
             >
-              <User className="h-4 w-4" /> Personal Info
+              <User className="h-4 w-4 shrink-0" />
+              <span className="leading-none">Personal Info</span>
             </Link>
             <Link
               to="/orders"
               className="flex items-center gap-3 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] p-4 text-xs font-bold text-[var(--kit-muted)] transition-colors hover:bg-[var(--kit-surface)] hover:text-[var(--kit-ink)]"
             >
-              <Package className="h-4 w-4" /> My Orders
+              <Package className="h-4 w-4 shrink-0" />
+              <span className="leading-none">My Orders</span>
             </Link>
             <a
               href="#addresses"
               className="flex items-center gap-3 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] p-4 text-xs font-bold text-[var(--kit-muted)] transition-colors hover:bg-[var(--kit-surface)] hover:text-[var(--kit-ink)]"
             >
-              <MapPin className="h-4 w-4" /> Saved Addresses ({addresses.length})
+              <MapPin className="h-4 w-4 shrink-0" />
+              <span className="leading-none">Saved Addresses ({addresses.length})</span>
             </a>
           </div>
 
