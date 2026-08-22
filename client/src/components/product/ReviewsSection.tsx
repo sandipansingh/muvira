@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Check, Loader2, PenLine, Star, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Loader2, PenLine, Star, ThumbsDown, ThumbsUp } from 'lucide-react'
 import type { ProductReview } from '../../lib/types/product'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -392,21 +392,19 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             const itemFeedback = feedback[review.id] || { likes: 0, dislikes: 0 }
             return (
               <article key={review.id} className="space-y-3 py-7 sm:py-8">
-                {/* Header: Stars + Reviewer Metadata */}
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <RatingStars rating={review.rating} size="xs" />
-                    <span className="text-xs font-semibold text-neutral-900">
-                      {review.userName || 'Verified Customer'}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700">
-                      <Check className="h-3 w-3 shrink-0 stroke-[2.5]" />
-                      <span>Verified Buyer</span>
+                {/* Header: Name + Date on top row, Stars on second row */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-4">
+                    <h5 className="font-display text-sm font-bold text-neutral-900 sm:text-base">
+                      {review.userName || 'Customer'}
+                    </h5>
+                    <span className="text-xs text-neutral-400">
+                      {formatReviewDate(review.createdAt)}
                     </span>
                   </div>
-                  <span className="text-[11px] text-neutral-400">
-                    {formatReviewDate(review.createdAt)}
-                  </span>
+                  <div>
+                    <RatingStars rating={review.rating} size="xs" />
+                  </div>
                 </div>
 
                 {/* Body Content */}
