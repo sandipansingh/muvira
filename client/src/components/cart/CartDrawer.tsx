@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, ShieldCheck, ShoppingBag, X } from 'lucide-react'
+import { ArrowRight, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { formatPrice } from '../../lib/utils/format'
@@ -91,10 +91,10 @@ export const CartDrawer: React.FC = () => {
 
         {/* Cart Summary & Footer Actions */}
         {items.length > 0 && (
-          <div className="space-y-3.5 border-t border-[var(--kit-line)] bg-[var(--kit-paper)] p-5 shadow-xs">
+          <div className="space-y-3 border-t border-[var(--kit-line)] bg-[var(--kit-paper)] p-4 shadow-xs">
             <CouponInput />
 
-            <div className="space-y-1.5 border-t border-[var(--kit-line)] pt-3 text-xs font-medium text-[var(--kit-muted)]">
+            <div className="space-y-1 border-t border-[var(--kit-line)] pt-2.5 text-[11px] font-medium text-[var(--kit-muted)]">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="font-bold text-[var(--kit-ink)]">
@@ -113,17 +113,17 @@ export const CartDrawer: React.FC = () => {
                   {shippingPaisa === 0 ? 'FREE' : formatPrice(shippingPaisa)}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-[var(--kit-line)] pt-2.5 text-sm font-bold text-[var(--kit-ink)]">
+              <div className="flex justify-between border-t border-[var(--kit-line)] pt-2 text-xs font-bold text-[var(--kit-ink)]">
                 <span>Total</span>
                 <span>{formatPrice(totalPaisa)}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2.5 pt-0.5">
+            <div className="grid grid-cols-3 gap-2 pt-0.5">
               <Link
                 to="/cart"
                 onClick={closeCartDrawer}
-                className="editorial-button-secondary py-2.5 text-xs text-center justify-center font-bold rounded-lg"
+                className="editorial-button-secondary h-10 !min-h-0 rounded-lg py-0 text-center !text-xs font-bold justify-center"
               >
                 View Cart
               </Link>
@@ -131,16 +131,11 @@ export const CartDrawer: React.FC = () => {
                 type="button"
                 onClick={openCheckout}
                 disabled={loading || hasUnmergedItems}
-                className="kit-button col-span-2 py-2.5 text-xs font-bold rounded-lg shadow-xs"
+                className="kit-button col-span-2 h-10 !min-h-0 rounded-lg py-0 !text-xs font-bold shadow-xs"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
-            </div>
-
-            <div className="flex items-center justify-center gap-1.5 pt-0.5 text-[10px] font-medium text-[var(--kit-muted)]">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-              <span>100% Secure Checkout · 7-Day Returns</span>
             </div>
           </div>
         )}

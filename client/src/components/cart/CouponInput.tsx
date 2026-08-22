@@ -50,7 +50,7 @@ export const CouponInput: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex h-12 items-stretch gap-2">
+    <form onSubmit={handleSubmit} className="flex h-10 items-stretch gap-2">
       <div className="relative flex-1">
         <label htmlFor="coupon-code" className="sr-only">
           Promo code
@@ -71,7 +71,7 @@ export const CouponInput: React.FC = () => {
       <button
         type="submit"
         disabled={!code.trim() || isSubmitting}
-        className="kit-button h-full shrink-0 px-3.5 py-1.5 text-base font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        className="kit-button h-full !min-h-0 shrink-0 rounded-lg px-3.5 py-0 !text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Apply'}
       </button>
