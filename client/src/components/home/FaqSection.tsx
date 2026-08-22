@@ -41,6 +41,12 @@ const FAQ_ITEMS = [
     answer:
       'We want you to love your pieces in your own home. If a standard catalog piece does not suit your space, notify us within 30 days of delivery for a smooth return or exchange.',
   },
+  {
+    id: 'leadTime',
+    question: 'What is the production and delivery lead time for orders?',
+    answer:
+      'In-stock catalog items ship within 3–5 business days across India. Custom-tailored dimensions or bespoke finish requests are hand-crafted by our master artisans and ship within 2–3 weeks.',
+  },
 ]
 
 export const FaqSection: React.FC = () => {
