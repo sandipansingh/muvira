@@ -13,6 +13,8 @@ export interface AuthContextType {
   isAdmin: boolean
   login: (email: string, pass: string) => Promise<boolean>
   signup: (email: string, pass: string, name: string, phone: string) => Promise<boolean>
+  loginWithGoogle: () => Promise<void>
+  loginWithApple: () => Promise<void>
   logout: () => Promise<void>
   updateProfile: (fullName: string, phone: string) => Promise<boolean>
   updateUser: (profile: Profile) => void
@@ -137,6 +139,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const loginWithGoogle = async (): Promise<void> => {
+    try {
+      const redirectUrl =
+        typeof window !== 'undefined' ? `${window.location.origin}/profile` : undefined
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+        },
+      })
+      if (error) {
+        showToast(error.message || 'Failed to sign in with Google.', 'error')
+      }
+    } catch {
+      showToast('An unexpected error occurred during Google sign-in.', 'error')
+    }
+  }
+
+  const loginWithApple = async (): Promise<void> => {
+    try {
+      const redirectUrl =
+        typeof window !== 'undefined' ? `${window.location.origin}/profile` : undefined
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: redirectUrl,
+        },
+      })
+      if (error) {
+        showToast(error.message || 'Failed to sign in with Apple.', 'error')
+      }
+    } catch {
+      showToast('An unexpected error occurred during Apple sign-in.', 'error')
+    }
+  }
+
   const logout = async (): Promise<void> => {
     await supabase.auth.signOut()
     setUser(null)
@@ -173,6 +211,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin: user?.role === 'admin',
         login,
         signup,
+        loginWithGoogle,
+        loginWithApple,
         logout,
         updateProfile,
         updateUser,

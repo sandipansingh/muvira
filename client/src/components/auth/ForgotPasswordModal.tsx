@@ -60,13 +60,13 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
     >
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 sm:p-8 shadow-xl">
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 sm:p-8 shadow-2xl">
         <button
           type="button"
           onClick={handleClose}
-          className="absolute right-4 top-4 rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors"
+          className="absolute right-4 top-4 rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors cursor-pointer"
           aria-label="Close dialog"
         >
           <X className="h-5 w-5" />
@@ -85,7 +85,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="mt-4 inline-flex w-full items-center justify-center rounded-lg bg-[#2D6A7E] py-3 text-sm font-medium text-white transition-colors hover:bg-[#235868]"
+              className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-neutral-900 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-800 cursor-pointer"
             >
               Back to Sign In
             </button>
@@ -103,37 +103,36 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             <div>
               <label
                 htmlFor="reset-email"
-                className="mb-1.5 block text-xs font-semibold text-neutral-700 uppercase tracking-wider"
+                className="mb-1.5 block text-sm font-semibold text-neutral-800"
               >
-                Email Address
+                Email address
               </label>
-              <div className="relative border-b border-neutral-300">
-                <input
-                  id="reset-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="your.email@example.com"
-                  className="w-full bg-transparent py-3 text-base text-neutral-900 placeholder:text-neutral-400 outline-none focus:outline-none focus:ring-0 border-none"
-                />
-              </div>
+              <input
+                id="reset-email"
+                type="email"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="your.email@example.com"
+                className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-xl text-base text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 transition-colors"
+                autoComplete="email"
+              />
             </div>
 
             <div className="pt-2 flex flex-col gap-2">
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#2D6A7E] py-3.5 text-sm font-semibold leading-none text-white transition-colors hover:bg-[#235868] disabled:opacity-60"
+                className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-neutral-900 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:opacity-60"
               >
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                    <span className="leading-none">Sending link...</span>
+                    <span>Sending link...</span>
                   </>
                 ) : (
                   <>
-                    <span className="leading-none">Send Reset Link</span>
+                    <span>Send Reset Link</span>
                     <ArrowRight className="h-4 w-4 shrink-0" />
                   </>
                 )}
@@ -141,7 +140,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-full py-2 text-center text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors"
+                className="w-full py-2 text-center text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -152,3 +151,5 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     </div>
   )
 }
+
+export default ForgotPasswordModal
