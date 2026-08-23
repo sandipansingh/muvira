@@ -55,7 +55,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
   }
 
   return (
-    <div className="flex flex-col space-y-5">
+    <div className="flex flex-col space-y-5 pr-0 sm:pr-2 lg:pr-8 xl:pr-12">
       {/* Product Title */}
       <div className="space-y-2">
         <h1 className="font-display text-2xl font-normal leading-tight text-ink sm:text-3xl lg:text-[2rem]">

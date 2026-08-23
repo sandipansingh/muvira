@@ -22,7 +22,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   if (imageUrls.length === 0) {
     return (
-      <div className="flex aspect-square max-h-[460px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
+      <div className="flex aspect-square max-h-[520px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
         Image unavailable
       </div>
     )
@@ -51,7 +51,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
     <div className="relative flex flex-col-reverse gap-3.5 md:flex-row md:items-start md:gap-4">
       {/* Thumbnails Navigation */}
       {imageUrls.length > 1 && (
-        <div className="flex max-h-[440px] gap-2.5 overflow-x-auto py-0.5 no-scrollbar md:max-h-[460px] md:w-20 md:shrink-0 md:flex-col md:overflow-y-auto lg:max-h-[480px]">
+        <div className="flex max-h-[480px] gap-2.5 overflow-x-auto py-0.5 no-scrollbar md:max-h-[500px] md:w-20 md:shrink-0 md:flex-col md:overflow-y-auto lg:max-h-[520px]">
           {imageUrls.map((image, index) => {
             const isActive = activeIndex === index
             return (
@@ -78,12 +78,12 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         </div>
       )}
 
-      {/* Main Image Showcase Container with Decreased Max Height */}
+      {/* 1:1 Square Main Image Showcase Container */}
       <div
         onMouseEnter={() => setIsZooming(true)}
         onMouseLeave={() => setIsZooming(false)}
         onMouseMove={handleMouseMove}
-        className="group relative aspect-square max-h-[440px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[460px] lg:max-h-[480px]"
+        className="group relative aspect-square max-h-[480px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[500px] lg:max-h-[520px]"
       >
         {/* Badges Stack */}
         <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
@@ -127,7 +127,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         {/* Amazon-Style Lens Overlay Box */}
         {isZooming && (
           <div
-            className="pointer-events-none absolute h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-primary/50 bg-primary/15 shadow-sm backdrop-blur-[1px]"
+            className="pointer-events-none absolute h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-primary/50 bg-primary/15 shadow-sm backdrop-blur-[1px]"
             style={{
               left: `${zoomPos.x}%`,
               top: `${zoomPos.y}%`,
@@ -136,10 +136,10 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         )}
       </div>
 
-      {/* Amazon-Style Floating Side Zoom Preview Window */}
+      {/* Matching 1:1 Floating Side Zoom Preview Window */}
       {isZooming && (
         <div
-          className="pointer-events-none absolute left-0 top-0 z-50 hidden h-[440px] w-[440px] overflow-hidden rounded-2xl border border-line/80 bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block md:max-h-[460px] lg:h-[480px] lg:w-[480px]"
+          className="pointer-events-none absolute left-0 top-0 z-50 hidden aspect-square h-[480px] w-[480px] overflow-hidden rounded-2xl border border-line/80 bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block md:h-[500px] md:w-[500px] lg:h-[520px] lg:w-[520px]"
           style={{
             backgroundImage: `url(${activeImage})`,
             backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
