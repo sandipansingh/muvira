@@ -64,11 +64,11 @@ export const NewArrivals: React.FC = () => {
         </div>
 
         {/* Right Controls: Scroll Buttons & View All */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={scrollLeft}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors lg:hidden"
+            className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
             aria-label="Previous new arrivals"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -76,14 +76,14 @@ export const NewArrivals: React.FC = () => {
           <button
             type="button"
             onClick={scrollRight}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors lg:hidden"
+            className="flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
             aria-label="Next new arrivals"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           <Link
             to="/shop?sort=newest"
-            className="button-secondary min-h-10 shrink-0 px-4 py-2 text-xs"
+            className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-semibold text-ink transition-colors hover:bg-surface select-none"
           >
             View all
           </Link>

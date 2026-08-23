@@ -83,7 +83,10 @@ export const CategoryGrid: React.FC = () => {
         </div>
 
         {/* View All Categories Link */}
-        <Link to="/shop" className="button-secondary min-h-10 shrink-0 px-4 py-2 text-xs">
+        <Link
+          to="/shop"
+          className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-semibold text-ink transition-colors hover:bg-surface select-none"
+        >
           View all categories
         </Link>
       </div>
