@@ -18,20 +18,20 @@ export const ToastContainer: React.FC = () => {
     switch (type) {
       case 'error':
         return (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-100 bg-red-50 text-red-600">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-danger/20 bg-danger/10 text-danger">
             <AlertCircle className="h-4 w-4" />
           </div>
         )
       case 'success':
         return (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accent/20 bg-accent/10 text-accent">
             <CheckCircle2 className="h-4 w-4" />
           </div>
         )
       case 'info':
       default:
         return (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-blue-600">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-info/10 bg-info/10 text-info">
             <Info className="h-4 w-4" />
           </div>
         )

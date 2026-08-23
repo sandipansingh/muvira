@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
+import { Button } from '../ui/Button'
 
 const AUTO_ROTATE_INTERVAL = 6000
 
@@ -270,18 +271,22 @@ export const HeroSlider: React.FC = () => {
         {/* Centered Bottom Action Buttons (Matching Reference Design) */}
         <div className="relative z-20 w-full flex flex-col items-center justify-center gap-2 mb-2 sm:mb-4">
           <div className="flex items-center gap-2">
-            <Link
-              to={currentSlide.link || '/shop'}
-              className="inline-flex items-center justify-center rounded-full bg-white px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-neutral-950 transition-all hover:bg-neutral-100 hover:shadow-lg active:scale-98 cursor-pointer shadow-md"
-            >
-              Start shopping
+            <Link to={currentSlide.link || '/shop'}>
+              <Button
+                variant="inverse"
+                size="lg"
+                className="!rounded-full px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-bold shadow-md hover:shadow-lg active:scale-98"
+              >
+                Start shopping
+              </Button>
             </Link>
-            <Link
-              to={currentSlide.link || '/shop'}
-              className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-white text-neutral-950 transition-all hover:bg-neutral-100 hover:shadow-lg active:scale-98 cursor-pointer shadow-md shrink-0"
-              aria-label="Start shopping arrow"
-            >
-              <ArrowUpRight className="h-4.5 w-4.5 stroke-[2.5]" />
+            <Link to={currentSlide.link || '/shop'} aria-label="Start shopping arrow">
+              <Button
+                variant="inverse"
+                className="!h-9 !w-9 sm:!h-11 sm:!w-11 !p-0 !rounded-full shadow-md hover:shadow-lg active:scale-98 shrink-0"
+              >
+                <ArrowUpRight className="h-4.5 w-4.5 stroke-[2.5]" />
+              </Button>
             </Link>
           </div>
 

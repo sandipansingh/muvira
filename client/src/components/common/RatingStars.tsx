@@ -33,9 +33,7 @@ export const RatingStars: React.FC<RatingStarsProps> = ({
           <Star
             key={star}
             className={`${iconSize} ${
-              star <= roundedRating
-                ? 'fill-amber-400 text-amber-400'
-                : 'fill-neutral-100 text-neutral-300'
+              star <= roundedRating ? 'fill-rating text-rating' : 'fill-line text-disabled'
             }`}
           />
         ))}

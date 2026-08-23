@@ -30,7 +30,7 @@ export const ReviewsPage: React.FC = () => {
           {TESTIMONIALS.map((testimonial) => (
             <div key={testimonial.id} className="panel flex flex-col justify-between p-6 sm:p-8">
               <div>
-                <div className="flex items-center gap-1 text-amber-500 mb-4">
+                <div className="flex items-center gap-1 text-rating mb-4">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star key={s} className="w-4 h-4 fill-current" />
                   ))}

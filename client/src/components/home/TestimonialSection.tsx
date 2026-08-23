@@ -19,7 +19,7 @@ const ReviewCard: React.FC<{
               <Star
                 key={i}
                 className={`h-3 w-3 ${
-                  i < (rating || 5) ? 'fill-amber-400 text-amber-400' : 'text-neutral-200'
+                  i < (rating || 5) ? 'fill-rating text-rating' : 'text-neutral-200'
                 }`}
               />
             ))}

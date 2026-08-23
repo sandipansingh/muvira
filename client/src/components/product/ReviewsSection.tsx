@@ -284,7 +284,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   </span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-200/80">
                     <div
-                      className="h-full rounded-full bg-neutral-900 transition-all duration-300 group-hover:bg-amber-500"
+                      className="h-full rounded-full bg-neutral-900 transition-all duration-300 group-hover:bg-rating"
                       style={{ width: `${percent}%` }}
                     />
                   </div>
@@ -472,7 +472,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
         <form onSubmit={handleReviewSubmit} className="space-y-6">
           {!isAuthenticated && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3.5 text-xs font-medium leading-relaxed text-amber-900">
+            <div className="rounded-lg border border-warning/30 bg-warning-soft p-3.5 text-xs font-medium leading-relaxed text-warning">
               Please sign in with the account used for your purchase to submit a verified review.
             </div>
           )}
@@ -506,9 +506,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   >
                     <Star
                       className={`h-5 w-5 ${
-                        isFilled
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'fill-neutral-100 text-neutral-300'
+                        isFilled ? 'fill-rating text-rating' : 'fill-neutral-100 text-neutral-300'
                       }`}
                     />
                   </button>
