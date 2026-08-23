@@ -396,7 +396,7 @@ body {
 /* Standardized type scale */
 .text-h1 {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 400;
   font-size: clamp(2rem, 3vw, 3rem);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -404,7 +404,7 @@ body {
 
 .text-h2 {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 400;
   font-size: clamp(1.5rem, 2.5vw, 2.25rem);
   line-height: 1.15;
   letter-spacing: -0.015em;
@@ -412,7 +412,7 @@ body {
 
 .text-product-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: clamp(1.75rem, 2.6vw, 2.5rem);
   line-height: 1.25;
 }
@@ -436,14 +436,14 @@ h1.product-detail-title {
 
 .text-h3 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: 1.5rem;
   line-height: 1.2;
 }
 
 .text-h4 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: 1.25rem;
   line-height: 1.25;
 }
@@ -474,7 +474,7 @@ h1.product-detail-title {
   color: var(--color-muted);
   font-family: var(--font-sans);
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: 0.12em;
   line-height: 1.4;
   text-transform: uppercase;
