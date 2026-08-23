@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext'
 import { reviewService } from '../../lib/services/review.service'
 import { RatingStars } from '../common/RatingStars'
 import { Modal } from '../common/Modal'
-import { Button } from '../ui/Button'
+import { Button, Select, Textarea } from '../ui'
 
 interface ReviewsSectionProps {
   productId: string
@@ -360,17 +360,20 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <label htmlFor="review-sort-luxury" className="text-xs font-semibold text-muted">
             Sort:
           </label>
-          <select
-            id="review-sort-luxury"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value as 'newest' | 'highest' | 'lowest')}
-            className="cursor-pointer rounded-md border border-line bg-paper px-2.5 py-1.5 text-xs font-semibold text-ink-soft outline-none transition-colors hover:border-field-border"
-            aria-label="Sort reviews"
-          >
-            <option value="newest">Most Recent</option>
-            <option value="highest">Highest Rated</option>
-            <option value="lowest">Lowest Rated</option>
-          </select>
+          <div className="w-36">
+            <Select
+              id="review-sort-luxury"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value as 'newest' | 'highest' | 'lowest')}
+              aria-label="Sort reviews"
+              className="!py-1.5 !px-2.5 !text-xs font-semibold text-ink-soft"
+              options={[
+                { value: 'newest', label: 'Most Recent' },
+                { value: 'highest', label: 'Highest Rated' },
+                { value: 'lowest', label: 'Lowest Rated' },
+              ]}
+            />
+          </div>
         </div>
       </div>
 
@@ -523,7 +526,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             >
               Your review
             </label>
-            <textarea
+            <Textarea
               id="review-comment"
               name="comment"
               rows={4}
@@ -531,7 +534,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               value={newComment}
               onChange={(event) => setNewComment(event.target.value)}
               placeholder="Tell us about the craftsmanship, finish, weight, and in-person feel..."
-              className="input w-full p-3.5 text-base"
             />
           </div>
 
