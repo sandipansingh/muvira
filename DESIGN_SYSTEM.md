@@ -25,6 +25,10 @@ If you need a new value, add it here first, then use it — never inline a hex/r
 | Border / divider | `border-line` | `var(--color-line)` (`#e8ecef`) |
 | Input border | `border-field-border` | `var(--color-field-border)` (`#b8bdc0`) |
 | Disabled | `text-disabled` / `bg-disabled` | `var(--color-disabled)` (`#aeb5c3`) |
+| **Primary Brand** | `text-primary` / `bg-primary` | `var(--color-primary)` (`#a24e31`) |
+| Primary Hover | `hover:bg-primary-hover` / `hover:text-primary-hover` | `var(--color-primary-hover)` (`color-mix(in srgb, var(--color-primary), black 18%)`) |
+| Primary Soft Background | `bg-primary-soft` / `text-primary-soft` | `var(--color-primary-soft)` (`color-mix(in srgb, var(--color-primary), white 88%)`) |
+| Primary Border | `border-primary` | `var(--color-primary)` (`#a24e31`) |
 | Accent (success/CTA) | `bg-accent` / `text-accent` | `var(--color-accent)` (`#38cb89`) |
 | Accent soft background | `bg-accent-soft` | `var(--color-accent-soft)` (`#e8f8f0`) |
 | Danger | `text-danger` / `bg-danger` | `var(--color-danger)` (`#e53935`) |
@@ -35,6 +39,19 @@ If you need a new value, add it here first, then use it — never inline a hex/r
 | Info soft background | `bg-info-soft` | `var(--color-info-soft)` (`#edf4fe`) |
 | **Rating** (new, exception) | `text-rating` / `fill-rating` | `var(--color-rating)` (`#F5A623`) |
 | Pure white / black (overlays only) | `white` / `black` | `#ffffff` / `#000000` |
+
+### Where Primary Brand Color applies:
+- **Sale & discount badges** ("Save 50%", discount tags): `bg-primary text-white` (was `bg-accent`/green)
+- **Urgency / dispatch copy** ("Dispatch within 24 Hours", stock countdowns): `text-primary` on `bg-primary-soft` (was light green)
+- **Text selection highlight**: `::selection { background: var(--color-primary-soft); }` (was `accent-soft` mint)
+- **Link hover accent** (in-page content links, "reach out", breadcrumbs): `text-ink hover:text-primary hover:underline underline-offset-2`
+- **Focus rings on inputs**: `focus:border-primary` (was `focus:border-ink`)
+- **Section eyebrows / small accent underlines on headings**: may use `bg-primary` for decorative underline bars
+
+### Where it does NOT apply (stays as-is):
+- Primary CTA buttons (`<Button variant="primary">`) stay `bg-ink text-white`.
+- Success states (order confirmed, coupon applied, in-stock badge) stay `accent` green (`#38cb89`).
+- Danger/warning/info remain unchanged.
 
 ### Documented Exceptions
 - **Star Rating Icons**: Use `text-rating` / `fill-rating` (`#F5A623`) — gold is intentional, not a token violation.

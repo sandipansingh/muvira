@@ -15,6 +15,13 @@ export default {
         line: 'var(--color-line)',
         'field-border': 'var(--color-field-border)',
         disabled: 'var(--color-disabled)',
+        primary: {
+          DEFAULT: 'var(--color-primary)',
+          hover: 'var(--color-primary-hover)',
+          soft: 'var(--color-primary-soft)',
+        },
+        'primary-hover': 'var(--color-primary-hover)',
+        'primary-soft': 'var(--color-primary-soft)',
         accent: {
           DEFAULT: 'var(--color-accent)',
           soft: 'var(--color-accent-soft)',

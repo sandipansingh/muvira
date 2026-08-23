@@ -61,6 +61,9 @@ html {
   --color-line: #e8ecef;
   --color-field-border: #b8bdc0;
   --color-disabled: #aeb5c3;
+  --color-primary: #a24e31;
+  --color-primary-hover: color-mix(in srgb, var(--color-primary), black 18%);
+  --color-primary-soft: color-mix(in srgb, var(--color-primary), white 88%);
   --color-accent: #38cb89;
   --color-accent-soft: #e8f8f0;
   --color-danger: #e53935;
@@ -79,6 +82,9 @@ html {
   --line: var(--color-line);
   --field-border: var(--color-field-border);
   --disabled: var(--color-disabled);
+  --primary: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --primary-soft: var(--color-primary-soft);
   --accent: var(--color-accent);
   --accent-soft: var(--color-accent-soft);
   --radius-card: 1rem;
