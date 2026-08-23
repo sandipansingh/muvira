@@ -1,5 +1,4 @@
 import React from 'react'
-import { Feather, Layers, Sparkles } from 'lucide-react'
 import type { ProductDetail, ProductReview } from '../../lib/types/product'
 import { ReviewsSection } from './ReviewsSection'
 
@@ -75,46 +74,6 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                   durability. We believe furniture and artisanal lifestyle decor should be built to
                   endure everyday moments while growing richer in character over decades.
                 </p>
-              </div>
-
-              {/* Craft Highlights */}
-              <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-3">
-                <div className="rounded-xl border border-line bg-surface p-4">
-                  <div className="flex items-center gap-2.5 text-primary">
-                    <Sparkles className="h-4 w-4" />
-                    <h4 className="font-display text-sm font-normal text-ink">
-                      Hand-Selected Grain
-                    </h4>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">
-                    Each slab is hand-picked for unique timber grain, natural density, and knot
-                    integrity.
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-line bg-surface p-4">
-                  <div className="flex items-center gap-2.5 text-primary">
-                    <Feather className="h-4 w-4" />
-                    <h4 className="font-display text-sm font-normal text-ink">
-                      Organic Non-Toxic Finish
-                    </h4>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">
-                    Sealed with non-toxic, eco-friendly plant-based oils that highlight natural
-                    timber warmth.
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-line bg-surface p-4">
-                  <div className="flex items-center gap-2.5 text-primary">
-                    <Layers className="h-4 w-4" />
-                    <h4 className="font-display text-sm font-normal text-ink">Heirloom Joinery</h4>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted">
-                    Traditional wooden joinery guarantees structural stability without wobbly
-                    fasteners.
-                  </p>
-                </div>
               </div>
             </div>
 
