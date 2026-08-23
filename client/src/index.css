@@ -395,15 +395,15 @@ body {
 
 .editorial-link {
   font-weight: 700;
-  color: var(--foreground);
+  color: var(--kit-ink);
   text-decoration: underline;
-  text-decoration-color: var(--border-light);
+  text-decoration-color: var(--kit-line);
   text-underline-offset: 4px;
   transition: all 0.2s ease;
 }
 .editorial-link:hover {
-  color: var(--brand);
-  text-decoration-color: var(--brand);
+  color: var(--kit-ink);
+  text-decoration-color: var(--kit-ink);
 }
 
 /* Reference Design Typography Scale */
