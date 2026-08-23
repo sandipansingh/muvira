@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white/80 backdrop-blur-2xl ${
-        scrolled ? 'border-b border-line shadow-xs' : 'border-b border-line/60'
+        scrolled ? 'border-b border-line shadow-xs' : 'border-b border-transparent'
       }`}
     >
       <div className="relative layout-container py-3 sm:py-4 flex items-center justify-between gap-4">
