@@ -58,10 +58,10 @@ export const CartPage: React.FC = () => {
         </nav>
 
         {/* Page Header */}
-        <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-[var(--color-line)] pb-6">
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-[var(--color-line)] pb-3.5">
           <div>
             <h1 className="heading text-3xl sm:text-5xl">Shopping Cart</h1>
-            <p className="mt-1.5 text-xs sm:text-sm text-[var(--color-muted)]">
+            <p className="mt-2 text-xs sm:text-sm text-[var(--color-muted)]">
               You have <strong className="text-[var(--color-ink)]">{itemCount}</strong>{' '}
               {itemCount === 1 ? 'item' : 'items'} in your cart
             </p>

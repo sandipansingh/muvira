@@ -95,7 +95,7 @@ export const ShopPage: React.FC = () => {
   return (
     <main className="editorial-page py-10 sm:py-16">
       <div className="editorial-container">
-        <header className="page-header mb-10">
+        <header className="page-header mb-8">
           <nav
             className="flex items-center gap-2 text-xs font-medium text-[var(--color-muted)]"
             aria-label="Breadcrumb"
@@ -107,16 +107,18 @@ export const ShopPage: React.FC = () => {
             <span className="text-[var(--color-ink)]">Shop</span>
           </nav>
           <span className="eyebrow">Muvira / Catalog</span>
-          <h1 className="heading text-4xl sm:text-6xl">
-            {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
-          </h1>
-          <p className="body-copy max-w-2xl">
-            Considered solid wood furniture handcrafted for the home you are building, one room at a
-            time.
-          </p>
+          <div className="flex flex-col gap-2">
+            <h1 className="heading text-4xl sm:text-6xl">
+              {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
+            </h1>
+            <p className="body-copy max-w-2xl">
+              Considered solid wood furniture handcrafted for the home you are building, one room at a
+              time.
+            </p>
+          </div>
         </header>
 
-        <div className="mb-10 grid min-h-40 items-center overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] px-6 py-8 sm:px-10 lg:grid-cols-[1fr_18rem]">
+        <div className="mb-8 grid min-h-40 items-center overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] px-6 py-8 sm:px-10 lg:grid-cols-[1fr_18rem]">
           <div>
             <p className="eyebrow mb-2">Made for daily living</p>
             <p className="max-w-xl font-display text-2xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-3xl">
