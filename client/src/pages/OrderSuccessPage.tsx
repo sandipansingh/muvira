@@ -18,13 +18,13 @@ export const OrderSuccessPage: React.FC = () => {
   return (
     <main className="editorial-page px-4 py-16 sm:px-6 lg:px-8">
       <div className="panel mx-auto max-w-2xl p-8 text-center sm:p-12">
-        <CheckCircle className="mx-auto h-12 w-12 text-emerald-600" />
-        <span className="eyebrow mt-6 block text-emerald-700">Payment Verified</span>
+        <CheckCircle className="mx-auto h-12 w-12 text-accent" />
+        <span className="eyebrow mt-6 block text-accent">Payment Verified</span>
         <h1 className="heading mt-2 text-4xl sm:text-6xl">Thank you for your order</h1>
-        <p className="mt-3 text-sm font-semibold text-neutral-700">
+        <p className="mt-3 text-sm font-semibold text-ink-soft">
           Order reference: #{orderNumber ?? orderId}
         </p>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-neutral-500 font-normal">
+        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted font-normal">
           Your payment has been verified. Follow the order status and shipment updates from your
           order details.
         </p>
@@ -42,7 +42,7 @@ export const OrderSuccessPage: React.FC = () => {
           </Link>
         </div>
         <p className="mt-8 flex items-center justify-center gap-2 border-t border-[var(--color-line)] pt-4 text-[11px] text-[var(--color-muted)]">
-          <ShieldCheck className="h-4 w-4 shrink-0 text-foreground" />
+          <ShieldCheck className="h-4 w-4 shrink-0 text-ink" />
           <span className="leading-none">Secure Razorpay payment verification.</span>
         </p>
       </div>

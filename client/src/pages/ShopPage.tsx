@@ -146,11 +146,11 @@ export const ShopPage: React.FC = () => {
         )}
 
         {error ? (
-          <div className="border-y border-border-light py-16 text-center">
-            <h2 className="font-display text-2xl font-bold text-foreground">
+          <div className="border-y border-line py-16 text-center">
+            <h2 className="font-display text-2xl font-bold text-ink">
               We could not load the catalog
             </h2>
-            <p className="mt-2 text-sm text-neutral-500">{error}</p>
+            <p className="mt-2 text-sm text-muted">{error}</p>
             <button
               type="button"
               onClick={() => setRefreshToken((value) => value + 1)}

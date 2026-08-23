@@ -25,7 +25,7 @@ export const CartPage: React.FC = () => {
     return (
       <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
         <div className="editorial-container mx-auto max-w-lg text-center">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--color-surface)] text-neutral-400">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--color-surface)] text-muted">
             <ShoppingBag className="h-10 w-10 stroke-[1.5]" />
           </div>
           <h1 className="heading mt-6 text-3xl sm:text-4xl">Your cart is empty</h1>
@@ -70,7 +70,7 @@ export const CartPage: React.FC = () => {
             type="button"
             onClick={clearCart}
             disabled={loading}
-            className="inline-flex cursor-pointer items-center gap-1.5 self-start text-xs font-semibold leading-none text-neutral-400 transition-colors hover:text-red-600 disabled:opacity-50"
+            className="inline-flex cursor-pointer items-center gap-1.5 self-start text-xs font-semibold leading-none text-muted transition-colors hover:text-danger disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5 shrink-0" />
             <span className="leading-none">Clear Cart</span>
@@ -78,7 +78,7 @@ export const CartPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs font-medium text-amber-900">
+          <div className="mb-6 rounded-xl border border-warning/30 bg-warning-soft p-4 text-xs font-medium text-warning">
             {error}
           </div>
         )}
@@ -128,7 +128,7 @@ export const CartPage: React.FC = () => {
                 </span>
               </div>
               {discountPaisa > 0 && (
-                <div className="flex justify-between font-semibold text-emerald-700">
+                <div className="flex justify-between font-semibold text-accent">
                   <span>Coupon Discount</span>
                   <span>-{formatPrice(discountPaisa)}</span>
                 </div>
@@ -137,7 +137,7 @@ export const CartPage: React.FC = () => {
                 <span>Delivery Charges</span>
                 <span className="font-semibold text-[var(--color-ink)]">
                   {shippingPaisa === 0 ? (
-                    <span className="text-emerald-700 font-bold">FREE</span>
+                    <span className="text-accent font-bold">FREE</span>
                   ) : (
                     formatPrice(shippingPaisa)
                   )}

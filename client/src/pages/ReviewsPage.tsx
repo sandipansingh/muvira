@@ -10,14 +10,14 @@ export const ReviewsPage: React.FC = () => {
       <div className="editorial-container">
         {/* Breadcrumb */}
         <nav
-          className="mb-8 flex items-center gap-2 text-xs font-semibold text-neutral-400"
+          className="mb-8 flex items-center gap-2 text-xs font-semibold text-muted"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="hover:text-ink hover:underline transition-colors">
             Home
           </Link>
           <span>/</span>
-          <span className="font-bold text-foreground">Customer Reviews</span>
+          <span className="font-bold text-ink">Customer Reviews</span>
         </nav>
 
         <SectionHeader
@@ -39,14 +39,14 @@ export const ReviewsPage: React.FC = () => {
                   “{testimonial.quote}”
                 </blockquote>
               </div>
-              <div className="flex items-center gap-3.5 mt-6 pt-6 border-t border-neutral-100">
+              <div className="flex items-center gap-3.5 mt-6 pt-6 border-t border-line">
                 <img
                   src={
                     testimonial.avatar ||
                     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&h=120&fit=crop'
                   }
                   alt={testimonial.author}
-                  className="w-10 h-10 rounded-full object-cover shrink-0 border border-neutral-100"
+                  className="w-10 h-10 rounded-full object-cover shrink-0 border border-line"
                 />
                 <div>
                   <p className="text-sm font-bold text-[var(--color-ink)]">{testimonial.author}</p>

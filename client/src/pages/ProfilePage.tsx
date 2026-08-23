@@ -228,7 +228,7 @@ export const ProfilePage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="profile-email"
-                    className="mb-1.5 block text-xs font-bold text-foreground"
+                    className="mb-1.5 block text-xs font-bold text-ink"
                   >
                     Email
                   </label>
@@ -238,13 +238,13 @@ export const ProfilePage: React.FC = () => {
                     type="email"
                     disabled
                     value={user.email}
-                    className="input cursor-not-allowed bg-neutral-100 text-neutral-500"
+                    className="input cursor-not-allowed bg-surface text-muted"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="profile-full-name"
-                    className="mb-1.5 block text-xs font-bold text-foreground"
+                    className="mb-1.5 block text-xs font-bold text-ink"
                   >
                     Full Name
                   </label>
@@ -261,7 +261,7 @@ export const ProfilePage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="profile-phone"
-                    className="mb-1.5 block text-xs font-bold text-foreground"
+                    className="mb-1.5 block text-xs font-bold text-ink"
                   >
                     Phone Number
                   </label>
@@ -301,7 +301,7 @@ export const ProfilePage: React.FC = () => {
 
               {addressFormOpen && (
                 <form onSubmit={handleAddressSave} className="soft-panel mt-4 space-y-3 p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
                     {editingAddressId ? 'Edit Address' : 'Add Address'}
                   </h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -348,7 +348,7 @@ export const ProfilePage: React.FC = () => {
                       ))}
                     </select>
                   </div>
-                  <label className="flex items-center gap-2 text-xs font-semibold text-neutral-700">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-ink-soft">
                     <input
                       type="checkbox"
                       checked={addressForm.isDefault}
@@ -358,7 +358,7 @@ export const ProfilePage: React.FC = () => {
                           isDefault: event.target.checked,
                         }))
                       }
-                      className="rounded accent-neutral-900"
+                      className="rounded accent-ink"
                     />
                     Use as default address
                   </label>
@@ -381,7 +381,7 @@ export const ProfilePage: React.FC = () => {
                 <div className="h-24 animate-pulse rounded-[var(--radius-control)] bg-[var(--color-surface)]" />
               )}
               {!loadingAddresses && addresses.length === 0 && (
-                <p className="border-y border-border-light py-5 text-sm text-neutral-500">
+                <p className="border-y border-line py-5 text-sm text-muted">
                   No saved addresses yet.
                 </p>
               )}
@@ -391,14 +391,12 @@ export const ProfilePage: React.FC = () => {
                     key={address.id}
                     className="flex flex-col gap-4 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] p-4 sm:flex-row sm:items-start sm:justify-between"
                   >
-                    <div className="space-y-1 text-xs text-neutral-500">
+                    <div className="space-y-1 text-xs text-muted">
                       <div className="flex items-center gap-2">
-                        <strong className="text-sm font-bold text-foreground">
-                          {address.fullName}
-                        </strong>
+                        <strong className="text-sm font-bold text-ink">{address.fullName}</strong>
                         {address.isDefault && <span className="status-badge">Default</span>}
                       </div>
-                      <p className="text-neutral-700 font-medium">
+                      <p className="text-ink-soft font-medium">
                         {address.line1}
                         {address.line2 ? `, ${address.line2}` : ''}
                       </p>
@@ -419,14 +417,14 @@ export const ProfilePage: React.FC = () => {
                       <button
                         onClick={() => openEditAddressForm(address)}
                         aria-label="Edit address"
-                        className="rounded-full border border-border-light p-2 text-neutral-500 hover:bg-neutral-50 hover:text-foreground cursor-pointer transition-colors"
+                        className="rounded-full border border-line p-2 text-muted hover:bg-surface hover:text-ink cursor-pointer transition-colors"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => deleteAddress(address.id)}
                         aria-label="Delete address"
-                        className="rounded-full border border-border-light p-2 text-neutral-500 hover:bg-red-50 hover:text-red-600 cursor-pointer transition-colors"
+                        className="rounded-full border border-line p-2 text-muted hover:bg-danger-soft hover:text-danger cursor-pointer transition-colors"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>

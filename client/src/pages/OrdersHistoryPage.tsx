@@ -79,8 +79,8 @@ export const OrdersHistoryPage: React.FC = () => {
         )}
         {!loading && !error && orders.length === 0 && (
           <div className="border-y border-[var(--color-line)] py-12 text-center">
-            <Package className="mx-auto h-10 w-10 text-neutral-300" />
-            <p className="mt-3 text-sm text-neutral-500">You have not placed any orders yet.</p>
+            <Package className="mx-auto h-10 w-10 text-disabled" />
+            <p className="mt-3 text-sm text-muted">You have not placed any orders yet.</p>
             <Link to="/shop" className="button-primary mt-5">
               Explore Shop
             </Link>
@@ -99,37 +99,37 @@ export const OrdersHistoryPage: React.FC = () => {
                     <img
                       src={order.firstItemImage}
                       alt={order.firstItemName ?? 'Ordered product'}
-                      className="h-16 w-16 rounded-xl shrink-0 object-cover border border-neutral-100"
+                      className="h-16 w-16 rounded-xl shrink-0 object-cover border border-line"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-neutral-100">
-                      <Package className="h-6 w-6 text-neutral-300" />
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-surface">
+                      <Package className="h-6 w-6 text-disabled" />
                     </div>
                   )}
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="font-display text-base font-bold text-foreground">
+                      <span className="font-display text-base font-bold text-ink">
                         #{order.orderNumber}
                       </span>
                       <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>
                     </div>
-                    <p className="mt-1 text-xs font-semibold text-foreground">
+                    <p className="mt-1 text-xs font-semibold text-ink">
                       {order.firstItemName ?? `${order.itemCount} item(s)`}
                     </p>
-                    <p className="mt-1 flex items-center gap-1 text-[11px] text-neutral-400">
+                    <p className="mt-1 flex items-center gap-1 text-[11px] text-muted">
                       <Clock className="h-3 w-3 shrink-0" />
                       <span className="leading-none">Placed on {formatDate(order.createdAt)}</span>
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-4 border-t border-border-light pt-3 sm:border-t-0 sm:pt-0">
+                <div className="flex items-center justify-between gap-4 border-t border-line pt-3 sm:border-t-0 sm:pt-0">
                   <div className="text-right">
-                    <span className="block text-base font-bold text-foreground">
+                    <span className="block text-base font-bold text-ink">
                       {formatPrice(order.totalAmount)}
                     </span>
-                    <span className="text-[11px] text-neutral-400">{order.itemCount} item(s)</span>
+                    <span className="text-[11px] text-muted">{order.itemCount} item(s)</span>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-neutral-400" />
+                  <ChevronRight className="h-5 w-5 text-muted" />
                 </div>
               </Link>
             ))}
@@ -141,19 +141,19 @@ export const OrdersHistoryPage: React.FC = () => {
               type="button"
               disabled={page === 1}
               onClick={() => setPage((current) => current - 1)}
-              className="border border-border-light rounded-full p-2 disabled:opacity-40 hover:bg-neutral-50 cursor-pointer"
+              className="border border-line rounded-full p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
               aria-label="Previous orders page"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="text-xs font-semibold text-neutral-500">
+            <span className="text-xs font-semibold text-muted">
               Page {page} of {totalPages}
             </span>
             <button
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((current) => current + 1)}
-              className="border border-border-light rounded-full p-2 disabled:opacity-40 hover:bg-neutral-50 cursor-pointer"
+              className="border border-line rounded-full p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
               aria-label="Next orders page"
             >
               <ChevronRight className="h-4 w-4" />
