@@ -22,7 +22,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   if (imageUrls.length === 0) {
     return (
-      <div className="flex aspect-square max-h-[560px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
+      <div className="flex aspect-square max-h-[460px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
         Image unavailable
       </div>
     )
@@ -49,9 +49,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   return (
     <div className="relative flex flex-col-reverse gap-3.5 md:flex-row md:items-start md:gap-4">
-      {/* Thumbnails Navigation (Increased size for cards) */}
+      {/* Thumbnails Navigation */}
       {imageUrls.length > 1 && (
-        <div className="flex max-h-[540px] gap-2.5 overflow-x-auto py-0.5 no-scrollbar md:max-h-[580px] md:w-22 md:shrink-0 md:flex-col md:overflow-y-auto lg:max-h-[620px] xl:max-h-[660px]">
+        <div className="flex max-h-[440px] gap-2.5 overflow-x-auto py-0.5 no-scrollbar md:max-h-[460px] md:w-20 md:shrink-0 md:flex-col md:overflow-y-auto lg:max-h-[480px]">
           {imageUrls.map((image, index) => {
             const isActive = activeIndex === index
             return (
@@ -59,7 +59,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                 key={`${image}-${index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`relative aspect-square w-18 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-200 md:w-22 ${
+                className={`relative aspect-square w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-200 md:w-20 ${
                   isActive
                     ? 'border-2 border-primary ring-2 ring-primary/15 opacity-100 shadow-xs'
                     : 'border border-line bg-surface opacity-75 hover:border-field-border hover:opacity-100'
@@ -78,12 +78,12 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         </div>
       )}
 
-      {/* Main Image Showcase Container with Magnifier Lens */}
+      {/* Main Image Showcase Container with Decreased Max Height */}
       <div
         onMouseEnter={() => setIsZooming(true)}
         onMouseLeave={() => setIsZooming(false)}
         onMouseMove={handleMouseMove}
-        className="group relative aspect-square max-h-[540px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[580px] lg:max-h-[620px] xl:max-h-[660px]"
+        className="group relative aspect-square max-h-[440px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[460px] lg:max-h-[480px]"
       >
         {/* Badges Stack */}
         <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
@@ -127,7 +127,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         {/* Amazon-Style Lens Overlay Box */}
         {isZooming && (
           <div
-            className="pointer-events-none absolute h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-primary/60 bg-primary/15 shadow-sm backdrop-blur-[1px]"
+            className="pointer-events-none absolute h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-primary/50 bg-primary/15 shadow-sm backdrop-blur-[1px]"
             style={{
               left: `${zoomPos.x}%`,
               top: `${zoomPos.y}%`,
@@ -136,10 +136,10 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         )}
       </div>
 
-      {/* Amazon-Style Side Zoom Window Overlay (Desktop Floating Preview without label) */}
+      {/* Amazon-Style Floating Side Zoom Preview Window */}
       {isZooming && (
         <div
-          className="pointer-events-none absolute left-0 top-0 z-50 hidden h-[540px] w-[540px] overflow-hidden rounded-2xl border border-line bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block xl:h-[600px] xl:w-[600px]"
+          className="pointer-events-none absolute left-0 top-0 z-50 hidden h-[440px] w-[440px] overflow-hidden rounded-2xl border border-line/80 bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block md:max-h-[460px] lg:h-[480px] lg:w-[480px]"
           style={{
             backgroundImage: `url(${activeImage})`,
             backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
