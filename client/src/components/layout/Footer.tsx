@@ -80,7 +80,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
       id="contact"
       className={`bg-surface text-ink-soft pt-16 pb-12 relative overflow-hidden font-sans border-t border-line ${className}`}
     >
-      <div className="layout-header-footer">
+      <div className="layout-container">
         {/* Top Bar: Slogan + Socials & Newsletter */}
         <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-0 pb-12 border-b border-line">
           {/* Left Slogan & Socials */}

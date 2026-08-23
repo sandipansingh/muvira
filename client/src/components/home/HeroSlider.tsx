@@ -105,7 +105,7 @@ export const HeroSlider: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="layout-header-footer py-2 sm:py-3" aria-busy="true">
+      <section className="layout-container py-2 sm:py-3" aria-busy="true">
         <div className="w-full h-[clamp(500px,76vh,840px)] rounded-[2.5rem] lg:rounded-[3rem] animate-pulse bg-surface" />
       </section>
     )
@@ -116,7 +116,7 @@ export const HeroSlider: React.FC = () => {
   return (
     <section
       id="home"
-      className="layout-header-footer py-2 sm:py-3"
+      className="layout-container py-2 sm:py-3"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-label="Hero section"
