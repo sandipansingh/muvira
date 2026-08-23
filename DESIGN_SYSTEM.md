@@ -49,7 +49,6 @@ If you need a new value, add it here first, then use it — never inline a hex/r
 - **Section eyebrows / small accent underlines on headings**: may use `bg-primary` for decorative underline bars
 
 ### Where it does NOT apply (stays as-is):
-- Primary CTA buttons (`<Button variant="primary">`) stay `bg-ink text-white`.
 - Success states (order confirmed, coupon applied, in-stock badge) stay `accent` green (`#38cb89`).
 - Danger/warning/info remain unchanged.
 
@@ -63,7 +62,7 @@ If you need a new value, add it here first, then use it — never inline a hex/r
 
 ### `<Button>`
 Props: `variant: "primary" | "secondary" | "ghost" | "inverse"`, `size: "xs" | "sm" | "md" | "lg" | "xl"`
-- `primary`: `bg-ink text-white hover:bg-black`
+- `primary`: `bg-primary text-white hover:bg-primary-hover` (was bg-ink — carrying primary brand color)
 - `secondary`: `bg-white border border-line text-ink hover:border-field-border`
 - `ghost`: `text-ink hover:bg-surface`
 - `inverse`: `bg-white text-ink hover:bg-surface` (for hero/dark overlay backgrounds)
