@@ -26,13 +26,13 @@ export const ProductDetailPage: React.FC = () => {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [openAccordionSection, setOpenAccordionSection] = useState<string | null>('additional_info')
+  const [openAccordionSection, setOpenAccordionSection] = useState<string | null>('description')
 
   const accordionRef = useRef<HTMLDivElement | null>(null)
 
   const handleReviewClick = () => {
     setOpenAccordionSection('reviews')
-    accordionRef.current?.scrollIntoView({ behavior: 'smooth' })
+    accordionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const handleToggleSection = (sectionId: string) => {
