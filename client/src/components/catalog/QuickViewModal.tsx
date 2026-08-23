@@ -187,18 +187,24 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             </p>
 
             {/* Key Value Highlights */}
-            <div className="mt-4 grid grid-cols-3 gap-2 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] p-2.5">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-ink">
-                <Truck className="h-3.5 w-3.5 shrink-0 text-muted" />
-                <span className="truncate">Free Shipping</span>
+            <div className="mt-3.5 grid grid-cols-3 gap-2">
+              <div className="flex flex-col items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] py-2 px-1 text-center">
+                <Truck className="h-4 w-4 text-ink shrink-0" />
+                <span className="mt-1 text-[11px] font-semibold text-ink leading-tight">
+                  Free Delivery
+                </span>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-ink">
-                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-muted" />
-                <span className="truncate">Pure Material</span>
+              <div className="flex flex-col items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] py-2 px-1 text-center">
+                <ShieldCheck className="h-4 w-4 text-ink shrink-0" />
+                <span className="mt-1 text-[11px] font-semibold text-ink leading-tight">
+                  Artisan Made
+                </span>
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-ink">
-                <RotateCcw className="h-3.5 w-3.5 shrink-0 text-muted" />
-                <span className="truncate">7-Day Returns</span>
+              <div className="flex flex-col items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] py-2 px-1 text-center">
+                <RotateCcw className="h-4 w-4 text-ink shrink-0" />
+                <span className="mt-1 text-[11px] font-semibold text-ink leading-tight">
+                  30-Day Returns
+                </span>
               </div>
             </div>
 
