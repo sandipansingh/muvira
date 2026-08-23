@@ -42,7 +42,7 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({ className 
             />
             <button
               type="submit"
-              className="shrink-0 font-medium text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
+              className="shrink-0 font-medium text-sm text-[var(--color-muted)] transition-colors hover:text-primary"
             >
               Sign up
             </button>

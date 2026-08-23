@@ -258,7 +258,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/signin"
                 onClick={onClose}
-                className="w-full py-3.5 px-4 bg-ink hover:bg-black text-white text-sm font-semibold rounded-lg text-center block transition-colors shadow-xs active:scale-98"
+                className="button-primary w-full py-3.5 text-sm font-semibold rounded-lg text-center block shadow-xs active:scale-98"
               >
                 Sign In
               </Link>

@@ -3,6 +3,7 @@ import { Heart, ShoppingBag } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
+import { Button } from '../ui/Button'
 
 interface ProductInfoProps {
   product: ProductDetail
@@ -141,14 +142,16 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         </div>
 
         {/* Add to Cart Button */}
-        <button
+        <Button
           type="button"
+          variant="primary"
+          size="lg"
           onClick={() => addToCart(product, quantity)}
-          className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#141718] text-base font-semibold text-white transition-colors hover:bg-black"
+          leftIcon={<ShoppingBag className="h-5 w-5 shrink-0" />}
+          className="w-full"
         >
-          <ShoppingBag className="h-5 w-5 shrink-0" />
-          <span className="leading-none">Add to Cart</span>
-        </button>
+          Add to Cart
+        </Button>
       </div>
 
       {/* Product Metadata */}
