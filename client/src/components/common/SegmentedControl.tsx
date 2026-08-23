@@ -39,16 +39,14 @@ export function SegmentedControl<T extends string = string>({
               type="button"
               onClick={() => onChange(opt.value)}
               className={`relative pb-2 cursor-pointer transition-colors duration-200 shrink-0 font-sans ${textSizeClass} ${
-                isActive
-                  ? 'font-bold text-foreground'
-                  : 'font-medium text-neutral-400 hover:text-neutral-700'
+                isActive ? 'font-bold text-ink' : 'font-medium text-muted hover:text-ink-soft'
               }`}
             >
               <span>{opt.label}</span>
               {isActive && (
                 <motion.span
                   layoutId={layoutId}
-                  className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-neutral-900 rounded-full"
+                  className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-ink rounded-full"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}

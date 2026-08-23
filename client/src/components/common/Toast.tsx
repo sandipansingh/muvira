@@ -102,7 +102,7 @@ export const ToastContainer: React.FC = () => {
                   right: 0,
                   transformOrigin: 'bottom center',
                 }}
-                className={`flex w-full items-center gap-3 rounded-2xl border border-neutral-200/90 bg-white/95 p-3.5 backdrop-blur-md transition-shadow duration-200 ${
+                className={`flex w-full items-center gap-3 rounded-2xl border border-line bg-white/95 p-3.5 backdrop-blur-md transition-shadow duration-200 ${
                   isFront || isHovered
                     ? 'shadow-[0_12px_32px_rgba(0,0,0,0.12)]'
                     : 'shadow-[0_4px_16px_rgba(0,0,0,0.06)]'
@@ -112,11 +112,11 @@ export const ToastContainer: React.FC = () => {
 
                 <div className="flex min-w-0 flex-1 flex-col text-left">
                   {toast.title && (
-                    <span className="truncate text-xs font-bold leading-snug text-neutral-900">
+                    <span className="truncate text-xs font-bold leading-snug text-ink">
                       {toast.title}
                     </span>
                   )}
-                  <span className="line-clamp-2 text-xs font-medium leading-snug text-neutral-700">
+                  <span className="line-clamp-2 text-xs font-medium leading-snug text-ink-soft">
                     {toast.message}
                   </span>
                 </div>
@@ -127,7 +127,7 @@ export const ToastContainer: React.FC = () => {
                     e.stopPropagation()
                     removeToast(toast.id)
                   }}
-                  className="shrink-0 cursor-pointer rounded-full p-1 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+                  className="shrink-0 cursor-pointer rounded-full p-1 text-muted transition-colors hover:bg-surface hover:text-ink-soft"
                   aria-label="Dismiss notification"
                 >
                   <X className="h-4 w-4" />

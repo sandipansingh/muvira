@@ -52,7 +52,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             {selectedImage ? (
               <img src={selectedImage} alt={product.name} className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-neutral-400 font-medium">
+              <div className="flex h-full items-center justify-center text-xs text-muted font-medium">
                 Image unavailable
               </div>
             )}
@@ -101,7 +101,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                   showText
                 />
               ) : (
-                <span className="text-xs text-neutral-400">No reviews yet</span>
+                <span className="text-xs text-muted">No reviews yet</span>
               )}
             </div>
             <div className="mt-4 flex items-baseline gap-3">
