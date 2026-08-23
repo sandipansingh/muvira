@@ -48,7 +48,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             </span>
           )}
           {discountPercent > 0 && (
-            <span className="inline-flex items-center justify-center rounded bg-[#38CB89] px-2.5 py-1 text-xs font-bold text-white shadow-xs">
+            <span className="inline-flex items-center justify-center rounded bg-primary px-2.5 py-1 text-xs font-bold text-white shadow-xs">
               -{discountPercent}%
             </span>
           )}

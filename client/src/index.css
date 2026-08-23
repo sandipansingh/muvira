@@ -627,7 +627,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: #38cb89;
+  background-color: var(--color-primary);
   color: #ffffff;
   font-size: 0.75rem;
   font-weight: 700;
@@ -873,7 +873,7 @@ body {
 
 .status-badge {
   align-items: center;
-  background: var(--color-accent);
+  background: var(--color-primary);
   border-radius: 0.25rem;
   color: #ffffff;
   display: inline-flex;

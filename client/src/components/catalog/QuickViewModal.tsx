@@ -175,7 +175,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 </span>
               )}
               {discountPercent > 0 && (
-                <span className="rounded-[var(--radius-control)] bg-accent-soft px-2 py-0.5 text-xs font-bold text-accent">
+                <span className="rounded-[var(--radius-control)] bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
                   Save {discountPercent}%
                 </span>
               )}
@@ -196,7 +196,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               </div>
               <div>
                 <span className="font-semibold uppercase">Dispatch:</span>{' '}
-                <span className="font-medium text-accent">Within 24 Hours</span>
+                <span className="font-medium text-primary">Within 24 Hours</span>
               </div>
             </div>
           </div>
