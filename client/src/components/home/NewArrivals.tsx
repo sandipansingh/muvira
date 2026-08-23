@@ -68,7 +68,7 @@ export const NewArrivals: React.FC = () => {
           <button
             type="button"
             onClick={scrollLeft}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)] lg:hidden"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors lg:hidden"
             aria-label="Previous new arrivals"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -76,7 +76,7 @@ export const NewArrivals: React.FC = () => {
           <button
             type="button"
             onClick={scrollRight}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)] lg:hidden"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors lg:hidden"
             aria-label="Next new arrivals"
           >
             <ChevronRight className="h-4 w-4" />

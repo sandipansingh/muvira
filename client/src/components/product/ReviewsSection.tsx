@@ -425,9 +425,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       size="xs"
                       onClick={() => handleLike(review.id)}
                       leftIcon={<ThumbsUp className="h-3 w-3 shrink-0" />}
-                      className={`!rounded-full ${
-                        itemFeedback.liked ? '' : 'text-ink-soft hover:border-field-border'
-                      }`}
+                      className={`!rounded-full ${itemFeedback.liked ? '' : 'text-ink-soft'}`}
                       aria-label="Mark review as helpful"
                     >
                       Yes{itemFeedback.likes > 0 ? ` (${itemFeedback.likes})` : ''}
@@ -439,9 +437,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       size="xs"
                       onClick={() => handleDislike(review.id)}
                       leftIcon={<ThumbsDown className="h-3 w-3 shrink-0" />}
-                      className={`!rounded-full ${
-                        itemFeedback.disliked ? '' : 'text-ink-soft hover:border-field-border'
-                      }`}
+                      className={`!rounded-full ${itemFeedback.disliked ? '' : 'text-ink-soft'}`}
                       aria-label="Mark review as not helpful"
                     >
                       No{itemFeedback.dislikes > 0 ? ` (${itemFeedback.dislikes})` : ''}
@@ -501,7 +497,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                     onClick={() => setNewRating(star)}
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(null)}
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-line transition-all hover:scale-110 hover:border-ink"
+                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-line transition-all hover:scale-110"
                     aria-label={`Rate ${star} out of 5 stars`}
                   >
                     <Star

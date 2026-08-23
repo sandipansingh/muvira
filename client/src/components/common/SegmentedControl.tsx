@@ -71,7 +71,7 @@ export function SegmentedControl<T extends string = string>({
             className={`relative ${paddingClass} rounded-[var(--radius-control)] font-semibold transition-colors duration-200 cursor-pointer shrink-0 border select-none ${
               isActive
                 ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
-                : 'bg-[var(--color-paper)] text-[var(--color-muted)] border-[var(--color-line)] hover:border-[var(--color-ink)] hover:bg-[var(--color-surface)]'
+                : 'bg-[var(--color-paper)] text-[var(--color-muted)] border-[var(--color-line)] hover:bg-[var(--color-surface)]'
             }`}
           >
             {opt.label}

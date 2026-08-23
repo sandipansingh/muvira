@@ -370,12 +370,11 @@ body {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--foreground);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
   cursor: pointer;
 }
 .editorial-button-secondary:hover {
   background-color: var(--surface);
-  border-color: #d4d4d4;
 }
 
 .editorial-input {
@@ -386,10 +385,8 @@ body {
   padding: 0.75rem 1rem;
   font-size: 1rem;
   color: var(--foreground);
-  transition: border-color 0.2s ease;
 }
 .editorial-input:focus {
-  border-color: var(--foreground);
   outline: none;
 }
 
@@ -753,14 +750,11 @@ body {
   justify-content: center;
   min-height: 2.75rem;
   padding: 0.75rem 1.25rem;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+  transition: background-color 160ms ease;
 }
 
 .button-primary:hover {
   background: #000000;
-  border-color: #000000;
 }
 
 .button-primary:disabled {
@@ -781,14 +775,11 @@ body {
   justify-content: center;
   min-height: 2.75rem;
   padding: 0.75rem 1.25rem;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+  transition: background-color 160ms ease;
 }
 
 .button-secondary:hover {
   background: var(--color-surface);
-  border-color: var(--color-ink);
 }
 
 .input {
@@ -800,15 +791,11 @@ body {
   min-height: 2.75rem;
   outline: none;
   padding: 0.75rem 0.875rem;
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease;
   width: 100%;
 }
 
 .input:focus {
-  border-color: var(--color-ink);
-  box-shadow: 0 0 0 2px rgb(20 23 24 / 8%);
+  outline: none;
 }
 
 .panel {

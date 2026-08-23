@@ -133,7 +133,7 @@ export const HeroSlider: React.FC = () => {
                 setIsCategoriesOpen((prev) => !prev)
                 setIsSortOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:border-field-border hover:bg-surface transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
             >
               <span>Categories</span>
               <ChevronDown
@@ -167,7 +167,7 @@ export const HeroSlider: React.FC = () => {
                 setIsSortOpen((prev) => !prev)
                 setIsCategoriesOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:border-field-border hover:bg-surface transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
             >
               <span>New Product</span>
               <ChevronDown
@@ -201,7 +201,7 @@ export const HeroSlider: React.FC = () => {
             placeholder="search..."
             value={quickSearch}
             onChange={(e) => setQuickSearch(e.target.value)}
-            className="w-full rounded-full border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-medium text-ink placeholder-muted outline-none focus:border-field-border shadow-xs transition-colors"
+            className="w-full rounded-full border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-medium text-ink placeholder-muted outline-none shadow-xs transition-colors"
           />
           <button
             type="submit"
@@ -218,7 +218,7 @@ export const HeroSlider: React.FC = () => {
             <Link
               key={pill.label}
               to={pill.href}
-              className="rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:border-field-border hover:text-ink hover:bg-surface transition-all shadow-xs shrink-0"
+              className="rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:text-ink hover:bg-surface transition-all shadow-xs shrink-0"
             >
               {pill.label}
             </Link>

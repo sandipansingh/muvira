@@ -29,7 +29,7 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({ className 
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 sm:mt-8">
-          <div className="relative flex items-center border-b border-[var(--color-ink)]/30 pb-2 transition-colors focus-within:border-[var(--color-ink)]">
+          <div className="relative flex items-center border-b border-[var(--color-ink)]/30 pb-2">
             <Mail className="h-5 w-5 shrink-0 text-[var(--color-muted)]" aria-hidden="true" />
             <input
               type="email"

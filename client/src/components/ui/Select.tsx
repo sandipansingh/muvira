@@ -35,10 +35,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           disabled={disabled}
-          className={`w-full appearance-none rounded-[var(--radius-control)] bg-white border px-3.5 py-2.5 pr-9 text-base text-ink transition-colors focus:outline-none focus:ring-1 disabled:cursor-not-allowed disabled:bg-surface disabled:text-disabled cursor-pointer ${
-            isError
-              ? 'border-danger focus:border-danger focus:ring-danger'
-              : 'border-field-border focus:border-ink focus:ring-ink'
+          className={`w-full appearance-none rounded-[var(--radius-control)] bg-white border px-3.5 py-2.5 pr-9 text-base text-ink transition-colors focus:outline-none disabled:cursor-not-allowed disabled:bg-surface disabled:text-disabled cursor-pointer ${
+            isError ? 'border-danger' : 'border-field-border'
           } ${className}`}
           {...props}
         >

@@ -86,7 +86,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
           {/* Search Box Enclosure (Reference Style) */}
           <form onSubmit={handleSearchSubmit} className="my-3">
-            <div className="flex items-center gap-2.5 rounded-lg border border-field-border bg-white px-3.5 py-2.5 focus-within:border-ink transition-colors">
+            <div className="flex items-center gap-2.5 rounded-lg border border-field-border bg-white px-3.5 py-2.5">
               <Search className="h-5 w-5 text-muted shrink-0" />
               <input
                 type="search"
