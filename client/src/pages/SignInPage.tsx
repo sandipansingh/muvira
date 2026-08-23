@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { AuthHeroCard } from '../components/auth/AuthHeroCard'
 import { ForgotPasswordModal } from '../components/auth/ForgotPasswordModal'
 import { SocialAuthButtons } from '../components/auth/SocialAuthButtons'
+import { Button } from '../components/ui/Button'
+import { Input } from '../components/ui/Input'
 
 export const SignInPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -83,7 +85,7 @@ export const SignInPage: React.FC = () => {
               >
                 Email address
               </label>
-              <input
+              <Input
                 id="signin-email"
                 name="email"
                 type="email"
@@ -91,7 +93,6 @@ export const SignInPage: React.FC = () => {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="Example@gmail.com"
-                className="w-full px-3.5 py-2.5 bg-white border border-field-border rounded-xl text-base text-ink placeholder:text-muted focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink transition-colors"
                 autoComplete="email"
               />
             </div>
@@ -112,7 +113,7 @@ export const SignInPage: React.FC = () => {
               </div>
 
               <div className="relative flex items-center">
-                <input
+                <Input
                   id="signin-password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
@@ -120,7 +121,7 @@ export const SignInPage: React.FC = () => {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-3.5 py-2.5 pr-11 bg-white border border-field-border rounded-xl text-base text-ink placeholder:text-muted focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink transition-colors"
+                  className="pr-11"
                   autoComplete="current-password"
                 />
                 <button
@@ -140,20 +141,15 @@ export const SignInPage: React.FC = () => {
 
             {/* Submit Action Button */}
             <div className="pt-1">
-              <button
+              <Button
                 type="submit"
-                disabled={loading}
-                className="w-full py-3 px-4 rounded-xl bg-ink hover:bg-black active:bg-black text-white font-medium text-sm sm:text-base shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                variant="primary"
+                size="md"
+                isLoading={loading}
+                className="w-full"
               >
-                {loading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Signing in...</span>
-                  </span>
-                ) : (
-                  <span>Log in</span>
-                )}
-              </button>
+                Log in
+              </Button>
             </div>
           </form>
 
