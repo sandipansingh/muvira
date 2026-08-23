@@ -1,16 +1,17 @@
 import React, { forwardRef } from 'react'
 
-export type BadgeTone = 'neutral' | 'success' | 'danger' | 'warning'
+export type BadgeTone = 'neutral' | 'success' | 'danger' | 'warning' | 'info'
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   tone?: BadgeTone
 }
 
 const toneStyles: Record<BadgeTone, string> = {
-  neutral: 'bg-kit-surface text-kit-ink border-kit-line',
-  success: 'bg-kit-accent-soft text-kit-ink border-kit-accent/30',
+  neutral: 'bg-surface text-ink border-line',
+  success: 'bg-accent-soft text-ink border-accent/30',
   danger: 'bg-danger-soft text-danger border-danger/30',
   warning: 'bg-warning-soft text-warning border-warning/30',
+  info: 'bg-info-soft text-info border-info/30',
 }
 
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(

@@ -9,7 +9,7 @@ export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement>
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(
   ({ to, href, className = '', children, ...props }, ref) => {
     const baseClasses =
-      'text-kit-ink hover:underline underline-offset-2 transition-colors cursor-pointer'
+      'text-ink hover:underline underline-offset-2 transition-colors cursor-pointer'
 
     if (to) {
       return (
