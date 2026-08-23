@@ -63,7 +63,8 @@ export default {
       },
       fontFamily: {
         sans: [
-          'Inter',
+          'Nunito',
+          'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
           'Segoe UI',
@@ -72,8 +73,8 @@ export default {
           'Arial',
           'sans-serif',
         ],
-        display: ['Cabinet Grotesk', 'Clash Display', 'Playfair Display', 'Georgia', 'serif'],
-        serif: ['Playfair Display', 'Georgia', 'serif'],
+        display: ['Lora', 'Georgia', 'serif'],
+        serif: ['Lora', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       spacing: {
