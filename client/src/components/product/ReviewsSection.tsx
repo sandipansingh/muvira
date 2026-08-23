@@ -459,12 +459,9 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             type="button"
             onClick={() => setVisibleCount((prev) => prev + 5)}
-            className="group inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark transition-colors cursor-pointer py-2 px-5 rounded-full hover:bg-primary-soft"
+            className="cursor-pointer text-sm font-medium text-primary"
           >
-            <span>Load More</span>
-            <span className="text-xs opacity-80 group-hover:translate-y-0.5 transition-transform">
-              ↓
-            </span>
+            Load More
           </button>
         </div>
       )}
