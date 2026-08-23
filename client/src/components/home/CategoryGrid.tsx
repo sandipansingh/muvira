@@ -79,7 +79,7 @@ export const CategoryGrid: React.FC = () => {
       <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
         <div>
           <span className="eyebrow mb-1.5 block">Featured</span>
-          <h2 className="heading text-h2">Shop Collection</h2>
+          <h2 className="text-h2 text-ink">Shop Collection</h2>
         </div>
 
         {/* View All Categories Link */}
@@ -115,10 +115,8 @@ export const CategoryGrid: React.FC = () => {
 
             {/* Bottom Content */}
             <div className="mt-4">
-              <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--color-ink)] sm:text-3xl">
-                {mainCategory.name}
-              </h3>
-              <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--color-ink)] underline underline-offset-4 decoration-[var(--color-line)] transition-colors group-hover:decoration-[var(--color-ink)] sm:text-sm">
+              <h3 className="text-h3 text-ink">{mainCategory.name}</h3>
+              <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-semibold leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
                 <span className="leading-none">Collection</span>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
               </div>
@@ -133,10 +131,8 @@ export const CategoryGrid: React.FC = () => {
               className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
-                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--color-ink)] sm:text-2xl">
-                  {secondCategory.name}
-                </h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--color-ink)] underline underline-offset-4 decoration-[var(--color-line)] transition-colors group-hover:decoration-[var(--color-ink)] sm:text-sm">
+                <h3 className="text-h4 text-ink">{secondCategory.name}</h3>
+                <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-semibold leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
                   <span className="leading-none">Collection</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>
@@ -158,10 +154,8 @@ export const CategoryGrid: React.FC = () => {
               className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
-                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--color-ink)] sm:text-2xl">
-                  {thirdCategory.name}
-                </h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--color-ink)] underline underline-offset-4 decoration-[var(--color-line)] transition-colors group-hover:decoration-[var(--color-ink)] sm:text-sm">
+                <h3 className="text-h4 text-ink">{thirdCategory.name}</h3>
+                <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-semibold leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
                   <span className="leading-none">Collection</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>

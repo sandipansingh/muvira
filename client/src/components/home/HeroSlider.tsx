@@ -292,7 +292,7 @@ export const HeroSlider: React.FC = () => {
 
           <Link
             to="/shop"
-            className="text-xs sm:text-sm font-bold text-white drop-shadow-md hover:text-white/85 transition-colors cursor-pointer"
+            className="text-body-sm font-bold text-white drop-shadow-md hover:text-white/85 transition-colors cursor-pointer"
           >
             Top collections
           </Link>

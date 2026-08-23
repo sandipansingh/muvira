@@ -23,10 +23,8 @@ export const NewsletterSection: React.FC<NewsletterSectionProps> = ({ className 
   return (
     <section className={`bg-[var(--color-surface)] py-12 sm:py-16 ${className}`}>
       <div className="editorial-container max-w-xl text-center">
-        <h2 className="font-display text-2xl font-bold text-[var(--color-ink)] sm:text-4xl">
-          Join Our Newsletter
-        </h2>
-        <p className="mt-2 text-sm text-[var(--color-muted)] sm:text-base">
+        <h2 className="text-h2 text-ink">Join Our Newsletter</h2>
+        <p className="mt-2 text-body-sm md:text-body text-muted">
           Sign up for deals, new products and promotions
         </p>
 

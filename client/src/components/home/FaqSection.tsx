@@ -69,15 +69,11 @@ export const FaqSection: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 md:mb-16 items-end">
         <div className="lg:col-span-2 text-left">
           <div className="eyebrow mb-3">FAQ</div>
-          <h2 className="heading max-w-2xl text-3xl leading-[1.1] md:text-5xl">
-            Questions, Answered Plainly.
-          </h2>
+          <h2 className="text-h1 text-ink max-w-2xl">Questions, Answered Plainly.</h2>
         </div>
         <div className="text-left lg:pl-8 border-l-0 lg:border-l lg:border-border-light">
-          <h4 className="font-display text-base font-bold text-foreground mb-1">
-            Didn&apos;t see your question?
-          </h4>
-          <p className="body-copy text-sm">
+          <h4 className="text-h4 text-ink mb-1">Didn&apos;t see your question?</h4>
+          <p className="text-body-sm text-muted">
             Our workshop team is here to help &mdash; just{' '}
             {contactHref ? (
               <a
@@ -114,7 +110,7 @@ export const FaqSection: React.FC = () => {
             const isOpen = activeIndex === index
             const trigger = (
               <div className="group flex w-full items-center justify-between px-0 py-5 text-left">
-                <span className="text-sm font-semibold tracking-tight text-ink-soft transition-colors duration-200 group-hover:text-ink md:text-base">
+                <span className="text-body-sm md:text-body font-semibold tracking-tight text-ink-soft transition-colors duration-200 group-hover:text-ink">
                   {faq.question}
                 </span>
                 <span
@@ -140,7 +136,9 @@ export const FaqSection: React.FC = () => {
                 duration={0.25}
                 className="overflow-hidden border-b border-[var(--color-line)]"
               >
-                <div className="pb-6 pt-2 text-sm leading-relaxed text-muted">{faq.answer}</div>
+                <div className="text-body-sm text-muted pb-6 pt-2 leading-relaxed">
+                  {faq.answer}
+                </div>
               </AccordionItem>
             )
           })}

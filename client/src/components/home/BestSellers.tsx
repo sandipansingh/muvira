@@ -53,7 +53,7 @@ export const BestSellers: React.FC = () => {
       <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-end">
         <div>
           <span className="eyebrow mb-1.5 block">Featured</span>
-          <h2 className="heading text-h2">Our Best Sellers</h2>
+          <h2 className="text-h2 text-ink">Our Best Sellers</h2>
         </div>
 
         {/* Right Controls: Category Pills & View All */}
@@ -96,10 +96,10 @@ export const BestSellers: React.FC = () => {
         </div>
       )}
 
-      {!loading && error && <div className="body-copy py-8 text-center text-sm">{error}</div>}
+      {!loading && error && <div className="text-body-sm text-muted py-8 text-center">{error}</div>}
 
       {!loading && !error && filteredProducts.length === 0 && (
-        <div className="body-copy py-8 text-center text-sm">
+        <div className="text-body-sm text-muted py-8 text-center">
           Featured pieces are being updated. Please check back soon.
         </div>
       )}
