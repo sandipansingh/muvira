@@ -1,4 +1,5 @@
 import React from 'react'
+import { Select } from '../ui/Select'
 
 interface FilterBarProps {
   categories: { name: string; slug: string }[]
@@ -58,18 +59,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             htmlFor="shop-sort"
           >
             <span>Sort by</span>
-            <select
+            <Select
               id="shop-sort"
               name="sort"
               value={sortBy}
               onChange={(event) => onSortChange(event.target.value)}
-              className="input h-11 min-h-11 w-auto cursor-pointer py-2 text-base"
-            >
-              <option value="popularity">Popularity</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="newest">Newest Arrivals</option>
-            </select>
+              className="h-11 min-h-11 w-auto py-2 text-base"
+              options={[
+                { value: 'popularity', label: 'Popularity' },
+                { value: 'price_asc', label: 'Price: Low to High' },
+                { value: 'price_desc', label: 'Price: High to Low' },
+                { value: 'newest', label: 'Newest Arrivals' },
+              ]}
+            />
           </label>
         </div>
       </div>

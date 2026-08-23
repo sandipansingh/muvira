@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { INDIAN_STATES } from '../../lib/constants/states.constants'
+import { Select } from '../ui/Select'
 
 export interface AddressData {
   id: string
@@ -175,19 +176,13 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               onChange={(event) => setCity(event.target.value)}
               className="input"
             />
-            <select
+            <Select
               id="address-state"
               name="state"
               value={state}
               onChange={(event) => setState(event.target.value)}
-              className="input cursor-pointer"
-            >
-              {INDIAN_STATES.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
+              options={INDIAN_STATES}
+            />
             <input
               id="address-pincode"
               name="pincode"

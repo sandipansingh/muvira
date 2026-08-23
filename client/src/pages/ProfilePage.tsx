@@ -6,6 +6,7 @@ import { addressService } from '../lib/services/address.service'
 import { INDIAN_STATES } from '../lib/constants/states.constants'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
+import { Select } from '../components/ui/Select'
 
 interface AddressFormValues {
   fullName: string
@@ -332,21 +333,15 @@ export const ProfilePage: React.FC = () => {
                         className="input"
                       />
                     ))}
-                    <select
+                    <Select
                       id="address-state"
                       name="state"
                       value={addressForm.state}
                       onChange={(event) =>
                         setAddressForm((previous) => ({ ...previous, state: event.target.value }))
                       }
-                      className="input cursor-pointer"
-                    >
-                      {INDIAN_STATES.map((state) => (
-                        <option key={state.value} value={state.value}>
-                          {state.label}
-                        </option>
-                      ))}
-                    </select>
+                      options={INDIAN_STATES}
+                    />
                   </div>
                   <label className="flex items-center gap-2 text-xs font-semibold text-ink-soft">
                     <input
