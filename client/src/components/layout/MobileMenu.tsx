@@ -246,7 +246,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                     logout()
                     onClose()
                   }}
-                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-danger/30 bg-danger-soft px-3 py-2.5 text-center text-xs font-semibold text-danger transition-colors hover:bg-danger/10"
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-line bg-paper px-3 py-2.5 text-center text-xs font-semibold text-danger transition-colors hover:bg-danger-soft"
                 >
                   <LogOut className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-none">Sign Out</span>
