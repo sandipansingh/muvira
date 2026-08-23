@@ -17,10 +17,12 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 }) => {
   const imageUrls = images.map((image) => (typeof image === 'string' ? image : image.url))
   const [activeIndex, setActiveIndex] = useState(0)
+  const [isZooming, setIsZooming] = useState(false)
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 })
 
   if (imageUrls.length === 0) {
     return (
-      <div className="flex aspect-square max-h-[440px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
+      <div className="flex aspect-square max-h-[560px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
         Image unavailable
       </div>
     )
@@ -28,19 +30,28 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   const activeImage = imageUrls[activeIndex] ?? imageUrls[0]
 
-  const handlePrev = () => {
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation()
     setActiveIndex((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1))
   }
 
-  const handleNext = () => {
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation()
     setActiveIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1))
   }
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100))
+    setZoomPos({ x, y })
+  }
+
   return (
-    <div className="flex flex-col-reverse gap-3 md:flex-row md:items-start md:gap-3.5">
-      {/* Thumbnails Navigation (Vertical column on desktop, horizontal row on mobile) */}
+    <div className="relative flex flex-col-reverse gap-3.5 md:flex-row md:items-start md:gap-4">
+      {/* Thumbnails Navigation (Increased size for cards) */}
       {imageUrls.length > 1 && (
-        <div className="flex max-h-[460px] gap-2 overflow-x-auto py-0.5 no-scrollbar md:w-16 md:shrink-0 md:flex-col md:overflow-y-auto">
+        <div className="flex max-h-[540px] gap-2.5 overflow-x-auto py-0.5 no-scrollbar md:max-h-[580px] md:w-22 md:shrink-0 md:flex-col md:overflow-y-auto lg:max-h-[620px] xl:max-h-[660px]">
           {imageUrls.map((image, index) => {
             const isActive = activeIndex === index
             return (
@@ -48,10 +59,10 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                 key={`${image}-${index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`relative aspect-square w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg transition-all duration-200 md:w-16 ${
+                className={`relative aspect-square w-18 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-200 md:w-22 ${
                   isActive
-                    ? 'border-2 border-ink ring-2 ring-ink/10 opacity-100 shadow-xs'
-                    : 'border border-line bg-surface opacity-70 hover:border-field-border hover:opacity-100'
+                    ? 'border-2 border-primary ring-2 ring-primary/15 opacity-100 shadow-xs'
+                    : 'border border-line bg-surface opacity-75 hover:border-field-border hover:opacity-100'
                 }`}
                 aria-label={`View ${title} thumbnail ${index + 1}`}
               >
@@ -67,10 +78,15 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         </div>
       )}
 
-      {/* Main Image Showcase Container with capped height */}
-      <div className="group relative aspect-square max-h-[440px] w-full flex-1 overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[460px]">
+      {/* Main Image Showcase Container with Magnifier Lens */}
+      <div
+        onMouseEnter={() => setIsZooming(true)}
+        onMouseLeave={() => setIsZooming(false)}
+        onMouseMove={handleMouseMove}
+        className="group relative aspect-square max-h-[540px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[580px] lg:max-h-[620px] xl:max-h-[660px]"
+      >
         {/* Badges Stack */}
-        <div className="absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
+        <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
           {isNew && (
             <span className="inline-flex items-center justify-center rounded bg-white/95 px-2.5 py-0.5 text-xs font-normal uppercase tracking-wider text-ink shadow-xs backdrop-blur-xs">
               NEW
@@ -89,7 +105,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95 sm:h-9 sm:w-9"
+              className="absolute left-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -97,7 +113,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95 sm:h-9 sm:w-9"
+              className="absolute right-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Next image"
             >
               <ChevronRight className="h-4 w-4" />
@@ -105,13 +121,33 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
           </>
         )}
 
-        {/* Main Image */}
-        <img
-          src={activeImage}
-          alt={title}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-        />
+        {/* Main Base Image */}
+        <img src={activeImage} alt={title} className="h-full w-full object-cover" />
+
+        {/* Amazon-Style Lens Overlay Box */}
+        {isZooming && (
+          <div
+            className="pointer-events-none absolute h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-primary/60 bg-primary/15 shadow-sm backdrop-blur-[1px]"
+            style={{
+              left: `${zoomPos.x}%`,
+              top: `${zoomPos.y}%`,
+            }}
+          />
+        )}
       </div>
+
+      {/* Amazon-Style Side Zoom Window Overlay (Desktop Floating Preview without label) */}
+      {isZooming && (
+        <div
+          className="pointer-events-none absolute left-0 top-0 z-50 hidden h-[540px] w-[540px] overflow-hidden rounded-2xl border border-line bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block xl:h-[600px] xl:w-[600px]"
+          style={{
+            backgroundImage: `url(${activeImage})`,
+            backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
+            backgroundSize: '280%',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Heart, ShoppingBag, Sparkles } from 'lucide-react'
+import { Heart, ShoppingBag } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -22,9 +22,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
 
   const effectiveRating = product.rating ?? 4.7
   const totalReviews = product.reviewCount || 48
-  const estimatedOrders = useMemo(() => {
-    return Math.max(120, (product.reviewCount || 24) * 4 + 32)
-  }, [product.reviewCount])
 
   const originalPrice =
     product.salePrice && product.salePrice > product.price
@@ -82,13 +79,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           >
             ({totalReviews} Reviews)
           </button>
-
-          <span className="text-line">•</span>
-
-          <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-0.5 text-[11px] font-normal text-ink-soft">
-            <Sparkles className="h-3 w-3 text-primary" />
-            {estimatedOrders}+ sold this month
-          </span>
         </div>
       </div>
 
@@ -116,8 +106,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         )}
       </div>
 
-      {/* Quantity Selector, Buy Now & Add to Cart Controls */}
+      {/* Quantity Selector, Buy Now & Add to Cart Controls (Divided into 2 Rows) */}
       <div className="space-y-3 pt-2">
+        {/* Row 1: Stepper, Add to Cart & Wishlist */}
         <div className="flex items-center gap-2.5">
           {/* Quantity Stepper */}
           <div className="flex h-11 items-center rounded-[var(--radius-control)] border border-line bg-surface px-1.5">
@@ -140,18 +131,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
               +
             </button>
           </div>
-
-          {/* Primary Buy Now Button */}
-          <Button
-            type="button"
-            variant="primary"
-            size="lg"
-            isLoading={isBuyingNow}
-            onClick={handleBuyNow}
-            className="flex-1 font-medium"
-          >
-            Buy Now
-          </Button>
 
           {/* Secondary Add to Cart Button */}
           <Button
@@ -184,6 +163,18 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             />
           </button>
         </div>
+
+        {/* Row 2: Full-Width Primary Buy Now Button */}
+        <Button
+          type="button"
+          variant="primary"
+          size="lg"
+          isLoading={isBuyingNow}
+          onClick={handleBuyNow}
+          className="w-full font-medium"
+        >
+          Buy Now
+        </Button>
       </div>
     </div>
   )
