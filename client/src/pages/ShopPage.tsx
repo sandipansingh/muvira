@@ -121,7 +121,7 @@ export const ShopPage: React.FC = () => {
         <div className="mb-6 grid min-h-32 items-center overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] px-5 py-6 sm:px-7 lg:grid-cols-[1fr_16rem]">
           <div>
             <p className="eyebrow mb-2">Made for daily living</p>
-            <p className="max-w-xl font-display text-xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-2xl">
+            <p className="max-w-xl font-display text-xl font-normal tracking-tight text-[var(--color-ink)] sm:text-2xl">
               Pieces that make a room feel considered.
             </p>
           </div>
@@ -149,7 +149,7 @@ export const ShopPage: React.FC = () => {
 
         {error ? (
           <div className="border-y border-line py-10 text-center">
-            <h2 className="font-display text-2xl font-bold text-ink">
+            <h2 className="font-display text-2xl font-normal text-ink">
               We could not load the catalog
             </h2>
             <p className="mt-2 text-sm text-muted">{error}</p>
@@ -173,7 +173,7 @@ export const ShopPage: React.FC = () => {
                   type="button"
                   disabled={page <= 1}
                   onClick={() => updateParams({ page: String(page - 1) })}
-                  className="text-sm font-bold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-normal text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Previous
                 </button>
@@ -184,7 +184,7 @@ export const ShopPage: React.FC = () => {
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => updateParams({ page: String(page + 1) })}
-                  className="text-sm font-bold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-normal text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Next
                 </button>

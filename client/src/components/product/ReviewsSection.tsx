@@ -247,14 +247,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-12 md:gap-8">
           <div className="space-y-3 md:col-span-4">
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-4xl font-bold tracking-tight text-ink">
+              <span className="font-display text-4xl font-normal tracking-tight text-ink">
                 {effectiveRating.toFixed(1)}
               </span>
-              <span className="text-sm font-bold text-muted">/ 5.0</span>
+              <span className="text-sm font-normal text-muted">/ 5.0</span>
             </div>
             <RatingStars rating={effectiveRating} size="md" />
             <p className="text-xs font-normal text-ink-soft">
-              <span className="font-bold text-ink">{distribution.recommendPercent}%</span> of
+              <span className="font-normal text-ink">{distribution.recommendPercent}%</span> of
               customers recommend this item
             </p>
             <p className="text-xs text-muted">Based on {totalReviewDisplay} verified reviews</p>
@@ -275,7 +275,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   }`}
                   aria-label={`Filter by ${stars} stars`}
                 >
-                  <span className="w-8 text-left font-bold text-ink-soft group-hover:text-ink">
+                  <span className="w-8 text-left font-normal text-ink-soft group-hover:text-ink">
                     {stars} ★
                   </span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
@@ -291,7 +291,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           </div>
 
           <div className="flex flex-col items-start justify-center space-y-3 text-left md:col-span-3 md:items-center md:text-center">
-            <p className="text-xs font-bold text-ink-soft">
+            <p className="text-xs font-normal text-ink-soft">
               Share your experience with this craft piece
             </p>
             <Button
@@ -340,7 +340,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <label htmlFor="review-sort-luxury" className="text-xs font-bold text-muted">
+          <label htmlFor="review-sort-luxury" className="text-xs font-normal text-muted">
             Sort:
           </label>
           <div className="w-36">
@@ -349,7 +349,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as 'newest' | 'highest' | 'lowest')}
               aria-label="Sort reviews"
-              className="!py-1.5 !px-2.5 !text-xs font-bold text-ink-soft"
+              className="!py-1.5 !px-2.5 !text-xs font-normal text-ink-soft"
               options={[
                 { value: 'newest', label: 'Most Recent' },
                 { value: 'highest', label: 'Highest Rated' },
@@ -362,11 +362,13 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
       {filteredAndSortedReviews.length === 0 ? (
         <div className="py-8 text-center">
-          <p className="text-sm font-bold text-ink-soft">No reviews found matching this filter.</p>
+          <p className="text-sm font-normal text-ink-soft">
+            No reviews found matching this filter.
+          </p>
           <button
             type="button"
             onClick={() => setSelectedStarFilter(null)}
-            className="mt-3 cursor-pointer text-xs font-bold text-ink underline underline-offset-2"
+            className="mt-3 cursor-pointer text-xs font-normal text-ink underline underline-offset-2"
           >
             Clear filters
           </button>
@@ -379,7 +381,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               <article key={review.id} className="space-y-3 py-6">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-4">
-                    <h5 className="font-display text-sm font-bold text-ink sm:text-base">
+                    <h5 className="font-display text-sm font-normal text-ink sm:text-base">
                       {review.userName || 'Customer'}
                     </h5>
                     <span className="text-xs text-muted">{formatReviewDate(review.createdAt)}</span>
@@ -450,15 +452,15 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
           {productName && (
             <div className="border-b border-line pb-3">
-              <span className="block text-[11px] font-bold uppercase tracking-wider text-muted">
+              <span className="block text-[11px] font-normal uppercase tracking-wider text-muted">
                 Product
               </span>
-              <p className="font-display text-sm font-bold text-ink">{productName}</p>
+              <p className="font-display text-sm font-normal text-ink">{productName}</p>
             </div>
           )}
 
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-ink-soft">
+            <label className="mb-2 block text-xs font-normal uppercase tracking-wider text-ink-soft">
               Overall rating
             </label>
             <div className="flex items-center gap-2">
@@ -482,7 +484,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   </button>
                 )
               })}
-              <span className="ml-2 text-xs font-bold text-ink-soft">
+              <span className="ml-2 text-xs font-normal text-ink-soft">
                 {ratingLabels[hoverRating ?? newRating]} ({hoverRating ?? newRating}/5)
               </span>
             </div>
@@ -491,7 +493,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <div>
             <label
               htmlFor="review-comment"
-              className="mb-2 block text-xs font-bold uppercase tracking-wider text-ink-soft"
+              className="mb-2 block text-xs font-normal uppercase tracking-wider text-ink-soft"
             >
               Your review
             </label>

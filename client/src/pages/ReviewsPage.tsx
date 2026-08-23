@@ -10,14 +10,14 @@ export const ReviewsPage: React.FC = () => {
       <div className="editorial-container">
         {/* Breadcrumb */}
         <nav
-          className="mb-6 flex items-center gap-2 text-xs font-bold text-muted"
+          className="mb-6 flex items-center gap-2 text-xs font-normal text-muted"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="hover:text-primary hover:underline transition-colors">
             Home
           </Link>
           <span>/</span>
-          <span className="font-bold text-ink">Customer Reviews</span>
+          <span className="font-normal text-ink">Customer Reviews</span>
         </nav>
 
         <SectionHeader
@@ -49,7 +49,9 @@ export const ReviewsPage: React.FC = () => {
                   className="w-10 h-10 rounded-full object-cover shrink-0 border border-line"
                 />
                 <div>
-                  <p className="text-sm font-bold text-[var(--color-ink)]">{testimonial.author}</p>
+                  <p className="text-sm font-normal text-[var(--color-ink)]">
+                    {testimonial.author}
+                  </p>
                   <p className="text-xs font-normal text-[var(--color-muted)]">
                     {testimonial.location}
                   </p>

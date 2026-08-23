@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
               alt="Muvira"
               className="h-7 sm:h-8 md:h-8.5 w-auto object-contain shrink-0"
             />
-            <span className="translate-y-[2px] font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-ink leading-none">
+            <span className="translate-y-[2px] font-display text-xl sm:text-2xl md:text-3xl font-normal tracking-tight text-ink leading-none">
               Muvira
             </span>
           </Link>
@@ -80,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
         {/* Right: Text Links, Search, User, Cart */}
         <div className="flex items-center gap-3 sm:gap-6">
-          <div className="hidden md:flex items-center gap-5 text-xs font-bold text-ink-soft">
+          <div className="hidden md:flex items-center gap-5 text-xs font-normal text-ink-soft">
             <Link to={getHref('/#faq')} className="hover:text-ink transition-colors">
               FAQs
             </Link>
@@ -123,12 +123,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
             {/* User Dropdown */}
             {isAuthenticated && isUserMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-line bg-paper p-2 shadow-premium text-xs font-bold z-50">
+              <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-line bg-paper p-2 shadow-premium text-xs font-normal z-50">
                 <div className="border-b border-line px-3 py-2">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
+                  <p className="text-xs font-normal uppercase tracking-wider text-muted">
                     Signed in as
                   </p>
-                  <p className="mt-0.5 truncate font-bold text-ink text-xs">
+                  <p className="mt-0.5 truncate font-normal text-ink text-xs">
                     {user?.fullName || user?.email}
                   </p>
                 </div>
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           >
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
             {itemCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink px-1 text-[11px] font-bold text-white shadow-xs">
+              <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink px-1 text-[11px] font-normal text-white shadow-xs">
                 {itemCount}
               </span>
             )}

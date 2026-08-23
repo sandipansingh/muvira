@@ -81,10 +81,10 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
               <Mail className="h-6 w-6" />
             </div>
-            <h2 className="text-xl font-bold text-ink">Check Your Email</h2>
+            <h2 className="text-xl font-normal text-ink">Check Your Email</h2>
             <p className="text-sm text-ink-soft">
               We&apos;ve sent a password reset link to{' '}
-              <span className="font-bold text-ink">{email}</span>.
+              <span className="font-normal text-ink">{email}</span>.
             </p>
             <Button
               type="button"
@@ -99,7 +99,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-5">
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-ink">Reset Password</h2>
+              <h2 className="text-2xl font-normal text-ink">Reset Password</h2>
               <p className="text-sm text-muted">
                 Enter your email address and we&apos;ll send you instructions to reset your
                 password.
@@ -107,7 +107,10 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             </div>
 
             <div>
-              <label htmlFor="reset-email" className="mb-1.5 block text-sm font-bold text-ink-soft">
+              <label
+                htmlFor="reset-email"
+                className="mb-1.5 block text-sm font-normal text-ink-soft"
+              >
                 Email address
               </label>
               <Input

@@ -67,7 +67,7 @@ export const OrdersHistoryPage: React.FC = () => {
         )}
         {!loading && error && (
           <div className="border-y border-warning bg-warning-soft py-6 text-center">
-            <p className="text-sm font-bold text-warning">{error}</p>
+            <p className="text-sm font-normal text-warning">{error}</p>
             <button
               type="button"
               onClick={() => setRefreshToken((current) => current + 1)}
@@ -108,12 +108,12 @@ export const OrdersHistoryPage: React.FC = () => {
                   )}
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="font-display text-base font-bold text-ink">
+                      <span className="font-display text-base font-normal text-ink">
                         #{order.orderNumber}
                       </span>
                       <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>
                     </div>
-                    <p className="mt-1 text-xs font-bold text-ink">
+                    <p className="mt-1 text-xs font-normal text-ink">
                       {order.firstItemName ?? `${order.itemCount} item(s)`}
                     </p>
                     <p className="mt-1 flex items-center gap-1 text-[11px] text-muted">
@@ -124,7 +124,7 @@ export const OrdersHistoryPage: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between gap-4 border-t border-line pt-3 sm:border-t-0 sm:pt-0">
                   <div className="text-right">
-                    <span className="block text-base font-bold text-ink">
+                    <span className="block text-base font-normal text-ink">
                       {formatPrice(order.totalAmount)}
                     </span>
                     <span className="text-[11px] text-muted">{order.itemCount} item(s)</span>
@@ -146,7 +146,7 @@ export const OrdersHistoryPage: React.FC = () => {
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="text-xs font-bold text-muted">
+            <span className="text-xs font-normal text-muted">
               Page {page} of {totalPages}
             </span>
             <button

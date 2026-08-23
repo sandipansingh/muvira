@@ -58,7 +58,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
 
       {/* Price Section */}
       <div className="flex items-baseline gap-2.5">
-        <span className="font-display text-2xl font-bold text-[var(--color-ink)]">
+        <span className="font-display text-2xl font-normal text-[var(--color-ink)]">
           {formatPrice(product.price)}
         </span>
         <span className="text-sm text-[var(--color-muted)] line-through">
@@ -71,25 +71,25 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
         <p className="mb-2 text-xs font-normal text-[var(--color-muted)]">Offer expires in:</p>
         <div className="grid max-w-sm grid-cols-4 gap-2">
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
-            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
+            <span className="font-display text-lg font-normal text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.days)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Days</span>
           </div>
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
-            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
+            <span className="font-display text-lg font-normal text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.hours)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Hours</span>
           </div>
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
-            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
+            <span className="font-display text-lg font-normal text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.minutes)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Mins</span>
           </div>
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
-            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
+            <span className="font-display text-lg font-normal text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.seconds)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Secs</span>
@@ -105,18 +105,18 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
+              className="flex h-7 w-7 cursor-pointer items-center justify-center text-base font-normal text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
               aria-label="Decrease quantity"
             >
               −
             </button>
-            <span className="w-7 text-center text-sm font-bold text-[var(--color-ink)]">
+            <span className="w-7 text-center text-sm font-normal text-[var(--color-ink)]">
               {quantity}
             </span>
             <button
               type="button"
               onClick={() => setQuantity(quantity + 1)}
-              className="flex h-7 w-7 cursor-pointer items-center justify-center text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
+              className="flex h-7 w-7 cursor-pointer items-center justify-center text-base font-normal text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
               aria-label="Increase quantity"
             >
               +
@@ -159,11 +159,11 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
       {/* Product Metadata */}
       <div className="space-y-1.5 border-t border-[var(--color-line)] pt-3 text-xs text-[var(--color-muted)]">
         <div className="flex gap-4">
-          <span className="w-20 font-bold uppercase text-[var(--color-muted)]">SKU</span>
+          <span className="w-20 font-normal uppercase text-[var(--color-muted)]">SKU</span>
           <span className="text-[var(--color-ink)] font-normal">{product.sku || '1117'}</span>
         </div>
         <div className="flex gap-4">
-          <span className="w-20 font-bold uppercase text-[var(--color-muted)]">CATEGORY</span>
+          <span className="w-20 font-normal uppercase text-[var(--color-muted)]">CATEGORY</span>
           <span className="text-[var(--color-ink)] font-normal">{product.category.name}</span>
         </div>
       </div>

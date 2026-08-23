@@ -39,7 +39,7 @@ export const RatingStars: React.FC<RatingStarsProps> = ({
         ))}
       </div>
       {showText && (
-        <span className="text-xs font-bold text-[var(--color-ink)]">{rating.toFixed(1)}</span>
+        <span className="text-xs font-normal text-[var(--color-ink)]">{rating.toFixed(1)}</span>
       )}
       {count !== undefined && <span className="text-xs text-[var(--color-muted)]">({count})</span>}
     </div>

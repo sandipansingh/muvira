@@ -25,7 +25,7 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
           <React.Fragment key={step.id}>
             <div className="stepper__item" data-active={complete || current}>
               <span
-                className={`stepper__marker text-xs font-bold ${
+                className={`stepper__marker text-xs font-normal ${
                   complete || current
                     ? ''
                     : 'border border-[var(--color-line)] bg-[var(--color-surface)]'

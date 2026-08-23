@@ -112,7 +112,7 @@ export const ToastContainer: React.FC = () => {
 
                 <div className="flex min-w-0 flex-1 flex-col text-left">
                   {toast.title && (
-                    <span className="truncate text-xs font-bold leading-snug text-ink">
+                    <span className="truncate text-xs font-normal leading-snug text-ink">
                       {toast.title}
                     </span>
                   )}

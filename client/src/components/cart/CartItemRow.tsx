@@ -39,7 +39,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             <div>
               <Link
                 to={`/product/${item.productSlug}`}
-                className="line-clamp-2 font-display text-sm font-bold text-[var(--color-ink)] transition-colors hover:text-ink-soft sm:text-base"
+                className="line-clamp-2 font-display text-sm font-normal text-[var(--color-ink)] transition-colors hover:text-ink-soft sm:text-base"
               >
                 {item.productName}
               </Link>
@@ -48,7 +48,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               type="button"
               onClick={() => removeFromCart(item.productId)}
               disabled={loading}
-              className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-bold leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-normal leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
               aria-label={`Remove ${item.productName} from cart`}
               title="Remove item"
             >
@@ -69,7 +69,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </button>
-                <span className="w-10 text-center text-sm font-bold text-[var(--color-ink)]">
+                <span className="w-10 text-center text-sm font-normal text-[var(--color-ink)]">
                   {item.quantity}
                 </span>
                 <button
@@ -89,7 +89,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
 
             <div className="text-right">
               <span className="block text-xs font-normal text-[var(--color-muted)]">Subtotal</span>
-              <span className="font-display text-base font-bold text-[var(--color-ink)]">
+              <span className="font-display text-base font-normal text-[var(--color-ink)]">
                 {formatPrice(item.lineTotal)}
               </span>
             </div>
@@ -120,7 +120,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         <div className="flex items-start justify-between gap-1.5">
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 font-display text-xs font-semibold leading-snug text-[var(--color-ink)] transition-colors hover:text-ink-soft"
+            className="line-clamp-2 font-display text-xs font-normal leading-snug text-[var(--color-ink)] transition-colors hover:text-ink-soft"
           >
             {item.productName}
           </Link>
@@ -147,7 +147,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             >
               <Minus className="h-2.5 w-2.5" />
             </button>
-            <span className="w-6 text-center text-xs font-bold text-[var(--color-ink)]">
+            <span className="w-6 text-center text-xs font-normal text-[var(--color-ink)]">
               {item.quantity}
             </span>
             <button
@@ -162,7 +162,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           </div>
 
           <div className="text-right">
-            <p className="font-display text-xs font-bold text-[var(--color-ink)]">
+            <p className="font-display text-xs font-normal text-[var(--color-ink)]">
               {formatPrice(item.lineTotal)}
             </p>
             {item.quantity > 1 && (

@@ -188,7 +188,7 @@ export const ProfilePage: React.FC = () => {
           <button
             type="button"
             onClick={logout}
-            className="button-secondary px-4 py-2 text-xs font-bold"
+            className="button-secondary px-4 py-2 text-xs font-normal"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span className="leading-none">Sign out</span>
@@ -199,21 +199,21 @@ export const ProfilePage: React.FC = () => {
           <div className="space-y-2">
             <Link
               to="/profile"
-              className="flex items-center gap-3 rounded-[var(--radius-control)] bg-[var(--color-ink)] p-4 text-xs font-bold text-white"
+              className="flex items-center gap-3 rounded-[var(--radius-control)] bg-[var(--color-ink)] p-4 text-xs font-normal text-white"
             >
               <User className="h-4 w-4 shrink-0" />
               <span className="leading-none">Personal Info</span>
             </Link>
             <Link
               to="/orders"
-              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-bold text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
+              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-normal text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
             >
               <Package className="h-4 w-4 shrink-0" />
               <span className="leading-none">My Orders</span>
             </Link>
             <a
               href="#addresses"
-              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-bold text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
+              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-normal text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
             >
               <MapPin className="h-4 w-4 shrink-0" />
               <span className="leading-none">Saved Addresses ({addresses.length})</span>
@@ -222,14 +222,14 @@ export const ProfilePage: React.FC = () => {
 
           <div className="space-y-6 md:col-span-2">
             <div className="panel space-y-5 p-5 sm:p-6">
-              <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">
+              <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">
                 Personal Details
               </h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
                 <div>
                   <label
                     htmlFor="profile-email"
-                    className="mb-1.5 block text-xs font-bold text-ink"
+                    className="mb-1.5 block text-xs font-normal text-ink"
                   >
                     Email
                   </label>
@@ -245,7 +245,7 @@ export const ProfilePage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="profile-full-name"
-                    className="mb-1.5 block text-xs font-bold text-ink"
+                    className="mb-1.5 block text-xs font-normal text-ink"
                   >
                     Full Name
                   </label>
@@ -262,7 +262,7 @@ export const ProfilePage: React.FC = () => {
                 <div>
                   <label
                     htmlFor="profile-phone"
-                    className="mb-1.5 block text-xs font-bold text-ink"
+                    className="mb-1.5 block text-xs font-normal text-ink"
                   >
                     Phone Number
                   </label>
@@ -279,7 +279,7 @@ export const ProfilePage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="button-primary text-xs py-2.5 font-bold disabled:opacity-50"
+                  className="button-primary text-xs py-2.5 font-normal disabled:opacity-50"
                 >
                   {savingProfile ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -288,13 +288,13 @@ export const ProfilePage: React.FC = () => {
 
             <section id="addresses" className="panel space-y-4 p-5 sm:p-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
+                <h2 className="font-display text-xl font-normal text-[var(--color-ink)]">
                   Saved Addresses
                 </h2>
                 <button
                   type="button"
                   onClick={openNewAddressForm}
-                  className="button-primary text-xs py-2 px-4 font-bold"
+                  className="button-primary text-xs py-2 px-4 font-normal"
                 >
                   Add Address
                 </button>
@@ -302,7 +302,7 @@ export const ProfilePage: React.FC = () => {
 
               {addressFormOpen && (
                 <form onSubmit={handleAddressSave} className="soft-panel mt-4 space-y-3 p-5">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="text-xs font-normal uppercase tracking-wider text-ink">
                     {editingAddressId ? 'Edit Address' : 'Add Address'}
                   </h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -343,7 +343,7 @@ export const ProfilePage: React.FC = () => {
                       options={INDIAN_STATES}
                     />
                   </div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-ink-soft">
+                  <label className="flex items-center gap-2 text-xs font-normal text-ink-soft">
                     <input
                       type="checkbox"
                       checked={addressForm.isDefault}
@@ -358,13 +358,13 @@ export const ProfilePage: React.FC = () => {
                     Use as default address
                   </label>
                   <div className="flex gap-2 pt-2">
-                    <button type="submit" className="button-primary text-xs py-2.5 font-bold">
+                    <button type="submit" className="button-primary text-xs py-2.5 font-normal">
                       Save address
                     </button>
                     <button
                       type="button"
                       onClick={() => setAddressFormOpen(false)}
-                      className="button-secondary text-xs py-2.5 font-bold"
+                      className="button-secondary text-xs py-2.5 font-normal"
                     >
                       Cancel
                     </button>
@@ -388,7 +388,7 @@ export const ProfilePage: React.FC = () => {
                   >
                     <div className="space-y-1 text-xs text-muted">
                       <div className="flex items-center gap-2">
-                        <strong className="text-sm font-bold text-ink">{address.fullName}</strong>
+                        <strong className="text-sm font-normal text-ink">{address.fullName}</strong>
                         {address.isDefault && <span className="status-badge">Default</span>}
                       </div>
                       <p className="text-ink-soft font-normal">
@@ -404,7 +404,7 @@ export const ProfilePage: React.FC = () => {
                       {!address.isDefault && (
                         <button
                           onClick={() => setDefaultAddress(address.id)}
-                          className="text-xs font-bold text-muted hover:text-primary hover:underline transition-colors cursor-pointer"
+                          className="text-xs font-normal text-muted hover:text-primary hover:underline transition-colors cursor-pointer"
                         >
                           Set default
                         </button>

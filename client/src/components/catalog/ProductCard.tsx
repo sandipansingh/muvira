@@ -99,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </Link>
             <div className="absolute left-3 top-3 flex flex-col gap-1.5">
               {badgeText !== '' && (
-                <span className="neutral-badge font-bold uppercase">{badgeText ?? 'NEW'}</span>
+                <span className="neutral-badge font-normal uppercase">{badgeText ?? 'NEW'}</span>
               )}
               {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
             </div>
@@ -179,7 +179,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </Link>
           <div className="absolute left-3 top-3 flex flex-col gap-1.5">
             {badgeText !== '' && (
-              <span className="neutral-badge font-bold uppercase">{badgeText ?? 'NEW'}</span>
+              <span className="neutral-badge font-normal uppercase">{badgeText ?? 'NEW'}</span>
             )}
             {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
           </div>

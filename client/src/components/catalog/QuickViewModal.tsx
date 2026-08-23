@@ -92,7 +92,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             {/* Badges on Image */}
             <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
               {product.isFeatured && (
-                <span className="neutral-badge font-bold uppercase">FEATURED</span>
+                <span className="neutral-badge font-normal uppercase">FEATURED</span>
               )}
               {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
             </div>
@@ -166,7 +166,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
             {/* Pricing Row */}
             <div className="mt-3 flex flex-wrap items-baseline gap-2.5">
-              <span className="font-display text-2xl font-bold text-[var(--color-ink)]">
+              <span className="font-display text-2xl font-normal text-[var(--color-ink)]">
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.salePrice && (
@@ -175,7 +175,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 </span>
               )}
               {discountPercent > 0 && (
-                <span className="rounded-[var(--radius-control)] bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
+                <span className="rounded-[var(--radius-control)] bg-primary-soft px-2 py-0.5 text-xs font-normal text-primary">
                   Save {discountPercent}%
                 </span>
               )}
@@ -189,13 +189,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             {/* Metadata Chips */}
             <div className="mt-2.5 flex items-center gap-3 text-[11px] text-muted">
               <div>
-                <span className="font-bold uppercase">SKU:</span>{' '}
+                <span className="font-normal uppercase">SKU:</span>{' '}
                 <span className="font-normal text-ink">
                   {'sku' in product && product.sku ? product.sku : 'MUV-1108'}
                 </span>
               </div>
               <div>
-                <span className="font-bold uppercase">Dispatch:</span>{' '}
+                <span className="font-normal uppercase">Dispatch:</span>{' '}
                 <span className="font-normal text-primary">Within 24 Hours</span>
               </div>
             </div>
@@ -209,18 +209,18 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-bold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-normal text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
                   aria-label="Decrease quantity"
                 >
                   −
                 </button>
-                <span className="min-w-7 text-center text-xs font-bold text-[var(--color-ink)]">
+                <span className="min-w-7 text-center text-xs font-normal text-[var(--color-ink)]">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-bold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-normal text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
                   aria-label="Increase quantity"
                 >
                   +
@@ -250,7 +250,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="button-secondary min-h-10 justify-center gap-1.5 px-4 text-center text-xs font-bold"
+                className="button-secondary min-h-10 justify-center gap-1.5 px-4 text-center text-xs font-normal"
               >
                 <span className="leading-none">View Full Details</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />

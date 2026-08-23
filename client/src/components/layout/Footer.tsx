@@ -85,7 +85,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
         <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-0 pb-12 border-b border-line">
           {/* Left Slogan & Socials */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1 pr-0 md:pr-12">
-            <h3 className="text-2xl font-extrabold text-ink tracking-tight leading-tight max-w-[280px]">
+            <h3 className="text-2xl font-normal text-ink tracking-tight leading-tight max-w-[280px]">
               Solid timber crafted for real homes
             </h3>
             <div className="flex items-center gap-3">
@@ -109,13 +109,13 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
 
           {/* Right Newsletter */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1 pl-0 md:pl-12">
-            <h3 className="text-2xl font-bold text-ink tracking-tight leading-tight">
+            <h3 className="text-2xl font-normal text-ink tracking-tight leading-tight">
               Join our
               <br className="hidden sm:inline" /> Newsletter
             </h3>
             <div className="w-full max-w-[320px]">
               {subscribed ? (
-                <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-accent/20 bg-accent-soft px-4 py-2.5 text-xs font-bold text-accent">
+                <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-accent/20 bg-accent-soft px-4 py-2.5 text-xs font-normal text-accent">
                   <CheckCircle2 className="h-4 w-4 shrink-0" />
                   <span className="leading-none">Subscribed successfully!</span>
                 </div>
@@ -153,7 +153,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link to="/" className="flex items-center gap-2.5 w-max select-none">
               <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
-              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-bold text-ink tracking-wider uppercase leading-none">
+              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-normal text-ink tracking-wider uppercase leading-none">
                 Muvira
               </span>
             </Link>
@@ -165,7 +165,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
 
           {/* Contact Details */}
           <div className="lg:col-span-3 flex flex-col gap-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Contact</h4>
+            <h4 className="text-xs font-normal uppercase tracking-wider text-ink">Contact</h4>
             <ul className="flex flex-col gap-3 text-sm text-ink-soft font-normal">
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 shrink-0 text-muted" />
@@ -190,10 +190,10 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 <span className="text-xs leading-relaxed text-ink-soft">{storeAddress}</span>
               </li>
               <li className="pt-2 border-t border-line/60 mt-1">
-                <div className="text-xs font-bold uppercase tracking-wider text-muted mb-0.5">
+                <div className="text-xs font-normal uppercase tracking-wider text-muted mb-0.5">
                   Studio Hours
                 </div>
-                <div className="text-xs text-ink font-bold normal-case">
+                <div className="text-xs text-ink font-normal normal-case">
                   Monday – Saturday: 10:00 AM – 7:00 PM IST
                 </div>
               </li>
@@ -203,7 +203,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           {/* Quick Links & Highlights */}
           <div className="grid grid-cols-2 gap-8 md:col-span-2 lg:col-span-5 lg:grid-cols-5">
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Quick Links</h4>
+              <h4 className="text-xs font-normal uppercase tracking-wider text-ink">Quick Links</h4>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-normal">
                 {[
                   { name: 'Home', href: '/' },
@@ -226,7 +226,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </div>
 
             <div className="lg:col-span-3 flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-ink">
+              <h4 className="text-xs font-normal uppercase tracking-wider text-ink">
                 Popular Collections
               </h4>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-normal">
@@ -259,7 +259,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </p>
             <span className="hidden sm:inline text-disabled text-xs">|</span>
             <p className="text-xs font-normal text-ink-soft">
-              GSTIN: <span className="font-bold text-ink">19AAACM1234F1Z5</span>
+              GSTIN: <span className="font-normal text-ink">19AAACM1234F1Z5</span>
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-normal text-muted">

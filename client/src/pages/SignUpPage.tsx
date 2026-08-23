@@ -50,14 +50,14 @@ export const SignUpPage: React.FC = () => {
               alt="Muvira"
               className="h-7 sm:h-8 w-auto object-contain shrink-0"
             />
-            <span className="translate-y-[2px] font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink leading-none">
+            <span className="translate-y-[2px] font-display text-2xl sm:text-3xl font-normal tracking-tight text-ink leading-none">
               Muvira
             </span>
           </Link>
 
           {/* Heading and Subtitle */}
           <div className="text-center space-y-1 w-full">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+            <h1 className="font-display text-2xl sm:text-3xl font-normal tracking-tight text-ink">
               Create an Account
             </h1>
             <p className="text-xs sm:text-sm text-muted font-normal">
@@ -73,7 +73,7 @@ export const SignUpPage: React.FC = () => {
           {/* Clean OR Divider */}
           <div className="relative w-full flex items-center justify-center my-3.5">
             <div className="w-full border-t border-line" />
-            <span className="bg-paper px-3 text-xs font-bold text-muted tracking-wider select-none">
+            <span className="bg-paper px-3 text-xs font-normal text-muted tracking-wider select-none">
               OR
             </span>
             <div className="w-full border-t border-line" />
@@ -83,7 +83,7 @@ export const SignUpPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3 text-left">
             {/* Full Name */}
             <div>
-              <label htmlFor="signup-name" className="block text-sm font-bold text-ink-soft mb-1">
+              <label htmlFor="signup-name" className="block text-sm font-normal text-ink-soft mb-1">
                 Full name
               </label>
               <Input
@@ -100,7 +100,10 @@ export const SignUpPage: React.FC = () => {
 
             {/* Email Address */}
             <div>
-              <label htmlFor="signup-email" className="block text-sm font-bold text-ink-soft mb-1">
+              <label
+                htmlFor="signup-email"
+                className="block text-sm font-normal text-ink-soft mb-1"
+              >
                 Email address
               </label>
               <Input
@@ -119,7 +122,7 @@ export const SignUpPage: React.FC = () => {
             <div>
               <label
                 htmlFor="signup-password"
-                className="block text-sm font-bold text-ink-soft mb-1"
+                className="block text-sm font-normal text-ink-soft mb-1"
               >
                 Password
               </label>
@@ -170,7 +173,7 @@ export const SignUpPage: React.FC = () => {
             Already have an account?{' '}
             <Link
               to="/signin"
-              className="font-bold text-ink hover:text-primary hover:underline transition-colors"
+              className="font-normal text-ink hover:text-primary hover:underline transition-colors"
             >
               Sign in
             </Link>

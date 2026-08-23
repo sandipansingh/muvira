@@ -9,14 +9,14 @@ interface StockBadgeProps {
 export const StockBadge: React.FC<StockBadgeProps> = ({ quantity, isAvailable }) => {
   if (!isAvailable || quantity === 0) {
     return (
-      <span className="inline-flex min-h-5 items-center rounded-[var(--radius-control)] border border-danger bg-danger-soft px-2 text-xs font-bold uppercase tracking-wider text-danger">
+      <span className="inline-flex min-h-5 items-center rounded-[var(--radius-control)] border border-danger bg-danger-soft px-2 text-xs font-normal uppercase tracking-wider text-danger">
         Out of stock
       </span>
     )
   }
   if (quantity <= LOW_STOCK_THRESHOLD) {
     return (
-      <span className="inline-flex min-h-5 items-center rounded-[var(--radius-control)] border border-warning bg-warning-soft px-2 text-xs font-bold uppercase tracking-wider text-warning">
+      <span className="inline-flex min-h-5 items-center rounded-[var(--radius-control)] border border-warning bg-warning-soft px-2 text-xs font-normal uppercase tracking-wider text-warning">
         Only {quantity} left
       </span>
     )

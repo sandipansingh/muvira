@@ -33,7 +33,7 @@ export const CartPage: React.FC = () => {
             Looks like you have not added any handcrafted pieces yet. Discover our artisanal wooden
             decor and statues.
           </p>
-          <Link to="/shop" className="button-primary mt-6 gap-2 px-5 py-3 text-sm font-bold">
+          <Link to="/shop" className="button-primary mt-6 gap-2 px-5 py-3 text-sm font-normal">
             <span className="leading-none">Explore Handcrafted Collections</span>
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
@@ -54,7 +54,7 @@ export const CartPage: React.FC = () => {
             Home
           </Link>
           <span>/</span>
-          <span className="font-bold text-[var(--color-ink)]">Shopping Cart</span>
+          <span className="font-normal text-[var(--color-ink)]">Shopping Cart</span>
         </nav>
 
         {/* Page Header */}
@@ -70,7 +70,7 @@ export const CartPage: React.FC = () => {
             type="button"
             onClick={clearCart}
             disabled={loading}
-            className="inline-flex cursor-pointer items-center gap-1.5 self-start text-xs font-bold leading-none text-muted transition-colors hover:text-danger disabled:opacity-50"
+            className="inline-flex cursor-pointer items-center gap-1.5 self-start text-xs font-normal leading-none text-muted transition-colors hover:text-danger disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5 shrink-0" />
             <span className="leading-none">Clear Cart</span>
@@ -97,7 +97,7 @@ export const CartPage: React.FC = () => {
             <div className="pt-1">
               <Link
                 to="/shop"
-                className="inline-flex items-center gap-2 text-xs font-bold leading-none text-ink hover:text-primary hover:underline sm:text-sm"
+                className="inline-flex items-center gap-2 text-xs font-normal leading-none text-ink hover:text-primary hover:underline sm:text-sm"
               >
                 <ArrowLeft className="h-4 w-4 shrink-0" />
                 <span className="leading-none">Continue Shopping</span>
@@ -107,12 +107,12 @@ export const CartPage: React.FC = () => {
 
           {/* Sticky Order Summary Sidebar */}
           <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24">
-            <h2 className="border-b border-[var(--color-line)] pb-3 font-display text-lg font-bold text-[var(--color-ink)]">
+            <h2 className="border-b border-[var(--color-line)] pb-3 font-display text-lg font-normal text-[var(--color-ink)]">
               Order Summary
             </h2>
 
             <div>
-              <label className="mb-1.5 block text-xs font-bold text-[var(--color-ink)]">
+              <label className="mb-1.5 block text-xs font-normal text-[var(--color-ink)]">
                 Have a coupon?
               </label>
               <CouponInput />
@@ -123,27 +123,27 @@ export const CartPage: React.FC = () => {
                 <span>
                   Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})
                 </span>
-                <span className="font-bold text-[var(--color-ink)]">
+                <span className="font-normal text-[var(--color-ink)]">
                   {formatPrice(subtotalPaisa)}
                 </span>
               </div>
               {discountPaisa > 0 && (
-                <div className="flex justify-between font-bold text-accent">
+                <div className="flex justify-between font-normal text-accent">
                   <span>Coupon Discount</span>
                   <span>-{formatPrice(discountPaisa)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
-                <span className="font-bold text-[var(--color-ink)]">
+                <span className="font-normal text-[var(--color-ink)]">
                   {shippingPaisa === 0 ? (
-                    <span className="text-accent font-bold">FREE</span>
+                    <span className="text-accent font-normal">FREE</span>
                   ) : (
                     formatPrice(shippingPaisa)
                   )}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-bold text-[var(--color-ink)]">
+              <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-normal text-[var(--color-ink)]">
                 <span>Total Amount</span>
                 <span className="font-display text-lg">{formatPrice(totalPaisa)}</span>
               </div>
@@ -153,7 +153,7 @@ export const CartPage: React.FC = () => {
               type="button"
               onClick={() => navigate('/checkout')}
               disabled={loading || hasUnmergedItems}
-              className="button-primary w-full py-3 text-sm font-bold shadow-xs hover:shadow-sm"
+              className="button-primary w-full py-3 text-sm font-normal shadow-xs hover:shadow-sm"
             >
               <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
             </button>

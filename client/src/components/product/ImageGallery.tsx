@@ -43,12 +43,12 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         {/* Badges Stack */}
         <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
           {isNew && (
-            <span className="inline-flex items-center justify-center rounded bg-white px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] shadow-xs">
+            <span className="inline-flex items-center justify-center rounded bg-white px-2 py-0.5 text-xs font-normal uppercase tracking-wider text-[var(--color-ink)] shadow-xs">
               NEW
             </span>
           )}
           {discountPercent > 0 && (
-            <span className="inline-flex items-center justify-center rounded bg-primary px-2 py-0.5 text-xs font-bold text-white shadow-xs">
+            <span className="inline-flex items-center justify-center rounded bg-primary px-2 py-0.5 text-xs font-normal text-white shadow-xs">
               -{discountPercent}%
             </span>
           )}

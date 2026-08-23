@@ -74,7 +74,7 @@ export const OrderDetailPage: React.FC = () => {
       <div className="editorial-container max-w-4xl space-y-8">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-bold leading-none text-muted transition-colors hover:text-primary hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-normal leading-none text-muted transition-colors hover:text-primary hover:underline"
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
           <span className="leading-none">Back to order history</span>
@@ -93,7 +93,7 @@ export const OrderDetailPage: React.FC = () => {
         <section className="panel space-y-4 p-5 sm:p-6">
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-ink" />
-            <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">
+            <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">
               Shipment Tracking
             </h2>
           </div>
@@ -135,7 +135,7 @@ export const OrderDetailPage: React.FC = () => {
                 <div key={event.id} className="flex gap-3 text-xs">
                   <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-ink" />
                   <div>
-                    <p className="font-bold text-ink">{event.status}</p>
+                    <p className="font-normal text-ink">{event.status}</p>
                     <p className="text-muted">
                       {formatDate(event.event_time)}
                       {event.location ? ` · ${event.location}` : ''}
@@ -166,13 +166,13 @@ export const OrderDetailPage: React.FC = () => {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <h3 className="truncate font-display text-base font-bold text-ink">
+                    <h3 className="truncate font-display text-base font-normal text-ink">
                       {item.productName}
                     </h3>
-                    <p className="text-xs font-bold text-muted">Qty: {item.quantity}</p>
+                    <p className="text-xs font-normal text-muted">Qty: {item.quantity}</p>
                   </div>
                 </div>
-                <span className="shrink-0 text-base font-bold text-ink">
+                <span className="shrink-0 text-base font-normal text-ink">
                   {formatPrice(item.totalPrice)}
                 </span>
               </div>
@@ -182,11 +182,11 @@ export const OrderDetailPage: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-6 border-t border-line pt-6 sm:grid-cols-2">
           <div className="panel space-y-2 p-5 text-xs">
-            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-bold leading-none text-ink">
+            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-normal leading-none text-ink">
               <MapPin className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Shipping Address</span>
             </h2>
-            <p className="font-bold text-ink">{order.shippingAddress.fullName}</p>
+            <p className="font-normal text-ink">{order.shippingAddress.fullName}</p>
             <p className="text-ink-soft">
               {order.shippingAddress.line1}
               {order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ''}
@@ -197,30 +197,30 @@ export const OrderDetailPage: React.FC = () => {
             </p>
           </div>
           <div className="panel space-y-2 p-5 text-xs">
-            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-bold leading-none text-ink">
+            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-normal leading-none text-ink">
               <ShieldCheck className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Payment Details</span>
             </h2>
-            <p className="font-bold text-ink">Razorpay online payment</p>
-            <p className="font-bold text-accent">Status: {order.paymentStatus}</p>
+            <p className="font-normal text-ink">Razorpay online payment</p>
+            <p className="font-normal text-accent">Status: {order.paymentStatus}</p>
             <div className="space-y-1.5 border-t border-line pt-3 text-ink-soft">
               <p className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-bold text-ink">{formatPrice(order.subtotal)}</span>
+                <span className="font-normal text-ink">{formatPrice(order.subtotal)}</span>
               </p>
               {order.discountAmount > 0 && (
-                <p className="flex justify-between text-accent font-bold">
+                <p className="flex justify-between text-accent font-normal">
                   <span>Discount</span>
                   <span>-{formatPrice(order.discountAmount)}</span>
                 </p>
               )}
               <p className="flex justify-between">
                 <span>Shipping</span>
-                <span className="font-bold text-ink">
+                <span className="font-normal text-ink">
                   {order.shippingAmount ? formatPrice(order.shippingAmount) : 'FREE'}
                 </span>
               </p>
-              <p className="flex justify-between border-t border-line pt-2 font-bold text-ink text-sm">
+              <p className="flex justify-between border-t border-line pt-2 font-normal text-ink text-sm">
                 <span>Total</span>
                 <span>{formatPrice(order.totalAmount)}</span>
               </p>

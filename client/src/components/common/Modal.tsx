@@ -51,7 +51,7 @@ export const Modal: React.FC<ModalProps> = ({
       >
         {title ? (
           <div className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-4">
-            <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">{title}</h2>
+            <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">{title}</h2>
             <button
               type="button"
               onClick={onClose}

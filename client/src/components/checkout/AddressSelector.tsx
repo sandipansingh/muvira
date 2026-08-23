@@ -68,11 +68,13 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   return (
     <section className="border-b border-[var(--color-line)] pb-6">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">Delivery Address</h2>
+        <h2 className="font-display text-xl font-normal text-[var(--color-ink)]">
+          Delivery Address
+        </h2>
         <button
           type="button"
           onClick={() => setShowAddForm((open) => !open)}
-          className="inline-flex cursor-pointer items-center gap-1 text-xs font-bold leading-none text-ink hover:text-primary hover:underline"
+          className="inline-flex cursor-pointer items-center gap-1 text-xs font-normal leading-none text-ink hover:text-primary hover:underline"
         >
           <Plus className="h-3.5 w-3.5 shrink-0" />
           <span className="leading-none">Add new</span>
@@ -102,7 +104,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             />
             <div className="flex-1 text-xs leading-5 text-muted">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-bold text-[var(--color-ink)]">
+                <span className="text-sm font-normal text-[var(--color-ink)]">
                   {address.fullName} — {address.label}
                 </span>
                 {address.isDefault && <span className="status-badge">Default</span>}
@@ -121,7 +123,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
 
       {showAddForm && (
         <form onSubmit={handleFormSubmit} className="soft-panel mt-5 space-y-3 p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+          <h3 className="text-xs font-normal uppercase tracking-wider text-foreground">
             Enter shipping details
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">

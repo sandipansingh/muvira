@@ -70,7 +70,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <Link
               to="/"
               onClick={onClose}
-              className="flex items-center gap-2 font-display text-xl font-bold tracking-tight text-ink"
+              className="flex items-center gap-2 font-display text-xl font-normal tracking-tight text-ink"
             >
               <span>Muvira.</span>
             </Link>
@@ -197,7 +197,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <span>Cart</span>
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5 text-ink stroke-[1.75]" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-bold text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-normal text-white">
                 {itemCount}
               </span>
             </div>
@@ -212,7 +212,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <span>Wishlist</span>
             <div className="flex items-center gap-2">
               <Heart className="h-5 w-5 text-ink stroke-[1.75]" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-bold text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-normal text-white">
                 0
               </span>
             </div>
@@ -222,11 +222,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           {isAuthenticated ? (
             <div className="pt-2 space-y-2.5">
               <div className="flex items-center gap-2.5 p-2.5 bg-surface rounded-lg">
-                <div className="h-8 w-8 rounded-full bg-line flex items-center justify-center text-xs font-bold text-ink">
+                <div className="h-8 w-8 rounded-full bg-line flex items-center justify-center text-xs font-normal text-ink">
                   {user?.fullName?.charAt(0) || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-ink truncate">{user?.fullName}</p>
+                  <p className="text-xs font-normal text-ink truncate">{user?.fullName}</p>
                   <p className="text-[11px] text-muted truncate">{user?.email}</p>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 <Link
                   to="/orders"
                   onClick={onClose}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2.5 text-center text-xs font-bold text-ink transition-colors hover:bg-surface"
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2.5 text-center text-xs font-normal text-ink transition-colors hover:bg-surface"
                 >
                   <Package className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-none">Orders</span>
@@ -246,7 +246,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                     logout()
                     onClose()
                   }}
-                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-line bg-paper px-3 py-2.5 text-center text-xs font-bold text-danger transition-colors hover:bg-danger-soft"
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-line bg-paper px-3 py-2.5 text-center text-xs font-normal text-danger transition-colors hover:bg-danger-soft"
                 >
                   <LogOut className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-none">Sign Out</span>
@@ -258,7 +258,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/signin"
                 onClick={onClose}
-                className="button-primary w-full py-3.5 text-sm font-bold rounded-lg text-center block shadow-xs active:scale-98"
+                className="button-primary w-full py-3.5 text-sm font-normal rounded-lg text-center block shadow-xs active:scale-98"
               >
                 Sign In
               </Link>

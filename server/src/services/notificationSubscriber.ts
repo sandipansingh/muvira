@@ -126,7 +126,7 @@ async function emailWrapper(html: string): Promise<string> {
   return `
     <div style="max-width:600px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a1a;line-height:1.6">
       <div style="text-align:center;padding:24px;background:#fafafa;border-bottom:3px solid #c4a777">
-        <h1 style="margin:0;font-size:20px;font-weight:700;letter-spacing:2px;color:#2d2d2d">${env.STORE_NAME}</h1>
+        <h1 style="margin:0;font-size:20px;font-weight:400;letter-spacing:2px;color:#2d2d2d">${env.STORE_NAME}</h1>
       </div>
       <div style="padding:32px 24px">${html}</div>
       <div style="padding:16px 24px;background:#fafafa;font-size:12px;color:#888;text-align:center">

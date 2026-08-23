@@ -46,9 +46,9 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => onToggleSection(tab.id)}
-                className={`relative pb-2.5 text-sm font-bold transition-colors cursor-pointer whitespace-nowrap ${
+                className={`relative pb-2.5 text-sm font-normal transition-colors cursor-pointer whitespace-nowrap ${
                   isActive
-                    ? 'text-[var(--color-ink)] font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-ink)]'
+                    ? 'text-[var(--color-ink)] font-normal after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-ink)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
               >
@@ -65,14 +65,14 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
         {activeTab === 'additional_info' && (
           <div className="max-w-2xl space-y-5 py-5">
             <div className="space-y-2">
-              <h4 className="font-display text-sm font-bold text-[var(--color-muted)] uppercase tracking-wider">
+              <h4 className="font-display text-sm font-normal text-[var(--color-muted)] uppercase tracking-wider">
                 Details
               </h4>
               <p className="text-sm leading-relaxed text-[var(--color-ink)]">{detailsText}</p>
             </div>
 
             <div className="space-y-2 pt-1">
-              <h4 className="font-display text-sm font-bold text-[var(--color-muted)] uppercase tracking-wider">
+              <h4 className="font-display text-sm font-normal text-[var(--color-muted)] uppercase tracking-wider">
                 Packaging
               </h4>
               <div className="space-y-1 text-sm leading-relaxed text-[var(--color-ink)]">
@@ -88,7 +88,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
         {activeTab === 'questions' && (
           <div className="max-w-2xl space-y-5 py-5 text-sm">
             <div className="space-y-1 border-b border-[var(--color-line)] pb-4">
-              <h4 className="font-display font-bold text-[var(--color-ink)]">
+              <h4 className="font-display font-normal text-[var(--color-ink)]">
                 Q: Is assembly required?
               </h4>
               <p className="text-[var(--color-muted)] leading-relaxed">
@@ -97,7 +97,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
               </p>
             </div>
             <div className="space-y-1 border-b border-[var(--color-line)] pb-4">
-              <h4 className="font-display font-bold text-[var(--color-ink)]">
+              <h4 className="font-display font-normal text-[var(--color-ink)]">
                 Q: Can the tray be used separately?
               </h4>
               <p className="text-[var(--color-muted)] leading-relaxed">
@@ -106,7 +106,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
               </p>
             </div>
             <div className="space-y-1">
-              <h4 className="font-display font-bold text-[var(--color-ink)]">
+              <h4 className="font-display font-normal text-[var(--color-ink)]">
                 Q: What is the delivery and return policy?
               </h4>
               <p className="text-[var(--color-muted)] leading-relaxed">

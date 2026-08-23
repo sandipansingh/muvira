@@ -13,7 +13,7 @@ const ReviewCard: React.FC<{
     <div className="relative flex h-full w-72 flex-col justify-between overflow-hidden rounded-2xl border border-line bg-paper p-4 shadow-none transition-colors duration-200 hover:bg-surface sm:w-80">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <p className="truncate text-body-sm font-bold text-ink">{author}</p>
+          <p className="truncate text-body-sm font-normal text-ink">{author}</p>
           <div className="flex items-center gap-0.5 shrink-0">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star

@@ -85,7 +85,7 @@ export const CategoryGrid: React.FC = () => {
         {/* View All Categories Link */}
         <Link
           to="/shop"
-          className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-bold text-ink transition-colors hover:bg-surface select-none"
+          className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-normal text-ink transition-colors hover:bg-surface select-none"
         >
           View all categories
         </Link>
@@ -119,7 +119,7 @@ export const CategoryGrid: React.FC = () => {
             {/* Bottom Content */}
             <div className="mt-4">
               <h3 className="text-h3 text-ink">{mainCategory.name}</h3>
-              <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-bold leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
+              <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-normal leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
                 <span className="leading-none">Collection</span>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
               </div>
@@ -135,7 +135,7 @@ export const CategoryGrid: React.FC = () => {
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
                 <h3 className="text-h4 text-ink">{secondCategory.name}</h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-bold leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
+                <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-normal leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
                   <span className="leading-none">Collection</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>
@@ -158,7 +158,7 @@ export const CategoryGrid: React.FC = () => {
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
                 <h3 className="text-h4 text-ink">{thirdCategory.name}</h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-bold leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
+                <div className="mt-2 inline-flex items-center gap-1.5 text-body-sm font-normal leading-none text-ink underline underline-offset-4 decoration-line transition-colors group-hover:decoration-ink">
                   <span className="leading-none">Collection</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>

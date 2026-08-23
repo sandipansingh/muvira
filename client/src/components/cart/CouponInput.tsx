@@ -32,7 +32,7 @@ export const CouponInput: React.FC = () => {
             <CheckCircle className="h-3 w-3" />
           </div>
           <div className="flex flex-wrap items-center gap-1.5 text-xs font-normal">
-            <span className="font-bold tracking-wider text-ink uppercase">{coupon.code}</span>
+            <span className="font-normal tracking-wider text-ink uppercase">{coupon.code}</span>
             <span className="text-accent">(-{formatPrice(coupon.discountAmount)} off)</span>
           </div>
         </div>
@@ -76,7 +76,7 @@ export const CouponInput: React.FC = () => {
         size="sm"
         isLoading={isSubmitting}
         disabled={isSubmitting}
-        className="h-full shrink-0 px-4 text-xs font-bold shadow-xs active:scale-98"
+        className="h-full shrink-0 px-4 text-xs font-normal shadow-xs active:scale-98"
       >
         Apply
       </Button>

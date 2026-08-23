@@ -46,14 +46,14 @@ export const SignInPage: React.FC = () => {
               alt="Muvira"
               className="h-7 sm:h-8 w-auto object-contain shrink-0"
             />
-            <span className="translate-y-[2px] font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink leading-none">
+            <span className="translate-y-[2px] font-display text-2xl sm:text-3xl font-normal tracking-tight text-ink leading-none">
               Muvira
             </span>
           </Link>
 
           {/* Heading and Subtitle */}
           <div className="text-center space-y-1 w-full">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+            <h1 className="font-display text-2xl sm:text-3xl font-normal tracking-tight text-ink">
               Welcome Back!
             </h1>
             <p className="text-xs sm:text-sm text-muted font-normal">
@@ -69,7 +69,7 @@ export const SignInPage: React.FC = () => {
           {/* Clean OR Divider */}
           <div className="relative w-full flex items-center justify-center my-3.5">
             <div className="w-full border-t border-line" />
-            <span className="bg-paper px-3 text-xs font-bold text-muted tracking-wider select-none">
+            <span className="bg-paper px-3 text-xs font-normal text-muted tracking-wider select-none">
               OR
             </span>
             <div className="w-full border-t border-line" />
@@ -79,7 +79,10 @@ export const SignInPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3.5 text-left">
             {/* Email Field */}
             <div>
-              <label htmlFor="signin-email" className="block text-sm font-bold text-ink-soft mb-1">
+              <label
+                htmlFor="signin-email"
+                className="block text-sm font-normal text-ink-soft mb-1"
+              >
                 Email address
               </label>
               <Input
@@ -97,7 +100,7 @@ export const SignInPage: React.FC = () => {
             {/* Password Field with clear top spacing */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="signin-password" className="text-sm font-bold text-ink-soft">
+                <label htmlFor="signin-password" className="text-sm font-normal text-ink-soft">
                   Password
                 </label>
                 <button
@@ -153,7 +156,7 @@ export const SignInPage: React.FC = () => {
           {/* Prompt to Sign Up */}
           <p className="mt-8 text-center text-xs sm:text-sm font-normal text-muted">
             Don&apos;t have an account yet?{' '}
-            <Link to="/signup" className="font-bold text-ink hover:text-primary hover:underline">
+            <Link to="/signup" className="font-normal text-ink hover:text-primary hover:underline">
               Sign Up
             </Link>
           </p>

@@ -150,7 +150,7 @@ export const HeroSlider: React.FC = () => {
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsCategoriesOpen(false)}
-                    className="block rounded-lg px-3 py-2 text-xs font-bold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
+                    className="block rounded-lg px-3 py-2 text-xs font-normal text-ink-soft hover:bg-surface hover:text-ink transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -184,7 +184,7 @@ export const HeroSlider: React.FC = () => {
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsSortOpen(false)}
-                    className="block rounded-lg px-3 py-2 text-xs font-bold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
+                    className="block rounded-lg px-3 py-2 text-xs font-normal text-ink-soft hover:bg-surface hover:text-ink transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -275,7 +275,7 @@ export const HeroSlider: React.FC = () => {
               <Button
                 variant="inverse"
                 size="lg"
-                className="px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-bold shadow-md hover:shadow-lg active:scale-98"
+                className="px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-normal shadow-md hover:shadow-lg active:scale-98"
               >
                 Start shopping
               </Button>
@@ -292,7 +292,7 @@ export const HeroSlider: React.FC = () => {
 
           <Link
             to="/shop"
-            className="text-body-sm font-bold text-white drop-shadow-md hover:text-white/85 transition-colors cursor-pointer"
+            className="text-body-sm font-normal text-white drop-shadow-md hover:text-white/85 transition-colors cursor-pointer"
           >
             Top collections
           </Link>

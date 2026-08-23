@@ -30,8 +30,8 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   return (
     <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24">
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
-        <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">Order Summary</h2>
-        <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-ink)]">
+        <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">Order Summary</h2>
+        <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-normal text-[var(--color-ink)]">
           {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
         </span>
       </div>
@@ -52,11 +52,11 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate font-bold text-[var(--color-ink)]">{item.productName}</p>
+                <p className="truncate font-normal text-[var(--color-ink)]">{item.productName}</p>
                 <p className="text-[var(--color-muted)]">Qty: {item.quantity}</p>
               </div>
             </div>
-            <span className="shrink-0 font-bold text-[var(--color-ink)]">
+            <span className="shrink-0 font-normal text-[var(--color-ink)]">
               {formatPrice(item.unitPrice * item.quantity)}
             </span>
           </div>
@@ -64,7 +64,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
       </div>
 
       <div className="border-t border-[var(--color-line)] pt-3">
-        <label className="mb-1.5 block text-xs font-bold text-[var(--color-ink)]">
+        <label className="mb-1.5 block text-xs font-normal text-[var(--color-ink)]">
           Have a coupon?
         </label>
         <CouponInput />
@@ -73,25 +73,25 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
       <div className="space-y-2 border-t border-[var(--color-line)] pt-3 text-xs font-normal text-[var(--color-muted)]">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span className="font-bold text-[var(--color-ink)]">{formatPrice(subtotalPaisa)}</span>
+          <span className="font-normal text-[var(--color-ink)]">{formatPrice(subtotalPaisa)}</span>
         </div>
         {discountPaisa > 0 && (
-          <div className="flex justify-between font-bold text-emerald-700">
+          <div className="flex justify-between font-normal text-emerald-700">
             <span>Coupon Discount ({coupon?.code})</span>
             <span>-{formatPrice(discountPaisa)}</span>
           </div>
         )}
         <div className="flex justify-between">
           <span>Delivery Charges</span>
-          <span className="font-bold text-[var(--color-ink)]">
+          <span className="font-normal text-[var(--color-ink)]">
             {shippingPaisa === 0 ? (
-              <span className="text-emerald-700 font-bold">FREE</span>
+              <span className="text-emerald-700 font-normal">FREE</span>
             ) : (
               formatPrice(shippingPaisa)
             )}
           </span>
         </div>
-        <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-sm font-bold text-[var(--color-ink)]">
+        <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-sm font-normal text-[var(--color-ink)]">
           <span>Total Amount</span>
           <span className="font-display text-base">{formatPrice(totalPaisa)}</span>
         </div>
@@ -101,7 +101,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         type="button"
         onClick={onPlaceOrder}
         disabled={isProcessing || items.length === 0}
-        className="button-primary w-full py-3 text-sm font-bold shadow-xs hover:shadow-sm"
+        className="button-primary w-full py-3 text-sm font-normal shadow-xs hover:shadow-sm"
       >
         <Lock className="h-4 w-4 shrink-0" />
         <span className="leading-none">

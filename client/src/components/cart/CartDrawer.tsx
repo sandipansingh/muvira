@@ -44,8 +44,10 @@ export const CartDrawer: React.FC = () => {
         <div className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-paper)] px-5 py-4">
           <div className="flex items-center gap-2.5">
             <ShoppingBag className="h-4.5 w-4.5 text-[var(--color-ink)]" />
-            <h2 className="font-display text-base font-bold text-[var(--color-ink)]">Your Cart</h2>
-            <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2 py-0.5 text-[11px] font-bold text-[var(--color-muted)]">
+            <h2 className="font-display text-base font-normal text-[var(--color-ink)]">
+              Your Cart
+            </h2>
+            <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2 py-0.5 text-[11px] font-normal text-[var(--color-muted)]">
               {totalItemCount}
             </span>
           </div>
@@ -66,7 +68,7 @@ export const CartDrawer: React.FC = () => {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-surface)] text-muted">
                 <ShoppingBag className="h-6 w-6 stroke-[1.5]" />
               </div>
-              <h3 className="mt-4 font-display text-base font-bold text-[var(--color-ink)]">
+              <h3 className="mt-4 font-display text-base font-normal text-[var(--color-ink)]">
                 Your cart is empty
               </h3>
               <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-[var(--color-muted)]">
@@ -78,7 +80,7 @@ export const CartDrawer: React.FC = () => {
                   closeCartDrawer()
                   navigate('/shop')
                 }}
-                className="button-primary mt-5 px-4 py-2 text-xs font-bold"
+                className="button-primary mt-5 px-4 py-2 text-xs font-normal"
               >
                 <span className="leading-none">Shop the collection</span>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0" />
@@ -97,23 +99,23 @@ export const CartDrawer: React.FC = () => {
             <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-[11px] font-normal text-[var(--color-muted)]">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-bold text-[var(--color-ink)]">
+                <span className="font-normal text-[var(--color-ink)]">
                   {formatPrice(subtotalPaisa)}
                 </span>
               </div>
               {discountPaisa > 0 && (
-                <div className="flex justify-between font-bold text-emerald-700">
+                <div className="flex justify-between font-normal text-emerald-700">
                   <span>Discount</span>
                   <span>-{formatPrice(discountPaisa)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>Estimated shipping</span>
-                <span className="font-bold text-[var(--color-ink)]">
+                <span className="font-normal text-[var(--color-ink)]">
                   {shippingPaisa === 0 ? 'FREE' : formatPrice(shippingPaisa)}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-[var(--color-line)] pt-2 text-xs font-bold text-[var(--color-ink)]">
+              <div className="flex justify-between border-t border-[var(--color-line)] pt-2 text-xs font-normal text-[var(--color-ink)]">
                 <span>Total</span>
                 <span>{formatPrice(totalPaisa)}</span>
               </div>
@@ -123,7 +125,7 @@ export const CartDrawer: React.FC = () => {
               <Link
                 to="/cart"
                 onClick={closeCartDrawer}
-                className="button-secondary h-10 !min-h-0 rounded-lg py-0 text-center !text-xs font-bold justify-center"
+                className="button-secondary h-10 !min-h-0 rounded-lg py-0 text-center !text-xs font-normal justify-center"
               >
                 View Cart
               </Link>
@@ -131,7 +133,7 @@ export const CartDrawer: React.FC = () => {
                 type="button"
                 onClick={openCheckout}
                 disabled={loading || hasUnmergedItems}
-                className="button-primary col-span-2 h-10 !min-h-0 rounded-lg py-0 !text-xs font-bold shadow-xs"
+                className="button-primary col-span-2 h-10 !min-h-0 rounded-lg py-0 !text-xs font-normal shadow-xs"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
               </button>

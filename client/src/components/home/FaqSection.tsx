@@ -78,14 +78,14 @@ export const FaqSection: React.FC = () => {
             {contactHref ? (
               <a
                 href={contactHref}
-                className="text-ink font-bold underline underline-offset-2 transition-colors duration-200"
+                className="text-ink font-normal underline underline-offset-2 transition-colors duration-200"
               >
                 reach out
               </a>
             ) : (
               <Link
                 to="/#contact"
-                className="text-ink font-bold underline underline-offset-2 transition-colors duration-200"
+                className="text-ink font-normal underline underline-offset-2 transition-colors duration-200"
               >
                 reach out
               </Link>
@@ -110,7 +110,7 @@ export const FaqSection: React.FC = () => {
             const isOpen = activeIndex === index
             const trigger = (
               <div className="group flex w-full items-center justify-between px-0 py-5 text-left">
-                <span className="text-body-sm md:text-body font-bold tracking-tight text-ink-soft transition-colors duration-200 group-hover:text-ink">
+                <span className="text-body-sm md:text-body font-normal tracking-tight text-ink-soft transition-colors duration-200 group-hover:text-ink">
                   {faq.question}
                 </span>
                 <span

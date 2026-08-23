@@ -32,7 +32,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 onClick={() => onSelectCategory(category.slug)}
                 className={`shrink-0 border-b-2 px-1 py-2 text-left text-sm transition-colors lg:w-full ${
                   isSelected
-                    ? 'border-[var(--color-ink)] font-bold text-[var(--color-ink)]'
+                    ? 'border-[var(--color-ink)] font-normal text-[var(--color-ink)]'
                     : 'border-transparent text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
                 aria-pressed={isSelected}
@@ -46,16 +46,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
           <p className="eyebrow mb-2">Collection</p>
-          <p className="font-display text-lg font-semibold text-[var(--color-ink)]">
+          <p className="font-display text-lg font-normal text-[var(--color-ink)]">
             Thoughtful pieces for lived-in rooms
           </p>
         </div>
         <div className="flex items-center justify-between gap-4 text-sm text-[var(--color-muted)] lg:justify-end">
           <span aria-live="polite">
-            <strong className="font-bold text-[var(--color-ink)]">{totalCount}</strong> pieces
+            <strong className="font-normal text-[var(--color-ink)]">{totalCount}</strong> pieces
           </span>
           <label
-            className="flex items-center gap-2 font-bold text-[var(--color-ink)]"
+            className="flex items-center gap-2 font-normal text-[var(--color-ink)]"
             htmlFor="shop-sort"
           >
             <span>Sort by</span>
