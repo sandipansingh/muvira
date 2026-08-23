@@ -404,6 +404,13 @@ body {
   letter-spacing: -0.015em;
 }
 
+.text-product-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.25;
+}
+
 .text-h3 {
   font-family: var(--font-display);
   font-weight: 600;

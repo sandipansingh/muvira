@@ -47,7 +47,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
   return (
     <div className="space-y-6">
       {/* Product Title */}
-      <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--color-ink)] sm:text-4xl">
+      <h1 className="text-product-title text-[var(--color-ink)]">
         {product.name}
       </h1>
 

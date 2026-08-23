@@ -148,7 +148,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             </div>
 
             {/* Product Title */}
-            <h2 className="heading mt-2 font-display text-xl font-bold pr-10 sm:text-2xl line-clamp-2">
+            <h2 className="text-product-title mt-2 pr-10 line-clamp-2 text-[var(--color-ink)]">
               {product.name}
             </h2>
 

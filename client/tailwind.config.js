@@ -47,6 +47,7 @@ export default {
       fontSize: {
         h1: ['clamp(2.25rem, 5vw, 3.75rem)', { lineHeight: '1.15', letterSpacing: '-0.02em' }],
         h2: ['clamp(1.75rem, 3.5vw, 2.5rem)', { lineHeight: '1.15', letterSpacing: '-0.015em' }],
+        'product-title': ['clamp(1.5rem, 3vw, 2.25rem)', { lineHeight: '1.25' }],
         h3: ['1.5rem', { lineHeight: '1.2' }],
         h4: ['1.25rem', { lineHeight: '1.25' }],
       },
