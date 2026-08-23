@@ -95,7 +95,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-paper text-ink-soft shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-surface flex items-center justify-center transition-all duration-300 border border-line cursor-pointer"
+                  className="w-10 h-10 rounded-[var(--radius-control)] bg-paper text-ink-soft shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-surface flex items-center justify-center transition-all duration-300 border border-line cursor-pointer"
                   aria-label={social.name}
                 >
                   {social.icon}
@@ -115,14 +115,14 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </h3>
             <div className="w-full max-w-[320px]">
               {subscribed ? (
-                <div className="flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft px-4 py-2.5 text-xs font-semibold text-accent">
+                <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-accent/20 bg-accent-soft px-4 py-2.5 text-xs font-semibold text-accent">
                   <CheckCircle2 className="h-4 w-4 shrink-0" />
                   <span className="leading-none">Subscribed successfully!</span>
                 </div>
               ) : (
                 <form
                   onSubmit={handleSubscribe}
-                  className="flex items-center bg-paper border border-line rounded-full p-1 pl-4 w-full shadow-xs"
+                  className="flex items-center bg-paper border border-line rounded-[var(--radius-control)] p-1 pl-4 w-full shadow-xs"
                 >
                   <Input
                     type="email"

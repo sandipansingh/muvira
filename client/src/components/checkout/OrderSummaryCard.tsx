@@ -31,7 +31,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
     <aside className="panel space-y-6 p-6 sm:p-8 lg:sticky lg:top-28">
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
         <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">Order Summary</h2>
-        <span className="rounded-full bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-ink)]">
+        <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-ink)]">
           {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
         </span>
       </div>

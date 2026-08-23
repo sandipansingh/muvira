@@ -45,14 +45,14 @@ export const CartDrawer: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <ShoppingBag className="h-4.5 w-4.5 text-[var(--color-ink)]" />
             <h2 className="font-display text-base font-bold text-[var(--color-ink)]">Your Cart</h2>
-            <span className="rounded-full bg-[var(--color-surface)] px-2 py-0.5 text-[11px] font-bold text-[var(--color-muted)]">
+            <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2 py-0.5 text-[11px] font-bold text-[var(--color-muted)]">
               {totalItemCount}
             </span>
           </div>
           <button
             type="button"
             onClick={closeCartDrawer}
-            className="cursor-pointer rounded-full p-1.5 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
+            className="cursor-pointer rounded-[var(--radius-control)] p-1.5 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
             aria-label="Close cart"
           >
             <X className="h-4 w-4" />
@@ -63,7 +63,7 @@ export const CartDrawer: React.FC = () => {
         <div className="flex-1 space-y-3.5 overflow-y-auto px-5 py-4 dropdown-scrollbar">
           {items.length === 0 ? (
             <div className="py-16 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-surface)] text-muted">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-surface)] text-muted">
                 <ShoppingBag className="h-6 w-6 stroke-[1.5]" />
               </div>
               <h3 className="mt-4 font-display text-base font-bold text-[var(--color-ink)]">

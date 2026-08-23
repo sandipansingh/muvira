@@ -133,7 +133,7 @@ export const HeroSlider: React.FC = () => {
                 setIsCategoriesOpen((prev) => !prev)
                 setIsSortOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-[var(--radius-control)] border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
             >
               <span>Categories</span>
               <ChevronDown
@@ -144,13 +144,13 @@ export const HeroSlider: React.FC = () => {
             </button>
 
             {isCategoriesOpen && (
-              <div className="absolute left-0 top-full mt-2 w-48 rounded-2xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute left-0 top-full mt-2 w-48 rounded-xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
                 {CATEGORY_DROPDOWN_OPTIONS.map((item) => (
                   <Link
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsCategoriesOpen(false)}
-                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
+                    className="block rounded-lg px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -167,7 +167,7 @@ export const HeroSlider: React.FC = () => {
                 setIsSortOpen((prev) => !prev)
                 setIsCategoriesOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-[var(--radius-control)] border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
             >
               <span>New Product</span>
               <ChevronDown
@@ -178,13 +178,13 @@ export const HeroSlider: React.FC = () => {
             </button>
 
             {isSortOpen && (
-              <div className="absolute left-0 top-full mt-2 w-48 rounded-2xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute left-0 top-full mt-2 w-48 rounded-xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
                 {SORT_DROPDOWN_OPTIONS.map((item) => (
                   <Link
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsSortOpen(false)}
-                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
+                    className="block rounded-lg px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -201,7 +201,7 @@ export const HeroSlider: React.FC = () => {
             placeholder="search..."
             value={quickSearch}
             onChange={(e) => setQuickSearch(e.target.value)}
-            className="w-full rounded-full border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-medium text-ink placeholder-muted outline-none shadow-xs transition-colors"
+            className="w-full rounded-[var(--radius-control)] border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-medium text-ink placeholder-muted outline-none shadow-xs transition-colors"
           />
           <button
             type="submit"
@@ -218,7 +218,7 @@ export const HeroSlider: React.FC = () => {
             <Link
               key={pill.label}
               to={pill.href}
-              className="rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:text-ink hover:bg-surface transition-all shadow-xs shrink-0"
+              className="rounded-[var(--radius-control)] border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:text-ink hover:bg-surface transition-all shadow-xs shrink-0"
             >
               {pill.label}
             </Link>
@@ -227,7 +227,7 @@ export const HeroSlider: React.FC = () => {
       </div>
 
       {/* Main Full-Image Hero Banner Container */}
-      <div className="relative w-full h-[clamp(500px,76vh,840px)] rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-premium flex flex-col justify-end p-6 sm:p-10 lg:p-12 bg-ink">
+      <div className="relative w-full h-[clamp(500px,76vh,840px)] rounded-2xl lg:rounded-3xl overflow-hidden shadow-premium flex flex-col justify-end p-6 sm:p-10 lg:p-12 bg-ink">
         {/* Full-Bleed Slider Background Photo */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -253,7 +253,7 @@ export const HeroSlider: React.FC = () => {
           <button
             type="button"
             onClick={prevSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-[var(--radius-control)] bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -261,7 +261,7 @@ export const HeroSlider: React.FC = () => {
           <button
             type="button"
             onClick={nextSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-[var(--radius-control)] bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Next slide"
           >
             <ChevronRight className="w-4 h-4" />
@@ -275,7 +275,7 @@ export const HeroSlider: React.FC = () => {
               <Button
                 variant="inverse"
                 size="lg"
-                className="!rounded-full px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-bold shadow-md hover:shadow-lg active:scale-98"
+                className="px-6 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-bold shadow-md hover:shadow-lg active:scale-98"
               >
                 Start shopping
               </Button>
@@ -283,7 +283,7 @@ export const HeroSlider: React.FC = () => {
             <Link to={currentSlide.link || '/shop'} aria-label="Start shopping arrow">
               <Button
                 variant="inverse"
-                className="!h-9 !w-9 sm:!h-11 sm:!w-11 !p-0 !rounded-full shadow-md hover:shadow-lg active:scale-98 shrink-0"
+                className="!h-9 !w-9 sm:!h-11 sm:!w-11 !p-0 shadow-md hover:shadow-lg active:scale-98 shrink-0"
               >
                 <ArrowUpRight className="h-4.5 w-4.5 stroke-[2.5]" />
               </Button>

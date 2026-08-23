@@ -114,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             ) : (
               <Link
                 to="/signin"
-                className="flex h-10 w-10 items-center justify-center text-ink-soft hover:text-ink hover:bg-surface rounded-full transition-colors cursor-pointer"
+                className="flex h-10 w-10 items-center justify-center text-ink-soft hover:text-ink hover:bg-surface rounded-[var(--radius-control)] transition-colors cursor-pointer"
                 aria-label="Sign in"
               >
                 <User className="w-5 h-5 stroke-[1.75]" />
@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
             {/* User Dropdown */}
             {isAuthenticated && isUserMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-line bg-paper p-2 shadow-premium text-xs font-semibold z-50">
+              <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-line bg-paper p-2 shadow-premium text-xs font-semibold z-50">
                 <div className="border-b border-line px-3 py-2">
                   <p className="text-xs font-bold uppercase tracking-wider text-muted">
                     Signed in as
@@ -135,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
                 <Link
                   to="/profile"
                   onClick={() => setIsUserMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-ink hover:bg-surface transition-colors"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-ink hover:bg-surface transition-colors"
                 >
                   <User className="h-4 w-4 shrink-0 text-muted" />
                   <span className="leading-none">My Profile</span>
@@ -143,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
                 <Link
                   to="/orders"
                   onClick={() => setIsUserMenuOpen(false)}
-                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-ink hover:bg-surface transition-colors"
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-ink hover:bg-surface transition-colors"
                 >
                   <Package className="h-4 w-4 shrink-0 text-muted" />
                   <span className="leading-none">My Orders</span>
@@ -154,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
                     setIsUserMenuOpen(false)
                     logout()
                   }}
-                  className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-danger hover:bg-danger-soft transition-colors"
+                  className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-danger hover:bg-danger-soft transition-colors"
                 >
                   <LogOut className="h-4 w-4 shrink-0" />
                   <span className="leading-none">Sign Out</span>
@@ -187,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         <div className="layout-container pb-2.5">
           <form
             onSubmit={handleSearchSubmit}
-            className="flex items-center bg-paper rounded-full border border-line p-1 pl-4 shadow-xs"
+            className="flex items-center bg-paper rounded-[var(--radius-control)] border border-line p-1 pl-4 shadow-xs"
           >
             <Search className="w-4 h-4 text-muted shrink-0" />
             <Input

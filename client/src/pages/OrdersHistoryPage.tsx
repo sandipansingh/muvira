@@ -141,7 +141,7 @@ export const OrdersHistoryPage: React.FC = () => {
               type="button"
               disabled={page === 1}
               onClick={() => setPage((current) => current - 1)}
-              className="border border-line rounded-full p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
+              className="border border-line rounded-[var(--radius-control)] p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
               aria-label="Previous orders page"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -153,7 +153,7 @@ export const OrdersHistoryPage: React.FC = () => {
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((current) => current + 1)}
-              className="border border-line rounded-full p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
+              className="border border-line rounded-[var(--radius-control)] p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
               aria-label="Next orders page"
             >
               <ChevronRight className="h-4 w-4" />

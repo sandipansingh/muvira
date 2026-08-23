@@ -25,9 +25,9 @@ const sizeStyles: Record<ButtonSize, string> = {
   md: 'h-10 px-4 text-sm gap-2 rounded-[var(--radius-control)]',
   lg: 'h-12 px-6 text-sm gap-2 rounded-[var(--radius-control)]',
   xl: 'h-14 px-8 text-base gap-2.5 rounded-[var(--radius-control)]',
-  icon: 'h-10 w-10 p-0 rounded-full',
-  'icon-sm': 'h-8 w-8 p-0 rounded-full',
-  'icon-lg': 'h-12 w-12 p-0 rounded-full',
+  icon: 'h-10 w-10 p-0 rounded-[var(--radius-control)]',
+  'icon-sm': 'h-8 w-8 p-0 rounded-[var(--radius-control)]',
+  'icon-lg': 'h-12 w-12 p-0 rounded-[var(--radius-control)]',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

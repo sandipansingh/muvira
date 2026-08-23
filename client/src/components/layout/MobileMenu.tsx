@@ -77,7 +77,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 text-ink hover:bg-surface rounded-full transition-colors cursor-pointer"
+              className="p-1.5 text-ink hover:bg-surface rounded-[var(--radius-control)] transition-colors cursor-pointer"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />

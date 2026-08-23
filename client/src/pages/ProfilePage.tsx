@@ -412,14 +412,14 @@ export const ProfilePage: React.FC = () => {
                       <button
                         onClick={() => openEditAddressForm(address)}
                         aria-label="Edit address"
-                        className="rounded-full border border-line p-2 text-muted hover:bg-surface hover:text-ink cursor-pointer transition-colors"
+                        className="rounded-[var(--radius-control)] border border-line p-2 text-muted hover:bg-surface hover:text-ink cursor-pointer transition-colors"
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => deleteAddress(address.id)}
                         aria-label="Delete address"
-                        className="rounded-full border border-line p-2 text-muted hover:bg-danger-soft hover:text-danger cursor-pointer transition-colors"
+                        className="rounded-[var(--radius-control)] border border-line p-2 text-muted hover:bg-danger-soft hover:text-danger cursor-pointer transition-colors"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>

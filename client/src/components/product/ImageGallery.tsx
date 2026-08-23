@@ -60,7 +60,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -68,7 +68,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Next image"
             >
               <ChevronRight className="h-5 w-5" />

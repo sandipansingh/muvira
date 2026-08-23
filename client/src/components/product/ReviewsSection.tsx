@@ -321,11 +321,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             variant={selectedStarFilter === null ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => setSelectedStarFilter(null)}
-            className={
-              selectedStarFilter === null
-                ? '!rounded-full'
-                : '!rounded-full bg-surface text-ink-soft hover:bg-line'
-            }
+            className={selectedStarFilter === null ? '' : 'bg-surface text-ink-soft hover:bg-line'}
           >
             All Reviews ({allReviews.length})
           </Button>
@@ -340,11 +336,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 variant={isActive ? 'primary' : 'ghost'}
                 size="sm"
                 onClick={() => setSelectedStarFilter(isActive ? null : stars)}
-                className={
-                  isActive
-                    ? '!rounded-full'
-                    : '!rounded-full bg-surface text-ink-soft hover:bg-line'
-                }
+                className={isActive ? '' : 'bg-surface text-ink-soft hover:bg-line'}
               >
                 <span>{stars} Stars</span>
                 <span className="text-xs opacity-75">({count})</span>
@@ -423,7 +415,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       size="xs"
                       onClick={() => handleLike(review.id)}
                       leftIcon={<ThumbsUp className="h-3 w-3 shrink-0" />}
-                      className={`!rounded-full ${itemFeedback.liked ? '' : 'text-ink-soft'}`}
+                      className={itemFeedback.liked ? '' : 'text-ink-soft'}
                       aria-label="Mark review as helpful"
                     >
                       Yes{itemFeedback.likes > 0 ? ` (${itemFeedback.likes})` : ''}
@@ -435,7 +427,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       size="xs"
                       onClick={() => handleDislike(review.id)}
                       leftIcon={<ThumbsDown className="h-3 w-3 shrink-0" />}
-                      className={`!rounded-full ${itemFeedback.disliked ? '' : 'text-ink-soft'}`}
+                      className={itemFeedback.disliked ? '' : 'text-ink-soft'}
                       aria-label="Mark review as not helpful"
                     >
                       No{itemFeedback.dislikes > 0 ? ` (${itemFeedback.dislikes})` : ''}

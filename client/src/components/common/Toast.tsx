@@ -127,7 +127,7 @@ export const ToastContainer: React.FC = () => {
                     e.stopPropagation()
                     removeToast(toast.id)
                   }}
-                  className="shrink-0 cursor-pointer rounded-full p-1 text-muted transition-colors hover:bg-surface hover:text-ink-soft"
+                  className="shrink-0 cursor-pointer rounded-[var(--radius-control)] p-1 text-muted transition-colors hover:bg-surface hover:text-ink-soft"
                   aria-label="Dismiss notification"
                 >
                   <X className="h-4 w-4" />
