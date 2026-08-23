@@ -166,7 +166,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="editorial-button-secondary text-xs py-3 font-bold text-center justify-center"
+                className="kit-button-secondary text-xs py-3 font-bold text-center justify-center"
               >
                 <span className="leading-none">Full Details</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />

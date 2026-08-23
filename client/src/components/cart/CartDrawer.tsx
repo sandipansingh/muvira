@@ -123,7 +123,7 @@ export const CartDrawer: React.FC = () => {
               <Link
                 to="/cart"
                 onClick={closeCartDrawer}
-                className="editorial-button-secondary h-10 !min-h-0 rounded-lg py-0 text-center !text-xs font-bold justify-center"
+                className="kit-button-secondary h-10 !min-h-0 rounded-lg py-0 text-center !text-xs font-bold justify-center"
               >
                 View Cart
               </Link>

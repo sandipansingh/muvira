@@ -82,14 +82,14 @@ export const FaqSection: React.FC = () => {
             {contactHref ? (
               <a
                 href={contactHref}
-                className="text-neutral-900 font-bold underline hover:text-brand transition-colors duration-200"
+                className="text-kit-ink font-bold underline underline-offset-2 transition-colors duration-200"
               >
                 reach out
               </a>
             ) : (
               <Link
                 to="/#contact"
-                className="text-neutral-900 font-bold underline hover:text-brand transition-colors duration-200"
+                className="text-kit-ink font-bold underline underline-offset-2 transition-colors duration-200"
               >
                 reach out
               </Link>

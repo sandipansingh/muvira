@@ -23,7 +23,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ email, setEmail }) => 
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="you@example.com"
-        className="editorial-input"
+        className="kit-input"
       />
     </div>
   </section>

@@ -132,7 +132,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="Full name"
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
-              className="editorial-input"
+              className="kit-input"
             />
             <input
               id="address-phone"
@@ -142,7 +142,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="Phone number"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              className="editorial-input"
+              className="kit-input"
             />
           </div>
           <input
@@ -153,7 +153,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             placeholder="Street address"
             value={streetAddress}
             onChange={(event) => setStreetAddress(event.target.value)}
-            className="editorial-input"
+            className="kit-input"
           />
           <input
             id="address-line2"
@@ -162,7 +162,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             placeholder="Apartment, suite, or landmark"
             value={apartment}
             onChange={(event) => setApartment(event.target.value)}
-            className="editorial-input"
+            className="kit-input"
           />
           <div className="grid gap-3 sm:grid-cols-3">
             <input
@@ -173,14 +173,14 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="City / district"
               value={city}
               onChange={(event) => setCity(event.target.value)}
-              className="editorial-input"
+              className="kit-input"
             />
             <select
               id="address-state"
               name="state"
               value={state}
               onChange={(event) => setState(event.target.value)}
-              className="editorial-input cursor-pointer"
+              className="kit-input cursor-pointer"
             >
               {INDIAN_STATES.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -196,7 +196,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="Pincode"
               value={pincode}
               onChange={(event) => setPincode(event.target.value)}
-              className="editorial-input"
+              className="kit-input"
             />
           </div>
           <div className="flex gap-3 pt-2">
