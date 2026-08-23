@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Check, Eye, Heart, Plus } from 'lucide-react'
+import { Check, Eye, Heart, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useToast } from '../../context/ToastContext'
@@ -128,9 +128,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="button-primary flex-1 text-xs"
+                className="button-primary flex-1 text-xs gap-1.5"
               >
-                {isAdded ? <Check className="h-4 w-4 shrink-0" /> : null}
+                {isAdded ? (
+                  <Check className="h-4 w-4 shrink-0" />
+                ) : (
+                  <ShoppingBag className="h-4 w-4 shrink-0" />
+                )}
                 <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
               </button>
               <button
@@ -195,10 +199,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAddToCart}
-              className="button-primary min-h-10 flex-1 px-3 text-xs opacity-0 shadow-[var(--shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100"
+              className="button-primary min-h-10 flex-1 px-3 text-xs opacity-0 shadow-[var(--shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100 gap-1.5"
               aria-label={`Add ${product.name} to cart`}
             >
-              {isAdded ? <Check className="h-4 w-4 shrink-0" /> : null}
+              {isAdded ? (
+                <Check className="h-4 w-4 shrink-0" />
+              ) : (
+                <ShoppingBag className="h-4 w-4 shrink-0" />
+              )}
               <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
             </button>
             <button
@@ -225,7 +233,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               className="button-primary h-9 min-h-9 w-9 p-0"
               aria-label={`Add ${product.name} to cart`}
             >
-              {isAdded ? <Check className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+              {isAdded ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <ShoppingBag className="h-3.5 w-3.5" />
+              )}
             </button>
           </div>
         </div>
