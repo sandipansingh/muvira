@@ -46,25 +46,29 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
-      <div className="grid gap-8 md:grid-cols-2">
-        <div className="space-y-3">
-          <div className="media-tile flex items-center justify-center">
+      <div className="grid gap-6 md:grid-cols-2 md:items-stretch">
+        <div className="flex flex-col justify-between space-y-3 md:h-full">
+          <div className="relative min-h-[280px] flex-1 overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[340px] md:min-h-[420px]">
             {selectedImage ? (
-              <img src={selectedImage} alt={product.name} className="h-full w-full object-cover" />
+              <img
+                src={selectedImage}
+                alt={product.name}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs text-muted font-medium">
+              <div className="flex h-full items-center justify-center text-xs font-medium text-muted">
                 Image unavailable
               </div>
             )}
           </div>
           {images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            <div className="no-scrollbar flex shrink-0 gap-2 overflow-x-auto">
               {images.map((image, index) => (
                 <button
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setSelectedImage(image)}
-                  className={`h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-[var(--radius-control)] border transition-colors ${
+                  className={`h-14 w-14 shrink-0 cursor-pointer overflow-hidden rounded-[var(--radius-control)] border transition-colors ${
                     selectedImage === image
                       ? 'border-[var(--color-ink)]'
                       : 'border-[var(--color-line)] opacity-60 hover:opacity-100'
@@ -82,17 +86,19 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
           )}
         </div>
 
-        <div className="flex flex-col justify-between gap-6">
+        <div className="flex flex-col justify-between md:h-full">
           <div>
-            <div className="flex items-start justify-between gap-4 pr-12">
+            <div className="flex items-center justify-between gap-4 pr-10">
               <span className="eyebrow">{categoryName}</span>
               <StockBadge
                 quantity={'stock' in product ? product.stock : 10}
                 isAvailable={'inStock' in product ? product.inStock : true}
               />
             </div>
-            <h2 className="heading mt-2 text-xl sm:text-2xl pr-12">{product.name}</h2>
-            <div className="mt-3 flex items-center gap-2">
+            <h2 className="heading mt-1.5 text-lg font-bold pr-10 sm:text-xl line-clamp-2">
+              {product.name}
+            </h2>
+            <div className="mt-2 flex items-center gap-2">
               <RatingStars
                 rating={product.rating ?? 5}
                 count={product.reviewCount ?? 0}
@@ -100,8 +106,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 showText
               />
             </div>
-            <div className="mt-4 flex items-baseline gap-3">
-              <span className="font-display text-2xl font-bold text-[var(--color-ink)]">
+            <div className="mt-3 flex items-baseline gap-2.5">
+              <span className="font-display text-xl font-bold text-[var(--color-ink)] sm:text-2xl">
                 {formatPrice(product.price)}
               </span>
               {product.salePrice && product.salePrice > product.price && (
@@ -110,42 +116,42 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 </span>
               )}
             </div>
-            <p className="body-copy mt-4 line-clamp-3 text-sm">
+            <p className="body-copy mt-2.5 line-clamp-2 text-xs sm:text-sm">
               {'description' in product
                 ? product.description
                 : product.shortDescription || 'Description unavailable.'}
             </p>
           </div>
 
-          <div className="space-y-4 border-t border-[var(--color-line)] pt-4">
-            <div className="flex items-center gap-4">
+          <div className="mt-4 space-y-3 border-t border-[var(--color-line)] pt-3.5">
+            <div className="flex items-center gap-3">
               <span className="eyebrow">Quantity</span>
-              <div className="flex items-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] p-1">
+              <div className="flex items-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[var(--radius-control)] font-bold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-bold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
                 >
                   −
                 </button>
-                <span className="min-w-8 text-center text-sm font-bold text-[var(--color-ink)]">
+                <span className="min-w-7 text-center text-xs font-bold text-[var(--color-ink)]">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[var(--radius-control)] font-bold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-bold text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
                 >
                   +
                 </button>
               </div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2.5 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={added}
-                className="button-primary px-5 text-xs"
+                className="button-primary min-h-10 px-4 text-xs"
               >
                 {added ? (
                   <>
@@ -162,7 +168,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="button-secondary text-xs py-3 font-bold text-center justify-center"
+                className="button-secondary min-h-10 text-xs px-4 font-bold text-center justify-center"
               >
                 <span className="leading-none">Full Details</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />
