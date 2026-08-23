@@ -1,7 +1,9 @@
 import React, { useState } from 'react'
-import { CheckCircle, Loader2, Tag, X } from 'lucide-react'
+import { CheckCircle, Tag, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { formatPrice } from '../../lib/utils/format'
+import { Button } from '../ui/Button'
+import { Input } from '../ui/Input'
 
 export const CouponInput: React.FC = () => {
   const { coupon, applyCoupon, removeCoupon } = useCart()
@@ -34,15 +36,17 @@ export const CouponInput: React.FC = () => {
             <span className="text-accent">(-{formatPrice(coupon.discountAmount)} off)</span>
           </div>
         </div>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={removeCoupon}
-          className="cursor-pointer rounded-full p-0.5 text-accent transition-colors hover:bg-accent/10"
+          className="h-6 w-6 text-accent hover:bg-accent/10"
           aria-label="Remove coupon"
           title="Remove coupon"
         >
           <X className="h-3.5 w-3.5" />
-        </button>
+        </Button>
       </div>
     )
   }
@@ -53,30 +57,29 @@ export const CouponInput: React.FC = () => {
         <label htmlFor="coupon-code" className="sr-only">
           Promo code
         </label>
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted z-10">
           <Tag className="h-3.5 w-3.5" />
         </div>
-        <input
+        <Input
           id="coupon-code"
           name="coupon"
           type="text"
           placeholder="Enter promo code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="h-full w-full rounded-lg border border-[var(--color-field-border)] bg-[var(--color-paper)] py-1.5 pl-10 pr-2.5 text-base font-medium text-[var(--color-ink)] placeholder:text-muted placeholder:normal-case outline-none transition-all duration-200 focus:border-[var(--color-ink)] focus:ring-1 focus:ring-[var(--color-ink)] uppercase"
+          className="h-full pl-10 pr-2.5 font-medium uppercase placeholder:normal-case"
         />
       </div>
-      <button
+      <Button
         type="submit"
+        variant="primary"
+        size="md"
+        isLoading={isSubmitting}
         disabled={!code.trim() || isSubmitting}
-        className="button-primary h-full !min-h-0 shrink-0 rounded-lg px-3.5 py-0 !text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-full shrink-0 px-3.5 text-xs"
       >
-        {isSubmitting ? (
-          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
-        ) : (
-          <span className="leading-none">Apply</span>
-        )}
-      </button>
+        Apply
+      </Button>
     </form>
   )
 }
