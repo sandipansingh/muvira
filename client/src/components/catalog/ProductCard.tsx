@@ -222,7 +222,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleOpenQuickView}
-              className="button-secondary h-9 min-h-9 w-9 border-[var(--color-ink)] p-0 text-[var(--color-ink)] shadow-[var(--shadow-overlay)]"
+              className="button-secondary h-9 min-h-9 w-9 p-0 text-[var(--color-ink)] shadow-[var(--shadow-overlay)]"
               aria-label={`Quick view ${product.name}`}
             >
               <Eye className="h-3.5 w-3.5 shrink-0 text-[var(--color-ink)]" strokeWidth={2.5} />

@@ -126,19 +126,23 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
           </div>
 
           {/* Wishlist Button */}
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="lg"
             onClick={() => setIsWishlisted((prev) => !prev)}
-            className={`flex h-12 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[var(--color-ink)] bg-transparent px-4 font-semibold text-sm transition-colors ${
-              isWishlisted
-                ? 'border-red-500 text-red-500'
-                : 'text-[var(--color-ink)] hover:bg-[var(--color-surface)]'
-            }`}
+            leftIcon={
+              <Heart
+                className={`h-4 w-4 shrink-0 ${
+                  isWishlisted ? 'fill-danger text-danger' : 'text-ink-soft'
+                }`}
+              />
+            }
+            className={`flex-1 ${isWishlisted ? 'border-danger/40 text-danger' : ''}`}
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           >
-            <Heart className={`h-4 w-4 shrink-0 ${isWishlisted ? 'fill-current' : ''}`} />
-            <span className="leading-none">Wishlist</span>
-          </button>
+            Wishlist
+          </Button>
         </div>
 
         {/* Add to Cart Button */}
