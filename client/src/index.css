@@ -38,6 +38,11 @@ html {
   scroll-behavior: smooth;
 }
 
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-ink);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #111111;
