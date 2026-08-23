@@ -10,22 +10,22 @@ const ReviewCard: React.FC<{
   rating?: number
 }> = ({ quote, author, rating = 5 }) => {
   return (
-    <div className="relative flex h-full w-72 flex-col justify-between overflow-hidden rounded-2xl border border-border-light bg-white p-4 shadow-none transition-colors duration-200 hover:bg-neutral-50 sm:w-80">
+    <div className="relative flex h-full w-72 flex-col justify-between overflow-hidden rounded-2xl border border-line bg-paper p-4 shadow-none transition-colors duration-200 hover:bg-surface sm:w-80">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2 min-w-0">
-          <p className="truncate text-sm font-bold text-foreground">{author}</p>
+          <p className="truncate text-sm font-bold text-ink">{author}</p>
           <div className="flex items-center gap-0.5 shrink-0">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
                 className={`h-3 w-3 ${
-                  i < (rating || 5) ? 'fill-rating text-rating' : 'text-neutral-200'
+                  i < (rating || 5) ? 'fill-rating text-rating' : 'text-disabled'
                 }`}
               />
             ))}
           </div>
         </div>
-        <p className="text-xs font-normal leading-relaxed text-neutral-700 sm:text-[13px] line-clamp-3">
+        <p className="text-xs font-normal leading-relaxed text-ink-soft sm:text-[13px] line-clamp-3">
           “{quote}”
         </p>
       </div>

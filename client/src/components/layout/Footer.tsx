@@ -80,14 +80,14 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
   return (
     <footer
       id="contact"
-      className={`bg-[#F9F9F9] text-neutral-800 pt-16 pb-12 relative overflow-hidden font-sans border-t border-neutral-200/80 ${className}`}
+      className={`bg-surface text-ink-soft pt-16 pb-12 relative overflow-hidden font-sans border-t border-line ${className}`}
     >
       <div className="layout-container">
         {/* Top Bar: Slogan + Socials & Newsletter */}
-        <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-0 pb-12 border-b border-neutral-200">
+        <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-0 pb-12 border-b border-line">
           {/* Left Slogan & Socials */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1 pr-0 md:pr-12">
-            <h3 className="text-2xl font-extrabold text-neutral-900 tracking-tight leading-tight max-w-[280px]">
+            <h3 className="text-2xl font-extrabold text-ink tracking-tight leading-tight max-w-[280px]">
               Solid timber crafted for real homes
             </h3>
             <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white text-neutral-800 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-neutral-100 flex items-center justify-center transition-all duration-300 border border-neutral-100 cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-paper text-ink-soft shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-surface flex items-center justify-center transition-all duration-300 border border-line cursor-pointer"
                   aria-label={social.name}
                 >
                   {social.icon}
@@ -106,25 +106,25 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </div>
           </div>
 
-          <div className="hidden md:block w-px bg-neutral-200 self-stretch my-2" />
-          <div className="block md:hidden h-px bg-neutral-200 w-full" />
+          <div className="hidden md:block w-px bg-line self-stretch my-2" />
+          <div className="block md:hidden h-px bg-line w-full" />
 
           {/* Right Newsletter */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1 pl-0 md:pl-12">
-            <h3 className="text-2xl font-bold text-neutral-900 tracking-tight leading-tight">
+            <h3 className="text-2xl font-bold text-ink tracking-tight leading-tight">
               Join our
               <br className="hidden sm:inline" /> Newsletter
             </h3>
             <div className="w-full max-w-[320px]">
               {subscribed ? (
-                <div className="flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-700">
+                <div className="flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft px-4 py-2.5 text-xs font-semibold text-accent">
                   <CheckCircle2 className="h-4 w-4 shrink-0" />
                   <span className="leading-none">Subscribed successfully!</span>
                 </div>
               ) : (
                 <form
                   onSubmit={handleSubscribe}
-                  className="flex items-center bg-white border border-neutral-200 rounded-full p-1 pl-4 w-full shadow-xs"
+                  className="flex items-center bg-paper border border-line rounded-full p-1 pl-4 w-full shadow-xs"
                 >
                   <input
                     type="email"
@@ -132,7 +132,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                     placeholder="Enter your e-mail"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-transparent border-none outline-none text-base text-neutral-800 placeholder-neutral-400 flex-grow min-w-0"
+                    className="bg-transparent border-none outline-none text-base text-ink-soft placeholder-muted flex-grow min-w-0"
                   />
                   <button
                     type="submit"
@@ -153,11 +153,11 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link to="/" className="flex items-center gap-2.5 w-max select-none">
               <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
-              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-bold text-neutral-900 tracking-[0.16em] uppercase leading-none">
+              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-bold text-ink tracking-[0.16em] uppercase leading-none">
                 Muvira
               </span>
             </Link>
-            <p className="text-sm text-neutral-700 font-normal leading-relaxed max-w-md">
+            <p className="text-sm text-ink-soft font-normal leading-relaxed max-w-md">
               {storeDescription ||
                 'Muvira celebrates heirloom timber craft and bespoke Indian woodworking. Every piece is hand-hewn by master artisans for homes built to be lived in.'}
             </p>
@@ -165,12 +165,10 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
 
           {/* Contact Details */}
           <div className="lg:col-span-3 flex flex-col gap-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-900">
-              Contact
-            </h4>
-            <ul className="flex flex-col gap-3 text-sm text-neutral-800 font-medium">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-ink">Contact</h4>
+            <ul className="flex flex-col gap-3 text-sm text-ink-soft font-medium">
               <li className="flex items-center gap-2.5">
-                <Phone className="h-4 w-4 shrink-0 text-neutral-400" />
+                <Phone className="h-4 w-4 shrink-0 text-muted" />
                 <a
                   href={`tel:${phoneNum.replace(/[^\d+]/g, '')}`}
                   className="hover:text-ink hover:underline transition-colors duration-200 leading-none"
@@ -179,7 +177,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
-                <Mail className="h-4 w-4 shrink-0 text-neutral-400" />
+                <Mail className="h-4 w-4 shrink-0 text-muted" />
                 <a
                   href={`mailto:${emailAddress}`}
                   className="break-all leading-none transition-colors duration-200 hover:text-ink hover:underline"
@@ -188,14 +186,14 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 </a>
               </li>
               <li className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400" />
-                <span className="text-xs leading-relaxed text-neutral-600">{storeAddress}</span>
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
+                <span className="text-xs leading-relaxed text-ink-soft">{storeAddress}</span>
               </li>
-              <li className="pt-2 border-t border-neutral-200/60 mt-1">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-0.5">
+              <li className="pt-2 border-t border-line/60 mt-1">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-muted mb-0.5">
                   Studio Hours
                 </div>
-                <div className="text-xs text-neutral-800 font-semibold normal-case">
+                <div className="text-xs text-ink font-semibold normal-case">
                   Monday – Saturday: 10:00 AM – 7:00 PM IST
                 </div>
               </li>
@@ -205,10 +203,8 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           {/* Quick Links & Highlights */}
           <div className="grid grid-cols-2 gap-8 md:col-span-2 lg:col-span-5 lg:grid-cols-5">
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-900">
-                Quick Links
-              </h4>
-              <ul className="flex flex-col gap-2.5 text-sm text-neutral-800 font-medium">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-ink">Quick Links</h4>
+              <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-medium">
                 {[
                   { name: 'Home', href: '/' },
                   { name: 'Shop All', href: '/shop' },
@@ -230,10 +226,10 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </div>
 
             <div className="lg:col-span-3 flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-900">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-ink">
                 Popular Collections
               </h4>
-              <ul className="flex flex-col gap-2.5 text-sm text-neutral-800 font-medium">
+              <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-medium">
                 {[
                   { name: 'Living Room Collection', href: '/shop?category=living-room' },
                   { name: 'Solid Wood Bed Frames', href: '/shop?category=bedroom' },
@@ -256,31 +252,31 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
         </div>
 
         {/* Bottom Legal / Policy Bar */}
-        <div className="pt-8 border-t border-neutral-200 flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div className="pt-8 border-t border-line flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-center sm:text-left">
-            <p className="text-xs font-medium text-neutral-800">
+            <p className="text-xs font-medium text-ink-soft">
               © {new Date().getFullYear()} Muvira. All rights reserved.
             </p>
-            <span className="hidden sm:inline text-neutral-300 text-xs">|</span>
-            <p className="text-xs font-medium text-neutral-600">
-              GSTIN: <span className="font-semibold text-neutral-800">19AAACM1234F1Z5</span>
+            <span className="hidden sm:inline text-disabled text-xs">|</span>
+            <p className="text-xs font-medium text-ink-soft">
+              GSTIN: <span className="font-semibold text-ink">19AAACM1234F1Z5</span>
             </p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-neutral-500">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-muted">
             <Link
               to="/#faq"
               className="hover:text-ink hover:underline transition-colors duration-200"
             >
               Privacy Policy
             </Link>
-            <span className="hidden sm:inline text-neutral-300">|</span>
+            <span className="hidden sm:inline text-disabled">|</span>
             <Link
               to="/#faq"
               className="hover:text-ink hover:underline transition-colors duration-200"
             >
               Terms of Service
             </Link>
-            <span className="hidden sm:inline text-neutral-300">|</span>
+            <span className="hidden sm:inline text-disabled">|</span>
             <Link
               to="/#faq"
               className="hover:text-ink hover:underline transition-colors duration-200"

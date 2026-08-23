@@ -106,7 +106,7 @@ export const HeroSlider: React.FC = () => {
   if (loading) {
     return (
       <section className="layout-container py-2 sm:py-3" aria-busy="true">
-        <div className="w-full h-[clamp(500px,76vh,840px)] rounded-[2.5rem] lg:rounded-[3rem] animate-pulse bg-neutral-100" />
+        <div className="w-full h-[clamp(500px,76vh,840px)] rounded-[2.5rem] lg:rounded-[3rem] animate-pulse bg-surface" />
       </section>
     )
   }
@@ -133,24 +133,24 @@ export const HeroSlider: React.FC = () => {
                 setIsCategoriesOpen((prev) => !prev)
                 setIsSortOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-800 hover:border-neutral-400 hover:bg-neutral-50 transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:border-field-border hover:bg-surface transition-all shadow-xs cursor-pointer"
             >
               <span>Categories</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 text-muted transition-transform duration-200 ${
                   isCategoriesOpen ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
             {isCategoriesOpen && (
-              <div className="absolute left-0 top-full mt-2 w-48 rounded-2xl border border-neutral-200 bg-white p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute left-0 top-full mt-2 w-48 rounded-2xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
                 {CATEGORY_DROPDOWN_OPTIONS.map((item) => (
                   <Link
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsCategoriesOpen(false)}
-                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
+                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -167,24 +167,24 @@ export const HeroSlider: React.FC = () => {
                 setIsSortOpen((prev) => !prev)
                 setIsCategoriesOpen(false)
               }}
-              className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-800 hover:border-neutral-400 hover:bg-neutral-50 transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:border-field-border hover:bg-surface transition-all shadow-xs cursor-pointer"
             >
               <span>New Product</span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 text-muted transition-transform duration-200 ${
                   isSortOpen ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
             {isSortOpen && (
-              <div className="absolute left-0 top-full mt-2 w-48 rounded-2xl border border-neutral-200 bg-white p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute left-0 top-full mt-2 w-48 rounded-2xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
                 {SORT_DROPDOWN_OPTIONS.map((item) => (
                   <Link
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsSortOpen(false)}
-                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 transition-colors"
+                    className="block rounded-xl px-3 py-2 text-xs font-semibold text-ink-soft hover:bg-surface hover:text-ink transition-colors"
                   >
                     {item.label}
                   </Link>
@@ -201,11 +201,11 @@ export const HeroSlider: React.FC = () => {
             placeholder="search..."
             value={quickSearch}
             onChange={(e) => setQuickSearch(e.target.value)}
-            className="w-full rounded-full border border-neutral-200 bg-white py-1.5 pl-4 pr-8 text-xs font-medium text-neutral-900 placeholder-neutral-400 outline-none focus:border-neutral-400 shadow-xs transition-colors"
+            className="w-full rounded-full border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-medium text-ink placeholder-muted outline-none focus:border-field-border shadow-xs transition-colors"
           />
           <button
             type="submit"
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-900 cursor-pointer"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-ink cursor-pointer"
             aria-label="Search"
           >
             <Search className="w-3.5 h-3.5" />
@@ -218,7 +218,7 @@ export const HeroSlider: React.FC = () => {
             <Link
               key={pill.label}
               to={pill.href}
-              className="rounded-full border border-neutral-200 bg-white px-3.5 py-1.5 font-medium text-neutral-700 hover:border-neutral-400 hover:text-neutral-950 hover:bg-neutral-50 transition-all shadow-xs shrink-0"
+              className="rounded-full border border-line bg-paper px-3.5 py-1.5 font-medium text-ink-soft hover:border-field-border hover:text-ink hover:bg-surface transition-all shadow-xs shrink-0"
             >
               {pill.label}
             </Link>
@@ -227,7 +227,7 @@ export const HeroSlider: React.FC = () => {
       </div>
 
       {/* Main Full-Image Hero Banner Container */}
-      <div className="relative w-full h-[clamp(500px,76vh,840px)] rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-premium flex flex-col justify-end p-6 sm:p-10 lg:p-12 bg-neutral-900">
+      <div className="relative w-full h-[clamp(500px,76vh,840px)] rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden shadow-premium flex flex-col justify-end p-6 sm:p-10 lg:p-12 bg-ink">
         {/* Full-Bleed Slider Background Photo */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -253,7 +253,7 @@ export const HeroSlider: React.FC = () => {
           <button
             type="button"
             onClick={prevSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-neutral-800 backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -261,7 +261,7 @@ export const HeroSlider: React.FC = () => {
           <button
             type="button"
             onClick={nextSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-neutral-800 backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Next slide"
           >
             <ChevronRight className="w-4 h-4" />

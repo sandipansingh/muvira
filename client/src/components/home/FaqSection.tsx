@@ -114,14 +114,12 @@ export const FaqSection: React.FC = () => {
             const isOpen = activeIndex === index
             const trigger = (
               <div className="group flex w-full items-center justify-between px-0 py-5 text-left">
-                <span className="text-sm font-semibold tracking-tight text-neutral-800 transition-colors duration-200 group-hover:text-neutral-950 md:text-base">
+                <span className="text-sm font-semibold tracking-tight text-ink-soft transition-colors duration-200 group-hover:text-ink md:text-base">
                   {faq.question}
                 </span>
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-control)] transition-colors duration-200 ml-4 ${
-                    isOpen
-                      ? 'bg-neutral-900 text-white'
-                      : 'bg-neutral-100 text-neutral-800 group-hover:bg-neutral-200'
+                    isOpen ? 'bg-ink text-white' : 'bg-surface text-ink-soft group-hover:bg-line'
                   }`}
                 >
                   <ArrowDown
@@ -142,9 +140,7 @@ export const FaqSection: React.FC = () => {
                 duration={0.25}
                 className="overflow-hidden border-b border-[var(--color-line)]"
               >
-                <div className="pb-6 pt-2 text-sm leading-relaxed text-neutral-500">
-                  {faq.answer}
-                </div>
+                <div className="pb-6 pt-2 text-sm leading-relaxed text-muted">{faq.answer}</div>
               </AccordionItem>
             )
           })}
