@@ -259,7 +259,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </p>
             <span className="hidden sm:inline text-disabled text-xs">|</span>
             <p className="text-xs font-normal text-ink-soft">
-              GSTIN: <span className="font-normal text-ink">19AAACM1234F1Z5</span>
+              GSTIN: <span className="font-normal text-ink">19RTKPS1769E1ZQ</span>
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-normal text-muted">
