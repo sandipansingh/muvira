@@ -153,7 +153,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link to="/" className="flex items-center gap-2.5 w-max select-none">
               <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
-              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-bold text-ink tracking-[0.16em] uppercase leading-none">
+              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-bold text-ink tracking-wider uppercase leading-none">
                 Muvira
               </span>
             </Link>
@@ -165,7 +165,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
 
           {/* Contact Details */}
           <div className="lg:col-span-3 flex flex-col gap-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-ink">Contact</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Contact</h4>
             <ul className="flex flex-col gap-3 text-sm text-ink-soft font-medium">
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 shrink-0 text-muted" />
@@ -190,7 +190,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 <span className="text-xs leading-relaxed text-ink-soft">{storeAddress}</span>
               </li>
               <li className="pt-2 border-t border-line/60 mt-1">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-muted mb-0.5">
+                <div className="text-xs font-bold uppercase tracking-wider text-muted mb-0.5">
                   Studio Hours
                 </div>
                 <div className="text-xs text-ink font-semibold normal-case">
@@ -203,7 +203,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           {/* Quick Links & Highlights */}
           <div className="grid grid-cols-2 gap-8 md:col-span-2 lg:col-span-5 lg:grid-cols-5">
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-ink">Quick Links</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Quick Links</h4>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-medium">
                 {[
                   { name: 'Home', href: '/' },
@@ -226,7 +226,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </div>
 
             <div className="lg:col-span-3 flex flex-col gap-4">
-              <h4 className="text-xs font-bold uppercase tracking-widest text-ink">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-ink">
                 Popular Collections
               </h4>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-medium">

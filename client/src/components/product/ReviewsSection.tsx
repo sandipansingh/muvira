@@ -259,7 +259,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               <span className="font-bold text-ink">{distribution.recommendPercent}%</span> of
               customers recommend this item
             </p>
-            <p className="text-[11px] text-muted">Based on {totalReviewDisplay} verified reviews</p>
+            <p className="text-xs text-muted">Based on {totalReviewDisplay} verified reviews</p>
           </div>
 
           {/* Column B: Rating Distribution Breakdown Histogram */}
@@ -287,7 +287,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="w-8 text-right text-[11px] font-medium text-muted">{count}</span>
+                  <span className="w-8 text-right text-xs font-medium text-muted">{count}</span>
                 </button>
               )
             })}
@@ -307,7 +307,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             >
               Write a Review
             </Button>
-            <span className="text-[10px] text-muted">
+            <span className="text-xs text-muted">
               Verified buyers receive store reward credit
             </span>
           </div>
@@ -349,7 +349,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 }
               >
                 <span>{stars} Stars</span>
-                <span className="text-[11px] opacity-75">({count})</span>
+                <span className="text-xs opacity-75">({count})</span>
               </Button>
             )
           })}
@@ -417,7 +417,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
                 {/* Helpful / Dislike Interactions */}
                 <div className="flex items-center gap-4 pt-1 text-xs font-medium text-muted">
-                  <span className="text-[11px] text-muted">Was this review helpful?</span>
+                  <span className="text-xs text-muted">Was this review helpful?</span>
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"

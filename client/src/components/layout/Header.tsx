@@ -125,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             {isAuthenticated && isUserMenuOpen && (
               <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-line bg-paper p-2 shadow-premium text-xs font-semibold z-50">
                 <div className="border-b border-line px-3 py-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted">
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted">
                     Signed in as
                   </p>
                   <p className="mt-0.5 truncate font-bold text-ink text-xs">
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           >
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
             {itemCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink px-1 text-[9px] font-bold text-white shadow-xs">
+              <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink px-1 text-[11px] font-bold text-white shadow-xs">
                 {itemCount}
               </span>
             )}

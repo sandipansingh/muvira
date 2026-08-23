@@ -76,25 +76,25 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
             <span className="font-display text-xl font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.days)}
             </span>
-            <span className="text-[10px] text-[var(--color-muted)]">Days</span>
+            <span className="text-xs text-[var(--color-muted)]">Days</span>
           </div>
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-2">
             <span className="font-display text-xl font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.hours)}
             </span>
-            <span className="text-[10px] text-[var(--color-muted)]">Hours</span>
+            <span className="text-xs text-[var(--color-muted)]">Hours</span>
           </div>
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-2">
             <span className="font-display text-xl font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.minutes)}
             </span>
-            <span className="text-[10px] text-[var(--color-muted)]">Mins</span>
+            <span className="text-xs text-[var(--color-muted)]">Mins</span>
           </div>
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-2">
             <span className="font-display text-xl font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.seconds)}
             </span>
-            <span className="text-[10px] text-[var(--color-muted)]">Secs</span>
+            <span className="text-xs text-[var(--color-muted)]">Secs</span>
           </div>
         </div>
       </div>

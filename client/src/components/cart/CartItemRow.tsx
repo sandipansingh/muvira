@@ -113,7 +113,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-[10px] text-muted">
+          <div className="flex h-full items-center justify-center text-xs text-muted">
             No image
           </div>
         )}
@@ -168,7 +168,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               {formatPrice(item.lineTotal)}
             </p>
             {item.quantity > 1 && (
-              <p className="text-[10px] text-[var(--color-muted)]">
+              <p className="text-xs text-[var(--color-muted)]">
                 {formatPrice(item.unitPrice)} ea
               </p>
             )}

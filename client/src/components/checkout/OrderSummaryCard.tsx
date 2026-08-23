@@ -47,7 +47,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                   className="h-12 w-12 shrink-0 rounded-xl border border-[var(--color-line)] object-cover"
                 />
               ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-[10px] text-muted">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-xs text-muted">
                   No image
                 </div>
               )}
@@ -109,7 +109,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         </span>
       </button>
 
-      <div className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-[var(--color-muted)]">
+      <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-[var(--color-muted)]">
         <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
         <span className="leading-none">Guaranteed 256-bit SSL encrypted payment</span>
       </div>
