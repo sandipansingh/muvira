@@ -48,9 +48,9 @@ export const BestSellers: React.FC = () => {
   )
 
   return (
-    <section id="featured-pieces" className="editorial-container overflow-hidden py-10 sm:py-14">
+    <section id="featured-pieces" className="editorial-container overflow-hidden py-8 sm:py-10">
       {/* Section Header */}
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:mb-8 sm:flex-row sm:items-end">
+      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 sm:flex-row sm:items-end">
         <div>
           <span className="eyebrow mb-1.5 block">Featured</span>
           <h2 className="text-h2 text-ink">Our Best Sellers</h2>

@@ -93,9 +93,9 @@ export const ShopPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-10 sm:py-16">
+    <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container">
-        <header className="page-header mb-8">
+        <header className="page-header mb-6">
           <nav
             className="flex items-center gap-2 text-xs font-medium text-[var(--color-muted)]"
             aria-label="Breadcrumb"
@@ -108,20 +108,20 @@ export const ShopPage: React.FC = () => {
           </nav>
           <span className="eyebrow">Muvira / Catalog</span>
           <div className="flex flex-col gap-2">
-            <h1 className="heading text-4xl sm:text-6xl">
+            <h1 className="heading page-title">
               {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
             </h1>
             <p className="body-copy max-w-2xl">
-              Considered solid wood furniture handcrafted for the home you are building, one room at a
-              time.
+              Considered solid wood furniture handcrafted for the home you are building, one room at
+              a time.
             </p>
           </div>
         </header>
 
-        <div className="mb-8 grid min-h-40 items-center overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] px-6 py-8 sm:px-10 lg:grid-cols-[1fr_18rem]">
+        <div className="mb-6 grid min-h-32 items-center overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] px-5 py-6 sm:px-7 lg:grid-cols-[1fr_16rem]">
           <div>
             <p className="eyebrow mb-2">Made for daily living</p>
-            <p className="max-w-xl font-display text-2xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-3xl">
+            <p className="max-w-xl font-display text-xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-2xl">
               Pieces that make a room feel considered.
             </p>
           </div>
@@ -129,7 +129,7 @@ export const ShopPage: React.FC = () => {
             <img
               src={categories[0].imageUrl}
               alt="Muvira furniture collection"
-              className="hidden h-40 w-full rounded-[var(--radius-card)] object-cover lg:block"
+              className="hidden h-32 w-full rounded-[var(--radius-card)] object-cover lg:block"
             />
           ) : null}
         </div>
@@ -148,7 +148,7 @@ export const ShopPage: React.FC = () => {
         )}
 
         {error ? (
-          <div className="border-y border-line py-16 text-center">
+          <div className="border-y border-line py-10 text-center">
             <h2 className="font-display text-2xl font-bold text-ink">
               We could not load the catalog
             </h2>
@@ -156,7 +156,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setRefreshToken((value) => value + 1)}
-              className="button-primary mt-6"
+              className="button-primary mt-4"
             >
               Try Again
             </button>
@@ -166,7 +166,7 @@ export const ShopPage: React.FC = () => {
             <ProductGrid products={products} loading={loading} />
             {!loading && totalPages > 1 && (
               <nav
-                className="mt-12 flex items-center justify-center gap-6 border-t border-[var(--color-line)] pt-8"
+                className="mt-8 flex items-center justify-center gap-6 border-t border-[var(--color-line)] pt-6"
                 aria-label="Product pages"
               >
                 <button

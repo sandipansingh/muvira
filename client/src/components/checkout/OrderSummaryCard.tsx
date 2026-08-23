@@ -28,15 +28,15 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   const totalItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   return (
-    <aside className="panel space-y-6 p-6 sm:p-8 lg:sticky lg:top-28">
-      <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
-        <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">Order Summary</h2>
+    <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24">
+      <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
+        <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">Order Summary</h2>
         <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-ink)]">
           {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
         </span>
       </div>
 
-      <div className="max-h-64 space-y-3.5 overflow-y-auto dropdown-scrollbar pr-1">
+      <div className="max-h-56 space-y-3 overflow-y-auto dropdown-scrollbar pr-1">
         {items.map((item) => (
           <div key={item.id} className="flex items-center justify-between gap-3 text-xs">
             <div className="flex min-w-0 items-center gap-3">
@@ -44,10 +44,10 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                 <img
                   src={item.productImage}
                   alt={item.productName}
-                  className="h-12 w-12 shrink-0 rounded-xl border border-[var(--color-line)] object-cover"
+                  className="h-10 w-10 shrink-0 rounded-lg border border-[var(--color-line)] object-cover"
                 />
               ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-xs text-muted">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-xs text-muted">
                   No image
                 </div>
               )}
@@ -63,14 +63,14 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         ))}
       </div>
 
-      <div className="border-t border-[var(--color-line)] pt-4">
-        <label className="mb-2 block text-xs font-semibold text-[var(--color-ink)]">
+      <div className="border-t border-[var(--color-line)] pt-3">
+        <label className="mb-1.5 block text-xs font-semibold text-[var(--color-ink)]">
           Have a coupon?
         </label>
         <CouponInput />
       </div>
 
-      <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-xs font-medium text-[var(--color-muted)]">
+      <div className="space-y-2 border-t border-[var(--color-line)] pt-3 text-xs font-medium text-[var(--color-muted)]">
         <div className="flex justify-between">
           <span>Subtotal</span>
           <span className="font-bold text-[var(--color-ink)]">{formatPrice(subtotalPaisa)}</span>
@@ -91,9 +91,9 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
             )}
           </span>
         </div>
-        <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-bold text-[var(--color-ink)]">
+        <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-sm font-bold text-[var(--color-ink)]">
           <span>Total Amount</span>
-          <span className="font-display text-lg">{formatPrice(totalPaisa)}</span>
+          <span className="font-display text-base">{formatPrice(totalPaisa)}</span>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         type="button"
         onClick={onPlaceOrder}
         disabled={isProcessing || items.length === 0}
-        className="button-primary w-full py-3.5 text-sm font-bold shadow-xs hover:shadow-sm"
+        className="button-primary w-full py-3 text-sm font-bold shadow-xs hover:shadow-sm"
       >
         <Lock className="h-4 w-4 shrink-0" />
         <span className="leading-none">

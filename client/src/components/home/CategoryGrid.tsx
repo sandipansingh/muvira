@@ -74,9 +74,9 @@ export const CategoryGrid: React.FC = () => {
   const [mainCategory, secondCategory, thirdCategory] = activeCategories
 
   return (
-    <section id="shop-collection" className="editorial-container py-10 sm:py-14">
+    <section id="shop-collection" className="editorial-container py-8 sm:py-10">
       {/* Section Header */}
-      <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
+      <div className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
         <div>
           <span className="eyebrow mb-1.5 block">Featured</span>
           <h2 className="text-h2 text-ink">Shop Collection</h2>
@@ -93,10 +93,10 @@ export const CategoryGrid: React.FC = () => {
 
       {loading ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2" aria-busy="true">
-          <div className="min-h-[380px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[460px]" />
+          <div className="min-h-[340px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[420px]" />
           <div className="flex flex-col gap-6">
-            <div className="min-h-[180px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[218px]" />
-            <div className="min-h-[180px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[218px]" />
+            <div className="min-h-[160px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[200px]" />
+            <div className="min-h-[160px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[200px]" />
           </div>
         </div>
       ) : (
@@ -104,7 +104,7 @@ export const CategoryGrid: React.FC = () => {
           {/* Left Large Card */}
           <Link
             to={`/shop?category=${mainCategory.slug}`}
-            className="group relative flex min-h-[380px] flex-col justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[460px] sm:p-10 lg:min-h-[500px]"
+            className="group relative flex min-h-[340px] flex-col justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-5 transition-all sm:min-h-[420px] sm:p-6 lg:min-h-[440px]"
           >
             {/* Center Image */}
             <div className="flex flex-1 items-center justify-center p-4">
@@ -131,7 +131,7 @@ export const CategoryGrid: React.FC = () => {
             {/* Top Right Card */}
             <Link
               to={`/shop?category=${secondCategory.slug}`}
-              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
+              className="group relative flex min-h-[160px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-5 transition-all sm:min-h-[200px] sm:p-6"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
                 <h3 className="text-h4 text-ink">{secondCategory.name}</h3>
@@ -154,7 +154,7 @@ export const CategoryGrid: React.FC = () => {
             {/* Bottom Right Card */}
             <Link
               to={`/shop?category=${thirdCategory.slug}`}
-              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
+              className="group relative flex min-h-[160px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-5 transition-all sm:min-h-[200px] sm:p-6"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
                 <h3 className="text-h4 text-ink">{thirdCategory.name}</h3>

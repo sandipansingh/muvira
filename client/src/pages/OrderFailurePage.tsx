@@ -7,16 +7,16 @@ export const OrderFailurePage: React.FC = () => {
   const reason = searchParams.get('reason')
   const orderId = searchParams.get('orderId')
   return (
-    <main className="editorial-page px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-xl rounded-[var(--radius-card)] border border-danger bg-danger-soft p-8 text-center sm:p-12">
+    <main className="editorial-page px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+      <div className="mx-auto max-w-xl rounded-[var(--radius-card)] border border-danger bg-danger-soft p-6 text-center sm:p-8">
         <AlertCircle className="mx-auto h-12 w-12 text-danger" />
         <span className="eyebrow mt-6 block text-danger">Payment Not Completed</span>
-        <h1 className="heading mt-2 text-4xl sm:text-6xl">Order could not be confirmed</h1>
+        <h1 className="heading page-title mt-2">Order could not be confirmed</h1>
         <p className="mt-4 text-sm leading-relaxed text-ink-soft">
           {reason || 'The payment could not be completed. You can safely retry from checkout.'}
         </p>
         {orderId && <p className="mt-3 text-xs text-muted">Pending order reference: #{orderId}</p>}
-        <div className="flex flex-col justify-center gap-3 pt-8 sm:flex-row">
+        <div className="flex flex-col justify-center gap-3 pt-6 sm:flex-row">
           <Link to="/checkout" className="button-primary py-3 text-sm">
             <RefreshCw className="h-4 w-4 shrink-0" />
             <span className="leading-none">Retry Payment</span>

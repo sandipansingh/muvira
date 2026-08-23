@@ -45,9 +45,9 @@ export default {
         'warning-soft': 'var(--color-warning-soft)',
       },
       fontSize: {
-        h1: ['clamp(2.25rem, 5vw, 3.75rem)', { lineHeight: '1.15', letterSpacing: '-0.02em' }],
-        h2: ['clamp(1.75rem, 3.5vw, 2.5rem)', { lineHeight: '1.15', letterSpacing: '-0.015em' }],
-        'product-title': ['clamp(1.5rem, 3vw, 2.25rem)', { lineHeight: '1.25' }],
+        h1: ['clamp(2rem, 3vw, 3rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        h2: ['clamp(1.5rem, 2.5vw, 2.25rem)', { lineHeight: '1.15', letterSpacing: '-0.015em' }],
+        'product-title': ['clamp(1.75rem, 2.6vw, 2.5rem)', { lineHeight: '1.25' }],
         h3: ['1.5rem', { lineHeight: '1.2' }],
         h4: ['1.25rem', { lineHeight: '1.25' }],
       },
@@ -91,8 +91,8 @@ export default {
         'space-24': '6rem',
       },
       maxWidth: {
-        layout: '1800px',
-        editorial: '1800px',
+        layout: '1600px',
+        editorial: '1600px',
       },
       borderRadius: {
         none: '0',

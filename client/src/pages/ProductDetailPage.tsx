@@ -80,9 +80,9 @@ export const ProductDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <main className="editorial-page py-12">
+      <main className="editorial-page py-8">
         <div className="editorial-container">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
             <div className="aspect-square animate-pulse rounded-2xl bg-[var(--color-surface)]" />
             <div className="space-y-4">
               <div className="h-6 w-1/4 animate-pulse rounded bg-[var(--color-line)]" />
@@ -98,9 +98,9 @@ export const ProductDetailPage: React.FC = () => {
 
   if (error || !product) {
     return (
-      <main className="editorial-page py-16 sm:py-24">
+      <main className="editorial-page py-12 sm:py-16">
         <div className="editorial-container max-w-xl text-center">
-          <h1 className="heading text-3xl">Product not found</h1>
+          <h1 className="heading page-title">Product not found</h1>
           <p className="body-copy mt-2 text-sm">
             {error ?? 'This product is no longer available.'}
           </p>
@@ -114,10 +114,10 @@ export const ProductDetailPage: React.FC = () => {
 
   return (
     <main className="editorial-page">
-      <div className="editorial-container py-6 sm:py-10">
+      <div className="editorial-container py-4 sm:py-6">
         {/* Breadcrumbs */}
         <nav
-          className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[var(--color-muted)]"
+          className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[var(--color-muted)]"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="transition-colors hover:text-primary">
@@ -139,7 +139,7 @@ export const ProductDetailPage: React.FC = () => {
         </nav>
 
         {/* Gallery + Product Info Grid */}
-        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-14">
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2 lg:gap-10">
           <ImageGallery
             images={product.images}
             title={product.name}
@@ -164,12 +164,12 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-16 border-t border-[var(--color-line)] pt-12">
+          <section className="mt-12 border-t border-[var(--color-line)] pt-8">
             <SectionHeader
               title="You May Also Like"
               subtitle="Handcrafted pieces from the same master artisan workshops"
             />
-            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {relatedProducts.slice(0, 5).map((related) => (
                 <ProductCard key={related.id} product={related} />
               ))}

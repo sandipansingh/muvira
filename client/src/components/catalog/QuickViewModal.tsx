@@ -73,10 +73,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
-      <div className="grid gap-6 md:grid-cols-2 md:items-stretch">
+      <div className="grid gap-5 md:grid-cols-2 md:items-stretch">
         {/* Left Column: Product Gallery & Badges */}
         <div className="flex flex-col justify-between space-y-3 md:h-full">
-          <div className="relative min-h-[300px] flex-1 overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[360px] md:min-h-[440px]">
+          <div className="relative min-h-[280px] flex-1 overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[340px] md:min-h-[400px]">
             {selectedImage ? (
               <img
                 src={selectedImage}
@@ -136,7 +136,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
         </div>
 
         {/* Right Column: Details, Highlights & Purchase Controls */}
-        <div className="flex flex-col justify-between space-y-4 md:h-full">
+        <div className="flex flex-col justify-between space-y-3 md:h-full">
           <div>
             {/* Category & Stock Status */}
             <div className="flex items-center justify-between gap-4 pr-10">
@@ -165,8 +165,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             </div>
 
             {/* Pricing Row */}
-            <div className="mt-3.5 flex flex-wrap items-baseline gap-3">
-              <span className="font-display text-2xl font-bold text-[var(--color-ink)] sm:text-3xl">
+            <div className="mt-3 flex flex-wrap items-baseline gap-2.5">
+              <span className="font-display text-2xl font-bold text-[var(--color-ink)]">
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.salePrice && (
@@ -187,7 +187,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             </p>
 
             {/* Metadata Chips */}
-            <div className="mt-3 flex items-center gap-4 text-[11px] text-muted">
+            <div className="mt-2.5 flex items-center gap-3 text-[11px] text-muted">
               <div>
                 <span className="font-semibold uppercase">SKU:</span>{' '}
                 <span className="font-medium text-ink">
@@ -202,7 +202,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
           </div>
 
           {/* Action Section */}
-          <div className="space-y-3 border-t border-[var(--color-line)] pt-3.5">
+          <div className="space-y-3 border-t border-[var(--color-line)] pt-3">
             <div className="flex items-center gap-3">
               <span className="eyebrow">Quantity</span>
               <div className="flex items-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5">
@@ -228,12 +228,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               </div>
             </div>
 
-            <div className="grid gap-2.5 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={added}
-                className="button-primary min-h-11 px-4 text-xs gap-1.5"
+                className="button-primary min-h-10 gap-1.5 px-4 text-xs"
               >
                 {added ? (
                   <>
@@ -250,7 +250,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="button-secondary min-h-11 text-xs px-4 font-bold text-center justify-center gap-1.5"
+                className="button-secondary min-h-10 justify-center gap-1.5 px-4 text-center text-xs font-bold"
               >
                 <span className="leading-none">View Full Details</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />

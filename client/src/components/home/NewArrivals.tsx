@@ -55,9 +55,9 @@ export const NewArrivals: React.FC = () => {
   const displayedProducts = products.slice(0, 5)
 
   return (
-    <section id="new-arrivals" className="editorial-container overflow-hidden py-10 sm:py-14">
+    <section id="new-arrivals" className="editorial-container overflow-hidden py-8 sm:py-10">
       {/* Section Header */}
-      <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
+      <div className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
         <div>
           <span className="eyebrow mb-1.5 block">Just In</span>
           <h2 className="text-h2 text-ink">New Arrivals</h2>

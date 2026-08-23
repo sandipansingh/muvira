@@ -15,10 +15,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
 
   if (variant === 'full') {
     return (
-      <article className="group relative flex flex-col gap-4 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5 transition-shadow hover:shadow-xs">
+      <article className="group relative flex flex-col gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper)] p-3 transition-shadow hover:shadow-xs sm:flex-row sm:items-center sm:gap-4 sm:p-4">
         <Link
           to={`/product/${item.productSlug}`}
-          className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-28 sm:w-28"
+          className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-24 sm:w-24"
           aria-label={`View ${item.productName}`}
         >
           {item.productImage ? (
@@ -34,12 +34,12 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           )}
         </Link>
 
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <Link
                 to={`/product/${item.productSlug}`}
-                className="font-display text-base sm:text-lg font-bold text-[var(--color-ink)] transition-colors hover:text-ink-soft line-clamp-2"
+                className="line-clamp-2 font-display text-sm font-bold text-[var(--color-ink)] transition-colors hover:text-ink-soft sm:text-base"
               >
                 {item.productName}
               </Link>
@@ -48,7 +48,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               type="button"
               onClick={() => removeFromCart(item.productId)}
               disabled={loading}
-              className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
               aria-label={`Remove ${item.productName} from cart`}
               title="Remove item"
             >
@@ -57,14 +57,14 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <div className="flex items-center gap-2.5">
               <div className="inline-flex items-center rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5">
                 <button
                   type="button"
                   onClick={() => updateQuantity(item.productId, -1)}
                   disabled={loading}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="h-3.5 w-3.5" />
@@ -76,7 +76,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
                   type="button"
                   onClick={() => updateQuantity(item.productId, 1)}
                   disabled={loading}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
                   aria-label="Increase quantity"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -89,7 +89,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
 
             <div className="text-right">
               <span className="block text-xs font-medium text-[var(--color-muted)]">Subtotal</span>
-              <span className="font-display text-base font-bold text-[var(--color-ink)] sm:text-lg">
+              <span className="font-display text-base font-bold text-[var(--color-ink)]">
                 {formatPrice(item.lineTotal)}
               </span>
             </div>

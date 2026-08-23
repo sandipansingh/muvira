@@ -104,31 +104,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
             </div>
           </div>
-          <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
-            <div className="space-y-2.5">
+          <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
+            <div className="space-y-2">
               <RatingStars rating={product.rating ?? 5} size="xs" />
               <Link to={`/product/${product.slug}`} className="block">
-                <h3 className="product-card__name text-base sm:text-lg group-hover:underline underline-offset-2">
+                <h3 className="product-card__name group-hover:underline underline-offset-2">
                   {product.name}
                 </h3>
               </Link>
               <div className="flex items-baseline gap-2">
-                <span className="product-card__price text-base sm:text-lg">
-                  {formatPrice(product.price)}
-                </span>
+                <span className="product-card__price">{formatPrice(product.price)}</span>
                 {hasDiscount && product.salePrice && (
                   <span className="product-card__meta line-through">
                     {formatPrice(product.salePrice)}
                   </span>
                 )}
               </div>
-              {description && <p className="body-copy line-clamp-3 text-sm">{description}</p>}
+              {description && <p className="body-copy line-clamp-3 text-xs">{description}</p>}
             </div>
-            <div className="mt-6 flex gap-2">
+            <div className="mt-4 flex gap-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="button-primary flex-1 text-xs gap-1.5"
+                className="button-primary min-h-9 flex-1 gap-1.5 text-xs"
               >
                 {isAdded ? (
                   <Check className="h-4 w-4 shrink-0" />
@@ -140,7 +138,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <button
                 type="button"
                 onClick={handleWishlistToggle}
-                className="button-secondary h-11 min-h-11 w-11 p-0"
+                className="button-secondary h-9 min-h-9 w-9 p-0"
                 aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
               >
                 <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
@@ -241,7 +239,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </button>
           </div>
         </div>
-        <div className="flex flex-col gap-1.5 pt-3">
+        <div className="flex flex-col gap-1.5 pt-2.5">
           <RatingStars rating={product.rating ?? 5} size="xs" />
           <Link to={`/product/${product.slug}`} className="block">
             <h3 className="product-card__name line-clamp-2 group-hover:underline underline-offset-2">

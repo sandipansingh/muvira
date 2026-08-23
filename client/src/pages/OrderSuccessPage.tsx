@@ -8,19 +8,19 @@ export const OrderSuccessPage: React.FC = () => {
   const orderNumber = searchParams.get('orderNumber')
   if (!orderId)
     return (
-      <main className="editorial-page px-4 py-20 text-center">
-        <h1 className="heading text-2xl">Order confirmation unavailable</h1>
+      <main className="editorial-page px-4 py-12 text-center">
+        <h1 className="heading page-title">Order confirmation unavailable</h1>
         <Link to="/orders" className="button-primary mt-6">
           View orders
         </Link>
       </main>
     )
   return (
-    <main className="editorial-page px-4 py-16 sm:px-6 lg:px-8">
-      <div className="panel mx-auto max-w-2xl p-8 text-center sm:p-12">
+    <main className="editorial-page px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+      <div className="panel mx-auto max-w-2xl p-6 text-center sm:p-8">
         <CheckCircle className="mx-auto h-12 w-12 text-accent" />
         <span className="eyebrow mt-6 block text-accent">Payment Verified</span>
-        <h1 className="heading mt-2 text-4xl sm:text-6xl">Thank you for your order</h1>
+        <h1 className="heading page-title mt-2">Thank you for your order</h1>
         <p className="mt-3 text-sm font-semibold text-ink-soft">
           Order reference: #{orderNumber ?? orderId}
         </p>
@@ -28,7 +28,7 @@ export const OrderSuccessPage: React.FC = () => {
           Your payment has been verified. Follow the order status and shipment updates from your
           order details.
         </p>
-        <div className="flex flex-col justify-center gap-3 pt-8 sm:flex-row">
+        <div className="flex flex-col justify-center gap-3 pt-6 sm:flex-row">
           <Link
             to={`/orders/${encodeURIComponent(orderId)}`}
             className="button-primary py-3 text-sm"

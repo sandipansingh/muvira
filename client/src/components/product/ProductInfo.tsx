@@ -45,53 +45,51 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
   const formatTwoDigits = (num: number) => String(num).padStart(2, '0')
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Product Title */}
-      <h1 className="text-product-title text-[var(--color-ink)]">
-        {product.name}
-      </h1>
+      <h1 className="product-detail-title text-[var(--color-ink)]">{product.name}</h1>
 
       {/* Product Short Description */}
-      <p className="text-sm leading-relaxed text-[var(--color-muted)] sm:text-base">
+      <p className="text-sm leading-6 text-[var(--color-muted)]">
         {product.shortDescription ||
           product.description ||
           'Buy one or buy a few and make every space where you sit more convenient. Light and easy to move around with removable tray top, handy for serving snacks.'}
       </p>
 
       {/* Price Section */}
-      <div className="flex items-baseline gap-3">
-        <span className="font-display text-2xl font-bold text-[var(--color-ink)] sm:text-3xl">
+      <div className="flex items-baseline gap-2.5">
+        <span className="font-display text-2xl font-bold text-[var(--color-ink)]">
           {formatPrice(product.price)}
         </span>
-        <span className="text-base text-[var(--color-muted)] line-through">
+        <span className="text-sm text-[var(--color-muted)] line-through">
           {formatPrice(originalPrice)}
         </span>
       </div>
 
       {/* Countdown Timer */}
-      <div className="border-t border-[var(--color-line)] pt-4">
-        <p className="mb-3 text-xs font-medium text-[var(--color-muted)]">Offer expires in:</p>
-        <div className="grid grid-cols-4 gap-3 max-w-xs">
-          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-2">
-            <span className="font-display text-xl font-bold text-[var(--color-ink)]">
+      <div className="border-t border-[var(--color-line)] pt-3">
+        <p className="mb-2 text-xs font-medium text-[var(--color-muted)]">Offer expires in:</p>
+        <div className="grid max-w-sm grid-cols-4 gap-2">
+          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
+            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.days)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Days</span>
           </div>
-          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-2">
-            <span className="font-display text-xl font-bold text-[var(--color-ink)]">
+          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
+            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.hours)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Hours</span>
           </div>
-          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-2">
-            <span className="font-display text-xl font-bold text-[var(--color-ink)]">
+          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
+            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.minutes)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Mins</span>
           </div>
-          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-2">
-            <span className="font-display text-xl font-bold text-[var(--color-ink)]">
+          <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
+            <span className="font-display text-lg font-bold text-[var(--color-ink)]">
               {formatTwoDigits(timeLeft.seconds)}
             </span>
             <span className="text-xs text-[var(--color-muted)]">Secs</span>
@@ -100,25 +98,25 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
       </div>
 
       {/* Quantity & Wishlist Controls */}
-      <div className="space-y-4 border-t border-[var(--color-line)] pt-4">
-        <div className="flex items-center gap-3">
+      <div className="space-y-3 border-t border-[var(--color-line)] pt-3">
+        <div className="flex items-center gap-2.5">
           {/* Quantity Counter */}
-          <div className="flex h-12 items-center rounded-lg bg-[var(--color-surface)] px-3">
+          <div className="flex h-10 items-center rounded-lg bg-[var(--color-surface)] px-2">
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="flex h-8 w-8 cursor-pointer items-center justify-center text-lg font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
+              className="flex h-7 w-7 cursor-pointer items-center justify-center text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
               aria-label="Decrease quantity"
             >
               −
             </button>
-            <span className="w-8 text-center text-sm font-bold text-[var(--color-ink)]">
+            <span className="w-7 text-center text-sm font-bold text-[var(--color-ink)]">
               {quantity}
             </span>
             <button
               type="button"
               onClick={() => setQuantity(quantity + 1)}
-              className="flex h-8 w-8 cursor-pointer items-center justify-center text-lg font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
+              className="flex h-7 w-7 cursor-pointer items-center justify-center text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-muted)]"
               aria-label="Increase quantity"
             >
               +
@@ -151,7 +149,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
           variant="primary"
           size="lg"
           onClick={() => addToCart(product, quantity)}
-          leftIcon={<ShoppingBag className="h-5 w-5 shrink-0" />}
+          leftIcon={<ShoppingBag className="h-4 w-4 shrink-0" />}
           className="w-full"
         >
           Add to Cart
@@ -159,7 +157,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
       </div>
 
       {/* Product Metadata */}
-      <div className="space-y-1.5 border-t border-[var(--color-line)] pt-4 text-xs text-[var(--color-muted)]">
+      <div className="space-y-1.5 border-t border-[var(--color-line)] pt-3 text-xs text-[var(--color-muted)]">
         <div className="flex gap-4">
           <span className="w-20 font-semibold uppercase text-[var(--color-muted)]">SKU</span>
           <span className="text-[var(--color-ink)] font-medium">{product.sku || '1117'}</span>

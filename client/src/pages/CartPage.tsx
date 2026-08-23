@@ -23,17 +23,17 @@ export const CartPage: React.FC = () => {
 
   if (items.length === 0) {
     return (
-      <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
+      <main className="editorial-page px-4 py-12 sm:px-6 lg:px-8">
         <div className="editorial-container mx-auto max-w-lg text-center">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--color-surface)] text-muted">
             <ShoppingBag className="h-10 w-10 stroke-[1.5]" />
           </div>
-          <h1 className="heading mt-6 text-3xl sm:text-4xl">Your cart is empty</h1>
+          <h1 className="heading page-title mt-5">Your cart is empty</h1>
           <p className="body-copy mx-auto mt-3 max-w-sm text-sm text-[var(--color-muted)]">
             Looks like you have not added any handcrafted pieces yet. Discover our artisanal wooden
             decor and statues.
           </p>
-          <Link to="/shop" className="button-primary mt-8 gap-2.5 px-6 py-3 text-sm font-semibold">
+          <Link to="/shop" className="button-primary mt-6 gap-2 px-5 py-3 text-sm font-semibold">
             <span className="leading-none">Explore Handcrafted Collections</span>
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
@@ -43,12 +43,12 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-8 sm:py-12">
+    <main className="editorial-page py-6 sm:py-8">
       <div className="editorial-container">
         {/* Breadcrumb Navigation */}
         <nav
           aria-label="Breadcrumb"
-          className="mb-6 flex items-center gap-2 text-xs font-medium text-[var(--color-muted)]"
+          className="mb-4 flex items-center gap-2 text-xs font-medium text-[var(--color-muted)]"
         >
           <Link to="/" className="hover:text-[var(--color-ink)] transition-colors">
             Home
@@ -58,9 +58,9 @@ export const CartPage: React.FC = () => {
         </nav>
 
         {/* Page Header */}
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between border-b border-[var(--color-line)] pb-3.5">
+        <div className="mb-4 flex flex-col gap-2 border-b border-[var(--color-line)] pb-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="heading text-3xl sm:text-5xl">Shopping Cart</h1>
+            <h1 className="heading page-title">Shopping Cart</h1>
             <p className="mt-2 text-xs sm:text-sm text-[var(--color-muted)]">
               You have <strong className="text-[var(--color-ink)]">{itemCount}</strong>{' '}
               {itemCount === 1 ? 'item' : 'items'} in your cart
@@ -78,23 +78,23 @@ export const CartPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="mb-6 rounded-xl border border-warning/30 bg-warning-soft p-4 text-xs font-medium text-warning">
+          <div className="mb-4 rounded-xl border border-warning/30 bg-warning-soft p-3 text-xs font-medium text-warning">
             {error}
           </div>
         )}
 
-        <div className="grid items-start gap-10 lg:grid-cols-[1.6fr_1fr] xl:gap-14">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,0.85fr)] lg:gap-8 xl:gap-10">
           {/* Items Section */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Cart Items List */}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {items.map((item) => (
                 <CartItemRow key={item.id} item={item} variant="full" />
               ))}
             </div>
 
             {/* Navigation / Continue Shopping */}
-            <div className="pt-2">
+            <div className="pt-1">
               <Link
                 to="/shop"
                 className="inline-flex items-center gap-2 text-xs font-semibold leading-none text-ink hover:text-primary hover:underline sm:text-sm"
@@ -106,19 +106,19 @@ export const CartPage: React.FC = () => {
           </div>
 
           {/* Sticky Order Summary Sidebar */}
-          <aside className="panel space-y-6 p-6 sm:p-8 lg:sticky lg:top-28">
-            <h2 className="border-b border-[var(--color-line)] pb-4 font-display text-xl font-bold text-[var(--color-ink)]">
+          <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24">
+            <h2 className="border-b border-[var(--color-line)] pb-3 font-display text-lg font-bold text-[var(--color-ink)]">
               Order Summary
             </h2>
 
             <div>
-              <label className="mb-2 block text-xs font-semibold text-[var(--color-ink)]">
+              <label className="mb-1.5 block text-xs font-semibold text-[var(--color-ink)]">
                 Have a coupon?
               </label>
               <CouponInput />
             </div>
 
-            <div className="space-y-3 border-t border-[var(--color-line)] pt-5 text-sm text-[var(--color-muted)]">
+            <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-sm text-[var(--color-muted)]">
               <div className="flex justify-between">
                 <span>
                   Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})
@@ -143,9 +143,9 @@ export const CartPage: React.FC = () => {
                   )}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-[var(--color-line)] pt-4 text-lg font-bold text-[var(--color-ink)]">
+              <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-bold text-[var(--color-ink)]">
                 <span>Total Amount</span>
-                <span className="font-display text-xl">{formatPrice(totalPaisa)}</span>
+                <span className="font-display text-lg">{formatPrice(totalPaisa)}</span>
               </div>
             </div>
 
@@ -153,7 +153,7 @@ export const CartPage: React.FC = () => {
               type="button"
               onClick={() => navigate('/checkout')}
               disabled={loading || hasUnmergedItems}
-              className="button-primary w-full py-3.5 text-sm font-bold shadow-xs hover:shadow-sm"
+              className="button-primary w-full py-3 text-sm font-bold shadow-xs hover:shadow-sm"
             >
               <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
             </button>

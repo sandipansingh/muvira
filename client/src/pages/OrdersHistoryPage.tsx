@@ -48,11 +48,11 @@ export const OrdersHistoryPage: React.FC = () => {
   if (authLoading || !user) return <main className="editorial-page" />
 
   return (
-    <main className="editorial-page py-10 sm:py-16">
+    <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container max-w-4xl">
-        <div className="mb-10 border-b border-border-light pb-6">
+        <div className="mb-6 border-b border-border-light pb-4">
           <span className="eyebrow mb-2 block">Account / Purchases</span>
-          <h1 className="heading text-4xl sm:text-6xl">Order History</h1>
+          <h1 className="heading page-title">Order History</h1>
           <p className="body-copy mt-2 text-sm">Track your past purchases and deliveries.</p>
         </div>
         {loading && (
@@ -66,7 +66,7 @@ export const OrdersHistoryPage: React.FC = () => {
           </div>
         )}
         {!loading && error && (
-          <div className="border-y border-warning bg-warning-soft py-8 text-center">
+          <div className="border-y border-warning bg-warning-soft py-6 text-center">
             <p className="text-sm font-semibold text-warning">{error}</p>
             <button
               type="button"
@@ -78,7 +78,7 @@ export const OrdersHistoryPage: React.FC = () => {
           </div>
         )}
         {!loading && !error && orders.length === 0 && (
-          <div className="border-y border-[var(--color-line)] py-12 text-center">
+          <div className="border-y border-[var(--color-line)] py-8 text-center">
             <Package className="mx-auto h-10 w-10 text-disabled" />
             <p className="mt-3 text-sm text-muted">You have not placed any orders yet.</p>
             <Link to="/shop" className="button-primary mt-5">
@@ -92,17 +92,17 @@ export const OrdersHistoryPage: React.FC = () => {
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-4"
+                className="flex flex-col gap-4 py-4 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
               >
                 <div className="flex items-center gap-4">
                   {order.firstItemImage ? (
                     <img
                       src={order.firstItemImage}
                       alt={order.firstItemName ?? 'Ordered product'}
-                      className="h-16 w-16 rounded-xl shrink-0 object-cover border border-line"
+                      className="h-14 w-14 shrink-0 rounded-lg border border-line object-cover"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-surface">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-surface">
                       <Package className="h-6 w-6 text-disabled" />
                     </div>
                   )}

@@ -242,14 +242,12 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   }
 
   return (
-    <div className="space-y-10 py-8">
-      {/* ── 1. Luxury Editorial Rating Dashboard ── */}
-      <div className="rounded-2xl border border-line bg-surface p-6 lg:p-8">
-        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
-          {/* Column A: Overall Score & Recommendation */}
+    <div className="space-y-8 py-6">
+      <div className="rounded-2xl border border-line bg-surface p-5 lg:p-6">
+        <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-12 md:gap-8">
           <div className="space-y-3 md:col-span-4">
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-5xl font-bold tracking-tight text-ink">
+              <span className="font-display text-4xl font-bold tracking-tight text-ink">
                 {effectiveRating.toFixed(1)}
               </span>
               <span className="text-sm font-semibold text-muted">/ 5.0</span>
@@ -262,8 +260,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             <p className="text-xs text-muted">Based on {totalReviewDisplay} verified reviews</p>
           </div>
 
-          {/* Column B: Rating Distribution Breakdown Histogram */}
-          <div className="space-y-2 border-y border-line py-6 md:col-span-5 md:border-x md:border-y-0 md:px-8 md:py-0">
+          <div className="space-y-2 border-y border-line py-5 md:col-span-5 md:border-x md:border-y-0 md:px-6 md:py-0">
             {([5, 4, 3, 2, 1] as const).map((stars) => {
               const count = distribution.counts[stars] || 0
               const percent = distribution.percentages[stars] || 0
@@ -293,7 +290,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             })}
           </div>
 
-          {/* Column C: Write a Review Call to Action */}
           <div className="flex flex-col items-start justify-center space-y-3 text-left md:col-span-3 md:items-center md:text-center">
             <p className="text-xs font-semibold text-ink-soft">
               Share your experience with this craft piece
@@ -312,9 +308,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
       </div>
 
-      {/* ── 2. Interactive Filter Chips & Sort Ribbon ── */}
       <div className="flex flex-col justify-between gap-4 border-b border-line pb-4 sm:flex-row sm:items-center">
-        {/* Filter Chips */}
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -345,7 +339,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           })}
         </div>
 
-        {/* Sort Select */}
         <div className="flex items-center gap-2 self-end sm:self-auto">
           <label htmlFor="review-sort-luxury" className="text-xs font-semibold text-muted">
             Sort:
@@ -367,9 +360,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
       </div>
 
-      {/* ── 3. Editorial Review Cards List ── */}
       {filteredAndSortedReviews.length === 0 ? (
-        <div className="py-12 text-center">
+        <div className="py-8 text-center">
           <p className="text-sm font-semibold text-ink-soft">
             No reviews found matching this filter.
           </p>
@@ -386,8 +378,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           {filteredAndSortedReviews.slice(0, visibleCount).map((review) => {
             const itemFeedback = feedback[review.id] || { likes: 0, dislikes: 0 }
             return (
-              <article key={review.id} className="space-y-3 py-7 sm:py-8">
-                {/* Header: Name + Date on top row, Stars on second row */}
+              <article key={review.id} className="space-y-3 py-6">
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-4">
                     <h5 className="font-display text-sm font-bold text-ink sm:text-base">
@@ -400,12 +391,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   </div>
                 </div>
 
-                {/* Body Content */}
                 <p className="text-sm font-normal leading-relaxed text-ink-soft sm:text-base">
                   {review.comment}
                 </p>
 
-                {/* Helpful / Dislike Interactions */}
                 <div className="flex items-center gap-4 pt-1 text-xs font-medium text-muted">
                   <span className="text-xs text-muted">Was this review helpful?</span>
                   <div className="flex items-center gap-2">
@@ -440,7 +429,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
       )}
 
-      {/* ── 4. Load More Button ── */}
       {visibleCount < filteredAndSortedReviews.length && (
         <div className="flex justify-center pt-4">
           <Button
@@ -454,9 +442,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
       )}
 
-      {/* ── 5. Clean Review Submission Modal ── */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
-        <form onSubmit={handleReviewSubmit} className="space-y-6">
+        <form onSubmit={handleReviewSubmit} className="space-y-5">
           {!isAuthenticated && (
             <div className="rounded-lg border border-warning/30 bg-warning-soft p-3.5 text-xs font-medium leading-relaxed text-warning">
               Please sign in with the account used for your purchase to submit a verified review.
@@ -472,7 +459,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             </div>
           )}
 
-          {/* Rating Stars Selector */}
           <div>
             <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-ink-soft">
               Overall rating
@@ -504,7 +490,6 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             </div>
           </div>
 
-          {/* Review Commentary */}
           <div>
             <label
               htmlFor="review-comment"

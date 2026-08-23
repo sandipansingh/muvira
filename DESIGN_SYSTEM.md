@@ -95,3 +95,19 @@ Single canonical style: `bg-white border-field-border text-ink placeholder:text-
 | `eyebrow` | `font-sans` | 600 | `0.6875rem` (11px), uppercase, tracking `0.12em` | 1.2 |
 
 *Any heading/body combination not in this table must be replaced with the closest match, not preserved.*
+
+## Compact Storefront Density
+
+The storefront uses a compact-balanced rhythm across catalog, product, cart, checkout, profile, and order surfaces.
+
+| Token | Value | Use |
+|---|---:|---|
+| Content max width | `1600px` | Shared layout and editorial containers |
+| Page title | `clamp(2rem, 3vw, 3rem)` | Storefront page-level headings |
+| Product title | `clamp(1.75rem, 2.6vw, 2.5rem)` | Product detail and quick-view titles |
+| Standard control | `40px` | Default buttons and compact selects |
+| Large control | `44px` | Primary purchase and checkout actions |
+| Card padding | `20–24px` | Panels, summaries, and content cards |
+| Layout gaps | `16–24px` | Grid, card, and section content |
+
+Inputs retain a minimum `16px` font size for mobile accessibility, and interactive controls retain touch-usable dimensions.

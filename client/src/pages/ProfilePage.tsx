@@ -178,12 +178,12 @@ export const ProfilePage: React.FC = () => {
   if (authLoading || !user) return <main className="editorial-page" />
 
   return (
-    <main className="editorial-page py-10 sm:py-16">
-      <div className="editorial-container max-w-5xl space-y-10">
-        <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-6">
+    <main className="editorial-page py-8 sm:py-10">
+      <div className="editorial-container max-w-5xl space-y-8">
+        <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
           <div>
             <span className="eyebrow mb-1 block">Account Overview</span>
-            <h1 className="heading text-4xl sm:text-6xl">My Profile</h1>
+            <h1 className="heading page-title">My Profile</h1>
           </div>
           <button
             type="button"
@@ -195,7 +195,7 @@ export const ProfilePage: React.FC = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="space-y-2">
             <Link
               to="/profile"
@@ -220,9 +220,9 @@ export const ProfilePage: React.FC = () => {
             </a>
           </div>
 
-          <div className="space-y-8 md:col-span-2">
-            <div className="panel space-y-6 p-6 sm:p-8">
-              <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
+          <div className="space-y-6 md:col-span-2">
+            <div className="panel space-y-5 p-5 sm:p-6">
+              <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">
                 Personal Details
               </h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
@@ -286,7 +286,7 @@ export const ProfilePage: React.FC = () => {
               </form>
             </div>
 
-            <section id="addresses" className="panel space-y-4 p-6 sm:p-8">
+            <section id="addresses" className="panel space-y-4 p-5 sm:p-6">
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
                   Saved Addresses

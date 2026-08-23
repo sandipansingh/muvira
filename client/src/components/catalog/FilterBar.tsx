@@ -19,7 +19,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   totalCount,
 }) => {
   return (
-    <div className="mb-10 grid gap-8 border-y border-[var(--color-line)] py-6 lg:grid-cols-[12rem_1fr]">
+    <div className="mb-8 grid gap-6 border-y border-[var(--color-line)] py-4 lg:grid-cols-[10rem_1fr]">
       <div>
         <p className="eyebrow mb-3">Categories</p>
         <div className="no-scrollbar flex gap-2 overflow-x-auto lg:flex-col lg:gap-1">
@@ -43,10 +43,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           })}
         </div>
       </div>
-      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
           <p className="eyebrow mb-2">Collection</p>
-          <p className="font-display text-xl font-semibold text-[var(--color-ink)]">
+          <p className="font-display text-lg font-semibold text-[var(--color-ink)]">
             Thoughtful pieces for lived-in rooms
           </p>
         </div>
@@ -64,7 +64,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               name="sort"
               value={sortBy}
               onChange={(event) => onSortChange(event.target.value)}
-              className="h-11 min-h-11 w-auto py-2 text-base"
+              className="h-10 min-h-10 w-auto py-1.5 text-base"
               options={[
                 { value: 'popularity', label: 'Popularity' },
                 { value: 'price_asc', label: 'Price: Low to High' },

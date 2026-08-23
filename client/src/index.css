@@ -139,8 +139,8 @@ html {
   --shadow-overlay: 0 8px 24px rgb(20 23 24 / 8%);
 
   --spacing-tight-val: 1rem;
-  --spacing-standard-val: 1.75rem;
-  --spacing-loose-val: 2.5rem;
+  --spacing-standard-val: 1.5rem;
+  --spacing-loose-val: 2rem;
   --spacing-hero-val: 1.5rem;
   --spacing-footer-val: 3rem;
 
@@ -149,8 +149,8 @@ html {
 
   --gap-micro-val: 0.75rem;
   --gap-standard-val: 1.25rem;
-  --gap-section-val: 2.5rem;
-  --gap-major-val: 4.5rem;
+  --gap-section-val: 2rem;
+  --gap-major-val: 3.5rem;
 
   --radius-control: 0.5rem;
   --radius-image: 1.5rem;
@@ -170,15 +170,15 @@ html {
 @media (min-width: 768px) {
   :root {
     --spacing-tight-val: 1.5rem;
-    --spacing-standard-val: 2.5rem;
-    --spacing-loose-val: 3.5rem;
+    --spacing-standard-val: 2rem;
+    --spacing-loose-val: 3rem;
     --spacing-hero-val: 2rem;
     --spacing-footer-val: 4rem;
 
     --gap-micro-val: 1rem;
     --gap-standard-val: 2.75rem;
-    --gap-section-val: 4rem;
-    --gap-major-val: 6rem;
+    --gap-section-val: 3rem;
+    --gap-major-val: 4.5rem;
   }
 }
 
@@ -328,7 +328,7 @@ body {
 .layout-container,
 .editorial-container {
   width: 100%;
-  max-width: 1800px;
+  max-width: 1600px;
   margin-left: auto;
   margin-right: auto;
   padding-left: 1rem;
@@ -338,24 +338,24 @@ body {
 @media (min-width: 640px) {
   .layout-container,
   .editorial-container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 }
 
 @media (min-width: 1024px) {
   .layout-container,
   .editorial-container {
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
 @media (min-width: 1280px) {
   .layout-container,
   .editorial-container {
-    padding-left: 2.5rem;
-    padding-right: 2.5rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
 
@@ -387,19 +387,19 @@ body {
   }
 }
 
-/* ── Standardized 8-Token Type Scale ── */
+/* Standardized type scale */
 .text-h1 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(2.25rem, 5vw, 3.75rem);
-  line-height: 1.15;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
 .text-h2 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
   line-height: 1.15;
   letter-spacing: -0.015em;
 }
@@ -407,8 +407,25 @@ body {
 .text-product-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
   line-height: 1.25;
+}
+
+.product-detail-title,
+h1.product-detail-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  line-height: 1.25;
+}
+
+.page-title {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
 }
 
 .text-h3 {
@@ -478,12 +495,12 @@ body {
   border-radius: var(--radius-control);
   color: #ffffff;
   display: inline-flex;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   gap: 0.5rem;
   justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.75rem 1.25rem;
+  min-height: 2.5rem;
+  padding: 0.625rem 1rem;
   transition: background-color 160ms ease;
 }
 
@@ -504,12 +521,12 @@ body {
   border-radius: var(--radius-control);
   color: var(--color-ink);
   display: inline-flex;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   gap: 0.5rem;
   justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.75rem 1.25rem;
+  min-height: 2.5rem;
+  padding: 0.625rem 1rem;
   transition: background-color 160ms ease;
 }
 
@@ -523,9 +540,9 @@ body {
   border-radius: 0.375rem;
   color: var(--color-ink);
   font-size: 1rem;
-  min-height: 2.75rem;
+  min-height: 2.5rem;
   outline: none;
-  padding: 0.75rem 0.875rem;
+  padding: 0.625rem 0.75rem;
   width: 100%;
 }
 
@@ -677,22 +694,4 @@ body {
 
 .overlay-panel {
   box-shadow: var(--shadow-overlay);
-}
-
-@media (min-width: 640px) {
-  .editorial-container {
-    padding-inline: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .editorial-container {
-    padding-inline: 2.5rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .editorial-container {
-    padding-inline: 4rem;
-  }
 }

@@ -37,18 +37,18 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Main Image Container */}
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-[var(--color-surface)]">
         {/* Badges Stack */}
-        <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
+        <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
           {isNew && (
-            <span className="inline-flex items-center justify-center rounded bg-white px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] shadow-xs">
+            <span className="inline-flex items-center justify-center rounded bg-white px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] shadow-xs">
               NEW
             </span>
           )}
           {discountPercent > 0 && (
-            <span className="inline-flex items-center justify-center rounded bg-primary px-2.5 py-1 text-xs font-bold text-white shadow-xs">
+            <span className="inline-flex items-center justify-center rounded bg-primary px-2 py-0.5 text-xs font-bold text-white shadow-xs">
               -{discountPercent}%
             </span>
           )}
@@ -60,18 +60,18 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute left-2.5 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Previous image"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute right-2.5 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Next image"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </>
         )}
@@ -86,13 +86,13 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
       {/* Thumbnails Row */}
       {imageUrls.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto py-1 no-scrollbar">
+        <div className="flex gap-2 overflow-x-auto py-1 no-scrollbar">
           {imageUrls.map((image, index) => (
             <button
               key={`${image}-${index}`}
               type="button"
               onClick={() => setActiveIndex(index)}
-              className={`relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all ${
+              className={`relative h-16 w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg transition-all ${
                 activeIndex === index
                   ? 'border-2 border-[var(--color-ink)] ring-2 ring-[var(--color-ink)]/20 opacity-100'
                   : 'border border-transparent opacity-70 hover:opacity-100'

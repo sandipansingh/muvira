@@ -6,11 +6,11 @@ import { SectionHeader } from '../components/common/SectionHeader'
 
 export const ReviewsPage: React.FC = () => {
   return (
-    <main className="editorial-page py-10 sm:py-16">
+    <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container">
         {/* Breadcrumb */}
         <nav
-          className="mb-8 flex items-center gap-2 text-xs font-semibold text-muted"
+          className="mb-6 flex items-center gap-2 text-xs font-semibold text-muted"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="hover:text-primary hover:underline transition-colors">
@@ -26,9 +26,9 @@ export const ReviewsPage: React.FC = () => {
           subtitle="Real experiences from homes furnished with Muvira solid wood pieces across India."
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+        <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {TESTIMONIALS.map((testimonial) => (
-            <div key={testimonial.id} className="panel flex flex-col justify-between p-6 sm:p-8">
+            <div key={testimonial.id} className="panel flex flex-col justify-between p-5 sm:p-6">
               <div>
                 <div className="flex items-center gap-1 text-rating mb-4">
                   {[1, 2, 3, 4, 5].map((s) => (

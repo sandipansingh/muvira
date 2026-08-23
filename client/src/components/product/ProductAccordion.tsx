@@ -35,10 +35,10 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
     'You can use the removable tray for serving. The design makes it easy to put the tray back after use since you place it directly on the table frame without having to fit it into any holes.'
 
   return (
-    <div className="mt-12 sm:mt-16 border-t border-[var(--color-line)] pt-8">
+    <div className="mt-10 border-t border-[var(--color-line)] pt-6 sm:mt-12">
       {/* Horizontal Tabs Header */}
       <div className="border-b border-[var(--color-line)]">
-        <div className="flex gap-8 sm:gap-12 overflow-x-auto no-scrollbar">
+        <div className="flex gap-6 overflow-x-auto no-scrollbar sm:gap-8">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
@@ -46,7 +46,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => onToggleSection(tab.id)}
-                className={`relative pb-3 text-sm sm:text-base font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                className={`relative pb-2.5 text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap ${
                   isActive
                     ? 'text-[var(--color-ink)] font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-ink)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
@@ -63,21 +63,19 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
       <div className="py-2">
         {/* Additional Info Tab */}
         {activeTab === 'additional_info' && (
-          <div className="py-6 max-w-2xl space-y-6">
+          <div className="max-w-2xl space-y-5 py-5">
             <div className="space-y-2">
               <h4 className="font-display text-sm font-bold text-[var(--color-muted)] uppercase tracking-wider">
                 Details
               </h4>
-              <p className="text-sm sm:text-base leading-relaxed text-[var(--color-ink)]">
-                {detailsText}
-              </p>
+              <p className="text-sm leading-relaxed text-[var(--color-ink)]">{detailsText}</p>
             </div>
 
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2 pt-1">
               <h4 className="font-display text-sm font-bold text-[var(--color-muted)] uppercase tracking-wider">
                 Packaging
               </h4>
-              <div className="text-sm sm:text-base leading-relaxed text-[var(--color-ink)] space-y-1">
+              <div className="space-y-1 text-sm leading-relaxed text-[var(--color-ink)]">
                 <p>Width: 20 &quot; &nbsp; Height: 1 ½ &quot; &nbsp; Length: 21 ½ &quot;</p>
                 <p>Weight: 7 lb 8 oz</p>
                 <p>Package(s): 1</p>
@@ -88,7 +86,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
 
         {/* Questions Tab */}
         {activeTab === 'questions' && (
-          <div className="py-6 max-w-2xl space-y-6 text-sm sm:text-base">
+          <div className="max-w-2xl space-y-5 py-5 text-sm">
             <div className="space-y-1 border-b border-[var(--color-line)] pb-4">
               <h4 className="font-display font-bold text-[var(--color-ink)]">
                 Q: Is assembly required?

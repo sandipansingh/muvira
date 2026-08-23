@@ -228,12 +228,12 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-8 sm:py-12">
-      <div className="editorial-container space-y-8">
+    <main className="editorial-page py-6 sm:py-8">
+      <div className="editorial-container space-y-6">
         <CheckoutSteps currentStep="shipping" />
-        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <h1 className="heading text-4xl sm:text-6xl">Checkout</h1>
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+          <div className="space-y-5 lg:col-span-2">
+            <h1 className="heading page-title">Checkout</h1>
             <ContactForm email={email} setEmail={setEmail} />
             {addressError && (
               <p className="border border-danger bg-danger-soft p-4 text-xs text-danger">

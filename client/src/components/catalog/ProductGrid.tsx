@@ -25,7 +25,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, loading = fa
 
   if (products.length === 0) {
     return (
-      <div className="border-y border-[var(--color-line)] py-16 text-center">
+      <div className="border-y border-[var(--color-line)] py-10 text-center">
         <h2 className="heading text-2xl">No pieces found</h2>
         <p className="body-copy mt-2 text-sm">
           Try broadening your search query or selecting another collection.
