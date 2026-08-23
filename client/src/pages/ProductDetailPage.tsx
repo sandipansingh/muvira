@@ -168,7 +168,7 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-12 border-t border-[var(--color-line)] pt-8">
+          <section className="mt-12 pt-8">
             <SectionHeader
               title="You May Also Like"
               subtitle="Handcrafted pieces from the same master artisan workshops"

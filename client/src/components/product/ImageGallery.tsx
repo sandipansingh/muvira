@@ -59,17 +59,17 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                 key={`${image}-${index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`relative aspect-square w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-200 md:w-20 ${
+                className={`relative aspect-square w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl bg-white transition-all duration-200 md:w-20 ${
                   isActive
                     ? 'border-2 border-primary ring-2 ring-primary/15 opacity-100 shadow-xs'
-                    : 'border border-line bg-surface opacity-75 hover:border-field-border hover:opacity-100'
+                    : 'border border-line bg-white opacity-75 hover:border-field-border hover:opacity-100'
                 }`}
                 aria-label={`View ${title} thumbnail ${index + 1}`}
               >
                 <img
                   src={image}
                   alt={`${title} thumbnail ${index + 1}`}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain p-1"
                   loading="lazy"
                 />
               </button>
@@ -78,12 +78,12 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         </div>
       )}
 
-      {/* 1:1 Square Main Image Showcase Container */}
+      {/* 1:1 Square Main Image Showcase Container with Crisp Object Contain */}
       <div
         onMouseEnter={() => setIsZooming(true)}
         onMouseLeave={() => setIsZooming(false)}
         onMouseMove={handleMouseMove}
-        className="group relative aspect-square max-h-[480px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[500px] lg:max-h-[520px]"
+        className="group relative aspect-square max-h-[480px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-white p-2 md:max-h-[500px] lg:max-h-[520px]"
       >
         {/* Badges Stack */}
         <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
@@ -121,8 +121,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
           </>
         )}
 
-        {/* Main Base Image */}
-        <img src={activeImage} alt={title} className="h-full w-full object-cover" />
+        {/* Main Base Image - Full Uncropped View */}
+        <img src={activeImage} alt={title} className="h-full w-full object-contain" />
 
         {/* Amazon-Style Lens Overlay Box */}
         {isZooming && (
@@ -143,7 +143,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
           style={{
             backgroundImage: `url(${activeImage})`,
             backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
-            backgroundSize: '280%',
+            backgroundSize: '220%',
             backgroundRepeat: 'no-repeat',
           }}
         />

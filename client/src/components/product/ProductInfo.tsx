@@ -90,7 +90,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
       </p>
 
       {/* Price Section with Savings Pill */}
-      <div className="flex flex-wrap items-baseline gap-3 border-y border-line/70 py-3.5">
+      <div className="flex flex-wrap items-baseline gap-3 py-1.5">
         <span className="font-display text-2xl font-normal text-ink sm:text-3xl">
           {formatPrice(product.price)}
         </span>

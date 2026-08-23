@@ -265,7 +265,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           </div>
 
           {/* Rating Histogram Bars (Reference 3) */}
-          <div className="space-y-2.5 border-y border-line py-5 md:col-span-5 md:border-x md:border-y-0 md:px-6 md:py-0">
+          <div className="space-y-2.5 py-5 md:col-span-5 md:px-6 md:py-0">
             {([5, 4, 3, 2, 1] as const).map((stars) => {
               const count = distribution.counts[stars] || 0
               const percent = distribution.percentages[stars] || 0
@@ -318,7 +318,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col justify-between gap-4 border-b border-line pb-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 pb-4 sm:flex-row sm:items-center">
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
@@ -384,7 +384,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           </button>
         </div>
       ) : (
-        <div className="divide-y divide-line">
+        <div className="space-y-4">
           {filteredAndSortedReviews.slice(0, visibleCount).map((review) => {
             const itemFeedback = feedback[review.id] || { likes: 0, dislikes: 0 }
             return (

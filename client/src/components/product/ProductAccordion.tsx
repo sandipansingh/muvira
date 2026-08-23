@@ -30,9 +30,9 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
   const activeTab = openSection || 'description'
 
   return (
-    <div className="mt-10 border-t border-line pt-6 sm:mt-12">
+    <div className="mt-10 pt-6 sm:mt-12">
       {/* Horizontal Tabs Header */}
-      <div className="border-b border-line">
+      <div>
         <div className="flex gap-6 overflow-x-auto no-scrollbar sm:gap-8">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id

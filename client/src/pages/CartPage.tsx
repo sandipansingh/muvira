@@ -58,7 +58,7 @@ export const CartPage: React.FC = () => {
         </nav>
 
         {/* Page Header */}
-        <div className="mb-4 flex flex-col gap-2 border-b border-[var(--color-line)] pb-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-4 flex flex-col gap-2 pb-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="heading page-title">Shopping Cart</h1>
             <p className="mt-2 text-xs sm:text-sm text-[var(--color-muted)]">
@@ -107,7 +107,7 @@ export const CartPage: React.FC = () => {
 
           {/* Sticky Order Summary Sidebar */}
           <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24">
-            <h2 className="border-b border-[var(--color-line)] pb-3 font-display text-lg font-normal text-[var(--color-ink)]">
+            <h2 className="pb-2 font-display text-lg font-normal text-[var(--color-ink)]">
               Order Summary
             </h2>
 
@@ -118,7 +118,7 @@ export const CartPage: React.FC = () => {
               <CouponInput />
             </div>
 
-            <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-sm text-[var(--color-muted)]">
+            <div className="space-y-2.5 pt-2 text-sm text-[var(--color-muted)]">
               <div className="flex justify-between">
                 <span>
                   Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})
@@ -143,7 +143,7 @@ export const CartPage: React.FC = () => {
                   )}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-normal text-[var(--color-ink)]">
+              <div className="flex justify-between pt-2 text-base font-normal text-[var(--color-ink)]">
                 <span>Total Amount</span>
                 <span className="font-display text-lg">{formatPrice(totalPaisa)}</span>
               </div>
