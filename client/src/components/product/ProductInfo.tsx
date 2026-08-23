@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Heart, ShoppingBag } from 'lucide-react'
+import { Clock, Heart, RotateCcw, ShoppingBag, Truck } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -104,6 +104,45 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             </span>
           </>
         )}
+      </div>
+
+      {/* Trust Highlights Row (Free Shipping, 7-Day Returns, 1-7 Days Delivery) */}
+      <div className="grid grid-cols-3 gap-2 py-2 sm:gap-4">
+        <div className="group flex cursor-default items-start gap-2.5">
+          <Truck className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
+          <div className="flex flex-col">
+            <span className="text-xs font-medium leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
+              Free Shipping
+            </span>
+            <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
+              Pan-India Express
+            </span>
+          </div>
+        </div>
+
+        <div className="group flex cursor-default items-start gap-2.5">
+          <RotateCcw className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
+          <div className="flex flex-col">
+            <span className="text-xs font-medium leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
+              7-Day Returns
+            </span>
+            <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
+              Hassle-free pickup
+            </span>
+          </div>
+        </div>
+
+        <div className="group flex cursor-default items-start gap-2.5">
+          <Clock className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
+          <div className="flex flex-col">
+            <span className="text-xs font-medium leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
+              1–7 Days Delivery
+            </span>
+            <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
+              Insured transit
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Quantity Selector, Buy Now & Add to Cart Controls (Divided into 2 Rows) */}
