@@ -61,7 +61,7 @@ export const OrderDetailPage: React.FC = () => {
           <p className="mt-2 text-sm text-neutral-500">
             {error ?? 'We could not find this order.'}
           </p>
-          <Link to="/orders" className="editorial-button mt-6">
+          <Link to="/orders" className="kit-button mt-6">
             Back to Orders
           </Link>
         </div>
@@ -76,7 +76,7 @@ export const OrderDetailPage: React.FC = () => {
       <div className="editorial-container max-w-4xl space-y-10">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-neutral-500 transition-colors hover:text-brand"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-kit-muted transition-colors hover:text-kit-ink hover:underline"
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
           <span className="leading-none">Back to order history</span>
@@ -126,7 +126,7 @@ export const OrderDetailPage: React.FC = () => {
               href={trackingUrl}
               target="_blank"
               rel="noreferrer"
-              className="editorial-link text-xs inline-block"
+              className="text-kit-ink underline underline-offset-2 hover:underline text-xs inline-block"
             >
               Open carrier tracking
             </a>

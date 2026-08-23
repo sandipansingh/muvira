@@ -71,7 +71,7 @@ export const OrdersHistoryPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setRefreshToken((current) => current + 1)}
-              className="editorial-button mt-5"
+              className="kit-button mt-5"
             >
               Try again
             </button>
@@ -81,7 +81,7 @@ export const OrdersHistoryPage: React.FC = () => {
           <div className="border-y border-[var(--kit-line)] py-12 text-center">
             <Package className="mx-auto h-10 w-10 text-neutral-300" />
             <p className="mt-3 text-sm text-neutral-500">You have not placed any orders yet.</p>
-            <Link to="/shop" className="editorial-button mt-5">
+            <Link to="/shop" className="kit-button mt-5">
               Explore Shop
             </Link>
           </div>

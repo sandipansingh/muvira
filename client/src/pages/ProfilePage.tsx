@@ -187,7 +187,7 @@ export const ProfilePage: React.FC = () => {
           <button
             type="button"
             onClick={logout}
-            className="editorial-button-secondary px-4 py-2 text-xs font-bold"
+            className="kit-button-secondary px-4 py-2 text-xs font-bold"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span className="leading-none">Sign out</span>
@@ -238,7 +238,7 @@ export const ProfilePage: React.FC = () => {
                     type="email"
                     disabled
                     value={user.email}
-                    className="editorial-input cursor-not-allowed bg-neutral-100 text-neutral-500"
+                    className="kit-input cursor-not-allowed bg-neutral-100 text-neutral-500"
                   />
                 </div>
                 <div>
@@ -255,7 +255,7 @@ export const ProfilePage: React.FC = () => {
                     required
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
-                    className="editorial-input"
+                    className="kit-input"
                   />
                 </div>
                 <div>
@@ -272,13 +272,13 @@ export const ProfilePage: React.FC = () => {
                     required
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
-                    className="editorial-input"
+                    className="kit-input"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="editorial-button text-xs py-2.5 font-bold disabled:opacity-50"
+                  className="kit-button text-xs py-2.5 font-bold disabled:opacity-50"
                 >
                   {savingProfile ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -293,7 +293,7 @@ export const ProfilePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={openNewAddressForm}
-                  className="editorial-button text-xs py-2 px-4 font-bold"
+                  className="kit-button text-xs py-2 px-4 font-bold"
                 >
                   Add Address
                 </button>
@@ -329,7 +329,7 @@ export const ProfilePage: React.FC = () => {
                             [field]: event.target.value,
                           }))
                         }
-                        className="editorial-input"
+                        className="kit-input"
                       />
                     ))}
                     <select
@@ -339,7 +339,7 @@ export const ProfilePage: React.FC = () => {
                       onChange={(event) =>
                         setAddressForm((previous) => ({ ...previous, state: event.target.value }))
                       }
-                      className="editorial-input cursor-pointer"
+                      className="kit-input cursor-pointer"
                     >
                       {INDIAN_STATES.map((state) => (
                         <option key={state.value} value={state.value}>
@@ -363,13 +363,13 @@ export const ProfilePage: React.FC = () => {
                     Use as default address
                   </label>
                   <div className="flex gap-2 pt-2">
-                    <button type="submit" className="editorial-button text-xs py-2.5 font-bold">
+                    <button type="submit" className="kit-button text-xs py-2.5 font-bold">
                       Save address
                     </button>
                     <button
                       type="button"
                       onClick={() => setAddressFormOpen(false)}
-                      className="editorial-button-secondary text-xs py-2.5 font-bold"
+                      className="kit-button-secondary text-xs py-2.5 font-bold"
                     >
                       Cancel
                     </button>
@@ -411,7 +411,7 @@ export const ProfilePage: React.FC = () => {
                       {!address.isDefault && (
                         <button
                           onClick={() => setDefaultAddress(address.id)}
-                          className="text-xs font-bold text-neutral-500 hover:text-brand transition-colors cursor-pointer"
+                          className="text-xs font-bold text-kit-muted hover:text-kit-ink hover:underline transition-colors cursor-pointer"
                         >
                           Set default
                         </button>

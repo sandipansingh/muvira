@@ -13,7 +13,7 @@ export const ReviewsPage: React.FC = () => {
           className="mb-8 flex items-center gap-2 text-xs font-semibold text-neutral-400"
           aria-label="Breadcrumb"
         >
-          <Link to="/" className="hover:text-brand transition-colors">
+          <Link to="/" className="hover:text-kit-ink hover:underline transition-colors">
             Home
           </Link>
           <span>/</span>
