@@ -76,6 +76,36 @@ const fallbackReviews: ProductReview[] = [
       'Solid natural stone with intricate detailing. The proportions are just right, and it feels built to last generations.',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 48).toISOString(),
   },
+  {
+    id: 'mock-6',
+    productId: '',
+    userId: 'u6',
+    userName: 'Vikram Sengupta',
+    rating: 5,
+    comment:
+      'Outstanding finish quality. The Jaipur craftsmanship is evident in every curve. Very satisfied with the prompt delivery and safe crate shipping.',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(),
+  },
+  {
+    id: 'mock-7',
+    productId: '',
+    userId: 'u7',
+    userName: 'Kavita Menon',
+    rating: 4,
+    comment:
+      'Beautiful aesthetic and rich organic texture. Looks even better in person than in photos. Highly recommend!',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 72).toISOString(),
+  },
+  {
+    id: 'mock-8',
+    productId: '',
+    userId: 'u8',
+    userName: 'Aarav Patel',
+    rating: 5,
+    comment:
+      'The attention to detail and weight of the product show incredible artisan dedication. Excellent addition to our living space.',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(),
+  },
 ]
 
 const formatReviewDate = (dateString?: string) => {
@@ -111,7 +141,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   const [submitting, setSubmitting] = useState(false)
   const [selectedStarFilter, setSelectedStarFilter] = useState<number | null>(null)
   const [sortOption, setSortOption] = useState<'newest' | 'highest' | 'lowest'>('newest')
-  const [visibleCount, setVisibleCount] = useState(5)
+  const [visibleCount, setVisibleCount] = useState(3)
   const [feedback, setFeedback] = useState<Record<string, ReviewFeedback>>({})
   const { isAuthenticated } = useAuth()
   const { showToast } = useToast()
