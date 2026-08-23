@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         scrolled ? 'border-b border-line shadow-xs' : 'border-b border-transparent'
       }`}
     >
-      <div className="relative layout-container py-3 sm:py-4 flex items-center justify-between gap-4">
+      <div className="relative layout-header-footer py-3 sm:py-4 flex items-center justify-between gap-4">
         {/* Left: Hamburger Menu Button (Functional on Desktop & Mobile) */}
         <div className="flex items-center gap-2">
           <Button
@@ -184,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
       {/* Expandable Search Input Row (Mobile or Toggle) */}
       {isSearchOpen && (
-        <div className="layout-container pb-2.5">
+        <div className="layout-header-footer pb-2.5">
           <form
             onSubmit={handleSearchSubmit}
             className="flex items-center bg-paper rounded-[var(--radius-control)] border border-line p-1 pl-4 shadow-xs"
