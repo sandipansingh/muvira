@@ -404,7 +404,7 @@ export const ProfilePage: React.FC = () => {
                       {!address.isDefault && (
                         <button
                           onClick={() => setDefaultAddress(address.id)}
-                          className="text-xs font-bold text-muted hover:text-ink hover:underline transition-colors cursor-pointer"
+                          className="text-xs font-bold text-muted hover:text-primary hover:underline transition-colors cursor-pointer"
                         >
                           Set default
                         </button>

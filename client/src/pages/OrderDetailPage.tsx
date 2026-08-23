@@ -74,7 +74,7 @@ export const OrderDetailPage: React.FC = () => {
       <div className="editorial-container max-w-4xl space-y-10">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-muted transition-colors hover:text-ink hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-muted transition-colors hover:text-primary hover:underline"
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
           <span className="leading-none">Back to order history</span>

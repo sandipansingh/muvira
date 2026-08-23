@@ -171,7 +171,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 <Phone className="h-4 w-4 shrink-0 text-muted" />
                 <a
                   href={`tel:${phoneNum.replace(/[^\d+]/g, '')}`}
-                  className="hover:text-ink hover:underline transition-colors duration-200 leading-none"
+                  className="hover:text-primary hover:underline transition-colors duration-200 leading-none"
                 >
                   {phoneNum}
                 </a>
@@ -180,7 +180,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 <Mail className="h-4 w-4 shrink-0 text-muted" />
                 <a
                   href={`mailto:${emailAddress}`}
-                  className="break-all leading-none transition-colors duration-200 hover:text-ink hover:underline"
+                  className="break-all leading-none transition-colors duration-200 hover:text-primary hover:underline"
                 >
                   {emailAddress}
                 </a>
@@ -216,7 +216,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   <li key={link.name}>
                     <Link
                       to={getHref(link.href)}
-                      className="hover:text-ink hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
+                      className="hover:text-primary hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
                     >
                       {link.name}
                     </Link>
@@ -240,7 +240,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   <li key={item.name}>
                     <Link
                       to={item.href}
-                      className="hover:text-ink hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
+                      className="hover:text-primary hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
                     >
                       {item.name}
                     </Link>
@@ -265,21 +265,21 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-muted">
             <Link
               to="/#faq"
-              className="hover:text-ink hover:underline transition-colors duration-200"
+              className="hover:text-primary hover:underline transition-colors duration-200"
             >
               Privacy Policy
             </Link>
             <span className="hidden sm:inline text-disabled">|</span>
             <Link
               to="/#faq"
-              className="hover:text-ink hover:underline transition-colors duration-200"
+              className="hover:text-primary hover:underline transition-colors duration-200"
             >
               Terms of Service
             </Link>
             <span className="hidden sm:inline text-disabled">|</span>
             <Link
               to="/#faq"
-              className="hover:text-ink hover:underline transition-colors duration-200"
+              className="hover:text-primary hover:underline transition-colors duration-200"
             >
               Cancellation & Returns
             </Link>

@@ -120,17 +120,17 @@ export const ProductDetailPage: React.FC = () => {
           className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[var(--color-muted)]"
           aria-label="Breadcrumb"
         >
-          <Link to="/" className="transition-colors hover:text-[var(--color-ink)]">
+          <Link to="/" className="transition-colors hover:text-primary">
             Home
           </Link>
           <ChevronRight className="h-3 w-3" />
-          <Link to="/shop" className="transition-colors hover:text-[var(--color-ink)]">
+          <Link to="/shop" className="transition-colors hover:text-primary">
             Shop
           </Link>
           <ChevronRight className="h-3 w-3" />
           <Link
             to={`/shop?category=${product.category.slug}`}
-            className="transition-colors hover:text-[var(--color-ink)]"
+            className="transition-colors hover:text-primary"
           >
             {product.category.name}
           </Link>

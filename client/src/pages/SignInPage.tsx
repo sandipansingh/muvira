@@ -106,7 +106,7 @@ export const SignInPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsForgotPasswordOpen(true)}
-                  className="text-xs font-medium text-ink-soft hover:text-ink hover:underline cursor-pointer transition-colors"
+                  className="text-xs font-medium text-ink-soft hover:text-primary hover:underline cursor-pointer transition-colors"
                 >
                   Forgot Password?
                 </button>
@@ -148,30 +148,30 @@ export const SignInPage: React.FC = () => {
                 isLoading={loading}
                 className="w-full"
               >
-                Log in
+                Sign in
               </Button>
             </div>
           </form>
 
-          {/* Switch to Sign Up */}
-          <p className="mt-3.5 text-center text-xs sm:text-sm text-ink-soft">
-            Don&apos;t have account yet?{' '}
+          {/* Prompt to Sign Up */}
+          <p className="mt-8 text-center text-xs sm:text-sm font-medium text-muted">
+            Don&apos;t have an account yet?{' '}
             <Link
               to="/signup"
-              className="font-semibold text-ink underline hover:text-black transition-colors"
+              className="font-semibold text-ink hover:text-primary hover:underline"
             >
-              Sign up
+              Sign Up
             </Link>
           </p>
 
           {/* Terms & Privacy Disclaimer */}
           <p className="mt-4 text-center text-[11px] sm:text-xs text-muted max-w-xs mx-auto leading-relaxed">
             By continuing you agree to our{' '}
-            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-ink">
+            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-primary">
               Terms &amp; Conditions
             </span>{' '}
             and acknowledge our{' '}
-            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-ink">
+            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-primary">
               Privacy Policy
             </span>
             .

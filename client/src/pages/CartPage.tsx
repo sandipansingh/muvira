@@ -97,7 +97,7 @@ export const CartPage: React.FC = () => {
             <div className="pt-2">
               <Link
                 to="/shop"
-                className="inline-flex items-center gap-2 text-xs font-semibold leading-none text-[var(--color-ink)] hover:underline sm:text-sm"
+                className="inline-flex items-center gap-2 text-xs font-semibold leading-none text-ink hover:text-primary hover:underline sm:text-sm"
               >
                 <ArrowLeft className="h-4 w-4 shrink-0" />
                 <span className="leading-none">Continue Shopping</span>

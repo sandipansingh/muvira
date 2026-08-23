@@ -806,6 +806,7 @@ body {
 }
 
 .input:focus {
+  border-color: var(--color-primary);
   outline: none;
 }
 

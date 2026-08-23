@@ -176,20 +176,20 @@ export const SignUpPage: React.FC = () => {
             Already have an account?{' '}
             <Link
               to="/signin"
-              className="font-semibold text-ink underline hover:text-black transition-colors"
+              className="font-semibold text-ink hover:text-primary hover:underline transition-colors"
             >
-              Log in
+              Sign in
             </Link>
           </p>
 
           {/* Terms & Privacy Disclaimer */}
           <p className="mt-4 text-center text-[11px] sm:text-xs text-muted max-w-xs mx-auto leading-relaxed">
             By continuing you agree to our{' '}
-            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-ink">
+            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-primary">
               Terms &amp; Conditions
             </span>{' '}
             and acknowledge our{' '}
-            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-ink">
+            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-primary">
               Privacy Policy
             </span>
             .
