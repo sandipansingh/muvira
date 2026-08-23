@@ -84,25 +84,21 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
         <div className="flex flex-col justify-between gap-6">
           <div>
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start justify-between gap-4 pr-12">
               <span className="eyebrow">{categoryName}</span>
               <StockBadge
                 quantity={'stock' in product ? product.stock : 10}
                 isAvailable={'inStock' in product ? product.inStock : true}
               />
             </div>
-            <h2 className="heading mt-2 text-2xl">{product.name}</h2>
-            <div className="mt-3">
-              {product.rating !== null && product.rating !== undefined ? (
-                <RatingStars
-                  rating={product.rating}
-                  count={product.reviewCount}
-                  size="md"
-                  showText
-                />
-              ) : (
-                <span className="text-xs text-muted">No reviews yet</span>
-              )}
+            <h2 className="heading mt-2 text-xl sm:text-2xl pr-12">{product.name}</h2>
+            <div className="mt-3 flex items-center gap-2">
+              <RatingStars
+                rating={product.rating ?? 5}
+                count={product.reviewCount ?? 0}
+                size="sm"
+                showText
+              />
             </div>
             <div className="mt-4 flex items-baseline gap-3">
               <span className="font-display text-2xl font-bold text-[var(--color-ink)]">
