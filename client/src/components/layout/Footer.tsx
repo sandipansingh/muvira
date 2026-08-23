@@ -136,7 +136,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   />
                   <button
                     type="submit"
-                    className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-kit-ink text-white shadow-xs transition-all duration-300 hover:bg-black"
+                    className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-ink text-white shadow-xs transition-all duration-300 hover:bg-black"
                     aria-label="Subscribe to newsletter"
                   >
                     <ArrowRight className="h-4 w-4 shrink-0" />
@@ -173,7 +173,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 <Phone className="h-4 w-4 shrink-0 text-neutral-400" />
                 <a
                   href={`tel:${phoneNum.replace(/[^\d+]/g, '')}`}
-                  className="hover:text-kit-ink hover:underline transition-colors duration-200 leading-none"
+                  className="hover:text-ink hover:underline transition-colors duration-200 leading-none"
                 >
                   {phoneNum}
                 </a>
@@ -182,7 +182,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 <Mail className="h-4 w-4 shrink-0 text-neutral-400" />
                 <a
                   href={`mailto:${emailAddress}`}
-                  className="break-all leading-none transition-colors duration-200 hover:text-kit-ink hover:underline"
+                  className="break-all leading-none transition-colors duration-200 hover:text-ink hover:underline"
                 >
                   {emailAddress}
                 </a>
@@ -220,7 +220,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   <li key={link.name}>
                     <Link
                       to={getHref(link.href)}
-                      className="hover:text-kit-ink hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
+                      className="hover:text-ink hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
                     >
                       {link.name}
                     </Link>
@@ -244,7 +244,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   <li key={item.name}>
                     <Link
                       to={item.href}
-                      className="hover:text-kit-ink hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
+                      className="hover:text-ink hover:underline transition-all duration-200 inline-block text-xs sm:text-sm"
                     >
                       {item.name}
                     </Link>
@@ -269,21 +269,21 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-neutral-500">
             <Link
               to="/#faq"
-              className="hover:text-kit-ink hover:underline transition-colors duration-200"
+              className="hover:text-ink hover:underline transition-colors duration-200"
             >
               Privacy Policy
             </Link>
             <span className="hidden sm:inline text-neutral-300">|</span>
             <Link
               to="/#faq"
-              className="hover:text-kit-ink hover:underline transition-colors duration-200"
+              className="hover:text-ink hover:underline transition-colors duration-200"
             >
               Terms of Service
             </Link>
             <span className="hidden sm:inline text-neutral-300">|</span>
             <Link
               to="/#faq"
-              className="hover:text-kit-ink hover:underline transition-colors duration-200"
+              className="hover:text-ink hover:underline transition-colors duration-200"
             >
               Cancellation & Returns
             </Link>

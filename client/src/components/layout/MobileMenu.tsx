@@ -63,21 +63,21 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
       />
 
       {/* Drawer Container */}
-      <aside className="relative flex h-full w-[min(90vw,24rem)] flex-col justify-between border-r border-kit-line bg-kit-paper shadow-2xl overflow-y-auto">
+      <aside className="relative flex h-full w-[min(90vw,24rem)] flex-col justify-between border-r border-line bg-paper shadow-2xl overflow-y-auto">
         <div className="p-6">
           {/* Header with Brand Logo & Close X */}
           <div className="flex items-center justify-between pb-5">
             <Link
               to="/"
               onClick={onClose}
-              className="flex items-center gap-2 font-display text-xl font-bold tracking-tight text-kit-ink"
+              className="flex items-center gap-2 font-display text-xl font-bold tracking-tight text-ink"
             >
               <span>Muvira.</span>
             </Link>
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 text-kit-ink hover:bg-kit-surface rounded-full transition-colors cursor-pointer"
+              className="p-1.5 text-ink hover:bg-surface rounded-full transition-colors cursor-pointer"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -86,26 +86,26 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
           {/* Search Box Enclosure (Reference Style) */}
           <form onSubmit={handleSearchSubmit} className="my-3">
-            <div className="flex items-center gap-2.5 rounded-lg border border-kit-field-border bg-white px-3.5 py-2.5 focus-within:border-kit-ink transition-colors">
-              <Search className="h-5 w-5 text-kit-muted shrink-0" />
+            <div className="flex items-center gap-2.5 rounded-lg border border-field-border bg-white px-3.5 py-2.5 focus-within:border-ink transition-colors">
+              <Search className="h-5 w-5 text-muted shrink-0" />
               <input
                 type="search"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent text-sm text-kit-ink placeholder:text-kit-muted outline-none"
+                className="w-full bg-transparent text-sm text-ink placeholder:text-muted outline-none"
               />
             </div>
           </form>
 
           {/* Main Navigation List */}
-          <nav className="mt-4 divide-y divide-kit-line">
+          <nav className="mt-4 divide-y divide-line">
             {/* Home */}
             <div className="py-3.5">
               <Link
                 to="/"
                 onClick={onClose}
-                className="text-sm font-medium text-kit-ink hover:underline transition-colors block"
+                className="text-sm font-medium text-ink hover:underline transition-colors block"
               >
                 Home
               </Link>
@@ -116,24 +116,24 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => setIsShopExpanded((prev) => !prev)}
-                className="flex items-center justify-between w-full text-sm font-medium text-kit-ink hover:underline transition-colors cursor-pointer"
+                className="flex items-center justify-between w-full text-sm font-medium text-ink hover:underline transition-colors cursor-pointer"
               >
                 <span>Shop</span>
                 <ChevronDown
-                  className={`h-4 w-4 text-kit-muted transition-transform duration-200 ${
+                  className={`h-4 w-4 text-muted transition-transform duration-200 ${
                     isShopExpanded ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
               {isShopExpanded && (
-                <div className="mt-2 pl-3 space-y-2 border-l border-kit-line">
+                <div className="mt-2 pl-3 space-y-2 border-l border-line">
                   {SHOP_CATEGORIES.map((category) => (
                     <Link
                       key={category.label}
                       to={category.href}
                       onClick={onClose}
-                      className="block text-xs font-medium text-kit-muted hover:text-kit-ink py-1 transition-colors"
+                      className="block text-xs font-medium text-muted hover:text-ink py-1 transition-colors"
                     >
                       {category.label}
                     </Link>
@@ -147,24 +147,24 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => setIsProductExpanded((prev) => !prev)}
-                className="flex items-center justify-between w-full text-sm font-medium text-kit-ink hover:underline transition-colors cursor-pointer"
+                className="flex items-center justify-between w-full text-sm font-medium text-ink hover:underline transition-colors cursor-pointer"
               >
                 <span>Product</span>
                 <ChevronDown
-                  className={`h-4 w-4 text-kit-muted transition-transform duration-200 ${
+                  className={`h-4 w-4 text-muted transition-transform duration-200 ${
                     isProductExpanded ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
               {isProductExpanded && (
-                <div className="mt-2 pl-3 space-y-2 border-l border-kit-line">
+                <div className="mt-2 pl-3 space-y-2 border-l border-line">
                   {PRODUCT_LINKS.map((link) => (
                     <Link
                       key={link.label}
                       to={link.href}
                       onClick={onClose}
-                      className="block text-xs font-medium text-kit-muted hover:text-kit-ink py-1 transition-colors"
+                      className="block text-xs font-medium text-muted hover:text-ink py-1 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -178,7 +178,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/#faq"
                 onClick={onClose}
-                className="text-sm font-medium text-kit-ink hover:underline transition-colors block"
+                className="text-sm font-medium text-ink hover:underline transition-colors block"
               >
                 Contact Us
               </Link>
@@ -187,17 +187,17 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Bottom Actions Section (Cart, Wishlist & Sign In) */}
-        <div className="p-6 border-t border-kit-line space-y-4">
+        <div className="p-6 border-t border-line space-y-4">
           {/* Cart Row with Bag Icon & Counter */}
           <button
             type="button"
             onClick={handleOpenCart}
-            className="flex items-center justify-between w-full py-1 text-sm font-medium text-kit-ink hover:underline transition-colors cursor-pointer"
+            className="flex items-center justify-between w-full py-1 text-sm font-medium text-ink hover:underline transition-colors cursor-pointer"
           >
             <span>Cart</span>
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-5 w-5 text-kit-ink stroke-[1.75]" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-kit-ink text-[11px] font-bold text-white">
+              <ShoppingBag className="h-5 w-5 text-ink stroke-[1.75]" />
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-bold text-white">
                 {itemCount}
               </span>
             </div>
@@ -207,12 +207,12 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           <Link
             to="/shop"
             onClick={onClose}
-            className="flex items-center justify-between w-full py-1 text-sm font-medium text-kit-ink hover:underline transition-colors"
+            className="flex items-center justify-between w-full py-1 text-sm font-medium text-ink hover:underline transition-colors"
           >
             <span>Wishlist</span>
             <div className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-kit-ink stroke-[1.75]" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-kit-ink text-[11px] font-bold text-white">
+              <Heart className="h-5 w-5 text-ink stroke-[1.75]" />
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-bold text-white">
                 0
               </span>
             </div>
@@ -221,13 +221,13 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           {/* Sign In CTA or Authenticated User Details */}
           {isAuthenticated ? (
             <div className="pt-2 space-y-2.5">
-              <div className="flex items-center gap-2.5 p-2.5 bg-kit-surface rounded-lg">
-                <div className="h-8 w-8 rounded-full bg-kit-line flex items-center justify-center text-xs font-bold text-kit-ink">
+              <div className="flex items-center gap-2.5 p-2.5 bg-surface rounded-lg">
+                <div className="h-8 w-8 rounded-full bg-line flex items-center justify-center text-xs font-bold text-ink">
                   {user?.fullName?.charAt(0) || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-kit-ink truncate">{user?.fullName}</p>
-                  <p className="text-[11px] text-kit-muted truncate">{user?.email}</p>
+                  <p className="text-xs font-bold text-ink truncate">{user?.fullName}</p>
+                  <p className="text-[11px] text-muted truncate">{user?.email}</p>
                 </div>
               </div>
 
@@ -235,7 +235,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 <Link
                   to="/orders"
                   onClick={onClose}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-kit-line px-3 py-2.5 text-center text-xs font-semibold text-kit-ink transition-colors hover:bg-kit-surface"
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2.5 text-center text-xs font-semibold text-ink transition-colors hover:bg-surface"
                 >
                   <Package className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-none">Orders</span>
@@ -258,7 +258,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/signin"
                 onClick={onClose}
-                className="w-full py-3.5 px-4 bg-kit-ink hover:bg-black text-white text-sm font-semibold rounded-lg text-center block transition-colors shadow-xs active:scale-98"
+                className="w-full py-3.5 px-4 bg-ink hover:bg-black text-white text-sm font-semibold rounded-lg text-center block transition-colors shadow-xs active:scale-98"
               >
                 Sign In
               </Link>

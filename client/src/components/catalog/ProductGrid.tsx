@@ -13,10 +13,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, loading = fa
       <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:gap-x-6 lg:grid-cols-3 xl:grid-cols-4">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
           <div key={item} className="flex animate-pulse flex-col gap-2">
-            <div className="aspect-square rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]" />
-            <div className="h-3 w-16 rounded bg-[var(--kit-line)]" />
-            <div className="h-4 w-3/4 rounded bg-[var(--kit-line)]" />
-            <div className="h-4 w-1/3 rounded bg-[var(--kit-line)]" />
+            <div className="aspect-square rounded-[var(--radius-card)] bg-[var(--color-surface)]" />
+            <div className="h-3 w-16 rounded bg-[var(--color-line)]" />
+            <div className="h-4 w-3/4 rounded bg-[var(--color-line)]" />
+            <div className="h-4 w-1/3 rounded bg-[var(--color-line)]" />
           </div>
         ))}
       </div>
@@ -25,9 +25,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, loading = fa
 
   if (products.length === 0) {
     return (
-      <div className="border-y border-[var(--kit-line)] py-16 text-center">
-        <h2 className="kit-heading text-2xl">No pieces found</h2>
-        <p className="kit-body-copy mt-2 text-sm">
+      <div className="border-y border-[var(--color-line)] py-16 text-center">
+        <h2 className="heading text-2xl">No pieces found</h2>
+        <p className="body-copy mt-2 text-sm">
           Try broadening your search query or selecting another collection.
         </p>
       </div>

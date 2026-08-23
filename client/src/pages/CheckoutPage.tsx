@@ -233,7 +233,7 @@ export const CheckoutPage: React.FC = () => {
         <CheckoutSteps currentStep="shipping" />
         <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <h1 className="kit-heading text-4xl sm:text-6xl">Checkout</h1>
+            <h1 className="heading text-4xl sm:text-6xl">Checkout</h1>
             <ContactForm email={email} setEmail={setEmail} />
             {addressError && (
               <p className="border border-danger bg-danger-soft p-4 text-xs text-danger">

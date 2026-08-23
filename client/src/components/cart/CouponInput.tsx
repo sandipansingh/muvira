@@ -65,13 +65,13 @@ export const CouponInput: React.FC = () => {
           placeholder="Enter promo code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="h-full w-full rounded-lg border border-[var(--kit-field-border)] bg-[var(--kit-paper)] py-1.5 pl-10 pr-2.5 text-base font-medium text-[var(--kit-ink)] placeholder:text-neutral-400 placeholder:normal-case outline-none transition-all duration-200 focus:border-[var(--kit-ink)] focus:ring-1 focus:ring-[var(--kit-ink)] uppercase"
+          className="h-full w-full rounded-lg border border-[var(--color-field-border)] bg-[var(--color-paper)] py-1.5 pl-10 pr-2.5 text-base font-medium text-[var(--color-ink)] placeholder:text-neutral-400 placeholder:normal-case outline-none transition-all duration-200 focus:border-[var(--color-ink)] focus:ring-1 focus:ring-[var(--color-ink)] uppercase"
         />
       </div>
       <button
         type="submit"
         disabled={!code.trim() || isSubmitting}
-        className="kit-button h-full !min-h-0 shrink-0 rounded-lg px-3.5 py-0 !text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
+        className="button-primary h-full !min-h-0 shrink-0 rounded-lg px-3.5 py-0 !text-xs font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSubmitting ? (
           <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />

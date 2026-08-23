@@ -59,8 +59,8 @@ export const NewArrivals: React.FC = () => {
       {/* Section Header */}
       <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
         <div>
-          <span className="kit-eyebrow mb-1.5 block">Just In</span>
-          <h2 className="kit-heading text-h2">New Arrivals</h2>
+          <span className="eyebrow mb-1.5 block">Just In</span>
+          <h2 className="heading text-h2">New Arrivals</h2>
         </div>
 
         {/* Right Controls: Scroll Buttons & View All */}
@@ -68,7 +68,7 @@ export const NewArrivals: React.FC = () => {
           <button
             type="button"
             onClick={scrollLeft}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] lg:hidden"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)] lg:hidden"
             aria-label="Previous new arrivals"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -76,14 +76,14 @@ export const NewArrivals: React.FC = () => {
           <button
             type="button"
             onClick={scrollRight}
-            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-ink)] transition-colors hover:border-[var(--kit-ink)] lg:hidden"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors hover:border-[var(--color-ink)] lg:hidden"
             aria-label="Next new arrivals"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           <Link
             to="/shop?sort=newest"
-            className="kit-button-secondary min-h-10 shrink-0 px-4 py-2 text-xs"
+            className="button-secondary min-h-10 shrink-0 px-4 py-2 text-xs"
           >
             View all
           </Link>
@@ -100,19 +100,19 @@ export const NewArrivals: React.FC = () => {
               key={item}
               className="flex w-[240px] shrink-0 animate-pulse flex-col gap-2 sm:w-[280px] lg:w-auto"
             >
-              <div className="aspect-square rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]" />
-              <div className="h-3 w-16 rounded bg-[var(--kit-line)]" />
-              <div className="h-4 w-3/4 rounded bg-[var(--kit-line)]" />
-              <div className="h-4 w-1/3 rounded bg-[var(--kit-line)]" />
+              <div className="aspect-square rounded-[var(--radius-card)] bg-[var(--color-surface)]" />
+              <div className="h-3 w-16 rounded bg-[var(--color-line)]" />
+              <div className="h-4 w-3/4 rounded bg-[var(--color-line)]" />
+              <div className="h-4 w-1/3 rounded bg-[var(--color-line)]" />
             </div>
           ))}
         </div>
       )}
 
-      {!loading && error && <div className="kit-body-copy py-8 text-center text-sm">{error}</div>}
+      {!loading && error && <div className="body-copy py-8 text-center text-sm">{error}</div>}
 
       {!loading && !error && displayedProducts.length === 0 && (
-        <div className="kit-body-copy py-8 text-center text-sm">
+        <div className="body-copy py-8 text-center text-sm">
           New arrivals are being added. Please check back soon.
         </div>
       )}

@@ -78,22 +78,22 @@ export const CategoryGrid: React.FC = () => {
       {/* Section Header */}
       <div className="mb-6 flex items-center justify-between gap-4 sm:mb-8">
         <div>
-          <span className="kit-eyebrow mb-1.5 block">Featured</span>
-          <h2 className="kit-heading text-h2">Shop Collection</h2>
+          <span className="eyebrow mb-1.5 block">Featured</span>
+          <h2 className="heading text-h2">Shop Collection</h2>
         </div>
 
         {/* View All Categories Link */}
-        <Link to="/shop" className="kit-button-secondary min-h-10 shrink-0 px-4 py-2 text-xs">
+        <Link to="/shop" className="button-secondary min-h-10 shrink-0 px-4 py-2 text-xs">
           View all categories
         </Link>
       </div>
 
       {loading ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2" aria-busy="true">
-          <div className="min-h-[380px] animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:min-h-[460px]" />
+          <div className="min-h-[380px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[460px]" />
           <div className="flex flex-col gap-6">
-            <div className="min-h-[180px] animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:min-h-[218px]" />
-            <div className="min-h-[180px] animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] sm:min-h-[218px]" />
+            <div className="min-h-[180px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[218px]" />
+            <div className="min-h-[180px] animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[218px]" />
           </div>
         </div>
       ) : (
@@ -101,7 +101,7 @@ export const CategoryGrid: React.FC = () => {
           {/* Left Large Card */}
           <Link
             to={`/shop?category=${mainCategory.slug}`}
-            className="group relative flex min-h-[380px] flex-col justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] p-6 transition-all sm:min-h-[460px] sm:p-10 lg:min-h-[500px]"
+            className="group relative flex min-h-[380px] flex-col justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[460px] sm:p-10 lg:min-h-[500px]"
           >
             {/* Center Image */}
             <div className="flex flex-1 items-center justify-center p-4">
@@ -115,10 +115,10 @@ export const CategoryGrid: React.FC = () => {
 
             {/* Bottom Content */}
             <div className="mt-4">
-              <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-3xl">
+              <h3 className="font-display text-2xl font-bold tracking-tight text-[var(--color-ink)] sm:text-3xl">
                 {mainCategory.name}
               </h3>
-              <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+              <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--color-ink)] underline underline-offset-4 decoration-[var(--color-line)] transition-colors group-hover:decoration-[var(--color-ink)] sm:text-sm">
                 <span className="leading-none">Collection</span>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
               </div>
@@ -130,13 +130,13 @@ export const CategoryGrid: React.FC = () => {
             {/* Top Right Card */}
             <Link
               to={`/shop?category=${secondCategory.slug}`}
-              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
+              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
-                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-2xl">
+                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--color-ink)] sm:text-2xl">
                   {secondCategory.name}
                 </h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--color-ink)] underline underline-offset-4 decoration-[var(--color-line)] transition-colors group-hover:decoration-[var(--color-ink)] sm:text-sm">
                   <span className="leading-none">Collection</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>
@@ -155,13 +155,13 @@ export const CategoryGrid: React.FC = () => {
             {/* Bottom Right Card */}
             <Link
               to={`/shop?category=${thirdCategory.slug}`}
-              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
+              className="group relative flex min-h-[180px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-6 transition-all sm:min-h-[218px] sm:p-8"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
-                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--kit-ink)] sm:text-2xl">
+                <h3 className="font-display text-xl font-bold tracking-tight text-[var(--color-ink)] sm:text-2xl">
                   {thirdCategory.name}
                 </h3>
-                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--kit-ink)] underline underline-offset-4 decoration-[var(--kit-line)] transition-colors group-hover:decoration-[var(--kit-ink)] sm:text-sm">
+                <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-[var(--color-ink)] underline underline-offset-4 decoration-[var(--color-line)] transition-colors group-hover:decoration-[var(--color-ink)] sm:text-sm">
                   <span className="leading-none">Collection</span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-hover:translate-x-1" />
                 </div>

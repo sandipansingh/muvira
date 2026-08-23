@@ -95,31 +95,31 @@ export const ShopPage: React.FC = () => {
   return (
     <main className="editorial-page py-10 sm:py-16">
       <div className="editorial-container">
-        <header className="kit-page-header mb-10">
+        <header className="page-header mb-10">
           <nav
-            className="flex items-center gap-2 text-xs font-medium text-[var(--kit-muted)]"
+            className="flex items-center gap-2 text-xs font-medium text-[var(--color-muted)]"
             aria-label="Breadcrumb"
           >
-            <Link to="/" className="transition-colors hover:text-[var(--kit-ink)]">
+            <Link to="/" className="transition-colors hover:text-[var(--color-ink)]">
               Home
             </Link>
             <span aria-hidden="true">/</span>
-            <span className="text-[var(--kit-ink)]">Shop</span>
+            <span className="text-[var(--color-ink)]">Shop</span>
           </nav>
-          <span className="kit-eyebrow">Muvira / Catalog</span>
-          <h1 className="kit-heading text-4xl sm:text-6xl">
+          <span className="eyebrow">Muvira / Catalog</span>
+          <h1 className="heading text-4xl sm:text-6xl">
             {searchQuery ? `Search Results for “${searchQuery}”` : 'Explore All Collections'}
           </h1>
-          <p className="kit-body-copy max-w-2xl">
+          <p className="body-copy max-w-2xl">
             Considered solid wood furniture handcrafted for the home you are building, one room at a
             time.
           </p>
         </header>
 
-        <div className="mb-10 grid min-h-40 items-center overflow-hidden rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)] px-6 py-8 sm:px-10 lg:grid-cols-[1fr_18rem]">
+        <div className="mb-10 grid min-h-40 items-center overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] px-6 py-8 sm:px-10 lg:grid-cols-[1fr_18rem]">
           <div>
-            <p className="kit-eyebrow mb-2">Made for daily living</p>
-            <p className="max-w-xl font-display text-2xl font-semibold tracking-tight text-[var(--kit-ink)] sm:text-3xl">
+            <p className="eyebrow mb-2">Made for daily living</p>
+            <p className="max-w-xl font-display text-2xl font-semibold tracking-tight text-[var(--color-ink)] sm:text-3xl">
               Pieces that make a room feel considered.
             </p>
           </div>
@@ -127,7 +127,7 @@ export const ShopPage: React.FC = () => {
             <img
               src={categories[0].imageUrl}
               alt="Muvira furniture collection"
-              className="hidden h-40 w-full rounded-[var(--kit-radius-card)] object-cover lg:block"
+              className="hidden h-40 w-full rounded-[var(--radius-card)] object-cover lg:block"
             />
           ) : null}
         </div>
@@ -154,7 +154,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setRefreshToken((value) => value + 1)}
-              className="kit-button mt-6"
+              className="button-primary mt-6"
             >
               Try Again
             </button>
@@ -164,25 +164,25 @@ export const ShopPage: React.FC = () => {
             <ProductGrid products={products} loading={loading} />
             {!loading && totalPages > 1 && (
               <nav
-                className="mt-12 flex items-center justify-center gap-6 border-t border-[var(--kit-line)] pt-8"
+                className="mt-12 flex items-center justify-center gap-6 border-t border-[var(--color-line)] pt-8"
                 aria-label="Product pages"
               >
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => updateParams({ page: String(page - 1) })}
-                  className="text-sm font-semibold text-[var(--kit-ink)] underline decoration-[var(--kit-line)] underline-offset-4 transition-colors hover:decoration-[var(--kit-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-semibold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span className="text-sm font-medium text-[var(--kit-muted)]" aria-current="page">
+                <span className="text-sm font-medium text-[var(--color-muted)]" aria-current="page">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => updateParams({ page: String(page + 1) })}
-                  className="text-sm font-semibold text-[var(--kit-ink)] underline decoration-[var(--kit-line)] underline-offset-4 transition-colors hover:decoration-[var(--kit-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-semibold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Next
                 </button>

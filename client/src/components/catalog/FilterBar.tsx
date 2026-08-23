@@ -18,9 +18,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   totalCount,
 }) => {
   return (
-    <div className="mb-10 grid gap-8 border-y border-[var(--kit-line)] py-6 lg:grid-cols-[12rem_1fr]">
+    <div className="mb-10 grid gap-8 border-y border-[var(--color-line)] py-6 lg:grid-cols-[12rem_1fr]">
       <div>
-        <p className="kit-eyebrow mb-3">Categories</p>
+        <p className="eyebrow mb-3">Categories</p>
         <div className="no-scrollbar flex gap-2 overflow-x-auto lg:flex-col lg:gap-1">
           {[{ name: 'All Products', slug: 'all' }, ...categories].map((category) => {
             const isSelected = selectedCategory === category.slug
@@ -31,8 +31,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 onClick={() => onSelectCategory(category.slug)}
                 className={`shrink-0 border-b-2 px-1 py-2 text-left text-sm transition-colors lg:w-full ${
                   isSelected
-                    ? 'border-[var(--kit-ink)] font-semibold text-[var(--kit-ink)]'
-                    : 'border-transparent text-[var(--kit-muted)] hover:text-[var(--kit-ink)]'
+                    ? 'border-[var(--color-ink)] font-semibold text-[var(--color-ink)]'
+                    : 'border-transparent text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
                 aria-pressed={isSelected}
               >
@@ -44,17 +44,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       </div>
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
         <div>
-          <p className="kit-eyebrow mb-2">Collection</p>
-          <p className="font-display text-xl font-semibold text-[var(--kit-ink)]">
+          <p className="eyebrow mb-2">Collection</p>
+          <p className="font-display text-xl font-semibold text-[var(--color-ink)]">
             Thoughtful pieces for lived-in rooms
           </p>
         </div>
-        <div className="flex items-center justify-between gap-4 text-sm text-[var(--kit-muted)] lg:justify-end">
+        <div className="flex items-center justify-between gap-4 text-sm text-[var(--color-muted)] lg:justify-end">
           <span aria-live="polite">
-            <strong className="font-semibold text-[var(--kit-ink)]">{totalCount}</strong> pieces
+            <strong className="font-semibold text-[var(--color-ink)]">{totalCount}</strong> pieces
           </span>
           <label
-            className="flex items-center gap-2 font-semibold text-[var(--kit-ink)]"
+            className="flex items-center gap-2 font-semibold text-[var(--color-ink)]"
             htmlFor="shop-sort"
           >
             <span>Sort by</span>
@@ -63,7 +63,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               name="sort"
               value={sortBy}
               onChange={(event) => onSortChange(event.target.value)}
-              className="kit-input h-11 min-h-11 w-auto cursor-pointer py-2 text-base"
+              className="input h-11 min-h-11 w-auto cursor-pointer py-2 text-base"
             >
               <option value="popularity">Popularity</option>
               <option value="price_asc">Price: Low to High</option>

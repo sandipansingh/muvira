@@ -57,11 +57,11 @@ export const OrderDetailPage: React.FC = () => {
     return (
       <main className="editorial-page px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-xl rounded-3xl border border-border-light bg-neutral-50/60 p-10 text-center shadow-premium">
-          <h1 className="kit-heading text-3xl">Order unavailable</h1>
+          <h1 className="heading text-3xl">Order unavailable</h1>
           <p className="mt-2 text-sm text-neutral-500">
             {error ?? 'We could not find this order.'}
           </p>
-          <Link to="/orders" className="kit-button mt-6">
+          <Link to="/orders" className="button-primary mt-6">
             Back to Orders
           </Link>
         </div>
@@ -76,43 +76,43 @@ export const OrderDetailPage: React.FC = () => {
       <div className="editorial-container max-w-4xl space-y-10">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-kit-muted transition-colors hover:text-kit-ink hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-muted transition-colors hover:text-ink hover:underline"
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
           <span className="leading-none">Back to order history</span>
         </Link>
         <div className="flex flex-col justify-between gap-4 border-b border-border-light pb-6 sm:flex-row sm:items-end">
           <div>
-            <span className="kit-eyebrow mb-1 block">Order Details</span>
-            <h1 className="kit-heading text-4xl sm:text-6xl">#{order.orderNumber}</h1>
+            <span className="eyebrow mb-1 block">Order Details</span>
+            <h1 className="heading text-4xl sm:text-6xl">#{order.orderNumber}</h1>
             <p className="mt-1 text-xs text-neutral-500">Placed on {formatDate(order.createdAt)}</p>
           </div>
-          <span className="kit-status-badge self-start sm:self-auto">
+          <span className="status-badge self-start sm:self-auto">
             {order.status.replaceAll('_', ' ')}
           </span>
         </div>
 
-        <section className="kit-panel space-y-5 p-6 sm:p-8">
+        <section className="panel space-y-5 p-6 sm:p-8">
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-foreground" />
-            <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">
+            <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
               Shipment Tracking
             </h2>
           </div>
           <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-3">
-            <div className="border-t border-[var(--kit-line)] pt-3">
+            <div className="border-t border-[var(--color-line)] pt-3">
               <span className="block text-neutral-500">AWB tracking number</span>
               <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.awb_code ?? order.awbCode ?? 'Not assigned yet'}
               </strong>
             </div>
-            <div className="border-t border-[var(--kit-line)] pt-3">
+            <div className="border-t border-[var(--color-line)] pt-3">
               <span className="block text-neutral-500">Courier partner</span>
               <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.courier_name ?? order.courierName ?? 'Not assigned yet'}
               </strong>
             </div>
-            <div className="border-t border-[var(--kit-line)] pt-3">
+            <div className="border-t border-[var(--color-line)] pt-3">
               <span className="block text-neutral-500">Shipment status</span>
               <strong className="mt-1 block text-sm text-foreground">
                 {tracking?.shiprocket_status ??
@@ -126,13 +126,13 @@ export const OrderDetailPage: React.FC = () => {
               href={trackingUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-kit-ink underline underline-offset-2 hover:underline text-xs inline-block"
+              className="text-ink underline underline-offset-2 hover:underline text-xs inline-block"
             >
               Open carrier tracking
             </a>
           )}
           {trackingEvents.length > 0 && (
-            <div className="space-y-4 border-t border-[var(--kit-line)] pt-5">
+            <div className="space-y-4 border-t border-[var(--color-line)] pt-5">
               {trackingEvents.map((event) => (
                 <div key={event.id} className="flex gap-3 text-xs">
                   <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-foreground" />
@@ -151,8 +151,8 @@ export const OrderDetailPage: React.FC = () => {
         </section>
 
         <section>
-          <h2 className="kit-heading mb-5 text-2xl">Ordered Items</h2>
-          <div className="divide-y divide-[var(--kit-line)] border-y border-[var(--kit-line)]">
+          <h2 className="heading mb-5 text-2xl">Ordered Items</h2>
+          <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center justify-between gap-4 py-4">
                 <div className="flex min-w-0 items-center gap-4">
@@ -183,7 +183,7 @@ export const OrderDetailPage: React.FC = () => {
         </section>
 
         <div className="grid grid-cols-1 gap-8 border-t border-border-light pt-8 sm:grid-cols-2">
-          <div className="kit-panel space-y-2 p-6 text-xs">
+          <div className="panel space-y-2 p-6 text-xs">
             <h2 className="mb-3 flex items-center gap-1.5 text-sm font-bold leading-none text-foreground">
               <MapPin className="h-4 w-4 shrink-0 text-foreground" />
               <span className="leading-none">Shipping Address</span>
@@ -198,7 +198,7 @@ export const OrderDetailPage: React.FC = () => {
               {order.shippingAddress.pincode} · {order.shippingAddress.phone}
             </p>
           </div>
-          <div className="kit-panel space-y-2 p-6 text-xs">
+          <div className="panel space-y-2 p-6 text-xs">
             <h2 className="mb-3 flex items-center gap-1.5 text-sm font-bold leading-none text-foreground">
               <ShieldCheck className="h-4 w-4 shrink-0 text-foreground" />
               <span className="leading-none">Payment Details</span>

@@ -47,15 +47,15 @@ export const Modal: React.FC<ModalProps> = ({
         aria-label="Close dialog"
       />
       <div
-        className={`kit-overlay-panel relative z-10 flex max-h-[90vh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--kit-radius-card)] border border-[var(--kit-line)] bg-[var(--kit-paper)]`}
+        className={`overlay-panel relative z-10 flex max-h-[90vh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`}
       >
         {title ? (
-          <div className="flex items-center justify-between border-b border-[var(--kit-line)] px-6 py-4">
-            <h2 className="font-display text-lg font-bold text-[var(--kit-ink)]">{title}</h2>
+          <div className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-4">
+            <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">{title}</h2>
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] text-[var(--kit-muted)] transition-colors hover:border-[var(--kit-ink)] hover:text-[var(--kit-ink)]"
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] text-[var(--color-muted)] transition-colors hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
               aria-label="Close dialog"
             >
               <X className="h-4 w-4" />
@@ -65,7 +65,7 @@ export const Modal: React.FC<ModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-4 top-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] text-[var(--kit-muted)] transition-colors hover:border-[var(--kit-ink)] hover:text-[var(--kit-ink)]"
+            className="absolute right-4 top-4 z-20 flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-muted)] transition-colors hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
             aria-label="Close dialog"
           >
             <X className="h-4 w-4" />

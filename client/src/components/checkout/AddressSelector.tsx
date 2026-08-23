@@ -65,13 +65,13 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   }
 
   return (
-    <section className="border-b border-[var(--kit-line)] pb-6">
+    <section className="border-b border-[var(--color-line)] pb-6">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">Delivery Address</h2>
+        <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">Delivery Address</h2>
         <button
           type="button"
           onClick={() => setShowAddForm((open) => !open)}
-          className="inline-flex cursor-pointer items-center gap-1 text-xs font-bold leading-none text-[var(--kit-ink)] hover:underline"
+          className="inline-flex cursor-pointer items-center gap-1 text-xs font-bold leading-none text-[var(--color-ink)] hover:underline"
         >
           <Plus className="h-3.5 w-3.5 shrink-0" />
           <span className="leading-none">Add new</span>
@@ -79,17 +79,17 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
       </div>
       <div className="mt-5 space-y-3">
         {addresses.length === 0 && (
-          <p className="border-y border-[var(--kit-line)] py-4 text-xs text-[var(--kit-muted)] sm:text-sm">
+          <p className="border-y border-[var(--color-line)] py-4 text-xs text-[var(--color-muted)] sm:text-sm">
             No saved addresses yet. Add one to continue.
           </p>
         )}
         {addresses.map((address) => (
           <label
             key={address.id}
-            className={`flex cursor-pointer items-start gap-3 rounded-[var(--kit-radius-control)] border p-4 transition-colors ${
+            className={`flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border p-4 transition-colors ${
               selectedAddressId === address.id
-                ? 'border-[var(--kit-ink)] bg-[var(--kit-surface)]'
-                : 'border-[var(--kit-line)] hover:bg-[var(--kit-surface)]'
+                ? 'border-[var(--color-ink)] bg-[var(--color-surface)]'
+                : 'border-[var(--color-line)] hover:bg-[var(--color-surface)]'
             }`}
           >
             <input
@@ -101,16 +101,16 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             />
             <div className="flex-1 text-xs leading-5 text-neutral-500">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-bold text-[var(--kit-ink)]">
+                <span className="text-sm font-bold text-[var(--color-ink)]">
                   {address.fullName} — {address.label}
                 </span>
-                {address.isDefault && <span className="kit-status-badge">Default</span>}
+                {address.isDefault && <span className="status-badge">Default</span>}
               </div>
-              <p className="mt-0.5 font-medium text-[var(--kit-text)]">
+              <p className="mt-0.5 font-medium text-[var(--color-ink-soft)]">
                 {address.streetAddress}
                 {address.apartment ? `, ${address.apartment}` : ''}
               </p>
-              <p className="text-[var(--kit-muted)]">
+              <p className="text-[var(--color-muted)]">
                 {address.city}, {address.state} {address.pincode} · {address.phone}
               </p>
             </div>
@@ -119,7 +119,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleFormSubmit} className="kit-soft-panel mt-5 space-y-3 p-5">
+        <form onSubmit={handleFormSubmit} className="soft-panel mt-5 space-y-3 p-5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
             Enter shipping details
           </h3>
@@ -132,7 +132,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="Full name"
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
-              className="kit-input"
+              className="input"
             />
             <input
               id="address-phone"
@@ -142,7 +142,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="Phone number"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              className="kit-input"
+              className="input"
             />
           </div>
           <input
@@ -153,7 +153,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             placeholder="Street address"
             value={streetAddress}
             onChange={(event) => setStreetAddress(event.target.value)}
-            className="kit-input"
+            className="input"
           />
           <input
             id="address-line2"
@@ -162,7 +162,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
             placeholder="Apartment, suite, or landmark"
             value={apartment}
             onChange={(event) => setApartment(event.target.value)}
-            className="kit-input"
+            className="input"
           />
           <div className="grid gap-3 sm:grid-cols-3">
             <input
@@ -173,14 +173,14 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="City / district"
               value={city}
               onChange={(event) => setCity(event.target.value)}
-              className="kit-input"
+              className="input"
             />
             <select
               id="address-state"
               name="state"
               value={state}
               onChange={(event) => setState(event.target.value)}
-              className="kit-input cursor-pointer"
+              className="input cursor-pointer"
             >
               {INDIAN_STATES.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -196,17 +196,17 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               placeholder="Pincode"
               value={pincode}
               onChange={(event) => setPincode(event.target.value)}
-              className="kit-input"
+              className="input"
             />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="kit-button text-xs">
+            <button type="submit" className="button-primary text-xs">
               Save address
             </button>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="kit-button-secondary text-xs"
+              className="button-secondary text-xs"
             >
               Cancel
             </button>

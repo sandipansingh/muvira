@@ -68,8 +68,8 @@ export const FaqSection: React.FC = () => {
       {/* Header Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 md:mb-16 items-end">
         <div className="lg:col-span-2 text-left">
-          <div className="kit-eyebrow mb-3">FAQ</div>
-          <h2 className="kit-heading max-w-2xl text-3xl leading-[1.1] md:text-5xl">
+          <div className="eyebrow mb-3">FAQ</div>
+          <h2 className="heading max-w-2xl text-3xl leading-[1.1] md:text-5xl">
             Questions, Answered Plainly.
           </h2>
         </div>
@@ -77,19 +77,19 @@ export const FaqSection: React.FC = () => {
           <h4 className="font-display text-base font-bold text-foreground mb-1">
             Didn&apos;t see your question?
           </h4>
-          <p className="kit-body-copy text-sm">
+          <p className="body-copy text-sm">
             Our workshop team is here to help &mdash; just{' '}
             {contactHref ? (
               <a
                 href={contactHref}
-                className="text-kit-ink font-bold underline underline-offset-2 transition-colors duration-200"
+                className="text-ink font-bold underline underline-offset-2 transition-colors duration-200"
               >
                 reach out
               </a>
             ) : (
               <Link
                 to="/#contact"
-                className="text-kit-ink font-bold underline underline-offset-2 transition-colors duration-200"
+                className="text-ink font-bold underline underline-offset-2 transition-colors duration-200"
               >
                 reach out
               </Link>
@@ -105,7 +105,7 @@ export const FaqSection: React.FC = () => {
           <img
             src="https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1200&q=85"
             alt="Artisan shaping timber at the workshop"
-            className="h-full w-full rounded-[var(--kit-radius-card)] object-cover"
+            className="h-full w-full rounded-[var(--radius-card)] object-cover"
           />
         </div>
 
@@ -118,7 +118,7 @@ export const FaqSection: React.FC = () => {
                   {faq.question}
                 </span>
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--kit-radius-control)] transition-colors duration-200 ml-4 ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-control)] transition-colors duration-200 ml-4 ${
                     isOpen
                       ? 'bg-neutral-900 text-white'
                       : 'bg-neutral-100 text-neutral-800 group-hover:bg-neutral-200'
@@ -140,7 +140,7 @@ export const FaqSection: React.FC = () => {
                 onToggle={() => toggleAccordion(index)}
                 trigger={trigger}
                 duration={0.25}
-                className="overflow-hidden border-b border-[var(--kit-line)]"
+                className="overflow-hidden border-b border-[var(--color-line)]"
               >
                 <div className="pb-6 pt-2 text-sm leading-relaxed text-neutral-500">
                   {faq.answer}

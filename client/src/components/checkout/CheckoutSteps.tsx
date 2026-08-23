@@ -13,7 +13,7 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
   ]
   return (
     <nav
-      className="kit-stepper border-y border-[var(--kit-line)] py-4"
+      className="stepper border-y border-[var(--color-line)] py-4"
       aria-label="Checkout progress"
     >
       {steps.map((step, index) => {
@@ -23,12 +23,12 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
         const current = currentStep === step.id
         return (
           <React.Fragment key={step.id}>
-            <div className="kit-stepper__item" data-active={complete || current}>
+            <div className="stepper__item" data-active={complete || current}>
               <span
-                className={`kit-stepper__marker text-xs font-bold ${
+                className={`stepper__marker text-xs font-bold ${
                   complete || current
                     ? ''
-                    : 'border border-[var(--kit-line)] bg-[var(--kit-surface)]'
+                    : 'border border-[var(--color-line)] bg-[var(--color-surface)]'
                 }`}
               >
                 {complete ? <Check className="h-4 w-4" /> : step.number}

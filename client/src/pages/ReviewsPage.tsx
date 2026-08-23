@@ -13,7 +13,7 @@ export const ReviewsPage: React.FC = () => {
           className="mb-8 flex items-center gap-2 text-xs font-semibold text-neutral-400"
           aria-label="Breadcrumb"
         >
-          <Link to="/" className="hover:text-kit-ink hover:underline transition-colors">
+          <Link to="/" className="hover:text-ink hover:underline transition-colors">
             Home
           </Link>
           <span>/</span>
@@ -28,17 +28,14 @@ export const ReviewsPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           {TESTIMONIALS.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="kit-panel flex flex-col justify-between p-6 sm:p-8"
-            >
+            <div key={testimonial.id} className="panel flex flex-col justify-between p-6 sm:p-8">
               <div>
                 <div className="flex items-center gap-1 text-amber-500 mb-4">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star key={s} className="w-4 h-4 fill-current" />
                   ))}
                 </div>
-                <blockquote className="kit-body-copy text-sm sm:text-base">
+                <blockquote className="body-copy text-sm sm:text-base">
                   “{testimonial.quote}”
                 </blockquote>
               </div>
@@ -52,8 +49,8 @@ export const ReviewsPage: React.FC = () => {
                   className="w-10 h-10 rounded-full object-cover shrink-0 border border-neutral-100"
                 />
                 <div>
-                  <p className="text-sm font-bold text-[var(--kit-ink)]">{testimonial.author}</p>
-                  <p className="text-xs font-normal text-[var(--kit-muted)]">
+                  <p className="text-sm font-bold text-[var(--color-ink)]">{testimonial.author}</p>
+                  <p className="text-xs font-normal text-[var(--color-muted)]">
                     {testimonial.location}
                   </p>
                 </div>

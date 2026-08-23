@@ -381,7 +381,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             type="button"
             onClick={() => setSelectedStarFilter(null)}
-            className="mt-3 cursor-pointer text-xs font-bold text-kit-ink underline underline-offset-2"
+            className="mt-3 cursor-pointer text-xs font-bold text-ink underline underline-offset-2"
           >
             Clear filters
           </button>
@@ -536,7 +536,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               value={newComment}
               onChange={(event) => setNewComment(event.target.value)}
               placeholder="Tell us about the craftsmanship, finish, weight, and in-person feel..."
-              className="kit-input w-full p-3.5 text-base"
+              className="input w-full p-3.5 text-base"
             />
           </div>
 

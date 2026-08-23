@@ -83,12 +83,12 @@ export const ProductDetailPage: React.FC = () => {
       <main className="editorial-page py-12">
         <div className="editorial-container">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-            <div className="aspect-square animate-pulse rounded-2xl bg-[var(--kit-surface)]" />
+            <div className="aspect-square animate-pulse rounded-2xl bg-[var(--color-surface)]" />
             <div className="space-y-4">
-              <div className="h-6 w-1/4 animate-pulse rounded bg-[var(--kit-line)]" />
-              <div className="h-10 w-3/4 animate-pulse rounded bg-[var(--kit-line)]" />
-              <div className="h-6 w-1/3 animate-pulse rounded bg-[var(--kit-line)]" />
-              <div className="h-24 w-full animate-pulse rounded bg-[var(--kit-line)]" />
+              <div className="h-6 w-1/4 animate-pulse rounded bg-[var(--color-line)]" />
+              <div className="h-10 w-3/4 animate-pulse rounded bg-[var(--color-line)]" />
+              <div className="h-6 w-1/3 animate-pulse rounded bg-[var(--color-line)]" />
+              <div className="h-24 w-full animate-pulse rounded bg-[var(--color-line)]" />
             </div>
           </div>
         </div>
@@ -100,11 +100,11 @@ export const ProductDetailPage: React.FC = () => {
     return (
       <main className="editorial-page py-16 sm:py-24">
         <div className="editorial-container max-w-xl text-center">
-          <h1 className="kit-heading text-3xl">Product not found</h1>
-          <p className="kit-body-copy mt-2 text-sm">
+          <h1 className="heading text-3xl">Product not found</h1>
+          <p className="body-copy mt-2 text-sm">
             {error ?? 'This product is no longer available.'}
           </p>
-          <Link to="/shop" className="kit-button mt-6">
+          <Link to="/shop" className="button-primary mt-6">
             Return to Shop
           </Link>
         </div>
@@ -117,25 +117,25 @@ export const ProductDetailPage: React.FC = () => {
       <div className="editorial-container py-6 sm:py-10">
         {/* Breadcrumbs */}
         <nav
-          className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[var(--kit-muted)]"
+          className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[var(--color-muted)]"
           aria-label="Breadcrumb"
         >
-          <Link to="/" className="transition-colors hover:text-[var(--kit-ink)]">
+          <Link to="/" className="transition-colors hover:text-[var(--color-ink)]">
             Home
           </Link>
           <ChevronRight className="h-3 w-3" />
-          <Link to="/shop" className="transition-colors hover:text-[var(--kit-ink)]">
+          <Link to="/shop" className="transition-colors hover:text-[var(--color-ink)]">
             Shop
           </Link>
           <ChevronRight className="h-3 w-3" />
           <Link
             to={`/shop?category=${product.category.slug}`}
-            className="transition-colors hover:text-[var(--kit-ink)]"
+            className="transition-colors hover:text-[var(--color-ink)]"
           >
             {product.category.name}
           </Link>
           <ChevronRight className="h-3 w-3" />
-          <span className="truncate text-[var(--kit-ink)]">{product.name}</span>
+          <span className="truncate text-[var(--color-ink)]">{product.name}</span>
         </nav>
 
         {/* Gallery + Product Info Grid */}
@@ -164,7 +164,7 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <section className="mt-16 border-t border-[var(--kit-line)] pt-12">
+          <section className="mt-16 border-t border-[var(--color-line)] pt-12">
             <SectionHeader
               title="You May Also Like"
               subtitle="Handcrafted pieces from the same master artisan workshops"

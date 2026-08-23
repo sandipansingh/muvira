@@ -8,10 +8,10 @@ export const OrderFailurePage: React.FC = () => {
   const orderId = searchParams.get('orderId')
   return (
     <main className="editorial-page px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-xl rounded-[var(--kit-radius-card)] border border-danger bg-danger-soft p-8 text-center sm:p-12">
+      <div className="mx-auto max-w-xl rounded-[var(--radius-card)] border border-danger bg-danger-soft p-8 text-center sm:p-12">
         <AlertCircle className="mx-auto h-12 w-12 text-red-600" />
-        <span className="kit-eyebrow mt-6 block text-red-600">Payment Not Completed</span>
-        <h1 className="kit-heading mt-2 text-4xl sm:text-6xl">Order could not be confirmed</h1>
+        <span className="eyebrow mt-6 block text-red-600">Payment Not Completed</span>
+        <h1 className="heading mt-2 text-4xl sm:text-6xl">Order could not be confirmed</h1>
         <p className="mt-4 text-sm leading-relaxed text-neutral-600">
           {reason || 'The payment could not be completed. You can safely retry from checkout.'}
         </p>
@@ -19,11 +19,11 @@ export const OrderFailurePage: React.FC = () => {
           <p className="mt-3 text-xs text-neutral-400">Pending order reference: #{orderId}</p>
         )}
         <div className="flex flex-col justify-center gap-3 pt-8 sm:flex-row">
-          <Link to="/checkout" className="kit-button py-3 text-sm">
+          <Link to="/checkout" className="button-primary py-3 text-sm">
             <RefreshCw className="h-4 w-4 shrink-0" />
             <span className="leading-none">Retry Payment</span>
           </Link>
-          <Link to="/cart" className="kit-button-secondary py-3 text-sm">
+          <Link to="/cart" className="button-secondary py-3 text-sm">
             <span className="leading-none">Return to Cart</span>
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>

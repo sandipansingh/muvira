@@ -51,16 +51,16 @@ export const OrdersHistoryPage: React.FC = () => {
     <main className="editorial-page py-10 sm:py-16">
       <div className="editorial-container max-w-4xl">
         <div className="mb-10 border-b border-border-light pb-6">
-          <span className="kit-eyebrow mb-2 block">Account / Purchases</span>
-          <h1 className="kit-heading text-4xl sm:text-6xl">Order History</h1>
-          <p className="kit-body-copy mt-2 text-sm">Track your past purchases and deliveries.</p>
+          <span className="eyebrow mb-2 block">Account / Purchases</span>
+          <h1 className="heading text-4xl sm:text-6xl">Order History</h1>
+          <p className="body-copy mt-2 text-sm">Track your past purchases and deliveries.</p>
         </div>
         {loading && (
           <div className="space-y-4">
             {[1, 2].map((item) => (
               <div
                 key={item}
-                className="h-28 animate-pulse rounded-[var(--kit-radius-card)] bg-[var(--kit-surface)]"
+                className="h-28 animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)]"
               />
             ))}
           </div>
@@ -71,28 +71,28 @@ export const OrdersHistoryPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setRefreshToken((current) => current + 1)}
-              className="kit-button mt-5"
+              className="button-primary mt-5"
             >
               Try again
             </button>
           </div>
         )}
         {!loading && !error && orders.length === 0 && (
-          <div className="border-y border-[var(--kit-line)] py-12 text-center">
+          <div className="border-y border-[var(--color-line)] py-12 text-center">
             <Package className="mx-auto h-10 w-10 text-neutral-300" />
             <p className="mt-3 text-sm text-neutral-500">You have not placed any orders yet.</p>
-            <Link to="/shop" className="kit-button mt-5">
+            <Link to="/shop" className="button-primary mt-5">
               Explore Shop
             </Link>
           </div>
         )}
         {!loading && !error && orders.length > 0 && (
-          <div className="divide-y divide-[var(--kit-line)] border-y border-[var(--kit-line)]">
+          <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
             {orders.map((order) => (
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--kit-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-4"
+                className="flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-4"
               >
                 <div className="flex items-center gap-4">
                   {order.firstItemImage ? (
@@ -111,7 +111,7 @@ export const OrdersHistoryPage: React.FC = () => {
                       <span className="font-display text-base font-bold text-foreground">
                         #{order.orderNumber}
                       </span>
-                      <span className="kit-status-badge">{order.status.replaceAll('_', ' ')}</span>
+                      <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>
                     </div>
                     <p className="mt-1 text-xs font-semibold text-foreground">
                       {order.firstItemName ?? `${order.itemCount} item(s)`}

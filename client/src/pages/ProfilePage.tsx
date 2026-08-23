@@ -179,15 +179,15 @@ export const ProfilePage: React.FC = () => {
   return (
     <main className="editorial-page py-10 sm:py-16">
       <div className="editorial-container max-w-5xl space-y-10">
-        <div className="flex items-center justify-between border-b border-[var(--kit-line)] pb-6">
+        <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-6">
           <div>
-            <span className="kit-eyebrow mb-1 block">Account Overview</span>
-            <h1 className="kit-heading text-4xl sm:text-6xl">My Profile</h1>
+            <span className="eyebrow mb-1 block">Account Overview</span>
+            <h1 className="heading text-4xl sm:text-6xl">My Profile</h1>
           </div>
           <button
             type="button"
             onClick={logout}
-            className="kit-button-secondary px-4 py-2 text-xs font-bold"
+            className="button-secondary px-4 py-2 text-xs font-bold"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span className="leading-none">Sign out</span>
@@ -198,21 +198,21 @@ export const ProfilePage: React.FC = () => {
           <div className="space-y-2">
             <Link
               to="/profile"
-              className="flex items-center gap-3 rounded-[var(--kit-radius-control)] bg-[var(--kit-ink)] p-4 text-xs font-bold text-white"
+              className="flex items-center gap-3 rounded-[var(--radius-control)] bg-[var(--color-ink)] p-4 text-xs font-bold text-white"
             >
               <User className="h-4 w-4 shrink-0" />
               <span className="leading-none">Personal Info</span>
             </Link>
             <Link
               to="/orders"
-              className="flex items-center gap-3 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] p-4 text-xs font-bold text-[var(--kit-muted)] transition-colors hover:bg-[var(--kit-surface)] hover:text-[var(--kit-ink)]"
+              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-bold text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
             >
               <Package className="h-4 w-4 shrink-0" />
               <span className="leading-none">My Orders</span>
             </Link>
             <a
               href="#addresses"
-              className="flex items-center gap-3 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] p-4 text-xs font-bold text-[var(--kit-muted)] transition-colors hover:bg-[var(--kit-surface)] hover:text-[var(--kit-ink)]"
+              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-bold text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
             >
               <MapPin className="h-4 w-4 shrink-0" />
               <span className="leading-none">Saved Addresses ({addresses.length})</span>
@@ -220,8 +220,8 @@ export const ProfilePage: React.FC = () => {
           </div>
 
           <div className="space-y-8 md:col-span-2">
-            <div className="kit-panel space-y-6 p-6 sm:p-8">
-              <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">
+            <div className="panel space-y-6 p-6 sm:p-8">
+              <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
                 Personal Details
               </h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
@@ -238,7 +238,7 @@ export const ProfilePage: React.FC = () => {
                     type="email"
                     disabled
                     value={user.email}
-                    className="kit-input cursor-not-allowed bg-neutral-100 text-neutral-500"
+                    className="input cursor-not-allowed bg-neutral-100 text-neutral-500"
                   />
                 </div>
                 <div>
@@ -255,7 +255,7 @@ export const ProfilePage: React.FC = () => {
                     required
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
-                    className="kit-input"
+                    className="input"
                   />
                 </div>
                 <div>
@@ -272,35 +272,35 @@ export const ProfilePage: React.FC = () => {
                     required
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
-                    className="kit-input"
+                    className="input"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="kit-button text-xs py-2.5 font-bold disabled:opacity-50"
+                  className="button-primary text-xs py-2.5 font-bold disabled:opacity-50"
                 >
                   {savingProfile ? 'Saving...' : 'Save Changes'}
                 </button>
               </form>
             </div>
 
-            <section id="addresses" className="kit-panel space-y-4 p-6 sm:p-8">
+            <section id="addresses" className="panel space-y-4 p-6 sm:p-8">
               <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl font-bold text-[var(--kit-ink)]">
+                <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
                   Saved Addresses
                 </h2>
                 <button
                   type="button"
                   onClick={openNewAddressForm}
-                  className="kit-button text-xs py-2 px-4 font-bold"
+                  className="button-primary text-xs py-2 px-4 font-bold"
                 >
                   Add Address
                 </button>
               </div>
 
               {addressFormOpen && (
-                <form onSubmit={handleAddressSave} className="kit-soft-panel mt-4 space-y-3 p-5">
+                <form onSubmit={handleAddressSave} className="soft-panel mt-4 space-y-3 p-5">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
                     {editingAddressId ? 'Edit Address' : 'Add Address'}
                   </h3>
@@ -329,7 +329,7 @@ export const ProfilePage: React.FC = () => {
                             [field]: event.target.value,
                           }))
                         }
-                        className="kit-input"
+                        className="input"
                       />
                     ))}
                     <select
@@ -339,7 +339,7 @@ export const ProfilePage: React.FC = () => {
                       onChange={(event) =>
                         setAddressForm((previous) => ({ ...previous, state: event.target.value }))
                       }
-                      className="kit-input cursor-pointer"
+                      className="input cursor-pointer"
                     >
                       {INDIAN_STATES.map((state) => (
                         <option key={state.value} value={state.value}>
@@ -363,13 +363,13 @@ export const ProfilePage: React.FC = () => {
                     Use as default address
                   </label>
                   <div className="flex gap-2 pt-2">
-                    <button type="submit" className="kit-button text-xs py-2.5 font-bold">
+                    <button type="submit" className="button-primary text-xs py-2.5 font-bold">
                       Save address
                     </button>
                     <button
                       type="button"
                       onClick={() => setAddressFormOpen(false)}
-                      className="kit-button-secondary text-xs py-2.5 font-bold"
+                      className="button-secondary text-xs py-2.5 font-bold"
                     >
                       Cancel
                     </button>
@@ -378,7 +378,7 @@ export const ProfilePage: React.FC = () => {
               )}
 
               {loadingAddresses && (
-                <div className="h-24 animate-pulse rounded-[var(--kit-radius-control)] bg-[var(--kit-surface)]" />
+                <div className="h-24 animate-pulse rounded-[var(--radius-control)] bg-[var(--color-surface)]" />
               )}
               {!loadingAddresses && addresses.length === 0 && (
                 <p className="border-y border-border-light py-5 text-sm text-neutral-500">
@@ -389,14 +389,14 @@ export const ProfilePage: React.FC = () => {
                 addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="flex flex-col gap-4 rounded-[var(--kit-radius-control)] border border-[var(--kit-line)] bg-[var(--kit-paper)] p-4 sm:flex-row sm:items-start sm:justify-between"
+                    className="flex flex-col gap-4 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] p-4 sm:flex-row sm:items-start sm:justify-between"
                   >
                     <div className="space-y-1 text-xs text-neutral-500">
                       <div className="flex items-center gap-2">
                         <strong className="text-sm font-bold text-foreground">
                           {address.fullName}
                         </strong>
-                        {address.isDefault && <span className="kit-status-badge">Default</span>}
+                        {address.isDefault && <span className="status-badge">Default</span>}
                       </div>
                       <p className="text-neutral-700 font-medium">
                         {address.line1}
@@ -411,7 +411,7 @@ export const ProfilePage: React.FC = () => {
                       {!address.isDefault && (
                         <button
                           onClick={() => setDefaultAddress(address.id)}
-                          className="text-xs font-bold text-kit-muted hover:text-kit-ink hover:underline transition-colors cursor-pointer"
+                          className="text-xs font-bold text-muted hover:text-ink hover:underline transition-colors cursor-pointer"
                         >
                           Set default
                         </button>

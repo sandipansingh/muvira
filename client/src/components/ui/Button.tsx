@@ -20,11 +20,11 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  xs: 'h-7 px-2.5 text-xs gap-1.5 rounded-[var(--kit-radius-control)]',
-  sm: 'h-9 px-3.5 text-xs gap-1.5 rounded-[var(--kit-radius-control)]',
-  md: 'h-10 px-4 text-sm gap-2 rounded-[var(--kit-radius-control)]',
-  lg: 'h-12 px-6 text-sm gap-2 rounded-[var(--kit-radius-control)]',
-  xl: 'h-14 px-8 text-base gap-2.5 rounded-[var(--kit-radius-control)]',
+  xs: 'h-7 px-2.5 text-xs gap-1.5 rounded-[var(--radius-control)]',
+  sm: 'h-9 px-3.5 text-xs gap-1.5 rounded-[var(--radius-control)]',
+  md: 'h-10 px-4 text-sm gap-2 rounded-[var(--radius-control)]',
+  lg: 'h-12 px-6 text-sm gap-2 rounded-[var(--radius-control)]',
+  xl: 'h-14 px-8 text-base gap-2.5 rounded-[var(--radius-control)]',
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

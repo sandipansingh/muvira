@@ -20,7 +20,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   if (imageUrls.length === 0) {
     return (
-      <div className="aspect-square flex items-center justify-center rounded-2xl bg-[var(--kit-surface)] text-xs text-[var(--kit-muted)]">
+      <div className="aspect-square flex items-center justify-center rounded-2xl bg-[var(--color-surface)] text-xs text-[var(--color-muted)]">
         Image unavailable
       </div>
     )
@@ -39,11 +39,11 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   return (
     <div className="space-y-4">
       {/* Main Image Container */}
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-[var(--kit-surface)]">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-[var(--color-surface)]">
         {/* Badges Stack */}
         <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
           {isNew && (
-            <span className="inline-flex items-center justify-center rounded bg-white px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[var(--kit-ink)] shadow-xs">
+            <span className="inline-flex items-center justify-center rounded bg-white px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[var(--color-ink)] shadow-xs">
               NEW
             </span>
           )}
@@ -60,7 +60,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[var(--kit-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -68,7 +68,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[var(--kit-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/90 text-[var(--color-ink)] shadow-md transition-transform hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Next image"
             >
               <ChevronRight className="h-5 w-5" />
@@ -94,7 +94,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
               onClick={() => setActiveIndex(index)}
               className={`relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all ${
                 activeIndex === index
-                  ? 'border-2 border-[var(--kit-ink)] ring-2 ring-[var(--kit-ink)]/20 opacity-100'
+                  ? 'border-2 border-[var(--color-ink)] ring-2 ring-[var(--color-ink)]/20 opacity-100'
                   : 'border border-transparent opacity-70 hover:opacity-100'
               }`}
               aria-label={`View ${title} thumbnail ${index + 1}`}

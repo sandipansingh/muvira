@@ -33,9 +33,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       } ${className}`}
     >
       <div className={isCenter ? 'max-w-3xl mx-auto' : 'max-w-4xl'}>
-        {badge && <span className="kit-eyebrow mb-2 block">{badge}</span>}
-        <h2 className="kit-heading text-2xl leading-[1.1] sm:text-3xl md:text-5xl">{title}</h2>
-        {subtitle && <p className="kit-body-copy mt-2 text-sm md:text-base">{subtitle}</p>}
+        {badge && <span className="eyebrow mb-2 block">{badge}</span>}
+        <h2 className="heading text-2xl leading-[1.1] sm:text-3xl md:text-5xl">{title}</h2>
+        {subtitle && <p className="body-copy mt-2 text-sm md:text-base">{subtitle}</p>}
       </div>
 
       {rightSlot && (
