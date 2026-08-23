@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { PenLine, Star, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Star, ThumbsDown, ThumbsUp } from 'lucide-react'
 import type { ProductReview } from '../../lib/types/product'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -242,32 +242,25 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   }
 
   return (
-    <div className="space-y-8 py-6">
-      {/* Rating Summary Card (Reference 1 & 3) */}
-      <div className="rounded-2xl border border-line bg-surface p-6 lg:p-8">
-        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12">
-          {/* Big Score Display (Reference 3) */}
-          <div className="flex flex-col items-start justify-center space-y-2 md:col-span-4">
+    <div className="space-y-6 py-4">
+      {/* Rating Summary Block (Uncarded, matching reference images 2 & 3) */}
+      <div className="py-2">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-10">
+          {/* Big Score Display (Left column with vertical divider) */}
+          <div className="flex flex-col items-start justify-center space-y-1.5 md:border-r md:border-line/60 md:pr-10">
             <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-5xl font-normal tracking-tight text-ink sm:text-6xl">
+              <span className="font-display text-5xl font-medium tracking-tight text-ink sm:text-6xl">
                 {effectiveRating.toFixed(1)}
               </span>
-              <span className="font-display text-2xl font-normal text-muted">/5</span>
+              <span className="text-sm font-normal text-muted sm:text-base">out of 5</span>
             </div>
             <RatingStars rating={effectiveRating} size="md" />
-            <p className="text-xs font-normal text-muted">
-              ({totalReviewDisplay} Verified Customer Reviews)
-            </p>
-            <p className="text-xs font-normal text-ink-soft">
-              <span className="font-normal text-ink">{distribution.recommendPercent}%</span> of
-              buyers recommend this product
-            </p>
+            <p className="text-xs font-normal text-muted pt-0.5">({totalReviewDisplay} Reviews)</p>
           </div>
 
-          {/* Rating Histogram Bars (Reference 3) */}
-          <div className="space-y-2.5 py-5 md:col-span-5 md:px-6 md:py-0">
+          {/* Rating Histogram Bars (Right column matching reference images 2 & 3) */}
+          <div className="w-full max-w-md space-y-2">
             {([5, 4, 3, 2, 1] as const).map((stars) => {
-              const count = distribution.counts[stars] || 0
               const percent = distribution.percentages[stars] || 0
               const isSelected = selectedStarFilter === stars
               return (
@@ -280,40 +273,18 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   }`}
                   aria-label={`Filter by ${stars} stars`}
                 >
-                  <div className="flex w-9 items-center gap-1 font-normal text-ink-soft group-hover:text-ink">
-                    <Star className="h-3.5 w-3.5 fill-rating text-rating shrink-0" />
-                    <span>{stars}</span>
-                  </div>
-                  <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-line">
+                  <span className="w-12 text-left text-xs font-medium text-ink-soft group-hover:text-ink">
+                    {stars} Star
+                  </span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-line/70">
                     <div
-                      className="h-full rounded-full bg-ink transition-all duration-300 group-hover:bg-primary"
+                      className="h-full rounded-full bg-amber-500 transition-all duration-300 group-hover:bg-amber-600"
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="w-10 text-right text-xs font-normal text-muted">{count}</span>
                 </button>
               )
             })}
-          </div>
-
-          {/* Write a Review Action */}
-          <div className="flex flex-col items-start justify-center space-y-3 text-left md:col-span-3 md:items-center md:text-center">
-            <p className="text-xs font-normal text-ink-soft">
-              Have you purchased this handcrafted piece?
-            </p>
-            <Button
-              type="button"
-              variant="primary"
-              size="md"
-              onClick={() => setIsModalOpen(true)}
-              leftIcon={<PenLine className="h-4 w-4 shrink-0" />}
-              className="w-full sm:w-auto"
-            >
-              Write a Review
-            </Button>
-            <span className="text-[11px] text-muted">
-              Direct artisan feedback helps our craft community
-            </span>
           </div>
         </div>
       </div>
