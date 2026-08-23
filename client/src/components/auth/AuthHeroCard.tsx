@@ -61,7 +61,7 @@ export const AuthHeroCard: React.FC<AuthHeroCardProps> = ({ className = '' }) =>
 
   return (
     <div
-      className={`relative w-full h-full min-h-[380px] lg:min-h-[440px] lg:max-h-[560px] rounded-3xl overflow-hidden bg-neutral-950 flex flex-col justify-end p-5 sm:p-7 md:p-8 select-none shadow-lg ${className}`}
+      className={`relative w-full h-full min-h-[380px] lg:min-h-[440px] lg:max-h-[560px] rounded-3xl overflow-hidden bg-ink flex flex-col justify-end p-5 sm:p-7 md:p-8 select-none shadow-lg ${className}`}
     >
       {/* Background Slides with Crossfade Animation */}
       <AnimatePresence mode="wait">

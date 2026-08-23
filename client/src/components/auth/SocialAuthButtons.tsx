@@ -24,10 +24,10 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({ disabled =
         type="button"
         onClick={handleGoogleClick}
         disabled={disabled || googleLoading}
-        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50/80 active:bg-neutral-100 rounded-xl text-sm font-medium text-neutral-800 transition-colors shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-line hover:border-field-border hover:bg-surface active:bg-line/50 rounded-xl text-sm font-medium text-ink-soft transition-colors shadow-2xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {googleLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin text-neutral-500" />
+          <Loader2 className="w-4 h-4 animate-spin text-muted" />
         ) : (
           <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
             <path
