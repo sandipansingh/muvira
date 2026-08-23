@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { LogOut, Menu, Package, Search, ShoppingBag, User, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
+import { Button } from '../ui/Button'
+import { Input } from '../ui/Input'
 
 interface HeaderProps {
   onOpenMobileMenu?: () => void
@@ -52,14 +54,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
       <div className="relative layout-container py-3 sm:py-4 flex items-center justify-between gap-4">
         {/* Left: Hamburger Menu Button (Functional on Desktop & Mobile) */}
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={onOpenMobileMenu}
-            className="flex h-10 w-10 items-center justify-center text-ink hover:bg-surface rounded-full transition-colors cursor-pointer"
             aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5 stroke-[2]" />
-          </button>
+          </Button>
         </div>
 
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
@@ -84,26 +87,30 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           </div>
 
           {/* Search Trigger for Mobile/Header */}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => setIsSearchOpen((prev) => !prev)}
-            className="flex h-10 w-10 items-center justify-center text-ink-soft hover:text-ink hover:bg-surface rounded-full transition-colors cursor-pointer md:hidden"
+            className="text-ink-soft md:hidden"
             aria-label="Search products"
           >
             <Search className="w-5 h-5 stroke-[1.75]" />
-          </button>
+          </Button>
 
           {/* User Account / Auth */}
           <div className="relative flex items-center justify-center">
             {isAuthenticated ? (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                className="flex h-10 w-10 items-center justify-center text-ink-soft hover:text-ink hover:bg-surface rounded-full transition-colors cursor-pointer"
+                className="text-ink-soft"
                 aria-label="Account menu"
               >
                 <User className="w-5 h-5 stroke-[1.75]" />
-              </button>
+              </Button>
             ) : (
               <Link
                 to="/signin"
@@ -157,10 +164,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           </div>
 
           {/* Shopping Bag Cart Button */}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={openCartDrawer}
-            className="relative flex h-10 w-10 items-center justify-center text-ink hover:bg-surface rounded-full transition-colors cursor-pointer"
+            className="relative"
             aria-label="Shopping cart"
           >
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
@@ -169,7 +178,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
                 {itemCount}
               </span>
             )}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -181,22 +190,24 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             className="flex items-center bg-paper rounded-full border border-line p-1 pl-4 shadow-xs"
           >
             <Search className="w-4 h-4 text-muted shrink-0" />
-            <input
+            <Input
               type="search"
               autoFocus
               placeholder="Search handcrafted furniture..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none px-3 text-sm text-ink placeholder-muted"
+              className="flex-1 bg-transparent border-none outline-none px-3 py-1.5 text-sm text-ink placeholder:text-muted focus:ring-0"
             />
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-sm"
               onClick={() => setIsSearchOpen(false)}
-              className="p-1.5 rounded-full text-muted hover:text-ink hover:bg-surface transition-colors cursor-pointer"
+              className="text-muted hover:text-ink"
               aria-label="Close search"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </form>
         </div>
       )}
