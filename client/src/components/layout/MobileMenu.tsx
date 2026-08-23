@@ -67,12 +67,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
         <div className="p-6">
           {/* Header with Brand Logo & Close X */}
           <div className="flex items-center justify-between pb-5">
-            <Link
-              to="/"
-              onClick={onClose}
-              className="flex items-center gap-2 font-display text-xl font-normal tracking-tight text-ink"
-            >
-              <span>Muvira.</span>
+            <Link to="/" onClick={onClose} className="flex items-center gap-2.5 select-none">
+              <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
+              <span className="translate-y-[2px] font-display text-xl font-normal tracking-tight text-ink leading-none">
+                Muvira
+              </span>
             </Link>
             <button
               type="button"
