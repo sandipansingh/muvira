@@ -39,7 +39,7 @@ export function SegmentedControl<T extends string = string>({
               type="button"
               onClick={() => onChange(opt.value)}
               className={`relative pb-2 cursor-pointer transition-colors duration-200 shrink-0 font-sans ${textSizeClass} ${
-                isActive ? 'font-bold text-ink' : 'font-medium text-muted hover:text-ink-soft'
+                isActive ? 'font-bold text-ink' : 'font-normal text-muted hover:text-ink-soft'
               }`}
             >
               <span>{opt.label}</span>
@@ -68,7 +68,7 @@ export function SegmentedControl<T extends string = string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`relative ${paddingClass} rounded-[var(--radius-control)] font-semibold transition-colors duration-200 cursor-pointer shrink-0 border select-none ${
+            className={`relative ${paddingClass} rounded-[var(--radius-control)] font-bold transition-colors duration-200 cursor-pointer shrink-0 border select-none ${
               isActive
                 ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
                 : 'bg-[var(--color-paper)] text-[var(--color-muted)] border-[var(--color-line)] hover:bg-[var(--color-surface)]'

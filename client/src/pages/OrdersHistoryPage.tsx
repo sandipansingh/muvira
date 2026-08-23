@@ -67,7 +67,7 @@ export const OrdersHistoryPage: React.FC = () => {
         )}
         {!loading && error && (
           <div className="border-y border-warning bg-warning-soft py-6 text-center">
-            <p className="text-sm font-semibold text-warning">{error}</p>
+            <p className="text-sm font-bold text-warning">{error}</p>
             <button
               type="button"
               onClick={() => setRefreshToken((current) => current + 1)}
@@ -113,7 +113,7 @@ export const OrdersHistoryPage: React.FC = () => {
                       </span>
                       <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>
                     </div>
-                    <p className="mt-1 text-xs font-semibold text-ink">
+                    <p className="mt-1 text-xs font-bold text-ink">
                       {order.firstItemName ?? `${order.itemCount} item(s)`}
                     </p>
                     <p className="mt-1 flex items-center gap-1 text-[11px] text-muted">
@@ -146,7 +146,7 @@ export const OrdersHistoryPage: React.FC = () => {
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="text-xs font-semibold text-muted">
+            <span className="text-xs font-bold text-muted">
               Page {page} of {totalPages}
             </span>
             <button

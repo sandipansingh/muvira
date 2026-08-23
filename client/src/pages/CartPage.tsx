@@ -33,7 +33,7 @@ export const CartPage: React.FC = () => {
             Looks like you have not added any handcrafted pieces yet. Discover our artisanal wooden
             decor and statues.
           </p>
-          <Link to="/shop" className="button-primary mt-6 gap-2 px-5 py-3 text-sm font-semibold">
+          <Link to="/shop" className="button-primary mt-6 gap-2 px-5 py-3 text-sm font-bold">
             <span className="leading-none">Explore Handcrafted Collections</span>
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
@@ -48,13 +48,13 @@ export const CartPage: React.FC = () => {
         {/* Breadcrumb Navigation */}
         <nav
           aria-label="Breadcrumb"
-          className="mb-4 flex items-center gap-2 text-xs font-medium text-[var(--color-muted)]"
+          className="mb-4 flex items-center gap-2 text-xs font-normal text-[var(--color-muted)]"
         >
           <Link to="/" className="hover:text-[var(--color-ink)] transition-colors">
             Home
           </Link>
           <span>/</span>
-          <span className="font-semibold text-[var(--color-ink)]">Shopping Cart</span>
+          <span className="font-bold text-[var(--color-ink)]">Shopping Cart</span>
         </nav>
 
         {/* Page Header */}
@@ -70,7 +70,7 @@ export const CartPage: React.FC = () => {
             type="button"
             onClick={clearCart}
             disabled={loading}
-            className="inline-flex cursor-pointer items-center gap-1.5 self-start text-xs font-semibold leading-none text-muted transition-colors hover:text-danger disabled:opacity-50"
+            className="inline-flex cursor-pointer items-center gap-1.5 self-start text-xs font-bold leading-none text-muted transition-colors hover:text-danger disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5 shrink-0" />
             <span className="leading-none">Clear Cart</span>
@@ -78,7 +78,7 @@ export const CartPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="mb-4 rounded-xl border border-warning/30 bg-warning-soft p-3 text-xs font-medium text-warning">
+          <div className="mb-4 rounded-xl border border-warning/30 bg-warning-soft p-3 text-xs font-normal text-warning">
             {error}
           </div>
         )}
@@ -97,7 +97,7 @@ export const CartPage: React.FC = () => {
             <div className="pt-1">
               <Link
                 to="/shop"
-                className="inline-flex items-center gap-2 text-xs font-semibold leading-none text-ink hover:text-primary hover:underline sm:text-sm"
+                className="inline-flex items-center gap-2 text-xs font-bold leading-none text-ink hover:text-primary hover:underline sm:text-sm"
               >
                 <ArrowLeft className="h-4 w-4 shrink-0" />
                 <span className="leading-none">Continue Shopping</span>
@@ -112,7 +112,7 @@ export const CartPage: React.FC = () => {
             </h2>
 
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-[var(--color-ink)]">
+              <label className="mb-1.5 block text-xs font-bold text-[var(--color-ink)]">
                 Have a coupon?
               </label>
               <CouponInput />
@@ -123,19 +123,19 @@ export const CartPage: React.FC = () => {
                 <span>
                   Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})
                 </span>
-                <span className="font-semibold text-[var(--color-ink)]">
+                <span className="font-bold text-[var(--color-ink)]">
                   {formatPrice(subtotalPaisa)}
                 </span>
               </div>
               {discountPaisa > 0 && (
-                <div className="flex justify-between font-semibold text-accent">
+                <div className="flex justify-between font-bold text-accent">
                   <span>Coupon Discount</span>
                   <span>-{formatPrice(discountPaisa)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
-                <span className="font-semibold text-[var(--color-ink)]">
+                <span className="font-bold text-[var(--color-ink)]">
                   {shippingPaisa === 0 ? (
                     <span className="text-accent font-bold">FREE</span>
                   ) : (

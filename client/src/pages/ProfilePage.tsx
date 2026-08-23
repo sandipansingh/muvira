@@ -343,7 +343,7 @@ export const ProfilePage: React.FC = () => {
                       options={INDIAN_STATES}
                     />
                   </div>
-                  <label className="flex items-center gap-2 text-xs font-semibold text-ink-soft">
+                  <label className="flex items-center gap-2 text-xs font-bold text-ink-soft">
                     <input
                       type="checkbox"
                       checked={addressForm.isDefault}
@@ -391,7 +391,7 @@ export const ProfilePage: React.FC = () => {
                         <strong className="text-sm font-bold text-ink">{address.fullName}</strong>
                         {address.isDefault && <span className="status-badge">Default</span>}
                       </div>
-                      <p className="text-ink-soft font-medium">
+                      <p className="text-ink-soft font-normal">
                         {address.line1}
                         {address.line2 ? `, ${address.line2}` : ''}
                       </p>

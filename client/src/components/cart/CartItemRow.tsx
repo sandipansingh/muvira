@@ -48,7 +48,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               type="button"
               onClick={() => removeFromCart(item.productId)}
               disabled={loading}
-              className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-bold leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
               aria-label={`Remove ${item.productName} from cart`}
               title="Remove item"
             >
@@ -88,7 +88,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             </div>
 
             <div className="text-right">
-              <span className="block text-xs font-medium text-[var(--color-muted)]">Subtotal</span>
+              <span className="block text-xs font-normal text-[var(--color-muted)]">Subtotal</span>
               <span className="font-display text-base font-bold text-[var(--color-ink)]">
                 {formatPrice(item.lineTotal)}
               </span>

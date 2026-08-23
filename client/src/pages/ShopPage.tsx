@@ -97,7 +97,7 @@ export const ShopPage: React.FC = () => {
       <div className="editorial-container">
         <header className="page-header mb-6">
           <nav
-            className="flex items-center gap-2 text-xs font-medium text-[var(--color-muted)]"
+            className="flex items-center gap-2 text-xs font-normal text-[var(--color-muted)]"
             aria-label="Breadcrumb"
           >
             <Link to="/" className="transition-colors hover:text-[var(--color-ink)]">
@@ -173,18 +173,18 @@ export const ShopPage: React.FC = () => {
                   type="button"
                   disabled={page <= 1}
                   onClick={() => updateParams({ page: String(page - 1) })}
-                  className="text-sm font-semibold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-bold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span className="text-sm font-medium text-[var(--color-muted)]" aria-current="page">
+                <span className="text-sm font-normal text-[var(--color-muted)]" aria-current="page">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => updateParams({ page: String(page + 1) })}
-                  className="text-sm font-semibold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
+                  className="text-sm font-bold text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
                 >
                   Next
                 </button>

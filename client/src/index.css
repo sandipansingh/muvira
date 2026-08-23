@@ -464,7 +464,7 @@ h1.product-detail-title {
 
 .text-caption {
   font-family: var(--font-sans);
-  font-weight: 500;
+  font-weight: 400;
   font-size: 0.75rem;
   line-height: 1.5;
 }
@@ -474,7 +474,7 @@ h1.product-detail-title {
   color: var(--color-muted);
   font-family: var(--font-sans);
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.12em;
   line-height: 1.4;
   text-transform: uppercase;
@@ -502,7 +502,7 @@ h1.product-detail-title {
   color: #ffffff;
   display: inline-flex;
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   gap: 0.5rem;
   justify-content: center;
   min-height: 2.5rem;
@@ -528,7 +528,7 @@ h1.product-detail-title {
   color: var(--color-ink);
   display: inline-flex;
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   gap: 0.5rem;
   justify-content: center;
   min-height: 2.5rem;
@@ -597,7 +597,7 @@ h1.product-detail-title {
 .product-card__name {
   color: var(--color-ink);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.35;
   text-underline-offset: 3px;
 }
@@ -616,7 +616,7 @@ h1.product-detail-title {
 .product-card__price {
   color: var(--color-ink);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .status-badge {
@@ -660,7 +660,7 @@ h1.product-detail-title {
   display: flex;
   flex: 1;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   gap: 0.75rem;
   min-width: 0;
   padding-bottom: 0.75rem;

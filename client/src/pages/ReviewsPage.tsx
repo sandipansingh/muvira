@@ -10,7 +10,7 @@ export const ReviewsPage: React.FC = () => {
       <div className="editorial-container">
         {/* Breadcrumb */}
         <nav
-          className="mb-6 flex items-center gap-2 text-xs font-semibold text-muted"
+          className="mb-6 flex items-center gap-2 text-xs font-bold text-muted"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="hover:text-primary hover:underline transition-colors">

@@ -84,7 +84,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 className="absolute inset-0 h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-xs font-medium text-muted">
+              <div className="flex h-full items-center justify-center text-xs font-normal text-muted">
                 Image unavailable
               </div>
             )}
@@ -161,7 +161,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 showText
               />
               <span className="text-muted">•</span>
-              <span className="font-medium text-muted">100% Authentic Handcrafted</span>
+              <span className="font-normal text-muted">100% Authentic Handcrafted</span>
             </div>
 
             {/* Pricing Row */}
@@ -189,14 +189,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             {/* Metadata Chips */}
             <div className="mt-2.5 flex items-center gap-3 text-[11px] text-muted">
               <div>
-                <span className="font-semibold uppercase">SKU:</span>{' '}
-                <span className="font-medium text-ink">
+                <span className="font-bold uppercase">SKU:</span>{' '}
+                <span className="font-normal text-ink">
                   {'sku' in product && product.sku ? product.sku : 'MUV-1108'}
                 </span>
               </div>
               <div>
-                <span className="font-semibold uppercase">Dispatch:</span>{' '}
-                <span className="font-medium text-primary">Within 24 Hours</span>
+                <span className="font-bold uppercase">Dispatch:</span>{' '}
+                <span className="font-normal text-primary">Within 24 Hours</span>
               </div>
             </div>
           </div>

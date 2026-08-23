@@ -69,7 +69,7 @@ export const SignInPage: React.FC = () => {
           {/* Clean OR Divider */}
           <div className="relative w-full flex items-center justify-center my-3.5">
             <div className="w-full border-t border-line" />
-            <span className="bg-paper px-3 text-xs font-semibold text-muted tracking-wider select-none">
+            <span className="bg-paper px-3 text-xs font-bold text-muted tracking-wider select-none">
               OR
             </span>
             <div className="w-full border-t border-line" />
@@ -79,10 +79,7 @@ export const SignInPage: React.FC = () => {
           <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3.5 text-left">
             {/* Email Field */}
             <div>
-              <label
-                htmlFor="signin-email"
-                className="block text-sm font-semibold text-ink-soft mb-1"
-              >
+              <label htmlFor="signin-email" className="block text-sm font-bold text-ink-soft mb-1">
                 Email address
               </label>
               <Input
@@ -100,13 +97,13 @@ export const SignInPage: React.FC = () => {
             {/* Password Field with clear top spacing */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label htmlFor="signin-password" className="text-sm font-semibold text-ink-soft">
+                <label htmlFor="signin-password" className="text-sm font-bold text-ink-soft">
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setIsForgotPasswordOpen(true)}
-                  className="text-xs font-medium text-ink-soft hover:text-primary hover:underline cursor-pointer transition-colors"
+                  className="text-xs font-normal text-ink-soft hover:text-primary hover:underline cursor-pointer transition-colors"
                 >
                   Forgot Password?
                 </button>
@@ -154,12 +151,9 @@ export const SignInPage: React.FC = () => {
           </form>
 
           {/* Prompt to Sign Up */}
-          <p className="mt-8 text-center text-xs sm:text-sm font-medium text-muted">
+          <p className="mt-8 text-center text-xs sm:text-sm font-normal text-muted">
             Don&apos;t have an account yet?{' '}
-            <Link
-              to="/signup"
-              className="font-semibold text-ink hover:text-primary hover:underline"
-            >
+            <Link to="/signup" className="font-bold text-ink hover:text-primary hover:underline">
               Sign Up
             </Link>
           </p>
@@ -167,11 +161,11 @@ export const SignInPage: React.FC = () => {
           {/* Terms & Privacy Disclaimer */}
           <p className="mt-4 text-center text-[11px] sm:text-xs text-muted max-w-xs mx-auto leading-relaxed">
             By continuing you agree to our{' '}
-            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-primary">
+            <span className="underline font-normal text-ink-soft cursor-pointer hover:text-primary">
               Terms &amp; Conditions
             </span>{' '}
             and acknowledge our{' '}
-            <span className="underline font-medium text-ink-soft cursor-pointer hover:text-primary">
+            <span className="underline font-normal text-ink-soft cursor-pointer hover:text-primary">
               Privacy Policy
             </span>
             .

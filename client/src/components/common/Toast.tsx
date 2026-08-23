@@ -116,7 +116,7 @@ export const ToastContainer: React.FC = () => {
                       {toast.title}
                     </span>
                   )}
-                  <span className="line-clamp-2 text-xs font-medium leading-snug text-ink-soft">
+                  <span className="line-clamp-2 text-xs font-normal leading-snug text-ink-soft">
                     {toast.message}
                   </span>
                 </div>

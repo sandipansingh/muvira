@@ -117,7 +117,7 @@ export const ProductDetailPage: React.FC = () => {
       <div className="editorial-container py-4 sm:py-6">
         {/* Breadcrumbs */}
         <nav
-          className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[var(--color-muted)]"
+          className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-bold text-[var(--color-muted)]"
           aria-label="Breadcrumb"
         >
           <Link to="/" className="transition-colors hover:text-primary">

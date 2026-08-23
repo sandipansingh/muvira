@@ -32,7 +32,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 onClick={() => onSelectCategory(category.slug)}
                 className={`shrink-0 border-b-2 px-1 py-2 text-left text-sm transition-colors lg:w-full ${
                   isSelected
-                    ? 'border-[var(--color-ink)] font-semibold text-[var(--color-ink)]'
+                    ? 'border-[var(--color-ink)] font-bold text-[var(--color-ink)]'
                     : 'border-transparent text-[var(--color-muted)] hover:text-[var(--color-ink)]'
                 }`}
                 aria-pressed={isSelected}
@@ -52,10 +52,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
         <div className="flex items-center justify-between gap-4 text-sm text-[var(--color-muted)] lg:justify-end">
           <span aria-live="polite">
-            <strong className="font-semibold text-[var(--color-ink)]">{totalCount}</strong> pieces
+            <strong className="font-bold text-[var(--color-ink)]">{totalCount}</strong> pieces
           </span>
           <label
-            className="flex items-center gap-2 font-semibold text-[var(--color-ink)]"
+            className="flex items-center gap-2 font-bold text-[var(--color-ink)]"
             htmlFor="shop-sort"
           >
             <span>Sort by</span>

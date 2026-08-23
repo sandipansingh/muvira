@@ -78,7 +78,7 @@ export const CartDrawer: React.FC = () => {
                   closeCartDrawer()
                   navigate('/shop')
                 }}
-                className="button-primary mt-5 px-4 py-2 text-xs font-semibold"
+                className="button-primary mt-5 px-4 py-2 text-xs font-bold"
               >
                 <span className="leading-none">Shop the collection</span>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0" />
@@ -94,7 +94,7 @@ export const CartDrawer: React.FC = () => {
           <div className="space-y-3 border-t border-[var(--color-line)] bg-[var(--color-paper)] p-4 shadow-xs">
             <CouponInput />
 
-            <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-[11px] font-medium text-[var(--color-muted)]">
+            <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-[11px] font-normal text-[var(--color-muted)]">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="font-bold text-[var(--color-ink)]">

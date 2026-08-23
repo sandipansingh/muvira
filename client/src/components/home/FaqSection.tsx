@@ -110,7 +110,7 @@ export const FaqSection: React.FC = () => {
             const isOpen = activeIndex === index
             const trigger = (
               <div className="group flex w-full items-center justify-between px-0 py-5 text-left">
-                <span className="text-body-sm md:text-body font-semibold tracking-tight text-ink-soft transition-colors duration-200 group-hover:text-ink">
+                <span className="text-body-sm md:text-body font-bold tracking-tight text-ink-soft transition-colors duration-200 group-hover:text-ink">
                   {faq.question}
                 </span>
                 <span

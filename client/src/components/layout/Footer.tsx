@@ -115,7 +115,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </h3>
             <div className="w-full max-w-[320px]">
               {subscribed ? (
-                <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-accent/20 bg-accent-soft px-4 py-2.5 text-xs font-semibold text-accent">
+                <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-accent/20 bg-accent-soft px-4 py-2.5 text-xs font-bold text-accent">
                   <CheckCircle2 className="h-4 w-4 shrink-0" />
                   <span className="leading-none">Subscribed successfully!</span>
                 </div>
@@ -166,7 +166,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           {/* Contact Details */}
           <div className="lg:col-span-3 flex flex-col gap-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Contact</h4>
-            <ul className="flex flex-col gap-3 text-sm text-ink-soft font-medium">
+            <ul className="flex flex-col gap-3 text-sm text-ink-soft font-normal">
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 shrink-0 text-muted" />
                 <a
@@ -193,7 +193,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 <div className="text-xs font-bold uppercase tracking-wider text-muted mb-0.5">
                   Studio Hours
                 </div>
-                <div className="text-xs text-ink font-semibold normal-case">
+                <div className="text-xs text-ink font-bold normal-case">
                   Monday – Saturday: 10:00 AM – 7:00 PM IST
                 </div>
               </li>
@@ -204,7 +204,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="grid grid-cols-2 gap-8 md:col-span-2 lg:col-span-5 lg:grid-cols-5">
             <div className="lg:col-span-2 flex flex-col gap-4">
               <h4 className="text-xs font-bold uppercase tracking-wider text-ink">Quick Links</h4>
-              <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-medium">
+              <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-normal">
                 {[
                   { name: 'Home', href: '/' },
                   { name: 'Shop All', href: '/shop' },
@@ -229,7 +229,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
               <h4 className="text-xs font-bold uppercase tracking-wider text-ink">
                 Popular Collections
               </h4>
-              <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-medium">
+              <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-normal">
                 {[
                   { name: 'Living Room Collection', href: '/shop?category=living-room' },
                   { name: 'Solid Wood Bed Frames', href: '/shop?category=bedroom' },
@@ -254,15 +254,15 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
         {/* Bottom Legal / Policy Bar */}
         <div className="pt-8 border-t border-line flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-center sm:text-left">
-            <p className="text-xs font-medium text-ink-soft">
+            <p className="text-xs font-normal text-ink-soft">
               © {new Date().getFullYear()} Muvira. All rights reserved.
             </p>
             <span className="hidden sm:inline text-disabled text-xs">|</span>
-            <p className="text-xs font-medium text-ink-soft">
-              GSTIN: <span className="font-semibold text-ink">19AAACM1234F1Z5</span>
+            <p className="text-xs font-normal text-ink-soft">
+              GSTIN: <span className="font-bold text-ink">19AAACM1234F1Z5</span>
             </p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium text-muted">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-normal text-muted">
             <Link
               to="/#faq"
               className="hover:text-primary hover:underline transition-colors duration-200"

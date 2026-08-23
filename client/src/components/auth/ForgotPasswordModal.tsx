@@ -84,7 +84,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             <h2 className="text-xl font-bold text-ink">Check Your Email</h2>
             <p className="text-sm text-ink-soft">
               We&apos;ve sent a password reset link to{' '}
-              <span className="font-semibold text-ink">{email}</span>.
+              <span className="font-bold text-ink">{email}</span>.
             </p>
             <Button
               type="button"
@@ -107,10 +107,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             </div>
 
             <div>
-              <label
-                htmlFor="reset-email"
-                className="mb-1.5 block text-sm font-semibold text-ink-soft"
-              >
+              <label htmlFor="reset-email" className="mb-1.5 block text-sm font-bold text-ink-soft">
                 Email address
               </label>
               <Input

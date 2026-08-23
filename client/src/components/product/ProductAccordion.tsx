@@ -46,7 +46,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => onToggleSection(tab.id)}
-                className={`relative pb-2.5 text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                className={`relative pb-2.5 text-sm font-bold transition-colors cursor-pointer whitespace-nowrap ${
                   isActive
                     ? 'text-[var(--color-ink)] font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-[var(--color-ink)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'

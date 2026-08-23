@@ -21,7 +21,7 @@ export const OrderSuccessPage: React.FC = () => {
         <CheckCircle className="mx-auto h-12 w-12 text-accent" />
         <span className="eyebrow mt-6 block text-accent">Payment Verified</span>
         <h1 className="heading page-title mt-2">Thank you for your order</h1>
-        <p className="mt-3 text-sm font-semibold text-ink-soft">
+        <p className="mt-3 text-sm font-bold text-ink-soft">
           Order reference: #{orderNumber ?? orderId}
         </p>
         <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted font-normal">

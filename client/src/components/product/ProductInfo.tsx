@@ -68,7 +68,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
 
       {/* Countdown Timer */}
       <div className="border-t border-[var(--color-line)] pt-3">
-        <p className="mb-2 text-xs font-medium text-[var(--color-muted)]">Offer expires in:</p>
+        <p className="mb-2 text-xs font-normal text-[var(--color-muted)]">Offer expires in:</p>
         <div className="grid max-w-sm grid-cols-4 gap-2">
           <div className="flex flex-col items-center rounded-lg bg-[var(--color-surface)] py-1.5">
             <span className="font-display text-lg font-bold text-[var(--color-ink)]">
@@ -159,12 +159,12 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
       {/* Product Metadata */}
       <div className="space-y-1.5 border-t border-[var(--color-line)] pt-3 text-xs text-[var(--color-muted)]">
         <div className="flex gap-4">
-          <span className="w-20 font-semibold uppercase text-[var(--color-muted)]">SKU</span>
-          <span className="text-[var(--color-ink)] font-medium">{product.sku || '1117'}</span>
+          <span className="w-20 font-bold uppercase text-[var(--color-muted)]">SKU</span>
+          <span className="text-[var(--color-ink)] font-normal">{product.sku || '1117'}</span>
         </div>
         <div className="flex gap-4">
-          <span className="w-20 font-semibold uppercase text-[var(--color-muted)]">CATEGORY</span>
-          <span className="text-[var(--color-ink)] font-medium">{product.category.name}</span>
+          <span className="w-20 font-bold uppercase text-[var(--color-muted)]">CATEGORY</span>
+          <span className="text-[var(--color-ink)] font-normal">{product.category.name}</span>
         </div>
       </div>
     </div>

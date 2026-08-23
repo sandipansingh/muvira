@@ -83,7 +83,7 @@ export const NewArrivals: React.FC = () => {
           </button>
           <Link
             to="/shop?sort=newest"
-            className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-semibold text-ink transition-colors hover:bg-surface select-none"
+            className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-bold text-ink transition-colors hover:bg-surface select-none"
           >
             View all
           </Link>

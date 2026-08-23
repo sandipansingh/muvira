@@ -74,7 +74,7 @@ export const OrderDetailPage: React.FC = () => {
       <div className="editorial-container max-w-4xl space-y-8">
         <Link
           to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold leading-none text-muted transition-colors hover:text-primary hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-bold leading-none text-muted transition-colors hover:text-primary hover:underline"
         >
           <ArrowLeft className="h-4 w-4 shrink-0" />
           <span className="leading-none">Back to order history</span>
@@ -169,7 +169,7 @@ export const OrderDetailPage: React.FC = () => {
                     <h3 className="truncate font-display text-base font-bold text-ink">
                       {item.productName}
                     </h3>
-                    <p className="text-xs font-semibold text-muted">Qty: {item.quantity}</p>
+                    <p className="text-xs font-bold text-muted">Qty: {item.quantity}</p>
                   </div>
                 </div>
                 <span className="shrink-0 text-base font-bold text-ink">
@@ -201,22 +201,22 @@ export const OrderDetailPage: React.FC = () => {
               <ShieldCheck className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Payment Details</span>
             </h2>
-            <p className="font-semibold text-ink">Razorpay online payment</p>
+            <p className="font-bold text-ink">Razorpay online payment</p>
             <p className="font-bold text-accent">Status: {order.paymentStatus}</p>
             <div className="space-y-1.5 border-t border-line pt-3 text-ink-soft">
               <p className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-semibold text-ink">{formatPrice(order.subtotal)}</span>
+                <span className="font-bold text-ink">{formatPrice(order.subtotal)}</span>
               </p>
               {order.discountAmount > 0 && (
-                <p className="flex justify-between text-accent font-semibold">
+                <p className="flex justify-between text-accent font-bold">
                   <span>Discount</span>
                   <span>-{formatPrice(order.discountAmount)}</span>
                 </p>
               )}
               <p className="flex justify-between">
                 <span>Shipping</span>
-                <span className="font-semibold text-ink">
+                <span className="font-bold text-ink">
                   {order.shippingAmount ? formatPrice(order.shippingAmount) : 'FREE'}
                 </span>
               </p>

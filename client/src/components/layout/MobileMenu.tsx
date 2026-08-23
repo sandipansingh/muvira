@@ -105,7 +105,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/"
                 onClick={onClose}
-                className="text-sm font-medium text-ink hover:underline transition-colors block"
+                className="text-sm font-normal text-ink hover:underline transition-colors block"
               >
                 Home
               </Link>
@@ -116,7 +116,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => setIsShopExpanded((prev) => !prev)}
-                className="flex items-center justify-between w-full text-sm font-medium text-ink hover:underline transition-colors cursor-pointer"
+                className="flex items-center justify-between w-full text-sm font-normal text-ink hover:underline transition-colors cursor-pointer"
               >
                 <span>Shop</span>
                 <ChevronDown
@@ -133,7 +133,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                       key={category.label}
                       to={category.href}
                       onClick={onClose}
-                      className="block text-xs font-medium text-muted hover:text-ink py-1 transition-colors"
+                      className="block text-xs font-normal text-muted hover:text-ink py-1 transition-colors"
                     >
                       {category.label}
                     </Link>
@@ -147,7 +147,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => setIsProductExpanded((prev) => !prev)}
-                className="flex items-center justify-between w-full text-sm font-medium text-ink hover:underline transition-colors cursor-pointer"
+                className="flex items-center justify-between w-full text-sm font-normal text-ink hover:underline transition-colors cursor-pointer"
               >
                 <span>Product</span>
                 <ChevronDown
@@ -164,7 +164,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                       key={link.label}
                       to={link.href}
                       onClick={onClose}
-                      className="block text-xs font-medium text-muted hover:text-ink py-1 transition-colors"
+                      className="block text-xs font-normal text-muted hover:text-ink py-1 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -178,7 +178,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/#faq"
                 onClick={onClose}
-                className="text-sm font-medium text-ink hover:underline transition-colors block"
+                className="text-sm font-normal text-ink hover:underline transition-colors block"
               >
                 Contact Us
               </Link>
@@ -192,7 +192,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             onClick={handleOpenCart}
-            className="flex items-center justify-between w-full py-1 text-sm font-medium text-ink hover:underline transition-colors cursor-pointer"
+            className="flex items-center justify-between w-full py-1 text-sm font-normal text-ink hover:underline transition-colors cursor-pointer"
           >
             <span>Cart</span>
             <div className="flex items-center gap-2">
@@ -207,7 +207,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           <Link
             to="/shop"
             onClick={onClose}
-            className="flex items-center justify-between w-full py-1 text-sm font-medium text-ink hover:underline transition-colors"
+            className="flex items-center justify-between w-full py-1 text-sm font-normal text-ink hover:underline transition-colors"
           >
             <span>Wishlist</span>
             <div className="flex items-center gap-2">
@@ -235,7 +235,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 <Link
                   to="/orders"
                   onClick={onClose}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2.5 text-center text-xs font-semibold text-ink transition-colors hover:bg-surface"
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-line px-3 py-2.5 text-center text-xs font-bold text-ink transition-colors hover:bg-surface"
                 >
                   <Package className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-none">Orders</span>
@@ -246,7 +246,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                     logout()
                     onClose()
                   }}
-                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-line bg-paper px-3 py-2.5 text-center text-xs font-semibold text-danger transition-colors hover:bg-danger-soft"
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-line bg-paper px-3 py-2.5 text-center text-xs font-bold text-danger transition-colors hover:bg-danger-soft"
                 >
                   <LogOut className="h-3.5 w-3.5 shrink-0" />
                   <span className="leading-none">Sign Out</span>
@@ -258,7 +258,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/signin"
                 onClick={onClose}
-                className="button-primary w-full py-3.5 text-sm font-semibold rounded-lg text-center block shadow-xs active:scale-98"
+                className="button-primary w-full py-3.5 text-sm font-bold rounded-lg text-center block shadow-xs active:scale-98"
               >
                 Sign In
               </Link>

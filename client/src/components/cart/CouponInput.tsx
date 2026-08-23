@@ -31,7 +31,7 @@ export const CouponInput: React.FC = () => {
           <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent">
             <CheckCircle className="h-3 w-3" />
           </div>
-          <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs font-normal">
             <span className="font-bold tracking-wider text-ink uppercase">{coupon.code}</span>
             <span className="text-accent">(-{formatPrice(coupon.discountAmount)} off)</span>
           </div>
@@ -67,7 +67,7 @@ export const CouponInput: React.FC = () => {
           placeholder="Enter promo code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="h-full pl-10 pr-2.5 font-medium uppercase placeholder:normal-case"
+          className="h-full pl-10 pr-2.5 font-normal uppercase placeholder:normal-case"
         />
       </div>
       <Button

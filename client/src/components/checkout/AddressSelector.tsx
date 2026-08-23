@@ -107,7 +107,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
                 </span>
                 {address.isDefault && <span className="status-badge">Default</span>}
               </div>
-              <p className="mt-0.5 font-medium text-[var(--color-ink-soft)]">
+              <p className="mt-0.5 font-normal text-[var(--color-ink-soft)]">
                 {address.streetAddress}
                 {address.apartment ? `, ${address.apartment}` : ''}
               </p>

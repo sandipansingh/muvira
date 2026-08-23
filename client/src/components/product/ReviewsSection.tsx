@@ -250,10 +250,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               <span className="font-display text-4xl font-bold tracking-tight text-ink">
                 {effectiveRating.toFixed(1)}
               </span>
-              <span className="text-sm font-semibold text-muted">/ 5.0</span>
+              <span className="text-sm font-bold text-muted">/ 5.0</span>
             </div>
             <RatingStars rating={effectiveRating} size="md" />
-            <p className="text-xs font-medium text-ink-soft">
+            <p className="text-xs font-normal text-ink-soft">
               <span className="font-bold text-ink">{distribution.recommendPercent}%</span> of
               customers recommend this item
             </p>
@@ -275,7 +275,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   }`}
                   aria-label={`Filter by ${stars} stars`}
                 >
-                  <span className="w-8 text-left font-semibold text-ink-soft group-hover:text-ink">
+                  <span className="w-8 text-left font-bold text-ink-soft group-hover:text-ink">
                     {stars} ★
                   </span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
@@ -284,14 +284,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="w-8 text-right text-xs font-medium text-muted">{count}</span>
+                  <span className="w-8 text-right text-xs font-normal text-muted">{count}</span>
                 </button>
               )
             })}
           </div>
 
           <div className="flex flex-col items-start justify-center space-y-3 text-left md:col-span-3 md:items-center md:text-center">
-            <p className="text-xs font-semibold text-ink-soft">
+            <p className="text-xs font-bold text-ink-soft">
               Share your experience with this craft piece
             </p>
             <Button
@@ -340,7 +340,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <label htmlFor="review-sort-luxury" className="text-xs font-semibold text-muted">
+          <label htmlFor="review-sort-luxury" className="text-xs font-bold text-muted">
             Sort:
           </label>
           <div className="w-36">
@@ -349,7 +349,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value as 'newest' | 'highest' | 'lowest')}
               aria-label="Sort reviews"
-              className="!py-1.5 !px-2.5 !text-xs font-semibold text-ink-soft"
+              className="!py-1.5 !px-2.5 !text-xs font-bold text-ink-soft"
               options={[
                 { value: 'newest', label: 'Most Recent' },
                 { value: 'highest', label: 'Highest Rated' },
@@ -362,9 +362,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
       {filteredAndSortedReviews.length === 0 ? (
         <div className="py-8 text-center">
-          <p className="text-sm font-semibold text-ink-soft">
-            No reviews found matching this filter.
-          </p>
+          <p className="text-sm font-bold text-ink-soft">No reviews found matching this filter.</p>
           <button
             type="button"
             onClick={() => setSelectedStarFilter(null)}
@@ -395,7 +393,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   {review.comment}
                 </p>
 
-                <div className="flex items-center gap-4 pt-1 text-xs font-medium text-muted">
+                <div className="flex items-center gap-4 pt-1 text-xs font-normal text-muted">
                   <span className="text-xs text-muted">Was this review helpful?</span>
                   <div className="flex items-center gap-2">
                     <Button
@@ -445,14 +443,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
         <form onSubmit={handleReviewSubmit} className="space-y-5">
           {!isAuthenticated && (
-            <div className="rounded-lg border border-warning/30 bg-warning-soft p-3.5 text-xs font-medium leading-relaxed text-warning">
+            <div className="rounded-lg border border-warning/30 bg-warning-soft p-3.5 text-xs font-normal leading-relaxed text-warning">
               Please sign in with the account used for your purchase to submit a verified review.
             </div>
           )}
 
           {productName && (
             <div className="border-b border-line pb-3">
-              <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted">
+              <span className="block text-[11px] font-bold uppercase tracking-wider text-muted">
                 Product
               </span>
               <p className="font-display text-sm font-bold text-ink">{productName}</p>

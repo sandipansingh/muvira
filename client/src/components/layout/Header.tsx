@@ -80,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
         {/* Right: Text Links, Search, User, Cart */}
         <div className="flex items-center gap-3 sm:gap-6">
-          <div className="hidden md:flex items-center gap-5 text-xs font-semibold text-ink-soft">
+          <div className="hidden md:flex items-center gap-5 text-xs font-bold text-ink-soft">
             <Link to={getHref('/#faq')} className="hover:text-ink transition-colors">
               FAQs
             </Link>
@@ -123,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
             {/* User Dropdown */}
             {isAuthenticated && isUserMenuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-line bg-paper p-2 shadow-premium text-xs font-semibold z-50">
+              <div className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-line bg-paper p-2 shadow-premium text-xs font-bold z-50">
                 <div className="border-b border-line px-3 py-2">
                   <p className="text-xs font-bold uppercase tracking-wider text-muted">
                     Signed in as
