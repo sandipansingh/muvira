@@ -307,9 +307,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             >
               Write a Review
             </Button>
-            <span className="text-xs text-muted">
-              Verified buyers receive store reward credit
-            </span>
+            <span className="text-xs text-muted">Verified buyers receive store reward credit</span>
           </div>
         </div>
       </div>
