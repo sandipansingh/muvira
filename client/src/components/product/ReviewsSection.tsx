@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react'
-import { Loader2, PenLine, Star, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { PenLine, Star, ThumbsDown, ThumbsUp } from 'lucide-react'
 import type { ProductReview } from '../../lib/types/product'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { reviewService } from '../../lib/services/review.service'
 import { RatingStars } from '../common/RatingStars'
 import { Modal } from '../common/Modal'
+import { Button } from '../ui/Button'
 
 interface ReviewsSectionProps {
   productId: string
@@ -297,14 +298,15 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             <p className="text-xs font-semibold text-ink-soft">
               Share your experience with this craft piece
             </p>
-            <button
+            <Button
               type="button"
+              variant="primary"
+              size="sm"
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-ink px-6 py-3 text-xs font-bold text-white shadow-xs transition-all hover:bg-black hover:shadow-md"
+              leftIcon={<PenLine className="h-3.5 w-3.5 shrink-0" />}
             >
-              <PenLine className="h-3.5 w-3.5 shrink-0" />
-              <span className="leading-none">Write a Review</span>
-            </button>
+              Write a Review
+            </Button>
             <span className="text-[10px] text-muted">
               Verified buyers receive store reward credit
             </span>
@@ -316,33 +318,39 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       <div className="flex flex-col justify-between gap-4 border-b border-line pb-4 sm:flex-row sm:items-center">
         {/* Filter Chips */}
         <div className="flex flex-wrap items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant={selectedStarFilter === null ? 'primary' : 'ghost'}
+            size="sm"
             onClick={() => setSelectedStarFilter(null)}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
+            className={
               selectedStarFilter === null
-                ? 'bg-ink text-white'
-                : 'bg-surface text-ink-soft hover:bg-line'
-            }`}
+                ? '!rounded-full'
+                : '!rounded-full bg-surface text-ink-soft hover:bg-line'
+            }
           >
-            <span>All Reviews ({allReviews.length})</span>
-          </button>
+            All Reviews ({allReviews.length})
+          </Button>
           {([5, 4, 3] as const).map((stars) => {
             const count = distribution.counts[stars] || 0
             if (count === 0 && selectedStarFilter !== stars) return null
             const isActive = selectedStarFilter === stars
             return (
-              <button
+              <Button
                 key={stars}
                 type="button"
+                variant={isActive ? 'primary' : 'ghost'}
+                size="sm"
                 onClick={() => setSelectedStarFilter(isActive ? null : stars)}
-                className={`inline-flex cursor-pointer items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                  isActive ? 'bg-ink text-white' : 'bg-surface text-ink-soft hover:bg-line'
-                }`}
+                className={
+                  isActive
+                    ? '!rounded-full'
+                    : '!rounded-full bg-surface text-ink-soft hover:bg-line'
+                }
               >
                 <span>{stars} Stars</span>
                 <span className="text-[11px] opacity-75">({count})</span>
-              </button>
+              </Button>
             )
           })}
         </div>
@@ -408,37 +416,33 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 <div className="flex items-center gap-4 pt-1 text-xs font-medium text-muted">
                   <span className="text-[11px] text-muted">Was this review helpful?</span>
                   <div className="flex items-center gap-2">
-                    <button
+                    <Button
                       type="button"
+                      variant={itemFeedback.liked ? 'primary' : 'secondary'}
+                      size="xs"
                       onClick={() => handleLike(review.id)}
-                      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold leading-none transition-all ${
-                        itemFeedback.liked
-                          ? 'border-ink bg-ink text-white'
-                          : 'border-line bg-paper text-ink-soft hover:border-field-border hover:text-ink'
+                      leftIcon={<ThumbsUp className="h-3 w-3 shrink-0" />}
+                      className={`!rounded-full ${
+                        itemFeedback.liked ? '' : 'text-ink-soft hover:border-field-border'
                       }`}
                       aria-label="Mark review as helpful"
                     >
-                      <ThumbsUp className="h-3 w-3 shrink-0" />
-                      <span className="leading-none">
-                        Yes{itemFeedback.likes > 0 ? ` (${itemFeedback.likes})` : ''}
-                      </span>
-                    </button>
+                      Yes{itemFeedback.likes > 0 ? ` (${itemFeedback.likes})` : ''}
+                    </Button>
 
-                    <button
+                    <Button
                       type="button"
+                      variant={itemFeedback.disliked ? 'primary' : 'secondary'}
+                      size="xs"
                       onClick={() => handleDislike(review.id)}
-                      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold leading-none transition-all ${
-                        itemFeedback.disliked
-                          ? 'border-ink bg-ink text-white'
-                          : 'border-line bg-paper text-ink-soft hover:border-field-border hover:text-ink'
+                      leftIcon={<ThumbsDown className="h-3 w-3 shrink-0" />}
+                      className={`!rounded-full ${
+                        itemFeedback.disliked ? '' : 'text-ink-soft hover:border-field-border'
                       }`}
                       aria-label="Mark review as not helpful"
                     >
-                      <ThumbsDown className="h-3 w-3 shrink-0" />
-                      <span className="leading-none">
-                        No{itemFeedback.dislikes > 0 ? ` (${itemFeedback.dislikes})` : ''}
-                      </span>
-                    </button>
+                      No{itemFeedback.dislikes > 0 ? ` (${itemFeedback.dislikes})` : ''}
+                    </Button>
                   </div>
                 </div>
               </article>
@@ -450,13 +454,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       {/* ── 4. Load More Button ── */}
       {visibleCount < filteredAndSortedReviews.length && (
         <div className="flex justify-center pt-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="md"
             onClick={() => setVisibleCount((prev) => prev + 5)}
-            className="cursor-pointer rounded-lg border border-line bg-paper px-8 py-2.5 text-xs font-bold text-ink transition-colors hover:border-ink hover:bg-surface"
           >
             Load More Reviews
-          </button>
+          </Button>
         </div>
       )}
 
@@ -530,20 +535,16 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             />
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="lg"
+            isLoading={submitting}
             disabled={submitting || !isAuthenticated}
-            className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-ink py-3.5 text-sm font-bold text-white shadow-xs transition-colors hover:bg-black disabled:opacity-50"
+            className="w-full"
           >
-            {submitting ? (
-              <>
-                <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                <span className="leading-none">Submitting review...</span>
-              </>
-            ) : (
-              <span className="leading-none">Submit Review</span>
-            )}
-          </button>
+            Submit Review
+          </Button>
         </form>
       </Modal>
     </div>
