@@ -108,7 +108,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div className="space-y-2.5">
               <RatingStars rating={product.rating ?? 5} size="xs" />
               <Link to={`/product/${product.slug}`} className="block">
-                <h3 className="product-card__name text-base sm:text-lg">{product.name}</h3>
+                <h3 className="product-card__name text-base sm:text-lg group-hover:underline underline-offset-2">
+                  {product.name}
+                </h3>
               </Link>
               <div className="flex items-baseline gap-2">
                 <span className="product-card__price text-base sm:text-lg">
@@ -230,7 +232,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="flex flex-col gap-1.5 pt-3">
           <RatingStars rating={product.rating ?? 5} size="xs" />
           <Link to={`/product/${product.slug}`} className="block">
-            <h3 className="product-card__name line-clamp-2">{product.name}</h3>
+            <h3 className="product-card__name line-clamp-2 group-hover:underline underline-offset-2">
+              {product.name}
+            </h3>
           </Link>
           <div className="flex items-baseline gap-2">
             <span className="product-card__price">{formatPrice(product.price)}</span>

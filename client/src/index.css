@@ -840,6 +840,12 @@ body {
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.35;
+  text-underline-offset: 3px;
+}
+
+.product-card:hover .product-card__name,
+.group:hover .product-card__name {
+  text-decoration: underline;
 }
 
 .product-card__meta {
