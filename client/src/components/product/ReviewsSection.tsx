@@ -243,28 +243,26 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   return (
     <div className="space-y-10 py-8">
       {/* ── 1. Luxury Editorial Rating Dashboard ── */}
-      <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/50 p-6 lg:p-8">
+      <div className="rounded-2xl border border-line bg-surface p-6 lg:p-8">
         <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
           {/* Column A: Overall Score & Recommendation */}
           <div className="space-y-3 md:col-span-4">
             <div className="flex items-baseline gap-2">
-              <span className="font-display text-5xl font-bold tracking-tight text-neutral-900">
+              <span className="font-display text-5xl font-bold tracking-tight text-ink">
                 {effectiveRating.toFixed(1)}
               </span>
-              <span className="text-sm font-semibold text-neutral-400">/ 5.0</span>
+              <span className="text-sm font-semibold text-muted">/ 5.0</span>
             </div>
             <RatingStars rating={effectiveRating} size="md" />
-            <p className="text-xs font-medium text-neutral-600">
-              <span className="font-bold text-neutral-900">{distribution.recommendPercent}%</span>{' '}
-              of customers recommend this item
+            <p className="text-xs font-medium text-ink-soft">
+              <span className="font-bold text-ink">{distribution.recommendPercent}%</span> of
+              customers recommend this item
             </p>
-            <p className="text-[11px] text-neutral-400">
-              Based on {totalReviewDisplay} verified reviews
-            </p>
+            <p className="text-[11px] text-muted">Based on {totalReviewDisplay} verified reviews</p>
           </div>
 
           {/* Column B: Rating Distribution Breakdown Histogram */}
-          <div className="space-y-2 border-y border-neutral-200/70 py-6 md:col-span-5 md:border-x md:border-y-0 md:px-8 md:py-0">
+          <div className="space-y-2 border-y border-line py-6 md:col-span-5 md:border-x md:border-y-0 md:px-8 md:py-0">
             {([5, 4, 3, 2, 1] as const).map((stars) => {
               const count = distribution.counts[stars] || 0
               const percent = distribution.percentages[stars] || 0
@@ -279,18 +277,16 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   }`}
                   aria-label={`Filter by ${stars} stars`}
                 >
-                  <span className="w-8 text-left font-semibold text-neutral-700 group-hover:text-neutral-900">
+                  <span className="w-8 text-left font-semibold text-ink-soft group-hover:text-ink">
                     {stars} ★
                   </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-200/80">
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
                     <div
-                      className="h-full rounded-full bg-neutral-900 transition-all duration-300 group-hover:bg-rating"
+                      className="h-full rounded-full bg-ink transition-all duration-300 group-hover:bg-rating"
                       style={{ width: `${percent}%` }}
                     />
                   </div>
-                  <span className="w-8 text-right text-[11px] font-medium text-neutral-400">
-                    {count}
-                  </span>
+                  <span className="w-8 text-right text-[11px] font-medium text-muted">{count}</span>
                 </button>
               )
             })}
@@ -298,18 +294,18 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
           {/* Column C: Write a Review Call to Action */}
           <div className="flex flex-col items-start justify-center space-y-3 text-left md:col-span-3 md:items-center md:text-center">
-            <p className="text-xs font-semibold text-neutral-800">
+            <p className="text-xs font-semibold text-ink-soft">
               Share your experience with this craft piece
             </p>
             <button
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 text-xs font-bold text-white shadow-xs transition-all hover:bg-neutral-800 hover:shadow-md"
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-ink px-6 py-3 text-xs font-bold text-white shadow-xs transition-all hover:bg-black hover:shadow-md"
             >
               <PenLine className="h-3.5 w-3.5 shrink-0" />
               <span className="leading-none">Write a Review</span>
             </button>
-            <span className="text-[10px] text-neutral-400">
+            <span className="text-[10px] text-muted">
               Verified buyers receive store reward credit
             </span>
           </div>
@@ -317,7 +313,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       </div>
 
       {/* ── 2. Interactive Filter Chips & Sort Ribbon ── */}
-      <div className="flex flex-col justify-between gap-4 border-b border-neutral-200/80 pb-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col justify-between gap-4 border-b border-line pb-4 sm:flex-row sm:items-center">
         {/* Filter Chips */}
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -325,8 +321,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             onClick={() => setSelectedStarFilter(null)}
             className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
               selectedStarFilter === null
-                ? 'bg-neutral-900 text-white'
-                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200/80'
+                ? 'bg-ink text-white'
+                : 'bg-surface text-ink-soft hover:bg-line'
             }`}
           >
             <span>All Reviews ({allReviews.length})</span>
@@ -341,9 +337,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 type="button"
                 onClick={() => setSelectedStarFilter(isActive ? null : stars)}
                 className={`inline-flex cursor-pointer items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'bg-neutral-900 text-white'
-                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200/80'
+                  isActive ? 'bg-ink text-white' : 'bg-surface text-ink-soft hover:bg-line'
                 }`}
               >
                 <span>{stars} Stars</span>
@@ -355,14 +349,14 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
         {/* Sort Select */}
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <label htmlFor="review-sort-luxury" className="text-xs font-semibold text-neutral-500">
+          <label htmlFor="review-sort-luxury" className="text-xs font-semibold text-muted">
             Sort:
           </label>
           <select
             id="review-sort-luxury"
             value={sortOption}
             onChange={(e) => setSortOption(e.target.value as 'newest' | 'highest' | 'lowest')}
-            className="cursor-pointer rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-neutral-800 outline-none transition-colors hover:border-neutral-400"
+            className="cursor-pointer rounded-md border border-line bg-paper px-2.5 py-1.5 text-xs font-semibold text-ink-soft outline-none transition-colors hover:border-field-border"
             aria-label="Sort reviews"
           >
             <option value="newest">Most Recent</option>
@@ -375,7 +369,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       {/* ── 3. Editorial Review Cards List ── */}
       {filteredAndSortedReviews.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-sm font-semibold text-neutral-800">
+          <p className="text-sm font-semibold text-ink-soft">
             No reviews found matching this filter.
           </p>
           <button
@@ -387,7 +381,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           </button>
         </div>
       ) : (
-        <div className="divide-y divide-neutral-200/70">
+        <div className="divide-y divide-line">
           {filteredAndSortedReviews.slice(0, visibleCount).map((review) => {
             const itemFeedback = feedback[review.id] || { likes: 0, dislikes: 0 }
             return (
@@ -395,12 +389,10 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 {/* Header: Name + Date on top row, Stars on second row */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between gap-4">
-                    <h5 className="font-display text-sm font-bold text-neutral-900 sm:text-base">
+                    <h5 className="font-display text-sm font-bold text-ink sm:text-base">
                       {review.userName || 'Customer'}
                     </h5>
-                    <span className="text-xs text-neutral-400">
-                      {formatReviewDate(review.createdAt)}
-                    </span>
+                    <span className="text-xs text-muted">{formatReviewDate(review.createdAt)}</span>
                   </div>
                   <div>
                     <RatingStars rating={review.rating} size="xs" />
@@ -408,21 +400,21 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 </div>
 
                 {/* Body Content */}
-                <p className="text-sm font-normal leading-relaxed text-neutral-700 sm:text-base">
+                <p className="text-sm font-normal leading-relaxed text-ink-soft sm:text-base">
                   {review.comment}
                 </p>
 
                 {/* Helpful / Dislike Interactions */}
-                <div className="flex items-center gap-4 pt-1 text-xs font-medium text-neutral-500">
-                  <span className="text-[11px] text-neutral-400">Was this review helpful?</span>
+                <div className="flex items-center gap-4 pt-1 text-xs font-medium text-muted">
+                  <span className="text-[11px] text-muted">Was this review helpful?</span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => handleLike(review.id)}
                       className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold leading-none transition-all ${
                         itemFeedback.liked
-                          ? 'border-neutral-900 bg-neutral-900 text-white'
-                          : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-900'
+                          ? 'border-ink bg-ink text-white'
+                          : 'border-line bg-paper text-ink-soft hover:border-field-border hover:text-ink'
                       }`}
                       aria-label="Mark review as helpful"
                     >
@@ -437,8 +429,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                       onClick={() => handleDislike(review.id)}
                       className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold leading-none transition-all ${
                         itemFeedback.disliked
-                          ? 'border-neutral-900 bg-neutral-900 text-white'
-                          : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400 hover:text-neutral-900'
+                          ? 'border-ink bg-ink text-white'
+                          : 'border-line bg-paper text-ink-soft hover:border-field-border hover:text-ink'
                       }`}
                       aria-label="Mark review as not helpful"
                     >
@@ -461,7 +453,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             type="button"
             onClick={() => setVisibleCount((prev) => prev + 5)}
-            className="cursor-pointer rounded-lg border border-neutral-300 bg-white px-8 py-2.5 text-xs font-bold text-neutral-900 transition-colors hover:border-neutral-900 hover:bg-neutral-50"
+            className="cursor-pointer rounded-lg border border-line bg-paper px-8 py-2.5 text-xs font-bold text-ink transition-colors hover:border-ink hover:bg-surface"
           >
             Load More Reviews
           </button>
@@ -478,17 +470,17 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           )}
 
           {productName && (
-            <div className="border-b border-neutral-100 pb-3">
-              <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+            <div className="border-b border-line pb-3">
+              <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted">
                 Product
               </span>
-              <p className="font-display text-sm font-bold text-neutral-900">{productName}</p>
+              <p className="font-display text-sm font-bold text-ink">{productName}</p>
             </div>
           )}
 
           {/* Rating Stars Selector */}
           <div>
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-neutral-700">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-ink-soft">
               Overall rating
             </label>
             <div className="flex items-center gap-2">
@@ -501,18 +493,18 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                     onClick={() => setNewRating(star)}
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(null)}
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-neutral-200 transition-all hover:scale-110 hover:border-neutral-900"
+                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-line transition-all hover:scale-110 hover:border-ink"
                     aria-label={`Rate ${star} out of 5 stars`}
                   >
                     <Star
                       className={`h-5 w-5 ${
-                        isFilled ? 'fill-rating text-rating' : 'fill-neutral-100 text-neutral-300'
+                        isFilled ? 'fill-rating text-rating' : 'fill-line text-disabled'
                       }`}
                     />
                   </button>
                 )
               })}
-              <span className="ml-2 text-xs font-bold text-neutral-800">
+              <span className="ml-2 text-xs font-bold text-ink-soft">
                 {ratingLabels[hoverRating ?? newRating]} ({hoverRating ?? newRating}/5)
               </span>
             </div>
@@ -522,7 +514,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <div>
             <label
               htmlFor="review-comment"
-              className="mb-2 block text-xs font-bold uppercase tracking-wider text-neutral-700"
+              className="mb-2 block text-xs font-bold uppercase tracking-wider text-ink-soft"
             >
               Your review
             </label>
@@ -541,7 +533,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             type="submit"
             disabled={submitting || !isAuthenticated}
-            className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-neutral-900 py-3.5 text-sm font-bold text-white shadow-xs transition-colors hover:bg-neutral-800 disabled:opacity-50"
+            className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-ink py-3.5 text-sm font-bold text-white shadow-xs transition-colors hover:bg-black disabled:opacity-50"
           >
             {submitting ? (
               <>
