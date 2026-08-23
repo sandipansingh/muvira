@@ -105,7 +105,6 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
         {/* Specifications Tab */}
         {activeTab === 'specifications' && (
           <div className="max-w-3xl space-y-3">
-            <h3 className="font-display text-base font-medium text-ink">Specifications</h3>
             <div className="overflow-hidden rounded-xl border border-line">
               <table className="w-full text-left text-xs sm:text-sm">
                 <tbody className="divide-y divide-line">
@@ -182,7 +181,6 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
         {/* Shipping & Returns Tab */}
         {activeTab === 'shipping' && (
           <div className="max-w-3xl space-y-4 text-xs sm:text-sm text-ink-soft">
-            <h3 className="font-display text-base font-medium text-ink">Shipping & Returns</h3>
             <p className="leading-relaxed">
               Every order is dispatched directly from our Jaipur studio within 24 hours. We partner
               with India’s leading premium logistics networks to guarantee safe, insured delivery to

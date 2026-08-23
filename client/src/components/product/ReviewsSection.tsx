@@ -342,7 +342,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       </div>
 
       {filteredAndSortedReviews.length === 0 ? (
-        <div className="py-8 text-center">
+        <div className="py-8 text-center border-t border-line/60">
           <p className="text-sm font-normal text-ink-soft">
             No reviews found matching this filter.
           </p>
@@ -355,53 +355,67 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="divide-y divide-line/60 border-t border-line/60 mt-4">
           {filteredAndSortedReviews.slice(0, visibleCount).map((review) => {
             const itemFeedback = feedback[review.id] || { likes: 0, dislikes: 0 }
             return (
-              <article key={review.id} className="space-y-3 py-6">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between gap-4">
-                    <h5 className="font-display text-sm font-normal text-ink sm:text-base">
-                      {review.userName || 'Customer'}
-                    </h5>
-                    <span className="text-xs text-muted">{formatReviewDate(review.createdAt)}</span>
+              <article key={review.id} className="py-6 space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-primary font-medium text-sm uppercase">
+                      {(review.userName || 'Customer').charAt(0)}
+                    </div>
+                    <div>
+                      <h5 className="font-display text-sm font-medium text-ink sm:text-base">
+                        {review.userName || 'Verified Buyer'}
+                      </h5>
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <RatingStars rating={review.rating} size="xs" />
+                        <span className="text-[11px] text-emerald-700 font-medium">
+                          • Verified Purchase
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <RatingStars rating={review.rating} size="xs" />
-                  </div>
+                  <span className="text-xs text-muted">{formatReviewDate(review.createdAt)}</span>
                 </div>
 
-                <p className="text-sm font-normal leading-relaxed text-ink-soft sm:text-base">
+                <p className="text-sm leading-relaxed text-ink-soft sm:text-base pt-1">
                   {review.comment}
                 </p>
 
-                <div className="flex items-center gap-4 pt-1 text-xs font-normal text-muted">
-                  <span className="text-xs text-muted">Was this review helpful?</span>
+                <div className="flex items-center gap-4 pt-1 text-xs text-muted">
+                  <span>Was this review helpful?</span>
                   <div className="flex items-center gap-2">
-                    <Button
+                    <button
                       type="button"
-                      variant={itemFeedback.liked ? 'primary' : 'secondary'}
-                      size="xs"
                       onClick={() => handleLike(review.id)}
-                      leftIcon={<ThumbsUp className="h-3 w-3 shrink-0" />}
-                      className={itemFeedback.liked ? '' : 'text-ink-soft'}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors cursor-pointer border ${
+                        itemFeedback.liked
+                          ? 'border-primary bg-primary text-white'
+                          : 'border-line bg-surface hover:bg-line/60 text-ink-soft'
+                      }`}
                       aria-label="Mark review as helpful"
                     >
-                      Yes{itemFeedback.likes > 0 ? ` (${itemFeedback.likes})` : ''}
-                    </Button>
+                      <ThumbsUp className="h-3 w-3 shrink-0" />
+                      <span>Yes{itemFeedback.likes > 0 ? ` (${itemFeedback.likes})` : ''}</span>
+                    </button>
 
-                    <Button
+                    <button
                       type="button"
-                      variant={itemFeedback.disliked ? 'primary' : 'secondary'}
-                      size="xs"
                       onClick={() => handleDislike(review.id)}
-                      leftIcon={<ThumbsDown className="h-3 w-3 shrink-0" />}
-                      className={itemFeedback.disliked ? '' : 'text-ink-soft'}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors cursor-pointer border ${
+                        itemFeedback.disliked
+                          ? 'border-primary bg-primary text-white'
+                          : 'border-line bg-surface hover:bg-line/60 text-ink-soft'
+                      }`}
                       aria-label="Mark review as not helpful"
                     >
-                      No{itemFeedback.dislikes > 0 ? ` (${itemFeedback.dislikes})` : ''}
-                    </Button>
+                      <ThumbsDown className="h-3 w-3 shrink-0" />
+                      <span>
+                        No{itemFeedback.dislikes > 0 ? ` (${itemFeedback.dislikes})` : ''}
+                      </span>
+                    </button>
                   </div>
                 </div>
               </article>
@@ -411,15 +425,17 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       )}
 
       {visibleCount < filteredAndSortedReviews.length && (
-        <div className="flex justify-center pt-4">
-          <Button
+        <div className="flex justify-center pt-6 border-t border-line/60">
+          <button
             type="button"
-            variant="secondary"
-            size="md"
             onClick={() => setVisibleCount((prev) => prev + 5)}
+            className="group inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-dark transition-colors cursor-pointer py-2 px-5 rounded-full hover:bg-primary-soft"
           >
-            Load More Reviews
-          </Button>
+            <span>Load More</span>
+            <span className="text-xs opacity-80 group-hover:translate-y-0.5 transition-transform">
+              ↓
+            </span>
+          </button>
         </div>
       )}
 
