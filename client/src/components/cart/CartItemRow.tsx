@@ -28,7 +28,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-xs text-neutral-400">
+            <div className="flex h-full items-center justify-center text-xs text-muted">
               No image
             </div>
           )}
@@ -39,7 +39,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             <div>
               <Link
                 to={`/product/${item.productSlug}`}
-                className="font-display text-base sm:text-lg font-bold text-[var(--color-ink)] transition-colors hover:text-neutral-600 line-clamp-2"
+                className="font-display text-base sm:text-lg font-bold text-[var(--color-ink)] transition-colors hover:text-ink-soft line-clamp-2"
               >
                 {item.productName}
               </Link>
@@ -48,7 +48,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               type="button"
               onClick={() => removeFromCart(item.productId)}
               disabled={loading}
-              className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold leading-none text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+              className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
               aria-label={`Remove ${item.productName} from cart`}
               title="Remove item"
             >
@@ -113,7 +113,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-[10px] text-neutral-400">
+          <div className="flex h-full items-center justify-center text-[10px] text-muted">
             No image
           </div>
         )}
@@ -122,7 +122,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         <div className="flex items-start justify-between gap-1.5">
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 font-display text-xs font-semibold leading-snug text-[var(--color-ink)] transition-colors hover:text-neutral-600"
+            className="line-clamp-2 font-display text-xs font-semibold leading-snug text-[var(--color-ink)] transition-colors hover:text-ink-soft"
           >
             {item.productName}
           </Link>
@@ -130,7 +130,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             type="button"
             onClick={() => removeFromCart(item.productId)}
             disabled={loading}
-            className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+            className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
             aria-label={`Remove ${item.productName}`}
             title="Remove item"
           >

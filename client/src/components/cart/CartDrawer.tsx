@@ -63,7 +63,7 @@ export const CartDrawer: React.FC = () => {
         <div className="flex-1 space-y-3.5 overflow-y-auto px-5 py-4 dropdown-scrollbar">
           {items.length === 0 ? (
             <div className="py-16 text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-surface)] text-neutral-400">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-surface)] text-muted">
                 <ShoppingBag className="h-6 w-6 stroke-[1.5]" />
               </div>
               <h3 className="mt-4 font-display text-base font-bold text-[var(--color-ink)]">

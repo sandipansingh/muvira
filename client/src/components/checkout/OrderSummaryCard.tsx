@@ -47,7 +47,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                   className="h-12 w-12 shrink-0 rounded-xl border border-[var(--color-line)] object-cover"
                 />
               ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-[10px] text-neutral-400">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-[10px] text-muted">
                   No image
                 </div>
               )}

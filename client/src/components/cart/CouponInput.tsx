@@ -24,22 +24,20 @@ export const CouponInput: React.FC = () => {
 
   if (coupon) {
     return (
-      <div className="flex items-center justify-between rounded-lg border border-emerald-300 bg-emerald-50/90 px-3 py-2 text-xs text-emerald-800 transition-all">
+      <div className="flex items-center justify-between rounded-lg border border-accent/30 bg-accent-soft px-3 py-2 text-xs text-accent transition-all">
         <div className="flex min-w-0 items-center gap-2">
-          <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+          <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent">
             <CheckCircle className="h-3 w-3" />
           </div>
           <div className="flex flex-wrap items-center gap-1.5 text-xs font-medium">
-            <span className="font-bold tracking-wider text-emerald-950 uppercase">
-              {coupon.code}
-            </span>
-            <span className="text-emerald-700">(-{formatPrice(coupon.discountAmount)} off)</span>
+            <span className="font-bold tracking-wider text-ink uppercase">{coupon.code}</span>
+            <span className="text-accent">(-{formatPrice(coupon.discountAmount)} off)</span>
           </div>
         </div>
         <button
           type="button"
           onClick={removeCoupon}
-          className="cursor-pointer rounded-full p-0.5 text-emerald-700 transition-colors hover:bg-emerald-200/60"
+          className="cursor-pointer rounded-full p-0.5 text-accent transition-colors hover:bg-accent/10"
           aria-label="Remove coupon"
           title="Remove coupon"
         >
@@ -55,7 +53,7 @@ export const CouponInput: React.FC = () => {
         <label htmlFor="coupon-code" className="sr-only">
           Promo code
         </label>
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted">
           <Tag className="h-3.5 w-3.5" />
         </div>
         <input
@@ -65,7 +63,7 @@ export const CouponInput: React.FC = () => {
           placeholder="Enter promo code"
           value={code}
           onChange={(event) => setCode(event.target.value)}
-          className="h-full w-full rounded-lg border border-[var(--color-field-border)] bg-[var(--color-paper)] py-1.5 pl-10 pr-2.5 text-base font-medium text-[var(--color-ink)] placeholder:text-neutral-400 placeholder:normal-case outline-none transition-all duration-200 focus:border-[var(--color-ink)] focus:ring-1 focus:ring-[var(--color-ink)] uppercase"
+          className="h-full w-full rounded-lg border border-[var(--color-field-border)] bg-[var(--color-paper)] py-1.5 pl-10 pr-2.5 text-base font-medium text-[var(--color-ink)] placeholder:text-muted placeholder:normal-case outline-none transition-all duration-200 focus:border-[var(--color-ink)] focus:ring-1 focus:ring-[var(--color-ink)] uppercase"
         />
       </div>
       <button

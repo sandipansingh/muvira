@@ -97,9 +97,9 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
               name="delivery-address"
               checked={selectedAddressId === address.id}
               onChange={() => onSelectAddressId(address.id)}
-              className="mt-1 accent-neutral-900"
+              className="mt-1 accent-ink"
             />
-            <div className="flex-1 text-xs leading-5 text-neutral-500">
+            <div className="flex-1 text-xs leading-5 text-muted">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-bold text-[var(--color-ink)]">
                   {address.fullName} — {address.label}
