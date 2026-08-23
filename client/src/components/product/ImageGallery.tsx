@@ -20,7 +20,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   if (imageUrls.length === 0) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
+      <div className="flex aspect-square max-h-[440px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
         Image unavailable
       </div>
     )
@@ -37,10 +37,10 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   }
 
   return (
-    <div className="flex flex-col-reverse gap-3 md:flex-row md:items-start md:gap-4">
+    <div className="flex flex-col-reverse gap-3 md:flex-row md:items-start md:gap-3.5">
       {/* Thumbnails Navigation (Vertical column on desktop, horizontal row on mobile) */}
       {imageUrls.length > 1 && (
-        <div className="flex max-h-[560px] gap-2 overflow-x-auto py-1 no-scrollbar md:w-20 md:shrink-0 md:flex-col md:overflow-y-auto">
+        <div className="flex max-h-[460px] gap-2 overflow-x-auto py-0.5 no-scrollbar md:w-16 md:shrink-0 md:flex-col md:overflow-y-auto">
           {imageUrls.map((image, index) => {
             const isActive = activeIndex === index
             return (
@@ -48,7 +48,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                 key={`${image}-${index}`}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`relative aspect-square w-16 shrink-0 cursor-pointer overflow-hidden rounded-lg transition-all duration-200 md:w-20 ${
+                className={`relative aspect-square w-14 shrink-0 cursor-pointer overflow-hidden rounded-lg transition-all duration-200 md:w-16 ${
                   isActive
                     ? 'border-2 border-ink ring-2 ring-ink/10 opacity-100 shadow-xs'
                     : 'border border-line bg-surface opacity-70 hover:border-field-border hover:opacity-100'
@@ -67,8 +67,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         </div>
       )}
 
-      {/* Main Image Showcase Container */}
-      <div className="group relative aspect-square flex-1 overflow-hidden rounded-2xl border border-line/70 bg-surface">
+      {/* Main Image Showcase Container with capped height */}
+      <div className="group relative aspect-square max-h-[440px] w-full flex-1 overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[460px]">
         {/* Badges Stack */}
         <div className="absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
           {isNew && (
@@ -89,7 +89,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute left-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95 sm:h-9 sm:w-9"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -97,7 +97,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute right-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95 sm:h-9 sm:w-9"
               aria-label="Next image"
             >
               <ChevronRight className="h-4 w-4" />

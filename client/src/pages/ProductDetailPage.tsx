@@ -139,14 +139,18 @@ export const ProductDetailPage: React.FC = () => {
         </nav>
 
         {/* Gallery + Product Info Grid */}
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2 lg:gap-10">
-          <ImageGallery
-            images={product.images}
-            title={product.name}
-            isNew={product.isFeatured}
-            discountPercent={product.discountPercent || 50}
-          />
-          <ProductInfo product={product} onReviewClick={handleReviewClick} />
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-12">
+          <div className="lg:col-span-6 xl:col-span-5">
+            <ImageGallery
+              images={product.images}
+              title={product.name}
+              isNew={product.isFeatured}
+              discountPercent={product.discountPercent || 50}
+            />
+          </div>
+          <div className="lg:col-span-6 xl:col-span-7">
+            <ProductInfo product={product} onReviewClick={handleReviewClick} />
+          </div>
         </div>
 
         {/* Accordion Tabs (Embedded Additional Info, Questions, and Customer Reviews) */}
