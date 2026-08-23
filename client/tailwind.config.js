@@ -52,17 +52,7 @@ export default {
         h4: ['1.25rem', { lineHeight: '1.25' }],
       },
       fontFamily: {
-        sans: [
-          'Nunito',
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Roboto',
-          'Helvetica Neue',
-          'Arial',
-          'sans-serif',
-        ],
+        sans: 'var(--font-sans)',
         display: ['Lora', 'Georgia', 'serif'],
         serif: ['Lora', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
