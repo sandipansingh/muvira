@@ -253,7 +253,11 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className={`hidden lg:block w-full ${className}`}>{sidebarContent}</aside>
+      <aside
+        className={`hidden lg:block w-full lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto no-scrollbar ${className}`}
+      >
+        {sidebarContent}
+      </aside>
 
       {/* Mobile Drawer */}
       {isMobileOpen && (
