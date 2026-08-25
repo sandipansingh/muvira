@@ -25,6 +25,7 @@ export const ShopPage: React.FC = () => {
 
   // URL state parameters
   const categoryParam = searchParams.get('category') || 'all'
+  const searchQuery = searchParams.get('q') || ''
   const requestedSort = searchParams.get('sort')
   const sortBy = ['price_asc', 'price_desc', 'newest', 'popularity'].includes(requestedSort ?? '')
     ? requestedSort!
@@ -78,6 +79,7 @@ export const ShopPage: React.FC = () => {
         const response = await productService.getProducts({
           page,
           limit: PAGE_SIZE,
+          q: searchQuery || undefined,
           category: categoryParam === 'all' ? undefined : categoryParam,
           sort: sortBy as 'price_asc' | 'price_desc' | 'newest' | 'popularity',
           minPrice,
@@ -105,7 +107,7 @@ export const ShopPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [categoryParam, inStockParam, maxPrice, minPrice, page, sortBy])
+  }, [categoryParam, inStockParam, maxPrice, minPrice, page, searchQuery, sortBy])
 
   const updateParams = (changes: Record<string, string | undefined>) => {
     const next = new URLSearchParams(searchParams)
@@ -119,6 +121,13 @@ export const ShopPage: React.FC = () => {
   const handleSelectCategory = (slug: string) => {
     updateParams({
       category: slug === 'all' ? undefined : slug,
+      page: undefined,
+    })
+  }
+
+  const handleSearchChange = (q: string) => {
+    updateParams({
+      q: q.trim() || undefined,
       page: undefined,
     })
   }
@@ -158,12 +167,14 @@ export const ShopPage: React.FC = () => {
   }
 
   const selectedCategoryObj = categories.find((c) => c.slug === categoryParam)
-  const currentTitle =
-    categoryParam && categoryParam !== 'all'
+  const currentTitle = searchQuery
+    ? `Results for “${searchQuery}”`
+    : categoryParam && categoryParam !== 'all'
       ? selectedCategoryObj?.name || 'Category'
       : 'All Products'
 
   const activeFiltersCount =
+    (searchQuery ? 1 : 0) +
     (categoryParam !== 'all' ? 1 : 0) +
     (priceRangeParam !== 'all' || minPrice !== undefined || maxPrice !== undefined ? 1 : 0) +
     (inStockParam ? 1 : 0)
@@ -185,6 +196,8 @@ export const ShopPage: React.FC = () => {
             categories={categories.map(({ name, slug }) => ({ name, slug }))}
             selectedCategory={categoryParam}
             onSelectCategory={handleSelectCategory}
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
             selectedPriceRange={priceRangeParam}
             onSelectPriceRange={handleSelectPriceRange}
             minPrice={minPrice}

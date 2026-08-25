@@ -124,9 +124,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
           )}
         </div>
         <ChevronDown
-          className={`h-3.5 w-3.5 text-muted shrink-0 transition-transform duration-200 ${
+          className={`h-3.5 w-3.5 text-muted shrink-0 transition-transform duration-200 !translate-y-0 ${
             isOpen ? 'rotate-180' : ''
           }`}
+          style={{ translate: '0 0' }}
         />
       </button>
 

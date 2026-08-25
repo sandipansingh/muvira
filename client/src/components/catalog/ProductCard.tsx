@@ -78,10 +78,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return (
       <>
         <article
-          className={`group flex items-center justify-between gap-4 p-3 rounded-xl border border-line bg-paper hover:shadow-xs transition-all duration-200 ${className}`}
+          className={`group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl border border-line bg-paper hover:shadow-card transition-all duration-300 w-full overflow-hidden ${className}`}
         >
-          {/* Compact Image */}
-          <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-lg overflow-hidden bg-surface shrink-0">
+          {/* Product Thumbnail */}
+          <div className="relative h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-xl overflow-hidden bg-surface shrink-0">
             <Link
               to={`/product/${product.slug}`}
               className="block h-full w-full"
@@ -95,23 +95,30 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   loading="lazy"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-[10px] text-muted">
+                <div className="flex h-full items-center justify-center text-xs text-muted">
                   No image
                 </div>
               )}
             </Link>
-            {discountPercent > 0 && (
-              <span className="absolute left-1.5 top-1.5 rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-white leading-none">
-                -{discountPercent}%
-              </span>
-            )}
+            <div className="absolute left-2 top-2 flex flex-col gap-1 pointer-events-none">
+              {badgeText && (
+                <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink shadow-xs">
+                  {badgeText}
+                </span>
+              )}
+              {discountPercent > 0 && (
+                <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                  -{discountPercent}%
+                </span>
+              )}
+            </div>
           </div>
 
-          {/* Details */}
-          <div className="flex flex-1 flex-col justify-center gap-1 min-w-0">
+          {/* Product Details */}
+          <div className="flex flex-1 flex-col justify-center gap-1.5 min-w-0 pr-2">
             <RatingStars rating={product.rating ?? 5} size="xs" />
-            <Link to={`/product/${product.slug}`} className="block truncate">
-              <h3 className="font-display text-sm sm:text-base font-normal text-ink group-hover:underline underline-offset-2 truncate">
+            <Link to={`/product/${product.slug}`} className="block">
+              <h3 className="font-display text-base sm:text-lg font-normal text-ink group-hover:underline underline-offset-2 line-clamp-1">
                 {product.name}
               </h3>
             </Link>
@@ -126,16 +133,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               )}
             </div>
             {description && (
-              <p className="text-xs text-muted line-clamp-1 hidden md:block">{description}</p>
+              <p className="text-xs text-muted line-clamp-2 max-w-2xl">{description}</p>
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-line">
             <button
               type="button"
               onClick={handleAddToCart}
-              className="button-primary h-9 px-3.5 text-xs gap-1.5 font-normal"
+              className="button-primary min-h-9 px-4 text-xs gap-1.5 font-normal flex-1 sm:flex-initial"
               aria-label={`Add ${product.name} to cart`}
             >
               {isAdded ? (
@@ -143,9 +150,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ) : (
                 <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
               )}
-              <span className="hidden sm:inline leading-none">
-                {isAdded ? 'Added' : 'Add to cart'}
-              </span>
+              <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
             </button>
             <button
               type="button"

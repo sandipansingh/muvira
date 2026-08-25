@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Check, RotateCcw, SlidersHorizontal, X } from 'lucide-react'
+import { Check, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
 import { Button } from '../ui/Button'
 
 export interface PriceRangeOption {
@@ -21,6 +21,8 @@ export interface CatalogSidebarProps {
   categories: { name: string; slug: string }[]
   selectedCategory: string
   onSelectCategory: (slug: string) => void
+  searchQuery?: string
+  onSearchChange?: (q: string) => void
   selectedPriceRange?: string
   onSelectPriceRange: (rangeId: string, min?: number, max?: number) => void
   minPrice?: number
@@ -38,6 +40,8 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
   categories,
   selectedCategory,
   onSelectCategory,
+  searchQuery = '',
+  onSearchChange,
   selectedPriceRange = 'all',
   onSelectPriceRange,
   minPrice,
@@ -54,6 +58,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
   const [customMax, setCustomMax] = useState(maxPrice ? String(maxPrice) : '')
 
   const hasActiveFilters =
+    Boolean(searchQuery) ||
     (selectedCategory && selectedCategory !== 'all') ||
     (selectedPriceRange && selectedPriceRange !== 'all') ||
     minPrice !== undefined ||
@@ -70,9 +75,9 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
   }
 
   const sidebarContent = (
-    <div className="flex flex-col gap-6 text-ink">
+    <div className="flex flex-col gap-5 text-ink">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2">
+      <div className="flex items-center justify-between pb-1">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-ink" />
           <h2 className="font-sans text-base font-semibold text-ink tracking-tight">Filter</h2>
@@ -88,6 +93,30 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
           </button>
         )}
       </div>
+
+      {/* Search Input Box */}
+      {onSearchChange && (
+        <div className="relative">
+          <input
+            type="search"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="w-full rounded-lg border border-field-border bg-white pl-8 pr-7 py-2 text-sm text-ink placeholder:text-muted focus:border-ink outline-none transition-colors"
+          />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => onSearchChange('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-ink transition-colors cursor-pointer"
+              aria-label="Clear search"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Categories Section */}
       <div className="space-y-3">
