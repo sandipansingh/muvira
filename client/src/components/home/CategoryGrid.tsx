@@ -84,7 +84,7 @@ export const CategoryGrid: React.FC = () => {
 
         {/* View All Categories Link */}
         <Link
-          to="/shop"
+          to="/categories"
           className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-normal text-ink transition-colors hover:bg-surface select-none"
         >
           View all categories
@@ -103,7 +103,7 @@ export const CategoryGrid: React.FC = () => {
         <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-2">
           {/* Left Large Card */}
           <Link
-            to={`/shop?category=${mainCategory.slug}`}
+            to={`/category/${mainCategory.slug}`}
             className="group relative flex min-h-[340px] flex-col justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-5 transition-all sm:min-h-[420px] sm:p-6 lg:min-h-[440px]"
           >
             {/* Center Image */}
@@ -130,7 +130,7 @@ export const CategoryGrid: React.FC = () => {
           <div className="flex flex-col gap-5 sm:gap-6">
             {/* Top Right Card */}
             <Link
-              to={`/shop?category=${secondCategory.slug}`}
+              to={`/category/${secondCategory.slug}`}
               className="group relative flex min-h-[160px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-5 transition-all sm:min-h-[200px] sm:p-6"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">
@@ -153,7 +153,7 @@ export const CategoryGrid: React.FC = () => {
 
             {/* Bottom Right Card */}
             <Link
-              to={`/shop?category=${thirdCategory.slug}`}
+              to={`/category/${thirdCategory.slug}`}
               className="group relative flex min-h-[160px] flex-1 items-center justify-between overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] p-5 transition-all sm:min-h-[200px] sm:p-6"
             >
               <div className="z-10 flex max-w-[55%] flex-col justify-center">

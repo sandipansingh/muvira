@@ -1,0 +1,279 @@
+import React, { useState } from 'react'
+import { Check, RotateCcw, SlidersHorizontal, X } from 'lucide-react'
+import { Button } from '../ui/Button'
+
+export interface PriceRangeOption {
+  id: string
+  label: string
+  min?: number
+  max?: number
+}
+
+export const PRICE_RANGES: PriceRangeOption[] = [
+  { id: 'all', label: 'All Price' },
+  { id: '0-999', label: '₹0.00 - 999.00', min: 0, max: 999 },
+  { id: '1000-2499', label: '₹1,000.00 - 2,499.00', min: 1000, max: 2499 },
+  { id: '2500-4999', label: '₹2,500.00 - 4,999.00', min: 2500, max: 4999 },
+  { id: '5000-plus', label: '₹5,000.00+', min: 5000 },
+]
+
+export interface CatalogSidebarProps {
+  categories: { name: string; slug: string }[]
+  selectedCategory: string
+  onSelectCategory: (slug: string) => void
+  selectedPriceRange?: string
+  onSelectPriceRange: (rangeId: string, min?: number, max?: number) => void
+  minPrice?: number
+  maxPrice?: number
+  onCustomPriceChange?: (min?: number, max?: number) => void
+  inStockOnly?: boolean
+  onToggleInStock?: (inStock: boolean) => void
+  onClearFilters: () => void
+  isMobileOpen?: boolean
+  onMobileClose?: () => void
+  className?: string
+}
+
+export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+  selectedPriceRange = 'all',
+  onSelectPriceRange,
+  minPrice,
+  maxPrice,
+  onCustomPriceChange,
+  inStockOnly = false,
+  onToggleInStock,
+  onClearFilters,
+  isMobileOpen = false,
+  onMobileClose,
+  className = '',
+}) => {
+  const [customMin, setCustomMin] = useState(minPrice ? String(minPrice) : '')
+  const [customMax, setCustomMax] = useState(maxPrice ? String(maxPrice) : '')
+
+  const hasActiveFilters =
+    (selectedCategory && selectedCategory !== 'all') ||
+    (selectedPriceRange && selectedPriceRange !== 'all') ||
+    minPrice !== undefined ||
+    maxPrice !== undefined ||
+    inStockOnly
+
+  const handleApplyCustomPrice = (e: React.FormEvent) => {
+    e.preventDefault()
+    const parsedMin = customMin ? Number(customMin) : undefined
+    const parsedMax = customMax ? Number(customMax) : undefined
+    if (onCustomPriceChange) {
+      onCustomPriceChange(parsedMin, parsedMax)
+    }
+  }
+
+  const sidebarContent = (
+    <div className="flex flex-col gap-6 text-ink">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-2">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="h-4 w-4 text-ink" />
+          <h2 className="font-sans text-base font-semibold text-ink tracking-tight">Filter</h2>
+        </div>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onClearFilters}
+            className="flex items-center gap-1 text-xs text-muted hover:text-primary transition-colors cursor-pointer"
+          >
+            <RotateCcw className="h-3 w-3" />
+            <span>Reset</span>
+          </button>
+        )}
+      </div>
+
+      {/* Categories Section */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Categories</h3>
+        <div className="max-h-64 overflow-y-auto space-y-1 pr-1 dropdown-scrollbar">
+          <button
+            type="button"
+            onClick={() => onSelectCategory('all')}
+            className={`block w-full text-left text-sm py-1.5 transition-colors cursor-pointer ${
+              selectedCategory === 'all' || !selectedCategory
+                ? 'font-semibold text-ink underline underline-offset-4 decoration-2 decoration-ink'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            All Products
+          </button>
+          {categories.map((category) => {
+            const isSelected = selectedCategory === category.slug
+            return (
+              <button
+                key={category.slug}
+                type="button"
+                onClick={() => onSelectCategory(category.slug)}
+                className={`block w-full text-left text-sm py-1.5 transition-colors cursor-pointer ${
+                  isSelected
+                    ? 'font-semibold text-ink underline underline-offset-4 decoration-2 decoration-ink'
+                    : 'text-muted hover:text-ink'
+                }`}
+              >
+                {category.name}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Price Filter Section */}
+      <div className="space-y-3 pt-2 border-t border-line">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Price</h3>
+        <div className="space-y-2">
+          {PRICE_RANGES.map((range) => {
+            const isChecked = selectedPriceRange === range.id
+            return (
+              <label
+                key={range.id}
+                className="flex items-center justify-between gap-3 text-sm cursor-pointer select-none group"
+              >
+                <span
+                  className={`transition-colors ${
+                    isChecked ? 'text-ink font-medium' : 'text-muted group-hover:text-ink'
+                  }`}
+                >
+                  {range.label}
+                </span>
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={isChecked}
+                  onClick={() => onSelectPriceRange(range.id, range.min, range.max)}
+                  className={`h-5 w-5 rounded border flex items-center justify-center transition-colors cursor-pointer ${
+                    isChecked
+                      ? 'bg-ink border-ink text-white'
+                      : 'border-field-border bg-white hover:border-ink'
+                  }`}
+                >
+                  {isChecked && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
+                </button>
+              </label>
+            )
+          })}
+        </div>
+
+        {/* Custom Price Range Inputs */}
+        <form onSubmit={handleApplyCustomPrice} className="pt-2 flex items-center gap-2">
+          <input
+            type="number"
+            placeholder="Min ₹"
+            value={customMin}
+            onChange={(e) => setCustomMin(e.target.value)}
+            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-ink outline-none"
+            min="0"
+          />
+          <span className="text-muted text-xs">-</span>
+          <input
+            type="number"
+            placeholder="Max ₹"
+            value={customMax}
+            onChange={(e) => setCustomMax(e.target.value)}
+            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-ink outline-none"
+            min="0"
+          />
+          <button
+            type="submit"
+            className="px-2.5 py-1.5 text-xs font-medium bg-surface hover:bg-line border border-line rounded text-ink transition-colors shrink-0 cursor-pointer"
+          >
+            Go
+          </button>
+        </form>
+      </div>
+
+      {/* Availability / In Stock Section */}
+      {onToggleInStock && (
+        <div className="space-y-3 pt-2 border-t border-line">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
+            Availability
+          </h3>
+          <label className="flex items-center justify-between gap-3 text-sm cursor-pointer select-none group">
+            <span
+              className={`transition-colors ${
+                inStockOnly ? 'text-ink font-medium' : 'text-muted group-hover:text-ink'
+              }`}
+            >
+              In Stock Only
+            </span>
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={inStockOnly}
+              onClick={() => onToggleInStock(!inStockOnly)}
+              className={`h-5 w-5 rounded border flex items-center justify-center transition-colors cursor-pointer ${
+                inStockOnly
+                  ? 'bg-ink border-ink text-white'
+                  : 'border-field-border bg-white hover:border-ink'
+              }`}
+            >
+              {inStockOnly && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
+            </button>
+          </label>
+        </div>
+      )}
+    </div>
+  )
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className={`hidden lg:block w-full ${className}`}>{sidebarContent}</aside>
+
+      {/* Mobile Drawer */}
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            onClick={onMobileClose}
+            className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            aria-label="Close filters"
+          />
+          <div className="absolute inset-y-0 right-0 max-w-xs w-full bg-paper p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 mb-4 border-b border-line">
+                <span className="font-display text-lg text-ink font-normal">Filters</span>
+                <button
+                  type="button"
+                  onClick={onMobileClose}
+                  className="p-1 rounded-md text-muted hover:text-ink transition-colors cursor-pointer"
+                  aria-label="Close modal"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              {sidebarContent}
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-line flex gap-3">
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={onClearFilters}
+                className="flex-1 text-xs"
+              >
+                Reset
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={onMobileClose}
+                className="flex-1 text-xs"
+              >
+                Show Results
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+export default CatalogSidebar

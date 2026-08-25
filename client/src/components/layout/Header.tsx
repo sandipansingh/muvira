@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
     const query = searchQuery.trim()
     if (!query) return
 
-    navigate(`/shop?q=${encodeURIComponent(query)}`)
+    navigate(`/search?q=${encodeURIComponent(query)}`)
     setSearchQuery('')
     setIsSearchOpen(false)
   }

@@ -15,6 +15,10 @@ import { ScrollToTop } from './components/common/ScrollToTop'
 
 import { HomePage } from './pages/HomePage'
 import { ShopPage } from './pages/ShopPage'
+import { CategoryPage } from './pages/CategoryPage'
+import { CategoriesPage } from './pages/CategoriesPage'
+import { SearchPage } from './pages/SearchPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 import { ProductDetailPage } from './pages/ProductDetailPage'
 import { CartPage } from './pages/CartPage'
 import { CheckoutPage } from './pages/CheckoutPage'
@@ -63,6 +67,10 @@ export const AppContent: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/shop" element={<ShopPage />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/categories/:slug" element={<CategoryPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/product/:slug" element={<ProductDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
@@ -71,6 +79,8 @@ export const AppContent: React.FC = () => {
           <Route path="/orders/failure" element={<OrderFailurePage />} />
           <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          {/* Catch-all route to prevent blank screens */}
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </div>

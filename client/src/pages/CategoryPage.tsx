@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
@@ -12,19 +12,23 @@ import { Pagination } from '../components/common/Pagination'
 
 const PAGE_SIZE = 12
 
-export const ShopPage: React.FC = () => {
+export const CategoryPage: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+
   const [categories, setCategories] = useState<Category[]>([])
+  const [currentCategory, setCurrentCategory] = useState<Category | null>(null)
   const [products, setProducts] = useState<ProductListItem[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [categoryLoading, setCategoryLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
   const [viewMode, setViewMode] = useState<GridViewMode>('grid-3')
 
   // URL state parameters
-  const categoryParam = searchParams.get('category') || 'all'
   const requestedSort = searchParams.get('sort')
   const sortBy = ['price_asc', 'price_desc', 'newest', 'popularity'].includes(requestedSort ?? '')
     ? requestedSort!
@@ -49,36 +53,51 @@ export const ShopPage: React.FC = () => {
     }
   }, [page])
 
-  // Load categories
+  // Load all categories for sidebar and find current category
   useEffect(() => {
     let active = true
     const loadCategories = async () => {
+      setCategoryLoading(true)
       try {
         const response = await categoryService.getCategories()
         if (response.success && active) {
-          setCategories(response.data.sort((a, b) => a.sortOrder - b.sortOrder))
+          const sorted = response.data.sort((a, b) => a.sortOrder - b.sortOrder)
+          setCategories(sorted)
+          const found = sorted.find((c) => c.slug === slug)
+          if (found) {
+            setCurrentCategory(found)
+          } else if (slug) {
+            // Try fetching specific category by slug
+            const singleRes = await categoryService.getCategoryBySlug(slug)
+            if (singleRes.success && active) {
+              setCurrentCategory(singleRes.data)
+            }
+          }
         }
       } catch {
         if (active) setCategories([])
+      } finally {
+        if (active) setCategoryLoading(false)
       }
     }
     void loadCategories()
     return () => {
       active = false
     }
-  }, [])
+  }, [slug])
 
-  // Load products based on query params
+  // Load products for this category
   useEffect(() => {
+    if (!slug) return
     let active = true
     const loadProducts = async () => {
       setLoading(true)
       setError(null)
       try {
         const response = await productService.getProducts({
+          category: slug,
           page,
           limit: PAGE_SIZE,
-          category: categoryParam === 'all' ? undefined : categoryParam,
           sort: sortBy as 'price_asc' | 'price_desc' | 'newest' | 'popularity',
           minPrice,
           maxPrice,
@@ -95,7 +114,7 @@ export const ShopPage: React.FC = () => {
           setProducts([])
           setTotalCount(0)
           setTotalPages(1)
-          setError(reason instanceof Error ? reason.message : 'Unable to load products.')
+          setError(reason instanceof Error ? reason.message : 'Unable to load category products.')
         }
       } finally {
         if (active) setLoading(false)
@@ -105,7 +124,7 @@ export const ShopPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [categoryParam, inStockParam, maxPrice, minPrice, page, sortBy])
+  }, [inStockParam, maxPrice, minPrice, page, slug, sortBy])
 
   const updateParams = (changes: Record<string, string | undefined>) => {
     const next = new URLSearchParams(searchParams)
@@ -116,11 +135,12 @@ export const ShopPage: React.FC = () => {
     setSearchParams(next)
   }
 
-  const handleSelectCategory = (slug: string) => {
-    updateParams({
-      category: slug === 'all' ? undefined : slug,
-      page: undefined,
-    })
+  const handleSelectCategory = (newSlug: string) => {
+    if (newSlug === 'all') {
+      navigate('/shop')
+    } else {
+      navigate(`/category/${newSlug}`)
+    }
   }
 
   const handleSelectPriceRange = (rangeId: string, min?: number, max?: number) => {
@@ -157,24 +177,29 @@ export const ShopPage: React.FC = () => {
     updateParams({ page: String(newPage) })
   }
 
-  const selectedCategoryObj = categories.find((c) => c.slug === categoryParam)
-  const currentTitle =
-    categoryParam && categoryParam !== 'all'
-      ? selectedCategoryObj?.name || 'Category'
-      : 'All Products'
+  const categoryTitle =
+    currentCategory?.name ||
+    (slug ? slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()) : 'Category')
+  const categorySubtitle =
+    currentCategory?.description ||
+    `Explore handcrafted collections made for your ${categoryTitle.toLowerCase()}.`
 
   const activeFiltersCount =
-    (categoryParam !== 'all' ? 1 : 0) +
     (priceRangeParam !== 'all' || minPrice !== undefined || maxPrice !== undefined ? 1 : 0) +
     (inStockParam ? 1 : 0)
 
   return (
     <main className="min-h-screen pb-16 bg-paper">
-      {/* Top Rounded Hero Banner */}
+      {/* Category Hero Banner */}
       <ShopHero
-        title="Shop Page"
-        subtitle="Let's design the place you always imagined."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]}
+        title={categoryTitle}
+        subtitle={categorySubtitle}
+        imageUrl={currentCategory?.imageUrl}
+        breadcrumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'Categories', href: '/categories' },
+          { label: categoryTitle },
+        ]}
       />
 
       {/* Main 2-Column Catalog Container */}
@@ -182,8 +207,8 @@ export const ShopPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr] gap-8 xl:gap-12 items-start">
           {/* Left Sidebar */}
           <CatalogSidebar
-            categories={categories.map(({ name, slug }) => ({ name, slug }))}
-            selectedCategory={categoryParam}
+            categories={categories.map(({ name, slug: s }) => ({ name, slug: s }))}
+            selectedCategory={slug || 'all'}
             onSelectCategory={handleSelectCategory}
             selectedPriceRange={priceRangeParam}
             onSelectPriceRange={handleSelectPriceRange}
@@ -200,7 +225,7 @@ export const ShopPage: React.FC = () => {
           {/* Right Content Area */}
           <div className="w-full">
             <CatalogTopBar
-              title={currentTitle}
+              title={categoryTitle}
               totalCount={totalCount}
               sortBy={sortBy}
               onSortChange={(sort) => updateParams({ sort, page: undefined })}
@@ -216,19 +241,27 @@ export const ShopPage: React.FC = () => {
                   Unable to load products
                 </h3>
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>
-                <button
-                  type="button"
-                  onClick={() => updateParams({})}
-                  className="mt-4 rounded-lg bg-ink hover:bg-black text-white px-4 py-2 text-xs font-normal transition-colors cursor-pointer"
-                >
-                  Try Again
-                </button>
+                <div className="mt-4 flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => updateParams({})}
+                    className="rounded-lg bg-ink hover:bg-black text-white px-4 py-2 text-xs font-normal transition-colors cursor-pointer"
+                  >
+                    Try Again
+                  </button>
+                  <Link
+                    to="/shop"
+                    className="rounded-lg border border-line bg-white hover:bg-surface text-ink px-4 py-2 text-xs font-normal transition-colors"
+                  >
+                    View All Products
+                  </Link>
+                </div>
               </div>
             ) : (
               <>
                 <ProductGrid
                   products={products}
-                  loading={loading}
+                  loading={loading || categoryLoading}
                   viewMode={viewMode}
                   onResetFilters={handleClearFilters}
                 />
@@ -251,4 +284,4 @@ export const ShopPage: React.FC = () => {
   )
 }
 
-export default ShopPage
+export default CategoryPage

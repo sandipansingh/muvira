@@ -11,10 +11,11 @@ interface MobileMenuProps {
 
 const SHOP_CATEGORIES = [
   { label: 'All Products', href: '/shop' },
-  { label: 'Living Room', href: '/shop?category=living-room' },
-  { label: 'Bedroom Furniture', href: '/shop?category=bedroom' },
-  { label: 'Dining & Kitchen', href: '/shop?category=dining' },
-  { label: 'Office & Decor', href: '/shop?category=office-decor' },
+  { label: 'All Categories', href: '/categories' },
+  { label: 'Living Room', href: '/category/living-room' },
+  { label: 'Bedroom Furniture', href: '/category/bedroom' },
+  { label: 'Dining & Kitchen', href: '/category/dining' },
+  { label: 'Office & Decor', href: '/category/office-decor' },
 ]
 
 const PRODUCT_LINKS = [
@@ -37,7 +38,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
     e.preventDefault()
     const query = searchQuery.trim()
     if (!query) return
-    navigate(`/shop?q=${encodeURIComponent(query)}`)
+    navigate(`/search?q=${encodeURIComponent(query)}`)
     setSearchQuery('')
     onClose()
   }

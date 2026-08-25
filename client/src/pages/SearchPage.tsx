@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
+import { Search, X, Sparkles } from 'lucide-react'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
@@ -12,8 +13,11 @@ import { Pagination } from '../components/common/Pagination'
 
 const PAGE_SIZE = 12
 
-export const ShopPage: React.FC = () => {
+export const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+  const searchQuery = searchParams.get('q') || ''
+  const [localInput, setLocalInput] = useState(searchQuery)
+
   const [categories, setCategories] = useState<Category[]>([])
   const [products, setProducts] = useState<ProductListItem[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -40,6 +44,11 @@ export const ShopPage: React.FC = () => {
 
   const resultsContainerRef = useRef<HTMLDivElement>(null)
   const shouldScrollRef = useRef(false)
+
+  // Keep local search input synced with URL
+  useEffect(() => {
+    setLocalInput(searchQuery)
+  }, [searchQuery])
 
   // Scroll to top of results on page change
   useEffect(() => {
@@ -68,7 +77,7 @@ export const ShopPage: React.FC = () => {
     }
   }, [])
 
-  // Load products based on query params
+  // Load search products
   useEffect(() => {
     let active = true
     const loadProducts = async () => {
@@ -76,9 +85,10 @@ export const ShopPage: React.FC = () => {
       setError(null)
       try {
         const response = await productService.getProducts({
+          q: searchQuery || undefined,
+          category: categoryParam === 'all' ? undefined : categoryParam,
           page,
           limit: PAGE_SIZE,
-          category: categoryParam === 'all' ? undefined : categoryParam,
           sort: sortBy as 'price_asc' | 'price_desc' | 'newest' | 'popularity',
           minPrice,
           maxPrice,
@@ -95,7 +105,7 @@ export const ShopPage: React.FC = () => {
           setProducts([])
           setTotalCount(0)
           setTotalPages(1)
-          setError(reason instanceof Error ? reason.message : 'Unable to load products.')
+          setError(reason instanceof Error ? reason.message : 'Unable to search products.')
         }
       } finally {
         if (active) setLoading(false)
@@ -105,7 +115,7 @@ export const ShopPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [categoryParam, inStockParam, maxPrice, minPrice, page, sortBy])
+  }, [categoryParam, inStockParam, maxPrice, minPrice, page, searchQuery, sortBy])
 
   const updateParams = (changes: Record<string, string | undefined>) => {
     const next = new URLSearchParams(searchParams)
@@ -114,6 +124,20 @@ export const ShopPage: React.FC = () => {
       else next.set(key, value)
     })
     setSearchParams(next)
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = localInput.trim()
+    updateParams({
+      q: trimmed || undefined,
+      page: undefined,
+    })
+  }
+
+  const handleClearSearch = () => {
+    setLocalInput('')
+    updateParams({ q: undefined, page: undefined })
   }
 
   const handleSelectCategory = (slug: string) => {
@@ -149,7 +173,9 @@ export const ShopPage: React.FC = () => {
   }
 
   const handleClearFilters = () => {
-    setSearchParams(new URLSearchParams())
+    const next = new URLSearchParams()
+    if (searchQuery) next.set('q', searchQuery)
+    setSearchParams(next)
   }
 
   const handlePageChange = (newPage: number) => {
@@ -157,11 +183,10 @@ export const ShopPage: React.FC = () => {
     updateParams({ page: String(newPage) })
   }
 
-  const selectedCategoryObj = categories.find((c) => c.slug === categoryParam)
-  const currentTitle =
-    categoryParam && categoryParam !== 'all'
-      ? selectedCategoryObj?.name || 'Category'
-      : 'All Products'
+  const heroTitle = searchQuery ? `Search: “${searchQuery}”` : 'Search Catalog'
+  const heroSubtitle = searchQuery
+    ? `Showing catalog pieces matching your search term.`
+    : 'Discover handcrafted furniture, clay art, idols, and curated decor.'
 
   const activeFiltersCount =
     (categoryParam !== 'all' ? 1 : 0) +
@@ -170,14 +195,53 @@ export const ShopPage: React.FC = () => {
 
   return (
     <main className="min-h-screen pb-16 bg-paper">
-      {/* Top Rounded Hero Banner */}
+      {/* Search Hero Banner */}
       <ShopHero
-        title="Shop Page"
-        subtitle="Let's design the place you always imagined."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]}
+        title={heroTitle}
+        subtitle={heroSubtitle}
+        breadcrumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'Search', href: '/search' },
+          ...(searchQuery ? [{ label: `“${searchQuery}”` }] : []),
+        ]}
       />
 
-      {/* Main 2-Column Catalog Container */}
+      {/* Prominent Live Search Bar */}
+      <div className="layout-container mb-8">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="relative max-w-xl mx-auto flex items-center shadow-xs rounded-xl border border-field-border bg-white p-1.5 focus-within:border-ink transition-colors"
+        >
+          <div className="pl-3 pr-2 text-muted">
+            <Search className="h-5 w-5" />
+          </div>
+          <input
+            type="search"
+            placeholder="Search for idols, decor, showpieces, wooden furniture..."
+            value={localInput}
+            onChange={(e) => setLocalInput(e.target.value)}
+            className="w-full bg-transparent text-sm text-ink placeholder:text-muted outline-none py-1.5"
+          />
+          {localInput && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="p-1.5 text-muted hover:text-ink transition-colors cursor-pointer"
+              aria-label="Clear search query"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            type="submit"
+            className="ml-2 rounded-lg bg-ink hover:bg-black text-white px-4 py-2 text-xs font-medium transition-colors shrink-0 cursor-pointer"
+          >
+            Search
+          </button>
+        </form>
+      </div>
+
+      {/* Main 2-Column Search Container */}
       <div className="layout-container" ref={resultsContainerRef}>
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr] gap-8 xl:gap-12 items-start">
           {/* Left Sidebar */}
@@ -200,7 +264,7 @@ export const ShopPage: React.FC = () => {
           {/* Right Content Area */}
           <div className="w-full">
             <CatalogTopBar
-              title={currentTitle}
+              title={searchQuery ? `Results for “${searchQuery}”` : 'All Products'}
               totalCount={totalCount}
               sortBy={sortBy}
               onSortChange={(sort) => updateParams({ sort, page: undefined })}
@@ -213,7 +277,7 @@ export const ShopPage: React.FC = () => {
             {error ? (
               <div className="rounded-2xl border border-line bg-surface py-12 text-center px-4">
                 <h3 className="font-display text-xl font-normal text-ink">
-                  Unable to load products
+                  Unable to load search results
                 </h3>
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>
                 <button
@@ -223,6 +287,42 @@ export const ShopPage: React.FC = () => {
                 >
                   Try Again
                 </button>
+              </div>
+            ) : !loading && products.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-line bg-surface py-16 px-6 text-center flex flex-col items-center justify-center">
+                <div className="h-12 w-12 rounded-full bg-paper flex items-center justify-center text-muted mb-4 shadow-xs">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-display text-2xl font-normal text-ink">
+                  {searchQuery ? `No results found for “${searchQuery}”` : 'Search our catalog'}
+                </h3>
+                <p className="mt-2 text-sm text-muted max-w-md font-normal">
+                  Try checking your spelling, using more general keywords, or exploring our popular
+                  categories below.
+                </p>
+
+                {categories.length > 0 && (
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-2 max-w-md">
+                    {categories.slice(0, 5).map((cat) => (
+                      <Link
+                        key={cat.id}
+                        to={`/category/${cat.slug}`}
+                        className="rounded-full border border-line bg-paper px-3 py-1.5 text-xs text-ink hover:border-ink transition-colors"
+                      >
+                        {cat.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-6">
+                  <Link
+                    to="/shop"
+                    className="inline-block rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors"
+                  >
+                    View All Products
+                  </Link>
+                </div>
               </div>
             ) : (
               <>
@@ -251,4 +351,4 @@ export const ShopPage: React.FC = () => {
   )
 }
 
-export default ShopPage
+export default SearchPage
