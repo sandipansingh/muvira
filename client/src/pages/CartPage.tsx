@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/utils/format'
 import { CartItemRow } from '../components/cart/CartItemRow'
 import { CouponInput } from '../components/cart/CouponInput'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 export const CartPage: React.FC = () => {
   const {
@@ -46,16 +47,7 @@ export const CartPage: React.FC = () => {
     <main className="editorial-page py-6 sm:py-8">
       <div className="editorial-container">
         {/* Breadcrumb Navigation */}
-        <nav
-          aria-label="Breadcrumb"
-          className="mb-4 flex items-center gap-2 text-xs font-normal text-[var(--color-muted)]"
-        >
-          <Link to="/" className="hover:text-[var(--color-ink)] transition-colors">
-            Home
-          </Link>
-          <span>/</span>
-          <span className="font-normal text-[var(--color-ink)]">Shopping Cart</span>
-        </nav>
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Shopping Cart' }]} />
 
         {/* Page Header */}
         <div className="mb-4 flex flex-col gap-2 pb-3 sm:flex-row sm:items-end sm:justify-between">

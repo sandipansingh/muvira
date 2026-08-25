@@ -10,6 +10,7 @@ import { CheckoutSteps } from '../components/checkout/CheckoutSteps'
 import { ContactForm } from '../components/checkout/ContactForm'
 import { AddressSelector, type AddressData } from '../components/checkout/AddressSelector'
 import { OrderSummaryCard } from '../components/checkout/OrderSummaryCard'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 interface RazorpayPaymentResponse {
   razorpay_order_id: string
@@ -230,6 +231,13 @@ export const CheckoutPage: React.FC = () => {
   return (
     <main className="editorial-page py-6 sm:py-8">
       <div className="editorial-container space-y-6">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Shopping Cart', href: '/cart' },
+            { label: 'Checkout' },
+          ]}
+        />
         <CheckoutSteps currentStep="shipping" />
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
           <div className="space-y-5 lg:col-span-2">

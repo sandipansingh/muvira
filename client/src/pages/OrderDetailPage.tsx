@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, MapPin, Package, ShieldCheck, Truck } from 'lucide-react'
+import { MapPin, Package, ShieldCheck, Truck } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderDetail, OrderTrackingData } from '../lib/types/order'
 import { formatDate, formatPrice } from '../lib/utils/format'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -72,13 +73,14 @@ export const OrderDetailPage: React.FC = () => {
   return (
     <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container max-w-4xl space-y-8">
-        <Link
-          to="/orders"
-          className="inline-flex items-center gap-1.5 text-xs font-normal leading-none text-muted transition-colors hover:text-primary hover:underline"
-        >
-          <ArrowLeft className="h-4 w-4 shrink-0" />
-          <span className="leading-none">Back to order history</span>
-        </Link>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Account', href: '/profile' },
+            { label: 'Orders', href: '/orders' },
+            { label: `#${order.orderNumber}` },
+          ]}
+        />
         <div className="flex flex-col justify-between gap-4 border-b border-line pb-6 sm:flex-row sm:items-end">
           <div>
             <span className="eyebrow mb-1 block">Order Details</span>

@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react'
+import { ArrowUpRight, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 import { Button } from '../ui/Button'
+import { Dropdown, type DropdownOption } from '../ui/Dropdown'
 
 const AUTO_ROTATE_INTERVAL = 6000
 
@@ -31,19 +32,19 @@ const FALLBACK_SLIDES = [
   },
 ]
 
-const CATEGORY_DROPDOWN_OPTIONS = [
-  { label: 'All Collections', href: '/shop' },
-  { label: 'Living Room', href: '/shop?category=living-room' },
-  { label: 'Bedroom Furniture', href: '/shop?category=bedroom' },
-  { label: 'Dining & Kitchen', href: '/shop?category=dining' },
-  { label: 'Office & Decor', href: '/shop?category=office-decor' },
+const CATEGORY_DROPDOWN_OPTIONS: DropdownOption[] = [
+  { value: '/shop', label: 'All Collections' },
+  { value: '/shop?category=living-room', label: 'Living Room' },
+  { value: '/shop?category=bedroom', label: 'Bedroom Furniture' },
+  { value: '/shop?category=dining', label: 'Dining & Kitchen' },
+  { value: '/shop?category=office-decor', label: 'Office & Decor' },
 ]
 
-const SORT_DROPDOWN_OPTIONS = [
-  { label: 'New Arrivals', href: '/shop?sort=newest' },
-  { label: 'Best Sellers', href: '/shop?sort=popularity' },
-  { label: 'Price: Low to High', href: '/shop?sort=price_asc' },
-  { label: 'Price: High to Low', href: '/shop?sort=price_desc' },
+const SORT_DROPDOWN_OPTIONS: DropdownOption[] = [
+  { value: '/shop?sort=newest', label: 'New Arrivals' },
+  { value: '/shop?sort=popularity', label: 'Best Sellers' },
+  { value: '/shop?sort=price_asc', label: 'Price: Low to High' },
+  { value: '/shop?sort=price_desc', label: 'Price: High to Low' },
 ]
 
 const QUICK_CATEGORY_PILLS = [
@@ -58,12 +59,7 @@ export const HeroSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [quickSearch, setQuickSearch] = useState('')
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
-  const [isSortOpen, setIsSortOpen] = useState(false)
   const navigate = useNavigate()
-
-  const categoriesRef = useRef<HTMLDivElement>(null)
-  const sortRef = useRef<HTMLDivElement>(null)
 
   const activeSlides =
     settings.heroSlides && settings.heroSlides.length > 0 ? settings.heroSlides : FALLBACK_SLIDES
@@ -83,19 +79,6 @@ export const HeroSlider: React.FC = () => {
     const timer = setInterval(nextSlide, AUTO_ROTATE_INTERVAL)
     return () => clearInterval(timer)
   }, [isPaused, nextSlide, activeSlides.length])
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (categoriesRef.current && !categoriesRef.current.contains(e.target as Node)) {
-        setIsCategoriesOpen(false)
-      }
-      if (sortRef.current && !sortRef.current.contains(e.target as Node)) {
-        setIsSortOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
-  }, [])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -125,73 +108,22 @@ export const HeroSlider: React.FC = () => {
       <div className="mb-3.5 sm:mb-4 hidden md:flex items-center justify-between gap-3 text-xs">
         {/* Left Dropdown Selectors */}
         <div className="flex items-center gap-2">
-          {/* Categories Dropdown */}
-          <div ref={categoriesRef} className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setIsCategoriesOpen((prev) => !prev)
-                setIsSortOpen(false)
-              }}
-              className="flex items-center gap-1.5 rounded-[var(--radius-control)] border border-line bg-paper px-3.5 py-1.5 font-normal text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
-            >
-              <span>Categories</span>
-              <ChevronDown
-                className={`w-3.5 h-3.5 text-muted transition-transform duration-200 ${
-                  isCategoriesOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-
-            {isCategoriesOpen && (
-              <div className="absolute left-0 top-full mt-2 w-48 rounded-xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
-                {CATEGORY_DROPDOWN_OPTIONS.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.href}
-                    onClick={() => setIsCategoriesOpen(false)}
-                    className="block rounded-lg px-3 py-2 text-xs font-normal text-ink-soft hover:bg-surface hover:text-ink transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* New Product Dropdown */}
-          <div ref={sortRef} className="relative">
-            <button
-              type="button"
-              onClick={() => {
-                setIsSortOpen((prev) => !prev)
-                setIsCategoriesOpen(false)
-              }}
-              className="flex items-center gap-1.5 rounded-[var(--radius-control)] border border-line bg-paper px-3.5 py-1.5 font-normal text-ink-soft hover:bg-surface transition-all shadow-xs cursor-pointer"
-            >
-              <span>New Product</span>
-              <ChevronDown
-                className={`w-3.5 h-3.5 text-muted transition-transform duration-200 ${
-                  isSortOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-
-            {isSortOpen && (
-              <div className="absolute left-0 top-full mt-2 w-48 rounded-xl border border-line bg-paper p-1.5 shadow-premium z-50 animate-in fade-in zoom-in-95 duration-150">
-                {SORT_DROPDOWN_OPTIONS.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.href}
-                    onClick={() => setIsSortOpen(false)}
-                    className="block rounded-lg px-3 py-2 text-xs font-normal text-ink-soft hover:bg-surface hover:text-ink transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          <Dropdown
+            placeholder="Categories"
+            value=""
+            onChange={(val) => navigate(val)}
+            options={CATEGORY_DROPDOWN_OPTIONS}
+            variant="slim"
+            className="w-36"
+          />
+          <Dropdown
+            placeholder="New Product"
+            value=""
+            onChange={(val) => navigate(val)}
+            options={SORT_DROPDOWN_OPTIONS}
+            variant="slim"
+            className="w-36"
+          />
         </div>
 
         {/* Center Search Pill */}

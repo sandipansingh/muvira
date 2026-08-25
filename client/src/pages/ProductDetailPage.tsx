@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
 import { productService } from '../lib/services/product.service'
 import { reviewService } from '../lib/services/review.service'
 import type {
@@ -14,6 +13,7 @@ import { ProductInfo } from '../components/product/ProductInfo'
 import { ProductAccordion } from '../components/product/ProductAccordion'
 import { ProductCard } from '../components/catalog/ProductCard'
 import { SectionHeader } from '../components/common/SectionHeader'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -116,27 +116,17 @@ export const ProductDetailPage: React.FC = () => {
     <main className="editorial-page">
       <div className="editorial-container py-4 sm:py-6">
         {/* Breadcrumbs */}
-        <nav
-          className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-normal text-[var(--color-muted)]"
-          aria-label="Breadcrumb"
-        >
-          <Link to="/" className="transition-colors hover:text-primary">
-            Home
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link to="/shop" className="transition-colors hover:text-primary">
-            Shop
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link
-            to={`/shop?category=${product.category.slug}`}
-            className="transition-colors hover:text-primary"
-          >
-            {product.category.name}
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="truncate text-[var(--color-ink)]">{product.name}</span>
-        </nav>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Shop', href: '/shop' },
+            {
+              label: product.category.name,
+              href: `/shop?category=${product.category.slug}`,
+            },
+            { label: product.name },
+          ]}
+        />
 
         {/* Gallery + Product Info Grid */}
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-12">

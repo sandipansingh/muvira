@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import { ChevronLeft, ChevronRight, Clock, Package } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { ChevronRight, Clock, Package } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderListItem } from '../lib/types/order'
 import { formatDate, formatPrice } from '../lib/utils/format'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { Pagination } from '../components/common/Pagination'
 
 export const OrdersHistoryPage: React.FC = () => {
   const { user, loading: authLoading } = useAuth()
@@ -15,6 +17,20 @@ export const OrdersHistoryPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const resultsContainerRef = useRef<HTMLDivElement>(null)
+  const shouldScrollRef = useRef(false)
+
+  useEffect(() => {
+    if (shouldScrollRef.current) {
+      shouldScrollRef.current = false
+      resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [page])
+
+  const handlePageChange = (newPage: number) => {
+    shouldScrollRef.current = true
+    setPage(newPage)
+  }
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin?returnTo=/orders', { replace: true })
@@ -49,7 +65,14 @@ export const OrdersHistoryPage: React.FC = () => {
 
   return (
     <main className="editorial-page py-8 sm:py-10">
-      <div className="editorial-container max-w-4xl">
+      <div className="editorial-container max-w-4xl" ref={resultsContainerRef}>
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Account', href: '/profile' },
+            { label: 'Order History' },
+          ]}
+        />
         <div className="mb-6 border-b border-border-light pb-4">
           <span className="eyebrow mb-2 block">Account / Purchases</span>
           <h1 className="heading page-title">Order History</h1>
@@ -136,28 +159,12 @@ export const OrdersHistoryPage: React.FC = () => {
           </div>
         )}
         {!loading && !error && totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-center gap-4">
-            <button
-              type="button"
-              disabled={page === 1}
-              onClick={() => setPage((current) => current - 1)}
-              className="border border-line rounded-[var(--radius-control)] p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
-              aria-label="Previous orders page"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <span className="text-xs font-normal text-muted">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              type="button"
-              disabled={page >= totalPages}
-              onClick={() => setPage((current) => current + 1)}
-              className="border border-line rounded-[var(--radius-control)] p-2 disabled:opacity-40 hover:bg-surface cursor-pointer"
-              aria-label="Next orders page"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+          <div className="mt-10">
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         )}
       </div>

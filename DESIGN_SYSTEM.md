@@ -79,6 +79,29 @@ Props: `tone: "neutral" | "success" | "danger" | "warning" | "info"`
 ### `<Input>`
 Single canonical style: `bg-white border-field-border text-ink placeholder:text-muted focus:border-ink`
 
+### `<Breadcrumbs>`
+Modeled after the Product Detail page standard.
+Props: `items: { label: string; href?: string }[]`, `className?: string`
+- Structure: `nav aria-label="Breadcrumb"` with `flex flex-wrap items-center gap-1.5 text-xs text-muted`.
+- Separators: `ChevronRight` (`h-3 w-3 text-muted`).
+- Inactive links: `text-muted hover:text-primary transition-colors`.
+- Terminal active item: `text-ink truncate font-normal` with `aria-current="page"`.
+
+### `<Dropdown>`
+Framer Motion animated interactive dropdown menu for sorting, category switching, and custom filters.
+Props: `options: DropdownOption[]`, `value: string`, `onChange: (val: string) => void`, `variant?: "default" | "slim"`, `placeholder?: string`, `label?: string`, `align?: "left" | "right"`
+- Spring animations (`opacity`, `scale`, `y`).
+- Viewport collision awareness (auto-flips upwards if bottom room < 260px).
+- Click-outside auto closing.
+
+### `<Pagination>`
+Borderless background-level pagination with 4 chevrons and smart ellipsis windowing.
+Props: `currentPage: number`, `totalPages: number`, `onPageChange: (page: number) => void`
+- Controls: `ChevronsLeft`, `ChevronLeft`, `ChevronRight`, `ChevronsRight`.
+- Active page: `bg-primary text-white font-normal shadow-sm scale-105 hover:bg-primary-hover`.
+- Inactive page: `text-ink hover:bg-surface`.
+- Pair with `resultsContainerRef` and `shouldScrollRef` for smooth scrolling to results on page transition.
+
 ---
 
 ## Typography Scale

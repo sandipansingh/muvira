@@ -7,6 +7,7 @@ import { INDIAN_STATES } from '../lib/constants/states.constants'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { Select } from '../components/ui/Select'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 interface AddressFormValues {
   fullName: string
@@ -180,6 +181,7 @@ export const ProfilePage: React.FC = () => {
   return (
     <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container max-w-5xl space-y-8">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Profile' }]} />
         <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
           <div>
             <span className="eyebrow mb-1 block">Account Overview</span>

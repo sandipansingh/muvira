@@ -1,24 +1,18 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 import { Star } from 'lucide-react'
 import { TESTIMONIALS } from '../content/testimonials'
 import { SectionHeader } from '../components/common/SectionHeader'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 export const ReviewsPage: React.FC = () => {
   return (
     <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container">
         {/* Breadcrumb */}
-        <nav
-          className="mb-6 flex items-center gap-2 text-xs font-normal text-muted"
-          aria-label="Breadcrumb"
-        >
-          <Link to="/" className="hover:text-primary hover:underline transition-colors">
-            Home
-          </Link>
-          <span>/</span>
-          <span className="font-normal text-ink">Customer Reviews</span>
-        </nav>
+        <Breadcrumbs
+          className="mb-6"
+          items={[{ label: 'Home', href: '/' }, { label: 'Customer Reviews' }]}
+        />
 
         <SectionHeader
           badge="Verified Homeowners"

@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import React, { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
 import type { ProductListItem } from '../lib/types/product'
 import { FilterBar } from '../components/catalog/FilterBar'
 import { ProductGrid } from '../components/catalog/ProductGrid'
+import { Breadcrumbs, type BreadcrumbItem } from '../components/common/Breadcrumbs'
+import { Pagination } from '../components/common/Pagination'
 
 const PAGE_SIZE = 12
 
@@ -27,6 +29,15 @@ export const ShopPage: React.FC = () => {
     : 'newest'
   const requestedPage = Number(searchParams.get('page') || '1')
   const page = Number.isFinite(requestedPage) ? Math.max(1, requestedPage) : 1
+  const resultsContainerRef = useRef<HTMLDivElement>(null)
+  const shouldScrollRef = useRef(false)
+
+  useEffect(() => {
+    if (shouldScrollRef.current) {
+      shouldScrollRef.current = false
+      resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [page])
 
   useEffect(() => {
     let active = true
@@ -92,20 +103,31 @@ export const ShopPage: React.FC = () => {
     setSearchParams(next)
   }
 
+  const handlePageChange = (newPage: number) => {
+    shouldScrollRef.current = true
+    updateParams({ page: String(newPage) })
+  }
+
+  const breadcrumbs: BreadcrumbItem[] = [
+    { label: 'Home', href: '/' },
+    ...(categoryParam && categoryParam !== 'all'
+      ? [
+          { label: 'Shop', href: '/shop' },
+          {
+            label:
+              categories.find((category) => category.slug === categoryParam)?.name || categoryParam,
+          },
+        ]
+      : searchQuery
+        ? [{ label: 'Shop', href: '/shop' }, { label: `Search: "${searchQuery}"` }]
+        : [{ label: 'Shop' }]),
+  ]
+
   return (
     <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container">
         <header className="page-header mb-6">
-          <nav
-            className="flex items-center gap-2 text-xs font-normal text-[var(--color-muted)]"
-            aria-label="Breadcrumb"
-          >
-            <Link to="/" className="transition-colors hover:text-[var(--color-ink)]">
-              Home
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span className="text-[var(--color-ink)]">Shop</span>
-          </nav>
+          <Breadcrumbs items={breadcrumbs} />
           <span className="eyebrow">Muvira / Catalog</span>
           <div className="flex flex-col gap-2">
             <h1 className="heading page-title">
@@ -162,35 +184,18 @@ export const ShopPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <>
+          <div ref={resultsContainerRef} className="scroll-mt-24">
             <ProductGrid products={products} loading={loading} />
             {!loading && totalPages > 1 && (
-              <nav
-                className="mt-8 flex items-center justify-center gap-6 border-t border-[var(--color-line)] pt-6"
-                aria-label="Product pages"
-              >
-                <button
-                  type="button"
-                  disabled={page <= 1}
-                  onClick={() => updateParams({ page: String(page - 1) })}
-                  className="text-sm font-normal text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
-                >
-                  Previous
-                </button>
-                <span className="text-sm font-normal text-[var(--color-muted)]" aria-current="page">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  type="button"
-                  disabled={page >= totalPages}
-                  onClick={() => updateParams({ page: String(page + 1) })}
-                  className="text-sm font-normal text-[var(--color-ink)] underline decoration-[var(--color-line)] underline-offset-4 transition-colors hover:decoration-[var(--color-ink)] disabled:cursor-not-allowed disabled:no-underline disabled:opacity-40"
-                >
-                  Next
-                </button>
-              </nav>
+              <div className="mt-12 border-t border-[var(--color-line)] pt-8">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </main>

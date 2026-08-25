@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext'
 import { reviewService } from '../../lib/services/review.service'
 import { RatingStars } from '../common/RatingStars'
 import { Modal } from '../common/Modal'
-import { Button, Select, Textarea } from '../ui'
+import { Button, Dropdown, Textarea } from '../ui'
 
 interface ReviewsSectionProps {
   productId: string
@@ -351,23 +351,20 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <label htmlFor="review-sort-luxury" className="text-xs font-normal text-muted">
-            Sort:
-          </label>
-          <div className="w-36">
-            <Select
-              id="review-sort-luxury"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value as 'newest' | 'highest' | 'lowest')}
-              aria-label="Sort reviews"
-              className="!py-1.5 !px-2.5 !text-xs font-normal text-ink-soft"
-              options={[
-                { value: 'newest', label: 'Most Recent' },
-                { value: 'highest', label: 'Highest Rated' },
-                { value: 'lowest', label: 'Lowest Rated' },
-              ]}
-            />
-          </div>
+          <span className="text-xs font-normal text-muted">Sort:</span>
+          <Dropdown
+            id="review-sort-luxury"
+            value={sortOption}
+            onChange={(val) => setSortOption(val as 'newest' | 'highest' | 'lowest')}
+            aria-label="Sort reviews"
+            variant="slim"
+            className="w-36"
+            options={[
+              { value: 'newest', label: 'Most Recent' },
+              { value: 'highest', label: 'Highest Rated' },
+              { value: 'lowest', label: 'Lowest Rated' },
+            ]}
+          />
         </div>
       </div>
 

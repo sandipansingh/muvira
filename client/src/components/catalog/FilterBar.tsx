@@ -1,5 +1,5 @@
 import React from 'react'
-import { Select } from '../ui/Select'
+import { Dropdown, type DropdownOption } from '../ui/Dropdown'
 
 interface FilterBarProps {
   categories: { name: string; slug: string }[]
@@ -9,6 +9,13 @@ interface FilterBarProps {
   onSortChange: (sort: string) => void
   totalCount: number
 }
+
+const SORT_OPTIONS: DropdownOption[] = [
+  { value: 'popularity', label: 'Popularity' },
+  { value: 'price_asc', label: 'Price: Low to High' },
+  { value: 'price_desc', label: 'Price: High to Low' },
+  { value: 'newest', label: 'Newest Arrivals' },
+]
 
 export const FilterBar: React.FC<FilterBarProps> = ({
   categories,
@@ -54,25 +61,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <span aria-live="polite">
             <strong className="font-normal text-[var(--color-ink)]">{totalCount}</strong> pieces
           </span>
-          <label
-            className="flex items-center gap-2 font-normal text-[var(--color-ink)]"
-            htmlFor="shop-sort"
-          >
-            <span>Sort by</span>
-            <Select
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted font-normal">Sort:</span>
+            <Dropdown
               id="shop-sort"
-              name="sort"
               value={sortBy}
-              onChange={(event) => onSortChange(event.target.value)}
-              className="h-10 min-h-10 w-auto py-1.5 text-base"
-              options={[
-                { value: 'popularity', label: 'Popularity' },
-                { value: 'price_asc', label: 'Price: Low to High' },
-                { value: 'price_desc', label: 'Price: High to Low' },
-                { value: 'newest', label: 'Newest Arrivals' },
-              ]}
+              onChange={onSortChange}
+              options={SORT_OPTIONS}
+              variant="slim"
+              className="w-44"
             />
-          </label>
+          </div>
         </div>
       </div>
     </div>
