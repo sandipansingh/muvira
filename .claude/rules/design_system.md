@@ -6,19 +6,30 @@ All styling tokens and design rules for the project are detailed below. Referenc
 
 ## Typography
 
-This project uses a **two-font system** loaded in `src/app/layout.tsx`:
+This project uses a **two-font system** declared in CSS custom properties in `src/index.css`:
 
-| Role                   | Font      | Source                            | CSS Variable       | Tailwind Token   | Weights Loaded               |
-| ---------------------- | --------- | --------------------------------- | ------------------ | ---------------- | ---------------------------- |
-| **Headings / Display** | Trip Sans | Local WOFF2 (`public/fonts/`)     | `--font-trip-sans` | `--font-display` | 400, 500, 700 + VF (100–900) |
-| **Body / UI**          | Poppins   | Google Fonts (`next/font/google`) | `--font-poppins`   | `--font-sans`    | 300, 400, 500, 600, 700      |
+| Role                   | Font | Source                            | CSS Variable     | Tailwind Token   | Weights Loaded |
+| ---------------------- | ---- | --------------------------------- | ---------------- | ---------------- | -------------- |
+| **Headings / Display** | Lora | Local WOFF2 (`public/fonts/`)     | `--font-display` | `--font-display` | 400            |
+| **Body / UI**          | Lato | Local WOFF2 (`public/fonts/`)     | `--font-sans`    | `--font-sans`    | 400            |
 
 ### Font Application Rules
 
-- **Headings**: All `h1`–`h6` elements automatically receive Trip Sans via the CSS rule in `globals.css` that binds `font-family: var(--font-display)` to heading tags.
-- **Display utility**: Use the `.font-display` class on any non-heading element that should render in Trip Sans — logo text, branding labels, decorative callouts.
-- **Body default**: The `<body>` element inherits Poppins via `--font-sans`. All paragraphs, buttons, form inputs, navigation links, calendar pickers, and general UI use this font automatically.
-- **Never mix**: Do not apply `font-display` to body text or `font-sans` to headings.
+- **Headings**: All `h1`–`h6` elements automatically receive Lora via the CSS rule in `src/index.css` that binds `font-family: var(--font-display)` to heading tags and `.font-display`.
+- **Display utility**: Use the `.font-display` class on any non-heading element that should render in Lora — brand logo text, titles, card headers.
+- **Body default**: The `<body>` element inherits Lato via `font-family: var(--font-sans)`. All paragraphs, buttons, form inputs, navigation links, and general UI use this font automatically.
+- **Never mix**: Do not apply `font-display` to long-form body paragraphs or `font-sans` to section headings.
+
+### Line Height (Leading) & Letter Spacing (Tracking) Rules
+
+- **Heading Line Height**: Headings must enforce a line-height **≥ 1.15** (avoiding dangerous `1.04` tight leading that causes ascender/descender collisions on wrapping mobile screens).
+- **Body Line Height**: Body paragraphs use `1.5` for compact UI cards/lists and `1.6` for long-form prose.
+- **Letter Spacing Tokens**:
+  - Headings (`h1`–`h3`): `-0.025em` (`tracking-tight`) to `-0.035em`.
+  - Badges & Metadata: `0.05em` (`tracking-wider`) for uppercase badges, chips, and metadata.
+  - Eyebrows & Tags: `0.12em` for uppercase section eyebrow headers (`.eyebrow`).
+- **Micro-size Consolidation**: Avoid arbitrary pixel micro-sizes below 12px (e.g. 9px, 11px). Standardize micro-text to `10px` or `12px (`text-xs`)`.
+- **Input Font Size Constraint**: All `<input>`, `<textarea>`, and `<select>` form controls must use at least `16px` (`text-base`) to prevent automatic iOS Safari viewport zooming on focus.
 
 ### Font Weight Hierarchy
 

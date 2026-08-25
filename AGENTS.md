@@ -81,7 +81,11 @@ This ensures no lint errors, consistent formatting, and no broken builds.
 - **No local interface declarations**: All domain-wide database model types must be declared in `src/types/` and imported (never duplicated).
 - **No root components**: React components must reside in their respective subdirectories inside `src/components/` (never directly in the root of `src/components/`).
 - **No `lib/types/`**: All domain-wide types must live in `src/types/` (never `src/lib/types/` or `src/lib/db/`).
-- **No hardcoded Hex values**: Always use `@theme` Tailwind CSS v4 variables from `globals.css`.
+- **No hardcoded Hex values**: Always use CSS custom property variables (`var(--color-primary)`, `var(--color-ink)`, etc.) or Tailwind theme tokens from `src/index.css`. Never write raw hex/rgb values directly in JSX or CSS.
+- **Orange Accent Limitation**: Primary brand orange (`--brand` / `--color-primary`) is strictly reserved for interactive CTAs, active tab/pill indicators, price numbers, and hover states. It must NEVER be applied to static headings, static labels, or non-interactive icons.
+- **High-Contrast Section Summaries**: Overview callouts, section intro descriptions, and summary text blocks must use high-contrast text (`text-neutral-900` or `var(--color-ink)`) instead of muted grey (`text-neutral-500` or `var(--muted)`).
+- **Heading Line Height & Letter Spacing**: Heading line heights must be ≥ 1.15 (preventing mobile text collisions); letter-spacing `-0.025em` for headings, `0.05em` (`tracking-wider`) for uppercase badges/metadata, and `0.12em` for section eyebrows.
+- **Two-Font System**: Use `Lora` (`--font-display`) for headings and `.font-display`, and `Lato` (`--font-sans`) for body text and general UI controls.
 - **No frames/backgrounds on Logo**: Brand logo images must never have a surrounding frame, background box, border, or shadow.
 - **Server APIs & Dynamic SSR**: Since Next.js SSR is used, dynamic server-side APIs (`headers()`, `cookies()`, `noStore()`, dynamic runtime options) are fully supported for per-request server rendering and dynamic backend logic.
 - **No dev-related scripts in scripts/**: All development-only or utility helper scripts (such as SQL generators, CSV importers, data-wiping scripts) must reside in `dev-scripts/` (which is git-ignored) and never in the `scripts/` folder (which is reserved for package runtime commands and fallback migration hooks).
