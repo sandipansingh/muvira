@@ -77,8 +77,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   if (variant === 'horizontal') {
     return (
       <>
-        <article className={`panel group flex flex-col overflow-hidden sm:flex-row ${className}`}>
-          <div className="relative aspect-[4/3] w-full bg-[var(--color-surface)] sm:w-1/2">
+        <article
+          className={`group flex items-center justify-between gap-4 p-3 rounded-xl border border-line bg-paper hover:shadow-xs transition-all duration-200 ${className}`}
+        >
+          {/* Compact Image */}
+          <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-lg overflow-hidden bg-surface shrink-0">
             <Link
               to={`/product/${product.slug}`}
               className="block h-full w-full"
@@ -88,62 +91,80 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <img
                   src={primaryImage}
                   alt={product.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-xs text-[var(--color-muted)]">
-                  Image unavailable
+                <div className="flex h-full items-center justify-center text-[10px] text-muted">
+                  No image
                 </div>
               )}
             </Link>
-            <div className="absolute left-3 top-3 flex flex-col gap-1.5">
-              {badgeText !== '' && (
-                <span className="neutral-badge font-normal uppercase">{badgeText ?? 'NEW'}</span>
-              )}
-              {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
-            </div>
+            {discountPercent > 0 && (
+              <span className="absolute left-1.5 top-1.5 rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-white leading-none">
+                -{discountPercent}%
+              </span>
+            )}
           </div>
-          <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
-            <div className="space-y-2">
-              <RatingStars rating={product.rating ?? 5} size="xs" />
-              <Link to={`/product/${product.slug}`} className="block">
-                <h3 className="product-card__name group-hover:underline underline-offset-2">
-                  {product.name}
-                </h3>
-              </Link>
-              <div className="flex items-baseline gap-2">
-                <span className="product-card__price">{formatPrice(product.price)}</span>
-                {hasDiscount && product.salePrice && (
-                  <span className="product-card__meta line-through">
-                    {formatPrice(product.salePrice)}
-                  </span>
-                )}
-              </div>
-              {description && <p className="body-copy line-clamp-3 text-xs">{description}</p>}
+
+          {/* Details */}
+          <div className="flex flex-1 flex-col justify-center gap-1 min-w-0">
+            <RatingStars rating={product.rating ?? 5} size="xs" />
+            <Link to={`/product/${product.slug}`} className="block truncate">
+              <h3 className="font-display text-sm sm:text-base font-normal text-ink group-hover:underline underline-offset-2 truncate">
+                {product.name}
+              </h3>
+            </Link>
+            <div className="flex items-baseline gap-2">
+              <span className="font-sans text-sm sm:text-base font-semibold text-ink">
+                {formatPrice(product.price)}
+              </span>
+              {hasDiscount && product.salePrice && (
+                <span className="font-sans text-xs text-muted line-through">
+                  {formatPrice(product.salePrice)}
+                </span>
+              )}
             </div>
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                className="button-primary min-h-9 flex-1 gap-1.5 text-xs"
-              >
-                {isAdded ? (
-                  <Check className="h-4 w-4 shrink-0" />
-                ) : (
-                  <ShoppingBag className="h-4 w-4 shrink-0" />
-                )}
-                <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleWishlistToggle}
-                className="button-secondary h-9 min-h-9 w-9 p-0"
-                aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-              >
-                <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
-              </button>
-            </div>
+            {description && (
+              <p className="text-xs text-muted line-clamp-1 hidden md:block">{description}</p>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className="button-primary h-9 px-3.5 text-xs gap-1.5 font-normal"
+              aria-label={`Add ${product.name} to cart`}
+            >
+              {isAdded ? (
+                <Check className="h-3.5 w-3.5 shrink-0" />
+              ) : (
+                <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
+              )}
+              <span className="hidden sm:inline leading-none">
+                {isAdded ? 'Added' : 'Add to cart'}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenQuickView}
+              className="button-secondary h-9 w-9 p-0 hidden sm:inline-flex"
+              aria-label={`Quick view ${product.name}`}
+            >
+              <Eye className="h-4 w-4 shrink-0 text-ink" strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              onClick={handleWishlistToggle}
+              className="button-secondary h-9 w-9 p-0"
+              aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <Heart
+                className={`h-4 w-4 ${isWishlisted ? 'fill-danger text-danger' : 'text-ink'}`}
+              />
+            </button>
           </div>
         </article>
         <QuickViewModal

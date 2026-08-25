@@ -122,7 +122,7 @@ export const ProductDetailPage: React.FC = () => {
             { label: 'Shop', href: '/shop' },
             {
               label: product.category.name,
-              href: `/category/${product.category.slug}`,
+              href: `/shop?category=${product.category.slug}`,
             },
             { label: product.name },
           ]}

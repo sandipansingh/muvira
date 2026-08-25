@@ -232,10 +232,10 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
               </h4>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-normal">
                 {[
-                  { name: 'Living Room Collection', href: '/category/living-room' },
-                  { name: 'Solid Wood Bed Frames', href: '/category/bedroom' },
-                  { name: 'Dining Tables & Chairs', href: '/category/dining' },
-                  { name: 'Office Desks & Storage', href: '/category/office-decor' },
+                  { name: 'Living Room Collection', href: '/shop?category=living-room' },
+                  { name: 'Solid Wood Bed Frames', href: '/shop?category=bedroom' },
+                  { name: 'Dining Tables & Chairs', href: '/shop?category=dining' },
+                  { name: 'Office Desks & Storage', href: '/shop?category=office-decor' },
                   { name: 'Hand-Carved Accents', href: '/shop' },
                 ].map((item) => (
                   <li key={item.name}>

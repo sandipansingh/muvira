@@ -15,7 +15,6 @@ import { ScrollToTop } from './components/common/ScrollToTop'
 
 import { HomePage } from './pages/HomePage'
 import { ShopPage } from './pages/ShopPage'
-import { CategoryPage } from './pages/CategoryPage'
 import { CategoriesPage } from './pages/CategoriesPage'
 import { SearchPage } from './pages/SearchPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -30,6 +29,12 @@ import { ProfilePage } from './pages/ProfilePage'
 import { ReviewsPage } from './pages/ReviewsPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignUpPage } from './pages/SignUpPage'
+import { useParams } from 'react-router-dom'
+
+const CategoryRedirect: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>()
+  return <Navigate to={slug ? `/shop?category=${encodeURIComponent(slug)}` : '/shop'} replace />
+}
 
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -67,8 +72,8 @@ export const AppContent: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/shop" element={<ShopPage />} />
-          <Route path="/category/:slug" element={<CategoryPage />} />
-          <Route path="/categories/:slug" element={<CategoryPage />} />
+          <Route path="/category/:slug" element={<CategoryRedirect />} />
+          <Route path="/categories/:slug" element={<CategoryRedirect />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/product/:slug" element={<ProductDetailPage />} />

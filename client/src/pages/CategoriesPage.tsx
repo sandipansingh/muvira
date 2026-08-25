@@ -65,7 +65,7 @@ export const CategoriesPage: React.FC = () => {
             {categories.map((category) => (
               <Link
                 key={category.id}
-                to={`/category/${category.slug}`}
+                to={`/shop?category=${category.slug}`}
                 className="group relative overflow-hidden rounded-2xl md:rounded-3xl bg-surface p-6 flex flex-col justify-end min-h-[300px] sm:min-h-[340px] transition-all duration-300 hover:shadow-card"
               >
                 {/* Full-Bleed Zoomed Image */}
