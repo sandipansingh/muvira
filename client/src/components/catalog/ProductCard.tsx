@@ -5,6 +5,7 @@ import { useCart } from '../../context/CartContext'
 import { useToast } from '../../context/ToastContext'
 import type { ProductDetail, ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
+import { FavoriteButton } from '../common/FavoriteButton'
 import { RatingStars } from '../common/RatingStars'
 import { QuickViewModal } from './QuickViewModal'
 
@@ -36,14 +37,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   variant = 'vertical',
   showDescription = false,
   className = '',
-  badgeText = 'NEW',
+  badgeText,
 }) => {
   const { addToCart } = useCart()
   const { showToast } = useToast()
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [isAdded, setIsAdded] = useState(false)
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false)
-
   const primaryImage = getPrimaryImage(product)
   const description = getDescription(product)
   const discountPercent = getDiscountPercent(product)
@@ -52,7 +52,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const handleWishlistToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setIsWishlisted((prev) => !prev)
+    setIsWishlisted((previous) => !previous)
     showToast(
       isWishlisted ? `Removed ${product.name} from wishlist` : `Added ${product.name} to wishlist`,
       'info'
@@ -74,106 +74,78 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     setIsQuickViewOpen(true)
   }
 
-  /* List / Horizontal Variant */
   if (variant === 'horizontal') {
     return (
       <>
-        <article
-          className={`group flex flex-col sm:flex-row overflow-hidden rounded-2xl border border-line bg-paper transition-shadow hover:shadow-card ${className}`}
-        >
-          {/* Image Area */}
-          <div className="relative aspect-square w-full sm:w-56 bg-surface shrink-0 p-4 flex items-center justify-center overflow-hidden">
+        <article className={`panel group flex flex-col overflow-hidden sm:flex-row ${className}`}>
+          <div className="relative aspect-[4/3] w-full bg-[var(--color-surface)] sm:w-1/2">
             <Link
               to={`/product/${product.slug}`}
-              className="block h-full w-full flex items-center justify-center"
+              className="block h-full w-full"
               aria-label={`View ${product.name}`}
             >
               {primaryImage ? (
                 <img
                   src={primaryImage}
                   alt={product.name}
-                  className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
                   loading="lazy"
                 />
               ) : (
-                <div className="text-xs text-muted">Image unavailable</div>
+                <div className="flex h-full items-center justify-center text-xs text-[var(--color-muted)]">
+                  Image unavailable
+                </div>
               )}
             </Link>
-
-            {/* Badges */}
-            <div className="absolute left-3 top-3 flex flex-col gap-1.5 pointer-events-none">
-              {badgeText && (
-                <span className="rounded bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink shadow-xs">
-                  {badgeText}
-                </span>
+            <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+              {badgeText !== '' && (
+                <span className="neutral-badge font-normal uppercase">{badgeText ?? 'NEW'}</span>
               )}
-              {discountPercent > 0 && (
-                <span className="rounded bg-[#38cb89] px-2 py-0.5 text-[10px] font-bold text-white">
-                  -{discountPercent}%
-                </span>
-              )}
+              {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
             </div>
-
-            {/* Wishlist Button */}
-            <button
-              type="button"
-              onClick={handleWishlistToggle}
-              className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/90 shadow-xs flex items-center justify-center text-ink hover:scale-110 transition-transform cursor-pointer"
-              aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-            >
-              <Heart
-                className={`h-4 w-4 ${isWishlisted ? 'fill-danger text-danger' : 'text-ink'}`}
-              />
-            </button>
           </div>
-
-          {/* Details Area */}
-          <div className="flex flex-1 flex-col justify-between p-5">
+          <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
             <div className="space-y-2">
               <RatingStars rating={product.rating ?? 5} size="xs" />
               <Link to={`/product/${product.slug}`} className="block">
-                <h3 className="font-display text-lg font-normal text-ink group-hover:underline underline-offset-2">
+                <h3 className="product-card__name group-hover:underline underline-offset-2">
                   {product.name}
                 </h3>
               </Link>
-              <div className="flex items-baseline gap-2 pt-1">
-                <span className="font-sans text-base font-semibold text-ink">
-                  {formatPrice(product.price)}
-                </span>
+              <div className="flex items-baseline gap-2">
+                <span className="product-card__price">{formatPrice(product.price)}</span>
                 {hasDiscount && product.salePrice && (
-                  <span className="font-sans text-xs text-muted line-through">
+                  <span className="product-card__meta line-through">
                     {formatPrice(product.salePrice)}
                   </span>
                 )}
               </div>
-              {description && <p className="text-xs text-muted line-clamp-2">{description}</p>}
+              {description && <p className="body-copy line-clamp-3 text-xs">{description}</p>}
             </div>
-
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-4 flex gap-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-ink hover:bg-black text-white px-4 py-2 text-xs font-normal transition-colors cursor-pointer"
+                className="button-primary min-h-9 flex-1 gap-1.5 text-xs"
               >
                 {isAdded ? (
-                  <Check className="h-3.5 w-3.5" />
+                  <Check className="h-4 w-4 shrink-0" />
                 ) : (
-                  <ShoppingBag className="h-3.5 w-3.5" />
+                  <ShoppingBag className="h-4 w-4 shrink-0" />
                 )}
-                <span>{isAdded ? 'Added' : 'Add to cart'}</span>
+                <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
               </button>
               <button
                 type="button"
-                onClick={handleOpenQuickView}
-                className="inline-flex items-center justify-center gap-1 rounded-lg border border-line bg-white hover:bg-surface px-3 py-2 text-xs font-normal text-ink transition-colors cursor-pointer"
+                onClick={handleWishlistToggle}
+                className="button-secondary h-9 min-h-9 w-9 p-0"
+                aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
               >
-                <Eye className="h-3.5 w-3.5 text-muted" />
-                <span>Quick View</span>
+                <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
               </button>
             </div>
           </div>
         </article>
-
         <QuickViewModal
           product={product}
           isOpen={isQuickViewOpen}
@@ -183,107 +155,110 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     )
   }
 
-  /* Vertical Card (Exact match to VisioCreate design reference) */
   return (
     <>
-      <article className={`group flex flex-col ${className}`}>
-        {/* Soft Surface Container for Image & Badges */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-surface p-4 flex flex-col justify-between transition-all duration-300 group-hover:shadow-card">
-          {/* Top Badges & Heart Action */}
-          <div className="z-10 flex items-start justify-between w-full pointer-events-none">
-            <div className="flex flex-col gap-1.5">
-              {badgeText && (
-                <span className="rounded bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink shadow-xs pointer-events-auto">
-                  {badgeText}
-                </span>
-              )}
-              {discountPercent > 0 && (
-                <span className="rounded bg-[#38cb89] px-2 py-0.5 text-[11px] font-bold text-white pointer-events-auto">
-                  -{discountPercent}%
-                </span>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleWishlistToggle}
-              className="pointer-events-auto h-8 w-8 rounded-full bg-white shadow-xs flex items-center justify-center text-ink hover:scale-110 transition-transform cursor-pointer"
-              aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-            >
-              <Heart
-                className={`h-4 w-4 ${isWishlisted ? 'fill-danger text-danger' : 'text-ink'}`}
-              />
-            </button>
-          </div>
-
-          {/* Centered Product Image */}
+      <article className={`product-card group ${className}`}>
+        <div className="media-tile relative">
           <Link
             to={`/product/${product.slug}`}
-            className="absolute inset-0 flex items-center justify-center p-6 z-0"
+            className="block h-full w-full"
             aria-label={`View ${product.name}`}
           >
             {primaryImage ? (
               <img
                 src={primaryImage}
                 alt={product.name}
-                className="max-h-full max-w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
                 loading="lazy"
               />
             ) : (
-              <div className="text-xs text-muted">Image unavailable</div>
+              <div className="flex h-full items-center justify-center p-4 text-center text-xs text-[var(--color-muted)]">
+                Image unavailable
+              </div>
             )}
           </Link>
-
-          {/* Bottom Add to Cart CTA Button */}
-          <div className="z-10 w-full pt-2">
+          <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+            {badgeText !== '' && (
+              <span className="neutral-badge font-normal uppercase">{badgeText ?? 'NEW'}</span>
+            )}
+            {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
+          </div>
+          <div className="absolute right-3 top-3">
+            <FavoriteButton
+              isFavorite={isWishlisted}
+              onToggle={handleWishlistToggle}
+              variant="solid"
+              size="sm"
+              aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+              className="border border-[var(--color-line)] bg-[var(--color-paper)] shadow-none"
+            />
+          </div>
+          <div className="absolute inset-x-3 bottom-3 z-10 hidden gap-2 sm:flex">
             <button
               type="button"
               onClick={handleAddToCart}
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-ink hover:bg-black text-white py-2.5 px-3 text-xs sm:text-sm font-normal shadow-sm transition-all duration-200 cursor-pointer"
+              className="button-primary min-h-10 flex-1 px-3 text-xs opacity-0 shadow-[var(--shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100 gap-1.5"
               aria-label={`Add ${product.name} to cart`}
             >
               {isAdded ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span>Added</span>
-                </>
+                <Check className="h-4 w-4 shrink-0" />
               ) : (
-                <>
-                  <ShoppingBag className="h-4 w-4" />
-                  <span>Add to cart</span>
-                </>
+                <ShoppingBag className="h-4 w-4 shrink-0" />
+              )}
+              <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleOpenQuickView}
+              className="button-secondary h-10 min-h-10 w-10 p-0 text-[var(--color-ink)] opacity-0 shadow-[var(--shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100"
+              aria-label={`Quick view ${product.name}`}
+            >
+              <Eye className="h-4 w-4 shrink-0 text-[var(--color-ink)]" strokeWidth={2.5} />
+            </button>
+          </div>
+          <div className="absolute bottom-3 right-3 flex gap-1.5 sm:hidden">
+            <button
+              type="button"
+              onClick={handleOpenQuickView}
+              className="button-secondary h-9 min-h-9 w-9 p-0 text-[var(--color-ink)] shadow-[var(--shadow-overlay)]"
+              aria-label={`Quick view ${product.name}`}
+            >
+              <Eye className="h-3.5 w-3.5 shrink-0 text-[var(--color-ink)]" strokeWidth={2.5} />
+            </button>
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className="button-primary h-9 min-h-9 w-9 p-0"
+              aria-label={`Add ${product.name} to cart`}
+            >
+              {isAdded ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <ShoppingBag className="h-3.5 w-3.5" />
               )}
             </button>
           </div>
         </div>
-
-        {/* Product Information (Below Card) */}
-        <div className="flex flex-col gap-1.5 pt-3 px-1">
+        <div className="flex flex-col gap-1.5 pt-2.5">
           <RatingStars rating={product.rating ?? 5} size="xs" />
-
           <Link to={`/product/${product.slug}`} className="block">
-            <h3 className="font-display text-sm sm:text-base font-normal text-ink line-clamp-1 group-hover:underline underline-offset-2">
+            <h3 className="product-card__name line-clamp-2 group-hover:underline underline-offset-2">
               {product.name}
             </h3>
           </Link>
-
           <div className="flex items-baseline gap-2">
-            <span className="font-sans text-sm sm:text-base font-semibold text-ink">
-              {formatPrice(product.price)}
-            </span>
+            <span className="product-card__price">{formatPrice(product.price)}</span>
             {hasDiscount && product.salePrice && (
-              <span className="font-sans text-xs text-muted line-through">
+              <span className="product-card__meta line-through">
                 {formatPrice(product.salePrice)}
               </span>
             )}
           </div>
-
           {showDescription && description && (
-            <p className="text-xs text-muted line-clamp-2 mt-0.5">{description}</p>
+            <p className="product-card__meta line-clamp-2">{description}</p>
           )}
         </div>
       </article>
-
       <QuickViewModal
         product={product}
         isOpen={isQuickViewOpen}

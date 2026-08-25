@@ -211,15 +211,15 @@ export const ShopPage: React.FC = () => {
             />
 
             {error ? (
-              <div className="rounded-2xl border border-line bg-surface py-12 text-center px-4">
-                <h3 className="font-display text-xl font-normal text-ink">
+              <div className="py-16 text-center px-4">
+                <h3 className="font-display text-2xl font-normal text-ink">
                   Unable to load products
                 </h3>
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>
                 <button
                   type="button"
                   onClick={() => updateParams({})}
-                  className="mt-4 rounded-lg bg-ink hover:bg-black text-white px-4 py-2 text-xs font-normal transition-colors cursor-pointer"
+                  className="mt-6 rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
                 >
                   Try Again
                 </button>

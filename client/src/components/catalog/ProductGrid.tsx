@@ -48,11 +48,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
   if (products.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-line bg-paper py-16 px-6 text-center flex flex-col items-center justify-center">
+      <div className="py-16 sm:py-24 text-center flex flex-col items-center justify-center">
         <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center text-muted mb-4">
-          <PackageOpen className="h-6 w-6" />
+          <PackageOpen className="h-6 w-6 stroke-[1.5]" />
         </div>
-        <h3 className="font-display text-xl font-normal text-ink">No pieces found</h3>
+        <h3 className="font-display text-2xl font-normal text-ink">No pieces found</h3>
         <p className="mt-2 text-sm text-muted max-w-md font-normal">
           We couldn't find any products matching your selected filters or search query.
         </p>
@@ -60,7 +60,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           <button
             type="button"
             onClick={onResetFilters}
-            className="mt-5 rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
+            className="mt-6 rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
           >
             Clear All Filters
           </button>

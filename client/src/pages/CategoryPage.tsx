@@ -236,22 +236,22 @@ export const CategoryPage: React.FC = () => {
             />
 
             {error ? (
-              <div className="rounded-2xl border border-line bg-surface py-12 text-center px-4">
-                <h3 className="font-display text-xl font-normal text-ink">
+              <div className="py-16 text-center px-4">
+                <h3 className="font-display text-2xl font-normal text-ink">
                   Unable to load products
                 </h3>
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>
-                <div className="mt-4 flex items-center justify-center gap-3">
+                <div className="mt-6 flex items-center justify-center gap-3">
                   <button
                     type="button"
                     onClick={() => updateParams({})}
-                    className="rounded-lg bg-ink hover:bg-black text-white px-4 py-2 text-xs font-normal transition-colors cursor-pointer"
+                    className="rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
                   >
                     Try Again
                   </button>
                   <Link
                     to="/shop"
-                    className="rounded-lg border border-line bg-white hover:bg-surface text-ink px-4 py-2 text-xs font-normal transition-colors"
+                    className="rounded-lg border border-line bg-white hover:bg-surface text-ink px-5 py-2.5 text-xs font-normal transition-colors"
                   >
                     View All Products
                   </Link>

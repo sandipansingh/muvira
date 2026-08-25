@@ -74,7 +74,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
       const rect = dropdownRef.current.getBoundingClientRect()
       const viewportHeight = window.innerHeight
       const spaceBelow = viewportHeight - rect.bottom
-      setOpenUpwards(spaceBelow < 260)
+      const spaceAbove = rect.top
+      const menuEstimatedHeight = Math.min(options.length * 36 + 20, 200)
+      // Default to opening downwards unless space below is genuinely cramped and space above is larger
+      setOpenUpwards(spaceBelow < menuEstimatedHeight && spaceAbove > spaceBelow)
     }
     setIsOpen((prev) => !prev)
   }

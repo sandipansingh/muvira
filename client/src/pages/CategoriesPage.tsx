@@ -39,21 +39,23 @@ export const CategoriesPage: React.FC = () => {
 
       <div className="layout-container py-4 sm:py-8">
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="aspect-[4/3] rounded-2xl bg-surface animate-pulse border border-line"
+                className="aspect-[4/3] rounded-2xl md:rounded-3xl bg-surface animate-pulse"
               />
             ))}
           </div>
         ) : categories.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-line bg-surface py-16 text-center">
-            <Package className="h-10 w-10 text-muted mx-auto mb-3" />
-            <h2 className="font-display text-xl text-ink font-normal">No categories available</h2>
+          <div className="py-16 sm:py-24 text-center flex flex-col items-center justify-center">
+            <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center text-muted mb-4">
+              <Package className="h-6 w-6 stroke-[1.5]" />
+            </div>
+            <h2 className="font-display text-2xl text-ink font-normal">No categories available</h2>
             <Link
               to="/shop"
-              className="mt-4 inline-block rounded-lg bg-ink text-white px-5 py-2.5 text-xs font-normal"
+              className="mt-6 inline-block rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors"
             >
               Browse All Products
             </Link>
@@ -64,33 +66,26 @@ export const CategoriesPage: React.FC = () => {
               <Link
                 key={category.id}
                 to={`/category/${category.slug}`}
-                className="group relative overflow-hidden rounded-2xl md:rounded-3xl bg-surface border border-line p-6 flex flex-col justify-between min-h-[260px] sm:min-h-[300px] transition-all duration-300 hover:shadow-card hover:border-field-border"
+                className="group relative overflow-hidden rounded-2xl md:rounded-3xl bg-surface p-6 flex flex-col justify-end min-h-[300px] sm:min-h-[340px] transition-all duration-300 hover:shadow-card"
               >
-                {/* Background Image Container */}
-                <div className="absolute inset-0 flex items-center justify-center p-6 opacity-80 transition-transform duration-500 group-hover:scale-105">
-                  {category.imageUrl ? (
-                    <img
-                      src={category.imageUrl}
-                      alt={category.name}
-                      className="max-h-full max-w-full object-contain"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="text-xs text-muted">No image</div>
-                  )}
-                </div>
+                {/* Full-Bleed Zoomed Image */}
+                {category.imageUrl ? (
+                  <img
+                    src={category.imageUrl}
+                    alt={category.name}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-surface flex items-center justify-center text-xs text-muted">
+                    No image available
+                  </div>
+                )}
 
-                {/* Subtle top/bottom gradient overlay for legibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+                {/* Dark Gradient Overlay for legibility */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent pointer-events-none" />
 
-                {/* Top Badge */}
-                <div className="relative z-10">
-                  <span className="inline-block rounded-full bg-white/90 backdrop-blur-xs px-3 py-1 text-[11px] font-medium text-ink shadow-xs">
-                    Collection
-                  </span>
-                </div>
-
-                {/* Bottom Title & Action */}
+                {/* Bottom Content */}
                 <div className="relative z-10 text-white">
                   <h3 className="font-display text-2xl font-normal text-white">{category.name}</h3>
                   {category.description && (
@@ -107,20 +102,6 @@ export const CategoriesPage: React.FC = () => {
             ))}
           </div>
         )}
-
-        {/* Bottom CTA to View All Catalog */}
-        <div className="mt-12 text-center pt-8 border-t border-line">
-          <p className="text-sm text-muted mb-4 font-normal">
-            Looking for something specific or want to browse everything together?
-          </p>
-          <Link
-            to="/shop"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-ink hover:bg-black text-white px-6 py-3 text-xs sm:text-sm font-normal transition-colors"
-          >
-            <span>Browse Full Catalog</span>
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
       </div>
     </main>
   )
