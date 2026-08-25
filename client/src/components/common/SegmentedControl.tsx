@@ -46,7 +46,7 @@ export function SegmentedControl<T extends string = string>({
               {isActive && (
                 <motion.span
                   layoutId={layoutId}
-                  className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-ink rounded-full"
+                  className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-primary rounded-full"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
@@ -57,7 +57,10 @@ export function SegmentedControl<T extends string = string>({
     )
   }
 
-  const paddingClass = size === 'sm' ? 'py-2 px-3 text-xs' : 'py-2.5 px-4 text-xs sm:text-sm'
+  const paddingClass =
+    size === 'sm'
+      ? 'h-8 px-3.5 text-xs font-normal inline-flex items-center justify-center'
+      : 'h-9 px-4 text-xs sm:text-sm font-normal inline-flex items-center justify-center'
 
   return (
     <div className={`flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 ${className}`}>
@@ -68,10 +71,10 @@ export function SegmentedControl<T extends string = string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className={`relative ${paddingClass} rounded-[var(--radius-control)] font-normal transition-colors duration-200 cursor-pointer shrink-0 border select-none ${
+            className={`relative ${paddingClass} rounded-[var(--radius-control)] transition-colors duration-200 cursor-pointer shrink-0 border select-none ${
               isActive
-                ? 'bg-[var(--color-ink)] text-white border-[var(--color-ink)]'
-                : 'bg-[var(--color-paper)] text-[var(--color-muted)] border-[var(--color-line)] hover:bg-[var(--color-surface)]'
+                ? 'bg-primary text-white border-primary shadow-xs'
+                : 'bg-paper text-muted border-line hover:bg-surface hover:text-ink'
             }`}
           >
             {opt.label}

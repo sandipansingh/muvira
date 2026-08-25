@@ -133,7 +133,7 @@ export const HeroSlider: React.FC = () => {
             placeholder="search..."
             value={quickSearch}
             onChange={(e) => setQuickSearch(e.target.value)}
-            className="w-full rounded-[var(--radius-control)] border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-normal text-ink placeholder-muted outline-none shadow-xs transition-colors"
+            className="w-full rounded-[var(--radius-control)] border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-normal text-ink placeholder-muted outline-none shadow-xs transition-colors focus:border-line focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
           />
           <button
             type="submit"
@@ -150,7 +150,7 @@ export const HeroSlider: React.FC = () => {
             <Link
               key={pill.label}
               to={pill.href}
-              className="rounded-[var(--radius-control)] border border-line bg-paper px-3.5 py-1.5 font-normal text-ink-soft hover:text-ink hover:bg-surface transition-all shadow-xs shrink-0"
+              className="h-8 px-3.5 inline-flex items-center justify-center text-xs font-normal rounded-[var(--radius-control)] border border-line bg-paper text-ink-soft hover:text-primary hover:border-primary hover:bg-surface transition-all shadow-xs shrink-0 select-none"
             >
               {pill.label}
             </Link>

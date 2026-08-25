@@ -57,7 +57,7 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
           <SlidersHorizontal className="h-3.5 w-3.5" />
           <span>Filter</span>
           {activeFiltersCount > 0 && (
-            <span className="h-4 w-4 rounded-full bg-ink text-white text-[10px] flex items-center justify-center font-bold">
+            <span className="h-4 w-4 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold">
               {activeFiltersCount}
             </span>
           )}

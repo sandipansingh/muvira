@@ -70,7 +70,7 @@ export const BestSellers: React.FC = () => {
           )}
           <Link
             to="/shop?sort=popularity"
-            className="inline-flex items-center justify-center shrink-0 rounded-[var(--radius-control)] border border-line bg-paper px-3 py-2 text-xs font-normal text-ink transition-colors hover:bg-surface select-none"
+            className="inline-flex items-center justify-center shrink-0 h-8 px-3.5 text-xs font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
           >
             View all
           </Link>
