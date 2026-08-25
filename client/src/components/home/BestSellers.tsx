@@ -52,8 +52,8 @@ export const BestSellers: React.FC = () => {
       {/* Section Header */}
       <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 sm:flex-row sm:items-end">
         <div>
-          <span className="eyebrow mb-1.5 block">Featured</span>
-          <h2 className="text-h2 text-ink">Our Best Sellers</h2>
+          <span className="eyebrow mb-1.5 block">Popular</span>
+          <h2 className="text-h2 text-ink">Top Selling Idols & Decor</h2>
         </div>
 
         {/* Right Controls: Category Pills & View All */}
