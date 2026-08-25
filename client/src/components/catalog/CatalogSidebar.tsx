@@ -121,7 +121,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
       {/* Categories Section */}
       <div className="space-y-3">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Categories</h3>
-        <div className="max-h-64 overflow-y-auto space-y-1 pr-1 dropdown-scrollbar">
+        <div className="space-y-1">
           <button
             type="button"
             onClick={() => onSelectCategory('all')}
@@ -253,9 +253,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside
-        className={`hidden lg:block w-full lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto no-scrollbar ${className}`}
-      >
+      <aside className={`hidden lg:block w-full lg:sticky lg:top-24 lg:self-start ${className}`}>
         {sidebarContent}
       </aside>
 

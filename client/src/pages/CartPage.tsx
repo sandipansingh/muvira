@@ -98,7 +98,7 @@ export const CartPage: React.FC = () => {
           </div>
 
           {/* Sticky Order Summary Sidebar */}
-          <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto no-scrollbar">
+          <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start">
             <h2 className="pb-2 font-display text-lg font-normal text-[var(--color-ink)]">
               Order Summary
             </h2>

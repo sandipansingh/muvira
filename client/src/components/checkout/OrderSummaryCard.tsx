@@ -28,7 +28,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   const totalItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   return (
-    <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto no-scrollbar">
+    <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start">
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
         <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">Order Summary</h2>
         <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-normal text-[var(--color-ink)]">
