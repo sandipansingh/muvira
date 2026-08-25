@@ -115,7 +115,9 @@ export const FaqSection: React.FC = () => {
                 </span>
                 <span
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-control)] transition-colors duration-200 ml-4 ${
-                    isOpen ? 'bg-ink text-white' : 'bg-surface text-ink-soft group-hover:bg-line'
+                    isOpen
+                      ? 'bg-primary text-white'
+                      : 'bg-surface text-ink-soft group-hover:bg-line'
                   }`}
                 >
                   <ArrowDown
