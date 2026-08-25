@@ -210,7 +210,7 @@ export const SearchPage: React.FC = () => {
       <div className="layout-container mb-8">
         <form
           onSubmit={handleSearchSubmit}
-          className="relative max-w-xl mx-auto flex items-center shadow-xs rounded-xl border border-field-border bg-white p-1.5 focus-within:border-ink transition-colors"
+          className="relative max-w-xl mx-auto flex items-center shadow-xs rounded-xl border border-field-border bg-white p-1.5 transition-colors"
         >
           <div className="pl-3 pr-2 text-muted">
             <Search className="h-5 w-5" />
@@ -220,7 +220,7 @@ export const SearchPage: React.FC = () => {
             placeholder="Search for idols, decor, showpieces, wooden furniture..."
             value={localInput}
             onChange={(e) => setLocalInput(e.target.value)}
-            className="w-full bg-transparent text-sm text-ink placeholder:text-muted outline-none py-1.5"
+            className="w-full bg-transparent text-sm text-ink placeholder:text-muted outline-none py-1.5 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
           />
           {localInput && (
             <button
@@ -234,7 +234,7 @@ export const SearchPage: React.FC = () => {
           )}
           <button
             type="submit"
-            className="ml-2 rounded-lg bg-ink hover:bg-black text-white px-4 py-2 text-xs font-medium transition-colors shrink-0 cursor-pointer"
+            className="ml-2 rounded-lg bg-primary hover:bg-primary-hover text-white px-4 py-2 text-xs font-medium transition-colors shrink-0 cursor-pointer"
           >
             Search
           </button>
@@ -283,7 +283,7 @@ export const SearchPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => updateParams({})}
-                  className="mt-6 rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
+                  className="mt-6 rounded-lg bg-primary hover:bg-primary-hover text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
                 >
                   Try Again
                 </button>
@@ -307,7 +307,7 @@ export const SearchPage: React.FC = () => {
                       <Link
                         key={cat.id}
                         to={`/category/${cat.slug}`}
-                        className="rounded-full border border-line bg-paper px-3 py-1.5 text-xs text-ink hover:border-ink transition-colors"
+                        className="h-8 px-3.5 inline-flex items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-xs text-ink-soft hover:text-primary hover:border-primary transition-colors select-none"
                       >
                         {cat.name}
                       </Link>
@@ -318,7 +318,7 @@ export const SearchPage: React.FC = () => {
                 <div className="mt-8">
                   <Link
                     to="/shop"
-                    className="inline-block rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors"
+                    className="inline-block rounded-lg bg-primary hover:bg-primary-hover text-white px-5 py-2.5 text-xs font-normal transition-colors"
                   >
                     View All Products
                   </Link>

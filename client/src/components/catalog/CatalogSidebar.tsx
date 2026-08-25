@@ -102,7 +102,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full rounded-lg border border-field-border bg-white pl-8 pr-7 py-2 text-sm text-ink placeholder:text-muted focus:border-ink outline-none transition-colors"
+            className="w-full rounded-lg border border-field-border bg-white pl-8 pr-7 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-0 focus:border-field-border transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
           />
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
           {searchQuery && (
@@ -127,7 +127,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             onClick={() => onSelectCategory('all')}
             className={`block w-full text-left text-sm py-1.5 transition-colors cursor-pointer ${
               selectedCategory === 'all' || !selectedCategory
-                ? 'font-semibold text-ink underline underline-offset-4 decoration-2 decoration-ink'
+                ? 'font-semibold text-primary underline underline-offset-4 decoration-2 decoration-primary'
                 : 'text-muted hover:text-ink'
             }`}
           >
@@ -142,7 +142,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
                 onClick={() => onSelectCategory(category.slug)}
                 className={`block w-full text-left text-sm py-1.5 transition-colors cursor-pointer ${
                   isSelected
-                    ? 'font-semibold text-ink underline underline-offset-4 decoration-2 decoration-ink'
+                    ? 'font-semibold text-primary underline underline-offset-4 decoration-2 decoration-primary'
                     : 'text-muted hover:text-ink'
                 }`}
               >
@@ -166,7 +166,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
               >
                 <span
                   className={`transition-colors ${
-                    isChecked ? 'text-ink font-medium' : 'text-muted group-hover:text-ink'
+                    isChecked ? 'text-primary font-medium' : 'text-muted group-hover:text-ink'
                   }`}
                 >
                   {range.label}
@@ -178,8 +178,8 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
                   onClick={() => onSelectPriceRange(range.id, range.min, range.max)}
                   className={`h-5 w-5 rounded border flex items-center justify-center transition-colors cursor-pointer ${
                     isChecked
-                      ? 'bg-ink border-ink text-white'
-                      : 'border-field-border bg-white hover:border-ink'
+                      ? 'bg-primary border-primary text-white'
+                      : 'border-field-border bg-white hover:border-primary'
                   }`}
                 >
                   {isChecked && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
@@ -196,7 +196,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             placeholder="Min ₹"
             value={customMin}
             onChange={(e) => setCustomMin(e.target.value)}
-            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-ink outline-none"
+            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-primary outline-none"
             min="0"
           />
           <span className="text-muted text-xs">-</span>
@@ -205,7 +205,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             placeholder="Max ₹"
             value={customMax}
             onChange={(e) => setCustomMax(e.target.value)}
-            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-ink outline-none"
+            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-primary outline-none"
             min="0"
           />
           <button
@@ -226,7 +226,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
           <label className="flex items-center justify-between gap-3 text-sm cursor-pointer select-none group">
             <span
               className={`transition-colors ${
-                inStockOnly ? 'text-ink font-medium' : 'text-muted group-hover:text-ink'
+                inStockOnly ? 'text-primary font-medium' : 'text-muted group-hover:text-ink'
               }`}
             >
               In Stock Only
@@ -238,8 +238,8 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
               onClick={() => onToggleInStock(!inStockOnly)}
               className={`h-5 w-5 rounded border flex items-center justify-center transition-colors cursor-pointer ${
                 inStockOnly
-                  ? 'bg-ink border-ink text-white'
-                  : 'border-field-border bg-white hover:border-ink'
+                  ? 'bg-primary border-primary text-white'
+                  : 'border-field-border bg-white hover:border-primary'
               }`}
             >
               {inStockOnly && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}

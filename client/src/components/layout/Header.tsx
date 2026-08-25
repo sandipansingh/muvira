@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           >
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
             {itemCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink px-1 text-[11px] font-normal text-white shadow-xs">
+              <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-normal text-white shadow-xs">
                 {itemCount}
               </span>
             )}
@@ -196,7 +196,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
               placeholder="Search handcrafted furniture..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none px-3 py-1.5 text-sm text-ink placeholder:text-muted focus:ring-0"
+              className="flex-1 bg-transparent border-none outline-none px-3 py-1.5 text-sm text-ink placeholder:text-muted focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
             />
             <Button
               type="button"

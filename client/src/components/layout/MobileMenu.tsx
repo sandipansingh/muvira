@@ -93,7 +93,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent text-sm text-ink placeholder:text-muted outline-none"
+                className="w-full bg-transparent text-sm text-ink placeholder:text-muted outline-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
               />
             </div>
           </form>
@@ -197,7 +197,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <span>Cart</span>
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5 text-ink stroke-[1.75]" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-normal text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-normal text-white">
                 {itemCount}
               </span>
             </div>
@@ -212,7 +212,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <span>Wishlist</span>
             <div className="flex items-center gap-2">
               <Heart className="h-5 w-5 text-ink stroke-[1.75]" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ink text-[11px] font-normal text-white">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-normal text-white">
                 0
               </span>
             </div>
