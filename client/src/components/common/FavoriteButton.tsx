@@ -29,7 +29,11 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onToggle?.(e)
+      }}
       aria-label={ariaLabel}
       aria-pressed={isFavorite}
       className={`flex items-center justify-center rounded-[var(--radius-control)] transition-colors duration-200 cursor-pointer ${sizeClasses} ${variantClasses} ${className}`}

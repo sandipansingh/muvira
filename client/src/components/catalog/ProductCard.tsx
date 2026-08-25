@@ -49,9 +49,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const discountPercent = getDiscountPercent(product)
   const hasDiscount = Boolean(product.salePrice && product.salePrice > product.price)
 
-  const handleWishlistToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
+  const handleWishlistToggle = (event?: React.SyntheticEvent) => {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     setIsWishlisted((previous) => !previous)
     showToast(
       isWishlisted ? `Removed ${product.name} from wishlist` : `Added ${product.name} to wishlist`,
@@ -59,18 +61,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     )
   }
 
-  const handleAddToCart = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
+  const handleAddToCart = (event?: React.SyntheticEvent) => {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     addToCart(product)
     setIsAdded(true)
     showToast(`Added ${product.name} to your cart`, 'success')
     window.setTimeout(() => setIsAdded(false), 2000)
   }
 
-  const handleOpenQuickView = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
+  const handleOpenQuickView = (event?: React.SyntheticEvent) => {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
     setIsQuickViewOpen(true)
   }
 
@@ -209,7 +215,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
             {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
           </div>
-          <div className="absolute right-3 top-3">
+          <div className="absolute right-3 top-3 z-10">
             <FavoriteButton
               isFavorite={isWishlisted}
               onToggle={handleWishlistToggle}
@@ -242,7 +248,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <Eye className="h-4 w-4 shrink-0 text-[var(--color-ink)]" strokeWidth={2.5} />
             </button>
           </div>
-          <div className="absolute bottom-3 right-3 flex gap-1.5 sm:hidden">
+          <div className="absolute bottom-3 right-3 z-10 flex gap-1.5 sm:hidden">
             <button
               type="button"
               onClick={handleOpenQuickView}
