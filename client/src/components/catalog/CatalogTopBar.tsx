@@ -40,9 +40,9 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
     >
       {/* Title & Count */}
       <div className="flex items-baseline gap-3">
-        <h2 className="font-display text-xl sm:text-2xl font-normal text-ink">{title}</h2>
+        <h2 className="font-display text-xl sm:text-2xl font-bold text-ink">{title}</h2>
         <span className="text-xs sm:text-sm text-muted font-normal">
-          <strong className="text-ink font-normal">{totalCount}</strong> pieces
+          <strong className="text-ink">{totalCount}</strong> pieces
         </span>
       </div>
 

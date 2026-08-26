@@ -30,7 +30,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   return (
     <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start">
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
-        <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">Order Summary</h2>
+        <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">Order Summary</h2>
         <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-normal text-[var(--color-ink)]">
           {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
         </span>
@@ -93,7 +93,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         </div>
         <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-sm font-normal text-[var(--color-ink)]">
           <span>Total Amount</span>
-          <span className="font-display text-base">{formatPrice(totalPaisa)}</span>
+          <span className="font-sans text-base font-bold">{formatPrice(totalPaisa)}</span>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         type="button"
         onClick={onPlaceOrder}
         disabled={isProcessing || items.length === 0}
-        className="button-primary w-full py-3 text-sm font-normal shadow-xs hover:shadow-sm"
+        className="button-primary w-full py-3 text-sm shadow-xs hover:shadow-sm"
       >
         <Lock className="h-4 w-4 shrink-0" />
         <span className="leading-none">

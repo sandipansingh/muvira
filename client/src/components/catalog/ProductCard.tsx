@@ -108,7 +108,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </Link>
             <div className="absolute left-2 top-2 flex flex-col gap-1 pointer-events-none">
               {badgeText && (
-                <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink shadow-xs">
+                <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink shadow-xs">
                   {badgeText}
                 </span>
               )}
@@ -124,12 +124,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="flex flex-1 flex-col justify-center gap-1.5 min-w-0 pr-2">
             <RatingStars rating={product.rating ?? 5} size="xs" />
             <Link to={`/product/${product.slug}`} className="block">
-              <h3 className="font-display text-base sm:text-lg font-normal text-ink group-hover:underline underline-offset-2 line-clamp-1">
+              <h3 className="font-display text-base sm:text-lg text-ink group-hover:underline underline-offset-2 line-clamp-1">
                 {product.name}
               </h3>
             </Link>
             <div className="flex items-baseline gap-2">
-              <span className="font-sans text-sm sm:text-base font-semibold text-ink">
+              <span className="font-sans text-sm sm:text-base font-bold text-ink">
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.salePrice && (
@@ -148,7 +148,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAddToCart}
-              className="button-primary min-h-9 px-4 text-xs gap-1.5 font-normal flex-1 sm:flex-initial"
+              className="button-primary min-h-9 px-4 text-xs gap-1.5 flex-1 sm:flex-initial"
               aria-label={`Add ${product.name} to cart`}
             >
               {isAdded ? (

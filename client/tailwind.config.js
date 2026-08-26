@@ -45,16 +45,16 @@ export default {
         'warning-soft': 'var(--color-warning-soft)',
       },
       fontSize: {
-        h1: ['clamp(2rem, 3vw, 3rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
-        h2: ['clamp(1.5rem, 2.5vw, 2.25rem)', { lineHeight: '1.15', letterSpacing: '-0.015em' }],
+        h1: ['clamp(2rem, 3vw, 3rem)', { lineHeight: '1.15', letterSpacing: '-0.025em' }],
+        h2: ['clamp(1.5rem, 2.5vw, 2.25rem)', { lineHeight: '1.15', letterSpacing: '-0.025em' }],
         'product-title': ['clamp(1.75rem, 2.6vw, 2.5rem)', { lineHeight: '1.25' }],
-        h3: ['1.5rem', { lineHeight: '1.2' }],
-        h4: ['1.25rem', { lineHeight: '1.25' }],
+        h3: ['1.5rem', { lineHeight: '1.2', letterSpacing: '-0.025em' }],
+        h4: ['1.25rem', { lineHeight: '1.25', letterSpacing: '-0.025em' }],
       },
       fontFamily: {
         sans: 'var(--font-sans)',
-        display: ['Lora', 'Georgia', 'serif'],
-        serif: ['Lora', 'Georgia', 'serif'],
+        display: 'var(--font-display)',
+        serif: 'var(--font-display)',
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       spacing: {

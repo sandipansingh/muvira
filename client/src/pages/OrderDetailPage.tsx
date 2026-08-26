@@ -95,7 +95,7 @@ export const OrderDetailPage: React.FC = () => {
         <section className="panel space-y-4 p-5 sm:p-6">
           <div className="flex items-center gap-2">
             <Truck className="h-5 w-5 text-ink" />
-            <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">
+            <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">
               Shipment Tracking
             </h2>
           </div>
@@ -168,7 +168,7 @@ export const OrderDetailPage: React.FC = () => {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <h3 className="truncate font-display text-base font-normal text-ink">
+                    <h3 className="truncate font-display text-base font-semibold text-ink">
                       {item.productName}
                     </h3>
                     <p className="text-xs font-normal text-muted">Qty: {item.quantity}</p>
@@ -184,7 +184,7 @@ export const OrderDetailPage: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-6 border-t border-line pt-6 sm:grid-cols-2">
           <div className="panel space-y-2 p-5 text-xs">
-            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-normal leading-none text-ink">
+            <h2 className="mb-3 flex items-center gap-1.5 font-sans text-sm font-bold leading-tight text-ink">
               <MapPin className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Shipping Address</span>
             </h2>
@@ -199,7 +199,7 @@ export const OrderDetailPage: React.FC = () => {
             </p>
           </div>
           <div className="panel space-y-2 p-5 text-xs">
-            <h2 className="mb-3 flex items-center gap-1.5 text-sm font-normal leading-none text-ink">
+            <h2 className="mb-3 flex items-center gap-1.5 font-sans text-sm font-bold leading-tight text-ink">
               <ShieldCheck className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Payment Details</span>
             </h2>

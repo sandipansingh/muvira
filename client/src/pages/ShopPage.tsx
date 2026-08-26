@@ -225,7 +225,7 @@ export const ShopPage: React.FC = () => {
 
             {error ? (
               <div className="py-16 text-center px-4">
-                <h3 className="font-display text-2xl font-normal text-ink">
+                <h3 className="font-display text-2xl font-semibold text-ink">
                   Unable to load products
                 </h3>
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>

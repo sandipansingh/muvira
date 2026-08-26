@@ -13,10 +13,8 @@ export const NotFoundPage: React.FC = () => {
           <Compass className="h-8 w-8 text-primary stroke-[1.5]" />
         </div>
 
-        <span className="text-xs font-semibold uppercase tracking-widest text-muted">
-          Error 404
-        </span>
-        <h1 className="mt-2 font-display text-3xl sm:text-4xl font-normal text-ink">
+        <span className="text-xs font-bold uppercase tracking-widest text-muted">Error 404</span>
+        <h1 className="mt-2 font-display text-3xl sm:text-4xl font-bold text-ink">
           Page Not Found
         </h1>
         <p className="mt-3 text-sm text-muted font-normal leading-relaxed">

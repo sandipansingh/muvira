@@ -39,7 +39,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             <div>
               <Link
                 to={`/product/${item.productSlug}`}
-                className="line-clamp-2 font-display text-sm font-normal text-[var(--color-ink)] transition-colors hover:text-ink-soft sm:text-base"
+                className="line-clamp-2 font-display text-sm font-semibold text-[var(--color-ink)] transition-colors hover:text-ink-soft sm:text-base"
               >
                 {item.productName}
               </Link>
@@ -89,7 +89,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
 
             <div className="text-right">
               <span className="block text-xs font-normal text-[var(--color-muted)]">Subtotal</span>
-              <span className="font-display text-base font-normal text-[var(--color-ink)]">
+              <span className="font-sans text-base font-bold text-[var(--color-ink)]">
                 {formatPrice(item.lineTotal)}
               </span>
             </div>
@@ -120,7 +120,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         <div className="flex items-start justify-between gap-1.5">
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 font-display text-xs font-normal leading-snug text-[var(--color-ink)] transition-colors hover:text-ink-soft"
+            className="line-clamp-2 font-display text-xs font-semibold leading-snug text-[var(--color-ink)] transition-colors hover:text-ink-soft"
           >
             {item.productName}
           </Link>
@@ -162,7 +162,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           </div>
 
           <div className="text-right">
-            <p className="font-display text-xs font-normal text-[var(--color-ink)]">
+            <p className="font-sans text-xs font-bold text-[var(--color-ink)]">
               {formatPrice(item.lineTotal)}
             </p>
             {item.quantity > 1 && (

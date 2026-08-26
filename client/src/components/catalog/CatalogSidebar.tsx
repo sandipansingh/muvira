@@ -80,7 +80,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
       <div className="flex items-center justify-between pb-1">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-ink" />
-          <h2 className="font-sans text-base font-semibold text-ink tracking-tight">Filter</h2>
+          <h2 className="font-sans text-base font-bold text-ink tracking-tight">Filter</h2>
         </div>
         {hasActiveFilters && (
           <button
@@ -120,14 +120,16 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
 
       {/* Categories Section */}
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Categories</h3>
+        <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-muted">
+          Categories
+        </h3>
         <div className="space-y-1">
           <button
             type="button"
             onClick={() => onSelectCategory('all')}
             className={`block w-full text-left text-sm py-1.5 transition-colors cursor-pointer ${
               selectedCategory === 'all' || !selectedCategory
-                ? 'font-semibold text-primary underline underline-offset-4 decoration-2 decoration-primary'
+                ? 'font-bold text-primary underline underline-offset-4 decoration-2 decoration-primary'
                 : 'text-muted hover:text-ink'
             }`}
           >
@@ -142,7 +144,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
                 onClick={() => onSelectCategory(category.slug)}
                 className={`block w-full text-left text-sm py-1.5 transition-colors cursor-pointer ${
                   isSelected
-                    ? 'font-semibold text-primary underline underline-offset-4 decoration-2 decoration-primary'
+                    ? 'font-bold text-primary underline underline-offset-4 decoration-2 decoration-primary'
                     : 'text-muted hover:text-ink'
                 }`}
               >
@@ -155,7 +157,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
 
       {/* Price Filter Section */}
       <div className="space-y-3 pt-2 border-t border-line">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Price</h3>
+        <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-muted">Price</h3>
         <div className="space-y-2">
           {PRICE_RANGES.map((range) => {
             const isChecked = selectedPriceRange === range.id
@@ -166,7 +168,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
               >
                 <span
                   className={`transition-colors ${
-                    isChecked ? 'text-primary font-medium' : 'text-muted group-hover:text-ink'
+                    isChecked ? 'text-primary font-bold' : 'text-muted group-hover:text-ink'
                   }`}
                 >
                   {range.label}
@@ -210,7 +212,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
           />
           <button
             type="submit"
-            className="px-2.5 py-1.5 text-xs font-medium bg-surface hover:bg-line border border-line rounded text-ink transition-colors shrink-0 cursor-pointer"
+            className="px-2.5 py-1.5 text-xs font-bold bg-surface hover:bg-line border border-line rounded text-ink transition-colors shrink-0 cursor-pointer"
           >
             Go
           </button>
@@ -220,13 +222,13 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
       {/* Availability / In Stock Section */}
       {onToggleInStock && (
         <div className="space-y-3 pt-2 border-t border-line">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
+          <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-muted">
             Availability
           </h3>
           <label className="flex items-center justify-between gap-3 text-sm cursor-pointer select-none group">
             <span
               className={`transition-colors ${
-                inStockOnly ? 'text-primary font-medium' : 'text-muted group-hover:text-ink'
+                inStockOnly ? 'text-primary font-bold' : 'text-muted group-hover:text-ink'
               }`}
             >
               In Stock Only
@@ -269,7 +271,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
           <div className="absolute inset-y-0 right-0 max-w-xs w-full bg-paper p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-line">
-                <span className="font-display text-lg text-ink font-normal">Filters</span>
+                <span className="font-display text-lg text-ink">Filters</span>
                 <button
                   type="button"
                   onClick={onMobileClose}

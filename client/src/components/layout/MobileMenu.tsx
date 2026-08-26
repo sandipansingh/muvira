@@ -70,7 +70,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between pb-5">
             <Link to="/" onClick={onClose} className="flex items-center gap-2.5 select-none">
               <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
-              <span className="translate-y-[2px] font-display text-xl font-normal tracking-tight text-ink leading-none">
+              <span className="translate-y-[2px] font-display text-xl tracking-tight text-ink leading-none">
                 Muvira
               </span>
             </Link>
@@ -258,7 +258,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/signin"
                 onClick={onClose}
-                className="button-primary w-full py-3.5 text-sm font-normal rounded-lg text-center block shadow-xs active:scale-98"
+                className="button-primary w-full py-3.5 text-sm rounded-lg text-center block shadow-xs active:scale-98"
               >
                 Sign In
               </Link>

@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
               alt="Muvira"
               className="h-7 sm:h-8 md:h-8.5 w-auto object-contain shrink-0"
             />
-            <span className="translate-y-[2px] font-display text-xl sm:text-2xl md:text-3xl font-normal tracking-tight text-ink leading-none">
+            <span className="translate-y-[2px] font-display text-xl sm:text-2xl md:text-3xl tracking-tight text-ink leading-none">
               Muvira
             </span>
           </Link>

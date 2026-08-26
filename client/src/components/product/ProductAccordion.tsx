@@ -43,9 +43,9 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                 key={tab.id}
                 type="button"
                 onClick={() => onToggleSection(tab.id)}
-                className={`relative pb-3.5 text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                className={`relative pb-3.5 text-sm font-normal transition-colors cursor-pointer whitespace-nowrap ${
                   isActive
-                    ? 'text-ink font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-ink'
+                    ? 'text-ink font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-ink'
                     : 'text-muted hover:text-ink'
                 }`}
               >
@@ -64,7 +64,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
         {/* Description Tab (Matching Reference Image 1) */}
         {activeTab === 'description' && (
           <div className="max-w-3xl space-y-5">
-            <h3 className="font-display text-lg font-medium text-ink sm:text-xl">
+            <h3 className="font-display text-lg font-semibold text-ink sm:text-xl">
               Authentic Jaipur Craft. Built for Generations.
             </h3>
             <p className="text-sm sm:text-base leading-relaxed text-ink-soft/90">

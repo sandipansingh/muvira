@@ -85,7 +85,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
         <div className="flex flex-col md:flex-row items-stretch gap-8 md:gap-0 pb-12 border-b border-line">
           {/* Left Slogan & Socials */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1 pr-0 md:pr-12">
-            <h3 className="text-2xl font-normal text-ink tracking-tight leading-tight max-w-[280px]">
+            <h3 className="text-2xl font-semibold text-ink tracking-tight leading-tight max-w-[280px]">
               Solid timber crafted for real homes
             </h3>
             <div className="flex items-center gap-3">
@@ -109,7 +109,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
 
           {/* Right Newsletter */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 flex-1 pl-0 md:pl-12">
-            <h3 className="text-2xl font-normal text-ink tracking-tight leading-tight">
+            <h3 className="text-2xl font-semibold text-ink tracking-tight leading-tight">
               Join our
               <br className="hidden sm:inline" /> Newsletter
             </h3>
@@ -153,7 +153,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div className="lg:col-span-4 flex flex-col gap-4">
             <Link to="/" className="flex items-center gap-2.5 w-max select-none">
               <img src="/logo.png" alt="Muvira" className="h-7 w-auto object-contain shrink-0" />
-              <span className="translate-y-[3px] font-display text-lg lg:text-xl font-normal text-ink tracking-wider uppercase leading-none">
+              <span className="translate-y-[3px] font-display text-lg lg:text-xl text-ink tracking-wider uppercase leading-none">
                 Muvira
               </span>
             </Link>
@@ -165,7 +165,9 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
 
           {/* Contact Details */}
           <div className="lg:col-span-3 flex flex-col gap-4">
-            <h4 className="text-xs font-normal uppercase tracking-wider text-ink">Contact</h4>
+            <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-ink">
+              Contact
+            </h4>
             <ul className="flex flex-col gap-3 text-sm text-ink-soft font-normal">
               <li className="flex items-center gap-2.5">
                 <Phone className="h-4 w-4 shrink-0 text-muted" />
@@ -203,7 +205,9 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           {/* Quick Links & Highlights */}
           <div className="grid grid-cols-2 gap-8 md:col-span-2 lg:col-span-5 lg:grid-cols-5">
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <h4 className="text-xs font-normal uppercase tracking-wider text-ink">Quick Links</h4>
+              <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-ink">
+                Quick Links
+              </h4>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-normal">
                 {[
                   { name: 'Home', href: '/' },
@@ -227,7 +231,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </div>
 
             <div className="lg:col-span-3 flex flex-col gap-4">
-              <h4 className="text-xs font-normal uppercase tracking-wider text-ink">
+              <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-ink">
                 Popular Collections
               </h4>
               <ul className="flex flex-col gap-2.5 text-sm text-ink-soft font-normal">

@@ -7,9 +7,7 @@ interface ContactFormProps {
 
 export const ContactForm: React.FC<ContactFormProps> = ({ email, setEmail }) => (
   <section className="border-b border-[var(--color-line)] pb-6">
-    <h2 className="font-display text-xl font-normal text-[var(--color-ink)]">
-      Contact Information
-    </h2>
+    <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">Contact Information</h2>
     <div className="mt-4">
       <label
         htmlFor="checkout-email"

@@ -46,14 +46,14 @@ export const SignInPage: React.FC = () => {
               alt="Muvira"
               className="h-7 sm:h-8 w-auto object-contain shrink-0"
             />
-            <span className="translate-y-[2px] font-display text-2xl sm:text-3xl font-normal tracking-tight text-ink leading-none">
+            <span className="translate-y-[2px] font-display text-2xl sm:text-3xl tracking-tight text-ink leading-none">
               Muvira
             </span>
           </Link>
 
           {/* Heading and Subtitle */}
           <div className="text-center space-y-1 w-full">
-            <h1 className="font-display text-2xl sm:text-3xl font-normal tracking-tight text-ink">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
               Welcome Back!
             </h1>
             <p className="text-xs sm:text-sm text-muted font-normal">

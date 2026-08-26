@@ -166,7 +166,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
             {/* Pricing Row */}
             <div className="mt-3 flex flex-wrap items-baseline gap-2.5">
-              <span className="font-display text-2xl font-normal text-[var(--color-ink)]">
+              <span className="font-sans text-2xl font-bold text-[var(--color-ink)]">
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.salePrice && (
@@ -250,7 +250,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="button-secondary min-h-10 justify-center gap-1.5 px-4 text-center text-xs font-normal"
+                className="button-secondary min-h-10 justify-center gap-1.5 px-4 text-center text-xs"
               >
                 <span className="leading-none">View Full Details</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />

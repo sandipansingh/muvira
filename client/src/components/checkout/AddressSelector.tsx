@@ -68,9 +68,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
   return (
     <section className="border-b border-[var(--color-line)] pb-6">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-display text-xl font-normal text-[var(--color-ink)]">
-          Delivery Address
-        </h2>
+        <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">Delivery Address</h2>
         <button
           type="button"
           onClick={() => setShowAddForm((open) => !open)}
@@ -123,7 +121,7 @@ export const AddressSelector: React.FC<AddressSelectorProps> = ({
 
       {showAddForm && (
         <form onSubmit={handleFormSubmit} className="soft-panel mt-5 space-y-3 p-5">
-          <h3 className="text-xs font-normal uppercase tracking-wider text-foreground">
+          <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-foreground">
             Enter shipping details
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">

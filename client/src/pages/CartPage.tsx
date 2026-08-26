@@ -34,7 +34,7 @@ export const CartPage: React.FC = () => {
             Looks like you have not added any handcrafted pieces yet. Discover our artisanal wooden
             decor and statues.
           </p>
-          <Link to="/shop" className="button-primary mt-6 gap-2 px-5 py-3 text-sm font-normal">
+          <Link to="/shop" className="button-primary mt-6 gap-2 px-5 py-3 text-sm">
             <span className="leading-none">Explore Handcrafted Collections</span>
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
@@ -99,7 +99,7 @@ export const CartPage: React.FC = () => {
 
           {/* Sticky Order Summary Sidebar */}
           <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start">
-            <h2 className="pb-2 font-display text-lg font-normal text-[var(--color-ink)]">
+            <h2 className="pb-2 font-display text-lg font-bold text-[var(--color-ink)]">
               Order Summary
             </h2>
 
@@ -137,7 +137,7 @@ export const CartPage: React.FC = () => {
               </div>
               <div className="flex justify-between pt-2 text-base font-normal text-[var(--color-ink)]">
                 <span>Total Amount</span>
-                <span className="font-display text-lg">{formatPrice(totalPaisa)}</span>
+                <span className="font-sans text-lg font-bold">{formatPrice(totalPaisa)}</span>
               </div>
             </div>
 
@@ -145,7 +145,7 @@ export const CartPage: React.FC = () => {
               type="button"
               onClick={() => navigate('/checkout')}
               disabled={loading || hasUnmergedItems}
-              className="button-primary w-full py-3 text-sm font-normal shadow-xs hover:shadow-sm"
+              className="button-primary w-full py-3 text-sm shadow-xs hover:shadow-sm"
             >
               <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
             </button>

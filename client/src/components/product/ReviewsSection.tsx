@@ -279,7 +279,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           {/* Big Score Display (Left column with vertical divider) */}
           <div className="flex flex-col items-start justify-center space-y-1.5 md:border-r md:border-line/60 md:pr-10">
             <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-5xl font-medium tracking-tight text-ink sm:text-6xl">
+              <span className="font-sans text-5xl font-bold tracking-tight text-ink sm:text-6xl">
                 {effectiveRating.toFixed(1)}
               </span>
               <span className="text-sm font-normal text-muted sm:text-base">out of 5</span>
@@ -303,7 +303,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   }`}
                   aria-label={`Filter by ${stars} stars`}
                 >
-                  <span className="w-12 text-left text-xs font-medium text-ink-soft group-hover:text-ink">
+                  <span className="w-12 text-left text-xs font-bold text-ink-soft group-hover:text-ink">
                     {stars} Star
                   </span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-line/70">
@@ -389,16 +389,16 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               <article key={review.id} className="py-6 space-y-3">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-primary font-medium text-sm uppercase">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-primary font-bold text-sm uppercase">
                       {(review.userName || 'Customer').charAt(0)}
                     </div>
                     <div>
-                      <h5 className="font-display text-sm font-medium text-ink sm:text-base">
+                      <h5 className="font-display text-sm font-semibold text-ink sm:text-base">
                         {review.userName || 'Verified Buyer'}
                       </h5>
                       <div className="flex items-center gap-2 pt-0.5">
                         <RatingStars rating={review.rating} size="xs" />
-                        <span className="text-[11px] text-emerald-700 font-medium">
+                        <span className="text-[11px] text-emerald-700 font-bold">
                           • Verified Purchase
                         </span>
                       </div>
@@ -456,7 +456,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             type="button"
             onClick={() => setVisibleCount((prev) => prev + 5)}
-            className="cursor-pointer text-sm font-medium text-primary"
+            className="cursor-pointer text-sm font-bold text-primary"
           >
             Load More
           </button>
@@ -476,7 +476,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
               <span className="block text-[11px] font-normal uppercase tracking-wider text-muted">
                 Product
               </span>
-              <p className="font-display text-sm font-normal text-ink">{productName}</p>
+              <p className="font-sans text-sm font-bold text-ink">{productName}</p>
             </div>
           )}
 

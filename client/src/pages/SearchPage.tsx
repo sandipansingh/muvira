@@ -234,7 +234,7 @@ export const SearchPage: React.FC = () => {
           )}
           <button
             type="submit"
-            className="ml-2 rounded-lg bg-primary hover:bg-primary-hover text-white px-4 py-2 text-xs font-medium transition-colors shrink-0 cursor-pointer"
+            className="ml-2 rounded-lg bg-primary hover:bg-primary-hover text-white px-4 py-2 text-xs font-bold transition-colors shrink-0 cursor-pointer"
           >
             Search
           </button>
@@ -276,7 +276,7 @@ export const SearchPage: React.FC = () => {
 
             {error ? (
               <div className="py-16 text-center px-4">
-                <h3 className="font-display text-2xl font-normal text-ink">
+                <h3 className="font-display text-2xl font-semibold text-ink">
                   Unable to load search results
                 </h3>
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>
@@ -293,7 +293,7 @@ export const SearchPage: React.FC = () => {
                 <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center text-muted mb-4">
                   <Sparkles className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="font-display text-2xl font-normal text-ink">
+                <h3 className="font-display text-2xl font-semibold text-ink">
                   {searchQuery ? `No results found for “${searchQuery}”` : 'Search our catalog'}
                 </h3>
                 <p className="mt-2 text-sm text-muted max-w-md font-normal">

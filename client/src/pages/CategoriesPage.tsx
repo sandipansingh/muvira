@@ -52,7 +52,7 @@ export const CategoriesPage: React.FC = () => {
             <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center text-muted mb-4">
               <Package className="h-6 w-6 stroke-[1.5]" />
             </div>
-            <h2 className="font-display text-2xl text-ink font-normal">No categories available</h2>
+            <h2 className="font-display text-2xl text-ink font-bold">No categories available</h2>
             <Link
               to="/shop"
               className="mt-6 inline-block rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors"
@@ -87,13 +87,15 @@ export const CategoriesPage: React.FC = () => {
 
                 {/* Bottom Content */}
                 <div className="relative z-10 text-white">
-                  <h3 className="font-display text-2xl font-normal text-white">{category.name}</h3>
+                  <h3 className="font-display text-2xl font-semibold text-white">
+                    {category.name}
+                  </h3>
                   {category.description && (
                     <p className="mt-1 text-xs text-white/80 line-clamp-1">
                       {category.description}
                     </p>
                   )}
-                  <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white group-hover:underline underline-offset-4">
+                  <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-white group-hover:underline underline-offset-4">
                     <span>Explore Collection</span>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                   </div>

@@ -187,11 +187,7 @@ export const ProfilePage: React.FC = () => {
             <span className="eyebrow mb-1 block">Account Overview</span>
             <h1 className="heading page-title">My Profile</h1>
           </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="button-secondary px-4 py-2 text-xs font-normal"
-          >
+          <button type="button" onClick={logout} className="button-secondary px-4 py-2 text-xs">
             <LogOut className="h-4 w-4 shrink-0" />
             <span className="leading-none">Sign out</span>
           </button>
@@ -224,7 +220,7 @@ export const ProfilePage: React.FC = () => {
 
           <div className="space-y-6 md:col-span-2">
             <div className="panel space-y-5 p-5 sm:p-6">
-              <h2 className="font-display text-lg font-normal text-[var(--color-ink)]">
+              <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">
                 Personal Details
               </h2>
               <form onSubmit={handleProfileUpdate} className="space-y-4">
@@ -281,7 +277,7 @@ export const ProfilePage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="button-primary text-xs py-2.5 font-normal disabled:opacity-50"
+                  className="button-primary text-xs py-2.5 disabled:opacity-50"
                 >
                   {savingProfile ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -290,13 +286,13 @@ export const ProfilePage: React.FC = () => {
 
             <section id="addresses" className="panel space-y-4 p-5 sm:p-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-display text-xl font-normal text-[var(--color-ink)]">
+                <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
                   Saved Addresses
                 </h2>
                 <button
                   type="button"
                   onClick={openNewAddressForm}
-                  className="button-primary text-xs py-2 px-4 font-normal"
+                  className="button-primary text-xs py-2 px-4"
                 >
                   Add Address
                 </button>
@@ -304,7 +300,7 @@ export const ProfilePage: React.FC = () => {
 
               {addressFormOpen && (
                 <form onSubmit={handleAddressSave} className="soft-panel mt-4 space-y-3 p-5">
-                  <h3 className="text-xs font-normal uppercase tracking-wider text-ink">
+                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-ink">
                     {editingAddressId ? 'Edit Address' : 'Add Address'}
                   </h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -360,13 +356,13 @@ export const ProfilePage: React.FC = () => {
                     Use as default address
                   </label>
                   <div className="flex gap-2 pt-2">
-                    <button type="submit" className="button-primary text-xs py-2.5 font-normal">
+                    <button type="submit" className="button-primary text-xs py-2.5">
                       Save address
                     </button>
                     <button
                       type="button"
                       onClick={() => setAddressFormOpen(false)}
-                      className="button-secondary text-xs py-2.5 font-normal"
+                      className="button-secondary text-xs py-2.5"
                     >
                       Cancel
                     </button>
@@ -390,7 +386,7 @@ export const ProfilePage: React.FC = () => {
                   >
                     <div className="space-y-1 text-xs text-muted">
                       <div className="flex items-center gap-2">
-                        <strong className="text-sm font-normal text-ink">{address.fullName}</strong>
+                        <strong className="text-sm text-ink">{address.fullName}</strong>
                         {address.isDefault && <span className="status-badge">Default</span>}
                       </div>
                       <p className="text-ink-soft font-normal">

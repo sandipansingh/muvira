@@ -194,7 +194,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
                       {option.badge && (
                         <span
-                          className={`flex items-center gap-1 uppercase select-none px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wider ${
+                          className={`flex items-center gap-1 uppercase select-none px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider ${
                             option.badge.className || 'bg-primary-soft text-primary'
                           }`}
                         >

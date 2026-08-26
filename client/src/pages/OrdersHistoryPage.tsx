@@ -131,7 +131,7 @@ export const OrdersHistoryPage: React.FC = () => {
                   )}
                   <div>
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="font-display text-base font-normal text-ink">
+                      <span className="font-sans text-base font-bold text-ink">
                         #{order.orderNumber}
                       </span>
                       <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>

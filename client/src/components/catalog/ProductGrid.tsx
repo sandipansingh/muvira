@@ -52,7 +52,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center text-muted mb-4">
           <PackageOpen className="h-6 w-6 stroke-[1.5]" />
         </div>
-        <h3 className="font-display text-2xl font-normal text-ink">No pieces found</h3>
+        <h3 className="font-display text-2xl font-semibold text-ink">No pieces found</h3>
         <p className="mt-2 text-sm text-muted max-w-md font-normal">
           We couldn't find any products matching your selected filters or search query.
         </p>

@@ -36,7 +36,7 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
         <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
           <Breadcrumbs items={breadcrumbs} className="mb-2 justify-center" />
 
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-normal text-ink tracking-tight leading-tight">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-ink tracking-tight leading-tight">
             {title}
           </h1>
 

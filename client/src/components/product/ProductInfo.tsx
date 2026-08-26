@@ -58,7 +58,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
     <div className="flex flex-col space-y-5 pr-0 sm:pr-2 lg:pr-8 xl:pr-12">
       {/* Product Title */}
       <div className="space-y-2">
-        <h1 className="font-display text-2xl font-normal leading-tight text-ink sm:text-3xl lg:text-[2rem]">
+        <h1 className="font-display text-2xl font-bold leading-tight text-ink sm:text-3xl lg:text-[2rem]">
           {product.name}
         </h1>
 
@@ -91,7 +91,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
 
       {/* Price Section with Savings Pill */}
       <div className="flex flex-wrap items-baseline gap-3 py-1.5">
-        <span className="font-display text-2xl font-normal text-ink sm:text-3xl">
+        <span className="font-sans text-2xl font-bold text-ink sm:text-3xl">
           {formatPrice(product.price)}
         </span>
         {originalPrice > product.price && (
@@ -111,7 +111,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         <div className="group flex cursor-default items-start gap-2.5">
           <Truck className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
           <div className="flex flex-col">
-            <span className="text-xs font-medium leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
+            <span className="text-xs font-bold leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
               Free Shipping
             </span>
             <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
@@ -123,7 +123,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         <div className="group flex cursor-default items-start gap-2.5">
           <RotateCcw className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
           <div className="flex flex-col">
-            <span className="text-xs font-medium leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
+            <span className="text-xs font-bold leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
               7-Day Returns
             </span>
             <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
@@ -135,7 +135,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         <div className="group flex cursor-default items-start gap-2.5">
           <Clock className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
           <div className="flex flex-col">
-            <span className="text-xs font-medium leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
+            <span className="text-xs font-bold leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
               1–7 Days Delivery
             </span>
             <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
@@ -179,7 +179,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             isLoading={isAdding}
             onClick={handleAddToCart}
             leftIcon={<ShoppingBag className="h-4 w-4 shrink-0" />}
-            className="flex-1 font-medium"
+            className="flex-1 font-bold"
           >
             Add to Cart
           </Button>
@@ -210,7 +210,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           size="lg"
           isLoading={isBuyingNow}
           onClick={handleBuyNow}
-          className="w-full font-medium"
+          className="w-full font-bold"
         >
           Buy Now
         </Button>

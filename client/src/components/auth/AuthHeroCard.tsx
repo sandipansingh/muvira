@@ -115,7 +115,7 @@ export const AuthHeroCard: React.FC<AuthHeroCardProps> = ({ className = '' }) =>
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="space-y-1.5"
           >
-            <h2 className="font-display text-xl sm:text-2xl font-normal tracking-tight text-white drop-shadow-sm">
+            <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-sm">
               {slide.title}
             </h2>
             <p className="text-xs sm:text-sm text-white/85 leading-relaxed font-normal max-w-lg drop-shadow-xs">

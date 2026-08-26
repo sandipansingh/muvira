@@ -10,13 +10,13 @@ This project uses a **two-font system** declared in CSS custom properties in `sr
 
 | Role                   | Font | Source                            | CSS Variable     | Tailwind Token   | Weights Loaded |
 | ---------------------- | ---- | --------------------------------- | ---------------- | ---------------- | -------------- |
-| **Headings / Display** | Lora | Local WOFF2 (`public/fonts/`)     | `--font-display` | `--font-display` | 400            |
-| **Body / UI**          | Lato | Local WOFF2 (`public/fonts/`)     | `--font-sans`    | `--font-sans`    | 400            |
+| **Headings / Display** | Raleway | Local WOFF2 (`public/fonts/`)  | `--font-display` | `--font-display` | 400, 600, 700 |
+| **Body / UI**          | Lato | Local WOFF2 (`public/fonts/`)     | `--font-sans`    | `--font-sans`    | 400, 700       |
 
 ### Font Application Rules
 
-- **Headings**: All `h1`–`h6` elements automatically receive Lora via the CSS rule in `src/index.css` that binds `font-family: var(--font-display)` to heading tags and `.font-display`.
-- **Display utility**: Use the `.font-display` class on any non-heading element that should render in Lora — brand logo text, titles, card headers.
+- **Headings**: All `h1`–`h6` elements automatically receive Raleway via the CSS rule in `src/index.css` that binds `font-family: var(--font-display)` to heading tags and `.font-display`.
+- **Display utility**: Use the `.font-display` class on any non-heading element that should render in Raleway — brand logo text, titles, card headers.
 - **Body default**: The `<body>` element inherits Lato via `font-family: var(--font-sans)`. All paragraphs, buttons, form inputs, navigation links, and general UI use this font automatically.
 - **Never mix**: Do not apply `font-display` to long-form body paragraphs or `font-sans` to section headings.
 
@@ -35,12 +35,12 @@ This project uses a **two-font system** declared in CSS custom properties in `sr
 
 | Element                                              | Weight | Tailwind Class  | Rationale                                           |
 | ---------------------------------------------------- | ------ | --------------- | --------------------------------------------------- |
-| Section headings (`h1`–`h3`)                         | 700    | `font-bold`     | Strong visual anchors for content hierarchy         |
-| Card titles, package names (`h4`–`h6`)               | 700    | `font-bold`     | Consistent with heading scale                       |
-| Taglines, mid-page callouts                          | 500    | `font-medium`   | Subtle and distinct from standard page headings     |
+| H1, H2, page and hero titles                         | 700    | `font-bold`     | Strong visual anchors for content hierarchy         |
+| H3–H6, card titles, package names                    | 600    | `font-semibold` | Secondary display emphasis                          |
+| Taglines, mid-page callouts                          | 400    | `font-normal`   | Clear without relying on synthesized Lato weights   |
 | Body text, paragraphs, descriptions                  | 400    | `font-normal`   | Maximum readability for running text                |
-| CTA buttons, "View Details", "Find Packages"         | 600    | `font-semibold` | Prominent but not shouting — signals interactivity  |
-| Secondary UI (nav links, dates, filter labels, tags) | 500    | `font-medium`   | Subtle emphasis without competing with headings     |
+| CTA buttons, "View Details", "Find Packages"         | 700    | `font-bold`     | Prominent interactive controls                      |
+| Secondary UI (nav links, dates, filter labels, tags) | 400    | `font-normal`   | Body/UI uses Lato's native regular weight           |
 | Fine print, footnotes, placeholders                  | 400    | `font-normal`   | Same as body but typically paired with `text-muted` |
 
 ---
