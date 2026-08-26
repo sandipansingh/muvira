@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Heart, Minus, Plus, Trash2 } from 'lucide-react'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -12,13 +12,14 @@ interface CartItemRowProps {
 
 export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compact' }) => {
   const { updateQuantity, removeFromCart, loading } = useCart()
+  const [isSavedForLater, setIsSavedForLater] = useState(false)
 
   if (variant === 'full') {
     return (
-      <article className="group relative flex flex-col gap-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper)] p-3 transition-shadow hover:shadow-xs sm:flex-row sm:items-center sm:gap-4 sm:p-4">
+      <article className="group relative flex flex-col gap-4 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-4 transition-all hover:shadow-xs sm:flex-row sm:items-center sm:gap-5 sm:p-5">
         <Link
           to={`/product/${item.productSlug}`}
-          className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-24 sm:w-24"
+          className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-28 sm:w-28"
           aria-label={`View ${item.productName}`}
         >
           {item.productImage ? (
@@ -34,49 +35,70 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           )}
         </Link>
 
-        <div className="min-w-0 flex-1 space-y-1.5">
+        <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-start justify-between gap-3">
             <div>
               <Link
                 to={`/product/${item.productSlug}`}
-                className="line-clamp-2 font-display text-sm font-semibold text-[var(--color-ink)] transition-colors hover:text-ink-soft sm:text-base"
+                className="line-clamp-2 font-display text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
               >
                 {item.productName}
               </Link>
+              <div className="mt-1 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]">
+                <span>Handcrafted Item</span>
+                <span>•</span>
+                <span className="text-accent font-medium">In Stock</span>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => removeFromCart(item.productId)}
-              disabled={loading}
-              className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg px-2 py-1 text-xs font-normal leading-none text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
-              aria-label={`Remove ${item.productName} from cart`}
-              title="Remove item"
-            >
-              <Trash2 className="h-3.5 w-3.5 shrink-0" />
-              <span className="hidden leading-none sm:inline">Remove</span>
-            </button>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setIsSavedForLater(!isSavedForLater)}
+                className={`inline-flex cursor-pointer items-center justify-center rounded-lg p-2 transition-colors ${
+                  isSavedForLater
+                    ? 'bg-primary-soft text-[var(--color-primary)]'
+                    : 'text-[var(--color-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]'
+                }`}
+                title={isSavedForLater ? 'Saved for later' : 'Save to wishlist'}
+                aria-label="Save item"
+              >
+                <Heart className={`h-4 w-4 ${isSavedForLater ? 'fill-current' : ''}`} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => removeFromCart(item.productId)}
+                disabled={loading}
+                className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg p-2 text-[var(--color-muted)] transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
+                aria-label={`Remove ${item.productName} from cart`}
+                title="Remove item"
+              >
+                <Trash2 className="h-4 w-4 shrink-0" />
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-            <div className="flex items-center gap-2.5">
-              <div className="inline-flex items-center rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5">
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-1">
                 <button
                   type="button"
                   onClick={() => updateQuantity(item.productId, -1)}
                   disabled={loading}
-                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
                   aria-label="Decrease quantity"
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </button>
-                <span className="w-10 text-center text-sm font-normal text-[var(--color-ink)]">
+                <span className="w-10 text-center text-sm font-semibold text-[var(--color-ink)]">
                   {item.quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => updateQuantity(item.productId, 1)}
                   disabled={loading}
-                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
                   aria-label="Increase quantity"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -88,8 +110,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             </div>
 
             <div className="text-right">
-              <span className="block text-xs font-normal text-[var(--color-muted)]">Subtotal</span>
-              <span className="font-sans text-base font-bold text-[var(--color-ink)]">
+              <span className="block text-[11px] font-medium uppercase tracking-wider text-[var(--color-muted)]">
+                Total
+              </span>
+              <span className="font-sans text-lg font-bold text-[var(--color-primary)]">
                 {formatPrice(item.lineTotal)}
               </span>
             </div>
@@ -103,7 +127,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
     <article className="flex gap-3 border-b border-[var(--color-line)] pb-3.5">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)]"
+        className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
@@ -120,7 +144,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         <div className="flex items-start justify-between gap-1.5">
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 font-display text-xs font-semibold leading-snug text-[var(--color-ink)] transition-colors hover:text-ink-soft"
+            className="line-clamp-2 font-display text-xs font-semibold leading-snug text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
           >
             {item.productName}
           </Link>
@@ -147,7 +171,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             >
               <Minus className="h-2.5 w-2.5" />
             </button>
-            <span className="w-6 text-center text-xs font-normal text-[var(--color-ink)]">
+            <span className="w-6 text-center text-xs font-semibold text-[var(--color-ink)]">
               {item.quantity}
             </span>
             <button
@@ -162,7 +186,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           </div>
 
           <div className="text-right">
-            <p className="font-sans text-xs font-bold text-[var(--color-ink)]">
+            <p className="font-sans text-xs font-bold text-[var(--color-primary)]">
               {formatPrice(item.lineTotal)}
             </p>
             {item.quantity > 1 && (

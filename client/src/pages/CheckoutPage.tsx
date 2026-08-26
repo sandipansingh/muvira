@@ -10,6 +10,10 @@ import { CheckoutSteps } from '../components/checkout/CheckoutSteps'
 import { ContactForm } from '../components/checkout/ContactForm'
 import { AddressSelector, type AddressData } from '../components/checkout/AddressSelector'
 import { OrderSummaryCard } from '../components/checkout/OrderSummaryCard'
+import {
+  CustomPaymentSelector,
+  type CustomPaymentPayload,
+} from '../components/checkout/CustomPaymentSelector'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 interface RazorpayPaymentResponse {
@@ -18,7 +22,7 @@ interface RazorpayPaymentResponse {
   razorpay_signature: string
 }
 
-interface RazorpayOptions {
+interface RazorpayCustomOptions {
   key: string
   amount: number
   currency: string
@@ -26,6 +30,15 @@ interface RazorpayOptions {
   description: string
   order_id: string
   prefill: { name: string; email: string; contact: string }
+  method?: string
+  'card[number]'?: string
+  'card[expiry_month]'?: string
+  'card[expiry_year]'?: string
+  'card[cvv]'?: string
+  'card[name]'?: string
+  'upi[vpa]'?: string
+  bank?: string
+  wallet?: string
   handler: (response: RazorpayPaymentResponse) => void
   modal: { ondismiss: () => void }
 }
@@ -36,7 +49,7 @@ interface RazorpayInstance {
 
 declare global {
   interface Window {
-    Razorpay?: new (options: RazorpayOptions) => RazorpayInstance
+    Razorpay?: new (options: RazorpayCustomOptions) => RazorpayInstance
   }
 }
 
@@ -69,12 +82,18 @@ export const CheckoutPage: React.FC = () => {
   } = useCart()
   const { showToast } = useToast()
   const navigate = useNavigate()
+
   const [email, setEmail] = useState(user?.email ?? '')
   const [addresses, setAddresses] = useState<AddressData[]>([])
   const [selectedAddressId, setSelectedAddressId] = useState('')
   const [loadingAddresses, setLoadingAddresses] = useState(true)
   const [addressError, setAddressError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  // Custom Payment Selection State
+  const [paymentData, setPaymentData] = useState<CustomPaymentPayload | null>({
+    method: 'card',
+  })
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin?returnTo=/checkout', { replace: true })
@@ -139,7 +158,7 @@ export const CheckoutPage: React.FC = () => {
     const created = toAddressData(response.data)
     setAddresses((previous) => [...previous, created])
     setSelectedAddressId(created.id)
-    showToast('New address saved.', 'success')
+    showToast('New delivery address saved.', 'success')
   }
 
   const navigateToPaymentFailure = (reason: string, orderId?: string) => {
@@ -148,33 +167,82 @@ export const CheckoutPage: React.FC = () => {
     navigate(`/orders/failure?${query.toString()}`)
   }
 
+  const validatePaymentSelection = (): boolean => {
+    if (!paymentData) {
+      showToast('Select a payment method before proceeding.', 'error')
+      return false
+    }
+
+    if (paymentData.method === 'card') {
+      const c = paymentData.card
+      if (!c || !c.number || c.number.length < 15) {
+        showToast('Enter a valid card number.', 'error')
+        return false
+      }
+      if (!c.expiryMonth || !c.expiryYear) {
+        showToast('Enter card expiry date (MM/YY).', 'error')
+        return false
+      }
+      if (!c.cvv || c.cvv.length < 3) {
+        showToast('Enter card security code (CVV).', 'error')
+        return false
+      }
+      if (!c.name.trim()) {
+        showToast('Enter cardholder name.', 'error')
+        return false
+      }
+    } else if (paymentData.method === 'upi') {
+      const u = paymentData.upi
+      if (!u || !u.vpa || !u.vpa.includes('@')) {
+        showToast('Enter a valid UPI VPA (e.g. mobile@upi or username@bank).', 'error')
+        return false
+      }
+    } else if (paymentData.method === 'netbanking') {
+      if (!paymentData.netbanking?.bankCode) {
+        showToast('Select your bank for Net Banking.', 'error')
+        return false
+      }
+    } else if (paymentData.method === 'wallet') {
+      if (!paymentData.wallet?.walletName) {
+        showToast('Select a wallet provider.', 'error')
+        return false
+      }
+    }
+
+    return true
+  }
+
   const handlePlaceOrder = async () => {
     if (!selectedAddressId || items.length === 0) {
       showToast('Select a delivery address before continuing.', 'error')
       return
     }
     if (hasUnmergedItems) {
-      showToast('Retry the saved guest items before placing your order.', 'error')
+      showToast('Retry saved guest items before placing order.', 'error')
       return
     }
+    if (!validatePaymentSelection()) return
 
     setIsProcessing(true)
     try {
+      // Step 1: Create Order on server
       const orderResponse = await orderApiService.createOrder(
         selectedAddressId,
         coupon?.code ?? null
       )
       if (!orderResponse.success) throw new Error(orderResponse.error.message)
       const order = orderResponse.data
-      const Razorpay = window.Razorpay
-      if (!Razorpay) throw new Error('Payment checkout is unavailable. Please try again.')
 
-      const payment = new Razorpay({
+      const Razorpay = window.Razorpay
+      if (!Razorpay) throw new Error('Razorpay SDK failed to load. Please refresh.')
+
+      // Step 2: Build Custom Checkout Options
+      const rzpOptions: RazorpayCustomOptions = {
         key: order.razorpayKeyId,
         amount: order.amount,
         currency: order.currency,
         name: 'Muvira',
-        description: `Order ${order.orderNumber}`,
+        description: `Order #${order.orderNumber}`,
         order_id: order.razorpayOrderId,
         prefill: {
           name: user?.fullName ?? '',
@@ -211,25 +279,47 @@ export const CheckoutPage: React.FC = () => {
         modal: {
           ondismiss: () => {
             setIsProcessing(false)
-            navigateToPaymentFailure('Payment was cancelled.', order.orderId)
+            showToast('Payment was cancelled.', 'error')
           },
         },
-      })
-      payment.open()
+      }
+
+      // Attach Custom Payment Parameters
+      if (paymentData?.method === 'card' && paymentData.card) {
+        rzpOptions.method = 'card'
+        rzpOptions['card[number]'] = paymentData.card.number
+        rzpOptions['card[expiry_month]'] = paymentData.card.expiryMonth
+        rzpOptions['card[expiry_year]'] = paymentData.card.expiryYear
+        rzpOptions['card[cvv]'] = paymentData.card.cvv
+        rzpOptions['card[name]'] = paymentData.card.name
+      } else if (paymentData?.method === 'upi' && paymentData.upi) {
+        rzpOptions.method = 'upi'
+        rzpOptions['upi[vpa]'] = paymentData.upi.vpa
+      } else if (paymentData?.method === 'netbanking' && paymentData.netbanking) {
+        rzpOptions.method = 'netbanking'
+        rzpOptions.bank = paymentData.netbanking.bankCode
+      } else if (paymentData?.method === 'wallet' && paymentData.wallet) {
+        rzpOptions.method = 'wallet'
+        rzpOptions.wallet = paymentData.wallet.walletName
+      }
+
+      // Initiate Custom Razorpay Payment
+      const paymentInstance = new Razorpay(rzpOptions)
+      paymentInstance.open()
     } catch (reason) {
       setIsProcessing(false)
       navigateToPaymentFailure(
-        reason instanceof Error ? reason.message : 'Unable to start payment.'
+        reason instanceof Error ? reason.message : 'Unable to initiate payment.'
       )
     }
   }
 
   if (authLoading || !user) {
-    return <main className="editorial-page" />
+    return <main className="editorial-page min-h-[60vh]" />
   }
 
   return (
-    <main className="editorial-page py-6 sm:py-8">
+    <main className="editorial-page py-6 sm:py-10">
       <div className="editorial-container space-y-6">
         <Breadcrumbs
           items={[
@@ -238,18 +328,23 @@ export const CheckoutPage: React.FC = () => {
             { label: 'Checkout' },
           ]}
         />
-        <CheckoutSteps currentStep="shipping" />
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-          <div className="space-y-5 lg:col-span-2">
+
+        <CheckoutSteps currentStep="payment" />
+
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
+          <div className="space-y-6 lg:col-span-7 xl:col-span-8">
             <h1 className="heading page-title">Checkout</h1>
+
             <ContactForm email={email} setEmail={setEmail} />
+
             {addressError && (
-              <p className="border border-danger bg-danger-soft p-4 text-xs text-danger">
+              <p className="rounded-xl border border-danger bg-danger-soft p-4 text-xs font-medium text-danger">
                 {addressError}
               </p>
             )}
+
             {loadingAddresses ? (
-              <div className="h-48 animate-pulse bg-surface" />
+              <div className="h-48 animate-pulse rounded-2xl bg-surface" />
             ) : (
               <AddressSelector
                 selectedAddressId={selectedAddressId}
@@ -258,24 +353,35 @@ export const CheckoutPage: React.FC = () => {
                 onAddNewAddress={handleAddNewAddress}
               />
             )}
+
             {hasUnmergedItems && (
-              <p className="border border-warning bg-warning-soft p-4 text-xs text-warning">
+              <p className="rounded-xl border border-warning bg-warning-soft p-4 text-xs font-medium text-warning">
                 Some saved guest items could not be merged into your account. Remove them or retry
                 adding them before payment.
               </p>
             )}
+
+            {/* Custom Payment Selector UI */}
+            <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 shadow-xs">
+              <CustomPaymentSelector onPaymentDataChange={setPaymentData} disabled={isProcessing} />
+            </div>
           </div>
-          <OrderSummaryCard
-            items={items}
-            subtotalPaisa={subtotalPaisa}
-            discountPaisa={discountPaisa}
-            shippingPaisa={shippingPaisa}
-            totalPaisa={totalPaisa}
-            onPlaceOrder={handlePlaceOrder}
-            isProcessing={isProcessing}
-          />
+
+          <div className="lg:col-span-5 xl:col-span-4">
+            <OrderSummaryCard
+              items={items}
+              subtotalPaisa={subtotalPaisa}
+              discountPaisa={discountPaisa}
+              shippingPaisa={shippingPaisa}
+              totalPaisa={totalPaisa}
+              onPlaceOrder={handlePlaceOrder}
+              isProcessing={isProcessing}
+            />
+          </div>
         </div>
       </div>
     </main>
   )
 }
+
+export default CheckoutPage

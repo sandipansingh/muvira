@@ -13,6 +13,7 @@ interface OrderSummaryCardProps {
   totalPaisa: number
   onPlaceOrder: () => void
   isProcessing: boolean
+  buttonLabel?: string
 }
 
 export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
@@ -23,20 +24,21 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   totalPaisa,
   onPlaceOrder,
   isProcessing,
+  buttonLabel,
 }) => {
   const { coupon } = useCart()
   const totalItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   return (
-    <aside className="panel space-y-4 p-5 sm:p-6 lg:sticky lg:top-24 lg:self-start">
+    <aside className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-6 space-y-4 shadow-xs lg:sticky lg:top-24 lg:self-start">
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
         <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">Order Summary</h2>
-        <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2.5 py-0.5 text-xs font-normal text-[var(--color-ink)]">
+        <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-ink)]">
           {totalItemCount} {totalItemCount === 1 ? 'item' : 'items'}
         </span>
       </div>
 
-      <div className="max-h-56 space-y-3 overflow-y-auto dropdown-scrollbar pr-1">
+      <div className="max-h-60 space-y-3 overflow-y-auto dropdown-scrollbar pr-1">
         {items.map((item) => (
           <div key={item.id} className="flex items-center justify-between gap-3 text-xs">
             <div className="flex min-w-0 items-center gap-3">
@@ -44,19 +46,19 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                 <img
                   src={item.productImage}
                   alt={item.productName}
-                  className="h-10 w-10 shrink-0 rounded-lg border border-[var(--color-line)] object-cover"
+                  className="h-12 w-12 shrink-0 rounded-xl border border-[var(--color-line)] object-cover"
                 />
               ) : (
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-xs text-muted">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-surface text-xs text-muted">
                   No image
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate font-normal text-[var(--color-ink)]">{item.productName}</p>
+                <p className="truncate font-semibold text-[var(--color-ink)]">{item.productName}</p>
                 <p className="text-[var(--color-muted)]">Qty: {item.quantity}</p>
               </div>
             </div>
-            <span className="shrink-0 font-normal text-[var(--color-ink)]">
+            <span className="shrink-0 font-bold text-[var(--color-ink)]">
               {formatPrice(item.unitPrice * item.quantity)}
             </span>
           </div>
@@ -64,36 +66,38 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
       </div>
 
       <div className="border-t border-[var(--color-line)] pt-3">
-        <label className="mb-1.5 block text-xs font-normal text-[var(--color-ink)]">
-          Have a coupon?
+        <label className="mb-1.5 block text-xs font-medium text-[var(--color-ink)]">
+          Have a promo code?
         </label>
         <CouponInput />
       </div>
 
-      <div className="space-y-2 border-t border-[var(--color-line)] pt-3 text-xs font-normal text-[var(--color-muted)]">
+      <div className="space-y-2.5 border-t border-[var(--color-line)] pt-3 text-xs text-[var(--color-muted)]">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span className="font-normal text-[var(--color-ink)]">{formatPrice(subtotalPaisa)}</span>
+          <span className="font-medium text-[var(--color-ink)]">{formatPrice(subtotalPaisa)}</span>
         </div>
         {discountPaisa > 0 && (
-          <div className="flex justify-between font-normal text-emerald-700">
+          <div className="flex justify-between font-semibold text-accent">
             <span>Coupon Discount ({coupon?.code})</span>
             <span>-{formatPrice(discountPaisa)}</span>
           </div>
         )}
         <div className="flex justify-between">
-          <span>Delivery Charges</span>
-          <span className="font-normal text-[var(--color-ink)]">
+          <span>Delivery Charge</span>
+          <span className="font-medium text-[var(--color-ink)]">
             {shippingPaisa === 0 ? (
-              <span className="text-emerald-700 font-normal">FREE</span>
+              <span className="text-accent font-bold">FREE</span>
             ) : (
               formatPrice(shippingPaisa)
             )}
           </span>
         </div>
-        <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-sm font-normal text-[var(--color-ink)]">
+        <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-sm font-bold text-[var(--color-ink)]">
           <span>Total Amount</span>
-          <span className="font-sans text-base font-bold">{formatPrice(totalPaisa)}</span>
+          <span className="font-sans text-lg font-bold text-[var(--color-primary)]">
+            {formatPrice(totalPaisa)}
+          </span>
         </div>
       </div>
 
@@ -101,16 +105,18 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         type="button"
         onClick={onPlaceOrder}
         disabled={isProcessing || items.length === 0}
-        className="button-primary w-full py-3 text-sm shadow-xs hover:shadow-sm"
+        className="button-primary w-full py-3.5 text-sm font-semibold shadow-xs hover:shadow-sm"
       >
         <Lock className="h-4 w-4 shrink-0" />
         <span className="leading-none">
-          {isProcessing ? 'Processing payment...' : `Pay ${formatPrice(totalPaisa)}`}
+          {isProcessing
+            ? 'Processing payment...'
+            : (buttonLabel ?? `Pay ${formatPrice(totalPaisa)}`)}
         </span>
       </button>
 
-      <div className="flex items-center justify-center gap-1.5 text-xs font-normal text-[var(--color-muted)]">
-        <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" />
+      <div className="flex items-center justify-center gap-1.5 text-xs text-[var(--color-muted)]">
+        <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
         <span className="leading-none">Guaranteed 256-bit SSL encrypted payment</span>
       </div>
     </aside>
