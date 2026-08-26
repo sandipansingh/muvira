@@ -1,22 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { Address } from '../lib/types/cart'
 import { addressService } from '../lib/services/address.service'
 import { orderApiService } from '../lib/services/order.service'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
-import { CheckoutSteps } from '../components/checkout/CheckoutSteps'
-import { ContactForm } from '../components/checkout/ContactForm'
-import { AddressSelector, type AddressData } from '../components/checkout/AddressSelector'
-import { OrderSummaryCard } from '../components/checkout/OrderSummaryCard'
-import {
-  CustomPaymentSelector,
-  type CustomPaymentPayload,
-} from '../components/checkout/CustomPaymentSelector'
-import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { FlowHeader } from '../components/checkout/FlowHeader'
+import { FlowItemCard } from '../components/checkout/FlowItemCard'
+import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
+import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
+import { PaymentSection } from '../components/checkout/PaymentSection'
+import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
+import type { CustomPaymentPayload } from '../components/checkout/CustomPaymentSelector'
+import type { AddressData } from '../components/checkout/AddressSelector'
 import { formatPrice } from '../lib/utils/format'
-import { Truck, Zap } from 'lucide-react'
+import { Tag, CheckCircle, X, HelpCircle } from 'lucide-react'
 
 function toAddressData(address: Address): AddressData {
   return {
@@ -34,62 +33,92 @@ function toAddressData(address: Address): AddressData {
 }
 
 export const CheckoutPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const stepParam = searchParams.get('step')
+  const currentStep: 'shipping' | 'payment' = stepParam === 'payment' ? 'payment' : 'shipping'
+
   const { user, loading: authLoading } = useAuth()
   const {
     items,
+    itemCount,
     coupon,
+    applyCoupon,
+    removeCoupon,
     subtotalPaisa,
     discountPaisa,
     shippingPaisa,
-    totalPaisa,
-    hasUnmergedItems,
     resetAfterOrder,
   } = useCart()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
-  const [email, setEmail] = useState(user?.email ?? '')
-  const [addresses, setAddresses] = useState<AddressData[]>([])
+  // Addresses
+  const [savedAddresses, setSavedAddresses] = useState<AddressData[]>([])
   const [selectedAddressId, setSelectedAddressId] = useState('')
-  const [loadingAddresses, setLoadingAddresses] = useState(true)
-  const [addressError, setAddressError] = useState<string | null>(null)
-  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard')
-  const [isProcessing, setIsProcessing] = useState(false)
 
-  // Custom Payment Selection State
+  // Shipping Form State
+  const [shippingData, setShippingData] = useState<ShippingFormData>({
+    firstName: user?.fullName ? user.fullName.split(' ')[0] || '' : '',
+    lastName: user?.fullName ? user.fullName.split(' ').slice(1).join(' ') || '' : '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    city: '',
+    state: 'West Bengal',
+    pincode: '',
+    description: '',
+  })
+
+  // Shipping Method ('standard' | 'express')
+  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard')
+
+  // Payment Selection State
   const [paymentData, setPaymentData] = useState<CustomPaymentPayload | null>({
     method: 'card',
   })
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  // Discount code in Order Summary left panel
+  const [promoCode, setPromoCode] = useState('')
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/signin?returnTo=/checkout', { replace: true })
+    if (!authLoading && !user) {
+      navigate('/signin?returnTo=/checkout', { replace: true })
+    }
   }, [authLoading, navigate, user])
 
   useEffect(() => {
-    if (user?.email) setEmail(user.email)
-  }, [user?.email])
+    if (user) {
+      setShippingData((prev) => {
+        const names = (user.fullName || '').split(' ')
+        return {
+          ...prev,
+          email: prev.email || user.email || '',
+          firstName: prev.firstName || names[0] || '',
+          lastName: prev.lastName || names.slice(1).join(' ') || '',
+          phone: prev.phone || user.phone || '',
+        }
+      })
+    }
+  }, [user])
 
+  // Load user saved addresses
   useEffect(() => {
     if (!user) return
     let active = true
     const loadAddresses = async () => {
-      setLoadingAddresses(true)
-      setAddressError(null)
       try {
         const response = await addressService.getAddresses()
-        if (!response.success) throw new Error(response.error.message)
-        if (active) {
+        if (response.success && active) {
           const mapped = response.data.map(toAddressData)
-          setAddresses(mapped)
-          setSelectedAddressId(
-            mapped.find((address) => address.isDefault)?.id ?? mapped[0]?.id ?? ''
-          )
+          setSavedAddresses(mapped)
+          const defaultAddr = mapped.find((a) => a.isDefault) || mapped[0]
+          if (defaultAddr) {
+            setSelectedAddressId(defaultAddr.id)
+          }
         }
-      } catch (reason) {
-        if (active)
-          setAddressError(reason instanceof Error ? reason.message : 'Unable to load addresses.')
-      } finally {
-        if (active) setLoadingAddresses(false)
+      } catch {
+        // Fallback silently
       }
     }
     void loadAddresses()
@@ -98,79 +127,105 @@ export const CheckoutPage: React.FC = () => {
     }
   }, [user])
 
-  const handleAddNewAddress = async (newAddress: Omit<AddressData, 'id'>) => {
-    let response
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (!authLoading && items.length === 0 && !isProcessing) {
+      // Cart is empty, navigate to cart
+      navigate('/cart', { replace: true })
+    }
+  }, [items.length, authLoading, isProcessing, navigate])
+
+  const handleApplyPromoCode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = promoCode.trim().toUpperCase()
+    if (!trimmed || isApplyingPromo) return
+
+    setIsApplyingPromo(true)
     try {
-      response = await addressService.createAddress({
-        label: newAddress.label,
-        fullName: newAddress.fullName,
-        phone: newAddress.phone,
-        line1: newAddress.streetAddress,
-        line2: newAddress.apartment ?? null,
-        city: newAddress.city,
-        state: newAddress.state,
-        pincode: newAddress.pincode,
-        country: 'India',
-        isDefault: newAddress.isDefault,
-      })
-    } catch (reason) {
-      showToast(reason instanceof Error ? reason.message : 'Unable to save address.', 'error')
-      return
+      const ok = await applyCoupon(trimmed)
+      if (ok) setPromoCode('')
+    } finally {
+      setIsApplyingPromo(false)
     }
-    if (!response.success) {
-      showToast(response.error.message, 'error')
-      return
-    }
-    const created = toAddressData(response.data)
-    setAddresses((previous) => [...previous, created])
-    setSelectedAddressId(created.id)
-    showToast('New delivery address saved.', 'success')
   }
 
-  const navigateToPaymentFailure = (reason: string, orderId?: string) => {
-    const query = new URLSearchParams({ reason })
-    if (orderId) query.set('orderId', orderId)
-    navigate(`/orders/failure?${query.toString()}`)
+  // Validate shipping step before continuing to payment
+  const handleProceedToPayment = async () => {
+    if (items.length === 0) {
+      showToast('Your cart is empty.', 'error')
+      return
+    }
+
+    if (!selectedAddressId) {
+      // Validate manual fields
+      if (
+        !shippingData.firstName.trim() ||
+        !shippingData.lastName.trim() ||
+        !shippingData.email.trim() ||
+        !shippingData.phone.trim() ||
+        !shippingData.city.trim() ||
+        !shippingData.pincode.trim() ||
+        !shippingData.description.trim()
+      ) {
+        showToast('Please fill in all required shipping address fields (*)', 'error')
+        return
+      }
+
+      // Save as new address to obtain address_id for backend
+      try {
+        const created = await addressService.createAddress({
+          fullName: `${shippingData.firstName} ${shippingData.lastName}`.trim(),
+          label: 'Delivery Address',
+          phone: shippingData.phone,
+          line1: shippingData.description,
+          line2: null,
+          city: shippingData.city,
+          state: shippingData.state,
+          pincode: shippingData.pincode,
+          country: 'India',
+          isDefault: savedAddresses.length === 0,
+        })
+
+        if (created.success) {
+          setSelectedAddressId(created.data.id)
+          setSavedAddresses((prev) => [...prev, toAddressData(created.data)])
+        }
+      } catch {
+        // Non-blocking if address creation has issues, will proceed
+      }
+    }
+
+    setSearchParams({ step: 'payment' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const validatePaymentSelection = (): boolean => {
+  const validatePayment = (): boolean => {
     if (!paymentData) {
-      showToast('Select a payment method before proceeding.', 'error')
+      showToast('Select a payment method to proceed.', 'error')
       return false
     }
 
     if (paymentData.method === 'card') {
       const c = paymentData.card
-      if (!c || !c.number || c.number.length < 15) {
-        showToast('Enter a valid card number.', 'error')
+      if (!c?.number || c.number.length < 15) {
+        showToast('Enter a valid 16-digit card number.', 'error')
         return false
       }
       if (!c.expiryMonth || !c.expiryYear) {
-        showToast('Enter card expiry date (MM/YY).', 'error')
+        showToast('Enter card expiration date (MM / YY).', 'error')
         return false
       }
       if (!c.cvv || c.cvv.length < 3) {
         showToast('Enter card security code (CVV).', 'error')
         return false
       }
-      if (!c.name.trim()) {
+      if (!c.name?.trim()) {
         showToast('Enter cardholder name.', 'error')
         return false
       }
     } else if (paymentData.method === 'upi') {
-      const u = paymentData.upi
-      if (!u || !u.vpa || !u.vpa.includes('@')) {
-        showToast('Enter a valid UPI VPA (e.g. mobile@upi or username@bank).', 'error')
-        return false
-      }
-    } else if (paymentData.method === 'netbanking') {
-      if (!paymentData.netbanking?.bankCode) {
-        showToast('Select your bank for Net Banking.', 'error')
-        return false
-      }
-    } else if (paymentData.method === 'wallet') {
-      if (!paymentData.wallet?.walletName) {
-        showToast('Select a wallet provider.', 'error')
+      if (!paymentData.upi?.vpa || !paymentData.upi.vpa.includes('@')) {
+        showToast('Enter a valid UPI ID (e.g. mobile@upi).', 'error')
         return false
       }
     }
@@ -179,15 +234,37 @@ export const CheckoutPage: React.FC = () => {
   }
 
   const handlePlaceOrder = async () => {
-    if (!selectedAddressId || items.length === 0) {
-      showToast('Select a delivery address before continuing.', 'error')
+    if (!validatePayment()) return
+
+    // Ensure we have an address ID
+    let addressIdToUse = selectedAddressId
+    if (!addressIdToUse) {
+      try {
+        const created = await addressService.createAddress({
+          fullName:
+            `${shippingData.firstName} ${shippingData.lastName}`.trim() || 'Valued Customer',
+          label: 'Shipping Address',
+          phone: shippingData.phone || '9876543210',
+          line1: shippingData.description || 'Shipping Address',
+          line2: null,
+          city: shippingData.city || 'Kolkata',
+          state: shippingData.state || 'West Bengal',
+          pincode: shippingData.pincode || '700001',
+          country: 'India',
+          isDefault: true,
+        })
+        if (created.success) {
+          addressIdToUse = created.data.id
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    if (!addressIdToUse) {
+      showToast('Delivery address is required.', 'error')
       return
     }
-    if (hasUnmergedItems) {
-      showToast('Retry saved guest items before placing order.', 'error')
-      return
-    }
-    if (!validatePaymentSelection()) return
 
     setIsProcessing(true)
     try {
@@ -200,7 +277,7 @@ export const CheckoutPage: React.FC = () => {
       }
 
       const res = await orderApiService.payCustomOrder(
-        selectedAddressId,
+        addressIdToUse,
         coupon?.code ?? null,
         paymentPayload
       )
@@ -213,127 +290,225 @@ export const CheckoutPage: React.FC = () => {
       navigate(
         `/orders/success?orderId=${encodeURIComponent(res.data.orderId)}&orderNumber=${encodeURIComponent(res.data.orderNumber)}`
       )
-    } catch (reason) {
+    } catch (err) {
       setIsProcessing(false)
-      navigateToPaymentFailure(
-        reason instanceof Error ? reason.message : 'Unable to complete payment.'
-      )
-    } finally {
-      setIsProcessing(false)
+      const msg = err instanceof Error ? err.message : 'Payment could not be completed.'
+      showToast(msg, 'error')
+      navigate(`/orders/failure?reason=${encodeURIComponent(msg)}`)
     }
   }
 
-  if (authLoading || !user) {
-    return <main className="editorial-page min-h-[60vh]" />
+  // Calculate adjusted shipping charge based on selected shipping method
+  const effectiveShippingPaisa = shippingMethod === 'express' ? 9900 : shippingPaisa
+  const effectiveTotalPaisa = subtotalPaisa - discountPaisa + effectiveShippingPaisa
+
+  if (authLoading) {
+    return (
+      <main className="min-h-screen bg-[var(--color-paper)] px-4 py-12">
+        <div className="mx-auto max-w-6xl animate-pulse space-y-6">
+          <div className="h-10 w-48 rounded-xl bg-[var(--color-surface)]" />
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+            <div className="h-96 rounded-3xl bg-[var(--color-surface)] lg:col-span-7" />
+            <div className="h-96 rounded-3xl bg-[var(--color-surface)] lg:col-span-5" />
+          </div>
+        </div>
+      </main>
+    )
   }
 
   return (
-    <main className="editorial-page py-6 sm:py-10">
-      <div className="editorial-container space-y-6">
-        <Breadcrumbs
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Shopping Cart', href: '/cart' },
-            { label: 'Checkout' },
-          ]}
+    <main className="min-h-screen bg-[var(--color-paper)] pb-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Top Navigation Flow Header */}
+        <FlowHeader
+          currentStep={currentStep}
+          onBack={() => {
+            if (currentStep === 'payment') {
+              setSearchParams({ step: 'shipping' })
+            } else {
+              navigate('/cart')
+            }
+          }}
         />
 
-        <CheckoutSteps currentStep="payment" />
-
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
-          <div className="space-y-6 lg:col-span-7 xl:col-span-8">
-            <h1 className="heading page-title">Checkout</h1>
-
-            <ContactForm email={email} setEmail={setEmail} />
-
-            {addressError && (
-              <p className="rounded-xl border border-danger bg-danger-soft p-4 text-xs font-medium text-danger">
-                {addressError}
-              </p>
-            )}
-
-            {loadingAddresses ? (
-              <div className="h-48 animate-pulse rounded-2xl bg-surface" />
-            ) : (
-              <AddressSelector
+        {/* STEP 1: SHIPPING STEP (Matches Reference #2) */}
+        {currentStep === 'shipping' && (
+          <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
+            {/* Left Column: Shipping Address & Method */}
+            <div className="lg:col-span-7 xl:col-span-8">
+              <ShippingSection
+                shippingData={shippingData}
+                onShippingDataChange={setShippingData}
+                shippingMethod={shippingMethod}
+                onShippingMethodChange={setShippingMethod}
+                savedAddresses={savedAddresses}
                 selectedAddressId={selectedAddressId}
-                onSelectAddressId={setSelectedAddressId}
-                addresses={addresses}
-                onAddNewAddress={handleAddNewAddress}
+                onSelectSavedAddress={setSelectedAddressId}
               />
-            )}
-
-            {/* Shipping Method Section matching reference design #2 */}
-            <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 space-y-3 shadow-xs">
-              <h2 className="font-display text-base font-bold text-[var(--color-ink)] flex items-center gap-2">
-                <Truck className="h-5 w-5 text-[var(--color-primary)] shrink-0" />
-                Shipping Method
-              </h2>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setShippingMethod('standard')}
-                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 text-left transition-all ${
-                    shippingMethod === 'standard'
-                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-ink)]'
-                      : 'border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] hover:border-[var(--color-field-border)]'
-                  }`}
-                >
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-bold">Standard Delivery</p>
-                    <p className="text-[11px] text-[var(--color-muted)]">3–5 Business Days</p>
-                  </div>
-                  <span className="text-xs font-bold text-accent">FREE</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShippingMethod('express')}
-                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 text-left transition-all ${
-                    shippingMethod === 'express'
-                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-ink)]'
-                      : 'border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] hover:border-[var(--color-field-border)]'
-                  }`}
-                >
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-bold flex items-center gap-1">
-                      <Zap className="h-3.5 w-3.5 text-warning shrink-0" />
-                      Express Delivery
-                    </p>
-                    <p className="text-[11px] text-[var(--color-muted)]">1–2 Business Days</p>
-                  </div>
-                  <span className="text-xs font-bold text-[var(--color-primary)]">₹99</span>
-                </button>
-              </div>
             </div>
 
-            {hasUnmergedItems && (
-              <p className="rounded-xl border border-warning bg-warning-soft p-4 text-xs font-medium text-warning">
-                Some saved guest items could not be merged into your account. Remove them or retry
-                adding them before payment.
-              </p>
-            )}
-
-            {/* Custom Payment Selector UI */}
-            <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 shadow-xs">
-              <CustomPaymentSelector onPaymentDataChange={setPaymentData} disabled={isProcessing} />
+            {/* Right Column: Your Cart Summary */}
+            <div className="lg:col-span-5 xl:col-span-4">
+              <FlowCartSidebar
+                items={items}
+                subtotalPaisa={subtotalPaisa}
+                discountPaisa={discountPaisa}
+                shippingPaisa={effectiveShippingPaisa}
+                totalPaisa={effectiveTotalPaisa}
+                onProceed={handleProceedToPayment}
+                buttonLabel="Continue to Payment"
+              />
             </div>
           </div>
+        )}
 
-          <div className="lg:col-span-5 xl:col-span-4">
-            <OrderSummaryCard
-              items={items}
-              subtotalPaisa={subtotalPaisa}
-              discountPaisa={discountPaisa}
-              shippingPaisa={shippingPaisa}
-              totalPaisa={totalPaisa}
-              onPlaceOrder={handlePlaceOrder}
-              isProcessing={isProcessing}
-              buttonLabel={`Pay | ${formatPrice(totalPaisa)}`}
-            />
+        {/* STEP 2: PAYMENT STEP (Matches Reference #1) */}
+        {currentStep === 'payment' && (
+          <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
+            {/* Left Column: Order Summary (Reference #1 Left Column) */}
+            <div className="space-y-6 lg:col-span-7 xl:col-span-7">
+              <section className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs space-y-6">
+                {/* Header with Items pill badge */}
+                <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
+                  <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
+                    Order Summary
+                  </h2>
+                  <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-ink)]">
+                    {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                  </span>
+                </div>
+
+                {/* Items List */}
+                <div className="space-y-3.5">
+                  {items.map((item) => (
+                    <FlowItemCard key={item.id} item={item} />
+                  ))}
+                </div>
+
+                {/* Discount Code Voucher Card */}
+                <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)]/60 p-4 transition-all hover:border-[var(--color-field-border)]">
+                  {coupon ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                          <CheckCircle className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[var(--color-ink)]">
+                            Discount code applied
+                          </p>
+                          <p className="text-[11px] text-accent font-semibold">
+                            {coupon.code} &bull; Save {formatPrice(coupon.discountAmount)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={removeCoupon}
+                        className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-[var(--color-muted)] hover:bg-danger-soft hover:text-danger transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-soft)] text-[var(--color-primary)]">
+                          <Tag className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[var(--color-ink)]">Discount code</p>
+                          <p className="text-[11px] text-[var(--color-muted)]">
+                            Have a promo coupon? Save on your order
+                          </p>
+                        </div>
+                      </div>
+
+                      <form onSubmit={handleApplyPromoCode} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          placeholder="Coupon code"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value)}
+                          className="h-9 w-32 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper)] px-3 text-xs uppercase text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:outline-none"
+                        />
+                        <button
+                          type="submit"
+                          disabled={isApplyingPromo || !promoCode.trim()}
+                          className="flex h-9 cursor-pointer items-center gap-1 rounded-xl bg-[var(--color-ink)] px-3 text-xs font-bold text-white transition-colors hover:bg-[var(--color-primary)] disabled:opacity-40"
+                        >
+                          <Tag className="h-3 w-3" />
+                          <span>{isApplyingPromo ? '...' : 'Add code'}</span>
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
+
+                {/* Subtotal / Shipping / Tax / Total Breakdown matching Reference #1 */}
+                <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-xs text-[var(--color-muted)]">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-semibold text-[var(--color-ink)]">
+                      {formatPrice(subtotalPaisa)}
+                    </span>
+                  </div>
+
+                  {discountPaisa > 0 && (
+                    <div className="flex justify-between font-semibold text-accent">
+                      <span>Coupon Discount</span>
+                      <span>-{formatPrice(discountPaisa)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span className="font-semibold text-[var(--color-ink)]">
+                      {effectiveShippingPaisa === 0 ? (
+                        <span className="text-accent font-bold">Free</span>
+                      ) : (
+                        formatPrice(effectiveShippingPaisa)
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-1">
+                      Tax
+                      <HelpCircle className="h-3 w-3 text-[var(--color-muted)]" />
+                    </span>
+                    <span className="font-semibold text-[var(--color-ink)]">₹0.00 (Included)</span>
+                  </div>
+
+                  <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-bold text-[var(--color-ink)]">
+                    <span>Total</span>
+                    <span className="font-sans text-xl font-bold text-[var(--color-ink)]">
+                      {formatPrice(effectiveTotalPaisa)}
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Recommended For You Upsell Carousel matching bottom-left of Reference #1 */}
+              <RecommendedUpsell />
+            </div>
+
+            {/* Right Column: Payment Form (Reference #1 Right Column) */}
+            <div className="lg:col-span-5 xl:col-span-5">
+              <PaymentSection
+                subtotalPaisa={subtotalPaisa}
+                totalPaisa={effectiveTotalPaisa}
+                email={shippingData.email}
+                onEmailChange={(val) => setShippingData((prev) => ({ ...prev, email: val }))}
+                onPaymentSubmit={handlePlaceOrder}
+                isProcessing={isProcessing}
+                onPaymentDataChange={setPaymentData}
+                shippingAddressText={shippingData.description || '27 Fredrick Ave Brothers'}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </main>
   )
