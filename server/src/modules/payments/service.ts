@@ -23,7 +23,7 @@ import type { VerifyPaymentInput } from './schema'
 //   - Razorpay retries webhooks on non-2xx responses (duplicates are normal)
 //
 
-async function capturePayment(
+export async function capturePayment(
   razorpayOrderId: string,
   razorpayPaymentId: string,
   razorpaySignature: string

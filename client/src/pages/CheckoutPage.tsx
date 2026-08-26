@@ -15,43 +15,8 @@ import {
   type CustomPaymentPayload,
 } from '../components/checkout/CustomPaymentSelector'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
-
-interface RazorpayPaymentResponse {
-  razorpay_order_id: string
-  razorpay_payment_id: string
-  razorpay_signature: string
-}
-
-interface RazorpayCustomOptions {
-  key: string
-  amount: number
-  currency: string
-  name: string
-  description: string
-  order_id: string
-  prefill: { name: string; email: string; contact: string }
-  method?: string
-  'card[number]'?: string
-  'card[expiry_month]'?: string
-  'card[expiry_year]'?: string
-  'card[cvv]'?: string
-  'card[name]'?: string
-  'upi[vpa]'?: string
-  bank?: string
-  wallet?: string
-  handler: (response: RazorpayPaymentResponse) => void
-  modal: { ondismiss: () => void }
-}
-
-interface RazorpayInstance {
-  open: () => void
-}
-
-declare global {
-  interface Window {
-    Razorpay?: new (options: RazorpayCustomOptions) => RazorpayInstance
-  }
-}
+import { formatPrice } from '../lib/utils/format'
+import { Truck, Zap } from 'lucide-react'
 
 function toAddressData(address: Address): AddressData {
   return {
@@ -88,6 +53,7 @@ export const CheckoutPage: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState('')
   const [loadingAddresses, setLoadingAddresses] = useState(true)
   const [addressError, setAddressError] = useState<string | null>(null)
+  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard')
   const [isProcessing, setIsProcessing] = useState(false)
 
   // Custom Payment Selection State
@@ -225,92 +191,35 @@ export const CheckoutPage: React.FC = () => {
 
     setIsProcessing(true)
     try {
-      // Step 1: Create Order on server
-      const orderResponse = await orderApiService.createOrder(
+      const paymentPayload: Record<string, unknown> = {
+        method: paymentData!.method,
+        card: paymentData!.card,
+        upi: paymentData!.upi,
+        netbanking: paymentData!.netbanking,
+        wallet: paymentData!.wallet,
+      }
+
+      const res = await orderApiService.payCustomOrder(
         selectedAddressId,
-        coupon?.code ?? null
+        coupon?.code ?? null,
+        paymentPayload
       )
-      if (!orderResponse.success) throw new Error(orderResponse.error.message)
-      const order = orderResponse.data
 
-      const Razorpay = window.Razorpay
-      if (!Razorpay) throw new Error('Razorpay SDK failed to load. Please refresh.')
-
-      // Step 2: Build Custom Checkout Options
-      const rzpOptions: RazorpayCustomOptions = {
-        key: order.razorpayKeyId,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'Muvira',
-        description: `Order #${order.orderNumber}`,
-        order_id: order.razorpayOrderId,
-        prefill: {
-          name: user?.fullName ?? '',
-          email,
-          contact: user?.phone ?? '',
-        },
-        handler: (paymentResponse) => {
-          void (async () => {
-            try {
-              const verification = await orderApiService.verifyPayment(
-                paymentResponse.razorpay_order_id,
-                paymentResponse.razorpay_payment_id,
-                paymentResponse.razorpay_signature
-              )
-              if (!verification.success || !verification.data.verified) {
-                throw new Error(
-                  verification.success ? 'Payment verification failed.' : verification.error.message
-                )
-              }
-              resetAfterOrder()
-              navigate(
-                `/orders/success?orderId=${encodeURIComponent(verification.data.orderId)}&orderNumber=${encodeURIComponent(verification.data.orderNumber)}`
-              )
-            } catch (reason) {
-              navigateToPaymentFailure(
-                reason instanceof Error ? reason.message : 'Payment verification failed.',
-                order.orderId
-              )
-            } finally {
-              setIsProcessing(false)
-            }
-          })()
-        },
-        modal: {
-          ondismiss: () => {
-            setIsProcessing(false)
-            showToast('Payment was cancelled.', 'error')
-          },
-        },
+      if (!res.success) {
+        throw new Error(res.error.message)
       }
 
-      // Attach Custom Payment Parameters
-      if (paymentData?.method === 'card' && paymentData.card) {
-        rzpOptions.method = 'card'
-        rzpOptions['card[number]'] = paymentData.card.number
-        rzpOptions['card[expiry_month]'] = paymentData.card.expiryMonth
-        rzpOptions['card[expiry_year]'] = paymentData.card.expiryYear
-        rzpOptions['card[cvv]'] = paymentData.card.cvv
-        rzpOptions['card[name]'] = paymentData.card.name
-      } else if (paymentData?.method === 'upi' && paymentData.upi) {
-        rzpOptions.method = 'upi'
-        rzpOptions['upi[vpa]'] = paymentData.upi.vpa
-      } else if (paymentData?.method === 'netbanking' && paymentData.netbanking) {
-        rzpOptions.method = 'netbanking'
-        rzpOptions.bank = paymentData.netbanking.bankCode
-      } else if (paymentData?.method === 'wallet' && paymentData.wallet) {
-        rzpOptions.method = 'wallet'
-        rzpOptions.wallet = paymentData.wallet.walletName
-      }
-
-      // Initiate Custom Razorpay Payment
-      const paymentInstance = new Razorpay(rzpOptions)
-      paymentInstance.open()
+      resetAfterOrder()
+      navigate(
+        `/orders/success?orderId=${encodeURIComponent(res.data.orderId)}&orderNumber=${encodeURIComponent(res.data.orderNumber)}`
+      )
     } catch (reason) {
       setIsProcessing(false)
       navigateToPaymentFailure(
-        reason instanceof Error ? reason.message : 'Unable to initiate payment.'
+        reason instanceof Error ? reason.message : 'Unable to complete payment.'
       )
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -354,6 +263,51 @@ export const CheckoutPage: React.FC = () => {
               />
             )}
 
+            {/* Shipping Method Section matching reference design #2 */}
+            <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 space-y-3 shadow-xs">
+              <h2 className="font-display text-base font-bold text-[var(--color-ink)] flex items-center gap-2">
+                <Truck className="h-5 w-5 text-[var(--color-primary)] shrink-0" />
+                Shipping Method
+              </h2>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setShippingMethod('standard')}
+                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 text-left transition-all ${
+                    shippingMethod === 'standard'
+                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-ink)]'
+                      : 'border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] hover:border-[var(--color-field-border)]'
+                  }`}
+                >
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold">Standard Delivery</p>
+                    <p className="text-[11px] text-[var(--color-muted)]">3–5 Business Days</p>
+                  </div>
+                  <span className="text-xs font-bold text-accent">FREE</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShippingMethod('express')}
+                  className={`flex cursor-pointer items-center justify-between rounded-xl border p-4 text-left transition-all ${
+                    shippingMethod === 'express'
+                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] text-[var(--color-ink)]'
+                      : 'border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] hover:border-[var(--color-field-border)]'
+                  }`}
+                >
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold flex items-center gap-1">
+                      <Zap className="h-3.5 w-3.5 text-warning shrink-0" />
+                      Express Delivery
+                    </p>
+                    <p className="text-[11px] text-[var(--color-muted)]">1–2 Business Days</p>
+                  </div>
+                  <span className="text-xs font-bold text-[var(--color-primary)]">₹99</span>
+                </button>
+              </div>
+            </div>
+
             {hasUnmergedItems && (
               <p className="rounded-xl border border-warning bg-warning-soft p-4 text-xs font-medium text-warning">
                 Some saved guest items could not be merged into your account. Remove them or retry
@@ -376,6 +330,7 @@ export const CheckoutPage: React.FC = () => {
               totalPaisa={totalPaisa}
               onPlaceOrder={handlePlaceOrder}
               isProcessing={isProcessing}
+              buttonLabel={`Pay | ${formatPrice(totalPaisa)}`}
             />
           </div>
         </div>
