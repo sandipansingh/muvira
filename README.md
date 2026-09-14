@@ -81,7 +81,7 @@ npm run db:migrate
 
 This command pushes migrations to the linked Supabase project. Review its target before running it. Application deployment must wait for the migration step to succeed and for `/api/health/ready` to return HTTP 200.
 
-`supabase/schema.sql` is an exported snapshot for inspection, not the migration runner. Regenerate it from a database that has replayed all migrations when a fresh canonical dump is required.
+Generated schema dumps are intentionally untracked because the previous snapshot drifted from the migration chain and retained unsafe legacy grants. Produce a temporary dump only from a database that has successfully replayed all migrations; never use a dump as the migration runner.
 
 ## Production deployment
 

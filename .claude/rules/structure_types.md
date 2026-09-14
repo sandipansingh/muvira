@@ -34,4 +34,4 @@
 - Add preflight validation before tightening constraints over existing rows.
 - Multi-record commerce changes belong in a transactional, service-role-only database function.
 - RLS policies and grants must be tested with anonymous, customer, admin, and service-role identities.
-- `supabase/schema.sql` is an inspection snapshot, not a substitute for migration replay.
+- Generated schema dumps are untracked and are never a substitute for migration replay.
