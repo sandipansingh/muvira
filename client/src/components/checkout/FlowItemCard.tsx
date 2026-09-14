@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, X, ChevronDown } from 'lucide-react'
+import { X, ChevronDown } from 'lucide-react'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -12,7 +12,6 @@ export interface FlowItemCardProps {
 
 export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPicker = true }) => {
   const { updateQuantity, removeFromCart, loading } = useCart()
-  const [isLiked, setIsLiked] = useState(false)
   const [isQtyMenuOpen, setIsQtyMenuOpen] = useState(false)
 
   const handleQtySelect = async (qty: number) => {
@@ -29,7 +28,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
 
   return (
     <article className="relative flex items-start gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-3.5 sm:gap-4 sm:p-4 shadow-xs transition-all hover:border-[var(--color-field-border)]">
-      {/* Product Image with Heart badge */}
+      {/* Product image */}
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-24 sm:w-24">
         {item.productImage ? (
           <img
@@ -42,20 +41,6 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
             No image
           </div>
         )}
-
-        {/* Favorite heart overlay on top corner */}
-        <button
-          type="button"
-          onClick={() => setIsLiked(!isLiked)}
-          aria-label={isLiked ? 'Remove from wishlist' : 'Save to wishlist'}
-          className={`absolute right-1.5 top-1.5 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full backdrop-blur-md transition-all ${
-            isLiked
-              ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary)]'
-              : 'bg-white/80 text-[var(--color-muted)] hover:text-[var(--color-ink)]'
-          }`}
-        >
-          <Heart className={`h-3 w-3 ${isLiked ? 'fill-current' : ''}`} />
-        </button>
 
         {/* Item count marker on bottom left */}
         <span className="absolute bottom-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-ink)]/70 text-[9px] font-bold text-white">
@@ -73,16 +58,12 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
             {item.productName}
           </Link>
           <p className="mt-0.5 text-xs text-[var(--color-muted)]">
-            Handcrafted Art &bull; <span className="text-accent font-medium">In Stock</span>
+            {item.inStock ? `${item.availableStock} available` : 'Currently unavailable'}
           </p>
         </div>
 
         {/* Variant & Quantity Pills */}
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <span className="inline-flex items-center rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-[11px] font-medium text-[var(--color-ink-soft)]">
-            Handmade Edition
-          </span>
-
           {showQuantityPicker && (
             <div className="relative">
               <button
@@ -97,7 +78,10 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
 
               {isQtyMenuOpen && (
                 <div className="absolute left-0 top-full z-20 mt-1 max-h-36 w-20 overflow-y-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] p-1 shadow-lg">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                  {Array.from(
+                    { length: Math.min(10, item.availableStock) },
+                    (_, index) => index + 1
+                  ).map((num) => (
                     <button
                       key={num}
                       type="button"

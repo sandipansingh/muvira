@@ -24,6 +24,7 @@ export const ProductDetailPage: React.FC = () => {
     avgRating: null,
     totalReviews: 0,
   })
+  const [reviewError, setReviewError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [openAccordionSection, setOpenAccordionSection] = useState<string | null>('description')
@@ -40,10 +41,17 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   const loadReviews = useCallback(async (productId: string) => {
-    const response = await reviewService.getProductReviews(productId)
-    if (!response.success) throw new Error(response.error.message)
-    setReviews(response.data)
-    setReviewSummary(response.summary)
+    setReviewError(null)
+    try {
+      const response = await reviewService.getProductReviews(productId)
+      if (!response.success) throw new Error(response.error.message)
+      setReviews(response.data)
+      setReviewSummary(response.summary)
+    } catch (reason) {
+      setReviews([])
+      setReviewSummary({ avgRating: null, totalReviews: 0 })
+      setReviewError(reason instanceof Error ? reason.message : 'Unable to load reviews.')
+    }
   }, [])
 
   useEffect(() => {
@@ -59,7 +67,7 @@ export const ProductDetailPage: React.FC = () => {
         const productData = response.data
         const [relatedResponse] = await Promise.all([
           productService.getRelatedProducts(productData.id),
-          loadReviews(productData.id).catch(() => undefined),
+          loadReviews(productData.id),
         ])
         if (active) {
           setProduct(productData)
@@ -135,7 +143,7 @@ export const ProductDetailPage: React.FC = () => {
               images={product.images}
               title={product.name}
               isNew={product.isFeatured}
-              discountPercent={product.discountPercent || 50}
+              discountPercent={product.discountPercent}
             />
           </div>
           <div className="lg:col-span-6 xl:col-span-6 lg:sticky lg:top-24 lg:self-start">
@@ -149,10 +157,12 @@ export const ProductDetailPage: React.FC = () => {
             product={product}
             reviews={reviews}
             ratingAvg={reviewSummary.avgRating ?? product.rating ?? null}
-            reviewCount={reviewSummary.totalReviews || product.reviewCount || 11}
+            reviewCount={reviewSummary.totalReviews || product.reviewCount || 0}
+            reviewError={reviewError}
             openSection={openAccordionSection}
             onToggleSection={handleToggleSection}
             onReviewSubmitted={() => loadReviews(product.id)}
+            onReviewRetry={() => loadReviews(product.id)}
           />
         </div>
 
@@ -161,7 +171,7 @@ export const ProductDetailPage: React.FC = () => {
           <section className="mt-12 pt-8">
             <SectionHeader
               title="You May Also Like"
-              subtitle="Handcrafted pieces from the same master artisan workshops"
+              subtitle={`More products from ${product.category.name}`}
             />
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {relatedProducts.slice(0, 5).map((related) => (

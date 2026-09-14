@@ -33,7 +33,7 @@ export const CartPage: React.FC = () => {
             Your cart is empty
           </h1>
           <p className="mx-auto mt-3 max-w-sm text-sm text-[var(--color-muted)]">
-            Explore our curated collections of handcrafted wooden decor, statues, and home art.
+            Browse the current catalog to add products to your cart.
           </p>
           <Link
             to="/shop"

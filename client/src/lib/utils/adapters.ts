@@ -400,9 +400,7 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       imageUrl: (b['imageUrl'] as string) ?? (b['image_url'] as string) ?? '',
       link: (b['link'] as string) ?? '/',
     })),
-    storeDescription:
-      (raw['store_description'] as string) ??
-      'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
+    storeDescription: (raw['store_description'] as string) ?? '',
     shippingRules: {
       shippingChargePaisa: (shippingRaw['shipping_charge_paisa'] as number) ?? 15000,
       freeShippingThresholdPaisa:

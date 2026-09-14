@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react'
-import { Star, ThumbsDown, ThumbsUp } from 'lucide-react'
-import type { ProductReview } from '../../lib/types/product'
+import { Star } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { reviewService } from '../../lib/services/review.service'
+import type { ProductReview } from '../../lib/types/product'
 import { RatingStars } from '../common/RatingStars'
 import { Modal } from '../common/Modal'
 import { Button, Dropdown, Textarea } from '../ui'
@@ -14,108 +14,16 @@ interface ReviewsSectionProps {
   ratingAvg: number | null
   reviewCount: number
   reviews: ProductReview[]
+  error?: string | null
+  onRetry?: () => Promise<void>
   onReviewSubmitted?: () => Promise<void>
 }
 
-interface ReviewFeedback {
-  liked?: boolean
-  disliked?: boolean
-  likes: number
-  dislikes: number
-}
-
-/* Authentic editorial reviews for handcrafted craft products */
-const fallbackReviews: ProductReview[] = [
-  {
-    id: 'mock-1',
-    productId: '',
-    userId: 'u1',
-    userName: 'Sofia Harvertz',
-    rating: 5,
-    comment:
-      'The craftsmanship on this piece is truly remarkable. The natural stone texture is smooth, the detailing is sharp, and it arrived in pristine wooden crate packaging. A stunning centerpiece for our home.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
-  },
-  {
-    id: 'mock-2',
-    productId: '',
-    userId: 'u2',
-    userName: 'Nicolas Jensen',
-    rating: 5,
-    comment:
-      'Exceeded my expectations in quality and weight. You can immediately tell it is hand-hewn by master artisans. It has that genuine heirloom feel you rarely find nowadays.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12).toISOString(),
-  },
-  {
-    id: 'mock-3',
-    productId: '',
-    userId: 'u3',
-    userName: 'Priya Sharma',
-    rating: 4,
-    comment:
-      'Delivered within 3 days in robust packaging. The finish and natural grain give it an authentic, sacred aura. Very pleased with Muvira’s service and product quality.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 20).toISOString(),
-  },
-  {
-    id: 'mock-4',
-    productId: '',
-    userId: 'u4',
-    userName: 'Rajesh Nair',
-    rating: 5,
-    comment:
-      'Sturdy, beautifully balanced, and matches our prayer room decor perfectly. Premium packaging ensured zero transit damage. Will definitely order from here again.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 35).toISOString(),
-  },
-  {
-    id: 'mock-5',
-    productId: '',
-    userId: 'u5',
-    userName: 'Ananya Mukherjee',
-    rating: 5,
-    comment:
-      'Solid natural stone with intricate detailing. The proportions are just right, and it feels built to last generations.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 48).toISOString(),
-  },
-  {
-    id: 'mock-6',
-    productId: '',
-    userId: 'u6',
-    userName: 'Vikram Sengupta',
-    rating: 5,
-    comment:
-      'Outstanding finish quality. The Jaipur craftsmanship is evident in every curve. Very satisfied with the prompt delivery and safe crate shipping.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(),
-  },
-  {
-    id: 'mock-7',
-    productId: '',
-    userId: 'u7',
-    userName: 'Kavita Menon',
-    rating: 4,
-    comment:
-      'Beautiful aesthetic and rich organic texture. Looks even better in person than in photos. Highly recommend!',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 72).toISOString(),
-  },
-  {
-    id: 'mock-8',
-    productId: '',
-    userId: 'u8',
-    userName: 'Aarav Patel',
-    rating: 5,
-    comment:
-      'The attention to detail and weight of the product show incredible artisan dedication. Excellent addition to our living space.',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(),
-  },
-]
-
 const formatReviewDate = (dateString?: string) => {
-  if (!dateString) return 'Recently'
-  try {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
-  } catch {
-    return 'Recently'
-  }
+  if (!dateString) return 'Date unavailable'
+  const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return 'Date unavailable'
+  return date.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 const ratingLabels: Record<number, string> = {
@@ -132,6 +40,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   ratingAvg,
   reviewCount,
   reviews,
+  error,
+  onRetry,
   onReviewSubmitted,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -141,64 +51,28 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   const [submitting, setSubmitting] = useState(false)
   const [selectedStarFilter, setSelectedStarFilter] = useState<number | null>(null)
   const [sortOption, setSortOption] = useState<'newest' | 'highest' | 'lowest'>('newest')
-  const [visibleCount, setVisibleCount] = useState(3)
-  const [feedback, setFeedback] = useState<Record<string, ReviewFeedback>>({})
   const { isAuthenticated } = useAuth()
   const { showToast } = useToast()
 
-  const allReviews: ProductReview[] = useMemo(() => {
-    return reviews.length > 0 ? reviews : fallbackReviews
+  const distribution = useMemo(() => {
+    const counts: Record<1 | 2 | 3 | 4 | 5, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    reviews.forEach((review) => {
+      const star = Math.min(5, Math.max(1, Math.round(review.rating))) as 1 | 2 | 3 | 4 | 5
+      counts[star] += 1
+    })
+    return counts
   }, [reviews])
 
-  /* Rating Distribution Metrics */
-  const distribution = useMemo(() => {
-    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-    allReviews.forEach((r) => {
-      const star = Math.min(5, Math.max(1, Math.round(r.rating))) as 1 | 2 | 3 | 4 | 5
-      counts[star] = (counts[star] || 0) + 1
+  const filteredReviews = useMemo(() => {
+    const list = selectedStarFilter
+      ? reviews.filter((review) => Math.round(review.rating) === selectedStarFilter)
+      : [...reviews]
+    return list.sort((a, b) => {
+      if (sortOption === 'highest') return b.rating - a.rating
+      if (sortOption === 'lowest') return a.rating - b.rating
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
-    const total = allReviews.length || 1
-    const recommendCount = (counts[5] || 0) + (counts[4] || 0)
-    const recommendPercent = Math.round((recommendCount / total) * 100)
-
-    return {
-      counts,
-      percentages: {
-        5: Math.round((counts[5] / total) * 100),
-        4: Math.round((counts[4] / total) * 100),
-        3: Math.round((counts[3] / total) * 100),
-        2: Math.round((counts[2] / total) * 100),
-        1: Math.round((counts[1] / total) * 100),
-      },
-      recommendPercent,
-    }
-  }, [allReviews])
-
-  /* Filtered & Sorted Reviews */
-  const filteredAndSortedReviews = useMemo(() => {
-    let list = [...allReviews]
-
-    if (selectedStarFilter !== null) {
-      list = list.filter((r) => Math.round(r.rating) === selectedStarFilter)
-    }
-
-    if (sortOption === 'highest') {
-      list.sort((a, b) => b.rating - a.rating)
-    } else if (sortOption === 'lowest') {
-      list.sort((a, b) => a.rating - b.rating)
-    } else {
-      list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    }
-
-    return list
-  }, [allReviews, selectedStarFilter, sortOption])
-
-  const effectiveRating =
-    ratingAvg ??
-    (allReviews.length > 0
-      ? allReviews.reduce((acc, curr) => acc + curr.rating, 0) / allReviews.length
-      : 5)
-  const totalReviewDisplay = reviewCount || allReviews.length
+  }, [reviews, selectedStarFilter, sortOption])
 
   const handleReviewSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -210,18 +84,16 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       showToast('Please provide a review comment.', 'info')
       return
     }
+
     setSubmitting(true)
     try {
       const response = await reviewService.submitReview(productId, newRating, newComment.trim())
-      if (response.success) {
-        showToast('Your review has been submitted successfully.', 'success')
-        setIsModalOpen(false)
-        setNewComment('')
-        setNewRating(5)
-        await onReviewSubmitted?.()
-      } else {
-        showToast(response.error.message, 'error')
-      }
+      if (!response.success) throw new Error(response.error.message)
+      showToast('Your review has been submitted.', 'success')
+      setIsModalOpen(false)
+      setNewComment('')
+      setNewRating(5)
+      await onReviewSubmitted?.()
     } catch (reason) {
       showToast(reason instanceof Error ? reason.message : 'Unable to save review.', 'error')
     } finally {
@@ -229,262 +101,127 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
     }
   }
 
-  const handleLike = (id: string) => {
-    setFeedback((prev) => {
-      const current = prev[id] || { likes: 0, dislikes: 0 }
-      if (current.liked) {
-        return {
-          ...prev,
-          [id]: { ...current, liked: false, likes: Math.max(0, current.likes - 1) },
-        }
-      }
-      return {
-        ...prev,
-        [id]: {
-          likes: current.likes + 1,
-          dislikes: current.disliked ? Math.max(0, current.dislikes - 1) : current.dislikes,
-          liked: true,
-          disliked: false,
-        },
-      }
-    })
-  }
-
-  const handleDislike = (id: string) => {
-    setFeedback((prev) => {
-      const current = prev[id] || { likes: 0, dislikes: 0 }
-      if (current.disliked) {
-        return {
-          ...prev,
-          [id]: { ...current, disliked: false, dislikes: Math.max(0, current.dislikes - 1) },
-        }
-      }
-      return {
-        ...prev,
-        [id]: {
-          likes: current.liked ? Math.max(0, current.likes - 1) : current.likes,
-          dislikes: current.dislikes + 1,
-          liked: false,
-          disliked: true,
-        },
-      }
-    })
-  }
-
   return (
     <div className="space-y-6 py-4">
-      {/* Rating Summary Block (Uncarded, matching reference images 2 & 3) */}
-      <div className="py-2">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-10">
-          {/* Big Score Display (Left column with vertical divider) */}
-          <div className="flex flex-col items-start justify-center space-y-1.5 md:border-r md:border-line/60 md:pr-10">
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-sans text-5xl font-bold tracking-tight text-ink sm:text-6xl">
-                {effectiveRating.toFixed(1)}
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+        <div>
+          <h3 className="font-display text-xl font-semibold leading-tight text-ink">
+            Customer reviews
+          </h3>
+          {ratingAvg !== null && reviewCount > 0 ? (
+            <div className="mt-2 flex items-center gap-2">
+              <RatingStars rating={ratingAvg} size="sm" />
+              <span className="text-sm text-ink">
+                {ratingAvg.toFixed(1)} from {reviewCount} verified{' '}
+                {reviewCount === 1 ? 'review' : 'reviews'}
               </span>
-              <span className="text-sm font-normal text-muted sm:text-base">out of 5</span>
             </div>
-            <RatingStars rating={effectiveRating} size="md" />
-            <p className="text-xs font-normal text-muted pt-0.5">({totalReviewDisplay} Reviews)</p>
-          </div>
-
-          {/* Rating Histogram Bars (Right column matching reference images 2 & 3) */}
-          <div className="w-full max-w-md space-y-2">
-            {([5, 4, 3, 2, 1] as const).map((stars) => {
-              const percent = distribution.percentages[stars] || 0
-              const isSelected = selectedStarFilter === stars
-              return (
-                <button
-                  key={stars}
-                  type="button"
-                  onClick={() => setSelectedStarFilter(isSelected ? null : stars)}
-                  className={`group flex w-full cursor-pointer items-center gap-3 text-xs transition-opacity hover:opacity-100 ${
-                    selectedStarFilter !== null && !isSelected ? 'opacity-40' : 'opacity-100'
-                  }`}
-                  aria-label={`Filter by ${stars} stars`}
-                >
-                  <span className="w-12 text-left text-xs font-bold text-ink-soft group-hover:text-ink">
-                    {stars} Star
-                  </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-line/70">
-                    <div
-                      className="h-full rounded-full bg-amber-500 transition-all duration-300 group-hover:bg-amber-600"
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
-                </button>
-              )
-            })}
-          </div>
+          ) : (
+            <p className="mt-2 text-sm text-muted">No reviews have been published yet.</p>
+          )}
         </div>
+        <Button type="button" variant="secondary" onClick={() => setIsModalOpen(true)}>
+          Write a review
+        </Button>
       </div>
 
-      <div className="flex flex-col justify-between gap-4 pb-4 sm:flex-row sm:items-center">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant={selectedStarFilter === null ? 'primary' : 'ghost'}
-            size="sm"
-            onClick={() => setSelectedStarFilter(null)}
-            className={selectedStarFilter === null ? '' : 'bg-surface text-ink-soft hover:bg-line'}
-          >
-            All Reviews ({allReviews.length})
-          </Button>
-          {([5, 4, 3] as const).map((stars) => {
-            const count = distribution.counts[stars] || 0
-            if (count === 0 && selectedStarFilter !== stars) return null
-            const isActive = selectedStarFilter === stars
-            return (
-              <Button
-                key={stars}
-                type="button"
-                variant={isActive ? 'primary' : 'ghost'}
-                size="sm"
-                onClick={() => setSelectedStarFilter(isActive ? null : stars)}
-                className={isActive ? '' : 'bg-surface text-ink-soft hover:bg-line'}
-              >
-                <span>{stars} Stars</span>
-                <span className="text-xs opacity-75">({count})</span>
-              </Button>
-            )
-          })}
+      {error ? (
+        <div className="rounded-xl border border-line bg-surface p-5 text-center">
+          <p className="text-sm text-ink">Reviews could not be loaded: {error}</p>
+          {onRetry && (
+            <Button type="button" variant="secondary" size="sm" className="mt-4" onClick={onRetry}>
+              Try again
+            </Button>
+          )}
         </div>
-
-        <div className="flex items-center gap-2 self-end sm:self-auto">
-          <span className="text-xs font-normal text-muted">Sort:</span>
-          <Dropdown
-            id="review-sort-luxury"
-            value={sortOption}
-            onChange={(val) => setSortOption(val as 'newest' | 'highest' | 'lowest')}
-            aria-label="Sort reviews"
-            variant="slim"
-            className="w-36"
-            options={[
-              { value: 'newest', label: 'Most Recent' },
-              { value: 'highest', label: 'Highest Rated' },
-              { value: 'lowest', label: 'Lowest Rated' },
-            ]}
-          />
-        </div>
-      </div>
-
-      {filteredAndSortedReviews.length === 0 ? (
-        <div className="py-8 text-center border-t border-line/60">
-          <p className="text-sm font-normal text-ink-soft">
-            No reviews found matching this filter.
-          </p>
-          <button
-            type="button"
-            onClick={() => setSelectedStarFilter(null)}
-            className="mt-3 cursor-pointer text-xs font-normal text-ink underline underline-offset-2"
-          >
-            Clear filters
-          </button>
+      ) : reviews.length === 0 ? (
+        <div className="rounded-xl border border-line bg-surface p-6 text-center text-sm text-muted">
+          Be the first verified buyer to review this product.
         </div>
       ) : (
-        <div className="divide-y divide-line/60 border-t border-line/60 mt-4">
-          {filteredAndSortedReviews.slice(0, visibleCount).map((review) => {
-            const itemFeedback = feedback[review.id] || { likes: 0, dislikes: 0 }
-            return (
-              <article key={review.id} className="py-6 space-y-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-soft text-primary font-bold text-sm uppercase">
-                      {(review.userName || 'Customer').charAt(0)}
-                    </div>
+        <>
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant={selectedStarFilter === null ? 'primary' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedStarFilter(null)}
+              >
+                All ({reviews.length})
+              </Button>
+              {([5, 4, 3, 2, 1] as const).map((stars) =>
+                distribution[stars] > 0 ? (
+                  <Button
+                    key={stars}
+                    type="button"
+                    variant={selectedStarFilter === stars ? 'primary' : 'ghost'}
+                    size="sm"
+                    onClick={() =>
+                      setSelectedStarFilter(selectedStarFilter === stars ? null : stars)
+                    }
+                  >
+                    {stars} stars ({distribution[stars]})
+                  </Button>
+                ) : null
+              )}
+            </div>
+            <Dropdown
+              id="review-sort"
+              value={sortOption}
+              onChange={(value) => setSortOption(value as typeof sortOption)}
+              aria-label="Sort reviews"
+              variant="slim"
+              className="w-40"
+              options={[
+                { value: 'newest', label: 'Most recent' },
+                { value: 'highest', label: 'Highest rated' },
+                { value: 'lowest', label: 'Lowest rated' },
+              ]}
+            />
+          </div>
+
+          {filteredReviews.length === 0 ? (
+            <p className="border-t border-line py-8 text-center text-sm text-muted">
+              No reviews match this rating.
+            </p>
+          ) : (
+            <div className="divide-y divide-line border-t border-line">
+              {filteredReviews.map((review) => (
+                <article key={review.id} className="space-y-3 py-6">
+                  <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h5 className="font-display text-sm font-semibold text-ink sm:text-base">
-                        {review.userName || 'Verified Buyer'}
-                      </h5>
-                      <div className="flex items-center gap-2 pt-0.5">
+                      <h4 className="font-display text-base font-semibold text-ink">
+                        {review.userName || 'Verified buyer'}
+                      </h4>
+                      <div className="mt-1 flex items-center gap-2">
                         <RatingStars rating={review.rating} size="xs" />
-                        <span className="text-[11px] text-emerald-700 font-bold">
-                          • Verified Purchase
-                        </span>
+                        <span className="text-xs font-bold text-accent">Verified purchase</span>
                       </div>
                     </div>
+                    <span className="text-xs text-muted">{formatReviewDate(review.createdAt)}</span>
                   </div>
-                  <span className="text-xs text-muted">{formatReviewDate(review.createdAt)}</span>
-                </div>
-
-                <p className="text-sm leading-relaxed text-ink-soft sm:text-base pt-1">
-                  {review.comment}
-                </p>
-
-                <div className="flex items-center gap-4 pt-1 text-xs text-muted">
-                  <span>Was this review helpful?</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleLike(review.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors cursor-pointer border ${
-                        itemFeedback.liked
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-line bg-surface hover:bg-line/60 text-ink-soft'
-                      }`}
-                      aria-label="Mark review as helpful"
-                    >
-                      <ThumbsUp className="h-3 w-3 shrink-0" />
-                      <span>Yes{itemFeedback.likes > 0 ? ` (${itemFeedback.likes})` : ''}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDislike(review.id)}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs transition-colors cursor-pointer border ${
-                        itemFeedback.disliked
-                          ? 'border-primary bg-primary text-white'
-                          : 'border-line bg-surface hover:bg-line/60 text-ink-soft'
-                      }`}
-                      aria-label="Mark review as not helpful"
-                    >
-                      <ThumbsDown className="h-3 w-3 shrink-0" />
-                      <span>
-                        No{itemFeedback.dislikes > 0 ? ` (${itemFeedback.dislikes})` : ''}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </article>
-            )
-          })}
-        </div>
-      )}
-
-      {visibleCount < filteredAndSortedReviews.length && (
-        <div className="flex justify-center pt-6 border-t border-line/60">
-          <button
-            type="button"
-            onClick={() => setVisibleCount((prev) => prev + 5)}
-            className="cursor-pointer text-sm font-bold text-primary"
-          >
-            Load More
-          </button>
-        </div>
+                  <p className="text-sm leading-relaxed text-ink-soft">{review.comment}</p>
+                </article>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a review">
         <form onSubmit={handleReviewSubmit} className="space-y-5">
           {!isAuthenticated && (
-            <div className="rounded-lg border border-warning/30 bg-warning-soft p-3.5 text-xs font-normal leading-relaxed text-warning">
-              Please sign in with the account used for your purchase to submit a verified review.
+            <div className="rounded-lg border border-warning/30 bg-warning-soft p-3.5 text-sm text-warning">
+              Sign in with the account used for your purchase to submit a verified review.
             </div>
           )}
-
-          {productName && (
-            <div className="border-b border-line pb-3">
-              <span className="block text-[11px] font-normal uppercase tracking-wider text-muted">
-                Product
-              </span>
-              <p className="font-sans text-sm font-bold text-ink">{productName}</p>
-            </div>
-          )}
-
+          {productName && <p className="text-sm font-bold text-ink">{productName}</p>}
           <div>
-            <label className="mb-2 block text-xs font-normal uppercase tracking-wider text-ink-soft">
+            <span className="mb-2 block text-xs uppercase tracking-wider text-ink-soft">
               Overall rating
-            </label>
-            <div className="flex items-center gap-2">
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
               {[1, 2, 3, 4, 5].map((star) => {
                 const isFilled = star <= (hoverRating ?? newRating)
                 return (
@@ -494,7 +231,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                     onClick={() => setNewRating(star)}
                     onMouseEnter={() => setHoverRating(star)}
                     onMouseLeave={() => setHoverRating(null)}
-                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-line transition-all hover:scale-110"
+                    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-line transition-transform hover:scale-105"
                     aria-label={`Rate ${star} out of 5 stars`}
                   >
                     <Star
@@ -505,30 +242,20 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   </button>
                 )
               })}
-              <span className="ml-2 text-xs font-normal text-ink-soft">
+              <span className="text-sm text-ink-soft">
                 {ratingLabels[hoverRating ?? newRating]} ({hoverRating ?? newRating}/5)
               </span>
             </div>
           </div>
-
-          <div>
-            <label
-              htmlFor="review-comment"
-              className="mb-2 block text-xs font-normal uppercase tracking-wider text-ink-soft"
-            >
-              Your review
-            </label>
-            <Textarea
-              id="review-comment"
-              name="comment"
-              rows={4}
-              required
-              value={newComment}
-              onChange={(event) => setNewComment(event.target.value)}
-              placeholder="Tell us about the craftsmanship, finish, weight, and in-person feel..."
-            />
-          </div>
-
+          <Textarea
+            id="review-comment"
+            name="comment"
+            rows={4}
+            required
+            value={newComment}
+            onChange={(event) => setNewComment(event.target.value)}
+            placeholder="Share your experience with this product."
+          />
           <Button
             type="submit"
             variant="primary"
@@ -537,7 +264,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             disabled={submitting || !isAuthenticated}
             className="w-full"
           >
-            Submit Review
+            Submit review
           </Button>
         </form>
       </Modal>

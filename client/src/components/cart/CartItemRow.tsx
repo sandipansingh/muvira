@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { Heart, Minus, Plus, Trash2 } from 'lucide-react'
+import { Minus, Plus, Trash2 } from 'lucide-react'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -12,7 +12,6 @@ interface CartItemRowProps {
 
 export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compact' }) => {
   const { updateQuantity, removeFromCart, loading } = useCart()
-  const [isSavedForLater, setIsSavedForLater] = useState(false)
 
   if (variant === 'full') {
     return (
@@ -45,27 +44,11 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
                 {item.productName}
               </Link>
               <div className="mt-1 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]">
-                <span>Handcrafted Item</span>
-                <span>•</span>
-                <span className="text-accent font-medium">In Stock</span>
+                <span>{item.inStock ? `${item.availableStock} available` : 'Unavailable'}</span>
               </div>
             </div>
 
             <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setIsSavedForLater(!isSavedForLater)}
-                className={`inline-flex cursor-pointer items-center justify-center rounded-lg p-2 transition-colors ${
-                  isSavedForLater
-                    ? 'bg-primary-soft text-[var(--color-primary)]'
-                    : 'text-[var(--color-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]'
-                }`}
-                title={isSavedForLater ? 'Saved for later' : 'Save to wishlist'}
-                aria-label="Save item"
-              >
-                <Heart className={`h-4 w-4 ${isSavedForLater ? 'fill-current' : ''}`} />
-              </button>
-
               <button
                 type="button"
                 onClick={() => void removeFromCart(item.productId).catch(() => undefined)}

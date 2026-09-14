@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronDown, Heart, LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
+import { ChevronDown, LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
@@ -12,17 +12,9 @@ interface MobileMenuProps {
 const SHOP_CATEGORIES = [
   { label: 'All Products', href: '/shop' },
   { label: 'All Categories', href: '/categories' },
-  { label: 'Living Room', href: '/shop?category=living-room' },
-  { label: 'Bedroom Furniture', href: '/shop?category=bedroom' },
-  { label: 'Dining & Kitchen', href: '/shop?category=dining' },
-  { label: 'Office & Decor', href: '/shop?category=office-decor' },
 ]
 
-const PRODUCT_LINKS = [
-  { label: 'New Arrivals', href: '/shop?sort=newest' },
-  { label: 'Best Sellers', href: '/shop?sort=popularity' },
-  { label: 'Customer Reviews', href: '/reviews' },
-]
+const PRODUCT_LINKS = [{ label: 'New Arrivals', href: '/shop?sort=newest' }]
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated, user, logout } = useAuth()
@@ -93,7 +85,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent text-sm text-ink placeholder:text-muted outline-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                className="w-full bg-transparent text-base text-ink placeholder:text-muted outline-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
               />
             </div>
           </form>
@@ -172,21 +164,10 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
             </div>
-
-            {/* Contact Us / FAQs */}
-            <div className="py-3.5">
-              <Link
-                to="/#faq"
-                onClick={onClose}
-                className="text-sm font-normal text-ink hover:underline transition-colors block"
-              >
-                Contact Us
-              </Link>
-            </div>
           </nav>
         </div>
 
-        {/* Bottom Actions Section (Cart, Wishlist & Sign In) */}
+        {/* Bottom actions */}
         <div className="p-6 border-t border-line space-y-4">
           {/* Cart Row with Bag Icon & Counter */}
           <button
@@ -202,21 +183,6 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               </span>
             </div>
           </button>
-
-          {/* Wishlist Row with Heart Icon & Counter */}
-          <Link
-            to="/shop"
-            onClick={onClose}
-            className="flex items-center justify-between w-full py-1 text-sm font-normal text-ink hover:underline transition-colors"
-          >
-            <span>Wishlist</span>
-            <div className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-ink stroke-[1.75]" />
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-normal text-white">
-                0
-              </span>
-            </div>
-          </Link>
 
           {/* Sign In CTA or Authenticated User Details */}
           {isAuthenticated ? (

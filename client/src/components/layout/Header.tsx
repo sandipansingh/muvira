@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { LogOut, Menu, Package, Search, ShoppingBag, User, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
@@ -14,7 +14,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
   const { itemCount, openCartDrawer } = useCart()
   const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -36,13 +35,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
     navigate(`/search?q=${encodeURIComponent(query)}`)
     setSearchQuery('')
     setIsSearchOpen(false)
-  }
-
-  const getHref = (href: string) => {
-    if (href.startsWith('/#')) {
-      return location.pathname === '/' ? href.replace('/', '') : href
-    }
-    return href
   }
 
   return (
@@ -78,14 +70,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           </Link>
         </div>
 
-        {/* Right: Text Links, Search, User, Cart */}
+        {/* Right: Search, User, Cart */}
         <div className="flex items-center gap-3 sm:gap-6">
-          <div className="hidden md:flex items-center gap-5 text-xs font-normal text-ink-soft">
-            <Link to={getHref('/#faq')} className="hover:text-ink transition-colors">
-              FAQs
-            </Link>
-          </div>
-
           {/* Search Trigger for Mobile/Header */}
           <Button
             type="button"
@@ -193,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             <Input
               type="search"
               autoFocus
-              placeholder="Search handcrafted furniture..."
+              placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 bg-transparent border-none outline-none px-3 py-1.5 text-sm text-ink placeholder:text-muted focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"

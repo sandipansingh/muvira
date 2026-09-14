@@ -8,17 +8,19 @@ import { ShopHero } from '../components/catalog/ShopHero'
 export const CategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
     const loadCategories = async () => {
       try {
         const response = await categoryService.getCategories()
-        if (response.success && active) {
-          setCategories(response.data.sort((a, b) => a.sortOrder - b.sortOrder))
+        if (!response.success) throw new Error(response.error.message)
+        if (active) setCategories(response.data.sort((a, b) => a.sortOrder - b.sortOrder))
+      } catch (reason) {
+        if (active) {
+          setError(reason instanceof Error ? reason.message : 'Unable to load categories.')
         }
-      } catch {
-        if (active) setCategories([])
       } finally {
         if (active) setLoading(false)
       }
@@ -33,7 +35,6 @@ export const CategoriesPage: React.FC = () => {
     <main className="min-h-screen pb-16 bg-paper">
       <ShopHero
         title="Product Categories"
-        subtitle="Explore our handcrafted collections crafted for every room, shrine, and lifestyle."
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Categories' }]}
       />
 
@@ -46,6 +47,10 @@ export const CategoriesPage: React.FC = () => {
                 className="aspect-[4/3] rounded-2xl md:rounded-3xl bg-surface animate-pulse"
               />
             ))}
+          </div>
+        ) : error ? (
+          <div className="py-16 text-center text-sm text-ink">
+            Categories could not be loaded: {error}
           </div>
         ) : categories.length === 0 ? (
           <div className="py-16 sm:py-24 text-center flex flex-col items-center justify-center">

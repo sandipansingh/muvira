@@ -52,8 +52,8 @@ export const BestSellers: React.FC = () => {
       {/* Section Header */}
       <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 sm:flex-row sm:items-end">
         <div>
-          <span className="eyebrow mb-1.5 block">Popular</span>
-          <h2 className="text-h2 text-ink">Top Selling Idols & Decor</h2>
+          <span className="eyebrow mb-1.5 block">Featured</span>
+          <h2 className="text-h2 text-ink">Featured Pieces</h2>
         </div>
 
         {/* Right Controls: Category Pills & View All */}
@@ -114,7 +114,7 @@ export const BestSellers: React.FC = () => {
         >
           {filteredProducts.map((product) => (
             <div key={product.id} className="w-[240px] shrink-0 snap-start sm:w-[280px] lg:w-auto">
-              <ProductCard product={product} badgeText="HOT" />
+              <ProductCard product={product} />
             </div>
           ))}
         </motion.div>

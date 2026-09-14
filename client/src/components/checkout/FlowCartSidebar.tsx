@@ -87,7 +87,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                   {item.productName}
                 </Link>
                 <p className="mt-0.5 text-[11px] text-[var(--color-muted)]">
-                  Handcrafted &bull; ₹{(item.unitPrice / 100).toFixed(0)} ea
+                  ₹{(item.unitPrice / 100).toFixed(0)} each
                 </p>
               </div>
             </div>

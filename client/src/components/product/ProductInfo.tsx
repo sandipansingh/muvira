@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Clock, Heart, RotateCcw, ShoppingBag, Truck } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -16,22 +16,16 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
   const { addToCart } = useCart()
   const navigate = useNavigate()
   const [quantity, setQuantity] = useState(1)
-  const [isWishlisted, setIsWishlisted] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [isBuyingNow, setIsBuyingNow] = useState(false)
 
-  const effectiveRating = product.rating ?? 4.7
-  const totalReviews = product.reviewCount || 48
-
   const originalPrice =
-    product.salePrice && product.salePrice > product.price
-      ? product.salePrice
-      : Math.round(product.price * 1.35)
+    product.salePrice && product.salePrice > product.price ? product.salePrice : null
 
-  const savingsAmount = Math.max(0, originalPrice - product.price)
+  const savingsAmount = originalPrice ? originalPrice - product.price : 0
   const discountPercent =
     product.discountPercent ||
-    (originalPrice > product.price
+    (originalPrice && originalPrice > product.price
       ? Math.round(((originalPrice - product.price) / originalPrice) * 100)
       : 0)
 
@@ -66,39 +60,35 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           {product.name}
         </h1>
 
-        {/* Rating and Social Proof Header */}
-        <div className="flex flex-wrap items-center gap-2 text-xs font-normal text-muted sm:gap-3">
-          <div className="flex items-center gap-1.5">
-            <RatingStars rating={effectiveRating} size="sm" />
-            <span className="font-normal text-ink">{effectiveRating.toFixed(1)}</span>
-          </div>
-
-          <span className="text-line">•</span>
-
+        {product.rating != null && (product.reviewCount ?? 0) > 0 && (
           <button
             type="button"
             onClick={onReviewClick}
-            className="cursor-pointer font-normal text-muted transition-colors hover:text-primary hover:underline"
+            className="flex cursor-pointer items-center gap-2 text-xs text-muted transition-colors hover:text-primary hover:underline"
             aria-label="View customer reviews"
           >
-            ({totalReviews} Reviews)
+            <RatingStars rating={product.rating} size="sm" />
+            <span>{product.rating.toFixed(1)}</span>
+            <span>
+              ({product.reviewCount} {product.reviewCount === 1 ? 'review' : 'reviews'})
+            </span>
           </button>
-        </div>
+        )}
       </div>
 
       {/* Short Editorial Lead Description */}
-      <p className="text-sm leading-relaxed text-ink-soft/90">
-        {product.shortDescription ||
-          product.description ||
-          'Masterfully handcrafted by artisan communities in Rajasthan using solid seasoned timber and natural hand-rubbed organic finishes.'}
-      </p>
+      {(product.shortDescription || product.description) && (
+        <p className="text-sm leading-relaxed text-ink-soft/90">
+          {product.shortDescription || product.description}
+        </p>
+      )}
 
       {/* Price Section with Savings Pill */}
       <div className="flex flex-wrap items-baseline gap-3 py-1.5">
         <span className="font-sans text-2xl font-bold text-ink sm:text-3xl">
           {formatPrice(product.price)}
         </span>
-        {originalPrice > product.price && (
+        {originalPrice && originalPrice > product.price && (
           <>
             <span className="text-base font-normal text-muted line-through">
               {formatPrice(originalPrice)}
@@ -110,48 +100,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         )}
       </div>
 
-      {/* Trust Highlights Row (Free Shipping, 7-Day Returns, 1-7 Days Delivery) */}
-      <div className="grid grid-cols-3 gap-2 py-2 sm:gap-4">
-        <div className="group flex cursor-default items-start gap-2.5">
-          <Truck className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
-          <div className="flex flex-col">
-            <span className="text-xs font-bold leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
-              Free Shipping
-            </span>
-            <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
-              Pan-India Express
-            </span>
-          </div>
-        </div>
-
-        <div className="group flex cursor-default items-start gap-2.5">
-          <RotateCcw className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
-          <div className="flex flex-col">
-            <span className="text-xs font-bold leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
-              7-Day Returns
-            </span>
-            <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
-              Hassle-free pickup
-            </span>
-          </div>
-        </div>
-
-        <div className="group flex cursor-default items-start gap-2.5">
-          <Clock className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ink/75 transition-colors group-hover:text-primary sm:h-5 sm:w-5" />
-          <div className="flex flex-col">
-            <span className="text-xs font-bold leading-tight text-ink transition-colors group-hover:text-primary sm:text-sm">
-              1–7 Days Delivery
-            </span>
-            <span className="text-[11px] font-normal leading-tight text-muted sm:text-xs">
-              Insured transit
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Quantity Selector, Buy Now & Add to Cart Controls (Divided into 2 Rows) */}
       <div className="space-y-3 pt-2">
-        {/* Row 1: Stepper, Add to Cart & Wishlist */}
+        {/* Row 1: Stepper and Add to Cart */}
         <div className="flex items-center gap-2.5">
           {/* Quantity Stepper */}
           <div className="flex h-11 items-center rounded-[var(--radius-control)] border border-line bg-surface px-1.5">
@@ -167,7 +118,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             <span className="w-8 text-center text-sm font-normal text-ink">{quantity}</span>
             <button
               type="button"
-              onClick={() => setQuantity(quantity + 1)}
+              onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+              disabled={quantity >= product.stock}
               className="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-base font-normal text-ink transition-colors hover:bg-white"
               aria-label="Increase quantity"
             >
@@ -182,29 +134,12 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             size="lg"
             isLoading={isAdding}
             onClick={handleAddToCart}
+            disabled={!product.inStock}
             leftIcon={<ShoppingBag className="h-4 w-4 shrink-0" />}
             className="flex-1 font-bold"
           >
-            Add to Cart
+            {product.inStock ? 'Add to Cart' : 'Unavailable'}
           </Button>
-
-          {/* Wishlist Heart Icon Button */}
-          <button
-            type="button"
-            onClick={() => setIsWishlisted((prev) => !prev)}
-            className={`flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border transition-all ${
-              isWishlisted
-                ? 'border-danger/40 bg-danger-soft text-danger'
-                : 'border-line bg-white text-ink hover:border-field-border hover:bg-surface'
-            }`}
-            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-          >
-            <Heart
-              className={`h-4.5 w-4.5 ${
-                isWishlisted ? 'fill-danger text-danger' : 'text-ink-soft'
-              }`}
-            />
-          </button>
         </div>
 
         {/* Row 2: Full-Width Primary Buy Now Button */}
@@ -214,9 +149,10 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           size="lg"
           isLoading={isBuyingNow}
           onClick={handleBuyNow}
+          disabled={!product.inStock}
           className="w-full font-bold"
         >
-          Buy Now
+          {product.inStock ? 'Buy Now' : 'Unavailable'}
         </Button>
       </div>
     </div>

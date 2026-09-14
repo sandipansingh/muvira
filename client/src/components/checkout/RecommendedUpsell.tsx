@@ -24,7 +24,7 @@ export const RecommendedUpsell: React.FC = () => {
           setRecommendations(available.length > 0 ? available : res.data)
         }
       } catch {
-        // Fallback silently if recommendations fail
+        if (active) setRecommendations([])
       } finally {
         if (active) setLoading(false)
       }
@@ -64,15 +64,11 @@ export const RecommendedUpsell: React.FC = () => {
   const product = recommendations[currentIndex]
   if (!product) return null
 
-  // Calculate original and sale price
-  const salePrice = product.salePrice ?? product.price
-  const originalPrice = product.salePrice ? product.price : Math.round(product.price * 1.35)
-
   return (
     <div className="mt-6 space-y-2.5">
       <h3 className="font-display text-xs sm:text-sm font-bold text-[var(--color-ink)] flex items-center gap-1.5">
         <Sparkles className="h-3.5 w-3.5 text-[var(--color-primary)] shrink-0" />
-        Recommended for you
+        Featured product
       </h3>
 
       <div className="relative flex items-center gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-3.5 shadow-xs transition-all hover:border-[var(--color-field-border)]">
@@ -89,7 +85,11 @@ export const RecommendedUpsell: React.FC = () => {
               Decor
             </div>
           )}
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-[var(--color-primary)] ring-2 ring-white" />
+          {product.isFeatured && (
+            <span className="absolute right-1 top-1 rounded bg-white/90 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-[var(--color-ink)]">
+              Featured
+            </span>
+          )}
         </div>
 
         {/* Info */}
@@ -99,18 +99,16 @@ export const RecommendedUpsell: React.FC = () => {
               {product.name}
             </h4>
             <div className="text-right shrink-0">
-              <span className="block text-[10px] text-[var(--color-muted)] line-through">
-                {formatPrice(originalPrice)}
-              </span>
+              {product.salePrice != null && (
+                <span className="block text-[10px] text-[var(--color-muted)] line-through">
+                  {formatPrice(product.price)}
+                </span>
+              )}
               <span className="font-sans text-xs sm:text-sm font-bold text-[var(--color-primary)]">
-                {formatPrice(salePrice)}
+                {formatPrice(product.price)}
               </span>
             </div>
           </div>
-
-          <p className="line-clamp-1 text-[11px] text-[var(--color-muted)]">
-            Authentic handcrafted artifact &bull; Premium wood finish
-          </p>
 
           <div className="pt-1">
             <button

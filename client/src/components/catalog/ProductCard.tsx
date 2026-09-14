@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
-import { Check, Eye, Heart, ShoppingBag } from 'lucide-react'
+import { Check, Eye, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
-import { useToast } from '../../context/ToastContext'
 import type { ProductDetail, ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
-import { FavoriteButton } from '../common/FavoriteButton'
 import { RatingStars } from '../common/RatingStars'
 import { QuickViewModal } from './QuickViewModal'
 
@@ -40,26 +38,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   badgeText,
 }) => {
   const { addToCart } = useCart()
-  const { showToast } = useToast()
-  const [isWishlisted, setIsWishlisted] = useState(false)
   const [isAdded, setIsAdded] = useState(false)
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false)
   const primaryImage = getPrimaryImage(product)
   const description = getDescription(product)
   const discountPercent = getDiscountPercent(product)
   const hasDiscount = Boolean(product.salePrice && product.salePrice > product.price)
-
-  const handleWishlistToggle = (event?: React.SyntheticEvent) => {
-    if (event) {
-      event.preventDefault()
-      event.stopPropagation()
-    }
-    setIsWishlisted((previous) => !previous)
-    showToast(
-      isWishlisted ? `Removed ${product.name} from wishlist` : `Added ${product.name} to wishlist`,
-      'info'
-    )
-  }
 
   const handleAddToCart = async (event?: React.SyntheticEvent) => {
     if (event) {
@@ -125,7 +109,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
           {/* Product Details */}
           <div className="flex flex-1 flex-col justify-center gap-1.5 min-w-0 pr-2">
-            <RatingStars rating={product.rating ?? 5} size="xs" />
+            {product.rating != null && (product.reviewCount ?? 0) > 0 && (
+              <RatingStars rating={product.rating} count={product.reviewCount} size="xs" />
+            )}
             <Link to={`/product/${product.slug}`} className="block">
               <h3 className="font-display text-base sm:text-lg text-ink group-hover:underline underline-offset-2 line-clamp-1">
                 {product.name}
@@ -169,16 +155,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             >
               <Eye className="h-4 w-4 shrink-0 text-ink" strokeWidth={2} />
             </button>
-            <button
-              type="button"
-              onClick={handleWishlistToggle}
-              className="button-secondary h-9 w-9 p-0"
-              aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-            >
-              <Heart
-                className={`h-4 w-4 ${isWishlisted ? 'fill-danger text-danger' : 'text-ink'}`}
-              />
-            </button>
           </div>
         </article>
         <QuickViewModal
@@ -213,20 +189,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </Link>
           <div className="absolute left-3 top-3 flex flex-col gap-1.5">
-            {badgeText !== '' && (
-              <span className="neutral-badge font-normal uppercase">{badgeText ?? 'NEW'}</span>
-            )}
+            {badgeText && <span className="neutral-badge font-normal uppercase">{badgeText}</span>}
             {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
-          </div>
-          <div className="absolute right-3 top-3 z-10">
-            <FavoriteButton
-              isFavorite={isWishlisted}
-              onToggle={handleWishlistToggle}
-              variant="solid"
-              size="sm"
-              aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-              className="border border-[var(--color-line)] bg-[var(--color-paper)] shadow-none"
-            />
           </div>
           <div className="absolute inset-x-3 bottom-3 z-10 hidden gap-2 sm:flex">
             <button
@@ -275,7 +239,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
         <div className="flex flex-col gap-1.5 pt-2.5">
-          <RatingStars rating={product.rating ?? 5} size="xs" />
+          {product.rating != null && (product.reviewCount ?? 0) > 0 && (
+            <RatingStars rating={product.rating} count={product.reviewCount} size="xs" />
+          )}
           <Link to={`/product/${product.slug}`} className="block">
             <h3 className="product-card__name line-clamp-2 group-hover:underline underline-offset-2">
               {product.name}

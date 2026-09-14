@@ -26,7 +26,6 @@ import { OrderFailurePage } from './pages/OrderFailurePage'
 import { OrdersHistoryPage } from './pages/OrdersHistoryPage'
 import { OrderDetailPage } from './pages/OrderDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
-import { ReviewsPage } from './pages/ReviewsPage'
 import { SignInPage } from './pages/SignInPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { useParams } from 'react-router-dom'
@@ -70,7 +69,6 @@ export const AppContent: React.FC = () => {
         {/* Store routes wrapped in standard app shell */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/category/:slug" element={<CategoryRedirect />} />
           <Route path="/categories/:slug" element={<CategoryRedirect />} />

@@ -301,7 +301,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
         </h2>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-          {/* Free Shipping Radio Card */}
+          {/* Standard shipping option */}
           <label
             onClick={() => onShippingMethodChange('standard')}
             className={`flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition-all ${

@@ -4,10 +4,8 @@ import { Link } from 'react-router-dom'
 import type { ProductDetail, ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
-import { useToast } from '../../context/ToastContext'
 import { RatingStars } from '../common/RatingStars'
 import { StockBadge } from '../common/StockBadge'
-import { FavoriteButton } from '../common/FavoriteButton'
 import { Modal } from '../common/Modal'
 
 interface QuickViewModalProps {
@@ -24,22 +22,16 @@ const getDiscountPercent = (product: ProductListItem | ProductDetail) => {
 
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen, onClose }) => {
   const { addToCart } = useCart()
-  const { showToast } = useToast()
   const isDetail = 'images' in product
   const images = isDetail ? product.images.map((image) => image.url) : [product.primaryImageUrl]
   const categoryName = isDetail ? product.category.name : product.categoryName
   const [selectedImage, setSelectedImage] = useState(images[0] || '')
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
-  const [isWishlisted, setIsWishlisted] = useState(false)
 
   const discountPercent = getDiscountPercent(product)
   const hasDiscount = Boolean(product.salePrice && product.salePrice > product.price)
-  const description =
-    'description' in product
-      ? product.description
-      : product.shortDescription ||
-        'Handcrafted by master artisans with authentic materials and traditional craftsmanship.'
+  const description = 'description' in product ? product.description : product.shortDescription
 
   useEffect(() => {
     if (isOpen) {
@@ -47,19 +39,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
       setSelectedImage(initialImg || '')
       setQuantity(1)
       setAdded(false)
-      setIsWishlisted(false)
     }
   }, [isOpen, product, isDetail])
-
-  const handleWishlistToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setIsWishlisted((previous) => !previous)
-    showToast(
-      isWishlisted ? `Removed ${product.name} from wishlist` : `Added ${product.name} to wishlist`,
-      'info'
-    )
-  }
 
   const handleAddToCart = async () => {
     try {
@@ -99,18 +80,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               )}
               {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
             </div>
-
-            {/* Wishlist Button on Image */}
-            <div className="absolute right-3 top-3 z-10">
-              <FavoriteButton
-                isFavorite={isWishlisted}
-                onToggle={handleWishlistToggle}
-                variant="solid"
-                size="sm"
-                aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-                className="border border-[var(--color-line)] bg-[var(--color-paper)] shadow-none"
-              />
-            </div>
           </div>
 
           {images.length > 1 && (
@@ -144,10 +113,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             {/* Category & Stock Status */}
             <div className="flex items-center justify-between gap-4 pr-10">
               <span className="eyebrow">{categoryName}</span>
-              <StockBadge
-                quantity={'stock' in product ? product.stock : 10}
-                isAvailable={'inStock' in product ? product.inStock : true}
-              />
+              <StockBadge quantity={product.stock} isAvailable={product.inStock} />
             </div>
 
             {/* Product Title */}
@@ -155,17 +121,16 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               {product.name}
             </h2>
 
-            {/* Rating & Authenticity */}
-            <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs">
-              <RatingStars
-                rating={product.rating ?? 5}
-                count={product.reviewCount ?? 0}
-                size="sm"
-                showText
-              />
-              <span className="text-muted">•</span>
-              <span className="font-normal text-muted">100% Authentic Handcrafted</span>
-            </div>
+            {product.rating != null && (product.reviewCount ?? 0) > 0 && (
+              <div className="mt-2.5 text-xs">
+                <RatingStars
+                  rating={product.rating}
+                  count={product.reviewCount}
+                  size="sm"
+                  showText
+                />
+              </div>
+            )}
 
             {/* Pricing Row */}
             <div className="mt-3 flex flex-wrap items-baseline gap-2.5">
@@ -185,23 +150,19 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             </div>
 
             {/* Product Description */}
-            <p className="body-copy mt-3 line-clamp-3 text-xs leading-relaxed sm:text-sm">
-              {description}
-            </p>
+            {description && (
+              <p className="body-copy mt-3 line-clamp-3 text-xs leading-relaxed sm:text-sm">
+                {description}
+              </p>
+            )}
 
             {/* Metadata Chips */}
-            <div className="mt-2.5 flex items-center gap-3 text-[11px] text-muted">
-              <div>
+            {'sku' in product && product.sku && (
+              <div className="mt-2.5 text-[11px] text-muted">
                 <span className="font-normal uppercase">SKU:</span>{' '}
-                <span className="font-normal text-ink">
-                  {'sku' in product && product.sku ? product.sku : 'MUV-1108'}
-                </span>
+                <span className="font-normal text-ink">{product.sku}</span>
               </div>
-              <div>
-                <span className="font-normal uppercase">Dispatch:</span>{' '}
-                <span className="font-normal text-primary">Within 24 Hours</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Action Section */}
@@ -222,7 +183,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 </span>
                 <button
                   type="button"
-                  onClick={() => setQuantity(quantity + 1)}
+                  onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                  disabled={quantity >= product.stock}
                   className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-normal text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
                   aria-label="Increase quantity"
                 >
@@ -235,7 +197,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={added}
+                disabled={added || !product.inStock}
                 className="button-primary min-h-10 gap-1.5 px-4 text-xs"
               >
                 {added ? (
@@ -246,7 +208,9 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 ) : (
                   <>
                     <ShoppingBag className="h-4 w-4 shrink-0" />
-                    <span className="leading-none">Add to Cart</span>
+                    <span className="leading-none">
+                      {product.inStock ? 'Add to Cart' : 'Unavailable'}
+                    </span>
                   </>
                 )}
               </button>

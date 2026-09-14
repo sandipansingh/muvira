@@ -186,7 +186,7 @@ export const SearchPage: React.FC = () => {
   const heroTitle = searchQuery ? `Search: “${searchQuery}”` : 'Search Catalog'
   const heroSubtitle = searchQuery
     ? `Showing catalog pieces matching your search term.`
-    : 'Discover handcrafted furniture, clay art, idols, and curated decor.'
+    : 'Search the current product catalog.'
 
   const activeFiltersCount =
     (categoryParam !== 'all' ? 1 : 0) +

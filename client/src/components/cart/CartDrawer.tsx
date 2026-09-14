@@ -70,7 +70,7 @@ export const CartDrawer: React.FC = () => {
                 Your cart is empty
               </h3>
               <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-[var(--color-muted)]">
-                Explore our solid wood furniture and handcrafted decor collections to get started.
+                Browse the current catalog to add products to your cart.
               </p>
               <button
                 type="button"

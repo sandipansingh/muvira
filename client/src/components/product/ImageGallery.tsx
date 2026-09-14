@@ -12,8 +12,8 @@ interface ImageGalleryProps {
 export const ImageGallery: React.FC<ImageGalleryProps> = ({
   images,
   title,
-  isNew = true,
-  discountPercent = 50,
+  isNew = false,
+  discountPercent = 0,
 }) => {
   const imageUrls = images.map((image) => (typeof image === 'string' ? image : image.url))
   const [activeIndex, setActiveIndex] = useState(0)

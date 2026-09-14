@@ -8,61 +8,21 @@ import { Dropdown, type DropdownOption } from '../ui/Dropdown'
 
 const AUTO_ROTATE_INTERVAL = 6000
 
-const FALLBACK_SLIDES = [
-  {
-    id: '1',
-    title: 'Modern Living Furniture',
-    imageUrl:
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1800&q=85',
-    link: '/shop',
-  },
-  {
-    id: '2',
-    title: 'Timeless Heirloom Craft',
-    imageUrl:
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1800&q=85',
-    link: '/shop?category=living-room',
-  },
-  {
-    id: '3',
-    title: 'Architectural Home Decor',
-    imageUrl:
-      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1800&q=85',
-    link: '/shop?category=office-decor',
-  },
-]
-
-const CATEGORY_DROPDOWN_OPTIONS: DropdownOption[] = [
-  { value: '/shop', label: 'All Collections' },
-  { value: '/shop?category=living-room', label: 'Living Room' },
-  { value: '/shop?category=bedroom', label: 'Bedroom Furniture' },
-  { value: '/shop?category=dining', label: 'Dining & Kitchen' },
-  { value: '/shop?category=office-decor', label: 'Office & Decor' },
-]
-
 const SORT_DROPDOWN_OPTIONS: DropdownOption[] = [
   { value: '/shop?sort=newest', label: 'New Arrivals' },
-  { value: '/shop?sort=popularity', label: 'Best Sellers' },
+  { value: '/shop?sort=popularity', label: 'Featured' },
   { value: '/shop?sort=price_asc', label: 'Price: Low to High' },
   { value: '/shop?sort=price_desc', label: 'Price: High to Low' },
 ]
 
-const QUICK_CATEGORY_PILLS = [
-  { label: 'Men', href: '/shop?category=living-room' },
-  { label: 'Women', href: '/shop?category=bedroom' },
-  { label: 'Children', href: '/shop?category=dining' },
-  { label: 'Brand', href: '/shop' },
-]
-
 export const HeroSlider: React.FC = () => {
-  const { settings, loading } = useSiteSettings()
+  const { settings, loading, error } = useSiteSettings()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [quickSearch, setQuickSearch] = useState('')
   const navigate = useNavigate()
 
-  const activeSlides =
-    settings.heroSlides && settings.heroSlides.length > 0 ? settings.heroSlides : FALLBACK_SLIDES
+  const activeSlides = settings.heroSlides
 
   const nextSlide = useCallback(() => {
     if (activeSlides.length <= 1) return
@@ -94,6 +54,24 @@ export const HeroSlider: React.FC = () => {
     )
   }
 
+  if (error || activeSlides.length === 0) {
+    return (
+      <section className="layout-container py-2 sm:py-3">
+        <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl bg-surface px-6 text-center lg:rounded-3xl">
+          <h1 className="text-h1 text-ink">Explore Muvira</h1>
+          <p className="mt-3 max-w-lg text-base text-ink">
+            {error
+              ? 'Storefront highlights are temporarily unavailable.'
+              : 'Browse our current catalog.'}
+          </p>
+          <Link to="/shop" className="button-primary mt-6">
+            Shop products
+          </Link>
+        </div>
+      </section>
+    )
+  }
+
   const currentSlide = activeSlides[currentIndex] || activeSlides[0]
 
   return (
@@ -106,18 +84,9 @@ export const HeroSlider: React.FC = () => {
     >
       {/* Sub-Header / Filter & Search Toolbar (Desktop Only) */}
       <div className="mb-3.5 sm:mb-4 hidden md:flex items-center justify-between gap-3 text-xs">
-        {/* Left Dropdown Selectors */}
         <div className="flex items-center gap-2">
           <Dropdown
-            placeholder="Categories"
-            value=""
-            onChange={(val) => navigate(val)}
-            options={CATEGORY_DROPDOWN_OPTIONS}
-            variant="slim"
-            className="w-36"
-          />
-          <Dropdown
-            placeholder="New Product"
+            placeholder="Sort products"
             value=""
             onChange={(val) => navigate(val)}
             options={SORT_DROPDOWN_OPTIONS}
@@ -133,7 +102,7 @@ export const HeroSlider: React.FC = () => {
             placeholder="search..."
             value={quickSearch}
             onChange={(e) => setQuickSearch(e.target.value)}
-            className="w-full rounded-[var(--radius-control)] border border-line bg-paper py-1.5 pl-4 pr-8 text-xs font-normal text-ink placeholder-muted outline-none shadow-xs transition-colors focus:border-line focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+            className="w-full rounded-[var(--radius-control)] border border-line bg-paper py-1.5 pl-4 pr-8 text-base font-normal text-ink placeholder-muted outline-none shadow-xs transition-colors focus:border-line focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
           />
           <button
             type="submit"
@@ -144,18 +113,9 @@ export const HeroSlider: React.FC = () => {
           </button>
         </form>
 
-        {/* Right Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          {QUICK_CATEGORY_PILLS.map((pill) => (
-            <Link
-              key={pill.label}
-              to={pill.href}
-              className="h-8 px-3.5 inline-flex items-center justify-center text-xs font-normal rounded-[var(--radius-control)] border border-line bg-paper text-ink-soft hover:text-primary hover:border-primary hover:bg-surface transition-all shadow-xs shrink-0 select-none"
-            >
-              {pill.label}
-            </Link>
-          ))}
-        </div>
+        <Link to="/categories" className="button-secondary h-8 px-3.5 text-xs">
+          Categories
+        </Link>
       </div>
 
       {/* Main Full-Image Hero Banner Container */}

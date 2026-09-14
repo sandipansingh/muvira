@@ -9,28 +9,26 @@ interface ShopHeroProps {
   className?: string
 }
 
-export const HOME_DECOR_HERO_IMAGE =
-  'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=85'
-
 export const ShopHero: React.FC<ShopHeroProps> = ({
   title,
-  subtitle = "Let's design the place you always imagined.",
+  subtitle,
   breadcrumbs,
-  imageUrl = HOME_DECOR_HERO_IMAGE,
+  imageUrl,
   className = '',
 }) => {
   return (
     <div className={`layout-container pt-4 pb-6 sm:pt-6 sm:pb-8 ${className}`}>
       <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-line h-[300px] sm:h-[350px] md:h-[390px] flex items-center justify-center text-center p-6">
-        {/* Crisp, Bright Home Decor Background Image */}
-        <img
-          src={imageUrl}
-          alt={title}
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        />
-
-        {/* Soft natural lighting overlay for pure text contrast directly on image */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/40 to-white/60 pointer-events-none" />
+        {imageUrl && (
+          <>
+            <img
+              src={imageUrl}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/30 via-white/40 to-white/60" />
+          </>
+        )}
 
         {/* Typography directly on the image — NO card container */}
         <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
