@@ -69,7 +69,7 @@ npm run build
 npm test
 ```
 
-`npm test` builds both services, runs payment-signature and order-state unit tests, and verifies critical frontend/backend and migration contracts. The database authorization test runs when `SUPABASE_TEST_URL`, `SUPABASE_TEST_ANON_KEY`, and `SUPABASE_TEST_SERVICE_ROLE_KEY` are supplied; CI provides them from an isolated local Supabase instance.
+`npm test` builds both services, runs provider-fixture and order-state tests, and verifies critical frontend/backend and migration contracts. The database authorization and HTTP API integration tests run when `SUPABASE_TEST_URL`, `SUPABASE_TEST_ANON_KEY`, and `SUPABASE_TEST_SERVICE_ROLE_KEY` are supplied; CI provides them from an isolated local Supabase instance. CI also verifies both a clean migration replay and an additive upgrade from migration 025.
 
 ## Database releases
 
@@ -100,7 +100,7 @@ Production startup validates mandatory Supabase, Razorpay, Shiprocket, CORS, and
 - Shiprocket fulfillment remains a manual admin operation. When webhook processing is enabled, configure a webhook URL ending in `/api/webhooks/shipment-status` and send `SHIPROCKET_WEBHOOK_SECRET` in the `x-api-key` header.
 - Resend must authorize the `EMAIL_FROM` domain before production traffic is enabled.
 
-Use Razorpay test mode and recorded Shiprocket payload fixtures in staging before enabling production provider credentials.
+Use Razorpay test mode and recorded Shiprocket payload fixtures in staging before enabling production provider credentials. Configure the protected GitHub `staging` environment secrets and run the manual `Staging provider smoke` workflow to verify API readiness and provider authentication without creating a payment or shipment.
 
 ## Operations
 

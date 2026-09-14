@@ -1,0 +1,34 @@
+name: Staging provider smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  provider-smoke:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+        working-directory: server
+      - run: npm run build
+        working-directory: server
+      - name: Verify recorded provider contracts
+        run: node --test tests/provider-fixtures.test.cjs
+      - name: Verify staging readiness and provider credentials
+        run: node --test tests/staging-provider-smoke.test.cjs
+        env:
+          RUN_STAGING_PROVIDER_SMOKE: 'true'
+          STAGING_API_URL: ${{ secrets.STAGING_API_URL }}
+          RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+          RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+          SHIPROCKET_EMAIL: ${{ secrets.SHIPROCKET_EMAIL }}
+          SHIPROCKET_PASSWORD: ${{ secrets.SHIPROCKET_PASSWORD }}

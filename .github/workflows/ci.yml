@@ -42,13 +42,16 @@ jobs:
           cache-dependency-path: server/package-lock.json
       - run: npm ci
         working-directory: server
+      - name: Build API for integration tests
+        run: npm run build
+        working-directory: server
       - name: Start local Supabase
         run: npm run db:start
       - name: Replay migrations from scratch
         run: npm run db:reset
       - name: Verify schema grants, RLS, policies, and constraints
         run: npm run db:test
-      - name: Verify database authorization boundaries
+      - name: Verify live database and API contracts
         shell: bash
         run: |
           cd server
@@ -58,7 +61,15 @@ jobs:
           SUPABASE_TEST_URL="$API_URL" \
           SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
           SUPABASE_TEST_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
-          node --test tests/database-security.test.cjs
+          node --test tests/database-security.test.cjs tests/api-integration.test.cjs
+      - name: Replay remediation as an upgrade from migration 025
+        shell: bash
+        run: |
+          cd server
+          npx supabase db reset --workdir .. --local --no-seed --version 025
+          npx supabase migration up --workdir .. --local
+      - name: Verify upgraded schema invariants
+        run: npm run db:test
       - name: Stop local Supabase
         if: always()
         run: npm run db:stop
