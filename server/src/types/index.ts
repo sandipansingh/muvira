@@ -127,6 +127,32 @@ export interface ProductImage {
   created_at: string
 }
 
+export interface PublicProductDto {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  short_description: string | null
+  category_id: string
+  price_paisa: number
+  compare_at_price_paisa: number | null
+  sku: string | null
+  stock: number
+  weight_grams: number | null
+  is_active: boolean
+  is_featured: boolean
+  tags: string[] | null
+  meta_title: string | null
+  meta_description: string | null
+  metadata: Record<string, string>
+  created_at: string
+  updated_at: string
+  rating: number | null
+  review_count: number
+  product_images: Array<Pick<ProductImage, 'id' | 'url' | 'alt_text' | 'sort_order' | 'is_primary'>>
+  categories: Pick<Category, 'id' | 'name' | 'slug'> | null
+}
+
 export interface CartItem {
   id: string
   user_id: string

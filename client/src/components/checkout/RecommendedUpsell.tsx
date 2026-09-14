@@ -16,7 +16,7 @@ export const RecommendedUpsell: React.FC = () => {
     let active = true
     const fetchRecommendations = async () => {
       try {
-        const res = await productService.getProducts({ sort: 'popularity', limit: 8 })
+        const res = await productService.getProducts({ sort: 'featured', limit: 8 })
         if (res.success && active) {
           // Filter out items already in cart
           const inCartIds = new Set(items.map((i) => i.productId))

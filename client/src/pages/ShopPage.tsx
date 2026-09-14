@@ -27,7 +27,7 @@ export const ShopPage: React.FC = () => {
   const categoryParam = searchParams.get('category') || 'all'
   const searchQuery = searchParams.get('q') || ''
   const requestedSort = searchParams.get('sort')
-  const sortBy = ['price_asc', 'price_desc', 'newest', 'popularity'].includes(requestedSort ?? '')
+  const sortBy = ['price_asc', 'price_desc', 'newest', 'featured'].includes(requestedSort ?? '')
     ? requestedSort!
     : 'newest'
   const requestedPage = Number(searchParams.get('page') || '1')
@@ -81,7 +81,7 @@ export const ShopPage: React.FC = () => {
           limit: PAGE_SIZE,
           q: searchQuery || undefined,
           category: categoryParam === 'all' ? undefined : categoryParam,
-          sort: sortBy as 'price_asc' | 'price_desc' | 'newest' | 'popularity',
+          sort: sortBy as 'price_asc' | 'price_desc' | 'newest' | 'featured',
           minPrice,
           maxPrice,
           inStock: inStockParam || undefined,
@@ -182,11 +182,7 @@ export const ShopPage: React.FC = () => {
   return (
     <main className="min-h-screen pb-16 bg-paper">
       {/* Top Rounded Hero Banner */}
-      <ShopHero
-        title="Shop Page"
-        subtitle="Let's design the place you always imagined."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]}
-      />
+      <ShopHero title="Shop Page" breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]} />
 
       {/* Main 2-Column Catalog Container */}
       <div className="layout-container" ref={resultsContainerRef}>

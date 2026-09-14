@@ -82,23 +82,14 @@ export async function listProductReviews(
     }
   }) as (ProductReview & { user_name?: string | null })[]
 
-  // Compute summary (separate lightweight query for accuracy)
-  const { data: aggData } = await adminSupabase
-    .from('product_reviews')
-    .select('rating')
-    .eq('product_id', productId)
-
-  let avgRating: number | null = null
-  const totalReviews = aggData?.length ?? 0
-
-  if (totalReviews > 0 && aggData) {
-    const sum = aggData.reduce((s, r) => s + r.rating, 0)
-    avgRating = Math.round((sum / totalReviews) * 10) / 10
+  const aggregate = (await getReviewAggregates([productId]))[productId] ?? {
+    rating: null,
+    reviewCount: 0,
   }
 
   return {
     reviews,
-    summary: { avgRating, totalReviews },
+    summary: { avgRating: aggregate.rating, totalReviews: aggregate.reviewCount },
     total: count ?? 0,
     page,
     limit,
@@ -264,36 +255,24 @@ export async function getReviewAggregates(
 ): Promise<Record<string, { rating: number | null; reviewCount: number }>> {
   if (productIds.length === 0) return {}
 
-  const { data, error } = await adminSupabase
-    .from('product_reviews')
-    .select('product_id, rating')
-    .in('product_id', productIds)
+  const { data, error } = await adminSupabase.rpc('get_product_review_summaries', {
+    p_product_ids: productIds,
+  })
 
   if (error) {
-    // Do not fail product listing because of reviews
-    return {}
-  }
-
-  const groups: Record<string, number[]> = {}
-  for (const row of data ?? []) {
-    const r = row as Record<string, unknown>
-    const pid = r.product_id as string | undefined
-    if (pid) {
-      ;(groups[pid] ??= []).push(r.rating as number)
-    }
+    throw new AppError(500, 'DB_ERROR', 'Failed to fetch product review summaries')
   }
 
   const result: Record<string, { rating: number | null; reviewCount: number }> = {}
   for (const pid of productIds) {
-    const ratings = groups[pid] ?? []
-    if (ratings.length === 0) {
-      result[pid] = { rating: null, reviewCount: 0 }
-    } else {
-      const sum = ratings.reduce((a, b) => a + b, 0)
-      result[pid] = {
-        rating: Math.round((sum / ratings.length) * 10) / 10,
-        reviewCount: ratings.length,
-      }
+    result[pid] = { rating: null, reviewCount: 0 }
+  }
+
+  for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+    const productId = row['product_id'] as string
+    result[productId] = {
+      rating: row['rating'] == null ? null : Number(row['rating']),
+      reviewCount: Number(row['review_count'] ?? 0),
     }
   }
 

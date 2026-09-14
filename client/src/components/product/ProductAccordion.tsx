@@ -8,8 +8,11 @@ interface ProductAccordionProps {
   ratingAvg: number | null
   reviewCount: number
   reviewError?: string | null
+  hasMoreReviews?: boolean
+  loadingMoreReviews?: boolean
   openSection: string | null
   onToggleSection: (sectionId: string) => void
+  onLoadMoreReviews?: () => Promise<void>
   onReviewSubmitted?: () => Promise<void>
   onReviewRetry?: () => Promise<void>
 }
@@ -27,8 +30,11 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
   ratingAvg,
   reviewCount,
   reviewError,
+  hasMoreReviews,
+  loadingMoreReviews,
   openSection = 'description',
   onToggleSection,
+  onLoadMoreReviews,
   onReviewSubmitted,
   onReviewRetry,
 }) => {
@@ -126,6 +132,9 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
             reviewCount={reviewCount}
             reviews={reviews}
             error={reviewError}
+            hasMore={hasMoreReviews}
+            loadingMore={loadingMoreReviews}
+            onLoadMore={onLoadMoreReviews}
             onRetry={onReviewRetry}
             onReviewSubmitted={onReviewSubmitted}
           />

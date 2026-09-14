@@ -19,12 +19,16 @@ export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
   const [product, setProduct] = useState<ProductDetail | null>(null)
   const [relatedProducts, setRelatedProducts] = useState<ProductListItem[]>([])
+  const [relatedError, setRelatedError] = useState<string | null>(null)
   const [reviews, setReviews] = useState<ProductReview[]>([])
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({
     avgRating: null,
     totalReviews: 0,
   })
   const [reviewError, setReviewError] = useState<string | null>(null)
+  const [reviewPage, setReviewPage] = useState(1)
+  const [reviewTotalPages, setReviewTotalPages] = useState(1)
+  const [loadingMoreReviews, setLoadingMoreReviews] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [openAccordionSection, setOpenAccordionSection] = useState<string | null>('description')
@@ -40,19 +44,37 @@ export const ProductDetailPage: React.FC = () => {
     setOpenAccordionSection(sectionId)
   }
 
-  const loadReviews = useCallback(async (productId: string) => {
+  const loadReviews = useCallback(async (productId: string, page = 1) => {
     setReviewError(null)
+    if (page > 1) setLoadingMoreReviews(true)
     try {
-      const response = await reviewService.getProductReviews(productId)
+      const response = await reviewService.getProductReviews(productId, page)
       if (!response.success) throw new Error(response.error.message)
-      setReviews(response.data)
+      setReviews((current) => {
+        if (page === 1) return response.data
+        const existingIds = new Set(current.map((review) => review.id))
+        return [...current, ...response.data.filter((review) => !existingIds.has(review.id))]
+      })
       setReviewSummary(response.summary)
+      setReviewPage(response.pagination.page)
+      setReviewTotalPages(response.pagination.totalPages)
     } catch (reason) {
-      setReviews([])
-      setReviewSummary({ avgRating: null, totalReviews: 0 })
+      if (page === 1) {
+        setReviews([])
+        setReviewSummary({ avgRating: null, totalReviews: 0 })
+        setReviewPage(1)
+        setReviewTotalPages(1)
+      }
       setReviewError(reason instanceof Error ? reason.message : 'Unable to load reviews.')
+    } finally {
+      if (page > 1) setLoadingMoreReviews(false)
     }
   }, [])
+
+  const loadMoreReviews = async () => {
+    if (!product || loadingMoreReviews || reviewPage >= reviewTotalPages) return
+    await loadReviews(product.id, reviewPage + 1)
+  }
 
   useEffect(() => {
     if (!slug) return
@@ -61,6 +83,8 @@ export const ProductDetailPage: React.FC = () => {
     const loadProduct = async () => {
       setLoading(true)
       setError(null)
+      setRelatedError(null)
+      setRelatedProducts([])
       try {
         const response = await productService.getProductBySlug(slug)
         if (!response.success) throw new Error(response.error.message)
@@ -71,7 +95,11 @@ export const ProductDetailPage: React.FC = () => {
         ])
         if (active) {
           setProduct(productData)
-          if (relatedResponse.success) setRelatedProducts(relatedResponse.data)
+          if (relatedResponse.success) {
+            setRelatedProducts(relatedResponse.data)
+          } else {
+            setRelatedError(relatedResponse.error.message)
+          }
         }
       } catch (reason) {
         if (active)
@@ -159,15 +187,23 @@ export const ProductDetailPage: React.FC = () => {
             ratingAvg={reviewSummary.avgRating ?? product.rating ?? null}
             reviewCount={reviewSummary.totalReviews || product.reviewCount || 0}
             reviewError={reviewError}
+            hasMoreReviews={reviewPage < reviewTotalPages}
+            loadingMoreReviews={loadingMoreReviews}
             openSection={openAccordionSection}
             onToggleSection={handleToggleSection}
-            onReviewSubmitted={() => loadReviews(product.id)}
-            onReviewRetry={() => loadReviews(product.id)}
+            onLoadMoreReviews={loadMoreReviews}
+            onReviewSubmitted={() => loadReviews(product.id, 1)}
+            onReviewRetry={() => loadReviews(product.id, 1)}
           />
         </div>
 
         {/* Related Products */}
-        {relatedProducts.length > 0 && (
+        {relatedError && (
+          <p className="mt-12 rounded-xl border border-line bg-surface p-5 text-center text-sm text-ink">
+            Related products could not be loaded: {relatedError}
+          </p>
+        )}
+        {!relatedError && relatedProducts.length > 0 && (
           <section className="mt-12 pt-8">
             <SectionHeader
               title="You May Also Like"

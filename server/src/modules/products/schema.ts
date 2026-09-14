@@ -9,7 +9,7 @@ export const ListProductsQuerySchema = z.object({
   min_price_paisa: z.string().regex(/^\d+$/).transform(Number).optional(),
   max_price_paisa: z.string().regex(/^\d+$/).transform(Number).optional(),
   inStock: z.enum(['true', 'false']).optional(),
-  sort: z.enum(['price_asc', 'price_desc', 'newest', 'popularity']).default('newest'),
+  sort: z.enum(['price_asc', 'price_desc', 'newest', 'featured']).default('newest'),
   q: z.string().max(200).optional(),
 })
 

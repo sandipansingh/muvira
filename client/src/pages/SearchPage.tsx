@@ -30,7 +30,7 @@ export const SearchPage: React.FC = () => {
   // URL state parameters
   const categoryParam = searchParams.get('category') || 'all'
   const requestedSort = searchParams.get('sort')
-  const sortBy = ['price_asc', 'price_desc', 'newest', 'popularity'].includes(requestedSort ?? '')
+  const sortBy = ['price_asc', 'price_desc', 'newest', 'featured'].includes(requestedSort ?? '')
     ? requestedSort!
     : 'newest'
   const requestedPage = Number(searchParams.get('page') || '1')
@@ -89,7 +89,7 @@ export const SearchPage: React.FC = () => {
           category: categoryParam === 'all' ? undefined : categoryParam,
           page,
           limit: PAGE_SIZE,
-          sort: sortBy as 'price_asc' | 'price_desc' | 'newest' | 'popularity',
+          sort: sortBy as 'price_asc' | 'price_desc' | 'newest' | 'featured',
           minPrice,
           maxPrice,
           inStock: inStockParam || undefined,

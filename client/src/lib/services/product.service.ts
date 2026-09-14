@@ -77,17 +77,21 @@ export const productService = {
    * Fetches up to 4 related products in the same category for PDP display.
    */
   async getRelatedProducts(productId: string): Promise<ApiResponse<ProductListItem[]>> {
-    try {
-      const res = await api.get<{
-        success: boolean
-        data?: Record<string, unknown>[]
-        error?: { code: string; message: string }
-      }>(`/api/products/${encodeURIComponent(productId)}/related`)
+    const res = await api.get<{
+      success: boolean
+      data?: Record<string, unknown>[]
+      error?: { code: string; message: string }
+    }>(`/api/products/${encodeURIComponent(productId)}/related`)
 
-      if (!res.success || !res.data) return { success: true, data: [] }
-      return { success: true, data: res.data.map(mapProductListItem) }
-    } catch {
-      return { success: true, data: [] }
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: res.error ?? {
+          code: 'FETCH_RELATED_PRODUCTS_FAILED',
+          message: 'Failed to fetch related products',
+        },
+      }
     }
+    return { success: true, data: res.data.map(mapProductListItem) }
   },
 }

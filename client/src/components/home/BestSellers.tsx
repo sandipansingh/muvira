@@ -6,7 +6,7 @@ import type { ProductListItem } from '../../lib/types/product'
 import { SegmentedControl } from '../common/SegmentedControl'
 import { ProductCard } from '../catalog/ProductCard'
 
-export const BestSellers: React.FC = () => {
+export const FeaturedProducts: React.FC = () => {
   const [products, setProducts] = useState<ProductListItem[]>([])
   const [selectedFilter, setSelectedFilter] = useState('All')
   const [loading, setLoading] = useState(true)
@@ -14,12 +14,12 @@ export const BestSellers: React.FC = () => {
 
   useEffect(() => {
     let active = true
-    const loadBestSellers = async () => {
+    const loadFeaturedProducts = async () => {
       try {
         const response = await productService.getProducts({
           page: 1,
           limit: 10,
-          sort: 'popularity',
+          sort: 'featured',
         })
         if (!response.success) throw new Error(response.error.message)
         if (active) setProducts(response.data)
@@ -29,7 +29,7 @@ export const BestSellers: React.FC = () => {
         if (active) setLoading(false)
       }
     }
-    void loadBestSellers()
+    void loadFeaturedProducts()
     return () => {
       active = false
     }
@@ -69,7 +69,7 @@ export const BestSellers: React.FC = () => {
             />
           )}
           <Link
-            to="/shop?sort=popularity"
+            to="/shop?sort=featured"
             className="inline-flex items-center justify-center shrink-0 h-8 px-3.5 text-xs font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
           >
             View all
@@ -123,4 +123,4 @@ export const BestSellers: React.FC = () => {
   )
 }
 
-export default BestSellers
+export default FeaturedProducts

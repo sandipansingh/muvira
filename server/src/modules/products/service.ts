@@ -1,6 +1,6 @@
 import { adminSupabase } from '../../lib/supabase/admin'
 import { AppError } from '../../types'
-import type { Product, ProductImage } from '../../types'
+import type { Product, ProductImage, PublicProductDto } from '../../types'
 import type {
   ListProductsQuery,
   CreateProductInput,
@@ -10,6 +10,37 @@ import type {
 import { getReviewAggregates } from '../reviews/service'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
+const PUBLIC_PRODUCT_SELECT = `
+  id, name, slug, description, short_description, category_id, price_paisa,
+  compare_at_price_paisa, sku, stock, weight_grams, is_active, is_featured,
+  tags, meta_title, meta_description, metadata, created_at, updated_at,
+  product_images ( id, url, alt_text, sort_order, is_primary ),
+  categories ( id, name, slug )
+`
+
+function normalizeSearchTerm(value: string): string {
+  return value
+    .normalize('NFKC')
+    .replace(/[^\p{L}\p{N}\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+async function attachReviewAggregates(
+  products: Record<string, unknown>[]
+): Promise<Record<string, unknown>[]> {
+  if (products.length === 0) return products
+
+  const ids = products.map((product) => product['id'] as string)
+  const aggregates = await getReviewAggregates(ids)
+  for (const product of products) {
+    const aggregate = aggregates[product['id'] as string]
+    product['rating'] = aggregate?.rating ?? null
+    product['review_count'] = aggregate?.reviewCount ?? 0
+  }
+  return products
+}
 
 async function resolveCategoryToId(
   category: string | undefined,
@@ -29,7 +60,13 @@ async function resolveCategoryToId(
 
 // Public: list products
 
-export async function listProducts(query: ListProductsQuery) {
+export async function listProducts(query: ListProductsQuery): Promise<{
+  products: PublicProductDto[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}> {
   const { page, limit, category, min_price_paisa, max_price_paisa, inStock, sort, q } = query
 
   const offset = (page - 1) * limit
@@ -38,16 +75,7 @@ export async function listProducts(query: ListProductsQuery) {
 
   let dbQuery = adminSupabase
     .from('products')
-    .select(
-      `
-      id, name, slug, short_description, category_id, price_paisa,
-      compare_at_price_paisa, sku, stock, is_active, is_featured,
-      tags, created_at,
-      product_images ( id, url, alt_text, sort_order, is_primary ),
-      categories ( id, name, slug )
-    `,
-      { count: 'exact' }
-    )
+    .select(PUBLIC_PRODUCT_SELECT, { count: 'exact' })
     .eq('is_active', true)
 
   if (category) {
@@ -62,9 +90,13 @@ export async function listProducts(query: ListProductsQuery) {
   if (max_price_paisa !== undefined) dbQuery = dbQuery.lte('price_paisa', max_price_paisa)
   if (inStock === 'true') dbQuery = dbQuery.gt('stock', 0)
 
-  // Full-text search using pg_trgm similarity
   if (q) {
-    dbQuery = dbQuery.ilike('name', `%${q}%`)
+    const searchTerm = normalizeSearchTerm(q)
+    if (searchTerm) {
+      dbQuery = dbQuery.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+    } else {
+      dbQuery = dbQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+    }
   }
 
   // Sorting
@@ -78,8 +110,7 @@ export async function listProducts(query: ListProductsQuery) {
     case 'newest':
       dbQuery = dbQuery.order('created_at', { ascending: false })
       break
-    case 'popularity':
-      // Approximate by is_featured first, then creation date
+    case 'featured':
       dbQuery = dbQuery
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
@@ -92,18 +123,9 @@ export async function listProducts(query: ListProductsQuery) {
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch products')
 
-  const products = (data ?? []) as Record<string, unknown>[]
-  if (products.length > 0) {
-    const ids = products.map((p) => p.id as string)
-    const aggregates = await getReviewAggregates(ids)
-    for (const p of products) {
-      const agg = aggregates[p.id as string]
-      if (agg) {
-        p.rating = agg.rating
-        p.review_count = agg.reviewCount
-      }
-    }
-  }
+  const products = (await attachReviewAggregates(
+    (data ?? []) as Record<string, unknown>[]
+  )) as unknown as PublicProductDto[]
 
   return {
     products,
@@ -145,9 +167,13 @@ export async function adminListProducts(query: ListProductsQuery) {
   if (max_price_paisa !== undefined) dbQuery = dbQuery.lte('price_paisa', max_price_paisa)
   if (inStock === 'true') dbQuery = dbQuery.gt('stock', 0)
 
-  // Full-text search using pg_trgm similarity
   if (q) {
-    dbQuery = dbQuery.ilike('name', `%${q}%`)
+    const searchTerm = normalizeSearchTerm(q)
+    if (searchTerm) {
+      dbQuery = dbQuery.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+    } else {
+      dbQuery = dbQuery.eq('id', '00000000-0000-0000-0000-000000000000')
+    }
   }
 
   // Sorting
@@ -161,8 +187,7 @@ export async function adminListProducts(query: ListProductsQuery) {
     case 'newest':
       dbQuery = dbQuery.order('created_at', { ascending: false })
       break
-    case 'popularity':
-      // Approximate by is_featured first, then creation date
+    case 'featured':
       dbQuery = dbQuery
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
@@ -175,18 +200,7 @@ export async function adminListProducts(query: ListProductsQuery) {
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch products')
 
-  const products = (data ?? []) as Record<string, unknown>[]
-  if (products.length > 0) {
-    const ids = products.map((p) => p.id as string)
-    const aggregates = await getReviewAggregates(ids)
-    for (const p of products) {
-      const agg = aggregates[p.id as string]
-      if (agg) {
-        p.rating = agg.rating
-        p.review_count = agg.reviewCount
-      }
-    }
-  }
+  const products = await attachReviewAggregates((data ?? []) as Record<string, unknown>[])
 
   return {
     products,
@@ -199,21 +213,10 @@ export async function adminListProducts(query: ListProductsQuery) {
 
 // Public: get single product by slug
 
-export async function getProductBySlug(slug: string): Promise<
-  Product & {
-    product_images: ProductImage[]
-    category: { id: string; name: string; slug: string } | null
-  }
-> {
+export async function getProductBySlug(slug: string): Promise<PublicProductDto> {
   const { data, error } = await adminSupabase
     .from('products')
-    .select(
-      `
-      *,
-      product_images ( id, url, alt_text, sort_order, is_primary ),
-      categories ( id, name, slug )
-    `
-    )
+    .select(PUBLIC_PRODUCT_SELECT)
     .eq('slug', slug)
     .eq('is_active', true)
     .single()
@@ -222,45 +225,36 @@ export async function getProductBySlug(slug: string): Promise<
     throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
   }
 
-  const prod = data as Record<string, unknown>
-  const aggregates = await getReviewAggregates([prod.id as string])
-  const agg = aggregates[prod.id as string]
-  if (agg) {
-    prod.rating = agg.rating
-    prod.review_count = agg.reviewCount
-  }
-
-  return prod as unknown as Product & {
-    product_images: ProductImage[]
-    category: { id: string; name: string; slug: string } | null
-  }
+  const [product] = await attachReviewAggregates([data as Record<string, unknown>])
+  return product as unknown as PublicProductDto
 }
 
 // Public: related products
 
-export async function getRelatedProducts(productId: string): Promise<Product[]> {
-  // Get the category of the given product
-  const { data: product } = await adminSupabase
+export async function getRelatedProducts(productId: string): Promise<PublicProductDto[]> {
+  const { data: product, error: productError } = await adminSupabase
     .from('products')
     .select('category_id')
     .eq('id', productId)
+    .eq('is_active', true)
     .single()
 
-  if (!product) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
+  if (productError || !product) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
 
   const { data, error } = await adminSupabase
     .from('products')
-    .select(
-      'id, name, slug, short_description, category_id, price_paisa, compare_at_price_paisa, stock, product_images ( id, url, is_primary ), categories ( id, name, slug )'
-    )
+    .select(PUBLIC_PRODUCT_SELECT)
     .eq('category_id', product.category_id)
     .eq('is_active', true)
     .neq('id', productId)
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(8)
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch related products')
 
-  return (data as unknown as Product[]) ?? []
+  const products = await attachReviewAggregates((data ?? []) as Record<string, unknown>[])
+  return products as unknown as PublicProductDto[]
 }
 
 // Admin: create product

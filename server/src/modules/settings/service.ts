@@ -77,15 +77,13 @@ export async function getSettings(): Promise<SiteSettings> {
     },
     hero_slides: (map['hero_slides'] as SiteSettings['hero_slides']) ?? [],
     promo_banners: (map['promo_banners'] as SiteSettings['promo_banners']) ?? [],
-    store_description:
-      (map['store_description'] as string) ??
-      'Premium Indian lifestyle, apparel, and solid wood furniture designed to bring warmth and authentic craftsmanship into your home.',
+    store_description: (map['store_description'] as string) ?? '',
     shipping_rules: (map['shipping_rules'] as SiteSettings['shipping_rules']) ?? {
       shipping_charge_paisa: 15000,
       free_shipping_threshold_paisa: 100000,
     },
     shiprocket_settings: (map['shiprocket_settings'] as SiteSettings['shiprocket_settings']) ?? {
-      pickup_location: 'primary',
+      pickup_location: '',
       default_length_cm: 15,
       default_breadth_cm: 10,
       default_height_cm: 5,

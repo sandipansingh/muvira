@@ -24,8 +24,8 @@ export interface ProductListItem {
   categoryName: string
   primaryImageUrl: string
   createdAt: string
-  rating?: number | null
-  reviewCount?: number
+  rating: number | null
+  reviewCount: number
 }
 
 export interface ProductDetail {
@@ -50,8 +50,8 @@ export interface ProductDetail {
   images: ProductImage[]
   metadata: Record<string, string>
   createdAt: string
-  rating?: number | null
-  reviewCount?: number
+  rating: number | null
+  reviewCount: number
 }
 
 export interface ProductReview {
@@ -78,5 +78,5 @@ export interface ProductQueryParams {
   minPrice?: number
   maxPrice?: number
   inStock?: boolean
-  sort?: 'price_asc' | 'price_desc' | 'newest' | 'popularity'
+  sort?: 'price_asc' | 'price_desc' | 'newest' | 'featured'
 }

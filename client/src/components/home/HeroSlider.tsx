@@ -10,7 +10,7 @@ const AUTO_ROTATE_INTERVAL = 6000
 
 const SORT_DROPDOWN_OPTIONS: DropdownOption[] = [
   { value: '/shop?sort=newest', label: 'New Arrivals' },
-  { value: '/shop?sort=popularity', label: 'Featured' },
+  { value: '/shop?sort=featured', label: 'Featured' },
   { value: '/shop?sort=price_asc', label: 'Price: Low to High' },
   { value: '/shop?sort=price_desc', label: 'Price: High to Low' },
 ]
