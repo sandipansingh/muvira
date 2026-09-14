@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const UpdateNotificationPrefsSchema = z
   .object({
-    email_enabled: z.boolean().optional(),
+    email_enabled: z.boolean(),
   })
   .strict()
 

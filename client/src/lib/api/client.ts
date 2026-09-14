@@ -131,6 +131,14 @@ class ApiClient {
     )
   }
 
+  async put<T>(endpoint: string, body?: unknown, requireAuth = false): Promise<T> {
+    return this.request<T>(
+      endpoint,
+      { method: 'PUT', body: body === undefined ? undefined : JSON.stringify(body) },
+      requireAuth
+    )
+  }
+
   async delete<T>(endpoint: string, requireAuth = false): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' }, requireAuth)
   }

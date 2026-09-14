@@ -83,26 +83,6 @@ const handlers: Record<string, JobHandler> = {
     }
   },
 
-  notification: async (payload) => {
-    const orderId = payload['orderId'] as string | undefined
-    const userId = payload['userId'] as string | undefined
-    const eventType = payload['eventType'] as string | undefined
-    if (!orderId || !userId || !eventType) {
-      throw new Error('Missing required fields in notification payload')
-    }
-
-    // Re-emit the event so notification subscriber picks it up
-    const { emitOrderEvent } = await import('./eventBus')
-    emitOrderEvent(eventType as import('./eventBus').OrderDomainEvent, {
-      orderId,
-      userId,
-      newStatus: (payload['newStatus'] as string) ?? '',
-      source:
-        (payload['source'] as 'webhook' | 'polling_sync' | 'admin_manual' | 'system') ?? 'system',
-      awbCode: (payload['awbCode'] as string | null) ?? null,
-    })
-  },
-
   label_generate: async (payload) => {
     const shipmentId = payload['shipmentId'] as number | undefined
     if (!shipmentId) throw new Error('Missing shipmentId in label_generate payload')

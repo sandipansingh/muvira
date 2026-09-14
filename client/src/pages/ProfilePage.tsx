@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogOut, MapPin, Package, Pencil, Trash2, User } from 'lucide-react'
+import { Bell, LogOut, MapPin, Package, Pencil, Trash2, User } from 'lucide-react'
 import type { Address } from '../lib/types/cart'
 import { addressService } from '../lib/services/address.service'
+import { notificationService } from '../lib/services/notification.service'
 import { INDIAN_STATES } from '../lib/constants/states.constants'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
@@ -56,6 +57,10 @@ export const ProfilePage: React.FC = () => {
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null)
   const [addressFormOpen, setAddressFormOpen] = useState(false)
   const [loadingAddresses, setLoadingAddresses] = useState(true)
+  const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(true)
+  const [loadingPreferences, setLoadingPreferences] = useState(true)
+  const [savingPreferences, setSavingPreferences] = useState(false)
+  const [preferencesError, setPreferencesError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin?returnTo=/profile', { replace: true })
@@ -88,6 +93,32 @@ export const ProfilePage: React.FC = () => {
       active = false
     }
   }, [showToast, user])
+
+  useEffect(() => {
+    if (!user) return
+    let active = true
+    const loadPreferences = async () => {
+      setLoadingPreferences(true)
+      setPreferencesError(null)
+      try {
+        const response = await notificationService.getPreferences()
+        if (!response.success) throw new Error(response.error.message)
+        if (active) setEmailNotificationsEnabled(response.data.emailEnabled)
+      } catch (reason) {
+        if (active) {
+          setPreferencesError(
+            reason instanceof Error ? reason.message : 'Unable to load notification preferences.'
+          )
+        }
+      } finally {
+        if (active) setLoadingPreferences(false)
+      }
+    }
+    void loadPreferences()
+    return () => {
+      active = false
+    }
+  }, [user])
 
   const handleProfileUpdate = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -174,6 +205,24 @@ export const ProfilePage: React.FC = () => {
       previous.map((address) => ({ ...address, isDefault: address.id === response.data.id }))
     )
     showToast('Default address updated.', 'success')
+  }
+
+  const updateEmailPreference = async (enabled: boolean) => {
+    setSavingPreferences(true)
+    setPreferencesError(null)
+    try {
+      const response = await notificationService.updatePreferences(enabled)
+      if (!response.success) throw new Error(response.error.message)
+      setEmailNotificationsEnabled(response.data.emailEnabled)
+      showToast('Email notification preference updated.', 'success')
+    } catch (reason) {
+      const message =
+        reason instanceof Error ? reason.message : 'Unable to update notification preference.'
+      setPreferencesError(message)
+      showToast(message, 'error')
+    } finally {
+      setSavingPreferences(false)
+    }
   }
 
   if (authLoading || !user) return <main className="editorial-page" />
@@ -283,6 +332,40 @@ export const ProfilePage: React.FC = () => {
                 </button>
               </form>
             </div>
+
+            <section className="panel space-y-4 p-5 sm:p-6">
+              <div className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-muted" />
+                <h2 className="font-display text-lg font-bold text-ink">
+                  Notification preferences
+                </h2>
+              </div>
+              {loadingPreferences ? (
+                <div className="h-16 animate-pulse rounded-xl bg-surface" aria-busy="true" />
+              ) : (
+                <label className="flex items-center justify-between gap-4 rounded-xl border border-line p-4">
+                  <span>
+                    <span className="block text-sm font-bold text-ink">Order update emails</span>
+                    <span className="mt-1 block text-sm text-ink-soft">
+                      Receive payment and fulfillment updates by email.
+                    </span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={emailNotificationsEnabled}
+                    disabled={savingPreferences || Boolean(preferencesError)}
+                    onChange={(event) => void updateEmailPreference(event.target.checked)}
+                    className="h-5 w-5 shrink-0 accent-primary"
+                    aria-label="Receive order update emails"
+                  />
+                </label>
+              )}
+              {preferencesError && (
+                <p className="rounded-lg border border-danger/30 bg-danger-soft p-3 text-sm text-danger">
+                  {preferencesError}
+                </p>
+              )}
+            </section>
 
             <section id="addresses" className="panel space-y-4 p-5 sm:p-6">
               <div className="flex items-center justify-between">

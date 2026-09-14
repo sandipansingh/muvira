@@ -279,6 +279,56 @@ export interface OrderItem {
   created_at: string
 }
 
+export type NotificationEventType =
+  | 'order.payment_captured'
+  | 'order.payment_failed'
+  | 'order.shipped'
+  | 'order.out_for_delivery'
+  | 'order.delivered'
+  | 'order.cancelled'
+  | 'order.rto'
+  | 'order.returned'
+  | 'order.refunded'
+  | 'order.delivery_failed'
+  | 'order.lost'
+  | 'order.damaged'
+
+export interface NotificationOutboxEvent {
+  id: string
+  aggregate_id: string
+  event_type: NotificationEventType
+  payload: Record<string, unknown>
+}
+
+export interface NotificationDelivery {
+  id: string
+  outbox_event_id: string
+  order_id: string
+  user_id: string
+  event_type: NotificationEventType
+  attempts: number
+  max_attempts: number
+}
+
+export interface NotificationOrderSnapshot {
+  id: string
+  user_id: string
+  order_number: string
+  contact_email: string
+  shipping_full_name: string
+  shipping_city: string
+  total_amount_paisa: number
+  awb_code: string | null
+  courier_name: string | null
+}
+
+export interface NotificationQueueResult {
+  outboxProcessed: number
+  deliveriesProcessed: number
+  sent: number
+  failed: number
+}
+
 export interface Payment {
   id: string
   order_id: string

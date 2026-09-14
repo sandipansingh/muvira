@@ -3,8 +3,9 @@ import { adminSupabase } from '../lib/supabase/admin'
 import { trackBulk } from './shiprocket'
 import { logger } from '../lib/logger'
 import { shiprocketStatusToOrderStatus, isValidTransition } from '../modules/orders/stateMachine'
-import { emitStatusChangeEvents } from './eventBus'
+import { transitionOrderStatus } from '../modules/orders/service'
 import { processRetryJobs } from './retryWorker'
+import { processNotificationQueue } from './notificationDelivery'
 import { writeTrackingSnapshot } from './trackingAnalytics'
 import { recordFullPoll, recordOfdPoll, recordSyncError } from './metricsCollector'
 import { deleteCacheByPattern } from '../config/cache'
@@ -70,7 +71,18 @@ export function startPollingScheduler(): void {
   })
   scheduledJobs.push(checkoutExpiryWorker)
 
-  logger.info('PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1)')
+  const notificationWorker = cron.schedule('* * * * *', async () => {
+    try {
+      await processNotificationQueue(20)
+    } catch (err) {
+      logger.error({ err }, 'PollingScheduler: notification queue failed')
+    }
+  })
+  scheduledJobs.push(notificationWorker)
+
+  logger.info(
+    'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, notifications=*/1)'
+  )
 }
 
 /**
@@ -158,36 +170,15 @@ async function pollActiveShipments(
           continue
         }
 
-        // Atomic update + status history
-        const { error: updateError } = await adminSupabase
-          .from('orders')
-          .update({ status: newStatus })
-          .eq('id', order.id)
-          .eq('status', order.status) // optimistic concurrency
-
-        if (updateError) {
-          logger.warn({ err: updateError, orderId: order.id }, 'PollingScheduler: update failed')
+        try {
+          await transitionOrderStatus(order, newStatus, 'polling_sync', {
+            awbCode: awb,
+            courierName: trackingInfo.courier_name ?? null,
+          })
+        } catch (err) {
+          logger.warn({ err, orderId: order.id }, 'PollingScheduler: transition failed')
           continue
         }
-
-        // Record status history
-        await adminSupabase.from('order_status_history').insert({
-          order_id: order.id,
-          old_status: order.status,
-          new_status: newStatus,
-          source: 'polling_sync',
-        })
-
-        // Emit event for subscribers (notifications, etc.)
-        emitStatusChangeEvents({
-          orderId: order.id,
-          orderNumber: order.order_number,
-          userId: order.user_id,
-          oldStatus: order.status,
-          newStatus,
-          source: 'polling_sync',
-          awbCode: awb,
-        })
 
         ordersUpdated++
       }

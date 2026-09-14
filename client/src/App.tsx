@@ -28,6 +28,7 @@ import { OrderDetailPage } from './pages/OrderDetailPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { SignInPage } from './pages/SignInPage'
 import { SignUpPage } from './pages/SignUpPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { useParams } from 'react-router-dom'
 
 const CategoryRedirect: React.FC = () => {
@@ -64,6 +65,7 @@ export const AppContent: React.FC = () => {
         {/* Standalone auth routes without navbar or footer */}
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/login" element={<Navigate to="/signin" replace />} />
 
         {/* Store routes wrapped in standard app shell */}

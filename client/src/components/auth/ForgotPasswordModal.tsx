@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { X, Mail, ArrowRight } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { authRedirectUrl } from '../../lib/authRedirect'
 import { useToast } from '../../context/ToastContext'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
@@ -32,11 +33,8 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
 
     setLoading(true)
     try {
-      const redirectUrl =
-        typeof window !== 'undefined' ? `${window.location.origin}/signin` : undefined
-
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: redirectUrl,
+        redirectTo: authRedirectUrl('/reset-password'),
       })
 
       if (error) {

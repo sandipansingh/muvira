@@ -2,8 +2,8 @@ import { adminSupabase } from '../../../lib/supabase/admin'
 import { logger } from '../../../lib/logger'
 import { trackSingle } from '../../../services/shiprocket'
 import { shiprocketStatusToOrderStatus, isValidTransition } from '../../orders/stateMachine'
-import { emitStatusChangeEvents } from '../../../services/eventBus'
 import { writeTrackingSnapshot } from '../../../services/trackingAnalytics'
+import { transitionOrderStatus } from '../../orders/service'
 
 // --- Shipment Health ---
 
@@ -340,18 +340,9 @@ export async function refreshSingleShipment(
 
   const oldStatus = order.status
 
-  await adminSupabase
-    .from('orders')
-    .update({ status: newStatus })
-    .eq('id', orderId)
-    .eq('status', oldStatus)
-
-  // Record status history (emergency manual source)
-  await adminSupabase.from('order_status_history').insert({
-    order_id: orderId,
-    old_status: oldStatus,
-    new_status: newStatus,
-    source: 'admin_manual',
+  await transitionOrderStatus(order, newStatus, 'admin_manual', {
+    awbCode: order.awb_code,
+    courierName: shipmentTrack.courier_name ?? null,
   })
 
   // Write tracking snapshot
@@ -369,18 +360,6 @@ export async function refreshSingleShipment(
     trackingRaw: shipmentTrack as unknown as Record<string, unknown>,
     syncSource: 'manual',
   }).catch(() => {})
-
-  // Emit events
-  emitStatusChangeEvents({
-    orderId,
-    orderNumber: order.order_number,
-    userId: order.user_id,
-    oldStatus,
-    newStatus,
-    source: 'admin_manual',
-    awbCode: order.awb_code,
-    courierName: shipmentTrack.courier_name ?? null,
-  })
 
   logger.info(
     { orderId, awb: order.awb_code, oldStatus, newStatus },

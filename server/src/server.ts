@@ -3,16 +3,12 @@ import { createApp } from './app'
 import { logger } from './lib/logger'
 import { env } from './config/env'
 import { startPollingScheduler, stopPollingScheduler } from './services/pollingScheduler'
-import { initNotificationSubscribers } from './services/notificationSubscriber'
 
 const PORT = parseInt(env.PORT, 10)
 
 const app = createApp()
 
 void (async () => {
-  // Initialize event subscribers (notifications, etc.)
-  await initNotificationSubscribers()
-
   const server = app.listen(PORT, () => {
     logger.info(
       {

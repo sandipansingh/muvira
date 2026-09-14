@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import type { Profile } from '../lib/types/auth'
 import { authApiService } from '../lib/services/auth.service'
 import { supabase } from '../lib/supabase'
+import { authRedirectUrl, PASSWORD_RECOVERY_SESSION_KEY } from '../lib/authRedirect'
 import { useToast } from './ToastContext'
 
 export interface AuthContextType {
@@ -14,7 +15,6 @@ export interface AuthContextType {
   login: (email: string, pass: string) => Promise<boolean>
   signup: (email: string, pass: string, name: string, phone: string) => Promise<boolean>
   loginWithGoogle: () => Promise<void>
-  loginWithApple: () => Promise<void>
   logout: () => Promise<void>
   updateProfile: (fullName: string, phone: string) => Promise<boolean>
   updateUser: (profile: Profile) => void
@@ -71,7 +71,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     void initialize()
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' && session) {
+        sessionStorage.setItem(PASSWORD_RECOVERY_SESSION_KEY, session.access_token)
+      } else if (!session || event === 'SIGNED_OUT') {
+        sessionStorage.removeItem(PASSWORD_RECOVERY_SESSION_KEY)
+      }
       if (session) {
         setLoading(true)
         void restoreSession(session).finally(() => setLoading(false))
@@ -141,12 +146,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async (): Promise<void> => {
     try {
-      const redirectUrl =
-        typeof window !== 'undefined' ? `${window.location.origin}/profile` : undefined
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: authRedirectUrl('/profile'),
         },
       })
       if (error) {
@@ -154,24 +157,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch {
       showToast('An unexpected error occurred during Google sign-in.', 'error')
-    }
-  }
-
-  const loginWithApple = async (): Promise<void> => {
-    try {
-      const redirectUrl =
-        typeof window !== 'undefined' ? `${window.location.origin}/profile` : undefined
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: redirectUrl,
-        },
-      })
-      if (error) {
-        showToast(error.message || 'Failed to sign in with Apple.', 'error')
-      }
-    } catch {
-      showToast('An unexpected error occurred during Apple sign-in.', 'error')
     }
   }
 
@@ -212,7 +197,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         signup,
         loginWithGoogle,
-        loginWithApple,
         logout,
         updateProfile,
         updateUser,
