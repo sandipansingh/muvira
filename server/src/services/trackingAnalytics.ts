@@ -27,10 +27,15 @@ export async function writeTrackingSnapshot(params: {
   trackingRaw: Record<string, unknown>
   syncSource: 'webhook' | 'cron_poll' | 'manual'
 }): Promise<void> {
+  if (!params.awbCode) {
+    logger.warn({ orderId: params.orderId }, 'Skipped tracking snapshot without an AWB code')
+    return
+  }
+
   try {
-    await adminSupabase.from('tracking_snapshots').insert({
+    const { error } = await adminSupabase.from('tracking_snapshots').insert({
       order_id: params.orderId,
-      awb_code: params.awbCode ?? params.edd ?? 'unknown',
+      awb_code: params.awbCode,
       shipment_id: params.shipmentId,
       courier_name: params.courierName,
       current_status: params.currentStatus,
@@ -42,6 +47,7 @@ export async function writeTrackingSnapshot(params: {
       tracking_raw: params.trackingRaw,
       sync_source: params.syncSource,
     })
+    if (error) throw error
   } catch (err) {
     logger.warn({ err, orderId: params.orderId }, 'Failed to write tracking snapshot')
   }

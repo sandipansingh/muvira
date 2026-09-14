@@ -1,144 +1,221 @@
+import { createHash } from 'crypto'
 import { adminSupabase } from '../../lib/supabase/admin'
 import { logger } from '../../lib/logger'
-import { createHash } from 'crypto'
-import { updateOrderStatusByAwb, mapShiprocketStatusToOrderStatus } from '../orders/service'
 import { writeTrackingSnapshot } from '../../services/trackingAnalytics'
+import { mapShiprocketStatusToOrderStatus, transitionOrderStatus } from '../orders/service'
+import { isValidTransition } from '../orders/stateMachine'
 
 export interface ProcessWebhookResult {
   status: 'processed' | 'ignored'
   orderId?: string
 }
 
-/**
- * Process an already-authenticated, already-deduped Shiprocket webhook payload.
- *
- * Idempotency notes:
- * - Called only AFTER the controller has verified the payload is not a duplicate
- * - shipment_events insert is NOT idempotent at the DB level, but the controller
- *   guards against duplicate payloads, so this is effectively safe
- * - Multiple webhooks with different payloads for the same event (e.g. successive
- *   status updates) are expected and will each INSERT a new event row — this is
- *   correct behavior (each represents a distinct shipment scan)
- */
+interface ShiprocketScan {
+  date?: string
+  activity?: string
+  location?: string
+}
+
+interface ParsedWebhook {
+  awbCode: string | null
+  courierName: string | null
+  currentStatus: string
+  eventTime: string
+  location: string | null
+  remarks: string | null
+  shipmentId: string | null
+  shiprocketOrderId: string | null
+  merchantOrderId: string | null
+  trackingUrl: string | null
+  vendorEventId: string
+}
+
+function optionalString(value: unknown): string | null {
+  if (typeof value !== 'string' && typeof value !== 'number') return null
+  const normalized = String(value).trim()
+  return normalized.length > 0 ? normalized : null
+}
+
+function parseVendorTimestamp(value: unknown): string {
+  const raw = optionalString(value)
+  if (!raw) return new Date().toISOString()
+
+  const dayFirst = raw.match(/^(\d{2})\s+(\d{2})\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/)
+  if (dayFirst) {
+    const [, day, month, year, hour, minute, second] = dayFirst
+    return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}+05:30`).toISOString()
+  }
+
+  const parsed = new Date(raw)
+  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+}
+
+function parseWebhook(payload: Record<string, unknown>): ParsedWebhook {
+  const currentStatus = optionalString(payload['current_status'])
+  if (!currentStatus) throw new Error('Shiprocket webhook is missing current_status')
+
+  const scans = Array.isArray(payload['scans']) ? (payload['scans'] as ShiprocketScan[]) : []
+  const latestScan = scans.at(-1)
+  const eventTime = parseVendorTimestamp(payload['current_timestamp'] ?? latestScan?.date)
+  const awbCode = optionalString(payload['awb'])
+  const shiprocketOrderId = optionalString(payload['sr_order_id'])
+  const merchantOrderId = optionalString(payload['order_id'])
+  const identity = [
+    awbCode ?? 'no-awb',
+    currentStatus.toLowerCase(),
+    eventTime,
+    shiprocketOrderId ?? merchantOrderId ?? 'no-order',
+  ].join('|')
+
+  return {
+    awbCode,
+    courierName: optionalString(payload['courier_name']),
+    currentStatus,
+    eventTime,
+    location: optionalString(payload['location']) ?? optionalString(latestScan?.location),
+    remarks: optionalString(payload['remarks']) ?? optionalString(latestScan?.activity),
+    shipmentId: optionalString(payload['shipment_id']),
+    shiprocketOrderId,
+    merchantOrderId,
+    trackingUrl: optionalString(payload['track_url']),
+    vendorEventId: createHash('sha256').update(identity).digest('hex'),
+  }
+}
+
+async function findOrder(event: ParsedWebhook): Promise<{
+  id: string
+  status: string
+  user_id: string
+} | null> {
+  const lookups: Array<{ column: string; value: string | null }> = [
+    { column: 'awb_code', value: event.awbCode },
+    { column: 'shipment_id', value: event.shipmentId },
+    { column: 'shiprocket_order_id', value: event.shiprocketOrderId },
+    { column: 'order_number', value: event.merchantOrderId },
+  ]
+
+  for (const lookup of lookups) {
+    if (!lookup.value) continue
+    const { data, error } = await adminSupabase
+      .from('orders')
+      .select('id, status, user_id')
+      .eq(lookup.column, lookup.value)
+      .maybeSingle()
+
+    if (error) throw new Error(`Failed to match Shiprocket order: ${error.message}`)
+    if (data) return data
+  }
+
+  return null
+}
+
+async function persistShipmentIdentity(orderId: string, event: ParsedWebhook): Promise<void> {
+  const update: Record<string, unknown> = { shiprocket_status: event.currentStatus }
+  if (event.awbCode) update['awb_code'] = event.awbCode
+  if (event.shipmentId) update['shipment_id'] = event.shipmentId
+  if (event.shiprocketOrderId) update['shiprocket_order_id'] = event.shiprocketOrderId
+  if (event.courierName) update['courier_name'] = event.courierName
+  if (event.trackingUrl) update['tracking_url'] = event.trackingUrl
+
+  const { data, error } = await adminSupabase
+    .from('orders')
+    .update(update)
+    .eq('id', orderId)
+    .select('id')
+    .single()
+
+  if (error || !data) {
+    throw new Error(`Failed to persist Shiprocket identifiers: ${error?.message ?? 'missing row'}`)
+  }
+}
+
+async function persistShipmentEvent(
+  orderId: string,
+  event: ParsedWebhook,
+  payload: Record<string, unknown>
+): Promise<void> {
+  const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
+  const { error } = await adminSupabase.from('shipment_events').insert({
+    order_id: orderId,
+    shipment_id: event.shipmentId,
+    status: event.currentStatus,
+    location: event.location,
+    remarks: event.remarks,
+    event_time: event.eventTime,
+    raw_payload: payload,
+    payload_hash: payloadHash,
+    vendor_event_id: event.vendorEventId,
+  })
+
+  if (error && error.code !== '23505') {
+    throw new Error(`Failed to persist shipment event: ${error.message}`)
+  }
+}
+
 export async function processShiprocketWebhook(
   payload: Record<string, unknown>
 ): Promise<ProcessWebhookResult> {
-  const event = payload['event'] as string | undefined
-  const shipmentId = payload['shipment_id'] as number | undefined
-  const awbCode = payload['awb'] as string | undefined
-  const currentStatus = payload['current_status'] as string | undefined
-  const location = payload['location'] as string | undefined
-  const remarks = payload['remarks'] as string | undefined
-  const orderId = payload['order_id'] as number | undefined
+  const event = parseWebhook(payload)
+  const order = await findOrder(event)
 
-  logger.info({ event, shipmentId, awbCode, currentStatus, orderId }, 'Shiprocket webhook received')
-
-  let dbOrderId: string | null = null
-
-  // Match by AWB code (primary)
-  if (awbCode) {
-    const { data: order } = await adminSupabase
-      .from('orders')
-      .select('id, status')
-      .eq('awb_code', awbCode)
-      .maybeSingle()
-
-    if (order) {
-      dbOrderId = order.id
-    }
-  }
-
-  // Fallback: match by shipment_id
-  if (!dbOrderId && shipmentId) {
-    const { data: order } = await adminSupabase
-      .from('orders')
-      .select('id, status')
-      .eq('shipment_id', String(shipmentId))
-      .maybeSingle()
-
-    if (order) {
-      dbOrderId = order.id
-    }
-  }
-
-  // Fallback: match by Shiprocket order_id
-  if (!dbOrderId && orderId) {
-    const { data: order } = await adminSupabase
-      .from('orders')
-      .select('id, status')
-      .eq('shiprocket_order_id', String(orderId))
-      .maybeSingle()
-
-    if (order) {
-      dbOrderId = order.id
-    }
-  }
-
-  if (!dbOrderId) {
+  if (!order) {
     logger.warn(
-      { event, shipmentId, awbCode, orderId },
-      'Shiprocket webhook: no matching order found'
+      {
+        awb: event.awbCode,
+        shipmentId: event.shipmentId,
+        shiprocketOrderId: event.shiprocketOrderId,
+        merchantOrderId: event.merchantOrderId,
+      },
+      'Shiprocket webhook has no matching order'
     )
     return { status: 'ignored' }
   }
 
-  // Save shipment event for customer-facing timeline display
-  const eventPayloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
+  await persistShipmentIdentity(order.id, event)
+  await persistShipmentEvent(order.id, event, payload)
 
-  await adminSupabase.from('shipment_events').insert({
-    order_id: dbOrderId,
-    shipment_id: shipmentId != null ? String(shipmentId) : null,
-    status: currentStatus ?? event ?? 'unknown',
-    location: location ?? null,
-    remarks: remarks ?? null,
-    event_time: new Date().toISOString(),
-    raw_payload: payload,
-    payload_hash: eventPayloadHash,
-  })
+  const targetStatus = mapShiprocketStatusToOrderStatus(event.currentStatus)
+  if (
+    targetStatus &&
+    targetStatus !== order.status &&
+    isValidTransition(order.status, targetStatus)
+  ) {
+    await transitionOrderStatus(order, targetStatus, 'webhook', {
+      awbCode: event.awbCode,
+      courierName: event.courierName,
+      vendorEventId: event.vendorEventId,
+    })
+  } else if (targetStatus && targetStatus !== order.status) {
+    logger.warn(
+      { orderId: order.id, currentStatus: order.status, targetStatus },
+      'Shiprocket webhook retained an out-of-sequence status'
+    )
+  } else if (!targetStatus) {
+    logger.warn(
+      { orderId: order.id, shiprocketStatus: event.currentStatus },
+      'Shiprocket webhook status is not mapped; raw event retained'
+    )
+  }
 
-  // Write tracking snapshot for analytics (fire-and-forget)
-  writeTrackingSnapshot({
-    orderId: dbOrderId,
-    awbCode: awbCode ?? null,
-    shipmentId: shipmentId != null ? String(shipmentId) : null,
-    currentStatus: currentStatus ?? '',
-    location: location ?? null,
-    courierName: null,
+  await writeTrackingSnapshot({
+    orderId: order.id,
+    awbCode: event.awbCode,
+    shipmentId: event.shipmentId,
+    currentStatus: event.currentStatus,
+    location: event.location,
+    courierName: event.courierName,
     origin: null,
     destination: null,
-    edd: null,
-    pickupDate: null,
-    deliveredDate: null,
+    edd: optionalString(payload['etd']),
+    pickupDate: optionalString(payload['pickup_scheduled_date']),
+    deliveredDate: targetStatus === 'delivered' ? event.eventTime : null,
     trackingRaw: payload,
     syncSource: 'webhook',
-  }).catch(() => {})
+  })
 
-  // Update order status if tracking info is provided
-  if (awbCode && currentStatus) {
-    const targetStatus = mapShiprocketStatusToOrderStatus(currentStatus)
-    if (targetStatus) {
-      await updateOrderStatusByAwb(awbCode, targetStatus, 'webhook')
-    }
-  }
-
-  // If AWB is newly assigned via webhook, save it
-  if (awbCode && shipmentId) {
-    await adminSupabase
-      .from('orders')
-      .update({
-        awb_code: awbCode,
-        shipment_id: String(shipmentId),
-      })
-      .eq('id', dbOrderId)
-  }
-
-  // If a tracking URL was provided, save it
-  const trackUrl = payload['track_url'] as string | undefined
-  if (trackUrl) {
-    await adminSupabase.from('orders').update({ tracking_url: trackUrl }).eq('id', dbOrderId)
-  }
-
-  logger.info({ dbOrderId, event, currentStatus }, 'Shiprocket webhook processed')
-
-  return { status: 'processed', orderId: dbOrderId }
+  logger.info(
+    { orderId: order.id, currentStatus: event.currentStatus },
+    'Shiprocket webhook processed'
+  )
+  return { status: 'processed', orderId: order.id }
 }

@@ -27,11 +27,12 @@ export type FulfillmentStep =
   | 'manifest_generated'
   | 'ready_for_pickup'
 export interface FulfillOrderInput {
-  pickupLocation?: string
-  weightKg?: number
-  lengthCm?: number
-  widthCm?: number
-  heightCm?: number
+  pickup_location: string
+  weight_grams: number
+  length_cm: number
+  breadth_cm: number
+  height_cm: number
+  courier_id?: number
 }
 
 export interface OrderListItem {
@@ -170,18 +171,6 @@ export interface OrderTrackingData {
   courier_name: string | null
   shiprocket_status: string | null
   shipment_events: OrderTrackingEvent[]
-}
-
-export interface FulfillOrderRequest {
-  pickup_location: string
-  weight_grams: number
-  length_cm: number
-  breadth_cm: number
-  height_cm: number
-  package_count?: number
-  courier_id?: number
-  payment_method?: 'Prepaid' | 'COD'
-  cod_amount?: number
 }
 
 export interface FulfillmentStepResult {

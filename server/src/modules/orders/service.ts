@@ -185,32 +185,15 @@ export async function adminUpdateOrderStatus(
     )
   }
 
-  const { data, error } = await adminSupabase
-    .from('orders')
-    .update({ status: newStatus })
-    .eq('id', orderId)
-    .select()
-    .single()
-
-  if (error || !data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-
-  // Record status history
-  recordStatusChange({
-    orderId,
-    oldStatus,
+  await transitionOrderStatus(
+    {
+      id: orderId,
+      status: oldStatus,
+      user_id: current.user_id,
+    },
     newStatus,
-    source: 'admin_manual',
-  }).catch(() => {})
-
-  emitStatusChangeEvents({
-    orderId,
-    userId: current.user_id,
-    oldStatus,
-    newStatus,
-    source: 'admin_manual',
-  })
-
-  invalidateOn('ORDER_UPDATED', { id: orderId, userId: current.user_id })
+    'admin_manual'
+  )
 
   return adminGetOrder(orderId)
 }
@@ -219,9 +202,9 @@ export async function adminUpdateFulfillment(
   orderId: string,
   input: UpdateFulfillmentInput
 ): Promise<Order> {
-  // When an AWB is set, mark as fulfilled; when cleared, revert to unfulfilled
+  // An AWB confirms allocation, not carrier handoff.
   const fulfillment_status =
-    input.awb_code != null && input.awb_code.trim() !== '' ? 'fulfilled' : 'unfulfilled'
+    input.awb_code != null && input.awb_code.trim() !== '' ? 'partial' : 'unfulfilled'
 
   const { data, error } = await adminSupabase
     .from('orders')
@@ -273,53 +256,19 @@ export async function updateOrderStatusByAwb(
     .eq('awb_code', awbCode)
     .maybeSingle()
 
-  if (fetchError || !order) return null
+  if (fetchError) throw new AppError(500, 'DB_ERROR', 'Failed to fetch order by AWB')
+  if (!order) return null
 
   if (order.status !== status) {
-    // Transition validation for auto-sync sources (webhook, polling)
     if (!isValidTransition(order.status, status)) {
       logger.warn(
         { orderId: order.id, awb: awbCode, from: order.status, to: status, source },
         'Auto-sync: blocked invalid status transition'
       )
-      return order as unknown as Order
+      return null
     }
 
-    const oldStatus = order.status
-
-    const { data: updated, error: updateError } = await adminSupabase
-      .from('orders')
-      .update({ status })
-      .eq('id', order.id)
-      .select()
-      .single()
-
-    if (updateError || !updated) return null
-
-    // Record status history (fire-and-forget)
-    recordStatusChange({
-      orderId: order.id,
-      oldStatus,
-      newStatus: status,
-      source,
-    }).catch(() => {})
-
-    invalidateOn('ORDER_UPDATED', {
-      id: order.id,
-      userId: order.user_id,
-    })
-
-    // Emit domain events for subscribers (notifications, analytics, etc.)
-    emitStatusChangeEvents({
-      orderId: order.id,
-      userId: order.user_id,
-      oldStatus,
-      newStatus: status,
-      source,
-      awbCode: awbCode,
-    })
-
-    return updated as unknown as Order
+    return transitionOrderStatus(order, status, source, { awbCode })
   }
 
   return order as unknown as Order
@@ -329,26 +278,44 @@ export function mapShiprocketStatusToOrderStatus(shiprocketStatus?: string): str
   return shiprocketStatusToOrderStatus(shiprocketStatus)
 }
 
-async function recordStatusChange(params: {
-  orderId: string
-  oldStatus: string
-  newStatus: string
-  source: 'webhook' | 'polling_sync' | 'admin_manual' | 'system'
-  actorId?: string
+export async function transitionOrderStatus(
+  order: { id: string; status: string; user_id: string; order_number?: string },
+  newStatus: string,
+  source: 'webhook' | 'polling_sync' | 'admin_manual' | 'system',
   metadata?: Record<string, unknown>
-}): Promise<void> {
-  try {
-    await adminSupabase.from('order_status_history').insert({
-      order_id: params.orderId,
-      old_status: params.oldStatus,
-      new_status: params.newStatus,
-      source: params.source,
-      actor_id: params.actorId ?? null,
-      metadata: params.metadata ?? null,
-    })
-  } catch (err) {
-    logger.error({ err, ...params }, 'Failed to record status change history')
+): Promise<Order> {
+  if (order.status === newStatus) return order as unknown as Order
+
+  const { data, error } = await adminSupabase.rpc('transition_order_status', {
+    p_order_id: order.id,
+    p_expected_status: order.status,
+    p_new_status: newStatus,
+    p_source: source,
+    p_actor_id: null,
+    p_metadata: metadata ?? null,
+  })
+
+  if (error || !data) {
+    throw new AppError(
+      409,
+      'ORDER_TRANSITION_FAILED',
+      error?.message ?? 'Order transition did not return an updated order'
+    )
   }
+
+  invalidateOn('ORDER_UPDATED', { id: order.id, userId: order.user_id })
+  emitStatusChangeEvents({
+    orderId: order.id,
+    orderNumber: order.order_number,
+    userId: order.user_id,
+    oldStatus: order.status,
+    newStatus,
+    source,
+    awbCode: (metadata?.['awbCode'] as string | undefined) ?? null,
+    courierName: (metadata?.['courierName'] as string | undefined) ?? null,
+  })
+
+  return data as unknown as Order
 }
 
 export async function adminSyncTrackingOrders(): Promise<{
@@ -411,12 +378,12 @@ interface ShiprocketOrderOverrides {
   lengthCm?: number
   breadthCm?: number
   heightCm?: number
-  paymentMethod?: 'Prepaid' | 'COD'
 }
 
 async function buildShiprocketOrderPayload(
   order: Record<string, unknown>,
   orderItems: Array<{
+    product_id: string
     product_name: string
     product_sku: string | null
     quantity: number
@@ -428,9 +395,7 @@ async function buildShiprocketOrderPayload(
   let weightGrams =
     overrides.weightGrams ?? (order['package_weight_grams'] as number | undefined) ?? 0
   if (weightGrams <= 0) {
-    const productIds = orderItems
-      .map((i) => (i as unknown as { product_id: string }).product_id)
-      .filter(Boolean)
+    const productIds = orderItems.map((item) => item.product_id).filter(Boolean)
     if (productIds.length > 0) {
       const { data: products } = await adminSupabase
         .from('products')
@@ -439,10 +404,7 @@ async function buildShiprocketOrderPayload(
       if (products && products.length > 0) {
         const weightMap = new Map(products.map((p) => [p.id, p.weight_grams ?? 200]))
         weightGrams = orderItems.reduce(
-          (sum, item) =>
-            sum +
-            (weightMap.get((item as unknown as { product_id: string }).product_id) ?? 200) *
-              item.quantity,
+          (sum, item) => sum + (weightMap.get(item.product_id) ?? 200) * item.quantity,
           0
         )
       }
@@ -451,11 +413,14 @@ async function buildShiprocketOrderPayload(
   if (weightGrams <= 0) weightGrams = 500
 
   // Resolve dimensions: override > order > site_settings defaults
-  const { data: settingsData } = await adminSupabase
+  const { data: settingsData, error: settingsError } = await adminSupabase
     .from('site_settings')
     .select('value')
     .eq('key', 'shiprocket_settings')
     .single()
+  if (settingsError) {
+    throw new AppError(500, 'SETTINGS_UNAVAILABLE', 'Shiprocket settings are unavailable')
+  }
   const defaults = (settingsData?.value as Record<string, number | string>) ?? {}
 
   const lengthCm =
@@ -479,12 +444,25 @@ async function buildShiprocketOrderPayload(
     (defaults['pickup_location'] as string) ??
     ''
 
+  if (!pickupLocation.trim()) {
+    throw new AppError(400, 'PICKUP_LOCATION_REQUIRED', 'A Shiprocket pickup location is required')
+  }
+
+  if (order['payment_status'] !== 'paid') {
+    throw new AppError(409, 'ORDER_NOT_PAID', 'Only paid orders can be sent to Shiprocket')
+  }
+
+  const contactEmail = String(order['contact_email'] ?? '').trim()
+  if (!contactEmail) {
+    throw new AppError(409, 'ORDER_EMAIL_REQUIRED', 'The paid order has no contact email snapshot')
+  }
+
   // Build items
   const srItems = orderItems.map((item) => ({
     name: item.product_name,
-    sku: item.product_sku ?? 'SKU',
+    sku: item.product_sku ?? item.product_id,
     units: item.quantity,
-    selling_price: Math.round(item.unit_price_paisa / 100),
+    selling_price: item.unit_price_paisa / 100,
     discount: 0,
     tax: 0,
   }))
@@ -500,11 +478,8 @@ async function buildShiprocketOrderPayload(
   const addr2 = (order['shipping_address_line2'] as string) ?? ''
   const fullAddress = addr2 ? `${addr1}, ${addr2}` : addr1
 
-  // Strip non-numeric chars from order_number for Shiprocket compat
-  const numericOrderId = (order['order_number'] as string).replace(/\D/g, '')
-
   return {
-    order_id: numericOrderId,
+    order_id: order['order_number'] as string,
     order_date: new Date((order['created_at'] as string) || Date.now()).toISOString().slice(0, 10),
     pickup_location: pickupLocation,
     billing_customer_name: firstName,
@@ -514,16 +489,14 @@ async function buildShiprocketOrderPayload(
     billing_pincode: order['shipping_pincode'] as string,
     billing_state: order['shipping_state'] as string,
     billing_country: (order['shipping_country'] as string) ?? 'India',
-    billing_email: '',
+    billing_email: contactEmail,
     billing_phone: order['shipping_phone'] as string,
     shipping_is_billing: true,
     order_items: srItems,
-    payment_method:
-      (overrides.paymentMethod as 'Prepaid' | 'COD') ??
-      ((order['payment_status'] === 'paid' ? 'Prepaid' : 'COD') as 'Prepaid' | 'COD'),
-    sub_total: Math.round((order['subtotal_paisa'] as number) / 100),
-    shipping_charges: Math.round(((order['shipping_amount_paisa'] as number) ?? 0) / 100),
-    total_discount: Math.round(((order['discount_amount_paisa'] as number) ?? 0) / 100),
+    payment_method: 'Prepaid' as const,
+    sub_total: (order['subtotal_paisa'] as number) / 100,
+    shipping_charges: ((order['shipping_amount_paisa'] as number) ?? 0) / 100,
+    total_discount: ((order['discount_amount_paisa'] as number) ?? 0) / 100,
     length: lengthCm,
     breadth: breadthCm,
     height: heightCm,
@@ -538,14 +511,14 @@ async function buildShiprocketOrderPayload(
 export async function createShiprocketOrder(
   orderId: string,
   pickupLocationOverride?: string
-): Promise<{ shiprocket_order_id: number; shipment_id: number } | null> {
+): Promise<{ shiprocket_order_id: number; shipment_id: number }> {
   return createShiprocketOrderInternal(orderId, { pickupLocation: pickupLocationOverride })
 }
 
 async function createShiprocketOrderInternal(
   orderId: string,
   overrides: ShiprocketOrderOverrides = {}
-): Promise<{ shiprocket_order_id: number; shipment_id: number } | null> {
+): Promise<{ shiprocket_order_id: number; shipment_id: number }> {
   const { data: order, error } = await adminSupabase
     .from('orders')
     .select('*, order_items(*)')
@@ -553,8 +526,7 @@ async function createShiprocketOrderInternal(
     .single()
 
   if (error || !order) {
-    logger.error({ orderId }, 'createShiprocketOrder: order not found')
-    return null
+    throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   }
 
   if (order.shiprocket_order_id && order.shipment_id) {
@@ -562,103 +534,137 @@ async function createShiprocketOrderInternal(
       { orderId, shiprocketOrderId: order.shiprocket_order_id },
       'Shiprocket order already exists - reusing'
     )
-    return {
+    const existingResult = {
       shiprocket_order_id: Number(order.shiprocket_order_id),
       shipment_id: Number(order.shipment_id),
     }
+    if (order.status === 'confirmed') {
+      await transitionOrderStatus(order, 'processing', 'system', existingResult)
+    }
+    return existingResult
   }
 
   const orderItems = order.order_items as Array<{
+    product_id: string
     product_name: string
     product_sku: string | null
     quantity: number
     unit_price_paisa: number
   }>
 
-  await adminSupabase
+  const { error: pendingError } = await adminSupabase
     .from('orders')
     .update({ shiprocket_status: 'pending', shiprocket_error: null })
     .eq('id', orderId)
+  if (pendingError) throw new AppError(500, 'DB_ERROR', 'Failed to prepare Shiprocket order')
 
+  const payload = await buildShiprocketOrderPayload(order, orderItems, overrides)
+  let result: Awaited<ReturnType<typeof shiprocketCreateOrder>>
   try {
-    const payload = await buildShiprocketOrderPayload(order, orderItems, overrides)
-    const result = await shiprocketCreateOrder(payload)
-
-    const rawResult = result as unknown as Record<string, unknown>
-    const responseData = rawResult['data'] as Record<string, unknown> | undefined
-    const resolved = responseData ?? rawResult
-
-    const shiprocketOrderId =
-      (resolved['shiprocket_order_id'] as number) ?? (resolved['order_id'] as number)
-    const shipmentId = resolved['shipment_id'] as number | undefined
-
-    if (!shiprocketOrderId) {
-      throw new Error(`Unexpected Shiprocket response: ${JSON.stringify(result)}`)
-    }
-
-    await adminSupabase
-      .from('orders')
-      .update({
-        shiprocket_order_id: String(shiprocketOrderId),
-        shipment_id: String(shipmentId),
-        shiprocket_status: 'created',
-        shiprocket_error: null,
-        pickup_location: payload.pickup_location,
-        package_weight_grams: payload.package_weight_grams,
-        package_length_cm: payload.package_length_cm,
-        package_breadth_cm: payload.package_breadth_cm,
-        package_height_cm: payload.package_height_cm,
-      })
-      .eq('id', orderId)
-
-    logger.info({ orderId, shiprocketOrderId, shipmentId }, 'Shiprocket order created successfully')
-    return { shiprocket_order_id: shiprocketOrderId, shipment_id: shipmentId ?? 0 }
+    result = await shiprocketCreateOrder(payload)
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err)
     logger.error({ err, orderId }, 'Failed to create Shiprocket order')
-    await adminSupabase
+    const { error: failurePersistError } = await adminSupabase
       .from('orders')
       .update({ shiprocket_status: 'failed', shiprocket_error: errorMessage })
       .eq('id', orderId)
-    return null
+    if (failurePersistError) {
+      logger.error({ orderId, error: failurePersistError }, 'Failed to persist Shiprocket failure')
+    }
+    throw new AppError(502, 'SHIPROCKET_FAILED', 'Shiprocket order creation failed')
   }
+
+  const rawResult = result as unknown as Record<string, unknown>
+  const responseData = rawResult['data'] as Record<string, unknown> | undefined
+  const resolved = responseData ?? rawResult
+  const shiprocketOrderId = Number(resolved['shiprocket_order_id'] ?? resolved['order_id'])
+  const shipmentId = Number(resolved['shipment_id'])
+
+  if (!Number.isSafeInteger(shiprocketOrderId) || !Number.isSafeInteger(shipmentId)) {
+    throw new AppError(
+      502,
+      'SHIPROCKET_INVALID_RESPONSE',
+      'Shiprocket returned invalid identifiers'
+    )
+  }
+
+  const persistence = {
+    shiprocket_order_id: String(shiprocketOrderId),
+    shipment_id: String(shipmentId),
+    shiprocket_status: 'created',
+    shiprocket_error: null,
+    pickup_location: payload.pickup_location,
+    package_weight_grams: payload.package_weight_grams,
+    package_length_cm: payload.package_length_cm,
+    package_breadth_cm: payload.package_breadth_cm,
+    package_height_cm: payload.package_height_cm,
+    fulfillment_status: 'partial',
+    fulfillment_step: 'order_created',
+  }
+  const { data: persisted, error: persistenceError } = await adminSupabase
+    .from('orders')
+    .update(persistence)
+    .eq('id', orderId)
+    .select('id')
+    .single()
+
+  if (persistenceError || !persisted) {
+    const { error: retryError } = await adminSupabase.rpc('enqueue_retry_job', {
+      p_job_type: 'shiprocket_persist',
+      p_reference_id: orderId,
+      p_payload: { orderId, persistence },
+      p_max_retries: 10,
+    })
+    if (retryError) {
+      logger.error({ orderId, retryError }, 'Failed to enqueue Shiprocket persistence repair')
+    }
+    throw new AppError(
+      500,
+      'SHIPROCKET_PERSISTENCE_FAILED',
+      'Shiprocket accepted the order, but local persistence failed; reconciliation is queued'
+    )
+  }
+
+  if (order.status === 'confirmed') {
+    await transitionOrderStatus(order, 'processing', 'system', { shiprocketOrderId, shipmentId })
+  }
+
+  logger.info({ orderId, shiprocketOrderId, shipmentId }, 'Shiprocket order created successfully')
+  return { shiprocket_order_id: shiprocketOrderId, shipment_id: shipmentId }
 }
 
 //
 // Admin create shipment - validates pickup location, then creates Shiprocket order
 //
 
-export async function adminCreateShipment(orderId: string, pickupLocation: string): Promise<Order> {
-  // Fetch available pickup locations from Shiprocket to validate
-  let availableLocations: Array<{ pickup_location: string }> = []
+async function assertPickupLocationConfigured(pickupLocation: string): Promise<void> {
   try {
-    availableLocations = await shiprocketGetPickupLocations()
-  } catch {
-    // If we can't fetch, proceed and let Shiprocket validate
-  }
-
-  if (availableLocations.length > 0) {
+    const availableLocations = await shiprocketGetPickupLocations()
     const valid = availableLocations.some(
-      (loc) => loc.pickup_location.toLowerCase() === pickupLocation.toLowerCase()
+      (location) => location.pickup_location.toLowerCase() === pickupLocation.toLowerCase()
     )
     if (!valid) {
-      const names = availableLocations.map((l) => `"${l.pickup_location}"`).join(', ')
+      const names = availableLocations.map((location) => `"${location.pickup_location}"`).join(', ')
       throw new AppError(
         400,
         'INVALID_PICKUP_LOCATION',
         `Invalid pickup location "${pickupLocation}". Available: ${names}`
       )
     }
-  }
-
-  const result = await createShiprocketOrder(orderId, pickupLocation)
-  if (!result) {
+  } catch (error) {
+    if (error instanceof AppError) throw error
     throw new AppError(
       502,
-      'SHIPROCKET_FAILED',
-      'Failed to create Shiprocket order. Check error log.'
+      'PICKUP_LOCATIONS_UNAVAILABLE',
+      'Pickup locations could not be verified with Shiprocket'
     )
   }
+}
+
+export async function adminCreateShipment(orderId: string, pickupLocation: string): Promise<Order> {
+  await assertPickupLocationConfigured(pickupLocation)
+  await createShiprocketOrder(orderId, pickupLocation)
 
   return adminGetOrder(orderId)
 }
@@ -694,11 +700,15 @@ export async function getOrderTracking(
     throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   }
 
-  const { data: events } = await adminSupabase
+  const { data: events, error: eventsError } = await adminSupabase
     .from('shipment_events')
     .select('id, status, location, remarks, event_time')
     .eq('order_id', orderId)
     .order('event_time', { ascending: false })
+
+  if (eventsError) {
+    throw new AppError(503, 'TRACKING_UNAVAILABLE', 'Shipment tracking is temporarily unavailable')
+  }
 
   return {
     awb_code: order.awb_code,
@@ -753,14 +763,16 @@ export async function adminAssignAwb(orderId: string, input: AssignAwbInput): Pr
     throw new AppError(502, 'AWB_FAILED', 'Shiprocket AWB assignment returned no AWB code')
   }
 
-  await adminSupabase
-    .from('orders')
-    .update({
+  await persistFulfillmentState(
+    orderId,
+    {
       awb_code: awbData.awb_code,
       courier_name: awbData.courier_name ?? null,
-      fulfillment_status: 'fulfilled',
-    })
-    .eq('id', orderId)
+      fulfillment_status: 'partial',
+      fulfillment_step: 'awb_assigned',
+    },
+    'AWB was assigned but could not be persisted'
+  )
 
   invalidateOn('ORDER_UPDATED', { id: orderId, userId: '' })
 
@@ -775,7 +787,23 @@ export async function adminSchedulePickup(orderId: string): Promise<{ status: st
     shipment_id: [shipmentId],
   })
 
-  const pickupStatus = result.response?.[0]?.status ?? 'scheduled'
+  const pickupInfo = result.response?.[0]
+  if (!pickupInfo?.status) {
+    throw new AppError(502, 'PICKUP_FAILED', 'Shiprocket did not confirm pickup scheduling')
+  }
+  const pickupStatus = pickupInfo.status
+  const pickupDate = pickupInfo.pickup_scheduled_date ?? null
+  const pickupToken = pickupInfo.pickup_token_number ?? null
+  await persistFulfillmentState(
+    orderId,
+    {
+      pickup_scheduled_date: pickupDate,
+      pickup_token_number: pickupToken ? String(pickupToken) : null,
+      fulfillment_status: 'partial',
+      fulfillment_step: 'pickup_scheduled',
+    },
+    'Pickup was scheduled but could not be persisted'
+  )
   logger.info({ orderId, shipmentId, pickupStatus }, 'Pickup scheduled')
   return { status: pickupStatus }
 }
@@ -862,7 +890,7 @@ export async function adminGenerateInvoice(orderId: string): Promise<Buffer> {
   // Get the Shiprocket order_id from DB
   const { data: order } = await adminSupabase
     .from('orders')
-    .select('shiprocket_order_id')
+    .select('id, shiprocket_order_id, status, user_id, order_number')
     .eq('id', orderId)
     .single()
 
@@ -891,7 +919,7 @@ export async function adminCancelShiprocketOrder(
 ): Promise<Record<string, unknown>> {
   const { data: order } = await adminSupabase
     .from('orders')
-    .select('shiprocket_order_id')
+    .select('id, shiprocket_order_id, status, user_id, order_number')
     .eq('id', orderId)
     .single()
 
@@ -903,25 +931,9 @@ export async function adminCancelShiprocketOrder(
     ids: [Number(order.shiprocket_order_id)],
   })
 
-  const { data: beforeCancel } = await adminSupabase
-    .from('orders')
-    .select('status')
-    .eq('id', orderId)
-    .single()
-  const oldStatus = beforeCancel?.status as string | undefined
-
-  await adminSupabase.from('orders').update({ status: 'cancelled' }).eq('id', orderId)
-
-  if (oldStatus) {
-    recordStatusChange({
-      orderId,
-      oldStatus,
-      newStatus: 'cancelled',
-      source: 'admin_manual',
-    }).catch(() => {})
-  }
-
-  invalidateOn('ORDER_UPDATED', { id: orderId, userId: '' })
+  await transitionRemoteOrderStatus(order, 'cancelled', {
+    shiprocketOrderId: order.shiprocket_order_id,
+  })
   logger.info(
     { orderId, shiprocketOrderId: order.shiprocket_order_id },
     'Shiprocket order cancelled'
@@ -932,7 +944,7 @@ export async function adminCancelShiprocketOrder(
 export async function adminCancelShiprocketShipment(orderId: string): Promise<{ status: string }> {
   const { data: order } = await adminSupabase
     .from('orders')
-    .select('awb_code')
+    .select('id, awb_code, status, user_id, order_number')
     .eq('id', orderId)
     .single()
 
@@ -944,25 +956,7 @@ export async function adminCancelShiprocketShipment(orderId: string): Promise<{ 
     awbs: [order.awb_code],
   })
 
-  const { data: beforeCancelShip } = await adminSupabase
-    .from('orders')
-    .select('status')
-    .eq('id', orderId)
-    .single()
-  const oldShipStatus = beforeCancelShip?.status as string | undefined
-
-  await adminSupabase.from('orders').update({ status: 'cancelled' }).eq('id', orderId)
-
-  if (oldShipStatus) {
-    recordStatusChange({
-      orderId,
-      oldStatus: oldShipStatus,
-      newStatus: 'cancelled',
-      source: 'admin_manual',
-    }).catch(() => {})
-  }
-
-  invalidateOn('ORDER_UPDATED', { id: orderId, userId: '' })
+  await transitionRemoteOrderStatus(order, 'cancelled', { awbCode: order.awb_code })
   logger.info({ orderId, awb: order.awb_code }, 'Shiprocket shipment cancelled')
   return result
 }
@@ -993,6 +987,56 @@ export interface FulfillOrderResult {
   pickup_scheduled_date: string | null
   error?: string
   failed_step?: string
+}
+
+async function persistFulfillmentState(
+  orderId: string,
+  update: Record<string, unknown>,
+  failureMessage: string
+): Promise<void> {
+  const { data, error } = await adminSupabase
+    .from('orders')
+    .update(update)
+    .eq('id', orderId)
+    .select('id')
+    .single()
+
+  if (error || !data) {
+    const { error: retryError } = await adminSupabase.rpc('enqueue_retry_job', {
+      p_job_type: 'shiprocket_persist',
+      p_reference_id: orderId,
+      p_payload: { orderId, persistence: update },
+      p_max_retries: 10,
+    })
+    if (retryError) {
+      logger.error({ orderId, retryError }, 'Failed to enqueue fulfillment persistence repair')
+    }
+    throw new Error(`${failureMessage}: ${error?.message ?? 'missing order'}`)
+  }
+}
+
+async function transitionRemoteOrderStatus(
+  order: { id: string; status: string; user_id: string; order_number?: string },
+  newStatus: string,
+  metadata: Record<string, unknown>
+): Promise<void> {
+  try {
+    await transitionOrderStatus(order, newStatus, 'admin_manual', metadata)
+  } catch (error) {
+    const { error: retryError } = await adminSupabase.rpc('enqueue_retry_job', {
+      p_job_type: 'shiprocket_persist',
+      p_reference_id: order.id,
+      p_payload: {
+        orderId: order.id,
+        transition: { newStatus, metadata },
+      },
+      p_max_retries: 10,
+    })
+    if (retryError) {
+      logger.error({ orderId: order.id, retryError }, 'Failed to enqueue remote transition repair')
+    }
+    throw error
+  }
 }
 
 export async function adminFulfillOrder(
@@ -1027,6 +1071,8 @@ export async function adminFulfillOrder(
 
   if (!orderRaw) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
+  await assertPickupLocationConfigured(input.pickup_location)
+
   const currentStep = orderRaw['fulfillment_step'] as string | null
   const FULFILLMENT_STEPS = [
     'idle',
@@ -1035,6 +1081,7 @@ export async function adminFulfillOrder(
     'pickup_scheduled',
     'label_generated',
     'manifest_generated',
+    'ready_for_pickup',
   ] as const
 
   // Returns true if the step should be attempted (hasn't been completed yet).
@@ -1056,9 +1103,7 @@ export async function adminFulfillOrder(
         lengthCm: input.length_cm,
         breadthCm: input.breadth_cm,
         heightCm: input.height_cm,
-        paymentMethod: input.payment_method,
       })
-      if (!result) throw new Error('Shiprocket order creation returned null')
       savedShiprocketOrderId = result.shiprocket_order_id
       savedShipmentId = result.shipment_id
       steps.push({
@@ -1066,10 +1111,6 @@ export async function adminFulfillOrder(
         status: 'completed',
         details: { shiprocket_order_id: savedShiprocketOrderId, shipment_id: savedShipmentId },
       })
-      await adminSupabase
-        .from('orders')
-        .update({ fulfillment_step: 'order_created' })
-        .eq('id', orderId)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       logger.error({ err, orderId }, 'Fulfill Step 1 failed: create Shiprocket order')
@@ -1144,15 +1185,16 @@ export async function adminFulfillOrder(
       }
       savedAwbCode = awbData.awb_code
       savedCourierName = awbData.courier_name ?? null
-      await adminSupabase
-        .from('orders')
-        .update({
+      await persistFulfillmentState(
+        orderId,
+        {
           awb_code: savedAwbCode,
           courier_name: savedCourierName,
-          fulfillment_status: 'fulfilled',
+          fulfillment_status: 'partial',
           fulfillment_step: 'awb_assigned',
-        })
-        .eq('id', orderId)
+        },
+        'AWB was assigned but could not be persisted'
+      )
       steps.push({
         step: 'awb_assigned',
         status: 'completed',
@@ -1177,16 +1219,21 @@ export async function adminFulfillOrder(
         shipment_id: [shipmentId],
       })
       const pickupInfo = pickupResult.response?.[0]
+      if (!pickupInfo?.status) {
+        throw new Error('Shiprocket did not confirm pickup scheduling')
+      }
       savedPickupDate = pickupInfo?.pickup_scheduled_date ?? null
       const tokenNumber = pickupInfo?.pickup_token_number ?? null
-      await adminSupabase
-        .from('orders')
-        .update({
+      await persistFulfillmentState(
+        orderId,
+        {
           pickup_scheduled_date: savedPickupDate,
           pickup_token_number: tokenNumber ? String(tokenNumber) : null,
+          fulfillment_status: 'partial',
           fulfillment_step: 'pickup_scheduled',
-        })
-        .eq('id', orderId)
+        },
+        'Pickup was scheduled but could not be persisted'
+      )
       steps.push({
         step: 'pickup_scheduled',
         status: 'completed',
@@ -1208,10 +1255,11 @@ export async function adminFulfillOrder(
     try {
       const labelResp = await shiprocketGenerateLabel(shipmentId)
       savedLabelGenerated = true
-      await adminSupabase
-        .from('orders')
-        .update({ label_generated: true, fulfillment_step: 'label_generated' })
-        .eq('id', orderId)
+      await persistFulfillmentState(
+        orderId,
+        { label_generated: true, fulfillment_step: 'label_generated' },
+        'Label generation could not be persisted'
+      )
       steps.push({
         step: 'label_generated',
         status: 'completed',
@@ -1233,10 +1281,11 @@ export async function adminFulfillOrder(
     try {
       const manifestResp = await shiprocketGenerateManifest(shipmentId)
       savedManifestGenerated = true
-      await adminSupabase
-        .from('orders')
-        .update({ manifest_generated: true, fulfillment_step: 'manifest_generated' })
-        .eq('id', orderId)
+      await persistFulfillmentState(
+        orderId,
+        { manifest_generated: true, fulfillment_step: 'manifest_generated' },
+        'Manifest generation could not be persisted'
+      )
       steps.push({
         step: 'manifest_generated',
         status: 'completed',
@@ -1254,14 +1303,16 @@ export async function adminFulfillOrder(
   }
 
   // Step 6: Mark as Ready for Pickup
-  await adminSupabase
-    .from('orders')
-    .update({
+  await persistFulfillmentState(
+    orderId,
+    {
       fulfillment_step: 'ready_for_pickup',
+      fulfillment_status: 'partial',
       shiprocket_status: 'created',
       shiprocket_error: null,
-    })
-    .eq('id', orderId)
+    },
+    'Ready-for-pickup state could not be persisted'
+  )
 
   steps.push({ step: 'ready_for_pickup', status: 'completed' })
 

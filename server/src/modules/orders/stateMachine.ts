@@ -82,17 +82,17 @@ export function shiprocketStatusToOrderStatus(srStatus?: string): OrderStatus | 
 
   const s = srStatus.toLowerCase().trim()
 
-  // --- Terminal states ---
-  if (s === 'delivered' || s.includes('delivered')) return 'delivered'
-  if (s === 'cancelled' || s === 'cancelled before shipping') return 'cancelled'
-  if (s === 'lost') return 'lost'
-  if (s === 'damaged') return 'damaged'
-
   // --- RTO states ---
   if (s.includes('rto')) {
     if (s.includes('delivered')) return 'returned'
     return 'rto'
   }
+
+  // --- Terminal states ---
+  if (s === 'delivered' || s.includes('delivered')) return 'delivered'
+  if (s === 'cancelled' || s === 'cancelled before shipping') return 'cancelled'
+  if (s === 'lost') return 'lost'
+  if (s === 'damaged') return 'damaged'
 
   // --- Delivery states ---
   if (s === 'out for delivery' || s.includes('out for delivery')) return 'out_for_delivery'

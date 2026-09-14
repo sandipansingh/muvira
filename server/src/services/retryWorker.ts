@@ -1,8 +1,8 @@
 import { adminSupabase } from '../lib/supabase/admin'
 import { logger } from '../lib/logger'
 import { trackSingle, generateLabel, generateInvoice } from './shiprocket'
-import { shiprocketStatusToOrderStatus, isValidTransition } from '../modules/orders/stateMachine'
-import { emitStatusChangeEvents } from './eventBus'
+import { isValidTransition, shiprocketStatusToOrderStatus } from '../modules/orders/stateMachine'
+import { transitionOrderStatus } from '../modules/orders/service'
 import { writeTrackingSnapshot } from './trackingAnalytics'
 
 /**
@@ -40,39 +40,16 @@ const handlers: Record<string, JobHandler> = {
     if (!order) return
     if (order.status === newStatus) return
 
-    // Validate transition via state machine
     if (!isValidTransition(order.status, newStatus)) {
       logger.warn(
         { orderId: order.id, awb, from: order.status, to: newStatus },
-        'retryWorker/tracking_sync: blocked invalid transition'
+        'Tracking retry retained an out-of-sequence provider status'
       )
       return
     }
 
     const oldStatus = order.status
-
-    // Atomic update
-    const { error: updateError } = await adminSupabase
-      .from('orders')
-      .update({ status: newStatus })
-      .eq('id', order.id)
-      .eq('status', oldStatus)
-
-    if (updateError) {
-      logger.warn(
-        { err: updateError, orderId: order.id },
-        'retryWorker/tracking_sync: update failed'
-      )
-      return
-    }
-
-    // Record status history
-    await adminSupabase.from('order_status_history').insert({
-      order_id: order.id,
-      old_status: oldStatus,
-      new_status: newStatus,
-      source: 'polling_sync',
-    })
+    await transitionOrderStatus(order, newStatus, 'polling_sync', { awbCode: awb })
 
     // Write tracking snapshot
     writeTrackingSnapshot({
@@ -90,17 +67,7 @@ const handlers: Record<string, JobHandler> = {
       syncSource: 'cron_poll',
     }).catch(() => {})
 
-    // Emit events for notifications
-    emitStatusChangeEvents({
-      orderId: order.id,
-      orderNumber: order.order_number,
-      userId: order.user_id,
-      oldStatus,
-      newStatus,
-      source: 'polling_sync',
-      awbCode: awb,
-      courierName: shipmentTrack.courier_name ?? null,
-    })
+    logger.info({ orderId: order.id, oldStatus, newStatus }, 'Tracking retry updated order')
   },
 
   webhook_process: async (payload) => {
@@ -157,6 +124,81 @@ const handlers: Record<string, JobHandler> = {
 
     const result = await generateInvoice(orderIds)
     logger.info({ orderIds, result }, 'retryWorker: invoice generated')
+  },
+
+  shiprocket_persist: async (payload, referenceId) => {
+    const orderId = (payload['orderId'] as string | undefined) ?? referenceId
+    const persistence = payload['persistence'] as Record<string, unknown> | undefined
+    const transition = payload['transition'] as Record<string, unknown> | undefined
+    if (!orderId || (!persistence && !transition)) {
+      throw new Error('Missing orderId or repair state in shiprocket_persist payload')
+    }
+
+    let order: { id: string; status: string; user_id: string; order_number: string }
+    if (persistence) {
+      const allowedKeys = new Set([
+        'shiprocket_order_id',
+        'shipment_id',
+        'shiprocket_status',
+        'shiprocket_error',
+        'pickup_location',
+        'package_weight_grams',
+        'package_length_cm',
+        'package_breadth_cm',
+        'package_height_cm',
+        'fulfillment_status',
+        'fulfillment_step',
+        'awb_code',
+        'courier_name',
+        'pickup_scheduled_date',
+        'pickup_token_number',
+        'label_generated',
+        'manifest_generated',
+      ])
+      const safePersistence = Object.fromEntries(
+        Object.entries(persistence).filter(([key]) => allowedKeys.has(key))
+      )
+      const result = await adminSupabase
+        .from('orders')
+        .update(safePersistence)
+        .eq('id', orderId)
+        .select('id, status, user_id, order_number')
+        .single()
+      if (result.error || !result.data) {
+        throw new Error(
+          `Failed to reconcile Shiprocket persistence: ${result.error?.message ?? 'missing row'}`
+        )
+      }
+      order = result.data
+    } else {
+      const result = await adminSupabase
+        .from('orders')
+        .select('id, status, user_id, order_number')
+        .eq('id', orderId)
+        .single()
+      if (result.error || !result.data) {
+        throw new Error(
+          `Failed to load Shiprocket transition repair: ${result.error?.message ?? 'missing row'}`
+        )
+      }
+      order = result.data
+    }
+
+    if (transition) {
+      const newStatus = transition['newStatus'] as string | undefined
+      if (!newStatus) throw new Error('Missing status in Shiprocket transition repair')
+      await transitionOrderStatus(order, newStatus, 'admin_manual', {
+        ...(transition['metadata'] as Record<string, unknown> | undefined),
+        reconciliation: 'shiprocket_persist',
+      })
+      return
+    }
+
+    if (order.status === 'confirmed') {
+      await transitionOrderStatus(order, 'processing', 'system', {
+        reconciliation: 'shiprocket_persist',
+      })
+    }
   },
 }
 

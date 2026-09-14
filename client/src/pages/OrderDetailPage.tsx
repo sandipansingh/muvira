@@ -13,6 +13,7 @@ export const OrderDetailPage: React.FC = () => {
   const navigate = useNavigate()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [tracking, setTracking] = useState<OrderTrackingData | null>(null)
+  const [trackingError, setTrackingError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -40,9 +41,20 @@ export const OrderDetailPage: React.FC = () => {
       }
       try {
         const response = await orderApiService.getOrderTracking(id)
-        if (active && response.success) setTracking(response.data)
-      } catch {
-        if (active) setTracking(null)
+        if (!response.success) throw new Error(response.error.message)
+        if (active) {
+          setTracking(response.data)
+          setTrackingError(null)
+        }
+      } catch (reason) {
+        if (active) {
+          setTracking(null)
+          setTrackingError(
+            reason instanceof Error
+              ? reason.message
+              : 'Shipment tracking is temporarily unavailable.'
+          )
+        }
       } finally {
         if (active) setLoading(false)
       }
@@ -131,6 +143,11 @@ export const OrderDetailPage: React.FC = () => {
               Open carrier tracking
             </a>
           )}
+          {trackingError && (
+            <p className="rounded-2xl border border-line bg-surface-subtle p-4 text-sm text-ink">
+              Tracking could not be loaded: {trackingError}
+            </p>
+          )}
           {trackingEvents.length > 0 && (
             <div className="space-y-4 border-t border-[var(--color-line)] pt-5">
               {trackingEvents.map((event) => (
@@ -147,6 +164,11 @@ export const OrderDetailPage: React.FC = () => {
                 </div>
               ))}
             </div>
+          )}
+          {!trackingError && trackingEvents.length === 0 && (
+            <p className="border-t border-[var(--color-line)] pt-5 text-sm text-muted">
+              Carrier tracking events will appear here after the shipment is picked up.
+            </p>
           )}
         </section>
 

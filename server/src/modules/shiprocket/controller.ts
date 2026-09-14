@@ -5,9 +5,9 @@ import { getSettings, updateSettings } from '../settings/service'
 import {
   computePayloadHash,
   verifyWebhookAuth,
-  verifyWebhookFreshness,
   checkWebhookDuplicate,
   recordWebhookEvent,
+  updateWebhookEventStatus,
 } from './webhookSecurity'
 import {
   recordWebhookReceived,
@@ -65,61 +65,42 @@ export async function handleWebhook(
       return
     }
 
-    // 2. Replay attack protection — reject expired webhooks
-    if (!verifyWebhookFreshness(parsedBody)) {
-      recordWebhookFailed()
-      logger.warn({ correlationId, payloadHash }, 'Webhook expired — possible replay attack')
-      res.status(422).json({
-        success: false,
-        error: { code: 'EXPIRED', message: 'Webhook payload has expired' },
-      })
-      return
-    }
-
-    // 3. Idempotency check
+    // 2. Idempotency check. Carrier event timestamps are not delivery timestamps,
+    // so replay protection is based on the authenticated payload hash instead.
     const existing = await checkWebhookDuplicate(payloadHash)
-    if (existing) {
+    if (existing && existing.processing_status !== 'failed') {
       logger.info(
         { payloadHash, existingStatus: existing.processing_status },
         'Duplicate Shiprocket webhook'
       )
       recordWebhookDuplicate()
-      await recordWebhookEvent({
-        source: 'shiprocket',
-        eventType: (parsedBody['event'] as string) ?? null,
-        payloadHash,
-        rawPayload: parsedBody,
-        processingStatus: 'duplicate',
-      })
-      // Return 200 so Shiprocket stops retrying
       res.json({ success: true, data: { status: 'duplicate' } })
       return
     }
 
-    // 4. Record receipt
+    // 3. Record receipt or reopen a previously failed attempt.
     recordWebhookReceived()
-    const eventId = await recordWebhookEvent({
-      source: 'shiprocket',
-      eventType: (parsedBody['event'] as string) ?? null,
-      payloadHash,
-      rawPayload: parsedBody,
-      processingStatus: 'verified',
-    })
+    const eventId = existing
+      ? existing.id
+      : await recordWebhookEvent({
+          source: 'shiprocket',
+          eventType:
+            (parsedBody['current_status'] as string) ?? (parsedBody['event'] as string) ?? null,
+          payloadHash,
+          rawPayload: parsedBody,
+          processingStatus: 'verified',
+        })
 
-    // 5. Process
+    if (existing) {
+      await updateWebhookEventStatus(eventId, 'verified')
+    }
+
+    // 4. Process
     try {
       const result = await service.processShiprocketWebhook(parsedBody)
 
       recordWebhookProcessed()
-      if (eventId) {
-        await recordWebhookEvent({
-          source: 'shiprocket',
-          eventType: (parsedBody['event'] as string) ?? null,
-          payloadHash,
-          rawPayload: parsedBody,
-          processingStatus: 'processed',
-        })
-      }
+      await updateWebhookEventStatus(eventId, 'processed')
 
       res.json({ success: true, data: { status: result.status, orderId: result.orderId } })
     } catch (processingErr) {
@@ -127,16 +108,7 @@ export async function handleWebhook(
       const errorMsg =
         processingErr instanceof Error ? processingErr.message : String(processingErr)
 
-      if (eventId) {
-        await recordWebhookEvent({
-          source: 'shiprocket',
-          eventType: (parsedBody['event'] as string) ?? null,
-          payloadHash,
-          rawPayload: parsedBody,
-          processingStatus: 'failed',
-          errorMessage: errorMsg,
-        })
-      }
+      await updateWebhookEventStatus(eventId, 'failed', errorMsg)
 
       // Return 500 so Shiprocket retries
       res.status(500).json({
@@ -145,12 +117,14 @@ export async function handleWebhook(
       })
     }
   } catch (err) {
-    // JSON parse error or other pre-processing failure
-    // 4xx = client error, Shiprocket won't retry
     logger.error({ err }, 'Shiprocket webhook pre-processing failed')
-    res.status(422).json({
+    const malformed = err instanceof SyntaxError
+    res.status(malformed ? 422 : 500).json({
       success: false,
-      error: { code: 'MALFORMED_WEBHOOK', message: 'Invalid webhook payload' },
+      error: {
+        code: malformed ? 'MALFORMED_WEBHOOK' : 'WEBHOOK_AUDIT_FAILED',
+        message: malformed ? 'Invalid webhook payload' : 'Webhook could not be recorded safely',
+      },
     })
   }
 }

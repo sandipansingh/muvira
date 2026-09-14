@@ -119,10 +119,7 @@ export const FulfillOrderSchema = z
     length_cm: z.number().int().min(1, 'Length must be at least 1cm'),
     breadth_cm: z.number().int().min(1, 'Breadth must be at least 1cm'),
     height_cm: z.number().int().min(1, 'Height must be at least 1cm'),
-    package_count: z.number().int().min(1).default(1),
     courier_id: z.number().int().optional(),
-    payment_method: z.enum(['Prepaid', 'COD']).optional(),
-    cod_amount: z.number().int().optional(),
   })
   .strict()
 
