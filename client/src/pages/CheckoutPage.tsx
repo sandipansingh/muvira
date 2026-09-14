@@ -15,6 +15,7 @@ import type { AddressData } from '../components/checkout/AddressSelector'
 import { formatPrice } from '../lib/utils/format'
 import { checkoutService } from '../lib/services/checkout.service'
 import type { CheckoutQuote, ShippingMethod } from '../types/checkout'
+import { checkoutTotals } from '../lib/utils/checkoutState'
 import { Tag, CheckCircle, X, HelpCircle } from 'lucide-react'
 
 function toAddressData(address: Address): AddressData {
@@ -236,10 +237,12 @@ export const CheckoutPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const effectiveSubtotalPaisa = quote?.subtotalPaisa ?? 0
-  const effectiveDiscountPaisa = quote?.discountAmountPaisa ?? 0
-  const effectiveShippingPaisa = quote?.shippingAmountPaisa ?? 0
-  const effectiveTotalPaisa = quote?.totalAmountPaisa ?? 0
+  const {
+    subtotalPaisa: effectiveSubtotalPaisa,
+    discountPaisa: effectiveDiscountPaisa,
+    shippingPaisa: effectiveShippingPaisa,
+    totalPaisa: effectiveTotalPaisa,
+  } = checkoutTotals(quote)
 
   if (authLoading) {
     return (

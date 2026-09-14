@@ -14,6 +14,7 @@ import { cartApiService } from '../lib/services/cart.service'
 import { checkoutService } from '../lib/services/checkout.service'
 import type { CheckoutQuote } from '../types/checkout'
 import { MAX_CART_ITEM_QTY } from '../lib/constants/cart.constants'
+import { addGuestCartItem } from '../lib/utils/cartState'
 import { useAuth } from './AuthContext'
 import { useSiteSettings } from './SiteSettingsContext'
 import { useToast } from './ToastContext'
@@ -59,25 +60,6 @@ function readGuestItems(): CartItem[] {
 
 function isGuestItem(item: CartItem): boolean {
   return item.id.startsWith('guest-')
-}
-
-function productImage(product: ProductDetail | ProductListItem): string {
-  return 'images' in product ? (product.images[0]?.url ?? '') : product.primaryImageUrl
-}
-
-function buildGuestItem(product: ProductDetail | ProductListItem, quantity: number): CartItem {
-  return {
-    id: `guest-${product.id}`,
-    productId: product.id,
-    productName: product.name,
-    productSlug: product.slug,
-    productImage: productImage(product),
-    unitPrice: product.price,
-    quantity,
-    lineTotal: product.price * quantity,
-    inStock: product.inStock,
-    availableStock: product.stock,
-  }
 }
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -177,24 +159,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null)
 
     if (!user) {
-      const existing = items.find((item) => item.productId === product.id)
-      const nextQuantity = (existing?.quantity ?? 0) + requestedQuantity
-      if (!product.inStock || nextQuantity > product.stock) {
-        const message = `Only ${Math.max(0, product.stock)} units available`
-        setError(message)
-        showToast(message, 'error')
-        throw new Error(message)
+      const result = addGuestCartItem(items, product, requestedQuantity)
+      if (result.error) {
+        setError(result.error)
+        showToast(result.error, 'error')
+        throw new Error(result.error)
       }
 
-      setItems((previous) => {
-        const current = previous.find((item) => item.productId === product.id)
-        if (!current) return [...previous, buildGuestItem(product, requestedQuantity)]
-        return previous.map((item) =>
-          item.productId === product.id
-            ? { ...item, quantity: nextQuantity, lineTotal: item.unitPrice * nextQuantity }
-            : item
-        )
-      })
+      setItems(result.items)
       setCoupon(null)
       setCheckoutQuote(null)
       showToast(product.name, 'success', 'Added to Cart')

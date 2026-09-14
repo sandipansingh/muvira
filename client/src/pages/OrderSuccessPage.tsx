@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderDetail } from '../lib/types/order'
+import { isVerifiedPaidOrder, orderConfirmationError } from '../lib/utils/orderConfirmation'
 
 export const OrderSuccessPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -20,7 +21,7 @@ export const OrderSuccessPage: React.FC = () => {
       .then((response) => {
         if (!active) return
         if (!response.success) throw new Error(response.error.message)
-        if (response.data.paymentStatus !== 'paid') {
+        if (!isVerifiedPaidOrder(response.data)) {
           throw new Error('This order does not have a verified paid status.')
         }
         setOrder(response.data)
@@ -47,14 +48,14 @@ export const OrderSuccessPage: React.FC = () => {
     )
   }
 
-  if (!orderId || error || !order) {
+  const confirmationError = orderConfirmationError(orderId, order, error)
+
+  if (confirmationError || !order) {
     return (
       <main className="editorial-page min-h-[60vh] px-4 py-12 text-center">
         <div className="mx-auto max-w-md space-y-4">
           <h1 className="heading page-title">Order confirmation unavailable</h1>
-          <p className="text-sm text-[var(--color-ink)]">
-            {error ?? 'No order reference was provided.'}
-          </p>
+          <p className="text-sm text-[var(--color-ink)]">{confirmationError}</p>
           <Link to="/orders" className="button-primary px-6 py-3 text-sm font-semibold">
             View all orders
           </Link>

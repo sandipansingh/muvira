@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { reviewService } from '../../lib/services/review.service'
 import type { ProductReview } from '../../lib/types/product'
+import { reviewDisplayState } from '../../lib/utils/reviewState'
 import { RatingStars } from '../common/RatingStars'
 import { Modal } from '../common/Modal'
 import { Button, Textarea } from '../ui'
@@ -57,6 +58,7 @@ export const ReviewsSection: React.FC<ProductReviewsProps> = ({
   const [submitting, setSubmitting] = useState(false)
   const { isAuthenticated } = useAuth()
   const { showToast } = useToast()
+  const displayState = reviewDisplayState(reviews, error)
 
   const handleReviewSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -109,7 +111,7 @@ export const ReviewsSection: React.FC<ProductReviewsProps> = ({
         </Button>
       </div>
 
-      {error && reviews.length === 0 ? (
+      {displayState === 'error' ? (
         <div className="rounded-xl border border-line bg-surface p-5 text-center">
           <p className="text-sm text-ink">Reviews could not be loaded: {error}</p>
           {onRetry && (
@@ -118,13 +120,13 @@ export const ReviewsSection: React.FC<ProductReviewsProps> = ({
             </Button>
           )}
         </div>
-      ) : reviews.length === 0 ? (
+      ) : displayState === 'empty' ? (
         <div className="rounded-xl border border-line bg-surface p-6 text-center text-sm text-muted">
           Be the first verified buyer to review this product.
         </div>
       ) : (
         <div>
-          {error && (
+          {displayState === 'partial-error' && (
             <div className="mb-4 rounded-xl border border-warning/30 bg-warning-soft p-4 text-sm text-warning">
               More reviews could not be loaded: {error}
             </div>

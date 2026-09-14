@@ -6,6 +6,7 @@ import { Input } from '../components/ui/Input'
 import { useToast } from '../context/ToastContext'
 import { PASSWORD_RECOVERY_SESSION_KEY } from '../lib/authRedirect'
 import { supabase } from '../lib/supabase'
+import { hasValidRecoverySession, validateNewPassword } from '../lib/utils/recoveryState'
 
 export const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('')
@@ -36,7 +37,7 @@ export const ResetPasswordPage: React.FC = () => {
           setError(sessionError.message)
           return
         }
-        if (data.session && markedRecoveryToken === data.session.access_token) {
+        if (hasValidRecoverySession(data.session?.access_token, markedRecoveryToken)) {
           setValidRecovery(true)
           return
         }
@@ -63,12 +64,9 @@ export const ResetPasswordPage: React.FC = () => {
       setError('This password recovery session is no longer valid.')
       return
     }
-    if (password.length < 8) {
-      setError('Password must contain at least 8 characters.')
-      return
-    }
-    if (password !== confirmation) {
-      setError('Passwords do not match.')
+    const validationError = validateNewPassword(password, confirmation)
+    if (validationError) {
+      setError(validationError)
       return
     }
 

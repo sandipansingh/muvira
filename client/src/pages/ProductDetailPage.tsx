@@ -14,6 +14,7 @@ import { ProductAccordion } from '../components/product/ProductAccordion'
 import { ProductCard } from '../components/catalog/ProductCard'
 import { SectionHeader } from '../components/common/SectionHeader'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { mergeReviewPage } from '../lib/utils/reviewState'
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -50,11 +51,7 @@ export const ProductDetailPage: React.FC = () => {
     try {
       const response = await reviewService.getProductReviews(productId, page)
       if (!response.success) throw new Error(response.error.message)
-      setReviews((current) => {
-        if (page === 1) return response.data
-        const existingIds = new Set(current.map((review) => review.id))
-        return [...current, ...response.data.filter((review) => !existingIds.has(review.id))]
-      })
+      setReviews((current) => mergeReviewPage(current, response.data, page))
       setReviewSummary(response.summary)
       setReviewPage(response.pagination.page)
       setReviewTotalPages(response.pagination.totalPages)
