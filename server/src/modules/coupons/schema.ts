@@ -1,11 +1,5 @@
 import { z } from 'zod'
 
-export const ApplyCouponSchema = z
-  .object({
-    code: z.string().min(1).max(50).toUpperCase(),
-  })
-  .strict()
-
 export const CouponIdParamsSchema = z.object({
   id: z.string().uuid(),
 })
@@ -62,6 +56,5 @@ export const UpdateCouponSchema = CouponBaseObject.partial()
     }
   )
 
-export type ApplyCouponInput = z.infer<typeof ApplyCouponSchema>
 export type CreateCouponInput = z.infer<typeof CreateCouponSchema>
 export type UpdateCouponInput = z.infer<typeof UpdateCouponSchema>

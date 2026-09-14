@@ -4,7 +4,6 @@ import { productService } from '../../lib/services/product.service'
 import type { ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
-import { useToast } from '../../context/ToastContext'
 
 export const RecommendedUpsell: React.FC = () => {
   const [recommendations, setRecommendations] = useState<ProductListItem[]>([])
@@ -12,7 +11,6 @@ export const RecommendedUpsell: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
   const { addToCart, items } = useCart()
-  const { showToast } = useToast()
 
   useEffect(() => {
     let active = true
@@ -50,13 +48,12 @@ export const RecommendedUpsell: React.FC = () => {
     setIsAdding(true)
     try {
       await addToCart(current, 1)
-      showToast(`${current.name} added to your order!`, 'success')
       // Advance to next recommendation
       if (recommendations.length > 1) {
         setCurrentIndex((prev) => (prev + 1) % recommendations.length)
       }
     } catch {
-      showToast('Could not add item to order', 'error')
+      // Cart context presents the server error.
     } finally {
       setIsAdding(false)
     }

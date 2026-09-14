@@ -17,7 +17,7 @@ import { categoriesRouter, adminCategoriesRouter } from './modules/categories/ro
 import { profileRouter } from './modules/profile/routes'
 import { addressesRouter } from './modules/addresses/routes'
 import { cartRouter } from './modules/cart/routes'
-import { couponsRouter, adminCouponsRouter } from './modules/coupons/routes'
+import { adminCouponsRouter } from './modules/coupons/routes'
 import { checkoutRouter } from './modules/checkout/routes'
 import { paymentsRouter, webhooksRouter } from './modules/payments/routes'
 import { ordersRouter, adminOrdersRouter } from './modules/orders/routes'
@@ -132,9 +132,6 @@ export function createApp() {
   app.use('/api/payments', paymentsRouter)
   app.use('/api/orders', ordersRouter)
   app.use('/api/notifications', notificationsRouter)
-
-  // Coupon preview (authenticated)
-  app.use('/api/checkout', couponsRouter) // POST /api/checkout/apply (behind requireAuth internally)
 
   // Webhook - signature-verified (NOT user-auth)
   app.use('/api/webhooks', webhooksRouter)

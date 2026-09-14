@@ -10,6 +10,7 @@ cartRouter.use(requireAuth)
 
 cartRouter.get('/', controller.getCart)
 cartRouter.post('/', validate({ body: AddToCartSchema }), controller.addToCart)
+cartRouter.delete('/', controller.clearCart)
 cartRouter.patch(
   '/:itemId',
   validate({ params: CartItemIdParamsSchema, body: UpdateCartItemSchema }),

@@ -48,3 +48,12 @@ export async function removeFromCart(
     next(err)
   }
 }
+
+export async function clearCart(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    await service.clearCart(req.user!.id)
+    res.json({ success: true, data: null })
+  } catch (err) {
+    next(err)
+  }
+}

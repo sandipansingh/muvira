@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { INDIAN_STATES } from '../../lib/constants/states.constants'
 import { Check, Truck, Zap } from 'lucide-react'
 import type { AddressData } from './AddressSelector'
+import type { ShippingMethod, ShippingOption } from '../../types/checkout'
+import { formatPrice } from '../../lib/utils/format'
 
 export interface ShippingFormData {
   firstName: string
@@ -17,8 +19,9 @@ export interface ShippingFormData {
 export interface ShippingSectionProps {
   shippingData: ShippingFormData
   onShippingDataChange: (data: ShippingFormData) => void
-  shippingMethod: 'standard' | 'express'
-  onShippingMethodChange: (method: 'standard' | 'express') => void
+  shippingMethod: ShippingMethod
+  onShippingMethodChange: (method: ShippingMethod) => void
+  shippingOptions?: Record<ShippingMethod, ShippingOption>
   savedAddresses?: AddressData[]
   selectedAddressId?: string
   onSelectSavedAddress?: (addressId: string) => void
@@ -32,6 +35,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
   savedAddresses = [],
   selectedAddressId = '',
   onSelectSavedAddress,
+  shippingOptions,
 }) => {
   const [useManualForm, setUseManualForm] = useState(savedAddresses.length === 0)
   const [countryCode, setCountryCode] = useState('+91')
@@ -64,6 +68,16 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
     }
   }, [selectedAddressId, savedAddresses])
 
+  useEffect(() => {
+    if (selectedAddressId && savedAddresses.length > 0) setUseManualForm(false)
+  }, [savedAddresses.length, selectedAddressId])
+
+  const toggleAddressMode = () => {
+    const nextManualState = !useManualForm
+    setUseManualForm(nextManualState)
+    if (nextManualState) onSelectSavedAddress?.('')
+  }
+
   const handleFieldChange = (field: keyof ShippingFormData, value: string) => {
     onShippingDataChange({
       ...shippingData,
@@ -83,7 +97,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
           {savedAddresses.length > 0 && (
             <button
               type="button"
-              onClick={() => setUseManualForm(!useManualForm)}
+              onClick={toggleAddressMode}
               className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-[var(--color-primary)] hover:underline"
             >
               {useManualForm ? 'Select Saved Address' : '+ Enter Custom Address'}
@@ -306,13 +320,21 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
               />
               <div className="space-y-0.5">
                 <span className="text-xs sm:text-sm font-bold text-[var(--color-ink)]">
-                  Free Shipping
+                  {shippingOptions?.standard.label ?? 'Standard Shipping'}
                 </span>
-                <p className="text-[11px] text-[var(--color-muted)]">5–7 Days Delivery</p>
+                <p className="text-[11px] text-[var(--color-muted)]">
+                  {shippingOptions?.standard.description ?? 'Calculating delivery estimate…'}
+                </p>
               </div>
             </div>
 
-            <span className="font-sans text-xs sm:text-sm font-bold text-accent">₹0 (FREE)</span>
+            <span className="font-sans text-xs sm:text-sm font-bold text-accent">
+              {shippingOptions
+                ? shippingOptions.standard.amountPaisa === 0
+                  ? 'FREE'
+                  : formatPrice(shippingOptions.standard.amountPaisa)
+                : '—'}
+            </span>
           </label>
 
           {/* Express Shipping Radio Card */}
@@ -335,14 +357,20 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
               <div className="space-y-0.5">
                 <span className="text-xs sm:text-sm font-bold text-[var(--color-ink)] flex items-center gap-1">
                   <Zap className="h-3.5 w-3.5 text-warning shrink-0" />
-                  Express Shipping
+                  {shippingOptions?.express.label ?? 'Express Shipping'}
                 </span>
-                <p className="text-[11px] text-[var(--color-muted)]">1–2 Days Delivery</p>
+                <p className="text-[11px] text-[var(--color-muted)]">
+                  {shippingOptions?.express.description ?? 'Calculating delivery estimate…'}
+                </p>
               </div>
             </div>
 
             <span className="font-sans text-xs sm:text-sm font-bold text-[var(--color-primary)]">
-              ₹99
+              {shippingOptions
+                ? shippingOptions.express.amountPaisa === 0
+                  ? 'FREE'
+                  : formatPrice(shippingOptions.express.amountPaisa)
+                : '—'}
             </span>
           </label>
         </div>

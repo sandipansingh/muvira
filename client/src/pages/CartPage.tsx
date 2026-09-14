@@ -77,7 +77,7 @@ export const CartPage: React.FC = () => {
 
                 <button
                   type="button"
-                  onClick={clearCart}
+                  onClick={() => void clearCart().catch(() => undefined)}
                   disabled={loading}
                   className="cursor-pointer text-xs font-medium text-[var(--color-muted)] hover:text-danger transition-colors disabled:opacity-50"
                 >

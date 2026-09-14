@@ -1,11 +1,11 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 
-export async function createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function quote(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const result = await service.createCheckoutOrder(req.user!.id, req.body)
-    res.status(201).json({ success: true, data: result })
-  } catch (err) {
-    next(err)
+    const result = await service.quoteCheckout(req.user!.id, req.body)
+    res.json({ success: true, data: result })
+  } catch (error) {
+    next(error)
   }
 }

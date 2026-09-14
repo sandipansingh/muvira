@@ -154,7 +154,7 @@ export function mapCartItem(raw: Record<string, unknown>): CartItem {
     unitPrice,
     quantity,
     lineTotal: unitPrice * quantity,
-    inStock: ((prod?.['stock'] as number) ?? 0) > 0,
+    inStock: prod?.['is_active'] === true && ((prod?.['stock'] as number) ?? 0) > 0,
     availableStock: (prod?.['stock'] as number) ?? 0,
   }
 }

@@ -89,4 +89,20 @@ export const cartApiService = {
 
     return { success: true, data: { deleted: true } }
   },
+
+  async clearCart(): Promise<ApiResponse<{ deleted: boolean }>> {
+    const res = await api.delete<{ success: boolean; error?: { code: string; message: string } }>(
+      '/api/cart',
+      true
+    )
+
+    if (!res.success) {
+      return {
+        success: false,
+        error: res.error ?? { code: 'CLEAR_CART_FAILED', message: 'Failed to clear cart' },
+      }
+    }
+
+    return { success: true, data: { deleted: true } }
+  },
 }

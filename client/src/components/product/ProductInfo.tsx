@@ -39,6 +39,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
     setIsAdding(true)
     try {
       await addToCart(product, quantity)
+    } catch {
+      // Cart context presents the server error.
     } finally {
       setIsAdding(false)
     }
@@ -49,6 +51,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
     try {
       await addToCart(product, quantity)
       navigate('/checkout')
+    } catch {
+      // Cart context presents the server error and checkout remains closed.
     } finally {
       setIsBuyingNow(false)
     }

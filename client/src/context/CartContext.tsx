@@ -11,7 +11,8 @@ import type { ProductDetail, ProductListItem } from '../lib/types/product'
 import type { CartItem } from '../lib/types/cart'
 import type { CouponPreview } from '../lib/types/coupon'
 import { cartApiService } from '../lib/services/cart.service'
-import { couponApiService } from '../lib/services/coupon.service'
+import { checkoutService } from '../lib/services/checkout.service'
+import type { CheckoutQuote } from '../types/checkout'
 import { MAX_CART_ITEM_QTY } from '../lib/constants/cart.constants'
 import { useAuth } from './AuthContext'
 import { useSiteSettings } from './SiteSettingsContext'
@@ -85,6 +86,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { showToast } = useToast()
   const [items, setItems] = useState<CartItem[]>(readGuestItems)
   const [coupon, setCoupon] = useState<CouponPreview | null>(null)
+  const [checkoutQuote, setCheckoutQuote] = useState<CheckoutQuote | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -117,6 +119,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) {
       mergedUserRef.current = null
       setCoupon(null)
+      setCheckoutQuote(null)
       setItems(readGuestItems())
       setLoading(false)
       return
@@ -174,16 +177,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null)
 
     if (!user) {
+      const existing = items.find((item) => item.productId === product.id)
+      const nextQuantity = (existing?.quantity ?? 0) + requestedQuantity
+      if (!product.inStock || nextQuantity > product.stock) {
+        const message = `Only ${Math.max(0, product.stock)} units available`
+        setError(message)
+        showToast(message, 'error')
+        throw new Error(message)
+      }
+
       setItems((previous) => {
-        const existing = previous.find((item) => item.productId === product.id)
-        if (!existing) return [...previous, buildGuestItem(product, requestedQuantity)]
-        const nextQuantity = Math.min(existing.quantity + requestedQuantity, MAX_CART_ITEM_QTY)
+        const current = previous.find((item) => item.productId === product.id)
+        if (!current) return [...previous, buildGuestItem(product, requestedQuantity)]
         return previous.map((item) =>
           item.productId === product.id
             ? { ...item, quantity: nextQuantity, lineTotal: item.unitPrice * nextQuantity }
             : item
         )
       })
+      setCoupon(null)
+      setCheckoutQuote(null)
       showToast(product.name, 'success', 'Added to Cart')
       openCartDrawer()
       return
@@ -196,12 +209,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const failedGuests = guestItemsRef.current.filter((item) => item.productId !== product.id)
       const serverItems = await refreshServerCart()
       setItems([...serverItems, ...failedGuests])
+      setCoupon(null)
+      setCheckoutQuote(null)
       showToast(product.name, 'success', 'Added to Cart')
       openCartDrawer()
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Unable to add this item to cart.'
       setError(message)
       showToast(message, 'error')
+      throw reason instanceof Error ? reason : new Error(message)
     } finally {
       setLoading(false)
     }
@@ -213,6 +229,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (isGuestItem(item)) {
       setItems((previous) => previous.filter((candidate) => candidate.productId !== productId))
+      setCoupon(null)
+      setCheckoutQuote(null)
       showToast('Item removed from cart', 'info')
       return
     }
@@ -223,11 +241,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!response.success) throw new Error(response.error.message)
       await refreshServerCart()
       setCoupon(null)
+      setCheckoutQuote(null)
       showToast('Item removed from cart', 'info')
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Unable to remove this item.'
       setError(message)
       showToast(message, 'error')
+      throw reason instanceof Error ? reason : new Error(message)
     } finally {
       setLoading(false)
     }
@@ -244,7 +264,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (isGuestItem(item)) {
-      const boundedQuantity = Math.min(nextQuantity, MAX_CART_ITEM_QTY)
+      const boundedQuantity = Math.min(nextQuantity, MAX_CART_ITEM_QTY, item.availableStock)
+      if (nextQuantity > boundedQuantity) {
+        const message = `Only ${item.availableStock} units available`
+        setError(message)
+        showToast(message, 'error')
+        throw new Error(message)
+      }
       setItems((previous) =>
         previous.map((candidate) =>
           candidate.productId === productId
@@ -256,6 +282,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             : candidate
         )
       )
+      setCoupon(null)
+      setCheckoutQuote(null)
       return
     }
 
@@ -268,27 +296,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!response.success) throw new Error(response.error.message)
       await refreshServerCart()
       setCoupon(null)
+      setCheckoutQuote(null)
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Unable to update cart quantity.'
       setError(message)
       showToast(message, 'error')
+      throw reason instanceof Error ? reason : new Error(message)
     } finally {
       setLoading(false)
     }
   }
 
   const clearCart = async () => {
-    const serverItems = items.filter((item) => !isGuestItem(item))
     setLoading(true)
-    setItems([])
-    setCoupon(null)
-    guestItemsRef.current = []
     try {
-      await Promise.all(serverItems.map((item) => cartApiService.deleteCartItem(item.id)))
+      if (user) {
+        const response = await cartApiService.clearCart()
+        if (!response.success) throw new Error(response.error.message)
+      }
+      setItems([])
+      setCoupon(null)
+      setCheckoutQuote(null)
+      guestItemsRef.current = []
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Unable to clear your cart.'
       setError(message)
       showToast(message, 'error')
+      throw reason instanceof Error ? reason : new Error(message)
     } finally {
       setLoading(false)
     }
@@ -297,6 +331,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetAfterOrder = () => {
     setItems([])
     setCoupon(null)
+    setCheckoutQuote(null)
     guestItemsRef.current = []
   }
 
@@ -308,9 +343,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setLoading(true)
     try {
-      const response = await couponApiService.applyCoupon(code, subtotalPaisa)
-      if (!response.success) throw new Error(response.error.message)
-      setCoupon(response.data)
+      const quote = await checkoutService.quote('standard', code)
+      if (!quote.coupon) throw new Error('Coupon could not be applied.')
+      setCheckoutQuote(quote)
+      setCoupon({
+        code: quote.coupon.code,
+        discountType: quote.coupon.discountType,
+        discountValue: quote.coupon.discountValue,
+        discountAmount: quote.coupon.discountAmountPaisa,
+        newSubtotal: quote.subtotalPaisa - quote.coupon.discountAmountPaisa,
+      })
       showToast('Coupon applied successfully.', 'success')
       return true
     } catch (reason) {
@@ -325,22 +367,60 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeCoupon = () => {
     setCoupon(null)
+    setCheckoutQuote(null)
     showToast('Coupon removed', 'info')
   }
 
+  useEffect(() => {
+    if (!user || items.length === 0 || items.some(isGuestItem)) {
+      setCheckoutQuote(null)
+      return
+    }
+
+    let active = true
+    checkoutService
+      .quote('standard', coupon?.code)
+      .then((quote) => {
+        if (active) setCheckoutQuote(quote)
+      })
+      .catch((reason: unknown) => {
+        if (!active) return
+        setCheckoutQuote(null)
+        setError(reason instanceof Error ? reason.message : 'Unable to calculate cart totals.')
+      })
+
+    return () => {
+      active = false
+    }
+  }, [coupon?.code, items, user])
+
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items])
-  const subtotalPaisa = useMemo(() => items.reduce((sum, item) => sum + item.lineTotal, 0), [items])
-  const discountPaisa = coupon?.discountAmount ?? 0
+  const localSubtotalPaisa = useMemo(
+    () => items.reduce((sum, item) => sum + item.lineTotal, 0),
+    [items]
+  )
+  const hasUnmergedItems = Boolean(user && items.some(isGuestItem))
+  const hasAuthoritativeQuote = Boolean(user && checkoutQuote && !hasUnmergedItems)
+  const subtotalPaisa = hasAuthoritativeQuote
+    ? (checkoutQuote?.subtotalPaisa ?? 0)
+    : localSubtotalPaisa
+  const discountPaisa = hasAuthoritativeQuote
+    ? (checkoutQuote?.discountAmountPaisa ?? 0)
+    : (coupon?.discountAmount ?? 0)
   const discountedSubtotal = Math.max(0, subtotalPaisa - discountPaisa)
   const freeShippingThresholdPaisa = settings.shippingRules.freeShippingThresholdPaisa
-  const shippingPaisa =
+  const estimatedShippingPaisa =
     discountedSubtotal === 0 ||
     (freeShippingThresholdPaisa > 0 && discountedSubtotal >= freeShippingThresholdPaisa)
       ? 0
       : settings.shippingRules.shippingChargePaisa
-  const totalPaisa = discountedSubtotal + shippingPaisa
+  const shippingPaisa = hasAuthoritativeQuote
+    ? (checkoutQuote?.shippingAmountPaisa ?? 0)
+    : estimatedShippingPaisa
+  const totalPaisa = hasAuthoritativeQuote
+    ? (checkoutQuote?.totalAmountPaisa ?? 0)
+    : discountedSubtotal + shippingPaisa
   const amountForFreeShippingPaisa = Math.max(0, freeShippingThresholdPaisa - discountedSubtotal)
-  const hasUnmergedItems = Boolean(user && items.some(isGuestItem))
 
   return (
     <CartContext.Provider

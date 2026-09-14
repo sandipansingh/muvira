@@ -18,8 +18,12 @@ export const productService = {
     if (params.limit) qs.set('limit', String(params.limit))
     if (params.q) qs.set('q', params.q)
     if (params.category) qs.set('category', params.category)
-    if (params.minPrice !== undefined) qs.set('minPrice', String(params.minPrice))
-    if (params.maxPrice !== undefined) qs.set('maxPrice', String(params.maxPrice))
+    if (params.minPrice !== undefined) {
+      qs.set('min_price_paisa', String(Math.round(params.minPrice * 100)))
+    }
+    if (params.maxPrice !== undefined) {
+      qs.set('max_price_paisa', String(Math.round(params.maxPrice * 100)))
+    }
     if (params.inStock) qs.set('inStock', 'true')
     if (params.sort) qs.set('sort', params.sort)
 

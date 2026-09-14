@@ -61,14 +61,17 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
     )
   }
 
-  const handleAddToCart = () => {
-    addToCart(product, quantity)
-    setAdded(true)
-    showToast(`Added ${quantity} × ${product.name} to your cart`, 'success')
-    setTimeout(() => {
-      onClose()
+  const handleAddToCart = async () => {
+    try {
+      await addToCart(product, quantity)
+      setAdded(true)
+      setTimeout(() => {
+        onClose()
+        setAdded(false)
+      }, 600)
+    } catch {
       setAdded(false)
-    }, 600)
+    }
   }
 
   return (

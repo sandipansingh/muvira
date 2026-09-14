@@ -38,53 +38,24 @@ export async function addToCart(
   userId: string,
   input: AddToCartInput
 ): Promise<CartItemWithProduct> {
-  // Validate product exists and is active
-  const { data: product } = await adminSupabase
-    .from('products')
-    .select('id, stock, is_active')
-    .eq('id', input.product_id)
-    .single()
+  const { data: cartItemId, error } = await adminSupabase.rpc('add_cart_item_checked', {
+    p_user_id: userId,
+    p_product_id: input.product_id,
+    p_quantity: input.quantity,
+  })
 
-  if (!product || !product.is_active) {
-    throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
-  }
-
-  if (product.stock < input.quantity) {
-    throw new AppError(400, 'INSUFFICIENT_STOCK', `Only ${product.stock} units available`)
-  }
-
-  // Upsert: if item already in cart, increment quantity
-  const { data: existing } = await adminSupabase
-    .from('cart_items')
-    .select('id, quantity')
-    .eq('user_id', userId)
-    .eq('product_id', input.product_id)
-    .single()
-
-  let cartItemId: string
-
-  if (existing) {
-    const newQty = existing.quantity + input.quantity
-    if (newQty > 100) throw new AppError(400, 'CART_LIMIT', 'Maximum 100 units per item')
-
-    const { error } = await adminSupabase
-      .from('cart_items')
-      .update({ quantity: newQty })
-      .eq('id', existing.id)
-      .eq('user_id', userId) // ownership enforced
-
-    if (error) throw new AppError(500, 'DB_ERROR', 'Failed to update cart')
-    cartItemId = existing.id
-  } else {
-    const { data: newItem, error } = await adminSupabase
-      .from('cart_items')
-      // SECURITY: user_id always from JWT, never from input
-      .insert({ user_id: userId, product_id: input.product_id, quantity: input.quantity })
-      .select('id')
-      .single()
-
-    if (error || !newItem) throw new AppError(500, 'DB_ERROR', 'Failed to add to cart')
-    cartItemId = newItem.id
+  if (error || !cartItemId) {
+    const message = error?.message ?? 'Failed to add to cart'
+    if (message.includes('Product not found')) {
+      throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
+    }
+    if (message.includes('units available')) {
+      throw new AppError(400, 'INSUFFICIENT_STOCK', message)
+    }
+    if (message.includes('Maximum 100')) {
+      throw new AppError(400, 'CART_LIMIT', 'Maximum 100 units per item')
+    }
+    throw new AppError(500, 'DB_ERROR', 'Failed to add to cart')
   }
 
   // Return full cart item with product details
@@ -109,35 +80,24 @@ export async function updateCartItem(
   itemId: string,
   input: UpdateCartItemInput
 ): Promise<CartItemWithProduct> {
-  // Layer 2 ownership check
-  const { data: existing } = await adminSupabase
-    .from('cart_items')
-    .select('user_id, product_id')
-    .eq('id', itemId)
-    .single()
+  const { error } = await adminSupabase.rpc('set_cart_item_quantity_checked', {
+    p_user_id: userId,
+    p_cart_item_id: itemId,
+    p_quantity: input.quantity,
+  })
 
-  if (!existing || existing.user_id !== userId) {
-    throw new AppError(404, 'CART_ITEM_NOT_FOUND', 'Cart item not found')
+  if (error) {
+    if (error.message.includes('Cart item not found')) {
+      throw new AppError(404, 'CART_ITEM_NOT_FOUND', 'Cart item not found')
+    }
+    if (error.message.includes('Product not found')) {
+      throw new AppError(400, 'PRODUCT_UNAVAILABLE', 'Product is no longer available')
+    }
+    if (error.message.includes('units available')) {
+      throw new AppError(400, 'INSUFFICIENT_STOCK', error.message)
+    }
+    throw new AppError(500, 'DB_ERROR', 'Failed to update cart item')
   }
-
-  // Validate stock
-  const { data: product } = await adminSupabase
-    .from('products')
-    .select('stock')
-    .eq('id', existing.product_id)
-    .single()
-
-  if (!product || product.stock < input.quantity) {
-    throw new AppError(400, 'INSUFFICIENT_STOCK', `Only ${product?.stock ?? 0} units available`)
-  }
-
-  const { error } = await adminSupabase
-    .from('cart_items')
-    .update({ quantity: input.quantity })
-    .eq('id', itemId)
-    .eq('user_id', userId)
-
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to update cart item')
 
   const { data, error: fetchError } = await adminSupabase
     .from('cart_items')

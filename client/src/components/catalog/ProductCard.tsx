@@ -61,15 +61,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     )
   }
 
-  const handleAddToCart = (event?: React.SyntheticEvent) => {
+  const handleAddToCart = async (event?: React.SyntheticEvent) => {
     if (event) {
       event.preventDefault()
       event.stopPropagation()
     }
-    addToCart(product)
-    setIsAdded(true)
-    showToast(`Added ${product.name} to your cart`, 'success')
-    window.setTimeout(() => setIsAdded(false), 2000)
+    try {
+      await addToCart(product)
+      setIsAdded(true)
+      window.setTimeout(() => setIsAdded(false), 2000)
+    } catch {
+      setIsAdded(false)
+    }
   }
 
   const handleOpenQuickView = (event?: React.SyntheticEvent) => {

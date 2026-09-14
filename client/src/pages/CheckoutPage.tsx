@@ -13,6 +13,8 @@ import { PaymentUnavailable } from '../components/checkout/PaymentUnavailable'
 import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
 import type { AddressData } from '../components/checkout/AddressSelector'
 import { formatPrice } from '../lib/utils/format'
+import { checkoutService } from '../lib/services/checkout.service'
+import type { CheckoutQuote, ShippingMethod } from '../types/checkout'
 import { Tag, CheckCircle, X, HelpCircle } from 'lucide-react'
 
 function toAddressData(address: Address): AddressData {
@@ -36,16 +38,7 @@ export const CheckoutPage: React.FC = () => {
   const currentStep: 'shipping' | 'payment' = stepParam === 'payment' ? 'payment' : 'shipping'
 
   const { user, loading: authLoading } = useAuth()
-  const {
-    items,
-    itemCount,
-    coupon,
-    applyCoupon,
-    removeCoupon,
-    subtotalPaisa,
-    discountPaisa,
-    shippingPaisa,
-  } = useCart()
+  const { items, itemCount, coupon, applyCoupon, removeCoupon, hasUnmergedItems } = useCart()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
@@ -66,7 +59,10 @@ export const CheckoutPage: React.FC = () => {
   })
 
   // Shipping Method ('standard' | 'express')
-  const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard')
+  const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('standard')
+  const [quote, setQuote] = useState<CheckoutQuote | null>(null)
+  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [quoteError, setQuoteError] = useState<string | null>(null)
 
   // Discount code in Order Summary left panel
   const [promoCode, setPromoCode] = useState('')
@@ -108,15 +104,48 @@ export const CheckoutPage: React.FC = () => {
             setSelectedAddressId(defaultAddr.id)
           }
         }
-      } catch {
-        // Fallback silently
+      } catch (reason) {
+        if (active) {
+          showToast(
+            reason instanceof Error ? reason.message : 'Unable to load saved addresses.',
+            'error'
+          )
+        }
       }
     }
     void loadAddresses()
     return () => {
       active = false
     }
-  }, [user])
+  }, [showToast, user])
+
+  useEffect(() => {
+    if (!user || items.length === 0 || hasUnmergedItems) {
+      setQuote(null)
+      return
+    }
+
+    let active = true
+    setQuoteLoading(true)
+    setQuoteError(null)
+    checkoutService
+      .quote(shippingMethod, coupon?.code)
+      .then((nextQuote) => {
+        if (active) setQuote(nextQuote)
+      })
+      .catch((reason: unknown) => {
+        if (!active) return
+        setQuote(null)
+        setQuoteError(reason instanceof Error ? reason.message : 'Unable to calculate totals.')
+      })
+      .finally(() => {
+        if (active) setQuoteLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [coupon?.code, hasUnmergedItems, items, shippingMethod, user])
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -147,7 +176,18 @@ export const CheckoutPage: React.FC = () => {
       return
     }
 
-    if (!selectedAddressId) {
+    if (hasUnmergedItems) {
+      showToast('Resolve the guest cart items before continuing.', 'error')
+      return
+    }
+
+    if (!quote || quoteLoading || quoteError) {
+      showToast(quoteError ?? 'Please wait while totals are verified.', 'error')
+      return
+    }
+
+    let addressId = selectedAddressId
+    if (!addressId) {
       // Validate manual fields
       if (
         !shippingData.firstName.trim() ||
@@ -162,7 +202,6 @@ export const CheckoutPage: React.FC = () => {
         return
       }
 
-      // Save as new address to obtain address_id for backend
       try {
         const created = await addressService.createAddress({
           fullName: `${shippingData.firstName} ${shippingData.lastName}`.trim(),
@@ -177,12 +216,19 @@ export const CheckoutPage: React.FC = () => {
           isDefault: savedAddresses.length === 0,
         })
 
-        if (created.success) {
-          setSelectedAddressId(created.data.id)
-          setSavedAddresses((prev) => [...prev, toAddressData(created.data)])
+        if (!created.success) {
+          showToast(created.error.message, 'error')
+          return
         }
-      } catch {
-        // Non-blocking if address creation has issues, will proceed
+        addressId = created.data.id
+        setSelectedAddressId(addressId)
+        setSavedAddresses((prev) => [...prev, toAddressData(created.data)])
+      } catch (reason) {
+        showToast(
+          reason instanceof Error ? reason.message : 'Unable to save this address.',
+          'error'
+        )
+        return
       }
     }
 
@@ -190,9 +236,10 @@ export const CheckoutPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Calculate adjusted shipping charge based on selected shipping method
-  const effectiveShippingPaisa = shippingMethod === 'express' ? 9900 : shippingPaisa
-  const effectiveTotalPaisa = subtotalPaisa - discountPaisa + effectiveShippingPaisa
+  const effectiveSubtotalPaisa = quote?.subtotalPaisa ?? 0
+  const effectiveDiscountPaisa = quote?.discountAmountPaisa ?? 0
+  const effectiveShippingPaisa = quote?.shippingAmountPaisa ?? 0
+  const effectiveTotalPaisa = quote?.totalAmountPaisa ?? 0
 
   if (authLoading) {
     return (
@@ -223,6 +270,14 @@ export const CheckoutPage: React.FC = () => {
           }}
         />
 
+        {(quoteError || hasUnmergedItems) && (
+          <div className="mt-4 rounded-xl border border-warning/30 bg-warning-soft p-4 text-sm font-medium text-warning">
+            {hasUnmergedItems
+              ? 'Some guest cart items could not be merged. Return to the cart and resolve them before checkout.'
+              : quoteError}
+          </div>
+        )}
+
         {/* STEP 1: SHIPPING STEP (Matches Reference #2) */}
         {currentStep === 'shipping' && (
           <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
@@ -236,6 +291,7 @@ export const CheckoutPage: React.FC = () => {
                 savedAddresses={savedAddresses}
                 selectedAddressId={selectedAddressId}
                 onSelectSavedAddress={setSelectedAddressId}
+                shippingOptions={quote?.shippingMethods}
               />
             </div>
 
@@ -243,12 +299,14 @@ export const CheckoutPage: React.FC = () => {
             <div className="lg:col-span-5 xl:col-span-4">
               <FlowCartSidebar
                 items={items}
-                subtotalPaisa={subtotalPaisa}
-                discountPaisa={discountPaisa}
+                subtotalPaisa={effectiveSubtotalPaisa}
+                discountPaisa={effectiveDiscountPaisa}
                 shippingPaisa={effectiveShippingPaisa}
                 totalPaisa={effectiveTotalPaisa}
                 onProceed={handleProceedToPayment}
                 buttonLabel="Continue to Payment"
+                isProcessing={quoteLoading}
+                disabled={Boolean(quoteError || !quote || hasUnmergedItems)}
               />
             </div>
           </div>
@@ -343,14 +401,14 @@ export const CheckoutPage: React.FC = () => {
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span className="font-semibold text-[var(--color-ink)]">
-                      {formatPrice(subtotalPaisa)}
+                      {formatPrice(effectiveSubtotalPaisa)}
                     </span>
                   </div>
 
-                  {discountPaisa > 0 && (
+                  {effectiveDiscountPaisa > 0 && (
                     <div className="flex justify-between font-semibold text-accent">
                       <span>Coupon Discount</span>
-                      <span>-{formatPrice(discountPaisa)}</span>
+                      <span>-{formatPrice(effectiveDiscountPaisa)}</span>
                     </div>
                   )}
 

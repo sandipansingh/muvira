@@ -30,7 +30,7 @@ async function resolveCategoryToId(
 // Public: list products
 
 export async function listProducts(query: ListProductsQuery) {
-  const { page, limit, category, minPrice, maxPrice, inStock, sort, q } = query
+  const { page, limit, category, min_price_paisa, max_price_paisa, inStock, sort, q } = query
 
   const offset = (page - 1) * limit
 
@@ -58,8 +58,8 @@ export async function listProducts(query: ListProductsQuery) {
       dbQuery = dbQuery.eq('category_id', '00000000-0000-0000-0000-000000000000')
     }
   }
-  if (minPrice !== undefined) dbQuery = dbQuery.gte('price_paisa', minPrice)
-  if (maxPrice !== undefined) dbQuery = dbQuery.lte('price_paisa', maxPrice)
+  if (min_price_paisa !== undefined) dbQuery = dbQuery.gte('price_paisa', min_price_paisa)
+  if (max_price_paisa !== undefined) dbQuery = dbQuery.lte('price_paisa', max_price_paisa)
   if (inStock === 'true') dbQuery = dbQuery.gt('stock', 0)
 
   // Full-text search using pg_trgm similarity
@@ -116,7 +116,7 @@ export async function listProducts(query: ListProductsQuery) {
 
 // Admin: list all products (including inactive) with pagination
 export async function adminListProducts(query: ListProductsQuery) {
-  const { page, limit, category, minPrice, maxPrice, inStock, sort, q } = query
+  const { page, limit, category, min_price_paisa, max_price_paisa, inStock, sort, q } = query
 
   const offset = (page - 1) * limit
 
@@ -141,8 +141,8 @@ export async function adminListProducts(query: ListProductsQuery) {
       dbQuery = dbQuery.eq('category_id', '00000000-0000-0000-0000-000000000000')
     }
   }
-  if (minPrice !== undefined) dbQuery = dbQuery.gte('price_paisa', minPrice)
-  if (maxPrice !== undefined) dbQuery = dbQuery.lte('price_paisa', maxPrice)
+  if (min_price_paisa !== undefined) dbQuery = dbQuery.gte('price_paisa', min_price_paisa)
+  if (max_price_paisa !== undefined) dbQuery = dbQuery.lte('price_paisa', max_price_paisa)
   if (inStock === 'true') dbQuery = dbQuery.gt('stock', 0)
 
   // Full-text search using pg_trgm similarity

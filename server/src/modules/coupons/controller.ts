@@ -1,29 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 
-// User: preview coupon discount (applied against current cart subtotal)
-export async function applyCoupon(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { code } = req.body as { code: string }
-    const subtotalPaisa = Number(req.body['subtotal_paisa'] ?? 0)
-
-    const { coupon, discountPaisa } = await service.validateCoupon(code, subtotalPaisa)
-
-    res.json({
-      success: true,
-      data: {
-        code: coupon.code,
-        discount_type: coupon.discount_type,
-        discount_value: coupon.discount_value,
-        discount_amount_paisa: discountPaisa,
-        description: coupon.description,
-      },
-    })
-  } catch (err) {
-    next(err)
-  }
-}
-
 // Admin CRUD
 export async function adminListCoupons(
   req: Request,

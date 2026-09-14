@@ -19,7 +19,11 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
     setIsQtyMenuOpen(false)
     const delta = qty - item.quantity
     if (delta !== 0) {
-      await updateQuantity(item.productId, delta)
+      try {
+        await updateQuantity(item.productId, delta)
+      } catch {
+        // Cart context presents the server error.
+      }
     }
   }
 
@@ -117,7 +121,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
       {/* Delete [X] Button on Top Right */}
       <button
         type="button"
-        onClick={() => removeFromCart(item.productId)}
+        onClick={() => void removeFromCart(item.productId).catch(() => undefined)}
         disabled={loading}
         aria-label={`Remove ${item.productName}`}
         className="absolute right-3 top-3 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-[var(--color-surface)] text-[var(--color-muted)] transition-all hover:bg-danger-soft hover:text-danger disabled:opacity-50"

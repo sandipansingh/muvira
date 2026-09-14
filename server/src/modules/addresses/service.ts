@@ -16,19 +16,16 @@ export async function listAddresses(userId: string): Promise<Address[]> {
 }
 
 export async function createAddress(userId: string, input: CreateAddressInput): Promise<Address> {
-  // If new address is default, unset existing default first (atomically)
-  if (input.is_default) {
-    await adminSupabase.from('addresses').update({ is_default: false }).eq('user_id', userId)
-  }
+  const shouldBeDefault = input.is_default === true
 
   const { data, error } = await adminSupabase
     .from('addresses')
-    // SECURITY: user_id is always set from the JWT userId - never from input
-    .insert({ ...input, user_id: userId })
+    .insert({ ...input, is_default: false, user_id: userId })
     .select()
     .single()
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to create address')
+  if (shouldBeDefault) return setDefaultAddress(userId, data.id as string)
   return data as Address
 }
 
@@ -50,19 +47,18 @@ export async function updateAddress(
     throw new AppError(404, 'ADDRESS_NOT_FOUND', 'Address not found')
   }
 
-  if (input.is_default) {
-    await adminSupabase.from('addresses').update({ is_default: false }).eq('user_id', userId)
-  }
+  const { is_default: shouldBeDefault, ...addressFields } = input
 
   const { data, error } = await adminSupabase
     .from('addresses')
-    .update(input)
+    .update(addressFields)
     .eq('id', addressId)
     .eq('user_id', userId) // double-enforce ownership at DB query level too
     .select()
     .single()
 
   if (error || !data) throw new AppError(404, 'ADDRESS_NOT_FOUND', 'Address not found')
+  if (shouldBeDefault) return setDefaultAddress(userId, addressId)
   return data as Address
 }
 
@@ -88,29 +84,16 @@ export async function deleteAddress(userId: string, addressId: string): Promise<
 }
 
 export async function setDefaultAddress(userId: string, addressId: string): Promise<Address> {
-  // Layer 2 ownership check
-  const { data: existing } = await adminSupabase
-    .from('addresses')
-    .select('user_id')
-    .eq('id', addressId)
-    .single()
+  const { data, error } = await adminSupabase.rpc('set_default_address', {
+    p_user_id: userId,
+    p_address_id: addressId,
+  })
 
-  if (!existing || existing.user_id !== userId) {
-    throw new AppError(404, 'ADDRESS_NOT_FOUND', 'Address not found')
+  if (error || !data) {
+    if (error?.message.includes('Address not found')) {
+      throw new AppError(404, 'ADDRESS_NOT_FOUND', 'Address not found')
+    }
+    throw new AppError(500, 'DB_ERROR', 'Failed to set default address')
   }
-
-  // Unset current default
-  await adminSupabase.from('addresses').update({ is_default: false }).eq('user_id', userId)
-
-  // Set new default
-  const { data, error } = await adminSupabase
-    .from('addresses')
-    .update({ is_default: true })
-    .eq('id', addressId)
-    .eq('user_id', userId)
-    .select()
-    .single()
-
-  if (error || !data) throw new AppError(500, 'DB_ERROR', 'Failed to set default address')
   return data as Address
 }
