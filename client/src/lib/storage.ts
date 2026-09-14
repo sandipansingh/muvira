@@ -1,23 +1,18 @@
 import { supabase } from './supabase'
-
-export interface UploadImageResult {
-  url: string
-  path: string
-  fileName: string
-}
+import type { UploadImageResult } from '../types/admin'
 
 const BUCKET = 'images'
+const MAX_SIZE = 8 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
 
 export async function uploadImage(
   file: File,
   folder: 'products' | 'categories' | 'hero-slides' | 'promo-banners'
 ): Promise<UploadImageResult> {
-  if (!file.type.startsWith('image/')) {
-    throw new Error('Only image files are allowed')
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    throw new Error('Use a JPEG, PNG, WebP, or AVIF image')
   }
 
-  // Limit ~8MB client side
-  const MAX_SIZE = 8 * 1024 * 1024
   if (file.size > MAX_SIZE) {
     throw new Error('Image is too large (max 8MB)')
   }
@@ -54,7 +49,6 @@ export async function uploadImage(
 export async function deleteStorageFile(pathOrUrl: string): Promise<void> {
   if (!pathOrUrl) return
 
-  // Extract path if a full public URL was passed
   let path = pathOrUrl
   const marker = `/storage/v1/object/public/${BUCKET}/`
   const idx = pathOrUrl.indexOf(marker)
@@ -62,17 +56,17 @@ export async function deleteStorageFile(pathOrUrl: string): Promise<void> {
     path = pathOrUrl.substring(idx + marker.length)
   }
 
-  // Only attempt delete if it looks like one of our paths
   if (
     !path.startsWith('products/') &&
     !path.startsWith('categories/') &&
     !path.startsWith('hero-slides/') &&
     !path.startsWith('promo-banners/')
   ) {
-    return
+    throw new Error('Refusing to delete a file outside the managed image folders')
   }
 
-  await supabase.storage.from(BUCKET).remove([path])
+  const { error } = await supabase.storage.from(BUCKET).remove([path])
+  if (error) throw new Error(error.message || 'Failed to delete image')
 }
 
 export function isSupabaseStorageUrl(url: string): boolean {

@@ -67,20 +67,34 @@ export async function adminListProducts(
   }
 }
 
+export async function adminGetProduct(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const product = await service.getProductById(req.params['id'] as string)
+    res.json({ success: true, data: product })
+  } catch (err) {
+    next(err)
+  }
+}
+
 export async function adminCreateProduct(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const product = await service.createProduct(req.body)
+    const createdProduct = await service.createProduct(req.body)
+    const product = await service.getProductById(createdProduct.id)
 
     // Resolve category slug from nested join if available
     const categorySlug =
       (product as unknown as { categories?: { slug?: string } }).categories?.slug ?? undefined
 
     invalidateOn('PRODUCT_CREATED', {
-      id: product.id,
+      id: createdProduct.id,
       categorySlug,
     })
 
@@ -96,13 +110,14 @@ export async function adminUpdateProduct(
   next: NextFunction
 ): Promise<void> {
   try {
-    const product = await service.updateProduct(req.params['id'] as string, req.body)
+    const updatedProduct = await service.updateProduct(req.params['id'] as string, req.body)
+    const product = await service.getProductById(updatedProduct.id)
 
     const categorySlug =
       (product as unknown as { categories?: { slug?: string } }).categories?.slug ?? undefined
 
     invalidateOn('PRODUCT_UPDATED', {
-      id: product.id,
+      id: updatedProduct.id,
       categorySlug,
     })
 
@@ -156,7 +171,7 @@ export async function adminDeleteProductImage(
   next: NextFunction
 ): Promise<void> {
   try {
-    await service.deleteProductImage(req.params['imageId'] as string)
+    await service.deleteProductImage(req.params['id'] as string, req.params['imageId'] as string)
 
     invalidateOn('PRODUCT_UPDATED', { id: req.params['id'] as string })
 

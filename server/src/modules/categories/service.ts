@@ -145,8 +145,12 @@ export async function getCategoryById(id: string): Promise<Category> {
 }
 
 export async function deleteCategory(id: string): Promise<void> {
-  // Soft-delete by deactivating
-  const { error } = await adminSupabase.from('categories').update({ is_active: false }).eq('id', id)
+  const { data, error } = await adminSupabase
+    .from('categories')
+    .update({ is_active: false })
+    .eq('id', id)
+    .select('id')
+    .maybeSingle()
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to delete category')
+  if (error || !data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
 }

@@ -99,7 +99,25 @@ export async function getDashboardStats(params: {
       .eq('status', 'confirmed'),
   ])
 
-  if (ordersResult.error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch dashboard stats')
+  const failedQuery = [
+    ordersResult,
+    ordersTodayResult,
+    revenueResult,
+    revenueTodayResult,
+    productsResult,
+    categoriesResult,
+    activeCouponsResult,
+    lowStockResult,
+    pendingOrdersResult,
+    confirmedOrdersResult,
+  ].find((result) => result.error)
+  if (failedQuery?.error) {
+    throw new AppError(
+      503,
+      'DASHBOARD_UNAVAILABLE',
+      'Dashboard metrics are temporarily unavailable'
+    )
+  }
 
   // Sum revenue from rows
   const totalRevenuePaisa = (revenueResult.data ?? []).reduce(

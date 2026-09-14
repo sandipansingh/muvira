@@ -1,6 +1,6 @@
 import { adminSupabase } from '../lib/supabase/admin'
 import { logger } from '../lib/logger'
-import { trackSingle, generateLabel, generateInvoice } from './shiprocket'
+import { trackSingle, generateLabel } from './shiprocket'
 import { isValidTransition, shiprocketStatusToOrderStatus } from '../modules/orders/stateMachine'
 import { transitionOrderStatus } from '../modules/orders/service'
 import { writeTrackingSnapshot } from './trackingAnalytics'
@@ -97,13 +97,13 @@ const handlers: Record<string, JobHandler> = {
     }
   },
 
-  invoice_generate: async (payload) => {
-    const orderIds = payload['orderIds'] as number[] | undefined
-    if (!orderIds || orderIds.length === 0)
-      throw new Error('Missing orderIds in invoice_generate payload')
+  invoice_generate: async (payload, referenceId) => {
+    const orderId = (payload['orderId'] as string | undefined) ?? referenceId
+    if (!orderId) throw new Error('Missing application orderId in invoice_generate payload')
 
-    const result = await generateInvoice(orderIds)
-    logger.info({ orderIds, result }, 'retryWorker: invoice generated')
+    const { adminGenerateInvoice } = await import('../modules/orders/service')
+    await adminGenerateInvoice(orderId)
+    logger.info({ orderId }, 'retryWorker: invoice generated and persisted')
   },
 
   shiprocket_persist: async (payload, referenceId) => {

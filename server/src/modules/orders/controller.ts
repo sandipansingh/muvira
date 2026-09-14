@@ -44,6 +44,19 @@ export async function getOrderTracking(
   }
 }
 
+export async function getInvoice(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const orderId = req.params['id'] as string
+    const invoice = await service.getCustomerInvoice(req.user!.id, orderId)
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.orderNumber}.pdf`)
+    res.setHeader('Content-Length', String(invoice.pdf.length))
+    res.send(invoice.pdf)
+  } catch (err) {
+    next(err)
+  }
+}
+
 export async function adminListOrders(
   req: Request,
   res: Response,
@@ -209,10 +222,11 @@ export async function adminGenerateInvoice(
   next: NextFunction
 ): Promise<void> {
   try {
-    const pdf = await service.adminGenerateInvoice(req.params['id'] as string)
+    const invoice = await service.adminGenerateInvoice(req.params['id'] as string)
     res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader('Content-Disposition', `attachment; filename=invoice-${req.params['id']}.pdf`)
-    res.send(pdf)
+    res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.orderNumber}.pdf`)
+    res.setHeader('Content-Length', String(invoice.pdf.length))
+    res.send(invoice.pdf)
   } catch (err) {
     next(err)
   }

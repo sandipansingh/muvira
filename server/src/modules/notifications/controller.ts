@@ -36,7 +36,8 @@ export async function adminListNotificationLogs(
     const page = parseInt(req.query['page'] as string) || 1
     const limit = parseInt(req.query['limit'] as string) || 20
     const orderId = req.query['orderId'] as string | undefined
-    const result = await service.adminListNotificationLogs({ page, limit, orderId })
+    const status = req.query['status'] as string | undefined
+    const result = await service.adminListNotificationLogs({ page, limit, orderId, status })
     res.json({ success: true, data: result.logs, meta: { page, limit, total: result.total } })
   } catch (err) {
     next(err)

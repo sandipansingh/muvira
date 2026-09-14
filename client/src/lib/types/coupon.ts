@@ -12,12 +12,14 @@ export interface CouponPreview {
 export interface Coupon {
   id: string
   code: string
+  description: string | null
   discountType: 'percentage' | 'fixed'
   discountValue: number
   minOrderAmount: number
-  maxDiscountAmount: number
-  usageLimit: number
+  maxDiscountAmount: number | null
+  usageLimit: number | null
+  timesUsed: number
   validFrom: string
-  validUntil: string
+  validUntil: string | null
   isActive: boolean
 }

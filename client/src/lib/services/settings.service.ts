@@ -38,6 +38,13 @@ export const settingsService = {
         shipping_charge_paisa: number
         free_shipping_threshold_paisa: number
       }
+      shiprocket_settings: {
+        pickup_location: string
+        default_length_cm: number
+        default_breadth_cm: number
+        default_height_cm: number
+        default_weight_grams: number
+      }
     }>
   ): Promise<ApiResponse<SiteSettings>> {
     const res = await api.patch<RawSettingsResponse>('/api/admin/settings', patch, true)

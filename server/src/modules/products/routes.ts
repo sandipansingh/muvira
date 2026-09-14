@@ -43,6 +43,12 @@ adminProductsRouter.get(
   controller.adminListProducts
 )
 
+adminProductsRouter.get(
+  '/:id',
+  validate({ params: ProductIdParamsSchema }),
+  controller.adminGetProduct
+)
+
 adminProductsRouter.post(
   '/',
   validate({ body: CreateProductSchema }),

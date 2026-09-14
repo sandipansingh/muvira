@@ -279,6 +279,26 @@ export interface OrderItem {
   created_at: string
 }
 
+export interface AdminOrderSummary {
+  id: string
+  order_number: string
+  user_id: string
+  status: Order['status']
+  payment_status: Order['payment_status']
+  fulfillment_status: Order['fulfillment_status']
+  total_amount_paisa: number
+  shipping_full_name: string
+  shipping_phone: string
+  shipping_city: string
+  shipping_state: string
+  shipping_pincode: string
+  contact_email: string
+  awb_code: string | null
+  created_at: string
+  updated_at: string
+  profiles: { email: string; full_name: string | null; phone: string | null } | null
+}
+
 export type NotificationEventType =
   | 'order.payment_captured'
   | 'order.payment_failed'

@@ -29,6 +29,15 @@ import { ProfilePage } from './pages/ProfilePage'
 import { SignInPage } from './pages/SignInPage'
 import { SignUpPage } from './pages/SignUpPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
+import { AdminGuard } from './components/admin/AdminGuard'
+import { AdminShell } from './components/admin/AdminShell'
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
+import { AdminOrdersPage } from './pages/admin/AdminOrdersPage'
+import { AdminOrderDetailPage } from './pages/admin/AdminOrderDetailPage'
+import { AdminCatalogPage } from './pages/admin/AdminCatalogPage'
+import { AdminCouponsPage } from './pages/admin/AdminCouponsPage'
+import { AdminSettingsPage } from './pages/admin/AdminSettingsPage'
+import { AdminFailuresPage } from './pages/admin/AdminFailuresPage'
 import { useParams } from 'react-router-dom'
 
 const CategoryRedirect: React.FC = () => {
@@ -67,6 +76,18 @@ export const AppContent: React.FC = () => {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/login" element={<Navigate to="/signin" replace />} />
+
+        <Route element={<AdminGuard />}>
+          <Route path="/admin" element={<AdminShell />}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+            <Route path="catalog" element={<AdminCatalogPage />} />
+            <Route path="coupons" element={<AdminCouponsPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="failures" element={<AdminFailuresPage />} />
+          </Route>
+        </Route>
 
         {/* Store routes wrapped in standard app shell */}
         <Route element={<MainLayout />}>

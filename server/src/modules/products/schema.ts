@@ -35,7 +35,7 @@ export const CreateProductSchema = z
     short_description: z.string().max(500).optional(),
     category_id: z.string().uuid(),
     price_paisa: z.number().int().min(0),
-    compare_at_price_paisa: z.number().int().min(0).optional(),
+    compare_at_price_paisa: z.number().int().min(0).nullable().optional(),
     cost_price_paisa: z.number().int().min(0).optional(),
     sku: z.string().max(100).optional(),
     stock: z.number().int().min(0).default(0),

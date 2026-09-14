@@ -11,10 +11,19 @@ import { slugify } from '../../utils/slug'
 import type { ProductDetail } from '../../types/product'
 import type { Category } from '../../types/category'
 import type { Coupon } from '../../types/coupon'
-import type { OrderDetail } from '../../types/order'
+import type { AdminOrderSummary, OrderDetail } from '../../types/order'
 import type { DashboardStats, InventoryItem } from '../../types/dashboard'
 import type { ApiResponse, ApiPaginatedResponse } from '../../types/common'
 import type { FulfillOrderInput, FulfillOrderResult, ServiceabilityResult } from '../../types/order'
+import type {
+  AdminCategoryInput,
+  AdminCouponInput,
+  AdminProductInput,
+  AdminProductPatch,
+  CommerceFailureItem,
+  NotificationDeliverySummary,
+  RetryJob,
+} from '../../../types/admin'
 
 type AnyRecord = Record<string, unknown>
 
@@ -89,6 +98,24 @@ export const adminApiService = {
     }
   },
 
+  async updateStock(productId: string, stock: number): Promise<ApiResponse<InventoryItem>> {
+    const res = await adminPatch<{
+      success: boolean
+      data?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/inventory/${productId}/stock`, { stock })
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed to update stock' }) as {
+          code: string
+          message: string
+        },
+      }
+    }
+    return { success: true, data: mapInventoryItem(res.data) }
+  },
+
   /**
    * Fetches admin products list with search and category filters.
    */
@@ -137,24 +164,20 @@ export const adminApiService = {
   /**
    * Creates a new product catalog item.
    */
-  async createProduct(data: AnyRecord): Promise<ApiResponse<ProductDetail>> {
-    const name = data['name'] as string
-    const price = data['price'] as number
-    const salePrice = data['salePrice'] as number | null | undefined
-
+  async createProduct(data: AdminProductInput): Promise<ApiResponse<ProductDetail>> {
     const body: AnyRecord = {
-      name,
-      slug: data['slug'] || slugify(name || ''),
-      description: data['description'],
-      short_description: data['shortDescription'] ?? data['short_description'],
-      category_id: data['categoryId'] ?? data['category_id'],
-      price_paisa: salePrice ? salePrice : price,
-      compare_at_price_paisa: salePrice ? price : null,
-      sku: data['sku'],
-      stock: data['stock'],
-      is_active: data['isActive'] ?? data['is_active'] ?? true,
-      is_featured: data['isFeatured'] ?? data['is_featured'] ?? false,
-      metadata: data['metadata'],
+      name: data.name,
+      slug: data.slug || slugify(data.name),
+      description: data.description,
+      short_description: data.shortDescription,
+      category_id: data.categoryId,
+      price_paisa: data.pricePaisa,
+      compare_at_price_paisa: data.compareAtPricePaisa ?? null,
+      sku: data.sku,
+      stock: data.stock,
+      is_active: data.isActive,
+      is_featured: data.isFeatured,
+      metadata: data.metadata,
     }
 
     const res = await adminPost<{
@@ -176,29 +199,21 @@ export const adminApiService = {
   /**
    * Updates an existing product item.
    */
-  async updateProduct(id: string, data: AnyRecord): Promise<ApiResponse<ProductDetail>> {
+  async updateProduct(id: string, data: AdminProductPatch): Promise<ApiResponse<ProductDetail>> {
     const body: AnyRecord = {}
-    if (data['name'] !== undefined) body['name'] = data['name']
-    if (data['slug'] !== undefined) body['slug'] = data['slug']
-    if (data['description'] !== undefined) body['description'] = data['description']
-    if (data['shortDescription'] !== undefined) body['short_description'] = data['shortDescription']
-    if (data['short_description'] !== undefined)
-      body['short_description'] = data['short_description']
-    if (data['categoryId'] !== undefined) body['category_id'] = data['categoryId']
-    if (data['category_id'] !== undefined) body['category_id'] = data['category_id']
-    if (data['price'] !== undefined || data['salePrice'] !== undefined) {
-      const price = data['price'] as number
-      const salePrice = data['salePrice'] as number | null | undefined
-      body['price_paisa'] = salePrice ? salePrice : price
-      body['compare_at_price_paisa'] = salePrice ? price : null
-    }
-    if (data['sku'] !== undefined) body['sku'] = data['sku']
-    if (data['stock'] !== undefined) body['stock'] = data['stock']
-    if (data['isActive'] !== undefined) body['is_active'] = data['isActive']
-    if (data['is_active'] !== undefined) body['is_active'] = data['is_active']
-    if (data['isFeatured'] !== undefined) body['is_featured'] = data['isFeatured']
-    if (data['is_featured'] !== undefined) body['is_featured'] = data['is_featured']
-    if (data['metadata'] !== undefined) body['metadata'] = data['metadata']
+    if (data.name !== undefined) body['name'] = data.name
+    if (data.slug !== undefined) body['slug'] = data.slug
+    if (data.description !== undefined) body['description'] = data.description
+    if (data.shortDescription !== undefined) body['short_description'] = data.shortDescription
+    if (data.categoryId !== undefined) body['category_id'] = data.categoryId
+    if (data.pricePaisa !== undefined) body['price_paisa'] = data.pricePaisa
+    if (data.compareAtPricePaisa !== undefined)
+      body['compare_at_price_paisa'] = data.compareAtPricePaisa
+    if (data.sku !== undefined) body['sku'] = data.sku
+    if (data.stock !== undefined) body['stock'] = data.stock
+    if (data.isActive !== undefined) body['is_active'] = data.isActive
+    if (data.isFeatured !== undefined) body['is_featured'] = data.isFeatured
+    if (data.metadata !== undefined) body['metadata'] = data.metadata
 
     const res = await adminPatch<{
       success: boolean
@@ -251,7 +266,7 @@ export const adminApiService = {
       success: boolean
       data?: AnyRecord
       error?: AnyRecord
-    }>(`/api/products/${productId}`)
+    }>(`/api/admin/products/${productId}`)
     if (!res.success || !res.data)
       return {
         success: false,
@@ -368,16 +383,15 @@ export const adminApiService = {
   /**
    * Creates a new category.
    */
-  async createCategory(data: AnyRecord): Promise<ApiResponse<Category>> {
-    const name = data['name'] as string
+  async createCategory(data: AdminCategoryInput): Promise<ApiResponse<Category>> {
     const body = {
-      name,
-      slug: data['slug'] || slugify(name || ''),
-      description: data['description'],
-      image_url: data['imageUrl'] ?? data['image_url'],
-      is_active: data['isActive'] ?? data['is_active'] ?? true,
-      sort_order: data['sortOrder'] ?? data['sort_order'] ?? 0,
-      show_in_navbar: data['showInNavbar'] ?? data['show_in_navbar'] ?? false,
+      name: data.name,
+      slug: data.slug || slugify(data.name),
+      description: data.description,
+      image_url: data.imageUrl,
+      is_active: data.isActive ?? true,
+      sort_order: data.sortOrder ?? 0,
+      show_in_navbar: data.showInNavbar ?? false,
     }
     const res = await adminPost<{
       success: boolean
@@ -486,18 +500,18 @@ export const adminApiService = {
   /**
    * Creates a promo coupon.
    */
-  async createCoupon(data: AnyRecord): Promise<ApiResponse<Coupon>> {
+  async createCoupon(data: AdminCouponInput): Promise<ApiResponse<Coupon>> {
     const body = {
-      code: (data['code'] as string).toUpperCase(),
-      description: data['description'],
-      discount_type: data['discountType'] ?? data['discount_type'],
-      discount_value: data['discountValue'] ?? data['discount_value'],
-      min_order_amount_paisa: data['minOrderAmount'] ?? data['min_order_amount_paisa'] ?? 0,
-      max_discount_paisa: data['maxDiscountAmount'] ?? data['max_discount_paisa'],
-      max_uses: data['usageLimit'] ?? data['max_uses'],
-      is_active: data['isActive'] ?? data['is_active'] ?? true,
-      valid_from: data['validFrom'] ?? data['valid_from'],
-      valid_until: data['validUntil'] ?? data['valid_until'],
+      code: data.code.toUpperCase(),
+      description: data.description,
+      discount_type: data.discountType,
+      discount_value: data.discountValue,
+      min_order_amount_paisa: data.minOrderAmountPaisa,
+      max_discount_paisa: data.maxDiscountPaisa,
+      max_uses: data.maxUses,
+      is_active: data.isActive,
+      valid_from: data.validFrom,
+      valid_until: data.validUntil,
     }
     const res = await adminPost<{
       success: boolean
@@ -594,7 +608,7 @@ export const adminApiService = {
    */
   async getOrders(
     params: { page?: number; limit?: number; status?: string; q?: string } = {}
-  ): Promise<ApiPaginatedResponse<OrderDetail>> {
+  ): Promise<ApiPaginatedResponse<AdminOrderSummary>> {
     const qs = new URLSearchParams()
     if (params.page) qs.set('page', String(params.page))
     if (params.limit) qs.set('limit', String(params.limit))
@@ -619,7 +633,28 @@ export const adminApiService = {
     const limit = params.limit ?? 20
     return {
       success: true,
-      data: res.data.map(mapOrderDetail),
+      data: res.data.map((row) => {
+        const profile = (row['profiles'] as AnyRecord | null) ?? null
+        return {
+          id: row['id'] as string,
+          orderNumber: row['order_number'] as string,
+          customerName:
+            (profile?.['full_name'] as string | null) ?? (row['shipping_full_name'] as string),
+          customerEmail:
+            (row['contact_email'] as string) ?? (profile?.['email'] as string | undefined) ?? '',
+          customerPhone: (profile?.['phone'] as string | null) ?? (row['shipping_phone'] as string),
+          destination: [row['shipping_city'], row['shipping_state'], row['shipping_pincode']]
+            .filter(Boolean)
+            .join(', '),
+          status: row['status'] as AdminOrderSummary['status'],
+          paymentStatus: row['payment_status'] as AdminOrderSummary['paymentStatus'],
+          fulfillmentStatus: row['fulfillment_status'] as AdminOrderSummary['fulfillmentStatus'],
+          totalAmount: row['total_amount_paisa'] as number,
+          awbCode: (row['awb_code'] as string | null) ?? null,
+          createdAt: row['created_at'] as string,
+          updatedAt: row['updated_at'] as string,
+        }
+      }),
       pagination: {
         page,
         limit,
@@ -779,6 +814,143 @@ export const adminApiService = {
     return { success: true, data: mapOrderDetail(res.data) }
   },
 
+  async downloadInvoice(id: string): Promise<Blob> {
+    return api.download(
+      `/api/admin/orders/${encodeURIComponent(id)}/generate-invoice`,
+      true,
+      'POST'
+    )
+  },
+
+  async getRetryJobs(page = 1, status = 'dead'): Promise<ApiPaginatedResponse<RetryJob>> {
+    const query = new URLSearchParams({ page: String(page), limit: '20', status })
+    const res = await adminGet<{
+      success: boolean
+      data?: AnyRecord[]
+      meta?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/diagnostics/retry-queue?${query}`)
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed to fetch retry jobs' }) as {
+          code: string
+          message: string
+        },
+      }
+    }
+    return {
+      success: true,
+      data: res.data.map((row) => ({
+        id: row['id'] as string,
+        jobType: row['job_type'] as string,
+        referenceId: (row['reference_id'] as string | null) ?? null,
+        status: row['status'] as string,
+        retryCount: row['retry_count'] as number,
+        maxRetries: row['max_retries'] as number,
+        lastError: (row['last_error'] as string | null) ?? null,
+        nextRetryAt: row['next_retry_at'] as string,
+        createdAt: row['created_at'] as string,
+      })),
+      pagination: {
+        page,
+        limit: 20,
+        total: (res.meta?.['total'] as number) ?? 0,
+        totalPages: Math.max(1, Math.ceil(((res.meta?.['total'] as number) ?? 0) / 20)),
+      },
+    }
+  },
+
+  async retryJob(id: string): Promise<ApiResponse<{ retried: boolean }>> {
+    return adminPost(`/api/admin/diagnostics/retry-queue/${encodeURIComponent(id)}/retry`)
+  },
+
+  async getNotificationDeliveries(
+    page = 1,
+    status?: string
+  ): Promise<ApiPaginatedResponse<NotificationDeliverySummary>> {
+    const query = new URLSearchParams({ page: String(page), limit: '20' })
+    if (status) query.set('status', status)
+    const res = await adminGet<{
+      success: boolean
+      data?: AnyRecord[]
+      meta?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/notifications/logs?${query}`)
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed to fetch email deliveries' }) as {
+          code: string
+          message: string
+        },
+      }
+    }
+    return {
+      success: true,
+      data: res.data.map((row) => ({
+        id: row['id'] as string,
+        orderId: row['order_id'] as string,
+        eventType: row['event_type'] as string,
+        status: row['sent_status'] as string,
+        attempts: row['attempts'] as number,
+        lastError: (row['last_error'] as string | null) ?? null,
+        providerMessageId: (row['provider_message_id'] as string | null) ?? null,
+        availableAt: row['available_at'] as string,
+        sentAt: (row['sent_at'] as string | null) ?? null,
+        createdAt: row['created_at'] as string,
+      })),
+      pagination: {
+        page,
+        limit: 20,
+        total: (res.meta?.['total'] as number) ?? 0,
+        totalPages: Math.max(1, Math.ceil(((res.meta?.['total'] as number) ?? 0) / 20)),
+      },
+    }
+  },
+
+  async getCommerceFailures(): Promise<ApiResponse<CommerceFailureItem[]>> {
+    const res = await adminGet<{
+      success: boolean
+      data?: Record<string, AnyRecord[]>
+      error?: AnyRecord
+    }>('/api/admin/diagnostics/commerce-failures')
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed to fetch commerce failures' }) as {
+          code: string
+          message: string
+        },
+      }
+    }
+    const outbox = (res.data['dead_outbox_events'] ?? []).map((row) => ({
+      id: row['id'] as string,
+      orderId: row['aggregate_id'] as string,
+      kind: 'outbox' as const,
+      label: row['event_type'] as string,
+      lastError: (row['last_error'] as string | null) ?? null,
+      updatedAt: row['updated_at'] as string,
+    }))
+    const invoices = (res.data['failed_invoices'] ?? []).map((row) => ({
+      id: row['id'] as string,
+      orderId: row['order_id'] as string,
+      kind: 'invoice' as const,
+      label: 'Invoice generation',
+      lastError: (row['last_error'] as string | null) ?? null,
+      updatedAt: row['updated_at'] as string,
+    }))
+    const reconciliations = (res.data['payment_reconciliation_cases'] ?? []).map((row) => ({
+      id: row['id'] as string,
+      orderId: row['order_id'] as string,
+      kind: 'payment_reconciliation' as const,
+      label: 'Payment reconciliation',
+      lastError: (row['reason'] as string | null) ?? null,
+      updatedAt: row['updated_at'] as string,
+    }))
+    return { success: true, data: [...outbox, ...invoices, ...reconciliations] }
+  },
+
   /**
    * Creates a shipment in Shiprocket for an order.
    */
@@ -806,11 +978,11 @@ export const adminApiService = {
     ApiResponse<
       Array<{
         pickup_location: string
-        id: number
+        pickup_id: number
         address: string
         city: string
         state: string
-        pin_code: string
+        pincode: string
       }>
     >
   > {
@@ -829,11 +1001,11 @@ export const adminApiService = {
       }
     type PickupLocationItem = {
       pickup_location: string
-      id: number
+      pickup_id: number
       address: string
       city: string
       state: string
-      pin_code: string
+      pincode: string
     }
     return { success: true, data: res.data as unknown as PickupLocationItem[] }
   },

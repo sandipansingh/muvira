@@ -4,6 +4,7 @@ import { trackSingle } from '../../../services/shiprocket'
 import { shiprocketStatusToOrderStatus, isValidTransition } from '../../orders/stateMachine'
 import { writeTrackingSnapshot } from '../../../services/trackingAnalytics'
 import { transitionOrderStatus } from '../../orders/service'
+import { AppError } from '../../../types'
 
 // --- Shipment Health ---
 
@@ -17,8 +18,7 @@ export async function getShipmentHealth(): Promise<{
     .limit(100)
 
   if (error) {
-    logger.error({ error }, 'Failed to query shipment_health view')
-    return { health: [], summary: { total_active: 0, warning_count: 0, danger_count: 0 } }
+    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Shipment health is unavailable')
   }
 
   const rows = (data ?? []) as Array<Record<string, unknown>>
@@ -68,6 +68,11 @@ export async function getSyncHealth(): Promise<{
       .order('started_at', { ascending: false })
       .limit(5),
   ])
+
+  const failed = [fullSync, ofdSync, pendingOrders, recentErrors].find((result) => result.error)
+  if (failed?.error) {
+    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Sync health is unavailable')
+  }
 
   return {
     lastFullSync: fullSync.data ?? null,
@@ -138,13 +143,15 @@ export async function getRetryQueue(params: {
 }
 
 export async function retryJob(jobId: string): Promise<boolean> {
-  const { error } = await adminSupabase
+  const { data, error } = await adminSupabase
     .from('retry_jobs')
     .update({ status: 'pending', next_retry_at: new Date().toISOString() })
     .eq('id', jobId)
     .in('status', ['dead', 'failed'])
+    .select('id')
+    .maybeSingle()
 
-  return !error
+  return !error && data !== null
 }
 
 // --- Shiprocket Error Diagnostics ---
@@ -190,7 +197,9 @@ export async function getCourierPerformance(): Promise<
     .order('synced_at', { ascending: false })
     .limit(5000)
 
-  if (error || !data) return []
+  if (error || !data) {
+    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Courier performance is unavailable')
+  }
 
   const grouped = new Map<
     string,
@@ -289,6 +298,19 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
       .maybeSingle(),
   ])
 
+  const failed = [
+    ordersPending,
+    activeShipments,
+    failedOrders,
+    pendingRetry,
+    deadJobs,
+    failedWebhooks,
+    lastSync,
+  ].find((result) => result.error)
+  if (failed?.error) {
+    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Diagnostic summary is unavailable')
+  }
+
   return {
     orders_pending: ordersPending.count ?? 0,
     active_shipments: activeShipments.count ?? 0,
@@ -297,6 +319,40 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
     dead_retry_jobs: deadJobs.count ?? 0,
     failed_webhooks: failedWebhooks.count ?? 0,
     last_sync: lastSync.data ?? null,
+  }
+}
+
+export async function getCommerceFailures(): Promise<Record<string, unknown>> {
+  const [outbox, invoices, reconciliation] = await Promise.all([
+    adminSupabase
+      .from('outbox_events')
+      .select('id, aggregate_id, event_type, attempts, last_error, updated_at')
+      .eq('status', 'dead')
+      .order('updated_at', { ascending: false })
+      .limit(20),
+    adminSupabase
+      .from('invoice_records')
+      .select('id, order_id, attempts, last_error, updated_at')
+      .eq('status', 'failed')
+      .order('updated_at', { ascending: false })
+      .limit(20),
+    adminSupabase
+      .from('payment_reconciliation_cases')
+      .select('id, order_id, reason, status, updated_at')
+      .neq('status', 'resolved')
+      .order('updated_at', { ascending: false })
+      .limit(20),
+  ])
+
+  const failed = [outbox, invoices, reconciliation].find((result) => result.error)
+  if (failed?.error) {
+    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Commerce failure queues are unavailable')
+  }
+
+  return {
+    dead_outbox_events: outbox.data ?? [],
+    failed_invoices: invoices.data ?? [],
+    payment_reconciliation_cases: reconciliation.data ?? [],
   }
 }
 

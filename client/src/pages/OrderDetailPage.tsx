@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { MapPin, Package, ShieldCheck, Truck } from 'lucide-react'
+import { Download, MapPin, Package, ShieldCheck, Truck } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
@@ -16,6 +16,8 @@ export const OrderDetailPage: React.FC = () => {
   const [trackingError, setTrackingError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false)
+  const [invoiceError, setInvoiceError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !user) navigate(`/signin?returnTo=/orders/${id ?? ''}`, { replace: true })
@@ -82,6 +84,25 @@ export const OrderDetailPage: React.FC = () => {
   const trackingEvents = tracking?.shipment_events ?? []
   const trackingUrl = tracking?.tracking_url ?? order.trackingUrl
 
+  const downloadInvoice = async () => {
+    if (!id) return
+    setDownloadingInvoice(true)
+    setInvoiceError(null)
+    try {
+      const blob = await orderApiService.downloadInvoice(id)
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = `invoice-${order.orderNumber}.pdf`
+      anchor.click()
+      URL.revokeObjectURL(url)
+    } catch (reason) {
+      setInvoiceError(reason instanceof Error ? reason.message : 'Invoice could not be downloaded.')
+    } finally {
+      setDownloadingInvoice(false)
+    }
+  }
+
   return (
     <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container max-w-4xl space-y-8">
@@ -102,7 +123,26 @@ export const OrderDetailPage: React.FC = () => {
           <span className="status-badge self-start sm:self-auto">
             {order.status.replaceAll('_', ' ')}
           </span>
+          {order.paymentStatus === 'paid' && order.shiprocketOrderId && (
+            <button
+              type="button"
+              onClick={() => void downloadInvoice()}
+              disabled={downloadingInvoice}
+              className="button-secondary self-start text-sm sm:self-auto"
+            >
+              <Download className="h-4 w-4" />
+              {downloadingInvoice ? 'Preparing invoice…' : 'Download invoice'}
+            </button>
+          )}
+          {order.paymentStatus === 'paid' && !order.shiprocketOrderId && (
+            <p className="text-xs text-muted">Invoice available after fulfillment begins.</p>
+          )}
         </div>
+        {invoiceError && (
+          <p className="rounded-2xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
+            {invoiceError}
+          </p>
+        )}
 
         <section className="panel space-y-4 p-5 sm:p-6">
           <div className="flex items-center gap-2">

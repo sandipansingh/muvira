@@ -50,6 +50,22 @@ export interface OrderListItem {
   awbCode: string | null
 }
 
+export interface AdminOrderSummary {
+  id: string
+  orderNumber: string
+  customerName: string
+  customerEmail: string
+  customerPhone: string
+  destination: string
+  status: OrderStatus
+  paymentStatus: PaymentStatus
+  fulfillmentStatus: FulfillmentStatus
+  totalAmount: number
+  awbCode: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 export interface OrderAddress {
   fullName: string
   phone: string

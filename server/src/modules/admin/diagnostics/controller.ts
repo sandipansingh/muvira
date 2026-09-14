@@ -125,6 +125,18 @@ export async function getMetrics(req: Request, res: Response, next: NextFunction
   }
 }
 
+export async function getCommerceFailures(
+  _req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    res.json({ success: true, data: await service.getCommerceFailures() })
+  } catch (err) {
+    next(err)
+  }
+}
+
 export async function refreshShipment(
   req: Request,
   res: Response,

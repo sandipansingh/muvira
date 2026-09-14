@@ -26,6 +26,7 @@ ordersRouter.get(
   validate({ params: OrderIdParamsSchema }),
   controller.getOrderTracking
 )
+ordersRouter.get('/:id/invoice', validate({ params: OrderIdParamsSchema }), controller.getInvoice)
 
 // Admin order routes - requireAdmin is applied in the parent admin router
 export const adminOrdersRouter = Router()

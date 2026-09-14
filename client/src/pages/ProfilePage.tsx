@@ -46,7 +46,7 @@ function addressValues(address: Address): AddressFormValues {
 }
 
 export const ProfilePage: React.FC = () => {
-  const { user, loading: authLoading, logout, updateProfile } = useAuth()
+  const { user, loading: authLoading, isAdmin, logout, updateProfile } = useAuth()
   const { showToast } = useToast()
   const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
@@ -236,10 +236,17 @@ export const ProfilePage: React.FC = () => {
             <span className="eyebrow mb-1 block">Account Overview</span>
             <h1 className="heading page-title">My Profile</h1>
           </div>
-          <button type="button" onClick={logout} className="button-secondary px-4 py-2 text-xs">
-            <LogOut className="h-4 w-4 shrink-0" />
-            <span className="leading-none">Sign out</span>
-          </button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {isAdmin && (
+              <Link to="/admin" className="button-primary px-4 py-2 text-xs">
+                Admin console
+              </Link>
+            )}
+            <button type="button" onClick={logout} className="button-secondary px-4 py-2 text-xs">
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span className="leading-none">Sign out</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

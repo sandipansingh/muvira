@@ -25,6 +25,7 @@ export class ApiError extends Error {
 
 type ApiEnvelope = {
   success?: boolean
+  data?: unknown
   error?: ApiErrorDetails
 }
 
@@ -91,7 +92,7 @@ class ApiClient {
         await supabase.auth.signOut().catch(() => undefined)
       }
 
-      throw new ApiError(response.status, error)
+      throw new ApiError(response.status, { ...error, details: envelope?.data ?? error.details })
     }
 
     return body as T
@@ -141,6 +142,52 @@ class ApiClient {
 
   async delete<T>(endpoint: string, requireAuth = false): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' }, requireAuth)
+  }
+
+  async download(
+    endpoint: string,
+    requireAuth = false,
+    method: 'GET' | 'POST' = 'GET'
+  ): Promise<Blob> {
+    const authHeaders = await this.getAuthHeader(requireAuth)
+    let response: Response
+    try {
+      response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method,
+        headers: { Accept: 'application/pdf', ...authHeaders },
+      })
+    } catch (error) {
+      throw new ApiError(
+        0,
+        { code: 'NETWORK_ERROR', message: 'The download service is unavailable.' },
+        { cause: error }
+      )
+    }
+
+    if (!response.ok) {
+      const body = (await this.parseBody(response).catch(() => null)) as ApiEnvelope | null
+      throw new ApiError(
+        response.status,
+        body?.error ?? {
+          code: 'DOWNLOAD_FAILED',
+          message: response.statusText || 'The file could not be downloaded.',
+        }
+      )
+    }
+    if (response.headers.get('content-type')?.split(';')[0] !== 'application/pdf') {
+      throw new ApiError(response.status, {
+        code: 'INVALID_DOWNLOAD',
+        message: 'The service returned an invalid invoice file.',
+      })
+    }
+    const blob = await response.blob()
+    if (blob.size > 10 * 1024 * 1024) {
+      throw new ApiError(response.status, {
+        code: 'DOWNLOAD_TOO_LARGE',
+        message: 'The invoice exceeds the download size limit.',
+      })
+    }
+    return blob
   }
 }
 

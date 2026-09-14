@@ -12,6 +12,7 @@ adminDiagnosticsRouter.post('/retry-queue/:id/retry', controller.retryJob)
 adminDiagnosticsRouter.get('/shiprocket-errors', controller.getShiprocketErrors)
 adminDiagnosticsRouter.get('/courier-performance', controller.getCourierPerformance)
 adminDiagnosticsRouter.get('/metrics', controller.getMetrics)
+adminDiagnosticsRouter.get('/commerce-failures', controller.getCommerceFailures)
 
 // Emergency-only: refresh a single shipment from Shiprocket
 // This calls Shiprocket API directly — use sparingly, audit-logged

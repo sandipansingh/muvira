@@ -163,6 +163,10 @@ export const orderApiService = {
     return { success: true, data: mapOrderDetail(res.data) }
   },
 
+  async downloadInvoice(id: string): Promise<Blob> {
+    return api.download(`/api/orders/${encodeURIComponent(id)}/invoice`, true)
+  },
+
   /**
    * Fetches tracking details for a specific order.
    */

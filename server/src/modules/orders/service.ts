@@ -1,6 +1,6 @@
 import { adminSupabase } from '../../lib/supabase/admin'
 import { AppError } from '../../types'
-import type { Order } from '../../types'
+import type { AdminOrderSummary, Order } from '../../types'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import {
   trackBulk,
@@ -96,7 +96,7 @@ export async function getUserOrder(userId: string, orderId: string): Promise<Ord
 //
 
 export async function adminListOrders(query: AdminListOrdersQuery): Promise<{
-  orders: Order[]
+  orders: AdminOrderSummary[]
   total: number
   page: number
   limit: number
@@ -112,7 +112,7 @@ export async function adminListOrders(query: AdminListOrdersQuery): Promise<{
       id, order_number, user_id, status, payment_status, fulfillment_status,
       subtotal_paisa, discount_amount_paisa, shipping_amount_paisa, tax_amount_paisa, total_amount_paisa,
       coupon_code, coupon_discount_paisa,
-      shipping_full_name, shipping_phone, shipping_city, shipping_state, shipping_pincode,
+      shipping_full_name, shipping_phone, shipping_city, shipping_state, shipping_pincode, contact_email,
       awb_code, notes,
       created_at, updated_at,
       profiles ( email, full_name, phone )
@@ -126,7 +126,10 @@ export async function adminListOrders(query: AdminListOrdersQuery): Promise<{
   if (fulfillment_status) dbQuery = dbQuery.eq('fulfillment_status', fulfillment_status)
   if (from_date) dbQuery = dbQuery.gte('created_at', from_date)
   if (to_date) dbQuery = dbQuery.lte('created_at', to_date)
-  if (q) dbQuery = dbQuery.ilike('order_number', `%${q}%`)
+  if (q) {
+    const searchTerm = q.replace(/[(),]/g, ' ').trim()
+    dbQuery = dbQuery.or(`order_number.ilike.%${searchTerm}%,contact_email.ilike.%${searchTerm}%`)
+  }
 
   dbQuery = dbQuery.range(offset, offset + limit - 1)
 
@@ -135,7 +138,7 @@ export async function adminListOrders(query: AdminListOrdersQuery): Promise<{
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch orders')
 
   return {
-    orders: (data as unknown as Order[]) ?? [],
+    orders: (data as unknown as AdminOrderSummary[]) ?? [],
     total: count ?? 0,
     page,
     limit,
@@ -884,39 +887,160 @@ async function tryGenerateOrFetchDocument(params: DocumentGenerator): Promise<st
   }
 }
 
-export async function adminGenerateInvoice(orderId: string): Promise<Buffer> {
-  const { shipmentId } = await getOrderShipmentId(orderId)
+const MAX_INVOICE_BYTES = 10 * 1024 * 1024
+const INVOICE_BUCKET = 'invoices'
 
-  // Get the Shiprocket order_id from DB
-  const { data: order } = await adminSupabase
+async function loadInvoiceOrder(orderId: string, userId?: string): Promise<Order> {
+  let query = adminSupabase
     .from('orders')
-    .select('id, shiprocket_order_id, status, user_id, order_number')
+    .select('id, user_id, order_number, payment_status, shiprocket_order_id')
     .eq('id', orderId)
-    .single()
+  if (userId) query = query.eq('user_id', userId)
 
-  const srOrderId = order?.['shiprocket_order_id']
-  if (!srOrderId) {
-    throw new Error('No Shiprocket order ID found')
+  const { data, error } = await query.single()
+  if (error || !data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
+  if (data.payment_status !== 'paid') {
+    throw new AppError(409, 'INVOICE_NOT_AVAILABLE', 'Invoice is available only for paid orders')
   }
-
-  const invoiceResp = await shiprocketGenerateInvoice([Number(srOrderId)])
-  logger.info({ orderId, shipmentId, invoiceUrl: invoiceResp.invoice_url }, 'Invoice generated')
-
-  if (!invoiceResp.invoice_url) {
-    throw new Error('Shiprocket did not return an invoice URL')
+  if (!data.shiprocket_order_id) {
+    throw new AppError(409, 'INVOICE_NOT_READY', 'Invoice is not available before fulfillment')
   }
-
-  const pdfRes = await fetch(invoiceResp.invoice_url)
-  if (!pdfRes.ok) {
-    throw new Error(`Failed to download invoice PDF: ${pdfRes.status} ${pdfRes.statusText}`)
+  if (!/^\d+$/.test(data.shiprocket_order_id)) {
+    throw new AppError(409, 'INVOICE_NOT_READY', 'Invoice provider reference is invalid')
   }
-  const arrayBuf = await pdfRes.arrayBuffer()
-  return Buffer.from(arrayBuf)
+  return data as unknown as Order
 }
 
-export async function adminCancelShiprocketOrder(
+async function readValidatedPdf(response: Response): Promise<Buffer> {
+  if (!response.ok) throw new Error(`Invoice download failed with status ${response.status}`)
+
+  const contentType = response.headers.get('content-type')?.split(';')[0]?.trim()
+  if (contentType !== 'application/pdf')
+    throw new Error('Invoice provider returned non-PDF content')
+
+  const declaredLength = Number(response.headers.get('content-length') ?? 0)
+  if (declaredLength > MAX_INVOICE_BYTES) throw new Error('Invoice PDF exceeds the size limit')
+  if (!response.body) throw new Error('Invoice provider returned an empty response')
+
+  const chunks: Buffer[] = []
+  const reader = response.body.getReader()
+  let totalBytes = 0
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    totalBytes += value.byteLength
+    if (totalBytes > MAX_INVOICE_BYTES) {
+      await reader.cancel()
+      throw new Error('Invoice PDF exceeds the size limit')
+    }
+    chunks.push(Buffer.from(value))
+  }
+
+  return validatePdfBuffer(Buffer.concat(chunks))
+}
+
+function validatePdfBuffer(pdf: Buffer): Buffer {
+  if (pdf.length > MAX_INVOICE_BYTES) throw new Error('Invoice PDF exceeds the size limit')
+  if (pdf.length < 5 || pdf.subarray(0, 5).toString('ascii') !== '%PDF-') {
+    throw new Error('Invoice provider returned an invalid PDF')
+  }
+  return pdf
+}
+
+async function loadStoredInvoice(orderId: string): Promise<Buffer | null> {
+  const { data: record, error: recordError } = await adminSupabase
+    .from('invoice_records')
+    .select('status, object_path')
+    .eq('order_id', orderId)
+    .maybeSingle()
+  if (recordError) throw new AppError(500, 'DB_ERROR', 'Failed to read invoice state')
+  if (record?.status !== 'ready' || !record.object_path) return null
+
+  const { data, error } = await adminSupabase.storage
+    .from(INVOICE_BUCKET)
+    .download(record.object_path)
+  if (error || !data) {
+    logger.warn({ error, orderId }, 'Stored invoice is unavailable; regenerating')
+    return null
+  }
+  if (data.type && data.type !== 'application/pdf') {
+    logger.warn({ orderId, contentType: data.type }, 'Stored invoice content type is invalid')
+    return null
+  }
+  return validatePdfBuffer(Buffer.from(await data.arrayBuffer()))
+}
+
+async function generateInvoice(order: Order): Promise<{ orderNumber: string; pdf: Buffer }> {
+  const storedInvoice = await loadStoredInvoice(order.id)
+  if (storedInvoice) return { orderNumber: order.order_number, pdf: storedInvoice }
+
+  const providerReference = order.shiprocket_order_id as string
+  const { error: beginError } = await adminSupabase.rpc('begin_invoice_generation', {
+    p_order_id: order.id,
+    p_provider_reference: providerReference,
+  })
+  if (beginError) throw new AppError(500, 'DB_ERROR', 'Failed to start invoice generation')
+
+  try {
+    const invoiceResponse = await shiprocketGenerateInvoice([Number(providerReference)])
+    if (!invoiceResponse.invoice_url) throw new Error('Shiprocket did not return an invoice URL')
+
+    const response = await fetch(invoiceResponse.invoice_url, {
+      signal: AbortSignal.timeout(15_000),
+    })
+    const pdf = await readValidatedPdf(response)
+    const objectPath = `orders/${order.id}.pdf`
+    const { error: uploadError } = await adminSupabase.storage
+      .from(INVOICE_BUCKET)
+      .upload(objectPath, pdf, { contentType: 'application/pdf', upsert: true })
+    if (uploadError) throw new Error(`Invoice storage failed: ${uploadError.message}`)
+
+    const { error: persistError } = await adminSupabase
+      .from('invoice_records')
+      .update({
+        status: 'ready',
+        object_path: objectPath,
+        generated_at: new Date().toISOString(),
+        last_error: null,
+      })
+      .eq('order_id', order.id)
+    if (persistError) {
+      const { error: cleanupError } = await adminSupabase.storage
+        .from(INVOICE_BUCKET)
+        .remove([objectPath])
+      if (cleanupError) {
+        logger.error({ cleanupError, orderId: order.id }, 'Orphaned invoice could not be removed')
+      }
+      throw new Error(`Invoice state could not be persisted: ${persistError.message}`)
+    }
+
+    logger.info({ orderId: order.id }, 'Invoice generated and validated')
+    return { orderNumber: order.order_number, pdf }
+  } catch (reason) {
+    const message = reason instanceof Error ? reason.message : String(reason)
+    const { error } = await adminSupabase
+      .from('invoice_records')
+      .update({ status: 'failed', last_error: message.slice(0, 2000) })
+      .eq('order_id', order.id)
+    if (error) logger.error({ error, orderId: order.id }, 'Invoice failure state was not persisted')
+    throw reason
+  }
+}
+
+export async function getCustomerInvoice(
+  userId: string,
   orderId: string
-): Promise<Record<string, unknown>> {
+): Promise<{ orderNumber: string; pdf: Buffer }> {
+  return generateInvoice(await loadInvoiceOrder(orderId, userId))
+}
+
+export async function adminGenerateInvoice(
+  orderId: string
+): Promise<{ orderNumber: string; pdf: Buffer }> {
+  return generateInvoice(await loadInvoiceOrder(orderId))
+}
+
+export async function adminCancelShiprocketOrder(orderId: string): Promise<{ status: string }> {
   const { data: order } = await adminSupabase
     .from('orders')
     .select('id, shiprocket_order_id, status, user_id, order_number')
@@ -927,7 +1051,7 @@ export async function adminCancelShiprocketOrder(
   if (!order.shiprocket_order_id)
     throw new AppError(400, 'NO_SHIPROCKET_ORDER', 'No Shiprocket order exists')
 
-  const result = await shiprocketCancelOrder({
+  await shiprocketCancelOrder({
     ids: [Number(order.shiprocket_order_id)],
   })
 
@@ -938,7 +1062,7 @@ export async function adminCancelShiprocketOrder(
     { orderId, shiprocketOrderId: order.shiprocket_order_id },
     'Shiprocket order cancelled'
   )
-  return result
+  return { status: 'cancelled' }
 }
 
 export async function adminCancelShiprocketShipment(orderId: string): Promise<{ status: string }> {

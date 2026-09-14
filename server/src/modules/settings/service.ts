@@ -93,19 +93,8 @@ export async function getSettings(): Promise<SiteSettings> {
 }
 
 export async function updateSettings(input: UpdateSettingsInput): Promise<SiteSettings> {
-  const updates = Object.entries(input).map(([key, value]) => ({
-    key,
-    value,
-    updated_at: new Date().toISOString(),
-  }))
-
-  for (const update of updates) {
-    const { error } = await adminSupabase
-      .from('site_settings')
-      .upsert(update, { onConflict: 'key' })
-
-    if (error) throw new AppError(500, 'DB_ERROR', `Failed to update setting: ${update.key}`)
-  }
+  const { error } = await adminSupabase.rpc('update_site_settings_bulk', { p_settings: input })
+  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to update site settings')
 
   return getSettings()
 }

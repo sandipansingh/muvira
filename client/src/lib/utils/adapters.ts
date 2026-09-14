@@ -308,13 +308,15 @@ export function mapCoupon(raw: Record<string, unknown>): Coupon {
   return {
     id: raw['id'] as string,
     code: raw['code'] as string,
+    description: (raw['description'] as string | null) ?? null,
     discountType: raw['discount_type'] as 'percentage' | 'fixed',
     discountValue: raw['discount_value'] as number,
     minOrderAmount: raw['min_order_amount_paisa'] as number,
-    maxDiscountAmount: (raw['max_discount_paisa'] as number | null) ?? 0,
-    usageLimit: (raw['max_uses'] as number | null) ?? 0,
+    maxDiscountAmount: (raw['max_discount_paisa'] as number | null) ?? null,
+    usageLimit: (raw['max_uses'] as number | null) ?? null,
+    timesUsed: (raw['times_used'] as number) ?? 0,
     validFrom: raw['valid_from'] as string,
-    validUntil: (raw['valid_until'] as string | null) ?? '',
+    validUntil: (raw['valid_until'] as string | null) ?? null,
     isActive: raw['is_active'] as boolean,
   }
 }
@@ -334,11 +336,16 @@ export function mapCouponPreview(raw: Record<string, unknown>): CouponPreview {
 export function mapDashboardStats(raw: Record<string, unknown>): DashboardStats {
   return {
     totalOrders: (raw['total_orders'] as number) ?? 0,
+    ordersToday: (raw['orders_today'] as number) ?? 0,
     totalRevenue: (raw['total_revenue_paisa'] as number) ?? 0,
+    revenueToday: (raw['revenue_today_paisa'] as number) ?? 0,
     totalProducts: (raw['total_products'] as number) ?? 0,
+    activeProducts: (raw['active_products'] as number) ?? 0,
     totalCategories: (raw['total_categories'] as number) ?? 0,
     activeCoupons: (raw['active_coupons'] as number) ?? 0,
     lowStockCount: (raw['low_stock_count'] as number) ?? 0,
+    pendingOrders: (raw['pending_orders'] as number) ?? 0,
+    confirmedOrders: (raw['confirmed_orders'] as number) ?? 0,
   }
 }
 
@@ -374,6 +381,7 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
   const slidesRaw = (raw['hero_slides'] as Record<string, unknown>[]) ?? []
   const bannersRaw = (raw['promo_banners'] as Record<string, unknown>[]) ?? []
   const shippingRaw = (raw['shipping_rules'] as Record<string, unknown>) ?? {}
+  const shiprocketRaw = (raw['shiprocket_settings'] as Record<string, unknown>) ?? {}
 
   return {
     contactInfo: {
@@ -405,6 +413,13 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       shippingChargePaisa: (shippingRaw['shipping_charge_paisa'] as number) ?? 15000,
       freeShippingThresholdPaisa:
         (shippingRaw['free_shipping_threshold_paisa'] as number) ?? 100000,
+    },
+    shiprocketSettings: {
+      pickupLocation: (shiprocketRaw['pickup_location'] as string) ?? '',
+      defaultLengthCm: (shiprocketRaw['default_length_cm'] as number) ?? 15,
+      defaultBreadthCm: (shiprocketRaw['default_breadth_cm'] as number) ?? 10,
+      defaultHeightCm: (shiprocketRaw['default_height_cm'] as number) ?? 5,
+      defaultWeightGrams: (shiprocketRaw['default_weight_grams'] as number) ?? 500,
     },
   }
 }

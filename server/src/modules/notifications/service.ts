@@ -37,6 +37,7 @@ export async function adminListNotificationLogs(params: {
   page: number
   limit: number
   orderId?: string
+  status?: string
 }): Promise<{
   logs: Array<{
     id: string
@@ -45,6 +46,11 @@ export async function adminListNotificationLogs(params: {
     notification_type: string
     event_type: string
     sent_status: string
+    attempts: number
+    last_error: string | null
+    provider_message_id: string | null
+    available_at: string
+    sent_at: string | null
     created_at: string
   }>
   total: number
@@ -53,13 +59,17 @@ export async function adminListNotificationLogs(params: {
 
   let query = adminSupabase
     .from('notification_deliveries')
-    .select('id, order_id, user_id, channel, event_type, status, created_at', { count: 'exact' })
+    .select(
+      'id, order_id, user_id, channel, event_type, status, attempts, last_error, provider_message_id, available_at, sent_at, created_at',
+      { count: 'exact' }
+    )
     .order('created_at', { ascending: false })
     .range(offset, offset + params.limit - 1)
 
   if (params.orderId) {
     query = query.eq('order_id', params.orderId)
   }
+  if (params.status) query = query.eq('status', params.status)
 
   const { data, error, count } = await query
   if (error) throw error
@@ -72,6 +82,11 @@ export async function adminListNotificationLogs(params: {
       notification_type: delivery.channel,
       event_type: delivery.event_type,
       sent_status: delivery.status,
+      attempts: delivery.attempts,
+      last_error: delivery.last_error,
+      provider_message_id: delivery.provider_message_id,
+      available_at: delivery.available_at,
+      sent_at: delivery.sent_at,
       created_at: delivery.created_at,
     })),
     total: count ?? 0,

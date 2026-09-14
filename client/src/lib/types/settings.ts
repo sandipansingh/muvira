@@ -34,6 +34,14 @@ export interface ShippingRules {
   freeShippingThresholdPaisa: number
 }
 
+export interface ShiprocketSettings {
+  pickupLocation: string
+  defaultLengthCm: number
+  defaultBreadthCm: number
+  defaultHeightCm: number
+  defaultWeightGrams: number
+}
+
 export interface SiteSettings {
   contactInfo: ContactInfo
   announcementBar: AnnouncementBar
@@ -41,4 +49,5 @@ export interface SiteSettings {
   promoBanners: PromoBanner[]
   storeDescription: string
   shippingRules: ShippingRules
+  shiprocketSettings: ShiprocketSettings
 }

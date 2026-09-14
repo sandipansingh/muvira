@@ -19,6 +19,13 @@ const DEFAULT_SETTINGS: SiteSettings = {
     shippingChargePaisa: 15000,
     freeShippingThresholdPaisa: 100000,
   },
+  shiprocketSettings: {
+    pickupLocation: '',
+    defaultLengthCm: 15,
+    defaultBreadthCm: 10,
+    defaultHeightCm: 5,
+    defaultWeightGrams: 500,
+  },
 }
 
 const SiteSettingsContext = createContext<SiteSettingsContextValue | undefined>(undefined)

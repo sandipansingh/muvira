@@ -292,9 +292,14 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
 // Admin: delete (soft) product
 
 export async function deleteProduct(id: string): Promise<void> {
-  const { error } = await adminSupabase.from('products').update({ is_active: false }).eq('id', id)
+  const { data, error } = await adminSupabase
+    .from('products')
+    .update({ is_active: false })
+    .eq('id', id)
+    .select('id')
+    .maybeSingle()
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to deactivate product')
+  if (error || !data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
 }
 
 // Admin: add product image
@@ -303,19 +308,13 @@ export async function addProductImage(
   productId: string,
   input: AddProductImageInput
 ): Promise<ProductImage> {
-  // If new image is primary, unset existing primary
-  if (input.is_primary) {
-    await adminSupabase
-      .from('product_images')
-      .update({ is_primary: false })
-      .eq('product_id', productId)
-  }
-
-  const { data, error } = await adminSupabase
-    .from('product_images')
-    .insert({ ...input, product_id: productId })
-    .select()
-    .single()
+  const { data, error } = await adminSupabase.rpc('add_product_image_atomic', {
+    p_product_id: productId,
+    p_url: input.url,
+    p_alt_text: input.alt_text ?? null,
+    p_sort_order: input.sort_order,
+    p_is_primary: input.is_primary,
+  })
 
   if (error) throw new AppError(500, 'DB_ERROR', 'Failed to add product image')
 
@@ -324,10 +323,13 @@ export async function addProductImage(
 
 // Admin: delete product image
 
-export async function deleteProductImage(imageId: string): Promise<void> {
-  const { error } = await adminSupabase.from('product_images').delete().eq('id', imageId)
+export async function deleteProductImage(productId: string, imageId: string): Promise<void> {
+  const { data, error } = await adminSupabase.rpc('delete_product_image_atomic', {
+    p_product_id: productId,
+    p_image_id: imageId,
+  })
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to delete product image')
+  if (error || data !== true) throw new AppError(404, 'IMAGE_NOT_FOUND', 'Product image not found')
 }
 
 export async function getProductById(id: string): Promise<Record<string, unknown>> {
@@ -358,22 +360,9 @@ export async function getProductById(id: string): Promise<Record<string, unknown
 }
 
 export async function reorderProductImages(productId: string, imageIds: string[]): Promise<void> {
-  const updates = imageIds.map((id, index) => {
-    return adminSupabase
-      .from('product_images')
-      .update({
-        sort_order: index,
-        is_primary: index === 0,
-      })
-      .eq('id', id)
-      .eq('product_id', productId)
+  const { error } = await adminSupabase.rpc('reorder_product_images_atomic', {
+    p_product_id: productId,
+    p_image_ids: imageIds,
   })
-
-  const results = await Promise.all(updates)
-
-  for (const res of results) {
-    if (res.error) {
-      throw new AppError(500, 'DB_ERROR', 'Failed to update image order')
-    }
-  }
+  if (error) throw new AppError(400, 'IMAGE_ORDER_INVALID', error.message)
 }
