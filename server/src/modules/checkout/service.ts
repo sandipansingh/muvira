@@ -1,7 +1,11 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { razorpay } from '../../lib/razorpay/client'
+import { logger } from '../../lib/logger'
+import { deleteCacheByPattern } from '../../config/cache'
 import { AppError } from '../../types'
 import { validateCoupon } from '../coupons/service'
-import type { CheckoutQuoteInput, ShippingMethod } from './schema'
+import type { CheckoutQuoteInput, CreateCheckoutOrderInput, ShippingMethod } from './schema'
+import { env } from '../../config/env'
 
 interface CartProduct {
   id: string
@@ -160,4 +164,147 @@ export async function quoteCheckout(userId: string, input: CheckoutQuoteInput) {
     shipping_description: shippingConfig.description,
     shipping_methods: availableShippingMethods,
   }
+}
+
+interface InitializedCheckout {
+  order: Record<string, unknown>
+  product_ids: string[]
+}
+
+async function releaseFailedCheckout(orderId: string, reason: string): Promise<void> {
+  const { error } = await adminSupabase.rpc('fail_checkout', {
+    p_order_id: orderId,
+    p_reason: reason,
+  })
+  if (error) logger.error({ error, orderId }, 'Failed to release checkout reservations')
+  deleteCacheByPattern('GET:/api/products')
+}
+
+export async function createCheckoutOrder(userId: string, input: CreateCheckoutOrderInput) {
+  const { error: expiryError } = await adminSupabase.rpc('expire_abandoned_checkouts', {
+    p_limit: 100,
+  })
+  if (expiryError) logger.error({ expiryError }, 'Failed to expire abandoned checkouts')
+
+  const { data: initializedData, error: initializeError } = await adminSupabase.rpc(
+    'initialize_checkout',
+    {
+      p_user_id: userId,
+      p_address_id: input.address_id,
+      p_coupon_code: input.coupon_code ?? null,
+      p_shipping_method: input.shipping_method,
+      p_billing_same_as_shipping: input.billing_same_as_shipping,
+      p_billing: input.billing ?? null,
+      p_notes: input.notes ?? null,
+      p_order_prefix: env.ORDER_PREFIX,
+    }
+  )
+
+  if (initializeError || !initializedData) {
+    const message = initializeError?.message ?? 'Unable to initialize checkout'
+    throw new AppError(400, 'CHECKOUT_INVALID', message)
+  }
+
+  const initialized = initializedData as unknown as InitializedCheckout
+  const orderId = initialized.order['id'] as string
+  const orderNumber = initialized.order['order_number'] as string
+  const totalAmountPaisa = initialized.order['total_amount_paisa'] as number
+  deleteCacheByPattern('GET:/api/products')
+
+  try {
+    const providerOrder = await razorpay.orders.create({
+      amount: totalAmountPaisa,
+      currency: 'INR',
+      receipt: orderNumber,
+      payment: {
+        capture: 'automatic',
+        capture_options: {
+          automatic_expiry_period: 12,
+          manual_expiry_period: 7200,
+          refund_speed: 'normal',
+        },
+      },
+      notes: { local_order_id: orderId },
+    })
+
+    if (
+      !providerOrder.id ||
+      Number(providerOrder.amount) !== totalAmountPaisa ||
+      providerOrder.currency !== 'INR'
+    ) {
+      throw new Error('Razorpay returned an inconsistent order')
+    }
+
+    const { error: attachError } = await adminSupabase.rpc('attach_razorpay_order', {
+      p_user_id: userId,
+      p_order_id: orderId,
+      p_razorpay_order_id: providerOrder.id,
+    })
+    if (attachError) throw attachError
+
+    return {
+      order_id: orderId,
+      order_number: orderNumber,
+      razorpay_order_id: providerOrder.id,
+      amount_paisa: totalAmountPaisa,
+      currency: 'INR',
+      key_id: env.RAZORPAY_KEY_ID,
+      expires_at: initialized.order['checkout_expires_at'] as string,
+    }
+  } catch (error) {
+    logger.error({ error, orderId }, 'Razorpay checkout initialization failed')
+    await releaseFailedCheckout(orderId, 'Payment provider initialization failed')
+    throw new AppError(
+      502,
+      'PAYMENT_PROVIDER_UNAVAILABLE',
+      'Payment is temporarily unavailable. Please try again.'
+    )
+  }
+}
+
+export async function cancelCheckout(userId: string, orderId: string): Promise<void> {
+  const { data: order } = await adminSupabase
+    .from('orders')
+    .select('id, payment_status, payments ( razorpay_order_id )')
+    .eq('id', orderId)
+    .eq('user_id', userId)
+    .single()
+
+  const relatedPayments = order?.payments as
+    | Array<{ razorpay_order_id: string }>
+    | { razorpay_order_id: string }
+    | null
+    | undefined
+  const providerOrderId = Array.isArray(relatedPayments)
+    ? relatedPayments[0]?.razorpay_order_id
+    : relatedPayments?.razorpay_order_id
+  if (!order || !providerOrderId) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
+  if (order.payment_status === 'paid') {
+    throw new AppError(409, 'PAYMENT_ALREADY_CAPTURED', 'A paid checkout cannot be cancelled')
+  }
+
+  let providerOrder
+  try {
+    providerOrder = await razorpay.orders.fetch(providerOrderId)
+  } catch (error) {
+    logger.error({ error, orderId }, 'Failed to verify Razorpay order before cancellation')
+    throw new AppError(502, 'PAYMENT_PROVIDER_UNAVAILABLE', 'Unable to confirm cancellation')
+  }
+
+  if (providerOrder.status !== 'created' || Number(providerOrder.amount_paid) !== 0) {
+    throw new AppError(
+      409,
+      'PAYMENT_IN_PROGRESS',
+      'Payment processing has started and cannot be cancelled yet'
+    )
+  }
+
+  const { data: released, error } = await adminSupabase.rpc('fail_checkout', {
+    p_order_id: orderId,
+    p_reason: 'Customer dismissed Razorpay Checkout',
+  })
+  if (error || released !== true) {
+    throw new AppError(409, 'CHECKOUT_NOT_CANCELLED', 'Checkout could not be cancelled')
+  }
+  deleteCacheByPattern('GET:/api/products')
 }

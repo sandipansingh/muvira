@@ -182,6 +182,19 @@ export interface Order {
   shipping_state: string
   shipping_pincode: string
   shipping_country: string
+  contact_email: string
+  shipping_method: 'standard' | 'express'
+  checkout_expires_at: string | null
+  payment_method: 'card' | 'upi' | 'netbanking' | 'wallet' | 'emi' | 'paylater' | null
+  billing_same_as_shipping: boolean
+  billing_full_name: string
+  billing_address_line1: string
+  billing_address_line2: string | null
+  billing_city: string
+  billing_state: string
+  billing_pincode: string
+  billing_country: string
+  billing_gst_number: string | null
   // Amounts (paisa)
   subtotal_paisa: number
   discount_amount_paisa: number

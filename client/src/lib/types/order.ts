@@ -89,6 +89,8 @@ export interface OrderDetail {
   shippingAmount: number
   totalAmount: number
   couponCode: string | null
+  paymentMethod: string | null
+  shippingMethod: 'standard' | 'express'
   shippingAddress: OrderAddress
   awbCode: string | null
   items: OrderItem[]

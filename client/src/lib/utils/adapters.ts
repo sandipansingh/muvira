@@ -269,6 +269,9 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
     shippingAmount: raw['shipping_amount_paisa'] as number,
     totalAmount: raw['total_amount_paisa'] as number,
     couponCode: (raw['coupon_code'] as string | null) ?? null,
+    paymentMethod: (raw['payment_method'] as string | null) ?? null,
+    shippingMethod:
+      (raw['shipping_method'] as OrderDetail['shippingMethod'] | undefined) ?? 'standard',
     shippingAddress: mapOrderAddress(raw),
     awbCode: (raw['awb_code'] as string | null) ?? null,
     shiprocketOrderId: (raw['shiprocket_order_id'] as string | null) ?? null,

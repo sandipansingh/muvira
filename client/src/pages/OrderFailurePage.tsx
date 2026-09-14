@@ -1,12 +1,17 @@
 import React from 'react'
 import { AlertCircle, ArrowRight, RefreshCw } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 export const OrderFailurePage: React.FC = () => {
-  const [searchParams] = useSearchParams()
-  const reason = searchParams.get('reason')
-  const orderId = searchParams.get('orderId')
+  const location = useLocation()
+  const reason =
+    typeof location.state === 'object' &&
+    location.state !== null &&
+    'reason' in location.state &&
+    typeof location.state.reason === 'string'
+      ? location.state.reason
+      : null
 
   return (
     <main className="editorial-page py-6 sm:py-12">
@@ -42,12 +47,6 @@ export const OrderFailurePage: React.FC = () => {
                 'The payment transaction was incomplete or cancelled. You can safely retry from checkout.'}
             </p>
           </div>
-
-          {orderId && (
-            <p className="text-xs text-[var(--color-muted)]">
-              Pending order reference: <strong className="font-semibold">#{orderId}</strong>
-            </p>
-          )}
 
           <div className="flex flex-col justify-center gap-3 pt-3 sm:flex-row">
             <Link to="/checkout" className="button-primary py-3.5 px-6 text-sm font-semibold gap-2">

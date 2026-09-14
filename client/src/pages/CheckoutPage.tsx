@@ -9,7 +9,7 @@ import { FlowHeader } from '../components/checkout/FlowHeader'
 import { FlowItemCard } from '../components/checkout/FlowItemCard'
 import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
 import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
-import { PaymentUnavailable } from '../components/checkout/PaymentUnavailable'
+import { RazorpayPayment } from '../components/checkout/RazorpayPayment'
 import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
 import type { AddressData } from '../components/checkout/AddressSelector'
 import { formatPrice } from '../lib/utils/format'
@@ -444,14 +444,23 @@ export const CheckoutPage: React.FC = () => {
               <RecommendedUpsell />
             </div>
 
-            {/* Right Column: Payment Form (Reference #1 Right Column) */}
+            {/* Right Column: Razorpay hosted payment */}
             <div className="lg:col-span-5 xl:col-span-5">
-              <PaymentUnavailable
-                onBack={() => {
-                  setSearchParams({ step: 'shipping' })
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                }}
-              />
+              {quote && selectedAddressId ? (
+                <RazorpayPayment
+                  addressId={selectedAddressId}
+                  quote={quote}
+                  couponCode={coupon?.code}
+                  customerName={user?.fullName ?? ''}
+                  customerEmail={user?.email ?? ''}
+                  customerPhone={user?.phone ?? ''}
+                  shippingMethod={shippingMethod}
+                />
+              ) : (
+                <section className="rounded-3xl border border-warning/30 bg-warning-soft p-6 text-sm text-warning">
+                  {quoteError ?? 'Return to shipping and select a valid address before payment.'}
+                </section>
+              )}
             </div>
           </div>
         )}

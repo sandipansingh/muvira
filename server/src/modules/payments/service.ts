@@ -1,207 +1,48 @@
+import crypto from 'crypto'
 import { adminSupabase } from '../../lib/supabase/admin'
+import { razorpay } from '../../lib/razorpay/client'
 import { verifyPaymentSignature, verifyWebhookSignature } from '../../lib/razorpay/verifySignature'
 import { logger } from '../../lib/logger'
-import { sendOrderConfirmationEmail } from '../../lib/notifications/email'
-import { emitOrderEvent } from '../../services/eventBus'
+import { deleteCacheByPattern } from '../../config/cache'
+import { invalidateOn } from '../../services/cacheInvalidation'
 import { AppError } from '../../types'
 import type { Order } from '../../types'
 import type { VerifyPaymentInput } from './schema'
-//
-// capturePayment - THE SINGLE IDEMPOTENT PAYMENT CAPTURE FUNCTION
-//
-// This is the ONLY place in the codebase where payment_status is set to 'paid'
-// or payments.status is set to 'captured'. All other code paths are forbidden
-// from doing this.
-//
-// Called by:
-//   1. verifyPayment (client-side verification after Razorpay Checkout)
-//   2. processWebhookCapture (server-to-server Razorpay webhook)
-//
-// IDEMPOTENCY: If the payment is already 'captured', returns success without
-// re-running side effects. This is critical because:
-//   - The webhook path may fire even after the client already called /verify
-//   - Razorpay retries webhooks on non-2xx responses (duplicates are normal)
-//
 
-export async function capturePayment(
-  razorpayOrderId: string,
-  razorpayPaymentId: string,
-  razorpaySignature: string
-): Promise<{ alreadyCaptured: boolean; order: Order }> {
-  // Fetch the payment row
-  const { data: payment } = await adminSupabase
+interface LocalPayment {
+  id: string
+  order_id: string
+  razorpay_order_id: string
+  amount_paisa: number
+  currency: string
+  status: string
+}
+
+interface FinalizeResult {
+  already_captured: boolean
+  order: Order
+}
+
+interface WebhookPayment {
+  id: string
+  order_id: string
+  amount: number | string
+  currency: string
+  status: string
+  captured: boolean
+  method: string
+  error_description?: string | null
+}
+
+async function getOwnedPayment(userId: string, razorpayOrderId: string): Promise<LocalPayment> {
+  const { data: payment, error } = await adminSupabase
     .from('payments')
-    .select('id, order_id, status, amount_paisa')
+    .select('id, order_id, razorpay_order_id, amount_paisa, currency, status')
     .eq('razorpay_order_id', razorpayOrderId)
     .single()
 
-  if (!payment) {
-    throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment record not found')
-  }
+  if (error || !payment) throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
 
-  // IDEMPOTENCY GUARD
-  // If already captured, return success immediately - do not re-run side effects.
-  if (payment.status === 'captured') {
-    const { data: order } = await adminSupabase
-      .from('orders')
-      .select('*')
-      .eq('id', payment.order_id)
-      .single()
-    return { alreadyCaptured: true, order: order as Order }
-  }
-
-  // Fetch the associated order
-  const { data: order } = await adminSupabase
-    .from('orders')
-    .select('*, order_items(*)')
-    .eq('id', payment.order_id)
-    .single()
-
-  if (!order) {
-    throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  }
-
-  // Mark payment as captured
-  const { error: paymentUpdateError } = await adminSupabase
-    .from('payments')
-    .update({
-      razorpay_payment_id: razorpayPaymentId,
-      razorpay_signature: razorpaySignature,
-      status: 'captured',
-      captured_at: new Date().toISOString(),
-    })
-    .eq('id', payment.id)
-
-  if (paymentUpdateError) {
-    throw new AppError(500, 'DB_ERROR', 'Failed to update payment status')
-  }
-
-  // Mark order as confirmed
-  const { error: orderUpdateError } = await adminSupabase
-    .from('orders')
-    .update({
-      status: 'confirmed',
-      payment_status: 'paid',
-    })
-    .eq('id', order.id)
-
-  if (orderUpdateError) {
-    throw new AppError(500, 'DB_ERROR', 'Failed to update order status')
-  }
-
-  // Atomic stock decrement
-  // Uses the DB-level decrement_stock RPC (WHERE stock >= qty) - race-safe.
-  // If stock is insufficient at this final point, flag the order for manual
-  // reconciliation rather than failing the capture (payment already happened).
-  const orderItems = order.order_items as Array<{
-    product_id: string
-    quantity: number
-  }>
-
-  for (const item of orderItems) {
-    const { data: newStock, error: stockError } = await adminSupabase.rpc('decrement_stock', {
-      p_product_id: item.product_id,
-      p_qty: item.quantity,
-    })
-
-    if (stockError || newStock === null) {
-      // EDGE CASE: Stock was depleted by a concurrent order between checkout
-      // and capture. The payment succeeded at Razorpay - do NOT refund automatically.
-      // Flag the order for admin reconciliation.
-      logger.error(
-        { orderId: order.id, productId: item.product_id },
-        'Stock insufficient at capture time - flagging order for admin reconciliation'
-      )
-      await adminSupabase
-        .from('orders')
-        .update({ fulfillment_status: 'exception' })
-        .eq('id', order.id)
-      // Continue processing other items - don't throw here
-    }
-  }
-
-  // Atomic coupon usage increment
-  if (order.coupon_id) {
-    const { error: couponError } = await adminSupabase.rpc('increment_coupon_usage', {
-      p_coupon_id: order.coupon_id,
-    })
-
-    if (couponError) {
-      // Non-fatal: log and continue. Coupon over-usage is recoverable.
-      logger.error(
-        { error: couponError, couponId: order.coupon_id, orderId: order.id },
-        'Failed to increment coupon usage - manual check needed'
-      )
-    }
-  }
-
-  // Clear the user's cart
-  await adminSupabase.from('cart_items').delete().eq('user_id', order.user_id)
-
-  // Log capture event
-  await adminSupabase.from('payment_logs').insert({
-    payment_id: payment.id,
-    order_id: order.id,
-    event_type: 'webhook_processed',
-    payload: {
-      razorpay_payment_id: razorpayPaymentId,
-      razorpay_order_id: razorpayOrderId,
-    },
-  })
-
-  logger.info(
-    { orderId: order.id, orderNumber: order.order_number, razorpayPaymentId },
-    'Payment captured successfully'
-  )
-
-  // Fire-and-forget email notification via event bus
-  // Do NOT await - email failure must not block the response
-  emitOrderEvent('order:payment:captured', {
-    orderId: order.id,
-    orderNumber: order.order_number,
-    userId: order.user_id,
-    oldStatus: 'pending',
-    newStatus: 'confirmed',
-    source: 'system',
-  })
-
-  // Legacy email (will be replaced by event bus subscriber)
-  sendOrderConfirmationEmail({
-    order: order as Order,
-    customerName: order.shipping_full_name,
-  }).catch((err: unknown) => {
-    logger.error({ err, orderId: order.id }, 'Order confirmation email failed (fire-and-forget)')
-  })
-
-  // Shiprocket order creation is now manual via admin fulfillment workflow.
-  // Do NOT auto-create Shiprocket orders after payment capture.
-
-  return { alreadyCaptured: false, order: order as Order }
-}
-
-//
-// verifyPayment - called by POST /api/payments/verify
-//
-// Receives the three Razorpay Checkout return values, verifies signature,
-// then calls capturePayment.
-//
-
-export async function verifyPayment(
-  userId: string,
-  input: VerifyPaymentInput
-): Promise<{ order: Order; alreadyCaptured: boolean }> {
-  // Fetch payment to verify it belongs to this user
-  const { data: payment } = await adminSupabase
-    .from('payments')
-    .select('id, order_id, status')
-    .eq('razorpay_order_id', input.razorpay_order_id)
-    .single()
-
-  if (!payment) {
-    throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
-  }
-
-  // Layer 2 ownership check: verify the order belongs to the calling user
   const { data: order } = await adminSupabase
     .from('orders')
     .select('user_id')
@@ -209,219 +50,246 @@ export async function verifyPayment(
     .single()
 
   if (!order || order.user_id !== userId) {
-    // Return 404 - don't reveal whether order exists for another user
-    throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
+    throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
   }
 
-  // Log the attempt BEFORE verification (so even failed attempts are audited)
-  await adminSupabase.from('payment_logs').insert({
+  return payment as LocalPayment
+}
+
+async function writePaymentLog(
+  payment: LocalPayment,
+  eventType: string,
+  payload: Record<string, unknown>
+): Promise<void> {
+  const { error } = await adminSupabase.from('payment_logs').insert({
     payment_id: payment.id,
     order_id: payment.order_id,
-    event_type: 'verify_attempt',
-    // SECURITY: Do NOT log the full signature or payment ID in plaintext at warn/error level
-    payload: { razorpay_order_id: input.razorpay_order_id },
+    event_type: eventType,
+    payload,
+  })
+  if (error) logger.error({ error, orderId: payment.order_id }, 'Failed to write payment audit log')
+}
+
+async function finalizePayment(
+  payment: LocalPayment,
+  providerPaymentId: string,
+  signature: string,
+  amountPaisa: number,
+  currency: string,
+  method: string
+): Promise<FinalizeResult> {
+  const { data, error } = await adminSupabase.rpc('finalize_captured_payment', {
+    p_razorpay_order_id: payment.razorpay_order_id,
+    p_razorpay_payment_id: providerPaymentId,
+    p_razorpay_signature: signature,
+    p_amount_paisa: amountPaisa,
+    p_currency: currency,
+    p_payment_method: method,
   })
 
-  // SIGNATURE VERIFICATION
-  // MUST use timingSafeEqual (done inside verifyPaymentSignature)
-  const isValid = verifyPaymentSignature({
-    razorpay_order_id: input.razorpay_order_id,
-    razorpay_payment_id: input.razorpay_payment_id,
-    razorpay_signature: input.razorpay_signature,
-  })
-
-  if (!isValid) {
-    // Log failure - NEVER let a failed verification disappear silently
-    await adminSupabase.from('payment_logs').insert({
-      payment_id: payment.id,
-      order_id: payment.order_id,
-      event_type: 'verify_failure',
-      payload: {
-        razorpay_order_id: input.razorpay_order_id,
-        reason: 'signature_mismatch',
-      },
-    })
-
-    // Mark payment as failed
-    await adminSupabase
-      .from('payments')
-      .update({
-        status: 'failed',
-        failure_reason: 'Signature verification failed',
-      })
-      .eq('id', payment.id)
-
-    await adminSupabase
-      .from('orders')
-      .update({ payment_status: 'failed' })
-      .eq('id', payment.order_id)
-
-    logger.warn(
-      { orderId: payment.order_id, razorpayOrderId: input.razorpay_order_id },
-      'Payment signature verification FAILED'
-    )
-
+  if (error || !data) {
+    logger.error({ error, orderId: payment.order_id }, 'Atomic payment finalization failed')
     throw new AppError(
-      400,
-      'PAYMENT_SIGNATURE_INVALID',
-      'Payment verification failed. Please contact support.'
+      409,
+      'PAYMENT_RECONCILIATION_REQUIRED',
+      'Payment was received but the order requires reconciliation. Please contact support.'
     )
   }
 
-  // Signature valid - log success
-  await adminSupabase.from('payment_logs').insert({
-    payment_id: payment.id,
-    order_id: payment.order_id,
-    event_type: 'verify_success',
-    payload: { razorpay_order_id: input.razorpay_order_id },
+  const result = data as unknown as FinalizeResult
+  invalidateOn('ORDER_PLACED', {
+    id: result.order.id,
+    userId: result.order.user_id,
   })
-
-  logger.info(
-    { orderId: payment.order_id, razorpayOrderId: input.razorpay_order_id },
-    'Payment signature verified - proceeding to capture'
-  )
-
-  // Call the single idempotent capture function
-  const result = await capturePayment(
-    input.razorpay_order_id,
-    input.razorpay_payment_id,
-    input.razorpay_signature
-  )
-
   return result
 }
 
-//
-// processRazorpayWebhook - called by POST /api/webhooks/razorpay
-//
-// SECURITY REQUIREMENTS:
-// 1. rawBody must be the raw request Buffer (not parsed JSON)
-// 2. Signature is verified with RAZORPAY_WEBHOOK_SECRET (not API key secret)
-// 3. Duplicate webhooks (Razorpay retries) are detected and no-op'd
-//
+export async function verifyPayment(
+  userId: string,
+  input: VerifyPaymentInput
+): Promise<{ order: Order; alreadyCaptured: boolean }> {
+  const payment = await getOwnedPayment(userId, input.razorpay_order_id)
+  await writePaymentLog(payment, 'verify_attempt', {
+    razorpay_order_id: input.razorpay_order_id,
+  })
+
+  if (!verifyPaymentSignature(input)) {
+    await writePaymentLog(payment, 'verify_failure', {
+      razorpay_order_id: input.razorpay_order_id,
+      reason: 'signature_mismatch',
+    })
+    throw new AppError(400, 'PAYMENT_SIGNATURE_INVALID', 'Payment verification failed')
+  }
+
+  try {
+    const [providerPayment, providerOrder] = await Promise.all([
+      razorpay.payments.fetch(input.razorpay_payment_id),
+      razorpay.orders.fetch(input.razorpay_order_id),
+    ])
+
+    const providerMatches =
+      providerPayment.id === input.razorpay_payment_id &&
+      providerPayment.order_id === input.razorpay_order_id &&
+      Number(providerPayment.amount) === payment.amount_paisa &&
+      providerPayment.currency === payment.currency &&
+      providerPayment.status === 'captured' &&
+      providerPayment.captured === true &&
+      providerOrder.id === input.razorpay_order_id &&
+      Number(providerOrder.amount) === payment.amount_paisa &&
+      providerOrder.currency === payment.currency &&
+      providerOrder.status === 'paid' &&
+      Number(providerOrder.amount_paid) === payment.amount_paisa
+
+    if (!providerMatches) {
+      await writePaymentLog(payment, 'verify_failure', {
+        razorpay_order_id: input.razorpay_order_id,
+        reason: 'provider_state_mismatch',
+      })
+      throw new AppError(409, 'PAYMENT_STATE_MISMATCH', 'Payment is not confirmed by Razorpay')
+    }
+
+    const result = await finalizePayment(
+      payment,
+      providerPayment.id,
+      input.razorpay_signature,
+      Number(providerPayment.amount),
+      providerPayment.currency,
+      providerPayment.method
+    )
+
+    return { order: result.order, alreadyCaptured: result.already_captured }
+  } catch (error) {
+    if (error instanceof AppError) throw error
+    logger.error({ error, orderId: payment.order_id }, 'Failed to fetch Razorpay payment state')
+    throw new AppError(
+      502,
+      'PAYMENT_PROVIDER_UNAVAILABLE',
+      'Payment verification is delayed. Please try again.'
+    )
+  }
+}
+
+async function registerWebhook(
+  rawBody: Buffer,
+  payload: Record<string, unknown>
+): Promise<{ id: string; duplicate: boolean }> {
+  const payloadHash = crypto.createHash('sha256').update(rawBody).digest('hex')
+  const suppliedEventId = typeof payload['id'] === 'string' ? payload['id'] : null
+  const eventId = suppliedEventId ?? payloadHash
+  const eventType = typeof payload['event'] === 'string' ? payload['event'] : null
+  const { data, error } = await adminSupabase
+    .from('webhook_events')
+    .insert({
+      source: 'razorpay',
+      event_id: eventId,
+      event_type: eventType,
+      payload_hash: payloadHash,
+      raw_payload: payload,
+      processing_status: 'verified',
+    })
+    .select('id')
+    .single()
+
+  if (error?.code === '23505') return { id: '', duplicate: true }
+  if (error || !data)
+    throw new AppError(500, 'WEBHOOK_AUDIT_FAILED', 'Webhook could not be recorded')
+  return { id: data.id as string, duplicate: false }
+}
+
+async function setWebhookStatus(
+  webhookId: string,
+  status: 'processed' | 'failed',
+  errorMessage?: string
+): Promise<void> {
+  const { error } = await adminSupabase
+    .from('webhook_events')
+    .update({
+      processing_status: status,
+      processed_at: new Date().toISOString(),
+      error_message: errorMessage?.slice(0, 2000) ?? null,
+    })
+    .eq('id', webhookId)
+  if (error) logger.error({ error, webhookId }, 'Failed to update webhook audit state')
+}
+
+function getWebhookPayment(payload: Record<string, unknown>): WebhookPayment | undefined {
+  const wrapper = payload['payload'] as Record<string, unknown> | undefined
+  const paymentWrapper = wrapper?.['payment'] as Record<string, unknown> | undefined
+  return paymentWrapper?.['entity'] as WebhookPayment | undefined
+}
 
 export async function processRazorpayWebhook(
   rawBody: Buffer,
   signature: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw webhook payload has unknown structure
-  payload: Record<string, any>
+  payload: Record<string, unknown>
 ): Promise<{ status: 'processed' | 'duplicate' | 'ignored' }> {
-  const event = payload['event'] as string | undefined
-  const eventId = payload['id'] as string | undefined // Razorpay event ID for dedup
-
-  // Log receipt of every webhook (before verification - for audit trail)
-  await adminSupabase.from('payment_logs').insert({
-    event_type: 'webhook_received',
-    payload: { event, event_id: eventId },
-    razorpay_event_id: eventId ?? null,
-  })
-
-  // Signature verification
-  // Uses RAZORPAY_WEBHOOK_SECRET - separate from API key secret
-  // Uses raw buffer - Razorpay signs the exact bytes sent
-  const isValid = verifyWebhookSignature({ rawBody, signature })
-
-  if (!isValid) {
-    logger.warn({ event, eventId }, 'Webhook signature verification FAILED - rejecting')
-    // Return 400 so Razorpay doesn't retry (signature mismatch is not retryable)
+  if (!verifyWebhookSignature({ rawBody, signature })) {
     throw new AppError(400, 'WEBHOOK_SIGNATURE_INVALID', 'Invalid webhook signature')
   }
 
-  // Duplicate detection
-  if (eventId) {
-    const { data: isDuplicate } = await adminSupabase.rpc('check_webhook_duplicate', {
-      p_event_id: eventId,
-    })
+  const registered = await registerWebhook(rawBody, payload)
+  if (registered.duplicate) return { status: 'duplicate' }
 
-    if (isDuplicate) {
-      logger.info({ event, eventId }, 'Duplicate webhook received - no-op')
-      await adminSupabase.from('payment_logs').insert({
-        event_type: 'webhook_duplicate',
-        payload: { event, event_id: eventId },
-        razorpay_event_id: eventId,
-      })
-      return { status: 'duplicate' }
-    }
-  }
+  const event = typeof payload['event'] === 'string' ? payload['event'] : ''
+  const providerPayment = getWebhookPayment(payload)
 
-  // Process event types
-  if (event === 'payment.captured') {
-    const razorpayPayment = payload['payload']?.['payment']?.['entity'] as
-      | { order_id: string; id: string }
-      | undefined
+  try {
+    if (event === 'payment.captured') {
+      if (
+        !providerPayment?.id ||
+        !providerPayment.order_id ||
+        providerPayment.status !== 'captured' ||
+        providerPayment.captured !== true
+      ) {
+        throw new AppError(400, 'WEBHOOK_MALFORMED', 'Malformed captured-payment webhook')
+      }
 
-    if (!razorpayPayment?.order_id || !razorpayPayment?.id) {
-      logger.error({ payload }, 'Malformed payment.captured webhook payload')
-      throw new AppError(400, 'WEBHOOK_MALFORMED', 'Malformed webhook payload')
-    }
+      const { data: localPayment } = await adminSupabase
+        .from('payments')
+        .select('id, order_id, razorpay_order_id, amount_paisa, currency, status')
+        .eq('razorpay_order_id', providerPayment.order_id)
+        .single()
+      if (!localPayment) throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
 
-    await capturePayment(
-      razorpayPayment.order_id,
-      razorpayPayment.id,
-      '' // signature is not available in webhook payload; idempotency guard handles re-capture
-    )
-
-    await adminSupabase.from('payment_logs').insert({
-      event_type: 'webhook_processed',
-      payload: {
-        event,
-        event_id: eventId,
-        razorpay_payment_id: razorpayPayment.id,
-      },
-      razorpay_event_id: eventId ?? null,
-    })
-
-    return { status: 'processed' }
-  }
-
-  if (event === 'payment.failed') {
-    const razorpayPayment = payload['payload']?.['payment']?.['entity'] as
-      | { order_id: string; id: string; error_description?: string }
-      | undefined
-
-    if (!razorpayPayment?.order_id) {
-      return { status: 'ignored' }
-    }
-
-    // Mark payment as failed in our DB
-    await adminSupabase
-      .from('payments')
-      .update({
-        status: 'failed',
-        failure_reason: razorpayPayment.error_description ?? 'Payment failed',
-        razorpay_payment_id: razorpayPayment.id,
-      })
-      .eq('razorpay_order_id', razorpayPayment.order_id)
-
-    await adminSupabase
-      .from('orders')
-      .update({ payment_status: 'failed' })
-      .eq(
-        'id',
-        (
-          await adminSupabase
-            .from('payments')
-            .select('order_id')
-            .eq('razorpay_order_id', razorpayPayment.order_id)
-            .single()
-        ).data?.order_id
+      await finalizePayment(
+        localPayment as LocalPayment,
+        providerPayment.id,
+        '',
+        Number(providerPayment.amount),
+        providerPayment.currency,
+        providerPayment.method
       )
+      await setWebhookStatus(registered.id, 'processed')
+      return { status: 'processed' }
+    }
 
-    await adminSupabase.from('payment_logs').insert({
-      event_type: 'webhook_processed',
-      payload: {
-        event,
-        event_id: eventId,
-        failure_reason: razorpayPayment.error_description,
-      },
-      razorpay_event_id: eventId ?? null,
-    })
+    if (event === 'payment.failed') {
+      if (!providerPayment?.order_id) {
+        throw new AppError(400, 'WEBHOOK_MALFORMED', 'Malformed failed-payment webhook')
+      }
 
-    logger.info({ razorpayOrderId: razorpayPayment.order_id }, 'Payment.failed webhook processed')
-    return { status: 'processed' }
+      const { data: localPayment } = await adminSupabase
+        .from('payments')
+        .select('order_id')
+        .eq('razorpay_order_id', providerPayment.order_id)
+        .single()
+      if (localPayment) {
+        const { error } = await adminSupabase.rpc('fail_checkout', {
+          p_order_id: localPayment.order_id,
+          p_reason: providerPayment.error_description ?? 'Payment failed',
+        })
+        if (error) throw error
+        deleteCacheByPattern('GET:/api/products')
+      }
+      await setWebhookStatus(registered.id, 'processed')
+      return { status: 'processed' }
+    }
+
+    await setWebhookStatus(registered.id, 'processed')
+    return { status: 'ignored' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Webhook processing failed'
+    await setWebhookStatus(registered.id, 'failed', message)
+    throw error
   }
-
-  // Other event types (payment.authorized, refund.*, etc.) - log and ignore for now
-  logger.info({ event }, 'Unhandled webhook event type - ignoring')
-  return { status: 'ignored' }
 }

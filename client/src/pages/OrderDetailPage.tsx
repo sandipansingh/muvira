@@ -203,7 +203,11 @@ export const OrderDetailPage: React.FC = () => {
               <ShieldCheck className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Payment Details</span>
             </h2>
-            <p className="font-normal text-ink">Razorpay online payment</p>
+            <p className="font-normal text-ink">
+              {order.paymentMethod
+                ? `Razorpay ${order.paymentMethod}`
+                : 'Online payment method not recorded'}
+            </p>
             <p className="font-normal text-accent">Status: {order.paymentStatus}</p>
             <div className="space-y-1.5 border-t border-line pt-3 text-ink-soft">
               <p className="flex justify-between">

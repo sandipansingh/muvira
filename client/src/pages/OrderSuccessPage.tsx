@@ -1,23 +1,62 @@
-import React from 'react'
-import { ArrowRight, CheckCircle2, PackageCheck, ShieldCheck, Truck } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { ArrowRight, CheckCircle2, PackageCheck, ShieldCheck } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { orderApiService } from '../lib/services/order.service'
+import type { OrderDetail } from '../lib/types/order'
 
 export const OrderSuccessPage: React.FC = () => {
   const [searchParams] = useSearchParams()
   const orderId = searchParams.get('orderId')
-  const orderNumber = searchParams.get('orderNumber')
+  const [order, setOrder] = useState<OrderDetail | null>(null)
+  const [loading, setLoading] = useState(Boolean(orderId))
+  const [error, setError] = useState<string | null>(null)
 
-  if (!orderId) {
+  useEffect(() => {
+    if (!orderId) return
+    let active = true
+    orderApiService
+      .getOrderById(orderId)
+      .then((response) => {
+        if (!active) return
+        if (!response.success) throw new Error(response.error.message)
+        if (response.data.paymentStatus !== 'paid') {
+          throw new Error('This order does not have a verified paid status.')
+        }
+        setOrder(response.data)
+      })
+      .catch((reason: unknown) => {
+        if (active) {
+          setError(reason instanceof Error ? reason.message : 'Order confirmation is unavailable.')
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [orderId])
+
+  if (loading) {
+    return (
+      <main className="editorial-page min-h-[60vh] px-4 py-12 text-center">
+        <p className="text-sm text-[var(--color-ink)]">Verifying your order…</p>
+      </main>
+    )
+  }
+
+  if (!orderId || error || !order) {
     return (
       <main className="editorial-page min-h-[60vh] px-4 py-12 text-center">
         <div className="mx-auto max-w-md space-y-4">
           <h1 className="heading page-title">Order confirmation unavailable</h1>
-          <p className="text-sm text-[var(--color-muted)]">
-            We couldn't find the order reference in this session.
+          <p className="text-sm text-[var(--color-ink)]">
+            {error ?? 'No order reference was provided.'}
           </p>
-          <Link to="/orders" className="button-primary py-3 px-6 text-sm font-semibold">
-            View All Orders
+          <Link to="/orders" className="button-primary px-6 py-3 text-sm font-semibold">
+            View all orders
           </Link>
         </div>
       </main>
@@ -35,104 +74,49 @@ export const OrderSuccessPage: React.FC = () => {
           ]}
         />
 
-        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-6 sm:p-10 shadow-xs text-center space-y-6">
+        <div className="space-y-6 rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-6 text-center shadow-xs sm:p-10">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--color-accent-soft)] text-accent shadow-xs">
             <CheckCircle2 className="h-10 w-10 stroke-[2]" />
           </div>
 
           <div className="space-y-2">
             <span className="inline-block rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
-              Payment Verified & Confirmed
+              Payment verified
             </span>
-            <h1 className="heading page-title text-2xl sm:text-3xl font-bold">
-              Thank you for your order!
+            <h1 className="heading page-title text-2xl font-bold sm:text-3xl">
+              Thank you for your order
             </h1>
-            <p className="text-sm text-[var(--color-ink-soft)]">
-              Order Reference:{' '}
+            <p className="text-sm text-[var(--color-ink)]">
+              Order reference:{' '}
               <strong className="font-bold text-[var(--color-primary)]">
-                #{orderNumber ?? orderId}
+                #{order.orderNumber}
               </strong>
             </p>
           </div>
 
-          {/* High Contrast Overview Callout */}
-          <div className="rounded-2xl bg-[var(--color-surface)] p-4 text-left border border-[var(--color-line)] space-y-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--color-ink)]">
-              Order Summary Callout
-            </h2>
-            <p className="text-sm text-[var(--color-ink)] font-medium leading-relaxed">
-              Your order has been logged successfully and sent to our fulfillment team. You will
-              receive SMS & email notifications as your shipment progresses.
+          <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-left">
+            <p className="text-sm font-medium leading-relaxed text-neutral-900">
+              Your paid order is recorded and ready for the fulfillment team to process.
             </p>
           </div>
 
-          {/* Shipment Progress Stepper */}
-          <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 space-y-4 text-left">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-muted)]">
-              Delivery Status Timeline
-            </h3>
-            <div className="grid grid-cols-4 gap-2 text-center text-xs">
-              <div className="space-y-1.5">
-                <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-primary)] text-white font-bold">
-                  ✓
-                </div>
-                <span className="block font-semibold text-[var(--color-ink)]">Confirmed</span>
-              </div>
-              <div className="space-y-1.5 opacity-60">
-                <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-muted)] font-medium">
-                  2
-                </div>
-                <span className="block text-[var(--color-muted)]">Processing</span>
-              </div>
-              <div className="space-y-1.5 opacity-60">
-                <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-muted)] font-medium">
-                  3
-                </div>
-                <span className="block text-[var(--color-muted)]">Shipped</span>
-              </div>
-              <div className="space-y-1.5 opacity-60">
-                <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-muted)] font-medium">
-                  4
-                </div>
-                <span className="block text-[var(--color-muted)]">Delivered</span>
-              </div>
+          <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-4 text-left">
+            <div className="flex items-center gap-2 font-bold text-[var(--color-ink)]">
+              <ShieldCheck className="h-4 w-4 text-accent" />
+              Razorpay verification complete
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left text-xs">
-            <div className="rounded-2xl border border-[var(--color-line)] p-4 space-y-2 bg-[var(--color-paper)]">
-              <div className="flex items-center gap-1.5 text-[var(--color-ink)] font-bold">
-                <Truck className="h-4 w-4 text-[var(--color-primary)] shrink-0" />
-                Estimated Delivery
-              </div>
-              <p className="text-[var(--color-ink-soft)] font-medium">
-                Standard Dispatch (3-5 Business Days)
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--color-line)] p-4 space-y-2 bg-[var(--color-paper)]">
-              <div className="flex items-center gap-1.5 text-[var(--color-ink)] font-bold">
-                <ShieldCheck className="h-4 w-4 text-accent shrink-0" />
-                Payment Verification
-              </div>
-              <p className="text-[var(--color-ink-soft)] font-medium">
-                Verified via Razorpay Custom Checkout
-              </p>
-            </div>
-          </div>
-
-          {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+          <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
             <Link
-              to={`/orders/${encodeURIComponent(orderId)}`}
-              className="button-primary py-3.5 px-6 text-sm font-semibold gap-2"
+              to={`/orders/${encodeURIComponent(order.id)}`}
+              className="button-primary gap-2 px-6 py-3.5 text-sm font-semibold"
             >
               <PackageCheck className="h-4 w-4 shrink-0" />
-              <span>Track Order Details</span>
+              <span>View order details</span>
             </Link>
-
-            <Link to="/shop" className="button-secondary py-3.5 px-6 text-sm font-semibold gap-2">
-              <span>Continue Shopping</span>
+            <Link to="/shop" className="button-secondary gap-2 px-6 py-3.5 text-sm font-semibold">
+              <span>Continue shopping</span>
               <ArrowRight className="h-4 w-4 shrink-0" />
             </Link>
           </div>

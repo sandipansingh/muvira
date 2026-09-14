@@ -46,12 +46,15 @@ export async function handleWebhook(
       throw new AppError(500, 'INTERNAL', 'Raw body not available for signature verification')
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw webhook JSON has unknown shape
-    const payload = JSON.parse(req.rawBody.toString('utf8')) as Record<string, any>
+    let payload: Record<string, unknown>
+    try {
+      payload = JSON.parse(req.rawBody.toString('utf8')) as Record<string, unknown>
+    } catch {
+      throw new AppError(400, 'WEBHOOK_MALFORMED', 'Webhook body is not valid JSON')
+    }
 
     const result = await service.processRazorpayWebhook(req.rawBody, signature, payload)
 
-    // Always return 200 to Razorpay so it stops retrying (unless we intentionally throw)
     res.json({ success: true, data: { status: result.status } })
   } catch (err) {
     next(err)

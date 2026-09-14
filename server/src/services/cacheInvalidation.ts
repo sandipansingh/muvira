@@ -57,7 +57,12 @@ export function invalidateOn(event: CacheInvalidationEvent, payload: Invalidatio
 
       case 'ORDER_PLACED': {
         const p = payload as OrderEventPayload
-        const keys: string[] = [`cart:user:${p.userId}`, `orders:user:${p.userId}`]
+        const keys: string[] = [
+          `cart:user:${p.userId}`,
+          `orders:user:${p.userId}`,
+          `orders:id:${p.id}`,
+        ]
+        deleteCacheByPattern('GET:/api/products')
         // Evict inventory for every product that was ordered
         if (p.productIds) {
           p.productIds.forEach((pid) => {

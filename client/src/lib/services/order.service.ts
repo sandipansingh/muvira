@@ -2,27 +2,11 @@ import { api } from '../api/client'
 import { mapOrderListItem, mapOrderDetail } from '../utils/adapters'
 import type { OrderListItem, OrderDetail, OrderTrackingData } from '../types/order'
 import type { ApiPaginatedResponse, ApiResponse } from '../types/common'
-
-export interface CreateOrderResult {
-  orderId: string
-  orderNumber: string
-  razorpayOrderId: string
-  razorpayKeyId: string
-  amount: number
-  currency: string
-  subtotal: number
-  discountAmount: number
-  shippingAmount: number
-  totalAmount: number
-}
-
-export interface VerifyPaymentResult {
-  verified: boolean
-  orderId: string
-  orderNumber: string
-  status: string
-  paymentStatus: string
-}
+import type {
+  CreateCheckoutOrderInput,
+  CreateCheckoutOrderResult,
+  VerifyPaymentResult,
+} from '../../types/checkout'
 
 /**
  * Order creation, payment verification, and order history API service.
@@ -32,13 +16,29 @@ export const orderApiService = {
    * Creates a checkout order with selected address and coupon code.
    */
   async createOrder(
-    addressId: string,
-    couponCode: string | null,
-    notes: string | null = null
-  ): Promise<ApiResponse<CreateOrderResult>> {
-    const body: Record<string, unknown> = { address_id: addressId }
-    if (couponCode) body['coupon_code'] = couponCode
-    if (notes) body['notes'] = notes
+    input: CreateCheckoutOrderInput
+  ): Promise<ApiResponse<CreateCheckoutOrderResult>> {
+    const body = {
+      address_id: input.addressId,
+      shipping_method: input.shippingMethod,
+      billing_same_as_shipping: input.billingSameAsShipping,
+      ...(input.couponCode ? { coupon_code: input.couponCode } : {}),
+      ...(input.notes ? { notes: input.notes } : {}),
+      ...(input.billing
+        ? {
+            billing: {
+              full_name: input.billing.fullName,
+              address_line1: input.billing.line1,
+              ...(input.billing.line2 ? { address_line2: input.billing.line2 } : {}),
+              city: input.billing.city,
+              state: input.billing.state,
+              pincode: input.billing.pincode,
+              country: input.billing.country,
+              ...(input.billing.gstNumber ? { gst_number: input.billing.gstNumber } : {}),
+            },
+          }
+        : {}),
+    }
 
     const res = await api.post<{
       success: boolean
@@ -54,20 +54,16 @@ export const orderApiService = {
     }
 
     const d = res.data
-    const orderData = d['order'] as Record<string, unknown> | undefined
     return {
       success: true,
       data: {
-        orderId: (orderData?.['id'] as string) ?? '',
-        orderNumber: (orderData?.['order_number'] as string) ?? '',
+        orderId: d['order_id'] as string,
+        orderNumber: d['order_number'] as string,
         razorpayOrderId: d['razorpay_order_id'] as string,
         razorpayKeyId: d['key_id'] as string,
-        amount: d['amount_paisa'] as number,
+        amountPaisa: d['amount_paisa'] as number,
         currency: d['currency'] as string,
-        subtotal: (orderData?.['subtotal_paisa'] as number) ?? 0,
-        discountAmount: (orderData?.['discount_amount_paisa'] as number) ?? 0,
-        shippingAmount: (orderData?.['shipping_amount_paisa'] as number) ?? 0,
-        totalAmount: d['amount_paisa'] as number,
+        expiresAt: d['expires_at'] as string,
       },
     }
   },
@@ -104,13 +100,17 @@ export const orderApiService = {
     return {
       success: true,
       data: {
-        verified: true,
         orderId: res.data['order_id'] as string,
         orderNumber: res.data['order_number'] as string,
         status: res.data['status'] as string,
         paymentStatus: res.data['payment_status'] as string,
+        alreadyCaptured: res.data['already_captured'] as boolean,
       },
     }
+  },
+
+  async cancelCheckout(orderId: string): Promise<void> {
+    await api.post('/api/checkout/cancel', { order_id: orderId }, true)
   },
 
   /**

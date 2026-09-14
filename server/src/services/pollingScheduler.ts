@@ -7,6 +7,7 @@ import { emitStatusChangeEvents } from './eventBus'
 import { processRetryJobs } from './retryWorker'
 import { writeTrackingSnapshot } from './trackingAnalytics'
 import { recordFullPoll, recordOfdPoll, recordSyncError } from './metricsCollector'
+import { deleteCacheByPattern } from '../config/cache'
 
 /**
  * Intelligent Polling Scheduler
@@ -54,7 +55,22 @@ export function startPollingScheduler(): void {
   })
   scheduledJobs.push(retryWorker)
 
-  logger.info('PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10)')
+  const checkoutExpiryWorker = cron.schedule('* * * * *', async () => {
+    const { data, error } = await adminSupabase.rpc('expire_abandoned_checkouts', {
+      p_limit: 100,
+    })
+    if (error) {
+      logger.error({ error }, 'PollingScheduler: checkout expiry failed')
+      return
+    }
+    if (typeof data === 'number' && data > 0) {
+      deleteCacheByPattern('GET:/api/products')
+      logger.info({ expiredCheckouts: data }, 'PollingScheduler: released expired checkouts')
+    }
+  })
+  scheduledJobs.push(checkoutExpiryWorker)
+
+  logger.info('PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1)')
 }
 
 /**
