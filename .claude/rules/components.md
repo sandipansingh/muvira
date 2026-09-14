@@ -1,48 +1,42 @@
-# Component Patterns
+# Component patterns
 
-This file outlines conventions for writing React components, organizing state, and structuring pages in this project.
+## Data flow
 
----
+- Route pages live in `client/src/pages/`; reusable UI lives in a feature directory under `client/src/components/`.
+- API calls belong in `client/src/lib/services/` and use the shared API client for base URLs, JSON handling, and bearer tokens.
+- Auth uses the shared Supabase client. Product, cart, checkout, order, profile, notification, and admin data flow through the Express API.
+- Context providers own cross-route session, cart, toast, and site-settings state. Keep component-local state limited to local UI behavior.
+- Never replace API errors or empty results with fabricated reviews, prices, promotions, inventory, categories, contact details, or success messages.
+- Mutation promises must reject or return a checked failure result. Show success or navigate only after confirmation.
 
-## Server/Client Split
+## Component placement
 
-- **Async Server Components**: `page.tsx` files are async server components. They run on the server, fetch data from Prisma repositories directly, and pass resolved data down as props.
-- **Client Components**: All UI components under `src/components/` must be client components and start with `"use client"`. They receive data via props and handle UI interactions (using React hooks/state) but never query Prisma repositories directly.
-- **Example Flow**: `src/app/packages/page.tsx` (Server, queries db) -> passes data to `PackagesClient.tsx` (Client component) -> renders the packages layout.
+- `admin/` — admin authorization and operations shell
+- `auth/` — sign-in, sign-up, and recovery components
+- `cart/` — cart rows, drawer, and coupon controls
+- `catalog/` — listings, filtering, product cards, and quick view
+- `checkout/` — address, shipping, quote, and Razorpay handoff
+- `common/` — shared composites such as breadcrumbs, pagination, modal, and toast
+- `home/` — home-page sections
+- `layout/` — storefront header, footer, menu, and announcement shell
+- `product/` — product detail, gallery, and review presentation
+- `ui/` — small reusable controls
 
----
+Components rendered from a collection should be declared at module scope and keyed with stable database identifiers.
 
-## Data Fetching & Repository Pattern
+## Shared interaction patterns
 
-- **Accessing Database**: Always import async repository functions from `@/lib/db/repositories/<name>Repo` (e.g. `companyRepo.ts`, `packageRepo.ts`). Never import the `prisma` client directly inside standard page or layout components.
-- **JSON Field Parsing**: PostgreSQL stores complex types (lists, objects) as text. The repository functions automatically parse these fields before returning them. Always use `safeParse()` inside the repository layer (which wraps `JSON.parse` with a try/catch returning `[]` or fallback) to parse JSON-based fields.
+- Use `Breadcrumbs` on multi-level storefront, customer-account, and admin pages.
+- Use the animated `Dropdown` for sort, filter, and category selectors.
+- Use the pill-style `Pagination` for paginated listings and preserve its scroll-to-results workaround.
+- Use the shared modal, button, input, textarea, badge, and rating components before creating a new primitive.
+- Use framer-motion for stateful transitions and presence animations. The CSS marquee utilities in `client/src/index.css` are an established exception.
+- Loading states must explain that work is pending; error states must expose a retry or recovery route when possible.
 
----
+## Commerce boundaries
 
-## Animation Conventions
-
-- **Animation Library**: All animations (such as dropdown transitions, modal slide-ins, and carousel sliding) must be implemented using **framer-motion** (`AnimatePresence`, `motion.div`, etc.).
-- **No CSS Keyframes**: Never write custom CSS `@keyframes` or CSS `transition` rules for element state changes; keep animation logic purely declaration-based via `framer-motion` properties.
-
----
-
-## Card Component Pattern
-
-- **React Warning Prevention**: Card elements rendered dynamically inside a `.map()` loop (e.g., packages, destinations) must be defined at the **module scope** (outside the rendering parent component), rather than declared inline as nested functions.
-- **Re-mount Prevention**: This ensures React doesn't recreate component definitions on every render cycle, preserving state and performance.
-- **References**: Reference `PackageCard` or `DotIndicator` implementations for layout details.
-
----
-
-## Component-Specific Specifications
-
-- **Navbar**: Sticky navigation that dynamically adds background blur and scale transitions after scrolling 20px. Includes a slide-out mobile hamburger drawer with framer-motion overlay.
-- **Hero**: Rotating slide banner pulling slides via `heroRepo.getHeroSlides()`. Auto-rotates every 5s with pause-on-hover. Houses the floating multi-field search inputs (destination, date select, guest dropdown) styled with `shadow-premium` and `rounded-[2rem]`.
-- **PopularDestinations / TravelerMoments**: Large asymmetrical grid on desktop (`grid-cols-[5.8fr_4.2fr]` alternating layout) displaying testimonials and featured places. Maps to mobile horizontal swipe lists with custom dot pagination.
-- **FAQ**: Accordion layouts using framer-motion height animations. Translates string tokens `{phone}` and `{email}` into real contact coordinates at runtime using `companyData`.
-- **Footer**: Dynamic contact, schedule, and newsletter footer. Condenses same-time schedules (e.g. "Mon-Fri: 9am-6pm") automatically, and hooks up the newsletter form with contextual toast notices.
-- **PopupModal**: The global trip request inquiry form in `layout.tsx`. Supports responsive country search filtering (using `countries-list` codes) and custom calendar date selection.
-- **ToastContext**: Context-based notification popups that animate in at the bottom-right of the screen and auto-expire after 4s.
-- **Breadcrumbs**: Universal breadcrumb component (`Breadcrumbs.tsx`) matching the Product Detail page standard (`ChevronRight` separators, `text-muted` non-active links with `hover:text-primary`, and `text-ink truncate` active terminal item). Must be used on all multi-level storefront and customer account pages.
-- **Dropdown**: Reusable framer-motion dropdown (`Dropdown.tsx`) supporting options with icons, badges, dividers, upwards/downwards viewport collision detection, and click-outside listeners. Replaces default selects for sort, filter, and category controls.
-- **Pagination**: Reusable pill-styled pagination (`Pagination.tsx`) with 4 navigation chevrons (`ChevronsLeft`, `ChevronLeft`, `ChevronRight`, `ChevronsRight`) and dynamic ellipsis windowing (`1 ... 4 5 6 ... 10`). Every paginated page must implement the smooth scroll workaround with a `resultsContainerRef` and `shouldScrollRef` to scroll the user to the top of the results listing on page navigation.
+- Totals displayed during checkout come from `POST /api/checkout/quote`.
+- The checkout page may pass shipping, address, billing, coupon, and notes; it never passes an authoritative amount.
+- Payment-instrument collection belongs exclusively to Razorpay Checkout.
+- Order success pages fetch the owned order and verify its paid state.
+- Wishlist, newsletter, returns, SMS, push, and Apple OAuth affordances stay absent until their backend/provider scope is approved.

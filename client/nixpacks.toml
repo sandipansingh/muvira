@@ -10,6 +10,5 @@ cmds = ['npm ci --include=dev']
 [phases.build]
 cmds = ['npm run build']
 
-# For platforms that need an explicit start (many auto-detect static 'dist' folder)
 [start]
-cmd = 'npx serve dist -l 3000'
+cmd = 'node scripts/serve-static.mjs'

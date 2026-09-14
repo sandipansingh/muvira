@@ -1,13 +1,11 @@
-# Code Style & Comments Guidelines
+# Code style and comments
 
-This file covers repository conventions on coding style, indentation, comments formatting, and documentation.
-
----
-
-## Comment Formatting Rules
-
-To maintain code readability and clean visual style:
-
-- **No Decorative Comments**: Do not use heavy borders, banners, or decorative separators in comments (e.g., `// ── ...`, `// ───`, `// ===`, `// **********`, `// ---`). Keep comments clean and plain.
-- **No Git/Commit References**: Do not use comments referencing git commit hashes, historical git details, or restoration status (e.g., `(Restored original style from ...)` or `(restored from commit ...)`).
-- **Simple & Meaningful Comments**: All comments in both the Next.js website and the Cloudflare workers must be simple, concise, and meaningful. Avoid excessive comments or styling.
+- Follow the repository ESLint and Prettier configuration.
+- Prefer small functions with one responsibility, early returns, and explicit error paths.
+- Keep route handlers thin: validate in schemas, coordinate in controllers, and put business/database behavior in services.
+- Use structured Pino logging on the API. Do not log authentication tokens, secrets, raw payment fields, or unnecessary customer data.
+- Comments explain constraints or non-obvious intent. Do not add decorative banners, repeated narration, Git hashes, or restoration history.
+- Avoid silent catches. A deliberately ignored best-effort failure must be safe, narrowly scoped, and observable elsewhere.
+- Name money values with `_paisa`, provider identifiers with their provider prefix, and booleans with `is_`, `has_`, or an equivalent clear predicate.
+- Use `unknown` at external boundaries and narrow it before access.
+- Do not add raw color literals in JSX or component CSS; use existing CSS variables or Tailwind tokens.

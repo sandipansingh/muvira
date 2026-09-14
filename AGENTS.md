@@ -1,98 +1,87 @@
 # AGENTS.md
 
-This is the **single source of truth** for how to write code in this repository. It covers the stack, commands, architecture, and coding conventions.
+This file is the source of truth for changes in this repository. More focused guidance lives under `.claude/rules/`.
 
-> [!NOTE]
-> Detailed guidelines are organized into specific topic files under `.claude/rules/`:
->
-> - [Design System](file://./.claude/rules/design_system.md) — typography, colors, spacing, radius, shadows, logo rules.
-> - [Component Patterns](file://./.claude/rules/components.md) — server/client split, data fetching, animations, card patterns, component descriptions.
-> - [Build, Image & SEO Rules](file://./.claude/rules/build_seo.md) — Next.js SSR, image rules, SEO constraints.
-> - [Structure & Types](file://./.claude/rules/structure_types.md) — folder structure, database schema, type definitions.
-> - [Code Style & Comments](file://./.claude/rules/code_style.md) — commenting conventions, plain comment rules.
-> - [Git & Commit Workflow](file://./.claude/rules/git_commits.md) — incremental commits, grouping logical changes, conventional commit standards.
+## Stack
 
----
+- Client: Vite 8, React 19, TypeScript 6, React Router 7, Tailwind CSS 3, framer-motion, and lucide-react
+- API: Express 4, TypeScript 5, Zod, and structured Pino logging
+- Data: Supabase PostgreSQL migrations, Auth, Storage, and Row Level Security
+- Providers: Razorpay, Shiprocket, and Resend
 
-## Version Warning
+There is no Next.js, Prisma, or server-side React rendering in this repository.
 
-This project uses Next.js 16 with breaking changes from earlier versions. Read the relevant guide in `node_modules/next/dist/docs/` before writing framework-specific code.
+## Commands
 
-## Tech Stack
+Run commands from the repository root unless noted otherwise.
 
-- **Next.js 16** (App Router) with React 19, Turbopack enabled
-- **Tailwind CSS v4** (`@tailwindcss/postcss` plugin)
-- **Prisma v7** with PostgreSQL — ORM for Supabase-hosted database
-- **framer-motion** for all animations
-- **lucide-react** for icons
+- `npm run dev` — run the Vite client and Express API
+- `npm run lint` / `npm run lint:fix` — check or fix ESLint findings
+- `npm run format:check` / `npm run format` — check or write Prettier formatting
+- `npm run type-check` — type-check client and API
+- `npm run build` — build client and API
+- `npm test` — build and run regression tests
+- `npm run db:start` / `npm run db:stop` — manage local Supabase
+- `npm run db:reset` — replay all migrations against local Supabase without seed data
+- `npm run db:migrate` — push migrations to the explicitly linked Supabase project
 
-## Verified Commands
+After modifying code, run these commands in order before completing a task or committing a milestone:
 
-All commands are run using `npm`:
+1. `npm run lint:fix`
+2. `npm run format`
+3. `npm run build`
+4. `npm run type-check`
+5. `npm test`
+6. `graphify update .`
 
-- `npm run dev` — Start the development server (with Turbopack)
-- `npm run build` — Build project (runs prisma generate → migrate deploy → next build)
-- `npm run start` — Start production server
-- `npm run lint` — Run ESLint check
-- `npm run lint:fix` — Automatically fix lint errors
-- `npm run format` — Run Prettier format write
-- `npm run format:check` — Check Prettier formatting
-- `npm run db:reset` — Reset database using migrations
-- `npm run db:seed` — Seed the database (runs `npx tsx prisma/seed.ts`)
+## Architecture
 
-### Post-Write Quality Gate
+- `client/src/pages/` contains route pages; admin pages live in `client/src/pages/admin/`.
+- `client/src/components/` is organized by feature (`admin`, `auth`, `cart`, `catalog`, `checkout`, `common`, `home`, `layout`, `product`, and `ui`).
+- `client/src/lib/services/` owns API calls. Components must not invent fallback commercial data after an API failure.
+- `client/src/types/` contains cross-feature contracts; feature adapter types currently live in `client/src/lib/types/`.
+- `server/src/modules/` contains route, schema, controller, and service layers by domain.
+- `server/src/services/` contains background workers and provider-facing shared services.
+- `server/src/types/` contains API-wide and database-facing types.
+- `supabase/migrations/` is the database source of truth.
 
-After writing or modifying any code, you **must** run the following commands (in this order) before marking any task as complete or creating a commit:
+The client uses Supabase directly only for Auth and approved Storage actions. Commerce, customer-data mutation, and administration must go through the Express API. Backend authorization is mandatory even when RLS also protects the table.
 
-1. `npm run lint:fix` — Auto-fix ESLint errors
-2. `npm run format` — Format all files with Prettier
-3. `npm run build` — Verify the project still compiles cleanly
+All money is integer paisa at API and database boundaries. UI conversion to rupees happens only for display or explicit input conversion.
 
-This ensures no lint errors, consistent formatting, and no broken builds.
+## Database and security
 
-## Core Conventions & Architecture
+- Never edit a checked-in migration. Add a new numbered migration.
+- Security-definer functions must set a safe search path, validate every input, revoke execution from `PUBLIC`, `anon`, and `authenticated`, and grant only the intended role.
+- Treat RLS as a public security boundary because the anonymous Supabase key is present in the browser.
+- Use service-role access only inside the API and workers. Never log or return secrets.
+- Payment and webhook changes require signature, amount, currency, state, ownership, idempotency, and replay tests.
+- Do not collect card, CVV, UPI, wallet, or bank credentials in Muvira forms or send them to the API.
+- Provider success followed by local persistence failure must create a visible reconciliation or retry record.
 
-- **Landing Page + Listings**: Single-page landing site (`src/app/page.tsx`) and package listings (`src/app/packages/page.tsx`).
-- **Path Aliases**: Always use `@/*` to map to `src/*` (e.g., `@/components/...`).
-- **Currency & Localization**: Currency is always `₹` (Indian Rupee).
-- **Client/Server Boundary**: Server pages pass fetched data to client components (`"use client"`) in `src/components/`.
+## Code and UI conventions
 
-## Subagents & Permissions
+- Use the existing relative-import convention within each package.
+- Keep reusable React components in a relevant `client/src/components/<domain>/` directory.
+- Keep domain-wide interfaces in the existing shared type locations instead of duplicating them in components.
+- Use `₹` and Indian localization for customer-visible currency.
+- Use existing CSS variables and Tailwind tokens; do not add raw colors to JSX or component CSS.
+- Reserve the primary brand color for interactive actions, selected controls, prices, and hover states.
+- Headings use Raleway (`font-display`); body and controls use Lato (`font-sans`).
+- Form controls must render at 16px or larger to avoid iOS focus zoom.
+- Use `Breadcrumbs`, `Dropdown`, and `Pagination` rather than hand-rolled equivalents. Paginated screens retain the existing scroll-to-results behavior.
+- Logo images must not be wrapped in decorative frames, borders, backgrounds, or shadows.
+- Keep comments concise and factual. Do not add decorative separators or Git-history commentary.
+- Use framer-motion for stateful UI motion; the existing CSS marquee is the only established keyframe exception.
 
-- **Delegation**: Use the `research` subagent when you need to perform broad searches or codebase surveys.
-- **Permissions**: Request the narrowest scope possible when asking for file read/write permissions.
+## Optional features
 
-## Knowledge Base & Graphify Integration
+Wishlist, newsletter subscriptions, customer returns, SMS, push notifications, and Apple OAuth are not currently supported. Keep their controls and claims absent unless a product decision explicitly adds the feature with real persistence/provider behavior.
 
-- **Graph Queries**: If `graphify-out/graph.json` exists, prefer `graphify query "<question>"` or `graphify explain "<concept>"` to fetch contextual subgraphs instead of doing broad grep searches.
-- **Graph Updates**: After modifying any code, run `graphify update .` to keep the codebase AST graph in sync.
+## Repository workflow
 
-## Iterative Development & Git Commits
-
-- **Do NOT make a single giant commit** at the end of your task.
-- **Commit incrementally and automatically** as you complete logical sub-steps or milestones.
-- Every git commit message **MUST** follow the Conventional Commits specification.
-- Use the following rule to generate git commit messages:
-  > **Commit Message Instruction:**
-  > Generate Git commit messages using the Conventional Commits specification. Use one of: feat, fix, docs, style, refactor, perf, test, build, ci, chore, or revert. Format: `<type>(<optional-scope>): <description>`. Keep the subject under 72 characters, use the imperative mood, do not end the subject with a period, and output only the commit message. Make the subject describe the primary purpose and highest-impact change of the commit from the perspective of the project, prioritizing user-facing functionality, developer-visible capabilities, or architectural improvements over implementation details. If multiple changes are included, choose the most significant one for the subject and summarize supporting changes (such as migrations, refactors, schema updates, dependency changes, tests, or cleanup) in the body. Include a body only when it adds meaningful context.
-
-## Do Not (Strict Invariants)
-
-- **No local interface declarations**: All domain-wide database model types must be declared in `src/types/` and imported (never duplicated).
-- **No root components**: React components must reside in their respective subdirectories inside `src/components/` (never directly in the root of `src/components/`).
-- **No `lib/types/`**: All domain-wide types must live in `src/types/` (never `src/lib/types/` or `src/lib/db/`).
-- **No hardcoded Hex values**: Always use CSS custom property variables (`var(--color-primary)`, `var(--color-ink)`, etc.) or Tailwind theme tokens from `src/index.css`. Never write raw hex/rgb values directly in JSX or CSS.
-- **Orange Accent Limitation**: Primary brand orange (`--brand` / `--color-primary`) is strictly reserved for interactive CTAs, active tab/pill indicators, price numbers, and hover states. It must NEVER be applied to static headings, static labels, or non-interactive icons.
-- **High-Contrast Section Summaries**: Overview callouts, section intro descriptions, and summary text blocks must use high-contrast text (`text-neutral-900` or `var(--color-ink)`) instead of muted grey (`text-neutral-500` or `var(--muted)`).
-- **Heading Line Height & Letter Spacing**: Heading line heights must be ≥ 1.15 (preventing mobile text collisions); letter-spacing `-0.025em` for headings, `0.05em` (`tracking-wider`) for uppercase badges/metadata, and `0.12em` for section eyebrows.
-- **Two-Font System**: Use `Lora` (`--font-display`) for headings and `.font-display`, and `Lato` (`--font-sans`) for body text and general UI controls.
-- **No frames/backgrounds on Logo**: Brand logo images must never have a surrounding frame, background box, border, or shadow.
-- **Server APIs & Dynamic SSR**: Since Next.js SSR is used, dynamic server-side APIs (`headers()`, `cookies()`, `noStore()`, dynamic runtime options) are fully supported for per-request server rendering and dynamic backend logic.
-- **No dev-related scripts in scripts/**: All development-only or utility helper scripts (such as SQL generators, CSV importers, data-wiping scripts) must reside in `dev-scripts/` (which is git-ignored) and never in the `scripts/` folder (which is reserved for package runtime commands and fallback migration hooks).
-- **No new pages without sitemap updates**: Whenever a new page route is added under `src/app/`, you **must** also update both `src/app/sitemap.ts` (add the URL entry) and `src/app/sitemap/page.tsx` (add a visible link in the appropriate section). This is a non-negotiable SEO requirement. Refer to [Build, Image & SEO Rules](file://./.claude/rules/build_seo.md) for details.
-- **Clean Code Skill**: Always use the `clean-code` skill when writing or modifying any code in this repository.
-- **No decorative/excessive or git-reference comments**: Do not use heavy borders, decorative separators, or visual banners in code comments (e.g., `// ── ...`). Keep comments simple, concise, and meaningful. Do not use excessive comments, styling, or references to git commit hashes and restoration status (e.g., `(Restored original style from ...)`). This rule applies strictly to both the Next.js website and Cloudflare workers. Refer to the [Code Style](file://./.claude/rules/code_style.md) guidelines.
-- **Universal Breadcrumb Pattern**: All multi-level and sub-pages must use the unified `<Breadcrumbs>` component (`@/components/common/Breadcrumbs`), adhering strictly to the product page style (`ChevronRight` separators, `text-muted` non-active links with `hover:text-primary`, and active items in `text-ink`). Never hand-roll custom breadcrumb markup or use slash (`/`) delimiters.
-- **Reusable Dropdown Component**: For interactive sort selectors, category pickers, and custom dropdown menus, use the animated `<Dropdown>` component (`@/components/ui/Dropdown`) powered by `framer-motion` rather than default HTML `<select>` elements or bespoke dropdown state logic.
-- **Pill Pagination & Scroll Workaround**: Multi-page item listings (catalog, orders history) must use the pill-shaped `<Pagination>` component (`@/components/common/Pagination`) with first/prev/next/last chevrons and ellipsis windowing. Whenever a page change is triggered, pages must utilize the scroll workaround (`resultsContainerRef` / `shouldScrollRef`) to smoothly scroll the user back to the top of the results listing.
-- **No input font size smaller than 16px (1rem) on form controls**: All text inputs (`<input>`, `<textarea>`, `<select>`) must use a font size of at least `16px` (`text-base` in Tailwind) to prevent iOS Safari auto-zooming on focus on mobile devices.
+- Preserve unrelated work in a dirty tree and stage only files belonging to the current milestone.
+- Commit logical milestones incrementally with Conventional Commit messages.
+- Development-only data tools belong in git-ignored `dev-scripts/`; production runtime helpers belong in `scripts/` only when required at runtime.
+- If `graphify-out/graph.json` exists, prefer focused `graphify query`/`graphify explain` calls for broad architecture questions and run `graphify update .` after code changes.
+- Use the `research` subagent for broad repository surveys when subagents are available.
