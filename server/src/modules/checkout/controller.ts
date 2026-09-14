@@ -9,12 +9,3 @@ export async function createOrder(req: Request, res: Response, next: NextFunctio
     next(err)
   }
 }
-
-export async function payCustom(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const result = await service.payCustomOrder(req.user!.id, req.body)
-    res.status(200).json({ success: true, data: result })
-  } catch (err) {
-    next(err)
-  }
-}

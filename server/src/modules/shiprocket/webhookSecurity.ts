@@ -42,28 +42,19 @@ export function verifyWebhookFreshness(rawPayload: Record<string, unknown>): boo
   return true
 }
 
-/**
- * Verify the webhook signature or shared secret.
- *
- * Shiprocket does not currently sign webhooks with HMAC, so we support
- * two fallback verification modes:
- *
- * 1. Query param: SHIPROCKET_WEBHOOK_SECRET must match ?secret=<value> in URL
- * 2. Header: X-Shiprocket-Signature must match SHIPROCKET_WEBHOOK_SECRET
- *
- * If SHIPROCKET_WEBHOOK_SECRET is not configured, verification is skipped.
- * This allows dev environments to receive webhooks without authentication.
- *
- * Returns true if the webhook is authenticated OR if secret is not configured.
- */
-export function verifyWebhookAuth(querySecret?: string, headerSignature?: string): boolean {
+/** Verify the vendor API key without allowing an unauthenticated fallback. */
+export function verifyWebhookAuth(apiKey?: string): boolean {
+  if (env.SHIPROCKET_WEBHOOK_ENABLED !== 'true') {
+    return false
+  }
+
   const expectedSecret = env.SHIPROCKET_WEBHOOK_SECRET
 
   if (!expectedSecret) {
-    return true
+    return false
   }
 
-  const candidate = querySecret ?? headerSignature ?? ''
+  const candidate = apiKey ?? ''
   if (!candidate) {
     return false
   }

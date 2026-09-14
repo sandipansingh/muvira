@@ -49,7 +49,11 @@ export function createApp() {
         ignore: (req) => req.url === '/api/health',
       },
       // Redact sensitive headers from logs
-      redact: ['req.headers.authorization', 'req.headers["x-razorpay-signature"]'],
+      redact: [
+        'req.headers.authorization',
+        'req.headers["x-razorpay-signature"]',
+        'req.headers["x-api-key"]',
+      ],
       customProps: (req) => ({ requestId: (req as Request).requestId }),
     })
   )
@@ -95,7 +99,7 @@ export function createApp() {
     }
   )
   app.use(
-    '/api/webhooks/shiprocket',
+    '/api/webhooks/shipment-status',
     express.raw({ type: 'application/json' }),
     (req: Request, _res: Response, next: NextFunction) => {
       req.rawBody = req.body as Buffer
@@ -134,7 +138,7 @@ export function createApp() {
 
   // Webhook - signature-verified (NOT user-auth)
   app.use('/api/webhooks', webhooksRouter)
-  app.use('/api/webhooks/shiprocket', shiprocketWebhookRouter)
+  app.use('/api/webhooks/shipment-status', shiprocketWebhookRouter)
 
   // Admin routes - requireAuth + requireAdmin applied here centrally
   const adminRouter = express.Router()

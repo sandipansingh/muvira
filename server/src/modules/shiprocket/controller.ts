@@ -18,13 +18,13 @@ import {
 import { logger } from '../../lib/logger'
 
 /**
- * POST /api/webhooks/shiprocket
+ * POST /api/webhooks/shipment-status
  *
  * Webhook endpoint for Shiprocket tracking updates.
  *
  * Security:
  * - Raw body is preserved by app.ts middleware
- * - Optional shared-secret verification via query param ?secret= or header
+ * - Shared-secret verification through the vendor x-api-key header
  * - Payload SHA-256 hash used for idempotency (duplicates return 200 without reprocessing)
  *
  * HTTP semantics:
@@ -54,10 +54,9 @@ export async function handleWebhook(
     const parsedBody = JSON.parse(rawBody.toString('utf8')) as Record<string, unknown>
 
     // 1. Auth check
-    const querySecret = req.query['secret'] as string | undefined
-    const headerSig = req.headers['x-shiprocket-signature'] as string | undefined
+    const apiKey = req.headers['x-api-key'] as string | undefined
 
-    if (!verifyWebhookAuth(querySecret, headerSig)) {
+    if (!verifyWebhookAuth(apiKey)) {
       recordWebhookFailed()
       res.status(401).json({
         success: false,

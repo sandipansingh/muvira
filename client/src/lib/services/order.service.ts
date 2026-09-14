@@ -73,44 +73,6 @@ export const orderApiService = {
   },
 
   /**
-   * Submits custom S2S payment without launching Razorpay popup modal.
-   */
-  async payCustomOrder(
-    addressId: string,
-    couponCode: string | null,
-    paymentPayload: Record<string, unknown>,
-    notes: string | null = null
-  ): Promise<ApiResponse<{ orderId: string; orderNumber: string }>> {
-    const body: Record<string, unknown> = {
-      address_id: addressId,
-      ...paymentPayload,
-    }
-    if (couponCode) body['coupon_code'] = couponCode
-    if (notes) body['notes'] = notes
-
-    const res = await api.post<{
-      success: boolean
-      data?: { success: boolean; orderId: string; orderNumber: string }
-      error?: { code: string; message: string }
-    }>('/api/checkout/pay-custom', body, true)
-
-    if (!res.success || !res.data) {
-      return {
-        success: false,
-        error: res.error ?? { code: 'PAYMENT_FAILED', message: 'Payment failed' },
-      }
-    }
-
-    return {
-      success: true,
-      data: {
-        orderId: res.data.orderId,
-        orderNumber: res.data.orderNumber,
-      },
-    }
-  },
-
-  /**
    * Verifies Razorpay payment signature after successful checkout modal payment.
    */
   async verifyPayment(

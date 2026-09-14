@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { Address } from '../lib/types/cart'
 import { addressService } from '../lib/services/address.service'
-import { orderApiService } from '../lib/services/order.service'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import { useToast } from '../context/ToastContext'
@@ -10,9 +9,8 @@ import { FlowHeader } from '../components/checkout/FlowHeader'
 import { FlowItemCard } from '../components/checkout/FlowItemCard'
 import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
 import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
-import { PaymentSection } from '../components/checkout/PaymentSection'
+import { PaymentUnavailable } from '../components/checkout/PaymentUnavailable'
 import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
-import type { CustomPaymentPayload } from '../components/checkout/CustomPaymentSelector'
 import type { AddressData } from '../components/checkout/AddressSelector'
 import { formatPrice } from '../lib/utils/format'
 import { Tag, CheckCircle, X, HelpCircle } from 'lucide-react'
@@ -47,7 +45,6 @@ export const CheckoutPage: React.FC = () => {
     subtotalPaisa,
     discountPaisa,
     shippingPaisa,
-    resetAfterOrder,
   } = useCart()
   const { showToast } = useToast()
   const navigate = useNavigate()
@@ -70,12 +67,6 @@ export const CheckoutPage: React.FC = () => {
 
   // Shipping Method ('standard' | 'express')
   const [shippingMethod, setShippingMethod] = useState<'standard' | 'express'>('standard')
-
-  // Payment Selection State
-  const [paymentData, setPaymentData] = useState<CustomPaymentPayload | null>({
-    method: 'card',
-  })
-  const [isProcessing, setIsProcessing] = useState(false)
 
   // Discount code in Order Summary left panel
   const [promoCode, setPromoCode] = useState('')
@@ -129,11 +120,11 @@ export const CheckoutPage: React.FC = () => {
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (!authLoading && items.length === 0 && !isProcessing) {
+    if (!authLoading && items.length === 0) {
       // Cart is empty, navigate to cart
       navigate('/cart', { replace: true })
     }
-  }, [items.length, authLoading, isProcessing, navigate])
+  }, [items.length, authLoading, navigate])
 
   const handleApplyPromoCode = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -197,105 +188,6 @@ export const CheckoutPage: React.FC = () => {
 
     setSearchParams({ step: 'payment' })
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const validatePayment = (): boolean => {
-    if (!paymentData) {
-      showToast('Select a payment method to proceed.', 'error')
-      return false
-    }
-
-    if (paymentData.method === 'card') {
-      const c = paymentData.card
-      if (!c?.number || c.number.length < 15) {
-        showToast('Enter a valid 16-digit card number.', 'error')
-        return false
-      }
-      if (!c.expiryMonth || !c.expiryYear) {
-        showToast('Enter card expiration date (MM / YY).', 'error')
-        return false
-      }
-      if (!c.cvv || c.cvv.length < 3) {
-        showToast('Enter card security code (CVV).', 'error')
-        return false
-      }
-      if (!c.name?.trim()) {
-        showToast('Enter cardholder name.', 'error')
-        return false
-      }
-    } else if (paymentData.method === 'upi') {
-      if (!paymentData.upi?.vpa || !paymentData.upi.vpa.includes('@')) {
-        showToast('Enter a valid UPI ID (e.g. mobile@upi).', 'error')
-        return false
-      }
-    }
-
-    return true
-  }
-
-  const handlePlaceOrder = async () => {
-    if (!validatePayment()) return
-
-    // Ensure we have an address ID
-    let addressIdToUse = selectedAddressId
-    if (!addressIdToUse) {
-      try {
-        const created = await addressService.createAddress({
-          fullName:
-            `${shippingData.firstName} ${shippingData.lastName}`.trim() || 'Valued Customer',
-          label: 'Shipping Address',
-          phone: shippingData.phone || '9876543210',
-          line1: shippingData.description || 'Shipping Address',
-          line2: null,
-          city: shippingData.city || 'Kolkata',
-          state: shippingData.state || 'West Bengal',
-          pincode: shippingData.pincode || '700001',
-          country: 'India',
-          isDefault: true,
-        })
-        if (created.success) {
-          addressIdToUse = created.data.id
-        }
-      } catch {
-        // Fallback
-      }
-    }
-
-    if (!addressIdToUse) {
-      showToast('Delivery address is required.', 'error')
-      return
-    }
-
-    setIsProcessing(true)
-    try {
-      const paymentPayload: Record<string, unknown> = {
-        method: paymentData!.method,
-        card: paymentData!.card,
-        upi: paymentData!.upi,
-        netbanking: paymentData!.netbanking,
-        wallet: paymentData!.wallet,
-      }
-
-      const res = await orderApiService.payCustomOrder(
-        addressIdToUse,
-        coupon?.code ?? null,
-        paymentPayload
-      )
-
-      if (!res.success) {
-        throw new Error(res.error.message)
-      }
-
-      resetAfterOrder()
-      navigate(
-        `/orders/success?orderId=${encodeURIComponent(res.data.orderId)}&orderNumber=${encodeURIComponent(res.data.orderNumber)}`
-      )
-    } catch (err) {
-      setIsProcessing(false)
-      const msg = err instanceof Error ? err.message : 'Payment could not be completed.'
-      showToast(msg, 'error')
-      navigate(`/orders/failure?reason=${encodeURIComponent(msg)}`)
-    }
   }
 
   // Calculate adjusted shipping charge based on selected shipping method
@@ -496,15 +388,11 @@ export const CheckoutPage: React.FC = () => {
 
             {/* Right Column: Payment Form (Reference #1 Right Column) */}
             <div className="lg:col-span-5 xl:col-span-5">
-              <PaymentSection
-                subtotalPaisa={subtotalPaisa}
-                totalPaisa={effectiveTotalPaisa}
-                email={shippingData.email}
-                onEmailChange={(val) => setShippingData((prev) => ({ ...prev, email: val }))}
-                onPaymentSubmit={handlePlaceOrder}
-                isProcessing={isProcessing}
-                onPaymentDataChange={setPaymentData}
-                shippingAddressText={shippingData.description || '27 Fredrick Ave Brothers'}
+              <PaymentUnavailable
+                onBack={() => {
+                  setSearchParams({ step: 'shipping' })
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
               />
             </div>
           </div>

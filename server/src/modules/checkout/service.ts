@@ -2,11 +2,8 @@ import { adminSupabase } from '../../lib/supabase/admin'
 import { razorpay } from '../../lib/razorpay/client'
 import { logger } from '../../lib/logger'
 import { validateCoupon } from '../coupons/service'
-import { capturePayment } from '../payments/service'
-import { v4 as uuidv4 } from 'uuid'
 import { AppError } from '../../types'
 import type { Order, Coupon } from '../../types'
-import type { PayCustomInput } from './schema'
 import { env } from '../../config/env'
 
 async function calculateShipping(subtotalPaisa: number): Promise<number> {
@@ -168,15 +165,8 @@ export async function createCheckoutOrder(
       receipt: orderNumber,
     })
   } catch (err) {
-    logger.warn(
-      { err },
-      'Razorpay order creation failed; using resilient fallback order identifier'
-    )
-    razorpayOrder = {
-      id: `order_${uuidv4().replace(/-/g, '').slice(0, 14)}`,
-      amount: totalAmountPaisa,
-      currency: 'INR',
-    }
+    logger.error({ err }, 'Razorpay order creation failed')
+    throw new AppError(502, 'PAYMENT_PROVIDER_UNAVAILABLE', 'Payment is temporarily unavailable')
   }
 
   // 8. Insert DB order row with status='pending'
@@ -295,45 +285,5 @@ export async function createCheckoutOrder(
     amount_paisa: totalAmountPaisa,
     currency: 'INR',
     key_id: env.RAZORPAY_KEY_ID, // public key - safe to return
-  }
-}
-
-export async function payCustomOrder(
-  userId: string,
-  input: PayCustomInput
-): Promise<{ success: boolean; orderId: string; orderNumber: string; totalAmountPaisa: number }> {
-  // 1. Create order & razorpay order row
-  const created = await createCheckoutOrder(userId, {
-    address_id: input.address_id,
-    coupon_code: input.coupon_code,
-    notes: input.notes,
-  })
-
-  // 2. Generate S2S transaction reference & signature
-  const razorpayPaymentId = `pay_custom_${uuidv4().replace(/-/g, '').slice(0, 14)}`
-  const razorpaySignature = `sig_custom_${uuidv4().replace(/-/g, '').slice(0, 16)}`
-
-  // 3. Atomically capture payment & confirm order
-  const { order } = await capturePayment(
-    created.razorpay_order_id,
-    razorpayPaymentId,
-    razorpaySignature
-  )
-
-  logger.info(
-    {
-      userId,
-      orderId: order.id,
-      orderNumber: order.order_number,
-      method: input.method,
-    },
-    'Custom S2S payment processed successfully (NO Razorpay modal)'
-  )
-
-  return {
-    success: true,
-    orderId: order.id,
-    orderNumber: order.order_number,
-    totalAmountPaisa: created.amount_paisa,
   }
 }

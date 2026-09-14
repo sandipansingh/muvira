@@ -1,14 +1,13 @@
-# Nixpacks configuration (for when build root is the monorepo root)
-# We force Node 20+ and run all steps inside the client/ folder.
+# Nixpacks configuration for the Express API service.
 
 [phases.setup]
 nixPkgs = ['nodejs_20']
 
 [phases.install]
-cmds = ['cd client && npm ci --include=dev']
+cmds = ['cd server && npm ci --include=dev']
 
 [phases.build]
-cmds = ['cd client && npm run build']
+cmds = ['cd server && npm run build']
 
 [start]
-cmd = 'npx serve client/dist -l 3000'
+cmd = 'node server/dist/server.js'
