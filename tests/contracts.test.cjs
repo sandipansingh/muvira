@@ -22,9 +22,11 @@ test('the fabricated payment endpoint and instrument fields stay removed', () =>
 
 test('order success is derived from an owned API response', () => {
   const successPage = read('client/src/pages/OrderSuccessPage.tsx')
+  const confirmationPolicy = read('client/src/lib/utils/orderConfirmation.ts')
 
   assert.match(successPage, /getOrderById\(orderId\)/)
-  assert.match(successPage, /paymentStatus\s*!==\s*['"]paid['"]/)
+  assert.match(successPage, /isVerifiedPaidOrder\(response\.data\)/)
+  assert.match(confirmationPolicy, /paymentStatus\s*===\s*['"]paid['"]/)
   assert.doesNotMatch(successPage, /Payment Verified & Confirmed/)
 })
 
