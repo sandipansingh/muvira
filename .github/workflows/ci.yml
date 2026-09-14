@@ -46,6 +46,8 @@ jobs:
         run: npm run db:start
       - name: Replay migrations from scratch
         run: npm run db:reset
+      - name: Verify schema grants, RLS, policies, and constraints
+        run: npm run db:test
       - name: Verify database authorization boundaries
         shell: bash
         run: |

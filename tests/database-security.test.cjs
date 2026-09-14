@@ -8,6 +8,74 @@ const anonKey = process.env.SUPABASE_TEST_ANON_KEY
 const serviceRoleKey = process.env.SUPABASE_TEST_SERVICE_ROLE_KEY
 const shouldRun = Boolean(apiUrl && anonKey && serviceRoleKey)
 
+const applicationRelations = [
+  'addresses',
+  'cart_items',
+  'categories',
+  'coupon_redemption_reservations',
+  'coupons',
+  'inventory_reservations',
+  'invoice_records',
+  'low_stock_products',
+  'notification_deliveries',
+  'notification_logs',
+  'notification_preferences',
+  'order_items',
+  'order_status_history',
+  'orders',
+  'outbox_events',
+  'payment_logs',
+  'payment_reconciliation_cases',
+  'payments',
+  'product_images',
+  'product_reviews',
+  'products',
+  'profiles',
+  'retry_jobs',
+  'shipment_events',
+  'shipment_health',
+  'site_settings',
+  'sync_jobs',
+  'tracking_snapshots',
+  'webhook_events',
+]
+
+const privilegedRpcNames = [
+  'add_cart_item_checked',
+  'add_product_image_atomic',
+  'attach_razorpay_order',
+  'begin_invoice_generation',
+  'check_webhook_duplicate',
+  'claim_notification_deliveries',
+  'claim_notification_outbox',
+  'complete_notification_delivery',
+  'complete_notification_outbox',
+  'decrement_stock',
+  'delete_product_image_atomic',
+  'enqueue_retry_job',
+  'expire_abandoned_checkouts',
+  'fail_checkout',
+  'fail_notification_delivery',
+  'fail_notification_outbox',
+  'finalize_captured_payment',
+  'generate_order_number',
+  'get_product_review_summaries',
+  'increment_coupon_usage',
+  'initialize_checkout',
+  'reorder_product_images_atomic',
+  'set_cart_item_quantity_checked',
+  'set_default_address',
+  'skip_notification_delivery',
+  'transition_order_status',
+  'update_site_settings_bulk',
+]
+
+function createSupabaseClient(key) {
+  return createClient(apiUrl, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+}
+
 async function createIdentity(service, label) {
   const email = `${label}-${crypto.randomUUID()}@example.com`
   const password = `Test-${crypto.randomUUID()}-9a!`
@@ -21,86 +89,153 @@ async function createIdentity(service, label) {
   return { email, password, user: data.user }
 }
 
-async function authenticatedClient(identity) {
-  const client = createClient(apiUrl, anonKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  })
-  const { error } = await client.auth.signInWithPassword({
+async function authenticatedIdentity(identity) {
+  const client = createSupabaseClient(anonKey)
+  const { data, error } = await client.auth.signInWithPassword({
     email: identity.email,
     password: identity.password,
   })
   assert.ifError(error)
-  return client
+  assert.ok(data.session?.access_token)
+  return { client, accessToken: data.session.access_token }
+}
+
+async function getRestPaths(accessToken, apiKey = anonKey) {
+  const response = await fetch(`${apiUrl}/rest/v1/`, {
+    headers: {
+      accept: 'application/openapi+json',
+      apikey: apiKey,
+      authorization: `Bearer ${accessToken}`,
+    },
+  })
+  assert.equal(response.status, 200)
+  const schema = await response.json()
+  return new Set(Object.keys(schema.paths ?? {}))
+}
+
+function assertPermissionDenied(error, operation) {
+  assert.ok(error, `${operation} unexpectedly succeeded`)
+  assert.equal(error.code, '42501', `${operation} failed for the wrong reason: ${error.message}`)
 }
 
 test(
-  'anon, customer, admin, and service identities preserve the security boundary',
+  'database roles preserve the API-only commerce boundary',
   { skip: !shouldRun },
   async (context) => {
-    const service = createClient(apiUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    })
-    const anonymous = createClient(apiUrl, anonKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    })
+    const service = createSupabaseClient(serviceRoleKey)
+    const anonymous = createSupabaseClient(anonKey)
     const customerIdentity = await createIdentity(service, 'customer')
     const adminIdentity = await createIdentity(service, 'admin')
+
     context.after(async () => {
       await service.auth.admin.deleteUser(customerIdentity.user.id)
       await service.auth.admin.deleteUser(adminIdentity.user.id)
     })
 
-    const customer = await authenticatedClient(customerIdentity)
-    const admin = await authenticatedClient(adminIdentity)
-    const { error: promoteError } = await service
+    const customer = await authenticatedIdentity(customerIdentity)
+    const admin = await authenticatedIdentity(adminIdentity)
+
+    const { error: promoteAdminError } = await service
       .from('profiles')
       .update({ role: 'admin' })
       .eq('id', adminIdentity.user.id)
-    assert.ifError(promoteError)
+    assert.ifError(promoteAdminError)
 
-    const { error: anonymousJobError } = await anonymous.from('retry_jobs').insert({
-      job_type: 'tracking_sync',
-      reference_id: 'forbidden',
-      payload: {},
+    await context.test(
+      'anonymous and authenticated clients cannot read application relations',
+      async () => {
+        for (const relation of applicationRelations) {
+          const { error: anonymousError } = await anonymous.from(relation).select('*').limit(1)
+          assertPermissionDenied(anonymousError, `anonymous SELECT on ${relation}`)
+
+          const { error: customerError } = await customer.client.from(relation).select('*').limit(1)
+          assertPermissionDenied(customerError, `customer SELECT on ${relation}`)
+        }
+      }
+    )
+
+    await context.test('service role can read every application relation', async () => {
+      for (const relation of applicationRelations) {
+        const { error } = await service.from(relation).select('*').limit(1)
+        assert.ifError(error)
+      }
     })
-    assert.ok(anonymousJobError)
 
-    const { error: roleEscalationError } = await customer
-      .from('profiles')
-      .update({ role: 'admin' })
-      .eq('id', customerIdentity.user.id)
-    assert.ok(roleEscalationError)
+    await context.test('direct profile and commerce mutations remain unavailable', async () => {
+      const { error: roleEscalationError } = await customer.client
+        .from('profiles')
+        .update({ role: 'admin' })
+        .eq('id', customerIdentity.user.id)
+      assertPermissionDenied(roleEscalationError, 'customer role escalation')
 
-    const { error: orderInsertError } = await customer.from('orders').insert({
-      user_id: customerIdentity.user.id,
-      order_number: `TEST-${crypto.randomUUID()}`,
+      for (const relation of [
+        'orders',
+        'order_items',
+        'product_reviews',
+        'retry_jobs',
+        'webhook_events',
+        'sync_jobs',
+        'order_status_history',
+        'notification_logs',
+        'tracking_snapshots',
+      ]) {
+        const { error } = await customer.client.from(relation).insert({})
+        assertPermissionDenied(error, `customer INSERT on ${relation}`)
+      }
     })
-    assert.ok(orderInsertError)
 
-    const { error: reviewInsertError } = await customer.from('product_reviews').insert({
-      product_id: crypto.randomUUID(),
-      user_id: customerIdentity.user.id,
-      rating: 5,
+    await context.test(
+      'only the self-scoped admin helper is exposed to authenticated clients',
+      async () => {
+        const anonymousPaths = await getRestPaths(anonKey)
+        const customerPaths = await getRestPaths(customer.accessToken)
+        const servicePaths = await getRestPaths(serviceRoleKey, serviceRoleKey)
+
+        for (const rpcName of privilegedRpcNames) {
+          assert.equal(anonymousPaths.has(`/rpc/${rpcName}`), false)
+          assert.equal(customerPaths.has(`/rpc/${rpcName}`), false)
+          assert.equal(servicePaths.has(`/rpc/${rpcName}`), true)
+        }
+
+        assert.equal(anonymousPaths.has('/rpc/is_admin'), false)
+        assert.equal(customerPaths.has('/rpc/is_admin'), true)
+
+        const { data: customerIsAdmin, error: customerAdminError } = await customer.client.rpc(
+          'is_admin',
+          { user_id: customerIdentity.user.id }
+        )
+        assert.ifError(customerAdminError)
+        assert.equal(customerIsAdmin, false)
+
+        const { data: adminIsAdmin, error: adminAdminError } = await admin.client.rpc('is_admin', {
+          user_id: adminIdentity.user.id,
+        })
+        assert.ifError(adminAdminError)
+        assert.equal(adminIsAdmin, true)
+
+        const { data: crossUserIsAdmin, error: crossUserAdminError } = await admin.client.rpc(
+          'is_admin',
+          { user_id: customerIdentity.user.id }
+        )
+        assert.ifError(crossUserAdminError)
+        assert.equal(crossUserIsAdmin, false)
+      }
+    )
+
+    await context.test('service-only stock RPC validates input and remains callable', async () => {
+      const { data, error } = await service.rpc('decrement_stock', {
+        p_product_id: crypto.randomUUID(),
+        p_qty: 1,
+      })
+      assert.ifError(error)
+      assert.equal(data, null)
+
+      const { error: invalidQuantityError } = await service.rpc('decrement_stock', {
+        p_product_id: crypto.randomUUID(),
+        p_qty: -1,
+      })
+      assert.ok(invalidQuantityError)
+      assert.equal(invalidQuantityError.code, '22023')
     })
-    assert.ok(reviewInsertError)
-
-    const { error: customerRpcError } = await customer.rpc('decrement_stock', {
-      p_product_id: crypto.randomUUID(),
-      p_qty: 1,
-    })
-    assert.ok(customerRpcError)
-
-    const { data: visibleProfiles, error: adminReadError } = await admin
-      .from('profiles')
-      .select('id')
-      .in('id', [customerIdentity.user.id, adminIdentity.user.id])
-    assert.ifError(adminReadError)
-    assert.equal(visibleProfiles.length, 2)
-
-    const { error: serviceRpcError } = await service.rpc('decrement_stock', {
-      p_product_id: crypto.randomUUID(),
-      p_qty: -1,
-    })
-    assert.ok(serviceRpcError)
   }
 )

@@ -16,6 +16,7 @@
     "test:contracts": "node --test tests/contracts.test.cjs",
     "db:start": "cd server && npx supabase start --workdir ..",
     "db:reset": "cd server && npx supabase db reset --workdir .. --local --no-seed",
+    "db:test": "cd server && SUPABASE_TELEMETRY_DISABLED=true DO_NOT_TRACK=1 CI=true npx supabase test db --workdir .. --local ../supabase/tests/database_integrity.test.sql",
     "db:stop": "cd server && npx supabase stop --workdir .. --no-backup",
     "db:migrate": "cd server && npx supabase db push --workdir .. --linked",
     "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run dev\"",
