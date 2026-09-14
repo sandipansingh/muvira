@@ -9,6 +9,7 @@ import { processNotificationQueue } from './notificationDelivery'
 import { writeTrackingSnapshot } from './trackingAnalytics'
 import { recordFullPoll, recordOfdPoll, recordSyncError } from './metricsCollector'
 import { deleteCacheByPattern } from '../config/cache'
+import { checkOperationalAlerts } from './operationalAlerts'
 
 /**
  * Intelligent Polling Scheduler
@@ -80,8 +81,17 @@ export function startPollingScheduler(): void {
   })
   scheduledJobs.push(notificationWorker)
 
+  const operationalAlertWorker = cron.schedule('*/5 * * * *', async () => {
+    try {
+      await checkOperationalAlerts()
+    } catch (err) {
+      logger.error({ err }, 'PollingScheduler: operational alert check failed')
+    }
+  })
+  scheduledJobs.push(operationalAlertWorker)
+
   logger.info(
-    'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, notifications=*/1)'
+    'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, notifications=*/1, alerts=*/5)'
   )
 }
 

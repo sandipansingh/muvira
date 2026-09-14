@@ -58,3 +58,12 @@ test('atomic checkout migration protects reservations and provider idempotency',
   assert.match(migration, /CREATE UNIQUE INDEX IF NOT EXISTS idx_webhook_events_source_event_id/i)
   assert.match(migration, /FOR UPDATE/)
 })
+
+test('readiness checks required schemas without making provider calls', () => {
+  const healthRoutes = read('server/src/modules/health/routes.ts')
+
+  assert.match(healthRoutes, /['"]\/ready['"]/)
+  assert.match(healthRoutes, /probeTable\(['"]outbox_events['"]\)/)
+  assert.match(healthRoutes, /probeTable\(['"]notification_deliveries['"]\)/)
+  assert.doesNotMatch(healthRoutes, /shiprocketAuthCheck|getToken/)
+})

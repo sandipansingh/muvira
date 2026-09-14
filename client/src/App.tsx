@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { lazy, Suspense, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ToastProvider } from './context/ToastContext'
 import { AuthProvider } from './context/AuthContext'
@@ -13,32 +13,33 @@ import { CartDrawer } from './components/cart/CartDrawer'
 import { ToastContainer } from './components/common/Toast'
 import { ScrollToTop } from './components/common/ScrollToTop'
 
-import { HomePage } from './pages/HomePage'
-import { ShopPage } from './pages/ShopPage'
-import { CategoriesPage } from './pages/CategoriesPage'
-import { SearchPage } from './pages/SearchPage'
-import { NotFoundPage } from './pages/NotFoundPage'
-import { ProductDetailPage } from './pages/ProductDetailPage'
-import { CartPage } from './pages/CartPage'
-import { CheckoutPage } from './pages/CheckoutPage'
-import { OrderSuccessPage } from './pages/OrderSuccessPage'
-import { OrderFailurePage } from './pages/OrderFailurePage'
-import { OrdersHistoryPage } from './pages/OrdersHistoryPage'
-import { OrderDetailPage } from './pages/OrderDetailPage'
-import { ProfilePage } from './pages/ProfilePage'
-import { SignInPage } from './pages/SignInPage'
-import { SignUpPage } from './pages/SignUpPage'
-import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { AdminGuard } from './components/admin/AdminGuard'
 import { AdminShell } from './components/admin/AdminShell'
-import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
-import { AdminOrdersPage } from './pages/admin/AdminOrdersPage'
-import { AdminOrderDetailPage } from './pages/admin/AdminOrderDetailPage'
-import { AdminCatalogPage } from './pages/admin/AdminCatalogPage'
-import { AdminCouponsPage } from './pages/admin/AdminCouponsPage'
-import { AdminSettingsPage } from './pages/admin/AdminSettingsPage'
-import { AdminFailuresPage } from './pages/admin/AdminFailuresPage'
 import { useParams } from 'react-router-dom'
+
+const HomePage = lazy(() => import('./pages/HomePage'))
+const ShopPage = lazy(() => import('./pages/ShopPage'))
+const CategoriesPage = lazy(() => import('./pages/CategoriesPage'))
+const SearchPage = lazy(() => import('./pages/SearchPage'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'))
+const CartPage = lazy(() => import('./pages/CartPage'))
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
+const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'))
+const OrderFailurePage = lazy(() => import('./pages/OrderFailurePage'))
+const OrdersHistoryPage = lazy(() => import('./pages/OrdersHistoryPage'))
+const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const SignInPage = lazy(() => import('./pages/SignInPage'))
+const SignUpPage = lazy(() => import('./pages/SignUpPage'))
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
+const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'))
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'))
+const AdminOrderDetailPage = lazy(() => import('./pages/admin/AdminOrderDetailPage'))
+const AdminCatalogPage = lazy(() => import('./pages/admin/AdminCatalogPage'))
+const AdminCouponsPage = lazy(() => import('./pages/admin/AdminCouponsPage'))
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'))
+const AdminFailuresPage = lazy(() => import('./pages/admin/AdminFailuresPage'))
 
 const CategoryRedirect: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -70,45 +71,50 @@ export const AppContent: React.FC = () => {
       <ScrollToTop />
       <ToastContainer />
 
-      <Routes>
-        {/* Standalone auth routes without navbar or footer */}
-        <Route path="/signin" element={<SignInPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/login" element={<Navigate to="/signin" replace />} />
+      <Suspense
+        fallback={
+          <main className="flex min-h-[60vh] items-center justify-center px-4">
+            <p className="text-base text-ink">Loading…</p>
+          </main>
+        }
+      >
+        <Routes>
+          <Route path="/signin" element={<SignInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/login" element={<Navigate to="/signin" replace />} />
 
-        <Route element={<AdminGuard />}>
-          <Route path="/admin" element={<AdminShell />}>
-            <Route index element={<AdminDashboardPage />} />
-            <Route path="orders" element={<AdminOrdersPage />} />
-            <Route path="orders/:id" element={<AdminOrderDetailPage />} />
-            <Route path="catalog" element={<AdminCatalogPage />} />
-            <Route path="coupons" element={<AdminCouponsPage />} />
-            <Route path="settings" element={<AdminSettingsPage />} />
-            <Route path="failures" element={<AdminFailuresPage />} />
+          <Route element={<AdminGuard />}>
+            <Route path="/admin" element={<AdminShell />}>
+              <Route index element={<AdminDashboardPage />} />
+              <Route path="orders" element={<AdminOrdersPage />} />
+              <Route path="orders/:id" element={<AdminOrderDetailPage />} />
+              <Route path="catalog" element={<AdminCatalogPage />} />
+              <Route path="coupons" element={<AdminCouponsPage />} />
+              <Route path="settings" element={<AdminSettingsPage />} />
+              <Route path="failures" element={<AdminFailuresPage />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Store routes wrapped in standard app shell */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/category/:slug" element={<CategoryRedirect />} />
-          <Route path="/categories/:slug" element={<CategoryRedirect />} />
-          <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/product/:slug" element={<ProductDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/orders" element={<OrdersHistoryPage />} />
-          <Route path="/orders/success" element={<OrderSuccessPage />} />
-          <Route path="/orders/failure" element={<OrderFailurePage />} />
-          <Route path="/orders/:id" element={<OrderDetailPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          {/* Catch-all route to prevent blank screens */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/category/:slug" element={<CategoryRedirect />} />
+            <Route path="/categories/:slug" element={<CategoryRedirect />} />
+            <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/product/:slug" element={<ProductDetailPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/orders" element={<OrdersHistoryPage />} />
+            <Route path="/orders/success" element={<OrderSuccessPage />} />
+            <Route path="/orders/failure" element={<OrderFailurePage />} />
+            <Route path="/orders/:id" element={<OrderDetailPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
     </div>
   )
 }

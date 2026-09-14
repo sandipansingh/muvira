@@ -14,6 +14,7 @@ function configureTestEnvironment() {
     RAZORPAY_KEY_SECRET: 'payment-signature-secret',
     RAZORPAY_WEBHOOK_SECRET: 'webhook-signature-secret',
     ALLOWED_ORIGINS: 'http://localhost:5173',
+    EMAIL_FROM: 'orders@example.com',
     SHIPROCKET_EMAIL: 'shipping@example.com',
     SHIPROCKET_PASSWORD: 'test-password',
     SHIPROCKET_WEBHOOK_ENABLED: 'false',

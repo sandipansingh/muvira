@@ -25,8 +25,8 @@ const envSchema = z
     ALLOWED_ORIGINS: z.string().min(1, 'ALLOWED_ORIGINS must not be empty'),
 
     // Email
-    RESEND_API_KEY: z.string().optional(),
-    EMAIL_FROM: z.string().email().default('orders@muvira.com'),
+    RESEND_API_KEY: z.string().min(1).optional(),
+    EMAIL_FROM: z.string().email(),
 
     // Store config
     ORDER_PREFIX: z.string().min(1).max(10).default('MUV'),
@@ -51,6 +51,13 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         path: ['SHIPROCKET_WEBHOOK_SECRET'],
         message: 'SHIPROCKET_WEBHOOK_SECRET is required when Shiprocket webhooks are enabled',
+      })
+    }
+    if (value.NODE_ENV === 'production' && !value.RESEND_API_KEY) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['RESEND_API_KEY'],
+        message: 'RESEND_API_KEY is required in production',
       })
     }
   })
