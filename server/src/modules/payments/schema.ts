@@ -14,4 +14,18 @@ export const VerifyPaymentSchema = z
   })
   .strict()
 
+export const RazorpayWebhookPaymentSchema = z
+  .object({
+    id: z.string().min(1),
+    order_id: z.string().min(1),
+    amount: z.union([z.number().int().nonnegative(), z.string().regex(/^\d+$/)]),
+    currency: z.string().length(3),
+    status: z.string().min(1),
+    captured: z.boolean(),
+    method: z.string().min(1),
+    error_description: z.string().nullable().optional(),
+  })
+  .passthrough()
+
 export type VerifyPaymentInput = z.infer<typeof VerifyPaymentSchema>
+export type RazorpayWebhookPayment = z.infer<typeof RazorpayWebhookPaymentSchema>

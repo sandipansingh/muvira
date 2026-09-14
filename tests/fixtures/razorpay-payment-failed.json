@@ -1,0 +1,21 @@
+{
+  "entity": "event",
+  "account_id": "acc_test_muvira",
+  "event": "payment.failed",
+  "contains": ["payment"],
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_test_failed",
+        "entity": "payment",
+        "amount": 124900,
+        "currency": "INR",
+        "status": "failed",
+        "order_id": "order_test_failed",
+        "method": "card",
+        "captured": false,
+        "error_description": "Payment was declined"
+      }
+    }
+  }
+}

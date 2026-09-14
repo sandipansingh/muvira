@@ -53,7 +53,14 @@ export async function handleWebhook(
       throw new AppError(400, 'WEBHOOK_MALFORMED', 'Webhook body is not valid JSON')
     }
 
-    const result = await service.processRazorpayWebhook(req.rawBody, signature, payload)
+    const eventIdHeader = req.headers['x-razorpay-event-id']
+    const providerEventId = typeof eventIdHeader === 'string' ? eventIdHeader : undefined
+    const result = await service.processRazorpayWebhook(
+      req.rawBody,
+      signature,
+      payload,
+      providerEventId
+    )
 
     res.json({ success: true, data: { status: result.status } })
   } catch (err) {

@@ -1,0 +1,15 @@
+{
+  "awb": "AWB-TEST-1001",
+  "courier_name": "Test Courier",
+  "current_status": "In Transit",
+  "current_timestamp": "15 09 2026 10:30:00",
+  "sr_order_id": 810001,
+  "order_id": "MUV-TEST-1001",
+  "scans": [
+    {
+      "date": "15 09 2026 09:15:00",
+      "activity": "Shipment departed the origin hub",
+      "location": "Kolkata"
+    }
+  ]
+}

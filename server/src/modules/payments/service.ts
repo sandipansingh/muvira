@@ -7,7 +7,11 @@ import { deleteCacheByPattern } from '../../config/cache'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import { AppError } from '../../types'
 import type { Order } from '../../types'
-import type { VerifyPaymentInput } from './schema'
+import {
+  RazorpayWebhookPaymentSchema,
+  type RazorpayWebhookPayment,
+  type VerifyPaymentInput,
+} from './schema'
 
 interface LocalPayment {
   id: string
@@ -21,17 +25,6 @@ interface LocalPayment {
 interface FinalizeResult {
   already_captured: boolean
   order: Order
-}
-
-interface WebhookPayment {
-  id: string
-  order_id: string
-  amount: number | string
-  currency: string
-  status: string
-  captured: boolean
-  method: string
-  error_description?: string | null
 }
 
 async function getOwnedPayment(userId: string, razorpayOrderId: string): Promise<LocalPayment> {
@@ -171,11 +164,11 @@ export async function verifyPayment(
 
 async function registerWebhook(
   rawBody: Buffer,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
+  providerEventId?: string
 ): Promise<{ id: string; duplicate: boolean }> {
   const payloadHash = crypto.createHash('sha256').update(rawBody).digest('hex')
-  const suppliedEventId = typeof payload['id'] === 'string' ? payload['id'] : null
-  const eventId = suppliedEventId ?? payloadHash
+  const eventId = providerEventId?.trim() || payloadHash
   const eventType = typeof payload['event'] === 'string' ? payload['event'] : null
   const { data, error } = await adminSupabase
     .from('webhook_events')
@@ -212,26 +205,30 @@ async function setWebhookStatus(
   if (error) logger.error({ error, webhookId }, 'Failed to update webhook audit state')
 }
 
-function getWebhookPayment(payload: Record<string, unknown>): WebhookPayment | undefined {
+export function parseRazorpayWebhookPayment(
+  payload: Record<string, unknown>
+): RazorpayWebhookPayment | undefined {
   const wrapper = payload['payload'] as Record<string, unknown> | undefined
   const paymentWrapper = wrapper?.['payment'] as Record<string, unknown> | undefined
-  return paymentWrapper?.['entity'] as WebhookPayment | undefined
+  const parsed = RazorpayWebhookPaymentSchema.safeParse(paymentWrapper?.['entity'])
+  return parsed.success ? parsed.data : undefined
 }
 
 export async function processRazorpayWebhook(
   rawBody: Buffer,
   signature: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
+  providerEventId?: string
 ): Promise<{ status: 'processed' | 'duplicate' | 'ignored' }> {
   if (!verifyWebhookSignature({ rawBody, signature })) {
     throw new AppError(400, 'WEBHOOK_SIGNATURE_INVALID', 'Invalid webhook signature')
   }
 
-  const registered = await registerWebhook(rawBody, payload)
+  const registered = await registerWebhook(rawBody, payload, providerEventId)
   if (registered.duplicate) return { status: 'duplicate' }
 
   const event = typeof payload['event'] === 'string' ? payload['event'] : ''
-  const providerPayment = getWebhookPayment(payload)
+  const providerPayment = parseRazorpayWebhookPayment(payload)
 
   try {
     if (event === 'payment.captured') {

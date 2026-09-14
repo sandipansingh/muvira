@@ -50,7 +50,7 @@ function parseVendorTimestamp(value: unknown): string {
   return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
 }
 
-function parseWebhook(payload: Record<string, unknown>): ParsedWebhook {
+export function parseShiprocketWebhookPayload(payload: Record<string, unknown>): ParsedWebhook {
   const currentStatus = optionalString(payload['current_status'])
   if (!currentStatus) throw new Error('Shiprocket webhook is missing current_status')
 
@@ -155,7 +155,7 @@ async function persistShipmentEvent(
 export async function processShiprocketWebhook(
   payload: Record<string, unknown>
 ): Promise<ProcessWebhookResult> {
-  const event = parseWebhook(payload)
+  const event = parseShiprocketWebhookPayload(payload)
   const order = await findOrder(event)
 
   if (!order) {

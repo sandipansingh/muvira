@@ -1,0 +1,15 @@
+{
+  "awb": "AWB-TEST-1002",
+  "courier_name": "Test Courier",
+  "current_status": "RTO Delivered",
+  "current_timestamp": "16 09 2026 18:05:30",
+  "sr_order_id": 810002,
+  "order_id": "MUV-TEST-1002",
+  "scans": [
+    {
+      "date": "16 09 2026 18:05:30",
+      "activity": "Returned to merchant",
+      "location": "Kolkata"
+    }
+  ]
+}

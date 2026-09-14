@@ -1,0 +1,21 @@
+{
+  "entity": "event",
+  "account_id": "acc_test_muvira",
+  "event": "payment.captured",
+  "contains": ["payment"],
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_test_captured",
+        "entity": "payment",
+        "amount": 124900,
+        "currency": "INR",
+        "status": "captured",
+        "order_id": "order_test_paid",
+        "method": "upi",
+        "captured": true,
+        "error_description": null
+      }
+    }
+  }
+}
