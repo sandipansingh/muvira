@@ -25,6 +25,7 @@ export type FulfillmentStep =
   | 'pickup_scheduled'
   | 'label_generated'
   | 'manifest_generated'
+  | 'ready_for_pickup'
 export interface FulfillOrderInput {
   pickupLocation?: string
   weightKg?: number
