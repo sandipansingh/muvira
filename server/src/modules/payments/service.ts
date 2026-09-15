@@ -3,6 +3,7 @@ import { adminSupabase } from '../../lib/supabase/admin'
 import { razorpay } from '../../lib/razorpay/client'
 import { verifyPaymentSignature, verifyWebhookSignature } from '../../lib/razorpay/verifySignature'
 import { logger } from '../../lib/logger'
+import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { deleteCacheByPattern } from '../../config/cache'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import { AppError } from '../../types'
@@ -34,14 +35,18 @@ async function getOwnedPayment(userId: string, razorpayOrderId: string): Promise
     .eq('razorpay_order_id', razorpayOrderId)
     .single()
 
-  if (error || !payment) throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('payments.get_owned', error, 'Failed to fetch payment')
+  if (!payment) throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
 
-  const { data: order } = await adminSupabase
+  const { data: order, error: orderError } = await adminSupabase
     .from('orders')
     .select('user_id')
     .eq('id', payment.order_id)
     .single()
 
+  if (orderError && !isPostgrestNoRows(orderError))
+    throw databaseError('payments.get_order_owner', orderError, 'Failed to fetch payment')
   if (!order || order.user_id !== userId) {
     throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
   }
@@ -184,8 +189,11 @@ async function registerWebhook(
     .single()
 
   if (error?.code === '23505') return { id: '', duplicate: true }
-  if (error || !data)
-    throw new AppError(500, 'WEBHOOK_AUDIT_FAILED', 'Webhook could not be recorded')
+  if (error)
+    throw databaseError('payments.register_webhook', error, 'Webhook could not be recorded', {
+      code: 'WEBHOOK_AUDIT_FAILED',
+    })
+  if (!data) throw new AppError(500, 'WEBHOOK_AUDIT_FAILED', 'Webhook could not be recorded')
   return { id: data.id as string, duplicate: false }
 }
 

@@ -9,6 +9,18 @@ adminCacheRouter.get('/stats', (req: Request, res: Response): void => {
   const stats = getCacheStats()
 
   if (!stats) {
+    logger.error(
+      {
+        requestId: req.requestId,
+        operation: 'admin.cache.stats',
+        postgrestCode: null,
+        postgrestMessage: null,
+        postgrestDetails: null,
+        statusCode: 500,
+        errorCode: 'CACHE_ERROR',
+      },
+      'Request failed'
+    )
     res.status(500).json({
       success: false,
       error: { code: 'CACHE_ERROR', message: 'Failed to retrieve cache stats' },

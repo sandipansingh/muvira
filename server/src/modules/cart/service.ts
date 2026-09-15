@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { CartItem } from '../../types'
 import type { AddToCartInput, UpdateCartItemInput } from './schema'
@@ -30,7 +31,7 @@ export async function getCart(userId: string): Promise<CartItemWithProduct[]> {
     )
     .eq('user_id', userId)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch cart')
+  if (error) throw databaseError('cart.list', error, 'Failed to fetch cart')
   return (data as unknown as CartItemWithProduct[]) ?? []
 }
 
@@ -55,7 +56,7 @@ export async function addToCart(
     if (message.includes('Maximum 100')) {
       throw new AppError(400, 'CART_LIMIT', 'Maximum 100 units per item')
     }
-    throw new AppError(500, 'DB_ERROR', 'Failed to add to cart')
+    throw databaseError('cart.add_item', error, 'Failed to add to cart')
   }
 
   // Return full cart item with product details
@@ -71,7 +72,8 @@ export async function addToCart(
     .eq('id', cartItemId)
     .single()
 
-  if (fetchError || !data) throw new AppError(500, 'DB_ERROR', 'Failed to fetch cart item')
+  if (fetchError) throw databaseError('cart.fetch_item', fetchError, 'Failed to fetch cart item')
+  if (!data) throw new AppError(500, 'DB_ERROR', 'Failed to fetch cart item')
   return data as unknown as CartItemWithProduct
 }
 
@@ -96,7 +98,7 @@ export async function updateCartItem(
     if (error.message.includes('units available')) {
       throw new AppError(400, 'INSUFFICIENT_STOCK', error.message)
     }
-    throw new AppError(500, 'DB_ERROR', 'Failed to update cart item')
+    throw databaseError('cart.update_item', error, 'Failed to update cart item')
   }
 
   const { data, error: fetchError } = await adminSupabase
@@ -111,7 +113,9 @@ export async function updateCartItem(
     .eq('id', itemId)
     .single()
 
-  if (fetchError || !data) throw new AppError(500, 'DB_ERROR', 'Failed to fetch updated cart item')
+  if (fetchError)
+    throw databaseError('cart.fetch_updated_item', fetchError, 'Failed to fetch updated cart item')
+  if (!data) throw new AppError(500, 'DB_ERROR', 'Failed to fetch updated cart item')
   return data as unknown as CartItemWithProduct
 }
 
@@ -133,11 +137,11 @@ export async function removeFromCart(userId: string, itemId: string): Promise<vo
     .eq('id', itemId)
     .eq('user_id', userId)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to remove cart item')
+  if (error) throw databaseError('cart.remove_item', error, 'Failed to remove cart item')
 }
 
 export async function clearCart(userId: string): Promise<void> {
   const { error } = await adminSupabase.from('cart_items').delete().eq('user_id', userId)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to clear cart')
+  if (error) throw databaseError('cart.clear', error, 'Failed to clear cart')
 }

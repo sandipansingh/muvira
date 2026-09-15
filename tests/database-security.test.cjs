@@ -60,6 +60,7 @@ const privilegedRpcNames = [
   'finalize_captured_payment',
   'generate_order_number',
   'get_product_review_summaries',
+  'get_runtime_schema_status',
   'increment_coupon_usage',
   'initialize_checkout',
   'reorder_product_images_atomic',
@@ -199,6 +200,19 @@ test(
 
         assert.equal(anonymousPaths.has('/rpc/is_admin'), false)
         assert.equal(customerPaths.has('/rpc/is_admin'), true)
+
+        const { data: schemaStatus, error: schemaStatusError } = await service.rpc(
+          'get_runtime_schema_status'
+        )
+        assert.ifError(schemaStatusError)
+        assert.equal(schemaStatus.contract_version, 38)
+        assert.equal(schemaStatus.migration_version, '038')
+        assert.equal(schemaStatus.ready, true)
+        for (const [key, value] of Object.entries(schemaStatus)) {
+          if (key.startsWith('missing_') || key.startsWith('invalid_')) {
+            assert.deepEqual(value, [], `${key} reported schema drift`)
+          }
+        }
 
         const { data: customerIsAdmin, error: customerAdminError } = await customer.client.rpc(
           'is_admin',

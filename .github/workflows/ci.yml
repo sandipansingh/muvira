@@ -67,9 +67,26 @@ jobs:
         run: |
           cd server
           npx supabase db reset --workdir .. --local --no-seed --version 025
+          cd ..
+          source supabase/.temp/test-status.env
+          EXPECTED_SCHEMA_READY=false \
+          SUPABASE_TEST_URL="$API_URL" \
+          SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
+          SUPABASE_TEST_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+          node --test tests/schema-readiness.test.cjs
+          cd server
           npx supabase migration up --workdir .. --local
       - name: Verify upgraded schema invariants
         run: npm run db:test
+      - name: Verify upgraded runtime readiness
+        shell: bash
+        run: |
+          source supabase/.temp/test-status.env
+          EXPECTED_SCHEMA_READY=true \
+          SUPABASE_TEST_URL="$API_URL" \
+          SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
+          SUPABASE_TEST_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+          node --test tests/schema-readiness.test.cjs
       - name: Stop local Supabase
         if: always()
         run: npm run db:stop

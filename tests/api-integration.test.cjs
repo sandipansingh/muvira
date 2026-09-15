@@ -186,6 +186,35 @@ test(
       is_default: true,
     })
 
+    await context.test(
+      'storefront catalog, search, detail, related products, and reviews use live data',
+      async () => {
+        const list = await request(
+          baseUrl,
+          `/api/products?search=${encodeURIComponent('Integration Product')}`
+        )
+        assert.equal(list.status, 200)
+        assert.equal(
+          list.body.data.some((item) => item.id === product.id),
+          true
+        )
+
+        const detail = await request(baseUrl, `/api/products/${product.slug}`)
+        assert.equal(detail.status, 200)
+        assert.equal(detail.body.data.id, product.id)
+        assert.equal(detail.body.data.price_paisa, 45000)
+
+        const related = await request(baseUrl, `/api/products/${product.id}/related`)
+        assert.equal(related.status, 200)
+        assert.ok(Array.isArray(related.body.data))
+
+        const reviews = await request(baseUrl, `/api/products/${product.id}/reviews`)
+        assert.equal(reviews.status, 200)
+        assert.deepEqual(reviews.body.data.reviews, [])
+        assert.equal(reviews.body.data.summary.totalReviews, 0)
+      }
+    )
+
     await context.test('admin routes enforce authentication and database role', async () => {
       const unauthenticated = await request(baseUrl, '/api/admin/orders')
       assert.equal(unauthenticated.status, 401)

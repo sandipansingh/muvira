@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError } from '../../lib/databaseError'
 import { razorpay } from '../../lib/razorpay/client'
 import { logger } from '../../lib/logger'
 import { deleteCacheByPattern } from '../../config/cache'
@@ -53,7 +54,8 @@ async function getShippingMethods(): Promise<Record<ShippingMethod, ShippingMeth
     .eq('key', 'shipping_methods')
     .maybeSingle()
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to load shipping methods')
+  if (error)
+    throw databaseError('checkout.load_shipping_methods', error, 'Failed to load shipping methods')
 
   const configuredMethods = data?.value as
     | Partial<Record<ShippingMethod, ShippingMethodConfig>>
@@ -83,7 +85,7 @@ async function getValidatedCart(userId: string): Promise<QuoteCartItem[]> {
     .select('product_id, quantity, products ( id, name, price_paisa, stock, is_active )')
     .eq('user_id', userId)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch cart')
+  if (error) throw databaseError('checkout.fetch_cart', error, 'Failed to fetch cart')
   if (!data || data.length === 0) throw new AppError(400, 'CART_EMPTY', 'Your cart is empty')
 
   const items = data as unknown as QuoteCartItem[]

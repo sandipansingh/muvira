@@ -61,11 +61,48 @@ test('atomic checkout migration protects reservations and provider idempotency',
   assert.match(migration, /FOR UPDATE/)
 })
 
-test('readiness checks required schemas without making provider calls', () => {
+test('readiness and database routes are gated by the runtime schema contract', () => {
   const healthRoutes = read('server/src/modules/health/routes.ts')
+  const app = read('server/src/app.ts')
+  const workerStartup = read('server/src/services/workerStartup.ts')
 
   assert.match(healthRoutes, /['"]\/ready['"]/)
-  assert.match(healthRoutes, /probeTable\(['"]outbox_events['"]\)/)
-  assert.match(healthRoutes, /probeTable\(['"]notification_deliveries['"]\)/)
+  assert.match(healthRoutes, /database_contract/)
+  assert.match(healthRoutes, /getRuntimeSchemaStatus/)
+  assert.match(app, /app\.use\(['"]\/api\/health['"], healthRouter\)[\s\S]+requireRuntimeSchema/)
+  assert.match(workerStartup, /if \(!status\.ready\)/)
+  assert.match(workerStartup, /startWorkers\(\)/)
   assert.doesNotMatch(healthRoutes, /shiprocketAuthCheck|getToken/)
+})
+
+test('migration 038 defines a service-role-only complete runtime contract', () => {
+  const migration = read('supabase/migrations/038_runtime_schema_contract.sql')
+
+  assert.match(migration, /contract_version['"],\s*38/i)
+  assert.match(migration, /migration_version/i)
+  assert.match(migration, /missing_relations/i)
+  assert.match(migration, /missing_columns/i)
+  assert.match(migration, /missing_functions/i)
+  assert.match(migration, /invalid_function_grants/i)
+  assert.match(migration, /invalid_rls_relations/i)
+  assert.match(migration, /invalid_storage_capabilities/i)
+  assert.match(
+    migration,
+    /REVOKE ALL ON FUNCTION public\.get_runtime_schema_status\(\) FROM PUBLIC, anon, authenticated/i
+  )
+  assert.match(
+    migration,
+    /GRANT EXECUTE ON FUNCTION public\.get_runtime_schema_status\(\) TO service_role/i
+  )
+})
+
+test('production migration pushes require the expected runtime and linked project refs', () => {
+  const packageJson = JSON.parse(read('package.json'))
+  const guard = read('scripts/push-supabase-migrations.sh')
+
+  assert.equal(packageJson.scripts['db:migrate'], 'bash scripts/push-supabase-migrations.sh')
+  assert.match(guard, /EXPECTED_PROJECT_REF='mmpsquheiibatsjficwm'/)
+  assert.match(guard, /runtime_host.*EXPECTED_PROJECT_REF\.supabase\.co/)
+  assert.match(guard, /linked_ref.*EXPECTED_PROJECT_REF/)
+  assert.match(guard, /exec npx supabase db push --workdir \.\. --linked/)
 })

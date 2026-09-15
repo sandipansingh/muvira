@@ -50,6 +50,7 @@ SELECT ok(
     SELECT 1
     FROM UNNEST(COALESCE(procedure.proconfig, ARRAY[]::TEXT[])) AS setting
     WHERE setting LIKE 'search_path=public%'
+      OR setting LIKE 'search_path=pg_catalog, public%'
   ),
   FORMAT('%I has a safe search path', procedure.proname)
 )
@@ -120,6 +121,24 @@ SELECT ok(
   FORMAT('%I has updated_at for its update trigger', expected.table_name)
 )
 FROM (VALUES ('webhook_events'), ('sync_jobs')) AS expected(table_name);
+
+SELECT is(
+  (public.get_runtime_schema_status()->>'contract_version')::INTEGER,
+  38,
+  'runtime schema contract reports version 38'
+);
+
+SELECT is(
+  (public.get_runtime_schema_status()->>'migration_version')::TEXT,
+  '038',
+  'runtime schema contract reports the latest migration'
+);
+
+SELECT is(
+  (public.get_runtime_schema_status()->>'ready')::BOOLEAN,
+  TRUE,
+  'runtime schema contract reports ready after migration replay'
+);
 
 SELECT * FROM finish();
 

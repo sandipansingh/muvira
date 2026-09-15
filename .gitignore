@@ -38,3 +38,4 @@ graphify-out/
 design-reference
 supabase/data.sql
 supabase/schema.sql
+supabase/.temp/

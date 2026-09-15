@@ -16,6 +16,7 @@ import {
   recordWebhookDuplicate,
 } from '../../services/metricsCollector'
 import { logger } from '../../lib/logger'
+import { sanitizePostgrestError } from '../../lib/databaseError'
 
 /**
  * POST /api/webhooks/shipment-status
@@ -105,20 +106,47 @@ export async function handleWebhook(
       res.json({ success: true, data: { status: result.status, orderId: result.orderId } })
     } catch (processingErr) {
       recordWebhookFailed()
+      const postgrest = sanitizePostgrestError(processingErr)
       const errorMsg =
         processingErr instanceof Error ? processingErr.message : String(processingErr)
 
       await updateWebhookEventStatus(eventId, 'failed', errorMsg)
 
       // Return 500 so Shiprocket retries
+      logger.error(
+        {
+          requestId: req.requestId,
+          operation: 'shiprocket.process_webhook',
+          postgrestCode: postgrest?.code ?? null,
+          postgrestMessage: postgrest?.message ?? null,
+          postgrestDetails: postgrest?.details ?? null,
+          statusCode: 500,
+          errorCode: 'PROCESSING_FAILED',
+        },
+        'Request failed'
+      )
       res.status(500).json({
         success: false,
-        error: { code: 'PROCESSING_FAILED', message: errorMsg },
+        error: { code: 'PROCESSING_FAILED', message: 'Shipment update could not be processed' },
       })
     }
   } catch (err) {
-    logger.error({ err }, 'Shiprocket webhook pre-processing failed')
     const malformed = err instanceof SyntaxError
+    if (!malformed) {
+      const postgrest = sanitizePostgrestError(err)
+      logger.error(
+        {
+          requestId: req.requestId,
+          operation: 'shiprocket.audit_webhook',
+          postgrestCode: postgrest?.code ?? null,
+          postgrestMessage: postgrest?.message ?? null,
+          postgrestDetails: postgrest?.details ?? null,
+          statusCode: 500,
+          errorCode: 'WEBHOOK_AUDIT_FAILED',
+        },
+        'Request failed'
+      )
+    }
     res.status(malformed ? 422 : 500).json({
       success: false,
       error: {

@@ -1,5 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
-import { AppError } from '../../types'
+import { databaseError } from '../../lib/databaseError'
 import type { UpdateSettingsInput } from './schema'
 
 export interface SiteSettings {
@@ -57,7 +57,7 @@ export async function getSettings(): Promise<SiteSettings> {
     .select('key, value')
     .in('key', SETTING_KEYS)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch site settings')
+  if (error) throw databaseError('settings.get', error, 'Failed to fetch site settings')
 
   const map: Record<string, unknown> = {}
   for (const row of data ?? []) {
@@ -94,7 +94,7 @@ export async function getSettings(): Promise<SiteSettings> {
 
 export async function updateSettings(input: UpdateSettingsInput): Promise<SiteSettings> {
   const { error } = await adminSupabase.rpc('update_site_settings_bulk', { p_settings: input })
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to update site settings')
+  if (error) throw databaseError('settings.update', error, 'Failed to update site settings')
 
   return getSettings()
 }

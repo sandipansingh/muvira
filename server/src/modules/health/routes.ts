@@ -1,7 +1,10 @@
 import { Router, type Response } from 'express'
 import { env } from '../../config/env'
-import { adminSupabase } from '../../lib/supabase/admin'
 import { getMetricsSnapshot } from '../../services/metricsCollector'
+import {
+  getRuntimeSchemaStatus,
+  RUNTIME_SCHEMA_CONTRACT_VERSION,
+} from '../../services/runtimeSchema'
 
 export const healthRouter = Router()
 
@@ -15,38 +18,24 @@ healthRouter.get('/', (_req, res) => {
   })
 })
 
-async function probeTable(table: string): Promise<'ok' | 'error'> {
-  try {
-    const { error } = await adminSupabase.from(table).select('*', { head: true }).limit(1)
-    return error ? 'error' : 'ok'
-  } catch {
-    return 'error'
-  }
-}
-
-async function readinessChecks(): Promise<Record<string, string>> {
-  const [database, checkoutSchema, notificationSchema, invoiceSchema] = await Promise.all([
-    probeTable('profiles'),
-    probeTable('outbox_events'),
-    probeTable('notification_deliveries'),
-    probeTable('invoice_records'),
-  ])
-
+async function readinessChecks() {
+  const schema = await getRuntimeSchemaStatus({ forceRefresh: true })
   return {
-    database,
-    checkout_schema: checkoutSchema,
-    notification_schema: notificationSchema,
-    invoice_schema: invoiceSchema,
-    razorpay: 'configured',
-    shiprocket: 'configured',
-    shiprocket_webhook: env.SHIPROCKET_WEBHOOK_ENABLED === 'true' ? 'enabled' : 'disabled',
-    email: env.RESEND_API_KEY ? 'configured' : 'disabled',
+    schema,
+    services: {
+      database: schema.contract ? 'ok' : 'error',
+      database_contract: schema.ready ? 'ok' : 'error',
+      razorpay: 'configured',
+      shiprocket: 'configured',
+      shiprocket_webhook: env.SHIPROCKET_WEBHOOK_ENABLED === 'true' ? 'enabled' : 'disabled',
+      email: env.RESEND_API_KEY ? 'configured' : 'disabled',
+    },
   }
 }
 
 async function sendReadiness(res: Response, includeMetrics: boolean) {
-  const checks = await readinessChecks()
-  const ready = Object.values(checks).every((status) => status !== 'error')
+  const { schema, services } = await readinessChecks()
+  const ready = Object.values(services).every((status) => status !== 'error')
   const metrics = includeMetrics ? getMetricsSnapshot() : null
 
   res.status(ready ? 200 : 503).json({
@@ -54,7 +43,12 @@ async function sendReadiness(res: Response, includeMetrics: boolean) {
     data: {
       status: ready ? 'ready' : 'not_ready',
       timestamp: new Date().toISOString(),
-      services: checks,
+      services,
+      database_contract: {
+        status: schema.ready ? 'compatible' : 'incompatible',
+        expected_version: RUNTIME_SCHEMA_CONTRACT_VERSION,
+        reported_version: schema.contract?.contract_version ?? null,
+      },
       ...(metrics && {
         metrics: {
           uptime_seconds: metrics.server_uptime_seconds,

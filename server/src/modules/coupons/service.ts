@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { Coupon } from '../../types'
 import type { CreateCouponInput, UpdateCouponInput } from './schema'
@@ -69,7 +70,7 @@ export async function adminListCoupons(): Promise<Coupon[]> {
     .select('*')
     .order('created_at', { ascending: false })
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch coupons')
+  if (error) throw databaseError('coupons.list_active', error, 'Failed to fetch coupons')
   return (data as Coupon[]) ?? []
 }
 
@@ -85,7 +86,7 @@ export async function adminListCouponsPaginated(
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch coupons')
+  if (error) throw databaseError('coupons.admin_list', error, 'Failed to fetch coupons')
   return {
     data: (data as Coupon[]) ?? [],
     total: count ?? 0,
@@ -105,7 +106,7 @@ export async function createCoupon(input: CreateCouponInput): Promise<Coupon> {
   if (error) {
     if (error.code === '23505')
       throw new AppError(409, 'DUPLICATE_CODE', 'Coupon code already exists')
-    throw new AppError(500, 'DB_ERROR', 'Failed to create coupon')
+    throw databaseError('coupons.create', error, 'Failed to create coupon')
   }
   return data as Coupon
 }
@@ -120,7 +121,9 @@ export async function updateCoupon(id: string, input: UpdateCouponInput): Promis
     .select()
     .single()
 
-  if (error || !data) throw new AppError(404, 'COUPON_NOT_FOUND', 'Coupon not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('coupons.update', error, 'Failed to update coupon')
+  if (!data) throw new AppError(404, 'COUPON_NOT_FOUND', 'Coupon not found')
   return data as Coupon
 }
 
@@ -132,6 +135,8 @@ export async function deactivateCoupon(id: string): Promise<Coupon> {
     .select()
     .single()
 
-  if (error || !data) throw new AppError(404, 'COUPON_NOT_FOUND', 'Coupon not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('coupons.delete', error, 'Failed to delete coupon')
+  if (!data) throw new AppError(404, 'COUPON_NOT_FOUND', 'Coupon not found')
   return data as Coupon
 }

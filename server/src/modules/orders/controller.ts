@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 import { invalidateOn } from '../../services/cacheInvalidation'
+import { logger } from '../../lib/logger'
 import type { ListOrdersQuery, AdminListOrdersQuery } from './schema'
 
 export async function listOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -298,6 +299,18 @@ export async function adminFulfillOrder(
     if (result.success) {
       res.json({ success: true, data: result })
     } else {
+      logger.error(
+        {
+          requestId: req.requestId,
+          operation: 'orders.admin_fulfill',
+          postgrestCode: null,
+          postgrestMessage: null,
+          postgrestDetails: null,
+          statusCode: 502,
+          errorCode: 'FULFILLMENT_FAILED',
+        },
+        'Request failed'
+      )
       res.status(502).json({
         success: false,
         data: result,

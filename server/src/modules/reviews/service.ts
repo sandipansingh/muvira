@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { ProductReview } from '../../types'
 import type { ProductReviewsQuery, CreateReviewInput, AdminReviewsQuery } from './schema'
@@ -25,7 +26,7 @@ async function hasDeliveredOrderForProduct(userId: string, productId: string): P
     .eq('orders.payment_status', 'paid')
 
   if (error) {
-    throw new AppError(500, 'DB_ERROR', 'Failed to verify purchase eligibility')
+    throw databaseError('reviews.verify_purchase', error, 'Failed to verify purchase eligibility')
   }
 
   return (count ?? 0) > 0
@@ -61,7 +62,7 @@ export async function listProductReviews(
     .range(offset, offset + limit - 1)
 
   if (error) {
-    throw new AppError(500, 'DB_ERROR', 'Failed to fetch reviews')
+    throw databaseError('reviews.list', error, 'Failed to fetch reviews')
   }
 
   type ReviewWithProfile = ProductReview & {
@@ -109,7 +110,7 @@ export async function getUserReviewForProduct(
     .eq('user_id', userId)
     .maybeSingle()
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch user review')
+  if (error) throw databaseError('reviews.get_user_review', error, 'Failed to fetch user review')
   return (data as ProductReview) ?? null
 }
 
@@ -143,7 +144,7 @@ export async function createOrUpdateReview(
     .single()
 
   if (error || !data) {
-    throw new AppError(500, 'DB_ERROR', 'Failed to save review')
+    throw databaseError('reviews.save', error, 'Failed to save review')
   }
 
   // Invalidate any cached product review data
@@ -193,7 +194,7 @@ export async function adminListReviews(query: AdminReviewsQuery): Promise<{
 
   const { data, error, count } = await dbQuery
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch reviews')
+  if (error) throw databaseError('reviews.admin_list', error, 'Failed to fetch reviews')
 
   type AdminReviewRow = ProductReview & {
     products?: { name: string; slug: string } | { name: string; slug: string }[] | null
@@ -242,7 +243,7 @@ export async function adminDeleteReview(id: string): Promise<void> {
 
   const { error } = await adminSupabase.from('product_reviews').delete().eq('id', id)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to delete review')
+  if (error) throw databaseError('reviews.delete', error, 'Failed to delete review')
 
   if (existing?.product_id) {
     invalidateOn('REVIEW_DELETED', { productId: existing.product_id })
@@ -260,7 +261,11 @@ export async function getReviewAggregates(
   })
 
   if (error) {
-    throw new AppError(500, 'DB_ERROR', 'Failed to fetch product review summaries')
+    throw databaseError(
+      'reviews.product_summaries',
+      error,
+      'Failed to fetch product review summaries'
+    )
   }
 
   const result: Record<string, { rating: number | null; reviewCount: number }> = {}

@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { Address } from '../../types'
 import type { CreateAddressInput, UpdateAddressInput } from './schema'
@@ -11,7 +12,7 @@ export async function listAddresses(userId: string): Promise<Address[]> {
     .order('is_default', { ascending: false })
     .order('created_at', { ascending: false })
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch addresses')
+  if (error) throw databaseError('addresses.list', error, 'Failed to fetch addresses')
   return (data as Address[]) ?? []
 }
 
@@ -24,7 +25,7 @@ export async function createAddress(userId: string, input: CreateAddressInput): 
     .select()
     .single()
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to create address')
+  if (error) throw databaseError('addresses.create', error, 'Failed to create address')
   if (shouldBeDefault) return setDefaultAddress(userId, data.id as string)
   return data as Address
 }
@@ -57,7 +58,9 @@ export async function updateAddress(
     .select()
     .single()
 
-  if (error || !data) throw new AppError(404, 'ADDRESS_NOT_FOUND', 'Address not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('addresses.update', error, 'Failed to update address')
+  if (!data) throw new AppError(404, 'ADDRESS_NOT_FOUND', 'Address not found')
   if (shouldBeDefault) return setDefaultAddress(userId, addressId)
   return data as Address
 }
@@ -80,7 +83,7 @@ export async function deleteAddress(userId: string, addressId: string): Promise<
     .eq('id', addressId)
     .eq('user_id', userId)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to delete address')
+  if (error) throw databaseError('addresses.delete', error, 'Failed to delete address')
 }
 
 export async function setDefaultAddress(userId: string, addressId: string): Promise<Address> {
@@ -93,7 +96,7 @@ export async function setDefaultAddress(userId: string, addressId: string): Prom
     if (error?.message.includes('Address not found')) {
       throw new AppError(404, 'ADDRESS_NOT_FOUND', 'Address not found')
     }
-    throw new AppError(500, 'DB_ERROR', 'Failed to set default address')
+    throw databaseError('addresses.set_default', error, 'Failed to set default address')
   }
   return data as Address
 }

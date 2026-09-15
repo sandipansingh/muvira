@@ -434,12 +434,25 @@ export interface WebhookEvent {
 
 // AppError
 
+export interface SanitizedPostgrestError {
+  code: string | null
+  message: string | null
+  details: string | null
+  hint: string | null
+}
+
+export interface AppErrorContext {
+  operation: string
+  postgrest?: SanitizedPostgrestError
+}
+
 export class AppError extends Error {
   constructor(
     public readonly statusCode: number,
     public readonly code: string,
     message: string,
-    public readonly fieldErrors?: Record<string, string[]>
+    public readonly fieldErrors?: Record<string, string[]>,
+    public readonly context?: AppErrorContext
   ) {
     super(message)
     this.name = 'AppError'

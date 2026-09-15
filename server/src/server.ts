@@ -2,7 +2,8 @@ import './config/env' // runs Zod validation; exits if invalid
 import { createApp } from './app'
 import { logger } from './lib/logger'
 import { env } from './config/env'
-import { startPollingScheduler, stopPollingScheduler } from './services/pollingScheduler'
+import { stopPollingScheduler } from './services/pollingScheduler'
+import { startWorkersWhenSchemaReady } from './services/workerStartup'
 
 const PORT = parseInt(env.PORT, 10)
 
@@ -19,8 +20,7 @@ void (async () => {
       `🚀 ${env.STORE_NAME} API server running on port ${PORT}`
     )
 
-    // Start background cron jobs after server is listening
-    startPollingScheduler()
+    void startWorkersWhenSchemaReady()
   })
 
   // Graceful shutdown

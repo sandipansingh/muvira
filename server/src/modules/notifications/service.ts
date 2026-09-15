@@ -1,5 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
-import { AppError } from '../../types'
+import { databaseError } from '../../lib/databaseError'
 import type { UpdateNotificationPrefsInput } from './schema'
 
 export interface NotificationPrefs {
@@ -13,7 +13,12 @@ export async function getUserPrefs(userId: string): Promise<NotificationPrefs> {
     .eq('user_id', userId)
     .maybeSingle()
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch notification preferences')
+  if (error)
+    throw databaseError(
+      'notifications.get_preferences',
+      error,
+      'Failed to fetch notification preferences'
+    )
   return data ?? { email_enabled: true }
 }
 
@@ -28,7 +33,11 @@ export async function updateUserPrefs(
     .single()
 
   if (error || !data) {
-    throw new AppError(500, 'DB_ERROR', 'Failed to update notification preferences')
+    throw databaseError(
+      'notifications.update_preferences',
+      error,
+      'Failed to update notification preferences'
+    )
   }
   return data
 }

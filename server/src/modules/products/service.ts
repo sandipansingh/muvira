@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { Product, ProductImage, PublicProductDto } from '../../types'
 import type {
@@ -121,7 +122,7 @@ export async function listProducts(query: ListProductsQuery): Promise<{
 
   const { data, error, count } = await dbQuery
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch products')
+  if (error) throw databaseError('products.list', error, 'Failed to fetch products')
 
   const products = (await attachReviewAggregates(
     (data ?? []) as Record<string, unknown>[]
@@ -198,7 +199,7 @@ export async function adminListProducts(query: ListProductsQuery) {
 
   const { data, error, count } = await dbQuery
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch products')
+  if (error) throw databaseError('products.admin_list', error, 'Failed to fetch products')
 
   const products = await attachReviewAggregates((data ?? []) as Record<string, unknown>[])
 
@@ -221,9 +222,9 @@ export async function getProductBySlug(slug: string): Promise<PublicProductDto> 
     .eq('is_active', true)
     .single()
 
-  if (error || !data) {
-    throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
-  }
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('products.get_by_slug', error, 'Failed to fetch product')
+  if (!data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
 
   const [product] = await attachReviewAggregates([data as Record<string, unknown>])
   return product as unknown as PublicProductDto
@@ -239,7 +240,9 @@ export async function getRelatedProducts(productId: string): Promise<PublicProdu
     .eq('is_active', true)
     .single()
 
-  if (productError || !product) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
+  if (productError && !isPostgrestNoRows(productError))
+    throw databaseError('products.get_related_source', productError, 'Failed to fetch product')
+  if (!product) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
 
   const { data, error } = await adminSupabase
     .from('products')
@@ -251,7 +254,7 @@ export async function getRelatedProducts(productId: string): Promise<PublicProdu
     .order('created_at', { ascending: false })
     .limit(8)
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch related products')
+  if (error) throw databaseError('products.related', error, 'Failed to fetch related products')
 
   const products = await attachReviewAggregates((data ?? []) as Record<string, unknown>[])
   return products as unknown as PublicProductDto[]
@@ -266,7 +269,7 @@ export async function createProduct(input: CreateProductInput): Promise<Product>
     if (error.code === '23505') {
       throw new AppError(409, 'DUPLICATE_SLUG', 'A product with this slug or SKU already exists')
     }
-    throw new AppError(500, 'DB_ERROR', 'Failed to create product')
+    throw databaseError('products.create', error, 'Failed to create product')
   }
 
   return data as Product
@@ -282,9 +285,9 @@ export async function updateProduct(id: string, input: UpdateProductInput): Prom
     .select()
     .single()
 
-  if (error || !data) {
-    throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
-  }
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('products.update', error, 'Failed to update product')
+  if (!data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
 
   return data as Product
 }
@@ -299,7 +302,8 @@ export async function deleteProduct(id: string): Promise<void> {
     .select('id')
     .maybeSingle()
 
-  if (error || !data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
+  if (error) throw databaseError('products.delete', error, 'Failed to delete product')
+  if (!data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
 }
 
 // Admin: add product image
@@ -316,7 +320,7 @@ export async function addProductImage(
     p_is_primary: input.is_primary,
   })
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to add product image')
+  if (error) throw databaseError('products.add_image', error, 'Failed to add product image')
 
   return data as ProductImage
 }
@@ -329,7 +333,8 @@ export async function deleteProductImage(productId: string, imageId: string): Pr
     p_image_id: imageId,
   })
 
-  if (error || data !== true) throw new AppError(404, 'IMAGE_NOT_FOUND', 'Product image not found')
+  if (error) throw databaseError('products.delete_image', error, 'Failed to delete product image')
+  if (data !== true) throw new AppError(404, 'IMAGE_NOT_FOUND', 'Product image not found')
 }
 
 export async function getProductById(id: string): Promise<Record<string, unknown>> {
@@ -345,9 +350,9 @@ export async function getProductById(id: string): Promise<Record<string, unknown
     .eq('id', id)
     .single()
 
-  if (error || !data) {
-    throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
-  }
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('products.get_by_id', error, 'Failed to fetch product')
+  if (!data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
 
   const prod = data as Record<string, unknown>
   const aggregates = await getReviewAggregates([prod.id as string])
@@ -364,5 +369,6 @@ export async function reorderProductImages(productId: string, imageIds: string[]
     p_product_id: productId,
     p_image_ids: imageIds,
   })
-  if (error) throw new AppError(400, 'IMAGE_ORDER_INVALID', error.message)
+  if (error)
+    throw databaseError('products.reorder_images', error, 'Failed to reorder product images')
 }

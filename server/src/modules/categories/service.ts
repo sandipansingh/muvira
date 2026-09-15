@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { Category } from '../../types'
 import type { CreateCategoryInput, UpdateCategoryInput } from './schema'
@@ -10,7 +11,7 @@ export async function listCategories(): Promise<Category[]> {
     .eq('is_active', true)
     .order('sort_order', { ascending: true })
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch categories')
+  if (error) throw databaseError('categories.list', error, 'Failed to fetch categories')
   return (data as Category[]) ?? []
 }
 
@@ -22,7 +23,9 @@ export async function getCategoryBySlug(slug: string): Promise<Category> {
     .eq('is_active', true)
     .single()
 
-  if (error || !data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('categories.get', error, 'Failed to fetch category')
+  if (!data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
   return data as Category
 }
 
@@ -34,7 +37,7 @@ export async function listAllCategories(): Promise<Category[]> {
     .select('*')
     .order('sort_order', { ascending: true })
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch categories')
+  if (error) throw databaseError('categories.navbar', error, 'Failed to fetch categories')
   return (data as Category[]) ?? []
 }
 
@@ -57,7 +60,7 @@ export async function listAllCategoriesPaginated(
 
   const { data, error, count } = await query
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch categories')
+  if (error) throw databaseError('categories.admin_list', error, 'Failed to fetch categories')
   return {
     data: (data as Category[]) ?? [],
     total: count ?? 0,
@@ -79,7 +82,11 @@ export async function createCategory(input: CreateCategoryInput): Promise<Catego
       .eq('is_active', true)
 
     if (countError) {
-      throw new AppError(500, 'DB_ERROR', 'Failed to check navbar category limit')
+      throw databaseError(
+        'categories.check_navbar_limit',
+        countError,
+        'Failed to check navbar category limit'
+      )
     }
     if ((count ?? 0) >= 5) {
       throw new AppError(
@@ -95,7 +102,7 @@ export async function createCategory(input: CreateCategoryInput): Promise<Catego
   if (error) {
     if (error.code === '23505')
       throw new AppError(409, 'DUPLICATE_SLUG', 'Category slug already exists')
-    throw new AppError(500, 'DB_ERROR', 'Failed to create category')
+    throw databaseError('categories.create', error, 'Failed to create category')
   }
   return data as Category
 }
@@ -115,7 +122,11 @@ export async function updateCategory(id: string, input: UpdateCategoryInput): Pr
       .neq('id', id)
 
     if (countError) {
-      throw new AppError(500, 'DB_ERROR', 'Failed to check navbar category limit')
+      throw databaseError(
+        'categories.check_navbar_limit',
+        countError,
+        'Failed to check navbar category limit'
+      )
     }
     if ((count ?? 0) >= 5) {
       throw new AppError(
@@ -133,14 +144,18 @@ export async function updateCategory(id: string, input: UpdateCategoryInput): Pr
     .select()
     .single()
 
-  if (error || !data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('categories.update', error, 'Failed to update category')
+  if (!data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
   return data as Category
 }
 
 export async function getCategoryById(id: string): Promise<Category> {
   const { data, error } = await adminSupabase.from('categories').select('*').eq('id', id).single()
 
-  if (error || !data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('categories.get_admin', error, 'Failed to fetch category')
+  if (!data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
   return data as Category
 }
 
@@ -152,5 +167,6 @@ export async function deleteCategory(id: string): Promise<void> {
     .select('id')
     .maybeSingle()
 
-  if (error || !data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
+  if (error) throw databaseError('categories.delete', error, 'Failed to delete category')
+  if (!data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')
 }

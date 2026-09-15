@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../../lib/supabase/admin'
+import { databaseError, isPostgrestNoRows } from '../../../lib/databaseError'
 import { AppError } from '../../../types'
 import type { InventoryQuery, UpdateStockInput } from './schema'
 
@@ -54,7 +55,7 @@ export async function getInventory(query: InventoryQuery): Promise<{
 
   const { data, error, count } = await dbQuery
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch inventory')
+  if (error) throw databaseError('admin.inventory.list', error, 'Failed to fetch inventory')
 
   return {
     items: (data as unknown as InventoryItem[]) ?? [],
@@ -76,7 +77,9 @@ export async function updateProductStock(
     .select('id, name, stock')
     .single()
 
-  if (error || !data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('admin.inventory.update_stock', error, 'Failed to update inventory')
+  if (!data) throw new AppError(404, 'PRODUCT_NOT_FOUND', 'Product not found')
   return data as { id: string; name: string; stock: number }
 }
 
@@ -88,6 +91,7 @@ export async function getLowStockList(): Promise<InventoryItem[]> {
     .eq('is_active', true)
     .order('stock', { ascending: true })
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch low-stock items')
+  if (error)
+    throw databaseError('admin.inventory.low_stock', error, 'Failed to fetch low-stock items')
   return (data as unknown as InventoryItem[]) ?? []
 }

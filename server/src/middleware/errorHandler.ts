@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { AppError } from '../types'
 import { logger } from '../lib/logger'
 import { env } from '../config/env'
+import { sanitizePostgrestError } from '../lib/databaseError'
 
 export function errorHandler(
   err: unknown,
@@ -13,6 +14,21 @@ export function errorHandler(
   const requestId = req.requestId ?? 'unknown'
 
   if (err instanceof AppError) {
+    if (err.statusCode >= 500) {
+      logger.error(
+        {
+          requestId,
+          operation: err.context?.operation ?? `${req.method} ${req.path}`,
+          postgrestCode: err.context?.postgrest?.code ?? null,
+          postgrestMessage: err.context?.postgrest?.message ?? null,
+          postgrestDetails: err.context?.postgrest?.details ?? null,
+          statusCode: err.statusCode,
+          errorCode: err.code,
+        },
+        'Request failed'
+      )
+    }
+
     res.status(err.statusCode).json({
       success: false,
       error: {
@@ -26,11 +42,16 @@ export function errorHandler(
   }
 
   const isProduction = env.NODE_ENV === 'production'
+  const postgrest = sanitizePostgrestError(err)
 
   logger.error(
     {
-      err,
+      err: postgrest ? undefined : err,
       requestId,
+      operation: `${req.method} ${req.path}`,
+      postgrestCode: postgrest?.code ?? null,
+      postgrestMessage: postgrest?.message ?? null,
+      postgrestDetails: postgrest?.details ?? null,
       path: req.path,
       method: req.method,
     },

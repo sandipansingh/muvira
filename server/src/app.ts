@@ -9,6 +9,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler'
 import { generalApiLimiter } from './middleware/rateLimit'
 import { requireAuth } from './middleware/requireAuth'
 import { requireAdmin } from './middleware/requireAdmin'
+import { requireRuntimeSchema } from './middleware/requireRuntimeSchema'
 
 // Route modules
 import { healthRouter } from './modules/health/routes'
@@ -117,6 +118,7 @@ export function createApp() {
 
   // Public
   app.use('/api/health', healthRouter)
+  app.use('/api', requireRuntimeSchema)
   app.use('/api/products', productsRouter)
   // Reviews are exposed under products namespace: GET/POST /api/products/:productId/reviews
   app.use('/api/products', reviewsRouter)

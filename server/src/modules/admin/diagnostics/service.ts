@@ -1,10 +1,10 @@
 import { adminSupabase } from '../../../lib/supabase/admin'
+import { databaseError } from '../../../lib/databaseError'
 import { logger } from '../../../lib/logger'
 import { trackSingle } from '../../../services/shiprocket'
 import { shiprocketStatusToOrderStatus, isValidTransition } from '../../orders/stateMachine'
 import { writeTrackingSnapshot } from '../../../services/trackingAnalytics'
 import { transitionOrderStatus } from '../../orders/service'
-import { AppError } from '../../../types'
 
 // --- Shipment Health ---
 
@@ -18,7 +18,15 @@ export async function getShipmentHealth(): Promise<{
     .limit(100)
 
   if (error) {
-    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Shipment health is unavailable')
+    throw databaseError(
+      'admin.diagnostics.shipment_health',
+      error,
+      'Shipment health is unavailable',
+      {
+        statusCode: 503,
+        code: 'DIAGNOSTICS_UNAVAILABLE',
+      }
+    )
   }
 
   const rows = (data ?? []) as Array<Record<string, unknown>>
@@ -71,7 +79,15 @@ export async function getSyncHealth(): Promise<{
 
   const failed = [fullSync, ofdSync, pendingOrders, recentErrors].find((result) => result.error)
   if (failed?.error) {
-    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Sync health is unavailable')
+    throw databaseError(
+      'admin.diagnostics.sync_health',
+      failed.error,
+      'Sync health is unavailable',
+      {
+        statusCode: 503,
+        code: 'DIAGNOSTICS_UNAVAILABLE',
+      }
+    )
   }
 
   return {
@@ -198,7 +214,12 @@ export async function getCourierPerformance(): Promise<
     .limit(5000)
 
   if (error || !data) {
-    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Courier performance is unavailable')
+    throw databaseError(
+      'admin.diagnostics.courier_performance',
+      error,
+      'Courier performance is unavailable',
+      { statusCode: 503, code: 'DIAGNOSTICS_UNAVAILABLE' }
+    )
   }
 
   const grouped = new Map<
@@ -308,7 +329,12 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
     lastSync,
   ].find((result) => result.error)
   if (failed?.error) {
-    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Diagnostic summary is unavailable')
+    throw databaseError(
+      'admin.diagnostics.summary',
+      failed.error,
+      'Diagnostic summary is unavailable',
+      { statusCode: 503, code: 'DIAGNOSTICS_UNAVAILABLE' }
+    )
   }
 
   return {
@@ -346,7 +372,12 @@ export async function getCommerceFailures(): Promise<Record<string, unknown>> {
 
   const failed = [outbox, invoices, reconciliation].find((result) => result.error)
   if (failed?.error) {
-    throw new AppError(503, 'DIAGNOSTICS_UNAVAILABLE', 'Commerce failure queues are unavailable')
+    throw databaseError(
+      'admin.diagnostics.commerce_failures',
+      failed.error,
+      'Commerce failure queues are unavailable',
+      { statusCode: 503, code: 'DIAGNOSTICS_UNAVAILABLE' }
+    )
   }
 
   return {

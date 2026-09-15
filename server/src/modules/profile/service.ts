@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { Profile } from '../../types'
 import type { UpdateProfileInput } from './schema'
@@ -10,7 +11,9 @@ export async function getProfile(userId: string): Promise<Profile> {
     .eq('id', userId)
     .single()
 
-  if (error || !data) throw new AppError(404, 'PROFILE_NOT_FOUND', 'Profile not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('profile.get', error, 'Failed to fetch profile')
+  if (!data) throw new AppError(404, 'PROFILE_NOT_FOUND', 'Profile not found')
   return data as Profile
 }
 
@@ -29,6 +32,8 @@ export async function updateProfile(userId: string, input: UpdateProfileInput): 
     .select('id, email, full_name, phone, role, created_at, updated_at')
     .single()
 
-  if (error || !data) throw new AppError(404, 'PROFILE_NOT_FOUND', 'Profile not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('profile.update', error, 'Failed to update profile')
+  if (!data) throw new AppError(404, 'PROFILE_NOT_FOUND', 'Profile not found')
   return data as Profile
 }

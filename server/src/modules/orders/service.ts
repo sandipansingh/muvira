@@ -1,4 +1,5 @@
 import { adminSupabase } from '../../lib/supabase/admin'
+import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { AdminOrderSummary, Order } from '../../types'
 import { invalidateOn } from '../../services/cacheInvalidation'
@@ -59,7 +60,7 @@ export async function listUserOrders(
 
   const { data, error, count } = await dbQuery
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch orders')
+  if (error) throw databaseError('orders.list', error, 'Failed to fetch orders')
 
   const orders = (data as Order[]) ?? []
 
@@ -83,9 +84,9 @@ export async function getUserOrder(userId: string, orderId: string): Promise<Ord
 
   // Return 404 whether the order doesn't exist OR belongs to another user
   // Never reveal that the order exists for a different user (prevent enumeration)
-  if (error || !data) {
-    throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  }
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('orders.get_owned', error, 'Failed to fetch order')
+  if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
   // Return from DB only — tracking is synced by webhooks + cron polling
   return data as Order
@@ -135,7 +136,7 @@ export async function adminListOrders(query: AdminListOrdersQuery): Promise<{
 
   const { data, error, count } = await dbQuery
 
-  if (error) throw new AppError(500, 'DB_ERROR', 'Failed to fetch orders')
+  if (error) throw databaseError('orders.admin_list', error, 'Failed to fetch orders')
 
   return {
     orders: (data as unknown as AdminOrderSummary[]) ?? [],
@@ -160,7 +161,9 @@ export async function adminGetOrder(orderId: string): Promise<Order> {
     .eq('id', orderId)
     .single()
 
-  if (error || !data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('orders.admin_get', error, 'Failed to fetch order')
+  if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
   // Return from DB only — tracking is synced by webhooks + cron polling
   return data as unknown as Order
@@ -170,12 +173,14 @@ export async function adminUpdateOrderStatus(
   orderId: string,
   input: UpdateOrderStatusInput
 ): Promise<Order> {
-  const { data: current } = await adminSupabase
+  const { data: current, error } = await adminSupabase
     .from('orders')
     .select('status, user_id')
     .eq('id', orderId)
     .single()
 
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('orders.get_status', error, 'Failed to fetch order status')
   if (!current) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
   const oldStatus = current.status as string
@@ -219,18 +224,22 @@ export async function adminUpdateFulfillment(
     .select()
     .single()
 
-  if (error || !data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('orders.update_fulfillment', error, 'Failed to update fulfillment')
+  if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   return adminGetOrder(orderId)
 }
 
 export async function adminAddOrderNote(orderId: string, input: AddOrderNoteInput): Promise<Order> {
   // Append to existing notes (newline-separated)
-  const { data: existing } = await adminSupabase
+  const { data: existing, error: existingError } = await adminSupabase
     .from('orders')
     .select('notes')
     .eq('id', orderId)
     .single()
 
+  if (existingError && !isPostgrestNoRows(existingError))
+    throw databaseError('orders.get_notes', existingError, 'Failed to fetch order notes')
   if (!existing) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
   const timestamp = new Date().toISOString()
@@ -244,7 +253,8 @@ export async function adminAddOrderNote(orderId: string, input: AddOrderNoteInpu
     .select()
     .single()
 
-  if (error || !data) throw new AppError(500, 'DB_ERROR', 'Failed to add note')
+  if (error) throw databaseError('orders.add_note', error, 'Failed to add note')
+  if (!data) throw new AppError(500, 'DB_ERROR', 'Failed to add note')
   return adminGetOrder(orderId)
 }
 
@@ -259,7 +269,8 @@ export async function updateOrderStatusByAwb(
     .eq('awb_code', awbCode)
     .maybeSingle()
 
-  if (fetchError) throw new AppError(500, 'DB_ERROR', 'Failed to fetch order by AWB')
+  if (fetchError)
+    throw databaseError('orders.fetch_by_awb', fetchError, 'Failed to fetch order by AWB')
   if (!order) return null
 
   if (order.status !== status) {
@@ -422,7 +433,12 @@ async function buildShiprocketOrderPayload(
     .eq('key', 'shiprocket_settings')
     .single()
   if (settingsError) {
-    throw new AppError(500, 'SETTINGS_UNAVAILABLE', 'Shiprocket settings are unavailable')
+    throw databaseError(
+      'orders.load_shiprocket_settings',
+      settingsError,
+      'Shiprocket settings are unavailable',
+      { code: 'SETTINGS_UNAVAILABLE' }
+    )
   }
   const defaults = (settingsData?.value as Record<string, number | string>) ?? {}
 
@@ -559,7 +575,12 @@ async function createShiprocketOrderInternal(
     .from('orders')
     .update({ shiprocket_status: 'pending', shiprocket_error: null })
     .eq('id', orderId)
-  if (pendingError) throw new AppError(500, 'DB_ERROR', 'Failed to prepare Shiprocket order')
+  if (pendingError)
+    throw databaseError(
+      'orders.prepare_shiprocket_order',
+      pendingError,
+      'Failed to prepare Shiprocket order'
+    )
 
   const payload = await buildShiprocketOrderPayload(order, orderItems, overrides)
   let result: Awaited<ReturnType<typeof shiprocketCreateOrder>>
@@ -898,7 +919,9 @@ async function loadInvoiceOrder(orderId: string, userId?: string): Promise<Order
   if (userId) query = query.eq('user_id', userId)
 
   const { data, error } = await query.single()
-  if (error || !data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
+  if (error && !isPostgrestNoRows(error))
+    throw databaseError('orders.invoice_order', error, 'Failed to fetch order')
+  if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   if (data.payment_status !== 'paid') {
     throw new AppError(409, 'INVOICE_NOT_AVAILABLE', 'Invoice is available only for paid orders')
   }
@@ -953,7 +976,8 @@ async function loadStoredInvoice(orderId: string): Promise<Buffer | null> {
     .select('status, object_path')
     .eq('order_id', orderId)
     .maybeSingle()
-  if (recordError) throw new AppError(500, 'DB_ERROR', 'Failed to read invoice state')
+  if (recordError)
+    throw databaseError('orders.read_invoice_state', recordError, 'Failed to read invoice state')
   if (record?.status !== 'ready' || !record.object_path) return null
 
   const { data, error } = await adminSupabase.storage
@@ -979,7 +1003,12 @@ async function generateInvoice(order: Order): Promise<{ orderNumber: string; pdf
     p_order_id: order.id,
     p_provider_reference: providerReference,
   })
-  if (beginError) throw new AppError(500, 'DB_ERROR', 'Failed to start invoice generation')
+  if (beginError)
+    throw databaseError(
+      'orders.begin_invoice_generation',
+      beginError,
+      'Failed to start invoice generation'
+    )
 
   try {
     const invoiceResponse = await shiprocketGenerateInvoice([Number(providerReference)])
