@@ -158,7 +158,7 @@ export const AdminCouponsPage: React.FC = () => {
                 <th className="px-4 py-3">Discount</th>
                 <th className="px-4 py-3">Minimum</th>
                 <th className="px-4 py-3">Valid until</th>
-                <th className="px-4 py-3">State</th>
+                <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -181,14 +181,24 @@ export const AdminCouponsPage: React.FC = () => {
                     {coupon.validUntil ? formatDate(coupon.validUntil) : 'No expiry'}
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      disabled={busy || !coupon.isActive}
-                      onClick={() => void deactivate(coupon)}
-                      className="button-secondary px-3 py-1 text-xs"
-                    >
-                      {coupon.isActive ? 'Deactivate' : 'Inactive'}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void editCoupon(coupon)}
+                        className="button-secondary px-3 py-1 text-xs"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void toggleActive(coupon)}
+                        className="button-secondary px-3 py-1 text-xs"
+                      >
+                        {coupon.isActive ? 'Deactivate' : 'Reactivate'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -207,15 +217,61 @@ export const AdminCouponsPage: React.FC = () => {
     </div>
   )
 
-  async function deactivate(coupon: Coupon) {
+  async function toggleActive(coupon: Coupon) {
     setBusy(true)
     try {
-      const response = await adminApiService.deactivateCoupon(coupon.id)
+      const response = coupon.isActive
+        ? await adminApiService.deactivateCoupon(coupon.id)
+        : await adminApiService.updateCoupon(coupon.id, { isActive: true })
       if (!response.success) throw new Error(response.error.message)
-      showToast(`${coupon.code} deactivated.`, 'success')
+      showToast(`${coupon.code} ${coupon.isActive ? 'deactivated' : 'reactivated'}.`, 'success')
       await loadCoupons()
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Coupon could not be deactivated.'
+      setError(message)
+      showToast(message, 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function editCoupon(coupon: Coupon) {
+    const rawValue = window.prompt(
+      coupon.discountType === 'fixed' ? 'Discount amount in rupees' : 'Discount percentage',
+      coupon.discountType === 'fixed'
+        ? String(coupon.discountValue / 100)
+        : String(coupon.discountValue)
+    )
+    if (rawValue === null) return
+    const value = Number(rawValue)
+    if (!Number.isFinite(value) || value <= 0) {
+      showToast('Enter a positive discount value.', 'error')
+      return
+    }
+
+    const rawMinimum = window.prompt(
+      'Minimum order amount in rupees',
+      String(coupon.minOrderAmount / 100)
+    )
+    if (rawMinimum === null) return
+    const minimum = Number(rawMinimum)
+    if (!Number.isFinite(minimum) || minimum < 0) {
+      showToast('Enter a valid minimum order amount.', 'error')
+      return
+    }
+
+    setBusy(true)
+    try {
+      const response = await adminApiService.updateCoupon(coupon.id, {
+        discountValue:
+          coupon.discountType === 'fixed' ? Math.round(value * 100) : Math.round(value),
+        minOrderAmount: Math.round(minimum * 100),
+      })
+      if (!response.success) throw new Error(response.error.message)
+      showToast(`${coupon.code} updated.`, 'success')
+      await loadCoupons()
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Coupon could not be updated.'
       setError(message)
       showToast(message, 'error')
     } finally {

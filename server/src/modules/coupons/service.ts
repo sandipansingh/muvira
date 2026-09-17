@@ -112,6 +112,19 @@ export async function createCoupon(input: CreateCouponInput): Promise<Coupon> {
 }
 
 export async function updateCoupon(id: string, input: UpdateCouponInput): Promise<Coupon> {
+  const { data: stored, error: loadError } = await adminSupabase
+    .from('coupons')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+  if (loadError) throw databaseError('coupons.load_for_update', loadError, 'Failed to load coupon')
+  if (!stored) throw new AppError(404, 'COUPON_NOT_FOUND', 'Coupon not found')
+
+  const mergedDiscountType = input.discount_type ?? stored.discount_type
+  const mergedDiscountValue = input.discount_value ?? stored.discount_value
+  if (mergedDiscountType === 'percentage' && mergedDiscountValue > 100) {
+    throw new AppError(400, 'INVALID_DISCOUNT', 'Percentage discount cannot exceed 100')
+  }
   const update = input.code ? { ...input, code: input.code.toUpperCase() } : input
 
   const { data, error } = await adminSupabase
@@ -121,6 +134,9 @@ export async function updateCoupon(id: string, input: UpdateCouponInput): Promis
     .select()
     .single()
 
+  if (error?.code === '23505') {
+    throw new AppError(409, 'DUPLICATE_CODE', 'Coupon code already exists')
+  }
   if (error && !isPostgrestNoRows(error))
     throw databaseError('coupons.update', error, 'Failed to update coupon')
   if (!data) throw new AppError(404, 'COUPON_NOT_FOUND', 'Coupon not found')

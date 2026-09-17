@@ -124,13 +124,13 @@ FROM (VALUES ('webhook_events'), ('sync_jobs')) AS expected(table_name);
 
 SELECT is(
   (public.get_runtime_schema_status()->>'contract_version')::INTEGER,
-  40,
-  'runtime schema contract reports version 40'
+  41,
+  'runtime schema contract reports version 41'
 );
 
 SELECT is(
   (public.get_runtime_schema_status()->>'migration_version')::TEXT,
-  '040',
+  '041',
   'runtime schema contract reports the latest migration'
 );
 
@@ -153,6 +153,15 @@ SELECT ok(
       AND conname IN ('orders_shiprocket_status_check', 'orders_shiprocket_status_allowed')
   ),
   'Shiprocket raw status uses the bounded contract instead of the legacy enumeration'
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.coupons'::REGCLASS
+      AND conname = 'coupons_percentage_value_allowed'
+  ),
+  'percentage coupons are bounded by a database invariant'
 );
 
 SELECT is(

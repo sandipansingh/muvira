@@ -147,6 +147,18 @@ test('authenticated routes require an API profile and safe return path', () => {
   assert.match(app, /AuthGuard/)
 })
 
+test('coupon partial updates preserve the percentage invariant', () => {
+  const migration = read('supabase/migrations/041_coupon_percentage_invariant.sql')
+  const service = read('server/src/modules/coupons/service.ts')
+  const adminPage = read('client/src/pages/admin/AdminCouponsPage.tsx')
+
+  assert.match(migration, /Invalid percentage coupons must be corrected before migration/)
+  assert.match(migration, /discount_type <> 'percentage' OR discount_value <= 100/)
+  assert.match(service, /input\.discount_type \?\? stored\.discount_type/)
+  assert.match(service, /input\.discount_value \?\? stored\.discount_value/)
+  assert.match(adminPage, /Reactivate/)
+})
+
 test('production migration pushes require the expected runtime and linked project refs', () => {
   const packageJson = JSON.parse(read('package.json'))
   const guard = read('scripts/push-supabase-migrations.sh')
