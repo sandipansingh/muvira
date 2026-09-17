@@ -27,6 +27,14 @@ async function loadClientModule(modulePath) {
   return vite.ssrLoadModule(`/src/${modulePath}`, { fixStacktrace: true })
 }
 
+function deferred() {
+  let resolve
+  const promise = new Promise((resolvePromise) => {
+    resolve = resolvePromise
+  })
+  return { promise, resolve }
+}
+
 test('a rejected guest cart addition preserves the existing cart', async () => {
   const { addGuestCartItem } = await loadClientModule('lib/utils/cartState.ts')
   const existing = [
@@ -143,6 +151,36 @@ test('stale profile restores cannot overwrite a newer session or sign-out', asyn
   guard.invalidate()
   if (guard.isCurrent(thirdAttempt)) visibleSession = 'session-c'
   assert.equal(visibleSession, 'session-b')
+})
+
+test('pending logout callback cannot clear a newer signed-in session', async () => {
+  const { createLatestAttemptGuard } = await loadClientModule('lib/latestAttempt.ts')
+  const { createGuardedLogout } = await loadClientModule('lib/authMutations.ts')
+  const attempts = createLatestAttemptGuard()
+  const pendingSignOut = deferred()
+  let visibleSession = 'session-a'
+  let notifications = 0
+
+  const logout = createGuardedLogout({
+    attempts,
+    isMounted: () => true,
+    signOut: () => pendingSignOut.promise,
+    clearState: () => {
+      visibleSession = null
+    },
+    notify: () => {
+      notifications += 1
+    },
+  })
+
+  const pendingLogout = logout()
+  const newerSignInAttempt = attempts.begin()
+  if (attempts.isCurrent(newerSignInAttempt)) visibleSession = 'session-b'
+  pendingSignOut.resolve()
+  await pendingLogout
+
+  assert.equal(visibleSession, 'session-b')
+  assert.equal(notifications, 0)
 })
 
 test('order confirmation requires an owned paid order response', async () => {

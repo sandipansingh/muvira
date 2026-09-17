@@ -4,7 +4,12 @@ import { Breadcrumbs } from '../../components/common/Breadcrumbs'
 import { Dropdown } from '../../components/ui/Dropdown'
 import { useToast } from '../../context/ToastContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
-import type { CommerceFailureItem, NotificationDeliverySummary, RetryJob } from '../../types/admin'
+import type {
+  CommerceFailureItem,
+  NotificationDeliverySummary,
+  RetryJob,
+  WebhookFailureItem,
+} from '../../types/admin'
 import { formatDate } from '../../lib/utils/format'
 
 export const AdminFailuresPage: React.FC = () => {
@@ -13,6 +18,7 @@ export const AdminFailuresPage: React.FC = () => {
   const [retryJobs, setRetryJobs] = useState<RetryJob[]>([])
   const [deliveries, setDeliveries] = useState<NotificationDeliverySummary[]>([])
   const [commerceFailures, setCommerceFailures] = useState<CommerceFailureItem[]>([])
+  const [webhookFailures, setWebhookFailures] = useState<WebhookFailureItem[]>([])
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -21,14 +27,17 @@ export const AdminFailuresPage: React.FC = () => {
     setLoading(true)
     setError(null)
     try {
-      const [jobsResponse, deliveriesResponse, commerceResponse] = await Promise.all([
-        adminApiService.getRetryJobs(1, retryStatus),
-        adminApiService.getNotificationDeliveries(1),
-        adminApiService.getCommerceFailures(),
-      ])
+      const [jobsResponse, deliveriesResponse, commerceResponse, webhooksResponse] =
+        await Promise.all([
+          adminApiService.getRetryJobs(1, retryStatus),
+          adminApiService.getNotificationDeliveries(1),
+          adminApiService.getCommerceFailures(),
+          adminApiService.getWebhookFailures(1),
+        ])
       if (!jobsResponse.success) throw new Error(jobsResponse.error.message)
       if (!deliveriesResponse.success) throw new Error(deliveriesResponse.error.message)
       if (!commerceResponse.success) throw new Error(commerceResponse.error.message)
+      if (!webhooksResponse.success) throw new Error(webhooksResponse.error.message)
       setRetryJobs(jobsResponse.data)
       setDeliveries(
         deliveriesResponse.data.filter((delivery) =>
@@ -36,6 +45,7 @@ export const AdminFailuresPage: React.FC = () => {
         )
       )
       setCommerceFailures(commerceResponse.data)
+      setWebhookFailures(webhooksResponse.data)
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Failure queues are unavailable.')
     } finally {
@@ -130,6 +140,35 @@ export const AdminFailuresPage: React.FC = () => {
           </section>
 
           <section className="space-y-4">
+            <h3 className="heading text-xl">Failed webhooks</h3>
+            {webhookFailures.length === 0 ? (
+              <p className="panel p-5 text-sm text-ink">No failed webhook deliveries.</p>
+            ) : (
+              <div className="space-y-3">
+                {webhookFailures.map((webhook) => (
+                  <article key={webhook.id} className="panel p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-semibold text-ink">
+                        {webhook.eventType ?? 'Unknown webhook event'}
+                      </p>
+                      <span className="status-badge">{webhook.source}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted">
+                      {webhook.eventId ?? webhook.id} · retries {webhook.retryCount}
+                    </p>
+                    {webhook.lastError && (
+                      <p className="mt-2 text-sm text-danger">{webhook.lastError}</p>
+                    )}
+                    <p className="mt-2 text-xs text-muted">
+                      Updated {formatDate(webhook.updatedAt)}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="space-y-4">
             <h3 className="heading text-xl">Commerce integrity</h3>
             {commerceFailures.length === 0 ? (
               <p className="panel p-5 text-sm text-ink">
@@ -143,12 +182,14 @@ export const AdminFailuresPage: React.FC = () => {
                       <p className="font-semibold text-ink">{failure.label}</p>
                       <span className="status-badge">{failure.kind.replaceAll('_', ' ')}</span>
                     </div>
-                    <Link
-                      to={`/admin/orders/${failure.orderId}`}
-                      className="mt-2 block text-sm text-ink underline hover:text-primary"
-                    >
-                      Open order
-                    </Link>
+                    {failure.orderId && (
+                      <Link
+                        to={`/admin/orders/${failure.orderId}`}
+                        className="mt-2 block text-sm text-ink underline hover:text-primary"
+                      >
+                        Open order
+                      </Link>
+                    )}
                     {failure.lastError && (
                       <p className="mt-2 text-sm text-danger">{failure.lastError}</p>
                     )}

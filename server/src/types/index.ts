@@ -422,14 +422,19 @@ export interface CheckoutTotals {
 export interface WebhookEvent {
   id: string
   source: 'shiprocket' | 'razorpay'
+  event_id: string | null
   event_type: string | null
   payload_hash: string
   raw_payload: Record<string, unknown>
   processing_status: 'received' | 'verified' | 'processing' | 'processed' | 'failed' | 'duplicate'
   retry_count: number
   error_message: string | null
+  processing_token: string | null
+  processing_started_at: string | null
+  processing_lease_expires_at: string | null
   processed_at: string | null
   created_at: string
+  updated_at: string
 }
 
 // AppError

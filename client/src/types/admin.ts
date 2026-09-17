@@ -33,9 +33,19 @@ export interface NotificationDeliverySummary {
 
 export interface CommerceFailureItem {
   id: string
-  orderId: string
-  kind: 'outbox' | 'invoice' | 'payment_reconciliation'
+  orderId: string | null
+  kind: 'outbox' | 'invoice' | 'payment_reconciliation' | 'operational_alert'
   label: string
+  lastError: string | null
+  updatedAt: string
+}
+
+export interface WebhookFailureItem {
+  id: string
+  source: string
+  eventType: string | null
+  eventId: string | null
+  retryCount: number
   lastError: string | null
   updatedAt: string
 }

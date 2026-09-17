@@ -4,6 +4,7 @@ import { logger } from '../../lib/logger'
 import { writeTrackingSnapshot } from '../../services/trackingAnalytics'
 import { mapShiprocketStatusToOrderStatus, transitionOrderStatus } from '../orders/service'
 import { isValidTransition } from '../orders/stateMachine'
+import { executionLeaseRpcArgs, type ExecutionLease } from '../../services/executionLease'
 
 export interface ProcessWebhookResult {
   status: 'processed' | 'ignored'
@@ -109,7 +110,11 @@ async function findOrder(event: ParsedWebhook): Promise<{
   return null
 }
 
-async function persistShipmentIdentity(orderId: string, event: ParsedWebhook): Promise<void> {
+async function persistShipmentIdentity(
+  orderId: string,
+  event: ParsedWebhook,
+  executionLease?: ExecutionLease
+): Promise<void> {
   const update: Record<string, unknown> = { shiprocket_status: event.currentStatus }
   if (event.awbCode) update['awb_code'] = event.awbCode
   if (event.shipmentId) update['shipment_id'] = event.shipmentId
@@ -117,12 +122,14 @@ async function persistShipmentIdentity(orderId: string, event: ParsedWebhook): P
   if (event.courierName) update['courier_name'] = event.courierName
   if (event.trackingUrl) update['tracking_url'] = event.trackingUrl
 
-  const { data, error } = await adminSupabase
-    .from('orders')
-    .update(update)
-    .eq('id', orderId)
-    .select('id')
-    .single()
+  const result = executionLease
+    ? await adminSupabase.rpc('apply_shiprocket_persistence_fenced', {
+        ...executionLeaseRpcArgs(executionLease),
+        p_order_id: orderId,
+        p_persistence: update,
+      })
+    : await adminSupabase.from('orders').update(update).eq('id', orderId).select('id').single()
+  const { data, error } = result
 
   if (error || !data) {
     throw new Error(`Failed to persist Shiprocket identifiers: ${error?.message ?? 'missing row'}`)
@@ -132,20 +139,34 @@ async function persistShipmentIdentity(orderId: string, event: ParsedWebhook): P
 async function persistShipmentEvent(
   orderId: string,
   event: ParsedWebhook,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
+  executionLease?: ExecutionLease
 ): Promise<void> {
   const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
-  const { error } = await adminSupabase.from('shipment_events').insert({
-    order_id: orderId,
-    shipment_id: event.shipmentId,
-    status: event.currentStatus,
-    location: event.location,
-    remarks: event.remarks,
-    event_time: event.eventTime,
-    raw_payload: payload,
-    payload_hash: payloadHash,
-    vendor_event_id: event.vendorEventId,
-  })
+  const { error } = executionLease
+    ? await adminSupabase.rpc('persist_shipment_event_fenced', {
+        ...executionLeaseRpcArgs(executionLease),
+        p_order_id: orderId,
+        p_shipment_id: event.shipmentId,
+        p_status: event.currentStatus,
+        p_location: event.location,
+        p_remarks: event.remarks,
+        p_event_time: event.eventTime,
+        p_raw_payload: payload,
+        p_payload_hash: payloadHash,
+        p_vendor_event_id: event.vendorEventId,
+      })
+    : await adminSupabase.from('shipment_events').insert({
+        order_id: orderId,
+        shipment_id: event.shipmentId,
+        status: event.currentStatus,
+        location: event.location,
+        remarks: event.remarks,
+        event_time: event.eventTime,
+        raw_payload: payload,
+        payload_hash: payloadHash,
+        vendor_event_id: event.vendorEventId,
+      })
 
   if (error && error.code !== '23505') {
     throw new Error(`Failed to persist shipment event: ${error.message}`)
@@ -153,7 +174,8 @@ async function persistShipmentEvent(
 }
 
 export async function processShiprocketWebhook(
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
+  executionLease?: ExecutionLease
 ): Promise<ProcessWebhookResult> {
   const event = parseShiprocketWebhookPayload(payload)
   const order = await findOrder(event)
@@ -171,8 +193,8 @@ export async function processShiprocketWebhook(
     return { status: 'ignored' }
   }
 
-  await persistShipmentIdentity(order.id, event)
-  await persistShipmentEvent(order.id, event, payload)
+  await persistShipmentIdentity(order.id, event, executionLease)
+  await persistShipmentEvent(order.id, event, payload, executionLease)
 
   const targetStatus = mapShiprocketStatusToOrderStatus(event.currentStatus)
   if (
@@ -180,11 +202,17 @@ export async function processShiprocketWebhook(
     targetStatus !== order.status &&
     isValidTransition(order.status, targetStatus)
   ) {
-    await transitionOrderStatus(order, targetStatus, 'webhook', {
-      awbCode: event.awbCode,
-      courierName: event.courierName,
-      vendorEventId: event.vendorEventId,
-    })
+    await transitionOrderStatus(
+      order,
+      targetStatus,
+      'webhook',
+      {
+        awbCode: event.awbCode,
+        courierName: event.courierName,
+        vendorEventId: event.vendorEventId,
+      },
+      executionLease
+    )
   } else if (targetStatus && targetStatus !== order.status) {
     logger.warn(
       { orderId: order.id, currentStatus: order.status, targetStatus },
@@ -197,21 +225,24 @@ export async function processShiprocketWebhook(
     )
   }
 
-  await writeTrackingSnapshot({
-    orderId: order.id,
-    awbCode: event.awbCode,
-    shipmentId: event.shipmentId,
-    currentStatus: event.currentStatus,
-    location: event.location,
-    courierName: event.courierName,
-    origin: null,
-    destination: null,
-    edd: optionalString(payload['etd']),
-    pickupDate: optionalString(payload['pickup_scheduled_date']),
-    deliveredDate: targetStatus === 'delivered' ? event.eventTime : null,
-    trackingRaw: payload,
-    syncSource: 'webhook',
-  })
+  await writeTrackingSnapshot(
+    {
+      orderId: order.id,
+      awbCode: event.awbCode,
+      shipmentId: event.shipmentId,
+      currentStatus: event.currentStatus,
+      location: event.location,
+      courierName: event.courierName,
+      origin: null,
+      destination: null,
+      edd: optionalString(payload['etd']),
+      pickupDate: optionalString(payload['pickup_scheduled_date']),
+      deliveredDate: targetStatus === 'delivered' ? event.eventTime : null,
+      trackingRaw: payload,
+      syncSource: 'webhook',
+    },
+    executionLease
+  )
 
   logger.info(
     { orderId: order.id, currentStatus: event.currentStatus },

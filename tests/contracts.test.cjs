@@ -109,7 +109,7 @@ test('Razorpay recovery producers and retry-safe failure UI remain connected', (
   assert.match(payments, /enqueue_retry_job/)
   assert.match(payments, /processStoredRazorpayWebhook/)
   assert.match(payments, /payments\.fetch[\s\S]+orders\.fetch/)
-  assert.match(checkout, /recordPaymentReconciliation[\s\S]+releaseFailedCheckout/)
+  assert.match(checkout, /recordPaymentReconciliation[\s\S]+reservation is retained/)
   assert.match(worker, /claim_retry_jobs/)
   assert.match(worker, /complete_retry_job/)
   assert.match(worker, /fail_retry_job/)
@@ -127,6 +127,19 @@ test('migration 042 leases webhook processing and renews long retry work', () =>
   assert.match(migration, /CREATE OR REPLACE FUNCTION renew_razorpay_webhook_lease/i)
   assert.match(migration, /CREATE OR REPLACE FUNCTION renew_retry_job_lease/i)
   assert.match(migration, /FOR UPDATE SKIP LOCKED/i)
+})
+
+test('migration 043 fences mutations and persists operational alerts', () => {
+  const migration = read('supabase/migrations/043_fenced_execution_and_operational_alerts.sql')
+
+  assert.match(migration, /contract_version['"],\s*43/i)
+  assert.match(migration, /CREATE TABLE operation_leases/i)
+  assert.match(migration, /fencing_token BIGINT/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION assert_execution_lease/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION finalize_captured_payment_fenced/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION fail_checkout_fenced/i)
+  assert.match(migration, /CREATE TABLE operational_alerts/i)
+  assert.match(migration, /POSITION\('''processing''' IN PG_GET_CONSTRAINTDEF\(oid\)\)/i)
 })
 
 test('Shiprocket raw statuses and production webhook readiness use one contract', () => {

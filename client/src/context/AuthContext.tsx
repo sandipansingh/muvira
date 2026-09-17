@@ -5,6 +5,7 @@ import { authApiService } from '../lib/services/auth.service'
 import { supabase } from '../lib/supabase'
 import { authRedirectUrl, PASSWORD_RECOVERY_SESSION_KEY } from '../lib/authRedirect'
 import { createLatestAttemptGuard } from '../lib/latestAttempt'
+import { createGuardedLogout, runGuardedProfileUpdate } from '../lib/authMutations'
 import { useToast } from './ToastContext'
 
 export interface AuthContextType {
@@ -36,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
   const [profileError, setProfileError] = useState<string | null>(null)
   const sessionAttempts = useRef(createLatestAttemptGuard())
+  const mounted = useRef(true)
   const { showToast } = useToast()
 
   const restoreSession = useCallback(
@@ -93,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let isMounted = true
+    mounted.current = true
     const attempts = sessionAttempts.current
 
     const initialize = async () => {
@@ -113,6 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     void initialize()
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return
       const attempt = attempts.begin()
       if (event === 'PASSWORD_RECOVERY' && session) {
         sessionStorage.setItem(PASSWORD_RECOVERY_SESSION_KEY, session.access_token)
@@ -131,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       isMounted = false
+      mounted.current = false
       attempts.invalidate()
       authListener.subscription.unsubscribe()
     }
@@ -204,29 +209,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const logout = async (): Promise<void> => {
-    sessionAttempts.current.invalidate()
-    await supabase.auth.signOut()
-    setUser(null)
-    setToken(null)
-    setProfileError(null)
-    showToast('Logged out successfully', 'info')
+    await createGuardedLogout({
+      attempts: sessionAttempts.current,
+      isMounted: () => mounted.current,
+      signOut: () => supabase.auth.signOut(),
+      clearState: () => {
+        setUser(null)
+        setToken(null)
+        setProfileError(null)
+      },
+      notify: () => showToast('Logged out successfully', 'info'),
+    })()
   }
 
   const updateProfile = async (fullName: string, phone: string): Promise<boolean> => {
-    try {
-      const response = await authApiService.updateProfile({ fullName, phone })
-      if (!response.success) {
-        showToast(response.error.message, 'error')
-        return false
-      }
-
-      setUser(response.data)
-      showToast('Profile updated successfully.', 'success')
-      return true
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Unable to update profile.', 'error')
-      return false
-    }
+    return runGuardedProfileUpdate({
+      attempts: sessionAttempts.current,
+      isMounted: () => mounted.current,
+      update: () => authApiService.updateProfile({ fullName, phone }),
+      apply: setUser,
+      notifySuccess: () => showToast('Profile updated successfully.', 'success'),
+      notifyError: (message) => showToast(message, 'error'),
+    })
   }
 
   const updateUser = (profile: Profile) => setUser(profile)

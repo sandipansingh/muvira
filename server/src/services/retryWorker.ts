@@ -4,6 +4,7 @@ import { trackSingle, generateLabel } from './shiprocket'
 import { isValidTransition, shiprocketStatusToOrderStatus } from '../modules/orders/stateMachine'
 import { transitionOrderStatus } from '../modules/orders/service'
 import { writeTrackingSnapshot } from './trackingAnalytics'
+import { executionLeaseRpcArgs, withExecutionLease, type ExecutionLease } from './executionLease'
 
 /**
  * Retry Worker
@@ -15,7 +16,11 @@ import { writeTrackingSnapshot } from './trackingAnalytics'
  * as 'dead'.
  */
 
-type JobHandler = (payload: Record<string, unknown>, referenceId: string | null) => Promise<void>
+type JobHandler = (
+  payload: Record<string, unknown>,
+  referenceId: string | null,
+  executionLease: ExecutionLease
+) => Promise<void>
 
 export interface RetryJob {
   id: string
@@ -39,7 +44,7 @@ const handlers: Record<string, JobHandler> = {
     await processStoredRazorpayWebhook(webhookId)
   },
 
-  tracking_sync: async (payload) => {
+  tracking_sync: async (payload, _referenceId, executionLease) => {
     const awb = payload['awbCode'] as string | undefined
     if (!awb) throw new Error('Missing awbCode in tracking_sync payload')
 
@@ -70,41 +75,44 @@ const handlers: Record<string, JobHandler> = {
     }
 
     const oldStatus = order.status
-    await transitionOrderStatus(order, newStatus, 'polling_sync', { awbCode: awb })
+    await transitionOrderStatus(order, newStatus, 'polling_sync', { awbCode: awb }, executionLease)
 
     // Write tracking snapshot
-    writeTrackingSnapshot({
-      orderId: order.id,
-      awbCode: awb,
-      shipmentId: ((order as Record<string, unknown>)['shipment_id'] as string | null) ?? null,
-      courierName: shipmentTrack.courier_name ?? null,
-      currentStatus: shipmentTrack.current_status,
-      origin: shipmentTrack.origin ?? null,
-      destination: shipmentTrack.destination ?? null,
-      edd: shipmentTrack.edd ?? null,
-      pickupDate: shipmentTrack.pickup_date ?? null,
-      deliveredDate: shipmentTrack.delivered_date ?? null,
-      trackingRaw: shipmentTrack as unknown as Record<string, unknown>,
-      syncSource: 'cron_poll',
-    }).catch(() => {})
+    writeTrackingSnapshot(
+      {
+        orderId: order.id,
+        awbCode: awb,
+        shipmentId: ((order as Record<string, unknown>)['shipment_id'] as string | null) ?? null,
+        courierName: shipmentTrack.courier_name ?? null,
+        currentStatus: shipmentTrack.current_status,
+        origin: shipmentTrack.origin ?? null,
+        destination: shipmentTrack.destination ?? null,
+        edd: shipmentTrack.edd ?? null,
+        pickupDate: shipmentTrack.pickup_date ?? null,
+        deliveredDate: shipmentTrack.delivered_date ?? null,
+        trackingRaw: shipmentTrack as unknown as Record<string, unknown>,
+        syncSource: 'cron_poll',
+      },
+      executionLease
+    ).catch(() => {})
 
     logger.info({ orderId: order.id, oldStatus, newStatus }, 'Tracking retry updated order')
   },
 
-  webhook_process: async (payload) => {
+  webhook_process: async (payload, _referenceId, executionLease) => {
     const rawPayload = payload['rawPayload'] as Record<string, unknown> | undefined
     if (!rawPayload) throw new Error('Missing rawPayload in webhook_process payload')
 
     // Re-use the shiprocket webhook service to process the payload
     const { processShiprocketWebhook } = await import('../modules/shiprocket/service')
-    const result = await processShiprocketWebhook(rawPayload)
+    const result = await processShiprocketWebhook(rawPayload, executionLease)
 
     if (result.status === 'ignored') {
       logger.warn({ payload }, 'retryWorker/webhook_process: no matching order found')
     }
   },
 
-  label_generate: async (payload) => {
+  label_generate: async (payload, _referenceId, executionLease) => {
     const shipmentId = payload['shipmentId'] as number | undefined
     if (!shipmentId) throw new Error('Missing shipmentId in label_generate payload')
 
@@ -114,20 +122,24 @@ const handlers: Record<string, JobHandler> = {
     // Update order if orderId is provided
     const orderId = payload['orderId'] as string | undefined
     if (orderId) {
-      await adminSupabase.from('orders').update({ label_generated: true }).eq('id', orderId)
+      const { data, error } = await adminSupabase.rpc('set_order_label_generated_fenced', {
+        ...executionLeaseRpcArgs(executionLease),
+        p_order_id: orderId,
+      })
+      if (error || data !== true) throw new Error('Label state write was fenced out')
     }
   },
 
-  invoice_generate: async (payload, referenceId) => {
+  invoice_generate: async (payload, referenceId, executionLease) => {
     const orderId = (payload['orderId'] as string | undefined) ?? referenceId
     if (!orderId) throw new Error('Missing application orderId in invoice_generate payload')
 
     const { adminGenerateInvoice } = await import('../modules/orders/service')
-    await adminGenerateInvoice(orderId)
+    await adminGenerateInvoice(orderId, executionLease)
     logger.info({ orderId }, 'retryWorker: invoice generated and persisted')
   },
 
-  shiprocket_persist: async (payload, referenceId) => {
+  shiprocket_persist: async (payload, referenceId, executionLease) => {
     const orderId = (payload['orderId'] as string | undefined) ?? referenceId
     const persistence = payload['persistence'] as Record<string, unknown> | undefined
     const transition = payload['transition'] as Record<string, unknown> | undefined
@@ -159,18 +171,17 @@ const handlers: Record<string, JobHandler> = {
       const safePersistence = Object.fromEntries(
         Object.entries(persistence).filter(([key]) => allowedKeys.has(key))
       )
-      const result = await adminSupabase
-        .from('orders')
-        .update(safePersistence)
-        .eq('id', orderId)
-        .select('id, status, user_id, order_number')
-        .single()
+      const result = await adminSupabase.rpc('apply_shiprocket_persistence_fenced', {
+        ...executionLeaseRpcArgs(executionLease),
+        p_order_id: orderId,
+        p_persistence: safePersistence,
+      })
       if (result.error || !result.data) {
         throw new Error(
           `Failed to reconcile Shiprocket persistence: ${result.error?.message ?? 'missing row'}`
         )
       }
-      order = result.data
+      order = result.data as unknown as typeof order
     } else {
       const result = await adminSupabase
         .from('orders')
@@ -188,17 +199,27 @@ const handlers: Record<string, JobHandler> = {
     if (transition) {
       const newStatus = transition['newStatus'] as string | undefined
       if (!newStatus) throw new Error('Missing status in Shiprocket transition repair')
-      await transitionOrderStatus(order, newStatus, 'admin_manual', {
-        ...(transition['metadata'] as Record<string, unknown> | undefined),
-        reconciliation: 'shiprocket_persist',
-      })
+      await transitionOrderStatus(
+        order,
+        newStatus,
+        'admin_manual',
+        {
+          ...(transition['metadata'] as Record<string, unknown> | undefined),
+          reconciliation: 'shiprocket_persist',
+        },
+        executionLease
+      )
       return
     }
 
     if (order.status === 'confirmed') {
-      await transitionOrderStatus(order, 'processing', 'system', {
-        reconciliation: 'shiprocket_persist',
-      })
+      await transitionOrderStatus(
+        order,
+        'processing',
+        'system',
+        { reconciliation: 'shiprocket_persist' },
+        executionLease
+      )
     }
   },
 }
@@ -298,7 +319,23 @@ export async function runClaimedRetryJob(
 
   try {
     await assertOwned()
-    await handler(job.payload as Record<string, unknown>, job.reference_id)
+    await withExecutionLease(
+      'retry_job_effect',
+      job.id,
+      async (effectHeartbeat) => {
+        await handler(
+          job.payload as Record<string, unknown>,
+          job.reference_id,
+          effectHeartbeat.lease
+        )
+        await effectHeartbeat.assertOwned()
+      },
+      {
+        heartbeatMs,
+        leaseSeconds,
+        guard: { type: 'retry_job', id: job.id, token: job.lease_token },
+      }
+    )
     await assertOwned()
     await stop()
 

@@ -85,9 +85,12 @@ export function shiprocketStatusToOrderStatus(srStatus?: string): OrderStatus | 
 
   // --- RTO states ---
   if (s.includes('rto')) {
-    if (s.includes('delivered')) return 'returned'
+    if (words === 'rto delivered') return 'returned'
+    if (words === 'rto acknowledged') return 'rto'
     return 'rto'
   }
+
+  if (words === 'return delivered') return 'returned'
 
   // --- Delivery failures (must precede positive delivered matches) ---
   if (
@@ -102,10 +105,14 @@ export function shiprocketStatusToOrderStatus(srStatus?: string): OrderStatus | 
   }
 
   // --- Terminal states ---
-  if (words === 'delivered' || /\bdelivered\b/.test(words)) return 'delivered'
+  if (words === 'delivered' || words === 'shipment delivered') return 'delivered'
   if (s === 'cancelled' || s === 'cancelled before shipping') return 'cancelled'
   if (s === 'lost') return 'lost'
   if (s === 'damaged') return 'damaged'
+  if (words === 'destroyed' || words === 'disposed of') return 'damaged'
+
+  // Provider exception states are retained as raw status for manual review.
+  if (words === 'delayed' || words === 'misrouted' || words === 'lost/damaged') return null
 
   // --- Delivery states ---
   if (s === 'out for delivery' || s.includes('out for delivery')) return 'out_for_delivery'

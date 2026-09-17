@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
+const { once } = require('node:events')
 const test = require('node:test')
 
 Object.assign(process.env, {
@@ -27,8 +28,14 @@ const {
   recordPaymentReconciliation,
   verifyPayment,
 } = require('../server/dist/modules/payments/service.js')
-const { createCheckoutOrder } = require('../server/dist/modules/checkout/service.js')
+const {
+  cancelCheckout,
+  createCheckoutOrder,
+  expireAbandonedCheckouts,
+} = require('../server/dist/modules/checkout/service.js')
 const { runClaimedRetryJob } = require('../server/dist/services/retryWorker.js')
+const { createApp } = require('../server/dist/app.js')
+const diagnosticsService = require('../server/dist/modules/admin/diagnostics/service.js')
 
 function deferred() {
   let resolve
@@ -60,6 +67,28 @@ function paymentQuery(localPayment) {
     maybeSingle: async () => result,
   }
   return builder
+}
+
+let executionLeaseSequence = 0
+function executionLeaseRpc(name, args = {}) {
+  if (name === 'claim_operation_lease') {
+    executionLeaseSequence += 1
+    return {
+      data: [
+        {
+          scope: args.p_scope,
+          resource_id: args.p_resource_id,
+          owner_token: `00000000-0000-4000-8000-${String(executionLeaseSequence).padStart(12, '0')}`,
+          fencing_token: executionLeaseSequence,
+        },
+      ],
+      error: null,
+    }
+  }
+  if (name === 'renew_operation_lease' || name === 'release_operation_lease') {
+    return { data: true, error: null }
+  }
+  return null
 }
 
 test('a failed attempt racing a capture never releases reservations', async () => {
@@ -123,6 +152,8 @@ test('a failed attempt racing a capture never releases reservations', async () =
     return paymentQuery(localPayment)
   }
   adminSupabase.rpc = async (name, args) => {
+    const leaseResult = executionLeaseRpc(name, args)
+    if (leaseResult) return leaseResult
     if (name === 'claim_razorpay_webhook') {
       const event = events.get(args.p_webhook_id)
       if (!event || event.status === 'processing' || event.status === 'processed') {
@@ -160,7 +191,7 @@ test('a failed attempt racing a capture never releases reservations', async () =
       if (owned) event.status = 'failed'
       return { data: owned, error: null }
     }
-    if (name === 'finalize_captured_payment') {
+    if (name === 'finalize_captured_payment_fenced') {
       localPayment.status = 'captured'
       reservationStatus = 'committed'
       orderPaymentStatus = 'paid'
@@ -173,7 +204,7 @@ test('a failed attempt racing a capture never releases reservations', async () =
         error: null,
       }
     }
-    if (name === 'fail_checkout') {
+    if (name === 'fail_checkout_fenced') {
       failCheckoutCalls += 1
       reservationStatus = 'released'
       orderPaymentStatus = 'failed'
@@ -251,6 +282,8 @@ test('concurrent processors cannot execute the same stored webhook twice', async
     })
   }
   adminSupabase.rpc = async (name, args) => {
+    const leaseResult = executionLeaseRpc(name, args)
+    if (leaseResult) return leaseResult
     if (name === 'claim_razorpay_webhook') {
       if (status !== 'verified') return { data: [], error: null }
       status = 'processing'
@@ -263,7 +296,7 @@ test('concurrent processors cannot execute the same stored webhook twice', async
     if (name === 'renew_razorpay_webhook_lease') {
       return { data: status === 'processing' && args.p_processing_token === token, error: null }
     }
-    if (name === 'finalize_captured_payment') {
+    if (name === 'finalize_captured_payment_fenced') {
       finalizationCalls += 1
       finalizationStarted.resolve()
       await releaseFinalization.promise
@@ -306,6 +339,8 @@ test('reconciliation and webhook enqueue retry transient persistence failures', 
   let enqueueAttempts = 0
 
   adminSupabase.rpc = async (name) => {
+    const leaseResult = executionLeaseRpc(name)
+    if (leaseResult) return leaseResult
     if (name === 'record_payment_reconciliation') {
       reconciliationAttempts += 1
       if (reconciliationAttempts === 1) throw new Error('injected transport failure')
@@ -353,6 +388,8 @@ test('an inconsistent provider order preserves its early ID when reconciliation 
   let releaseCalls = 0
 
   adminSupabase.rpc = async (name, args) => {
+    const leaseResult = executionLeaseRpc(name, args)
+    if (leaseResult) return leaseResult
     if (name === 'expire_abandoned_checkouts') return { data: 0, error: null }
     if (name === 'initialize_checkout') {
       return {
@@ -371,7 +408,10 @@ test('an inconsistent provider order preserves its early ID when reconciliation 
       reconciliationInputs.push(args)
       return { data: null, error: { message: 'injected reconciliation outage' } }
     }
-    if (name === 'fail_checkout') {
+    if (name === 'persist_operational_alert') {
+      return { data: { id: 'alert-orphan' }, error: null }
+    }
+    if (name === 'fail_checkout_fenced') {
       releaseCalls += 1
       return { data: true, error: null }
     }
@@ -431,12 +471,17 @@ test('captured finalization cannot report normal reconciliation when case persis
     throw new Error(`Unexpected relation: ${relation}`)
   }
   adminSupabase.rpc = async (name) => {
-    if (name === 'finalize_captured_payment') {
+    const leaseResult = executionLeaseRpc(name)
+    if (leaseResult) return leaseResult
+    if (name === 'finalize_captured_payment_fenced') {
       return { data: null, error: { message: 'injected local persistence failure' } }
     }
     if (name === 'record_payment_reconciliation') {
       reconciliationAttempts += 1
       return { data: null, error: { message: 'injected reconciliation failure' } }
+    }
+    if (name === 'persist_operational_alert') {
+      return { data: { id: 'alert-finalization' }, error: null }
     }
     throw new Error(`Unexpected RPC: ${name}`)
   }
@@ -505,6 +550,8 @@ test('captured provider-state mismatch creates reconciliation before returning',
     throw new Error(`Unexpected relation: ${relation}`)
   }
   adminSupabase.rpc = async (name, args) => {
+    const leaseResult = executionLeaseRpc(name, args)
+    if (leaseResult) return leaseResult
     if (name === 'record_payment_reconciliation') {
       reconciliationInput = args
       return { data: { id: 'case-captured-mismatch' }, error: null }
@@ -560,6 +607,8 @@ test('retry worker renews its lease while a slow handler is still running', asyn
   let failures = 0
 
   adminSupabase.rpc = async (name) => {
+    const leaseResult = executionLeaseRpc(name)
+    if (leaseResult) return leaseResult
     if (name === 'renew_retry_job_lease') {
       renewals += 1
       return { data: true, error: null }
@@ -601,5 +650,366 @@ test('retry worker renews its lease while a slow handler is still running', asyn
     assert.equal(failures, 0)
   } finally {
     adminSupabase.rpc = originalRpc
+  }
+})
+
+test('expired payable checkout retains reservations and a later capture commits them', async () => {
+  const originalRpc = adminSupabase.rpc
+  const originalFrom = adminSupabase.from
+  const originalOrderFetch = razorpay.orders.fetch
+  let reservationStatus = 'reserved'
+  let orderPaymentStatus = 'pending'
+  let checkoutExpiry = '2026-09-17T00:00:00.000Z'
+  const localPayment = {
+    id: 'payment-expiry-race',
+    order_id: 'order-expiry-race',
+    razorpay_order_id: 'order_provider_expiry_race',
+    amount_paisa: 18900,
+    currency: 'INR',
+    status: 'created',
+  }
+  const webhookPayload = paymentPayload('payment.captured', {
+    id: 'pay_expiry_race',
+    order_id: localPayment.razorpay_order_id,
+    amount: localPayment.amount_paisa,
+    currency: localPayment.currency,
+    status: 'captured',
+    captured: true,
+    method: 'upi',
+  })
+  let webhookStatus = 'verified'
+  let webhookToken = null
+
+  adminSupabase.from = (relation) => {
+    if (relation === 'orders') {
+      const result = {
+        data: [
+          {
+            id: localPayment.order_id,
+            payments: [
+              {
+                razorpay_order_id: localPayment.razorpay_order_id,
+                amount_paisa: localPayment.amount_paisa,
+                currency: localPayment.currency,
+              },
+            ],
+          },
+        ],
+        error: null,
+      }
+      const builder = {
+        select: () => builder,
+        eq: () => builder,
+        lt: () => builder,
+        limit: async () => result,
+      }
+      return builder
+    }
+    if (relation === 'payments') return paymentQuery(localPayment)
+    throw new Error(`Unexpected relation: ${relation}`)
+  }
+
+  adminSupabase.rpc = async (name, args) => {
+    const leaseResult = executionLeaseRpc(name, args)
+    if (leaseResult) return leaseResult
+    if (name === 'expire_abandoned_checkouts') return { data: 0, error: null }
+    if (name === 'retain_payable_checkout_fenced') {
+      assert.equal(args.p_provider_status, 'attempted')
+      assert.equal(args.p_provider_amount_paid, 0)
+      assert.equal(reservationStatus, 'reserved')
+      checkoutExpiry = '2026-09-17T00:15:00.000Z'
+      return { data: true, error: null }
+    }
+    if (name === 'claim_razorpay_webhook') {
+      if (webhookStatus !== 'verified') return { data: [], error: null }
+      webhookStatus = 'processing'
+      webhookToken = 'webhook-expiry-race-token'
+      return {
+        data: [
+          {
+            id: 'webhook-expiry-race',
+            raw_payload: webhookPayload,
+            processing_token: webhookToken,
+          },
+        ],
+        error: null,
+      }
+    }
+    if (name === 'renew_razorpay_webhook_lease') {
+      return {
+        data: webhookStatus === 'processing' && args.p_processing_token === webhookToken,
+        error: null,
+      }
+    }
+    if (name === 'finalize_captured_payment_fenced') {
+      assert.equal(reservationStatus, 'reserved')
+      reservationStatus = 'committed'
+      orderPaymentStatus = 'paid'
+      localPayment.status = 'captured'
+      return {
+        data: {
+          already_captured: false,
+          order: { id: localPayment.order_id, user_id: 'user-expiry-race' },
+        },
+        error: null,
+      }
+    }
+    if (name === 'complete_razorpay_webhook') {
+      webhookStatus = 'processed'
+      return { data: true, error: null }
+    }
+    if (name === 'fail_razorpay_webhook') return { data: false, error: null }
+    throw new Error(`Unexpected RPC: ${name}`)
+  }
+  razorpay.orders.fetch = async () => ({
+    id: localPayment.razorpay_order_id,
+    amount: localPayment.amount_paisa,
+    amount_paid: 0,
+    currency: localPayment.currency,
+    status: 'attempted',
+  })
+
+  try {
+    assert.deepEqual(await expireAbandonedCheckouts(10), { released: 0, retained: 1 })
+    assert.equal(reservationStatus, 'reserved')
+    assert.equal(checkoutExpiry, '2026-09-17T00:15:00.000Z')
+
+    await processStoredRazorpayWebhook('webhook-expiry-race')
+    assert.equal(reservationStatus, 'committed')
+    assert.equal(orderPaymentStatus, 'paid')
+    assert.equal(webhookStatus, 'processed')
+  } finally {
+    adminSupabase.rpc = originalRpc
+    adminSupabase.from = originalFrom
+    razorpay.orders.fetch = originalOrderFetch
+  }
+})
+
+test('retry effect write is rejected when its parent job lease is lost mid-handler', async () => {
+  const originalRpc = adminSupabase.rpc
+  const handlerStarted = deferred()
+  const renewalFailed = deferred()
+  const attemptMutation = deferred()
+  const ownerA = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+  let currentJobToken = 'retry-lease-owner-a'
+  let retryRenewals = 0
+  let mutationCommitted = false
+
+  adminSupabase.rpc = async (name, args) => {
+    if (name === 'renew_retry_job_lease') {
+      retryRenewals += 1
+      if (retryRenewals >= 2) {
+        currentJobToken = 'retry-lease-owner-b'
+        renewalFailed.resolve()
+        return { data: false, error: null }
+      }
+      return { data: true, error: null }
+    }
+    if (name === 'claim_operation_lease') {
+      assert.equal(args.p_guard_type, 'retry_job')
+      assert.equal(args.p_guard_id, 'job-reclaimed-mid-handler')
+      assert.equal(args.p_guard_token, 'retry-lease-owner-a')
+      return {
+        data: [
+          {
+            scope: args.p_scope,
+            resource_id: args.p_resource_id,
+            owner_token: ownerA,
+            fencing_token: 1,
+          },
+        ],
+        error: null,
+      }
+    }
+    if (name === 'renew_operation_lease') {
+      return { data: true, error: null }
+    }
+    if (name === 'persist_operational_alert_fenced') {
+      if (currentJobToken !== 'retry-lease-owner-a') {
+        return {
+          data: null,
+          error: { code: '55P03', message: 'Execution lease is no longer owned' },
+        }
+      }
+      mutationCommitted = true
+      return { data: { id: 'should-not-exist' }, error: null }
+    }
+    if (name === 'release_operation_lease') return { data: false, error: null }
+    if (name === 'fail_retry_job') return { data: {}, error: null }
+    if (name === 'complete_retry_job') return { data: true, error: null }
+    throw new Error(`Unexpected RPC: ${name}`)
+  }
+
+  try {
+    const running = runClaimedRetryJob(
+      {
+        id: 'job-reclaimed-mid-handler',
+        job_type: 'shiprocket_persist',
+        reference_id: 'order-reclaimed-mid-handler',
+        payload: {},
+        lease_token: 'retry-lease-owner-a',
+      },
+      async (_payload, _referenceId, executionLease) => {
+        handlerStarted.resolve()
+        await attemptMutation.promise
+        const result = await adminSupabase.rpc('persist_operational_alert_fenced', {
+          p_execution_scope: executionLease.scope,
+          p_execution_resource_id: executionLease.resourceId,
+          p_execution_owner_token: executionLease.ownerToken,
+          p_execution_fencing_token: executionLease.fencingToken,
+        })
+        if (result.error) throw new Error(result.error.message)
+      },
+      { heartbeatMs: 5, leaseSeconds: 30 }
+    )
+
+    await handlerStarted.promise
+    await new Promise((resolve) => setTimeout(resolve, 18))
+    await renewalFailed.promise
+    attemptMutation.resolve()
+
+    assert.equal(await running, false)
+    assert.equal(mutationCommitted, false)
+    assert.equal(currentJobToken, 'retry-lease-owner-b')
+  } finally {
+    adminSupabase.rpc = originalRpc
+  }
+})
+
+test('webhook enqueue exhaustion returns 503 and remains visible to admin diagnostics', async () => {
+  const originalRpc = adminSupabase.rpc
+  const originalFrom = adminSupabase.from
+  const eventId = '55555555-5555-4555-8555-555555555555'
+  const providerEventId = 'evt_enqueue_exhaustion'
+  let storedEvent = null
+  let enqueueAttempts = 0
+  let persistedAlert = null
+
+  adminSupabase.from = (relation) => {
+    assert.equal(relation, 'webhook_events')
+    return {
+      insert: (values) => {
+        storedEvent = {
+          id: eventId,
+          ...values,
+          retry_count: 0,
+          error_message: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+        return {
+          select: () => ({ single: async () => ({ data: { id: eventId }, error: null }) }),
+        }
+      },
+      select: () => {
+        const builder = {
+          order: () => builder,
+          eq: () => builder,
+          range: () => builder,
+          then: (resolve) =>
+            resolve({
+              data: storedEvent ? [storedEvent] : [],
+              error: null,
+              count: storedEvent ? 1 : 0,
+            }),
+        }
+        return builder
+      },
+    }
+  }
+
+  adminSupabase.rpc = async (name, args) => {
+    if (name === 'get_runtime_schema_status') {
+      return {
+        data: {
+          contract_version: 43,
+          migration_version: '043',
+          ready: true,
+          missing_relations: [],
+          missing_columns: [],
+          missing_functions: [],
+          invalid_relation_grants: [],
+          invalid_function_grants: [],
+          missing_constraints: [],
+          invalid_rls_relations: [],
+          missing_indexes: [],
+          invalid_storage_capabilities: [],
+        },
+        error: null,
+      }
+    }
+    if (name === 'claim_razorpay_webhook') {
+      storedEvent.processing_status = 'processing'
+      return {
+        data: [
+          {
+            id: eventId,
+            raw_payload: storedEvent.raw_payload,
+            processing_token: 'enqueue-exhaustion-token',
+          },
+        ],
+        error: null,
+      }
+    }
+    if (name === 'renew_razorpay_webhook_lease') return { data: true, error: null }
+    if (name === 'fail_razorpay_webhook') {
+      storedEvent.processing_status = 'failed'
+      storedEvent.retry_count += 1
+      storedEvent.error_message = args.p_error
+      storedEvent.updated_at = new Date().toISOString()
+      return { data: true, error: null }
+    }
+    if (name === 'enqueue_retry_job') {
+      enqueueAttempts += 1
+      return { data: null, error: { message: 'injected queue outage' } }
+    }
+    if (name === 'persist_operational_alert') {
+      persistedAlert = args
+      return { data: { id: 'alert-enqueue-exhaustion' }, error: null }
+    }
+    throw new Error(`Unexpected RPC: ${name}`)
+  }
+
+  const rawBody = Buffer.from(JSON.stringify({ event: 'payment.captured', payload: {} }))
+  const signature = crypto
+    .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET)
+    .update(rawBody)
+    .digest('hex')
+  const server = createApp().listen(0)
+  await once(server, 'listening')
+  const address = server.address()
+  const baseUrl = `http://127.0.0.1:${address.port}`
+
+  try {
+    const response = await fetch(`${baseUrl}/api/webhooks/razorpay`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-razorpay-signature': signature,
+        'x-razorpay-event-id': providerEventId,
+      },
+      body: rawBody,
+    })
+    assert.equal(response.status, 503)
+    const body = await response.json()
+    assert.equal(body.error.code, 'WEBHOOK_RETRY_UNAVAILABLE')
+    assert.equal(enqueueAttempts, 3)
+    assert.equal(storedEvent.processing_status, 'failed')
+    assert.equal(persistedAlert.p_webhook_event_id, eventId)
+
+    const visible = await diagnosticsService.getWebhookLogs({
+      page: 1,
+      limit: 20,
+      source: 'razorpay',
+      status: 'failed',
+    })
+    assert.equal(visible.total, 1)
+    assert.equal(visible.logs[0].id, eventId)
+    assert.equal(visible.logs[0].processing_status, 'failed')
+  } finally {
+    server.close()
+    await once(server, 'close')
+    adminSupabase.rpc = originalRpc
+    adminSupabase.from = originalFrom
   }
 })

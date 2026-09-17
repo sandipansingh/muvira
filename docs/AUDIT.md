@@ -15,7 +15,8 @@
 
   - Resolved connection checks:
       - API-profile restoration is required before authenticated UI state is established; failures expose retry/sign-out recovery and stale profile responses cannot
-        overwrite a newer session or sign-out.
+        overwrite a newer session or sign-out. Logout and profile-update continuations use the same generation/mount guard, so a pending mutation cannot overwrite a
+        newer auth event.
       - Sign-up distinguishes a live authenticated session from the email-confirmation flow.
       - returnTo is normalized to same-origin application paths and rejects schemes, hosts, protocol-relative paths, backslashes, and malformed encodings.
 
@@ -159,7 +160,7 @@
 
   ## Feature: Razorpay payment and webhook
 
-  - Status: ✅ Recovery paths verified locally; live Razorpay staging remains unverified
+  - Status: ✅ Fenced local recovery paths verified; live Razorpay staging remains unverified
   - Frontend: Uses the real Razorpay Checkout SDK and sends only provider IDs/signature to the API; it does not collect card, CVV, UPI, or bank credentials. See client/
     index.html:28-29 and client/src/components/checkout/RazorpayPayment.tsx:82-145.
 
@@ -168,24 +169,28 @@
 
   - Resolved recovery behavior:
       - Captured finalization failures and captured-state mismatches create an idempotent reconciliation case. Exhausted case-write retries emit a distinct structured
-        fatal alert with the local/provider identifiers and return a persistence-specific error.
-      - Provider order IDs are captured before response validation; attach/validation failures create an orphan reconciliation case before reservation release, and an
-        exhausted case-write failure retains reservations while emitting the full provider metadata for manual recovery.
-      - Failed webhook processing is stored, retry enqueue is retried with backoff, and enqueue exhaustion remains visible as a failed event plus a fatal alert/503.
-      - Razorpay webhook events use atomic token leases with stale-lease recovery and heartbeats, preventing redelivery and worker retry from processing one event
-        concurrently.
+        fatal log, persist a queryable operational alert with the local/provider identifiers, and return a persistence-specific error.
+      - Provider order IDs are captured before response validation; attach/validation failures create an orphan reconciliation case and retain reservations because the
+        provider order remains payable. Exhausted case-write failure also persists an operational alert for manual recovery.
+      - Failed webhook processing is stored, retry enqueue is retried with backoff, and enqueue exhaustion returns 503 while remaining visible as both a failed event and
+        a durable operational alert. The admin Failures page now loads failed webhook rows through the diagnostics API.
+      - Razorpay webhook events use token leases for delivery deduplication. A monotonic checkout-payment fence is additionally checked while holding the lease row in the
+        same database transaction as captured finalization or reservation release, so a superseded worker cannot commit either mutation.
       - payment.failed re-fetches provider state and never releases reservations for Razorpay's retryable created/attempted states or captured/in-progress funds. The
-        existing client cancellation endpoint remains the immediate-release path; otherwise database checkout expiry releases the reservation.
+        client-dismissal and expiry paths use the same checkout-payment fence. Attached created/attempted orders are retained and flagged because Razorpay still permits
+        payment; only an authoritative terminal unpaid provider state can release them. Unattached expired checkouts remain releasable.
       - Failure UI offers another checkout only after the server reports released reservations.
 
   - Evidence:
       - Reconciliation retry/escalation: server/src/modules/payments/service.ts:49-101,144-184,230-264.
       - Early orphan capture: server/src/modules/checkout/service.ts:218-310.
-      - Webhook leases/retry/failure guards: server/src/modules/payments/service.ts:289-649 and supabase/migrations/042_payment_recovery_rework.sql.
+      - Webhook leases/retry/failure guards: server/src/modules/payments/service.ts and supabase/migrations/042_payment_recovery_rework.sql.
+      - Cross-path fencing, provider-aware expiry, and durable alerts: supabase/migrations/043_fenced_execution_and_operational_alerts.sql and server/src/modules/checkout/service.ts.
       - Behavioral failure/race coverage: tests/payment-recovery-behavior.test.cjs.
 
-  - Verification: Local migration replay, pgTAP lease/security tests, full API integration tests, and injected captured-payment/webhook race tests pass. External Razorpay
-    credential behavior remains a staging smoke-test concern.
+  - Verification: Local migration replay, pgTAP lease/security tests, an actual two-client stale-owner database rejection, and injected expiry/capture plus webhook-enqueue
+    failure tests pass. External Razorpay credential behavior remains a staging smoke-test concern; database fencing cannot revoke an external provider request already
+    accepted by Razorpay, so provider idempotency and reconciliation remain required.
 
   ## Feature: Orders, order history, and cancellation/refunds
 
@@ -326,14 +331,17 @@
 
   ### Admin failure/retry reliability
 
-  - Status: ⚠️ Backend concurrency fixed; frontend pagination remains incomplete
+  - Status: ⚠️ Database mutations are fenced; external-provider idempotency and frontend pagination remain incomplete
   - Backend: Retry jobs are atomically claimed with SKIP LOCKED leases, stale leases are reclaimable, active work renews its lease, and workers claim one job at a time so
-    queued jobs do not expire before execution. Manual requeue resets retry/error/lease/schedule metadata.
+    queued jobs do not expire before execution. Retry handlers also hold a monotonic effect lease, and protected local writes validate and lock both that lease and its
+    originating retry-job claim in the mutation transaction. Manual requeue resets retry/error/lease/schedule metadata. External Shiprocket calls cannot be rolled back by
+    a database fence and still require provider idempotency/reconciliation.
 
   - Frontend issue: Failures UI always requests page 1 and applies some status filtering afterward in the browser.
   - Evidence:
       - Runtime worker and heartbeat: server/src/services/retryWorker.ts:210-335.
-      - Atomic claims, renewal, stale recovery, and token-gated settlement: supabase/migrations/039_payment_recovery.sql and 042_payment_recovery_rework.sql.
+      - Atomic claims, renewal, stale recovery, and fenced local mutations: supabase/migrations/039_payment_recovery.sql,
+        042_payment_recovery_rework.sql, and 043_fenced_execution_and_operational_alerts.sql.
 
   ## Feature: Supabase Storage and product/category images
 
@@ -463,7 +471,7 @@
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
    Coupons                               Apply/create/edit/toggle     Validation + DB percentage invariant   Partial: edit surface                    P2
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
-   Razorpay payment                      Real hosted flow             Leased webhook + reconciliation         Verified locally; staging pending       P1
+   Razorpay payment                      Real hosted flow             Fenced settlement + reconciliation      Local failure races pass; staging pending P1
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
    Orders/refunds                        History/detail work          Owned queries work                     Refund/cancel semantics broken          P0
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
@@ -477,13 +485,13 @@
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
    Admin panel                           Six real pages               Much broader admin API                 Many operations disconnected            P1
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
-   Retry queue                           First-page failures UI       Atomic leased claims + heartbeat        Backend safe; UI pagination remains     P2
+   Retry queue                           First-page failures UI       Leased claims + fenced local writes      Provider idempotency/UI pagination remain P2
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
    Supabase Storage                      Upload connected             Policies connected                     Delete leaks objects                    P2
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
    Wishlist                              Absent                       Absent                                 Not implemented                         P3/product decision
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
-   Schema/RLS                            N/A                          Runtime contract 42 verified locally    Deployment state unverified             P1
+   Schema/RLS                            N/A                          Runtime contract 43 verified locally    Deployment state unverified             P1
   ────────────────────────────────────  ───────────────────────────  ─────────────────────────────────────  ──────────────────────────────────────  ─────────────────────
    Environment                           Client mostly complete       Server mostly complete                 Shiprocket webhook vars absent          P0
 

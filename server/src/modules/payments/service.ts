@@ -6,6 +6,11 @@ import { logger } from '../../lib/logger'
 import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { deleteCacheByPattern } from '../../config/cache'
 import { invalidateOn } from '../../services/cacheInvalidation'
+import {
+  executionLeaseRpcArgs,
+  withExecutionLease,
+  type ExecutionLease,
+} from '../../services/executionLease'
 import { AppError } from '../../types'
 import type { Order } from '../../types'
 import {
@@ -44,6 +49,32 @@ const WEBHOOK_ENQUEUE_ATTEMPTS = 3
 
 function wait(delayMs: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, delayMs))
+}
+
+async function persistOperationalAlert(input: {
+  alertType: string
+  source: string
+  referenceId: string
+  message: string
+  details: Record<string, unknown>
+  orderId?: string
+  webhookEventId?: string
+}): Promise<boolean> {
+  try {
+    const { data, error } = await adminSupabase.rpc('persist_operational_alert', {
+      p_alert_type: input.alertType,
+      p_severity: 'critical',
+      p_source: input.source,
+      p_reference_id: input.referenceId,
+      p_message: input.message,
+      p_details: input.details,
+      p_order_id: input.orderId ?? null,
+      p_webhook_event_id: input.webhookEventId ?? null,
+    })
+    return !error && data !== null
+  } catch {
+    return false
+  }
 }
 
 export async function recordPaymentReconciliation(input: {
@@ -101,6 +132,21 @@ export async function recordPaymentReconciliation(input: {
       },
       'CRITICAL: captured or orphaned provider payment reference has no reconciliation row'
     )
+    await persistOperationalAlert({
+      alertType: 'payment_reconciliation_persistence_failed',
+      source: 'payments',
+      referenceId: input.razorpayOrderId,
+      orderId: input.orderId,
+      message: 'Captured or orphaned provider payment reference has no reconciliation row',
+      details: {
+        paymentId: input.paymentId ?? null,
+        razorpayOrderId: input.razorpayOrderId,
+        razorpayPaymentId: input.razorpayPaymentId ?? null,
+        providerAmount: input.providerAmount ?? null,
+        providerCurrency: input.providerCurrency ?? null,
+        reason: input.reason,
+      },
+    })
     return false
   }
 
@@ -153,16 +199,21 @@ async function finalizePayment(
   signature: string,
   amountPaisa: number,
   currency: string,
-  method: string
+  method: string,
+  executionLease?: ExecutionLease
 ): Promise<FinalizeResult> {
-  const { data, error } = await adminSupabase.rpc('finalize_captured_payment', {
-    p_razorpay_order_id: payment.razorpay_order_id,
-    p_razorpay_payment_id: providerPaymentId,
-    p_razorpay_signature: signature,
-    p_amount_paisa: amountPaisa,
-    p_currency: currency,
-    p_payment_method: method,
-  })
+  const { data, error } = await adminSupabase.rpc(
+    executionLease ? 'finalize_captured_payment_fenced' : 'finalize_captured_payment',
+    {
+      ...(executionLease ? executionLeaseRpcArgs(executionLease) : {}),
+      p_razorpay_order_id: payment.razorpay_order_id,
+      p_razorpay_payment_id: providerPaymentId,
+      p_razorpay_signature: signature,
+      p_amount_paisa: amountPaisa,
+      p_currency: currency,
+      p_payment_method: method,
+    }
+  )
 
   if (error || !data) {
     logger.error({ error, orderId: payment.order_id }, 'Atomic payment finalization failed')
@@ -271,13 +322,16 @@ export async function verifyPayment(
       throw new AppError(409, 'PAYMENT_STATE_MISMATCH', 'Payment is not confirmed by Razorpay')
     }
 
-    const result = await finalizePayment(
-      payment,
-      providerPayment.id,
-      input.razorpay_signature,
-      Number(providerPayment.amount),
-      providerPayment.currency,
-      providerPayment.method
+    const result = await withExecutionLease('checkout_payment', payment.order_id, (heartbeat) =>
+      finalizePayment(
+        payment,
+        providerPayment.id,
+        input.razorpay_signature,
+        Number(providerPayment.amount),
+        providerPayment.currency,
+        providerPayment.method,
+        heartbeat.lease
+      )
     )
 
     return { order: result.order, alreadyCaptured: result.already_captured }
@@ -478,6 +532,14 @@ export async function enqueueRazorpayWebhookRetry(webhookId: string): Promise<bo
       },
       'CRITICAL: failed Razorpay webhook is visible but could not be queued for retry'
     )
+    await persistOperationalAlert({
+      alertType: 'razorpay_webhook_retry_enqueue_failed',
+      source: 'razorpay_webhook',
+      referenceId: webhookId,
+      webhookEventId: webhookId,
+      message: 'Failed Razorpay webhook could not be queued for retry',
+      details: { attempts: attempt },
+    })
     return false
   }
 
@@ -486,7 +548,8 @@ export async function enqueueRazorpayWebhookRetry(webhookId: string): Promise<bo
 
 async function cancelFailedPaymentCheckout(
   providerPayment: RazorpayWebhookPayment,
-  assertLeaseOwned: () => Promise<void>
+  assertLeaseOwned: () => Promise<void>,
+  webhookGuard: { type: 'razorpay_webhook'; id: string; token: string }
 ): Promise<void> {
   const { data: localPayment, error } = await adminSupabase
     .from('payments')
@@ -558,10 +621,17 @@ async function cancelFailedPaymentCheckout(
 
   await assertLeaseOwned()
 
-  const { data: released, error: releaseError } = await adminSupabase.rpc('fail_checkout', {
-    p_order_id: localPayment.order_id,
-    p_reason: providerPayment.error_description ?? 'Payment failed',
-  })
+  const { data: released, error: releaseError } = await withExecutionLease(
+    'checkout_payment',
+    localPayment.order_id,
+    async ({ lease }) =>
+      await adminSupabase.rpc('fail_checkout_fenced', {
+        ...executionLeaseRpcArgs(lease),
+        p_order_id: localPayment.order_id,
+        p_reason: providerPayment.error_description ?? 'Payment failed',
+      }),
+    { guard: webhookGuard }
+  )
   if (releaseError || released !== true) {
     throw new AppError(409, 'CHECKOUT_NOT_CANCELLED', 'Checkout could not be cancelled safely')
   }
@@ -576,6 +646,11 @@ async function processVerifiedRazorpayWebhook(
   const event = typeof payload['event'] === 'string' ? payload['event'] : ''
   const providerPayment = parseRazorpayWebhookPayment(payload)
   const heartbeat = startWebhookLeaseHeartbeat(webhookId, processingToken)
+  const webhookGuard = {
+    type: 'razorpay_webhook' as const,
+    id: webhookId,
+    token: processingToken,
+  }
 
   try {
     if (event === 'payment.captured') {
@@ -596,13 +671,20 @@ async function processVerifiedRazorpayWebhook(
       if (error || !localPayment) throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
 
       await heartbeat.assertOwned()
-      await finalizePayment(
-        localPayment as LocalPayment,
-        providerPayment.id,
-        '',
-        Number(providerPayment.amount),
-        providerPayment.currency,
-        providerPayment.method
+      await withExecutionLease(
+        'checkout_payment',
+        localPayment.order_id as string,
+        ({ lease }) =>
+          finalizePayment(
+            localPayment as LocalPayment,
+            providerPayment.id,
+            '',
+            Number(providerPayment.amount),
+            providerPayment.currency,
+            providerPayment.method,
+            lease
+          ),
+        { guard: webhookGuard }
       )
       await heartbeat.assertOwned()
       await heartbeat.stop()
@@ -614,7 +696,7 @@ async function processVerifiedRazorpayWebhook(
       if (!providerPayment?.id || !providerPayment.order_id) {
         throw new AppError(400, 'WEBHOOK_MALFORMED', 'Malformed failed-payment webhook')
       }
-      await cancelFailedPaymentCheckout(providerPayment, heartbeat.assertOwned)
+      await cancelFailedPaymentCheckout(providerPayment, heartbeat.assertOwned, webhookGuard)
       await heartbeat.assertOwned()
       await heartbeat.stop()
       await completeRazorpayWebhook(webhookId, processingToken)

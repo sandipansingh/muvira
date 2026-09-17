@@ -124,13 +124,13 @@ FROM (VALUES ('webhook_events'), ('sync_jobs')) AS expected(table_name);
 
 SELECT is(
   (public.get_runtime_schema_status()->>'contract_version')::INTEGER,
-  42,
-  'runtime schema contract reports version 42'
+  43,
+  'runtime schema contract reports version 43'
 );
 
 SELECT is(
   (public.get_runtime_schema_status()->>'migration_version')::TEXT,
-  '042',
+  '043',
   'runtime schema contract reports the latest migration'
 );
 
@@ -208,6 +208,15 @@ UPDATE retry_jobs
 SET lease_token = '11111111-1111-4111-8111-111111111111',
     lease_expires_at = NOW() - INTERVAL '1 second'
 WHERE reference_id = 'webhook-dedup-test';
+
+SELECT is(
+  public.complete_retry_job(
+    (SELECT id FROM retry_jobs WHERE reference_id = 'webhook-dedup-test'),
+    '11111111-1111-4111-8111-111111111111'
+  ),
+  FALSE,
+  'an expired retry owner cannot complete before reclaim'
+);
 
 SELECT is(
   (SELECT COUNT(*)::INTEGER FROM public.claim_retry_jobs(10, 30)
@@ -316,6 +325,15 @@ SET processing_token = '55555555-5555-4555-8555-555555555555',
 WHERE id = '44444444-4444-4444-8444-444444444444';
 
 SELECT is(
+  public.complete_razorpay_webhook(
+    '44444444-4444-4444-8444-444444444444',
+    '55555555-5555-4555-8555-555555555555'
+  ),
+  FALSE,
+  'an expired webhook owner cannot complete before reclaim'
+);
+
+SELECT is(
   (SELECT COUNT(*)::INTEGER
    FROM public.claim_razorpay_webhook('44444444-4444-4444-8444-444444444444', 30)
    WHERE processing_token <> '55555555-5555-4555-8555-555555555555'),
@@ -340,6 +358,116 @@ SELECT is(
   ),
   TRUE,
   'the current Razorpay webhook owner can complete processing'
+);
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER
+   FROM public.claim_operation_lease('retry_job_effect', 'fence-race-test', 30)),
+  1,
+  'an execution lease can be claimed'
+);
+
+CREATE TEMP TABLE first_execution_lease AS
+SELECT owner_token, fencing_token
+FROM operation_leases
+WHERE scope = 'retry_job_effect' AND resource_id = 'fence-race-test';
+
+UPDATE operation_leases
+SET lease_expires_at = NOW() - INTERVAL '1 second'
+WHERE scope = 'retry_job_effect' AND resource_id = 'fence-race-test';
+
+SELECT throws_ok(
+  FORMAT(
+    $statement$
+      SELECT public.persist_operational_alert_fenced(
+        'retry_job_effect',
+        'fence-race-test',
+        %L::UUID,
+        %s::BIGINT,
+        'stale_worker_mutation',
+        'critical',
+        'database_test',
+        'stale-before-reclaim',
+        'This write must be fenced',
+        '{}'::JSONB,
+        NULL,
+        NULL
+      )
+    $statement$,
+    (SELECT owner_token FROM first_execution_lease),
+    (SELECT fencing_token FROM first_execution_lease)
+  ),
+  '55P03',
+  'Execution lease is no longer owned',
+  'an expired owner is fenced before another worker reclaims the lease'
+);
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER
+   FROM public.claim_operation_lease('retry_job_effect', 'fence-race-test', 30)),
+  1,
+  'an expired execution lease is reclaimed'
+);
+
+SELECT ok(
+  (SELECT fencing_token FROM operation_leases
+   WHERE scope = 'retry_job_effect' AND resource_id = 'fence-race-test')
+    > (SELECT fencing_token FROM first_execution_lease),
+  'reclaim advances the monotonic fencing token'
+);
+
+SELECT throws_ok(
+  FORMAT(
+    $statement$
+      SELECT public.persist_operational_alert_fenced(
+        'retry_job_effect',
+        'fence-race-test',
+        %L::UUID,
+        %s::BIGINT,
+        'stale_worker_mutation',
+        'critical',
+        'database_test',
+        'stale-after-reclaim',
+        'This write must be fenced',
+        '{}'::JSONB,
+        NULL,
+        NULL
+      )
+    $statement$,
+    (SELECT owner_token FROM first_execution_lease),
+    (SELECT fencing_token FROM first_execution_lease)
+  ),
+  '55P03',
+  'Execution lease is no longer owned',
+  'a reclaimed stale worker cannot commit its database mutation'
+);
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER FROM operational_alerts
+   WHERE alert_type = 'stale_worker_mutation'),
+  0,
+  'fenced stale mutations leave no durable side effect'
+);
+
+SELECT isnt(
+  public.persist_operational_alert_fenced(
+    'retry_job_effect',
+    'fence-race-test',
+    (SELECT owner_token FROM operation_leases
+     WHERE scope = 'retry_job_effect' AND resource_id = 'fence-race-test'),
+    (SELECT fencing_token FROM operation_leases
+     WHERE scope = 'retry_job_effect' AND resource_id = 'fence-race-test'),
+    'current_worker_mutation',
+    'critical',
+    'database_test',
+    'current-owner',
+    'The current worker may write',
+    '{}'::JSONB,
+    NULL,
+    NULL
+  ),
+  NULL,
+  'the current execution owner can commit its database mutation'
 );
 
 SELECT * FROM finish();

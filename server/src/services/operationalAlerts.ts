@@ -49,6 +49,10 @@ export async function checkOperationalAlerts(): Promise<Record<string, number>> 
       .select('id', { count: 'exact', head: true })
       .eq('job_type', 'shiprocket_persist')
       .in('status', ['pending', 'failed', 'dead']),
+    adminSupabase
+      .from('operational_alerts')
+      .select('id', { count: 'exact', head: true })
+      .neq('status', 'resolved'),
   ])
 
   const failedProbe = results.find((result) => result.error)
@@ -67,6 +71,7 @@ export async function checkOperationalAlerts(): Promise<Record<string, number>> 
     stuck_outbox_events: results[7].count ?? 0,
     stuck_notification_deliveries: results[8].count ?? 0,
     shiprocket_persistence_retries: results[9].count ?? 0,
+    operational_alerts: results[10].count ?? 0,
   }
 
   if (Object.values(counts).some((count) => count > 0)) {

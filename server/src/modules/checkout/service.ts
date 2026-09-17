@@ -8,6 +8,7 @@ import { validateCoupon } from '../coupons/service'
 import type { CheckoutQuoteInput, CreateCheckoutOrderInput, ShippingMethod } from './schema'
 import { env } from '../../config/env'
 import { recordPaymentReconciliation } from '../payments/service'
+import { executionLeaseRpcArgs, withExecutionLease } from '../../services/executionLease'
 
 interface CartProduct {
   id: string
@@ -185,11 +186,6 @@ async function releaseFailedCheckout(orderId: string, reason: string): Promise<b
 }
 
 export async function createCheckoutOrder(userId: string, input: CreateCheckoutOrderInput) {
-  const { error: expiryError } = await adminSupabase.rpc('expire_abandoned_checkouts', {
-    p_limit: 100,
-  })
-  if (expiryError) logger.error({ expiryError }, 'Failed to expire abandoned checkouts')
-
   const { data: initializedData, error: initializeError } = await adminSupabase.rpc(
     'initialize_checkout',
     {
@@ -295,18 +291,10 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
           'Payment setup is being reconciled. Do not start another payment.'
         )
       }
-      const released = await releaseFailedCheckout(orderId, 'Razorpay order attachment failed')
-      if (!released) {
-        throw new AppError(
-          503,
-          'PAYMENT_RECONCILIATION_REQUIRED',
-          'Payment setup and reservation state require reconciliation. Do not start another payment.'
-        )
-      }
       throw new AppError(
-        502,
-        'PAYMENT_PROVIDER_UNAVAILABLE',
-        'Payment setup failed before collection. Your reservation was released.'
+        503,
+        'PAYMENT_RECONCILIATION_REQUIRED',
+        'Payment setup requires reconciliation. Your reservation is retained; do not start another payment.'
       )
     }
 
@@ -319,17 +307,185 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
   }
 }
 
+interface ExpiredCheckoutPayment {
+  razorpay_order_id: string
+  amount_paisa: number
+  currency: string
+}
+
+interface ExpiredCheckout {
+  id: string
+  payments: ExpiredCheckoutPayment[] | ExpiredCheckoutPayment | null
+}
+
+function firstPayment(
+  payments: ExpiredCheckoutPayment[] | ExpiredCheckoutPayment | null | undefined
+): ExpiredCheckoutPayment | null {
+  if (Array.isArray(payments)) return payments[0] ?? null
+  return payments ?? null
+}
+
+async function persistCheckoutAlert(input: {
+  orderId: string
+  alertType: string
+  message: string
+  details: Record<string, unknown>
+}): Promise<void> {
+  const { error } = await adminSupabase.rpc('persist_operational_alert', {
+    p_alert_type: input.alertType,
+    p_severity: 'critical',
+    p_source: 'checkout_expiry',
+    p_reference_id: input.orderId,
+    p_message: input.message,
+    p_details: input.details,
+    p_order_id: input.orderId,
+    p_webhook_event_id: null,
+  })
+  if (error) logger.fatal({ error, orderId: input.orderId }, 'Checkout alert persistence failed')
+}
+
+async function retainCheckout(
+  orderId: string,
+  providerStatus: string,
+  providerAmountPaid: number,
+  reason: string,
+  lease: Parameters<typeof executionLeaseRpcArgs>[0]
+): Promise<void> {
+  const { data, error } = await adminSupabase.rpc('retain_payable_checkout_fenced', {
+    ...executionLeaseRpcArgs(lease),
+    p_order_id: orderId,
+    p_provider_status: providerStatus,
+    p_provider_amount_paid: providerAmountPaid,
+    p_reason: reason,
+  })
+  if (error || data !== true) {
+    throw new AppError(409, 'EXECUTION_FENCED_OUT', 'Checkout retention could not be committed')
+  }
+}
+
+export async function expireAbandonedCheckouts(limit = 100): Promise<{
+  released: number
+  retained: number
+}> {
+  const boundedLimit = Math.max(1, Math.min(limit, 1000))
+  const { data: releasedData, error: releaseError } = await adminSupabase.rpc(
+    'expire_abandoned_checkouts',
+    { p_limit: boundedLimit }
+  )
+  if (releaseError) {
+    throw databaseError('checkout.expire_unattached', releaseError, 'Checkout expiry failed')
+  }
+
+  const { data, error } = await adminSupabase
+    .from('orders')
+    .select('id, payments ( razorpay_order_id, amount_paisa, currency )')
+    .eq('status', 'pending')
+    .eq('payment_status', 'pending')
+    .lt('checkout_expires_at', new Date().toISOString())
+    .limit(boundedLimit)
+  if (error) throw databaseError('checkout.load_expired', error, 'Checkout expiry failed')
+
+  let retained = 0
+  let released = typeof releasedData === 'number' ? releasedData : 0
+  for (const checkout of (data ?? []) as unknown as ExpiredCheckout[]) {
+    const payment = firstPayment(checkout.payments)
+    if (!payment?.razorpay_order_id) continue
+
+    try {
+      await withExecutionLease('checkout_payment', checkout.id, async ({ lease }) => {
+        let providerOrder
+        try {
+          providerOrder = await razorpay.orders.fetch(payment.razorpay_order_id)
+        } catch (providerError) {
+          await retainCheckout(
+            checkout.id,
+            'provider_unavailable',
+            0,
+            'Expired checkout retained because Razorpay state could not be verified',
+            lease
+          )
+          await persistCheckoutAlert({
+            orderId: checkout.id,
+            alertType: 'checkout_expiry_provider_unavailable',
+            message: 'Expired checkout retained because Razorpay state could not be verified',
+            details: {
+              razorpayOrderId: payment.razorpay_order_id,
+              error: providerError instanceof Error ? providerError.message : String(providerError),
+            },
+          })
+          retained += 1
+          return
+        }
+
+        const amountPaid = Number(providerOrder.amount_paid)
+        const providerStatus = String(providerOrder.status).toLowerCase()
+        const identityMatches =
+          providerOrder.id === payment.razorpay_order_id &&
+          Number(providerOrder.amount) === payment.amount_paisa &&
+          providerOrder.currency === payment.currency
+
+        if (!identityMatches || !Number.isSafeInteger(amountPaid) || amountPaid < 0) {
+          await retainCheckout(
+            checkout.id,
+            providerStatus || 'invalid_provider_response',
+            Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
+            'Expired checkout retained because Razorpay state did not match the local contract',
+            lease
+          )
+          retained += 1
+          return
+        }
+
+        const terminalUnpaid =
+          amountPaid === 0 && ['cancelled', 'closed', 'expired', 'failed'].includes(providerStatus)
+        if (terminalUnpaid) {
+          const { data: didRelease, error: fencedError } = await adminSupabase.rpc(
+            'fail_checkout_fenced',
+            {
+              ...executionLeaseRpcArgs(lease),
+              p_order_id: checkout.id,
+              p_reason: `Checkout expired after provider became ${providerStatus}`,
+            }
+          )
+          if (fencedError || didRelease !== true) {
+            throw new AppError(409, 'EXECUTION_FENCED_OUT', 'Expired checkout was not released')
+          }
+          released += 1
+          return
+        }
+
+        await retainCheckout(
+          checkout.id,
+          providerStatus,
+          amountPaid,
+          'Expired checkout retained because the Razorpay order remains payable or paid',
+          lease
+        )
+        retained += 1
+      })
+    } catch (expiryError) {
+      if (expiryError instanceof AppError && expiryError.code === 'EXECUTION_ALREADY_CLAIMED') {
+        continue
+      }
+      logger.error({ expiryError, orderId: checkout.id }, 'Expired checkout inspection failed')
+    }
+  }
+
+  if (released > 0) deleteCacheByPattern('GET:/api/products')
+  return { released, retained }
+}
+
 export async function cancelCheckout(userId: string, orderId: string): Promise<void> {
   const { data: order } = await adminSupabase
     .from('orders')
-    .select('id, payment_status, payments ( razorpay_order_id )')
+    .select('id, payment_status, payments ( razorpay_order_id, amount_paisa, currency )')
     .eq('id', orderId)
     .eq('user_id', userId)
     .single()
 
   const relatedPayments = order?.payments as
-    | Array<{ razorpay_order_id: string }>
-    | { razorpay_order_id: string }
+    | ExpiredCheckoutPayment[]
+    | ExpiredCheckoutPayment
     | null
     | undefined
   const providerOrderId = Array.isArray(relatedPayments)
@@ -340,28 +496,69 @@ export async function cancelCheckout(userId: string, orderId: string): Promise<v
     throw new AppError(409, 'PAYMENT_ALREADY_CAPTURED', 'A paid checkout cannot be cancelled')
   }
 
-  let providerOrder
-  try {
-    providerOrder = await razorpay.orders.fetch(providerOrderId)
-  } catch (error) {
-    logger.error({ error, orderId }, 'Failed to verify Razorpay order before cancellation')
-    throw new AppError(502, 'PAYMENT_PROVIDER_UNAVAILABLE', 'Unable to confirm cancellation')
-  }
+  await withExecutionLease('checkout_payment', orderId, async ({ lease }) => {
+    let providerOrder
+    try {
+      providerOrder = await razorpay.orders.fetch(providerOrderId)
+    } catch (error) {
+      logger.error({ error, orderId }, 'Failed to verify Razorpay order before cancellation')
+      await retainCheckout(
+        orderId,
+        'provider_unavailable',
+        0,
+        'Customer cancellation retained because Razorpay state could not be verified',
+        lease
+      )
+      throw new AppError(502, 'PAYMENT_PROVIDER_UNAVAILABLE', 'Unable to confirm cancellation')
+    }
 
-  if (providerOrder.status !== 'created' || Number(providerOrder.amount_paid) !== 0) {
-    throw new AppError(
-      409,
-      'PAYMENT_IN_PROGRESS',
-      'Payment processing has started and cannot be cancelled yet'
-    )
-  }
+    const providerStatus = String(providerOrder.status).toLowerCase()
+    const amountPaid = Number(providerOrder.amount_paid)
+    const localPayment = firstPayment(relatedPayments)
+    const identityMatches =
+      localPayment !== null &&
+      providerOrder.id === localPayment.razorpay_order_id &&
+      Number(providerOrder.amount) === localPayment.amount_paisa &&
+      providerOrder.currency === localPayment.currency
+    if (!identityMatches || !Number.isSafeInteger(amountPaid) || amountPaid < 0) {
+      await retainCheckout(
+        orderId,
+        providerStatus || 'invalid_provider_response',
+        Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
+        'Customer cancellation retained because Razorpay state did not match the local contract',
+        lease
+      )
+      throw new AppError(
+        409,
+        'PAYMENT_STATE_MISMATCH',
+        'Payment state requires review. Your reservation remains held.'
+      )
+    }
+    const terminalUnpaid =
+      amountPaid === 0 && ['cancelled', 'closed', 'expired', 'failed'].includes(providerStatus)
+    if (!terminalUnpaid) {
+      await retainCheckout(
+        orderId,
+        providerStatus,
+        Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
+        'Customer cancellation retained because the Razorpay order remains payable or paid',
+        lease
+      )
+      throw new AppError(
+        409,
+        'PAYMENT_IN_PROGRESS',
+        'Payment may still complete. Your reservation remains held while status is confirmed.'
+      )
+    }
 
-  const { data: released, error } = await adminSupabase.rpc('fail_checkout', {
-    p_order_id: orderId,
-    p_reason: 'Customer dismissed Razorpay Checkout',
+    const { data: released, error } = await adminSupabase.rpc('fail_checkout_fenced', {
+      ...executionLeaseRpcArgs(lease),
+      p_order_id: orderId,
+      p_reason: 'Customer dismissed Razorpay Checkout after provider closure',
+    })
+    if (error || released !== true) {
+      throw new AppError(409, 'CHECKOUT_NOT_CANCELLED', 'Checkout could not be cancelled')
+    }
+    deleteCacheByPattern('GET:/api/products')
   })
-  if (error || released !== true) {
-    throw new AppError(409, 'CHECKOUT_NOT_CANCELLED', 'Checkout could not be cancelled')
-  }
-  deleteCacheByPattern('GET:/api/products')
 }

@@ -20,6 +20,8 @@ const applicationRelations = [
   'notification_deliveries',
   'notification_logs',
   'notification_preferences',
+  'operation_leases',
+  'operational_alerts',
   'order_items',
   'order_status_history',
   'orders',
@@ -49,6 +51,7 @@ const privilegedRpcNames = [
   'claim_razorpay_webhook',
   'claim_notification_deliveries',
   'claim_notification_outbox',
+  'claim_operation_lease',
   'complete_notification_delivery',
   'complete_notification_outbox',
   'complete_razorpay_webhook',
@@ -56,11 +59,13 @@ const privilegedRpcNames = [
   'delete_product_image_atomic',
   'enqueue_retry_job',
   'expire_abandoned_checkouts',
+  'fail_checkout_fenced',
   'fail_checkout',
   'fail_notification_delivery',
   'fail_notification_outbox',
   'fail_razorpay_webhook',
   'finalize_captured_payment',
+  'finalize_captured_payment_fenced',
   'generate_order_number',
   'get_product_review_summaries',
   'get_runtime_schema_status',
@@ -68,7 +73,9 @@ const privilegedRpcNames = [
   'initialize_checkout',
   'reorder_product_images_atomic',
   'renew_razorpay_webhook_lease',
+  'renew_operation_lease',
   'renew_retry_job_lease',
+  'release_operation_lease',
   'set_cart_item_quantity_checked',
   'set_default_address',
   'skip_notification_delivery',
@@ -210,8 +217,8 @@ test(
           'get_runtime_schema_status'
         )
         assert.ifError(schemaStatusError)
-        assert.equal(schemaStatus.contract_version, 42)
-        assert.equal(schemaStatus.migration_version, '042')
+        assert.equal(schemaStatus.contract_version, 43)
+        assert.equal(schemaStatus.migration_version, '043')
         assert.equal(schemaStatus.ready, true)
         for (const [key, value] of Object.entries(schemaStatus)) {
           if (key.startsWith('missing_') || key.startsWith('invalid_')) {

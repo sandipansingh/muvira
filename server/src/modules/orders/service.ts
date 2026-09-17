@@ -3,6 +3,7 @@ import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { AdminOrderSummary, Order } from '../../types'
 import { invalidateOn } from '../../services/cacheInvalidation'
+import { executionLeaseRpcArgs, type ExecutionLease } from '../../services/executionLease'
 import {
   trackBulk,
   createOrder as shiprocketCreateOrder,
@@ -296,18 +297,23 @@ export async function transitionOrderStatus(
   order: { id: string; status: string; user_id: string; order_number?: string },
   newStatus: string,
   source: 'webhook' | 'polling_sync' | 'admin_manual' | 'system',
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
+  executionLease?: ExecutionLease
 ): Promise<Order> {
   if (order.status === newStatus) return order as unknown as Order
 
-  const { data, error } = await adminSupabase.rpc('transition_order_status', {
-    p_order_id: order.id,
-    p_expected_status: order.status,
-    p_new_status: newStatus,
-    p_source: source,
-    p_actor_id: null,
-    p_metadata: metadata ?? null,
-  })
+  const { data, error } = await adminSupabase.rpc(
+    executionLease ? 'transition_order_status_fenced' : 'transition_order_status',
+    {
+      ...(executionLease ? executionLeaseRpcArgs(executionLease) : {}),
+      p_order_id: order.id,
+      p_expected_status: order.status,
+      p_new_status: newStatus,
+      p_source: source,
+      p_actor_id: null,
+      p_metadata: metadata ?? null,
+    }
+  )
 
   if (error || !data) {
     throw new AppError(
@@ -994,15 +1000,22 @@ async function loadStoredInvoice(orderId: string): Promise<Buffer | null> {
   return validatePdfBuffer(Buffer.from(await data.arrayBuffer()))
 }
 
-async function generateInvoice(order: Order): Promise<{ orderNumber: string; pdf: Buffer }> {
+async function generateInvoice(
+  order: Order,
+  executionLease?: ExecutionLease
+): Promise<{ orderNumber: string; pdf: Buffer }> {
   const storedInvoice = await loadStoredInvoice(order.id)
   if (storedInvoice) return { orderNumber: order.order_number, pdf: storedInvoice }
 
   const providerReference = order.shiprocket_order_id as string
-  const { error: beginError } = await adminSupabase.rpc('begin_invoice_generation', {
-    p_order_id: order.id,
-    p_provider_reference: providerReference,
-  })
+  const { error: beginError } = await adminSupabase.rpc(
+    executionLease ? 'begin_invoice_generation_fenced' : 'begin_invoice_generation',
+    {
+      ...(executionLease ? executionLeaseRpcArgs(executionLease) : {}),
+      p_order_id: order.id,
+      p_provider_reference: providerReference,
+    }
+  )
   if (beginError)
     throw databaseError(
       'orders.begin_invoice_generation',
@@ -1024,15 +1037,23 @@ async function generateInvoice(order: Order): Promise<{ orderNumber: string; pdf
       .upload(objectPath, pdf, { contentType: 'application/pdf', upsert: true })
     if (uploadError) throw new Error(`Invoice storage failed: ${uploadError.message}`)
 
-    const { error: persistError } = await adminSupabase
-      .from('invoice_records')
-      .update({
-        status: 'ready',
-        object_path: objectPath,
-        generated_at: new Date().toISOString(),
-        last_error: null,
-      })
-      .eq('order_id', order.id)
+    const { error: persistError } = executionLease
+      ? await adminSupabase.rpc('finish_invoice_generation_fenced', {
+          ...executionLeaseRpcArgs(executionLease),
+          p_order_id: order.id,
+          p_status: 'ready',
+          p_object_path: objectPath,
+          p_error: null,
+        })
+      : await adminSupabase
+          .from('invoice_records')
+          .update({
+            status: 'ready',
+            object_path: objectPath,
+            generated_at: new Date().toISOString(),
+            last_error: null,
+          })
+          .eq('order_id', order.id)
     if (persistError) {
       const { error: cleanupError } = await adminSupabase.storage
         .from(INVOICE_BUCKET)
@@ -1047,10 +1068,18 @@ async function generateInvoice(order: Order): Promise<{ orderNumber: string; pdf
     return { orderNumber: order.order_number, pdf }
   } catch (reason) {
     const message = reason instanceof Error ? reason.message : String(reason)
-    const { error } = await adminSupabase
-      .from('invoice_records')
-      .update({ status: 'failed', last_error: message.slice(0, 2000) })
-      .eq('order_id', order.id)
+    const { error } = executionLease
+      ? await adminSupabase.rpc('finish_invoice_generation_fenced', {
+          ...executionLeaseRpcArgs(executionLease),
+          p_order_id: order.id,
+          p_status: 'failed',
+          p_object_path: null,
+          p_error: message.slice(0, 2000),
+        })
+      : await adminSupabase
+          .from('invoice_records')
+          .update({ status: 'failed', last_error: message.slice(0, 2000) })
+          .eq('order_id', order.id)
     if (error) logger.error({ error, orderId: order.id }, 'Invoice failure state was not persisted')
     throw reason
   }
@@ -1064,9 +1093,10 @@ export async function getCustomerInvoice(
 }
 
 export async function adminGenerateInvoice(
-  orderId: string
+  orderId: string,
+  executionLease?: ExecutionLease
 ): Promise<{ orderNumber: string; pdf: Buffer }> {
-  return generateInvoice(await loadInvoiceOrder(orderId))
+  return generateInvoice(await loadInvoiceOrder(orderId), executionLease)
 }
 
 export async function adminCancelShiprocketOrder(orderId: string): Promise<{ status: string }> {

@@ -345,7 +345,7 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
 }
 
 export async function getCommerceFailures(): Promise<Record<string, unknown>> {
-  const [outbox, invoices, reconciliation] = await Promise.all([
+  const [outbox, invoices, reconciliation, alerts] = await Promise.all([
     adminSupabase
       .from('outbox_events')
       .select('id, aggregate_id, event_type, attempts, last_error, updated_at')
@@ -366,9 +366,17 @@ export async function getCommerceFailures(): Promise<Record<string, unknown>> {
       .neq('status', 'resolved')
       .order('updated_at', { ascending: false })
       .limit(20),
+    adminSupabase
+      .from('operational_alerts')
+      .select(
+        'id, alert_type, severity, source, reference_id, order_id, webhook_event_id, message, details, status, occurrences, last_seen_at, updated_at'
+      )
+      .neq('status', 'resolved')
+      .order('last_seen_at', { ascending: false })
+      .limit(20),
   ])
 
-  const failed = [outbox, invoices, reconciliation].find((result) => result.error)
+  const failed = [outbox, invoices, reconciliation, alerts].find((result) => result.error)
   if (failed?.error) {
     throw databaseError(
       'admin.diagnostics.commerce_failures',
@@ -382,6 +390,7 @@ export async function getCommerceFailures(): Promise<Record<string, unknown>> {
     dead_outbox_events: outbox.data ?? [],
     failed_invoices: invoices.data ?? [],
     payment_reconciliation_cases: reconciliation.data ?? [],
+    operational_alerts: alerts.data ?? [],
   }
 }
 

@@ -23,6 +23,7 @@ import type {
   CommerceFailureItem,
   NotificationDeliverySummary,
   RetryJob,
+  WebhookFailureItem,
 } from '../../../types/admin'
 
 type AnyRecord = Record<string, unknown>
@@ -861,6 +862,47 @@ export const adminApiService = {
     }
   },
 
+  async getWebhookFailures(page = 1): Promise<ApiPaginatedResponse<WebhookFailureItem>> {
+    const query = new URLSearchParams({
+      page: String(page),
+      limit: '20',
+      status: 'failed',
+    })
+    const res = await adminGet<{
+      success: boolean
+      data?: AnyRecord[]
+      meta?: AnyRecord
+      error?: AnyRecord
+    }>(`/api/admin/diagnostics/webhook-logs?${query}`)
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: (res.error ?? { code: 'UNKNOWN', message: 'Failed to fetch webhook failures' }) as {
+          code: string
+          message: string
+        },
+      }
+    }
+    return {
+      success: true,
+      data: res.data.map((row) => ({
+        id: row['id'] as string,
+        source: row['source'] as string,
+        eventType: (row['event_type'] as string | null) ?? null,
+        eventId: (row['event_id'] as string | null) ?? null,
+        retryCount: (row['retry_count'] as number) ?? 0,
+        lastError: (row['error_message'] as string | null) ?? null,
+        updatedAt: (row['updated_at'] as string) ?? (row['created_at'] as string),
+      })),
+      pagination: {
+        page,
+        limit: 20,
+        total: (res.meta?.['total'] as number) ?? 0,
+        totalPages: Math.max(1, Math.ceil(((res.meta?.['total'] as number) ?? 0) / 20)),
+      },
+    }
+  },
+
   async retryJob(id: string): Promise<ApiResponse<{ retried: boolean }>> {
     return adminPost(`/api/admin/diagnostics/retry-queue/${encodeURIComponent(id)}/retry`)
   },
@@ -948,7 +990,15 @@ export const adminApiService = {
       lastError: (row['reason'] as string | null) ?? null,
       updatedAt: row['updated_at'] as string,
     }))
-    return { success: true, data: [...outbox, ...invoices, ...reconciliations] }
+    const alerts = (res.data['operational_alerts'] ?? []).map((row) => ({
+      id: row['id'] as string,
+      orderId: (row['order_id'] as string | null) ?? null,
+      kind: 'operational_alert' as const,
+      label: (row['alert_type'] as string) ?? 'Operational alert',
+      lastError: (row['message'] as string | null) ?? null,
+      updatedAt: (row['last_seen_at'] as string) ?? (row['updated_at'] as string),
+    }))
+    return { success: true, data: [...outbox, ...invoices, ...reconciliations, ...alerts] }
   },
 
   /**
