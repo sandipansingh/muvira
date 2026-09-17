@@ -12,8 +12,15 @@ export interface AuthContextType {
   loading: boolean
   isAuthenticated: boolean
   isAdmin: boolean
+  profileError: string | null
+  retryProfile: () => Promise<boolean>
   login: (email: string, pass: string) => Promise<boolean>
-  signup: (email: string, pass: string, name: string, phone: string) => Promise<boolean>
+  signup: (
+    email: string,
+    pass: string,
+    name: string,
+    phone: string
+  ) => Promise<'authenticated' | 'confirmation' | false>
   loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   updateProfile: (fullName: string, phone: string) => Promise<boolean>
@@ -22,38 +29,44 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-function metadataString(session: Session, key: string): string {
-  const value = session.user.user_metadata?.[key]
-  return typeof value === 'string' ? value : ''
-}
-
-function profileFromSession(session: Session): Profile {
-  return {
-    id: session.user.id,
-    email: session.user.email ?? '',
-    fullName: metadataString(session, 'full_name'),
-    phone: metadataString(session, 'phone'),
-    role: 'customer',
-  }
-}
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Profile | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profileError, setProfileError] = useState<string | null>(null)
   const { showToast } = useToast()
 
-  const restoreSession = useCallback(async (session: Session) => {
-    setToken(session.access_token)
-    setUser(profileFromSession(session))
-
+  const restoreSession = useCallback(async (session: Session): Promise<boolean> => {
+    setUser(null)
+    setToken(null)
+    setProfileError(null)
     try {
       const profileResponse = await authApiService.getProfile()
-      if (profileResponse.success) setUser(profileResponse.data)
+      if (!profileResponse.success) throw new Error(profileResponse.error.message)
+      setToken(session.access_token)
+      setUser(profileResponse.data)
+      return true
     } catch (error) {
-      console.error('Profile restoration error', error)
+      setProfileError(
+        error instanceof Error ? error.message : 'Your account profile could not be loaded.'
+      )
+      return false
     }
   }, [])
+
+  const retryProfile = useCallback(async (): Promise<boolean> => {
+    setLoading(true)
+    try {
+      const { data } = await supabase.auth.getSession()
+      if (!data.session) {
+        setProfileError('Your session has expired. Please sign in again.')
+        return false
+      }
+      return await restoreSession(data.session)
+    } finally {
+      setLoading(false)
+    }
+  }, [restoreSession])
 
   useEffect(() => {
     let isMounted = true
@@ -83,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setToken(null)
         setUser(null)
+        setProfileError(null)
         setLoading(false)
       }
     })
@@ -118,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     pass: string,
     name: string,
     phone: string
-  ): Promise<boolean> => {
+  ): Promise<'authenticated' | 'confirmation' | false> => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -137,7 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           : 'Please check your email to confirm registration',
         data.session ? 'success' : 'info'
       )
-      return true
+      return data.session ? 'authenticated' : 'confirmation'
     } catch {
       showToast('Signup error occurred', 'error')
       return false
@@ -164,6 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await supabase.auth.signOut()
     setUser(null)
     setToken(null)
+    setProfileError(null)
     showToast('Logged out successfully', 'info')
   }
 
@@ -194,6 +209,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         isAuthenticated: !!user,
         isAdmin: user?.role === 'admin',
+        profileError,
+        retryProfile,
         login,
         signup,
         loginWithGoogle,

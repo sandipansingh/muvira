@@ -7,6 +7,7 @@ import { ForgotPasswordModal } from '../components/auth/ForgotPasswordModal'
 import { SocialAuthButtons } from '../components/auth/SocialAuthButtons'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
+import { safeReturnPath } from '../lib/authRedirect'
 
 export const SignInPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -18,7 +19,7 @@ export const SignInPage: React.FC = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const returnTo = searchParams.get('returnTo') || '/profile'
+  const returnTo = safeReturnPath(searchParams.get('returnTo'))
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()

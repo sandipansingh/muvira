@@ -14,6 +14,7 @@ import { ToastContainer } from './components/common/Toast'
 import { ScrollToTop } from './components/common/ScrollToTop'
 
 import { AdminGuard } from './components/admin/AdminGuard'
+import { AuthGuard } from './components/auth/AuthGuard'
 import { AdminShell } from './components/admin/AdminShell'
 import { useParams } from 'react-router-dom'
 
@@ -105,12 +106,14 @@ export const AppContent: React.FC = () => {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/product/:slug" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/orders" element={<OrdersHistoryPage />} />
-            <Route path="/orders/success" element={<OrderSuccessPage />} />
-            <Route path="/orders/failure" element={<OrderFailurePage />} />
-            <Route path="/orders/:id" element={<OrderDetailPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route element={<AuthGuard />}>
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/orders" element={<OrdersHistoryPage />} />
+              <Route path="/orders/success" element={<OrderSuccessPage />} />
+              <Route path="/orders/failure" element={<OrderFailurePage />} />
+              <Route path="/orders/:id" element={<OrderDetailPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>

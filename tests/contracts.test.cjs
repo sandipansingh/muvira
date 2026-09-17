@@ -134,6 +134,19 @@ test('Shiprocket raw statuses and production webhook readiness use one contract'
   assert.match(service, /mapShiprocketStatusToOrderStatus\(event\.currentStatus\)/)
 })
 
+test('authenticated routes require an API profile and safe return path', () => {
+  const context = read('client/src/context/AuthContext.tsx')
+  const redirect = read('client/src/lib/authRedirect.ts')
+  const app = read('client/src/App.tsx')
+
+  assert.doesNotMatch(context, /profileFromSession/)
+  assert.match(context, /profileError/)
+  assert.match(context, /retryProfile/)
+  assert.match(redirect, /safeReturnPath/)
+  assert.match(redirect, /decoded\.startsWith\(['"]\/\/['"]\)/)
+  assert.match(app, /AuthGuard/)
+})
+
 test('production migration pushes require the expected runtime and linked project refs', () => {
   const packageJson = JSON.parse(read('package.json'))
   const guard = read('scripts/push-supabase-migrations.sh')

@@ -109,6 +109,17 @@ test('password recovery requires the marked session and valid passwords', async 
   assert.equal(validateNewPassword('long-enough', 'long-enough'), null)
 })
 
+test('post-auth return paths remain normalized and same-origin', async () => {
+  const { safeReturnPath } = await loadClientModule('lib/authRedirect.ts')
+
+  assert.equal(safeReturnPath('/orders?page=2'), '/orders?page=2')
+  assert.equal(safeReturnPath('https://evil.example/steal'), '/profile')
+  assert.equal(safeReturnPath('//evil.example/steal'), '/profile')
+  assert.equal(safeReturnPath('%2F%2Fevil.example%2Fsteal'), '/profile')
+  assert.equal(safeReturnPath('/safe\\evil'), '/profile')
+  assert.equal(safeReturnPath('%E0%A4%A'), '/profile')
+})
+
 test('order confirmation requires an owned paid order response', async () => {
   const { orderConfirmationError } = await loadClientModule('lib/utils/orderConfirmation.ts')
   const paidOrder = { id: 'order-1', paymentStatus: 'paid' }

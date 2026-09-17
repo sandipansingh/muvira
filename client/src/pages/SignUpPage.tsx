@@ -27,11 +27,10 @@ export const SignUpPage: React.FC = () => {
     }
 
     setLoading(true)
-    const success = await signup(email.trim(), password, fullName.trim(), '')
+    const result = await signup(email.trim(), password, fullName.trim(), '')
     setLoading(false)
-    if (success) {
-      navigate('/signin')
-    }
+    if (result === 'authenticated') navigate('/profile')
+    if (result === 'confirmation') navigate('/signin')
   }
 
   return (
