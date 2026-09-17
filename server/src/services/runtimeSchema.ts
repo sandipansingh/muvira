@@ -3,7 +3,7 @@ import { adminSupabase } from '../lib/supabase/admin'
 import { sanitizePostgrestError } from '../lib/databaseError'
 import type { SanitizedPostgrestError } from '../types'
 
-export const RUNTIME_SCHEMA_CONTRACT_VERSION = 38
+export const RUNTIME_SCHEMA_CONTRACT_VERSION = 39
 const CACHE_TTL_MS = 15_000
 
 const contractSchema = z.object({

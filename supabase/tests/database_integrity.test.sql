@@ -124,13 +124,13 @@ FROM (VALUES ('webhook_events'), ('sync_jobs')) AS expected(table_name);
 
 SELECT is(
   (public.get_runtime_schema_status()->>'contract_version')::INTEGER,
-  38,
-  'runtime schema contract reports version 38'
+  39,
+  'runtime schema contract reports version 39'
 );
 
 SELECT is(
   (public.get_runtime_schema_status()->>'migration_version')::TEXT,
-  '038',
+  '039',
   'runtime schema contract reports the latest migration'
 );
 
@@ -138,6 +138,105 @@ SELECT is(
   (public.get_runtime_schema_status()->>'ready')::BOOLEAN,
   TRUE,
   'runtime schema contract reports ready after migration replay'
+);
+
+SELECT is(
+  public.enqueue_retry_job(
+    'razorpay_webhook',
+    'webhook-dedup-test',
+    '{"webhookId":"webhook-dedup-test"}'::JSONB,
+    5
+  ),
+  public.enqueue_retry_job(
+    'razorpay_webhook',
+    'webhook-dedup-test',
+    '{"webhookId":"webhook-dedup-test"}'::JSONB,
+    5
+  ),
+  'active retry jobs are deduplicated by type and reference'
+);
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER FROM public.claim_retry_jobs(10, 30)
+    WHERE reference_id = 'webhook-dedup-test'),
+  1,
+  'an eligible retry job is claimed once'
+);
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER FROM public.claim_retry_jobs(10, 30)
+    WHERE reference_id = 'webhook-dedup-test'),
+  0,
+  'an active lease prevents a second claim'
+);
+
+UPDATE retry_jobs
+SET lease_token = '11111111-1111-4111-8111-111111111111',
+    lease_expires_at = NOW() - INTERVAL '1 second'
+WHERE reference_id = 'webhook-dedup-test';
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER FROM public.claim_retry_jobs(10, 30)
+    WHERE reference_id = 'webhook-dedup-test'
+      AND lease_token <> '11111111-1111-4111-8111-111111111111'),
+  1,
+  'an expired lease is reclaimed with a new token'
+);
+
+SELECT is(
+  public.complete_retry_job(
+    (SELECT id FROM retry_jobs WHERE reference_id = 'webhook-dedup-test'),
+    '11111111-1111-4111-8111-111111111111'
+  ),
+  FALSE,
+  'a stale lease token cannot complete a reclaimed job'
+);
+
+SELECT is(
+  public.complete_retry_job(
+    (SELECT id FROM retry_jobs WHERE reference_id = 'webhook-dedup-test'),
+    (SELECT lease_token FROM retry_jobs WHERE reference_id = 'webhook-dedup-test')
+  ),
+  TRUE,
+  'the current lease owner can complete a retry job'
+);
+
+INSERT INTO retry_jobs (
+  id, job_type, reference_id, payload, status, retry_count, next_retry_at,
+  last_error, lease_token, claimed_at, lease_expires_at
+) VALUES (
+  '22222222-2222-4222-8222-222222222222',
+  'razorpay_webhook',
+  'webhook-requeue-test',
+  '{}',
+  'dead',
+  5,
+  NOW() + INTERVAL '1 day',
+  'failed before manual intervention',
+  '33333333-3333-4333-8333-333333333333',
+  NOW(),
+  NOW() + INTERVAL '1 day'
+);
+
+SELECT isnt(
+  public.requeue_retry_job('22222222-2222-4222-8222-222222222222'),
+  NULL,
+  'a dead retry job can be manually requeued'
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM retry_jobs
+    WHERE id = '22222222-2222-4222-8222-222222222222'
+      AND status = 'pending'
+      AND retry_count = 0
+      AND last_error IS NULL
+      AND lease_token IS NULL
+      AND claimed_at IS NULL
+      AND lease_expires_at IS NULL
+      AND next_retry_at <= NOW()
+  ),
+  'manual requeue resets retry, error, lease, and schedule state'
 );
 
 SELECT * FROM finish();

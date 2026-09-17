@@ -17,7 +17,23 @@ import { writeTrackingSnapshot } from './trackingAnalytics'
 
 type JobHandler = (payload: Record<string, unknown>, referenceId: string | null) => Promise<void>
 
+interface RetryJob {
+  id: string
+  job_type: string
+  reference_id: string | null
+  payload: Record<string, unknown>
+  lease_token: string
+}
+
 const handlers: Record<string, JobHandler> = {
+  razorpay_webhook: async (payload, referenceId) => {
+    const webhookId = (payload['webhookId'] as string | undefined) ?? referenceId
+    if (!webhookId) throw new Error('Missing webhookId in razorpay_webhook payload')
+
+    const { processStoredRazorpayWebhook } = await import('../modules/payments/service')
+    await processStoredRazorpayWebhook(webhookId)
+  },
+
   tracking_sync: async (payload) => {
     const awb = payload['awbCode'] as string | undefined
     if (!awb) throw new Error('Missing awbCode in tracking_sync payload')
@@ -191,55 +207,47 @@ export async function processRetryJobs(batchSize = 10): Promise<{
   succeeded: number
   failed: number
 }> {
-  const { data: jobs, error } = await adminSupabase
-    .from('retry_jobs')
-    .select('*')
-    .eq('status', 'pending')
-    .lte('next_retry_at', new Date().toISOString())
-    .order('next_retry_at', { ascending: true })
-    .limit(batchSize)
+  const { data, error } = await adminSupabase.rpc('claim_retry_jobs', {
+    p_limit: Math.max(1, Math.min(batchSize, 100)),
+    p_lease_seconds: 300,
+  })
+  const jobs = (data ?? []) as unknown as RetryJob[]
 
-  if (error || !jobs || jobs.length === 0) {
+  if (error) {
+    logger.error({ error }, 'retryWorker: failed to claim jobs')
+    return { processed: 0, succeeded: 0, failed: 0 }
+  }
+  if (jobs.length === 0) {
     return { processed: 0, succeeded: 0, failed: 0 }
   }
 
   let succeeded = 0
   let failed = 0
 
-  // Mark all as processing to prevent concurrent workers from picking them up
-  const jobIds = jobs.map((j) => j.id)
-  await adminSupabase.from('retry_jobs').update({ status: 'processing' }).in('id', jobIds)
-
   for (const job of jobs) {
     const handler = handlers[job.job_type]
     if (!handler) {
-      await markJobDead(job.id, `Unknown job_type: ${job.job_type}`)
+      await failClaimedJob(job, `Unknown job_type: ${job.job_type}`)
       failed++
       continue
     }
 
     try {
       await handler(job.payload as Record<string, unknown>, job.reference_id)
-      await adminSupabase.from('retry_jobs').update({ status: 'completed' }).eq('id', job.id)
-      succeeded++
+      const { data: completed, error: completionError } = await adminSupabase.rpc(
+        'complete_retry_job',
+        {
+          p_job_id: job.id,
+          p_lease_token: job.lease_token,
+        }
+      )
+      if (completionError || completed !== true) {
+        throw new Error('Retry job lease expired before completion could be recorded')
+      }
+      succeeded += 1
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : String(err)
-      const newRetryCount = job.retry_count + 1
-
-      if (newRetryCount >= job.max_retries) {
-        await markJobDead(job.id, errorMsg)
-      } else {
-        const backoffMs = Math.min(60_000 * 2 ** newRetryCount, 3_600_000) // 1h max
-        await adminSupabase
-          .from('retry_jobs')
-          .update({
-            status: 'pending',
-            retry_count: newRetryCount,
-            last_error: errorMsg,
-            next_retry_at: new Date(Date.now() + backoffMs).toISOString(),
-          })
-          .eq('id', job.id)
-      }
+      await failClaimedJob(job, errorMsg)
       failed++
     }
   }
@@ -251,12 +259,16 @@ export async function processRetryJobs(batchSize = 10): Promise<{
   return { processed: jobs.length, succeeded, failed }
 }
 
-async function markJobDead(jobId: string, error: string): Promise<void> {
-  await adminSupabase
-    .from('retry_jobs')
-    .update({
-      status: 'dead',
-      last_error: error,
-    })
-    .eq('id', jobId)
+async function failClaimedJob(job: RetryJob, error: string): Promise<void> {
+  const { error: failureError } = await adminSupabase.rpc('fail_retry_job', {
+    p_job_id: job.id,
+    p_lease_token: job.lease_token,
+    p_error: error,
+  })
+  if (failureError) {
+    logger.error(
+      { error: failureError, jobId: job.id },
+      'retryWorker: failed to persist job failure'
+    )
+  }
 }

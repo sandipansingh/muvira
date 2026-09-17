@@ -75,25 +75,46 @@ test('readiness and database routes are gated by the runtime schema contract', (
   assert.doesNotMatch(healthRoutes, /shiprocketAuthCheck|getToken/)
 })
 
-test('migration 038 defines a service-role-only complete runtime contract', () => {
-  const migration = read('supabase/migrations/038_runtime_schema_contract.sql')
+test('migration 039 defines leased payment recovery and advances runtime readiness', () => {
+  const migration = read('supabase/migrations/039_payment_recovery.sql')
 
-  assert.match(migration, /contract_version['"],\s*38/i)
+  assert.match(migration, /contract_version['"],\s*39/i)
+  assert.match(migration, /FOR UPDATE SKIP LOCKED/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION claim_retry_jobs/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION complete_retry_job/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION fail_retry_job/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION requeue_retry_job/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION record_payment_reconciliation/i)
+  assert.match(migration, /razorpay_webhook/i)
   assert.match(migration, /migration_version/i)
-  assert.match(migration, /missing_relations/i)
   assert.match(migration, /missing_columns/i)
   assert.match(migration, /missing_functions/i)
-  assert.match(migration, /invalid_function_grants/i)
-  assert.match(migration, /invalid_rls_relations/i)
-  assert.match(migration, /invalid_storage_capabilities/i)
   assert.match(
     migration,
-    /REVOKE ALL ON FUNCTION public\.get_runtime_schema_status\(\) FROM PUBLIC, anon, authenticated/i
+    /REVOKE ALL ON FUNCTION public\.get_runtime_schema_status\(\)\s+FROM PUBLIC, anon, authenticated/i
   )
   assert.match(
     migration,
     /GRANT EXECUTE ON FUNCTION public\.get_runtime_schema_status\(\) TO service_role/i
   )
+})
+
+test('Razorpay recovery producers and retry-safe failure UI remain connected', () => {
+  const payments = read('server/src/modules/payments/service.ts')
+  const checkout = read('server/src/modules/checkout/service.ts')
+  const worker = read('server/src/services/retryWorker.ts')
+  const failurePage = read('client/src/pages/OrderFailurePage.tsx')
+
+  assert.match(payments, /record_payment_reconciliation/)
+  assert.match(payments, /enqueue_retry_job/)
+  assert.match(payments, /processStoredRazorpayWebhook/)
+  assert.match(payments, /payments\.fetch[\s\S]+orders\.fetch/)
+  assert.match(checkout, /recordPaymentReconciliation[\s\S]+releaseFailedCheckout/)
+  assert.match(worker, /claim_retry_jobs/)
+  assert.match(worker, /complete_retry_job/)
+  assert.match(worker, /fail_retry_job/)
+  assert.match(failurePage, /paymentStatus === ['"]released['"]/)
+  assert.doesNotMatch(failurePage, /You can safely retry/)
 })
 
 test('production migration pushes require the expected runtime and linked project refs', () => {

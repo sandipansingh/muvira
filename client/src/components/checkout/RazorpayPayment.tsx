@@ -8,6 +8,7 @@ import { useToast } from '../../context/ToastContext'
 import { Dropdown } from '../ui/Dropdown'
 import type { BillingAddressInput, CheckoutQuote, ShippingMethod } from '../../types/checkout'
 import type { RazorpaySuccessResponse } from '../../types/razorpay'
+import { ApiError } from '../../lib/api/client'
 
 interface RazorpayPaymentProps {
   addressId: string
@@ -51,7 +52,7 @@ export const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
     setBilling((current) => ({ ...current, [field]: value }))
   }
 
-  const verifyPayment = async (response: RazorpaySuccessResponse) => {
+  const verifyPayment = async (response: RazorpaySuccessResponse, orderId: string) => {
     try {
       const verification = await orderApiService.verifyPayment(
         response.razorpay_order_id,
@@ -72,7 +73,12 @@ export const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       const message =
         reason instanceof Error ? reason.message : 'Payment verification could not be completed.'
       navigate('/orders/failure', {
-        state: { reason: message },
+        state: {
+          reason: message,
+          orderId,
+          paymentStatus: 'unknown',
+          errorCode: reason instanceof ApiError ? reason.code : 'PAYMENT_STATUS_UNKNOWN',
+        },
       })
     } finally {
       setProcessing(false)
@@ -106,7 +112,7 @@ export const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         name: import.meta.env.VITE_STORE_NAME || 'Muvira',
         description: `Order ${created.data.orderNumber}`,
         order_id: created.data.razorpayOrderId,
-        handler: (response) => void verifyPayment(response),
+        handler: (response) => void verifyPayment(response, created.data.orderId),
         prefill: {
           name: customerName,
           email: customerEmail,
@@ -132,8 +138,20 @@ export const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       })
 
       checkout.on('payment.failed', (response) => {
-        setProcessing(false)
-        setError(response.error?.description ?? 'Razorpay could not complete the payment.')
+        const failureMessage =
+          response.error?.description ?? 'Razorpay could not complete the payment.'
+        void orderApiService
+          .cancelCheckout(created.data.orderId)
+          .then(() => {
+            setError(`${failureMessage} Your reservation was safely released.`)
+            showToast('Payment failed and your reservation was released.', 'info')
+          })
+          .catch(() => {
+            setError(
+              'Payment status is still being confirmed. Check your orders before attempting another payment.'
+            )
+          })
+          .finally(() => setProcessing(false))
       })
       checkout.open()
     } catch (reason) {

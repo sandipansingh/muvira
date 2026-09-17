@@ -7,6 +7,7 @@ import { AppError } from '../../types'
 import { validateCoupon } from '../coupons/service'
 import type { CheckoutQuoteInput, CreateCheckoutOrderInput, ShippingMethod } from './schema'
 import { env } from '../../config/env'
+import { recordPaymentReconciliation } from '../payments/service'
 
 interface CartProduct {
   id: string
@@ -173,13 +174,14 @@ interface InitializedCheckout {
   product_ids: string[]
 }
 
-async function releaseFailedCheckout(orderId: string, reason: string): Promise<void> {
-  const { error } = await adminSupabase.rpc('fail_checkout', {
+async function releaseFailedCheckout(orderId: string, reason: string): Promise<boolean> {
+  const { data, error } = await adminSupabase.rpc('fail_checkout', {
     p_order_id: orderId,
     p_reason: reason,
   })
   if (error) logger.error({ error, orderId }, 'Failed to release checkout reservations')
   deleteCacheByPattern('GET:/api/products')
+  return !error && data === true
 }
 
 export async function createCheckoutOrder(userId: string, input: CreateCheckoutOrderInput) {
@@ -213,6 +215,7 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
   const totalAmountPaisa = initialized.order['total_amount_paisa'] as number
   deleteCacheByPattern('GET:/api/products')
 
+  let providerOrderId: string | undefined
   try {
     const providerOrder = await razorpay.orders.create({
       amount: totalAmountPaisa,
@@ -236,6 +239,7 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
     ) {
       throw new Error('Razorpay returned an inconsistent order')
     }
+    providerOrderId = providerOrder.id
 
     const { error: attachError } = await adminSupabase.rpc('attach_razorpay_order', {
       p_user_id: userId,
@@ -255,6 +259,36 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
     }
   } catch (error) {
     logger.error({ error, orderId }, 'Razorpay checkout initialization failed')
+    if (providerOrderId) {
+      const recorded = await recordPaymentReconciliation({
+        orderId,
+        razorpayOrderId: providerOrderId,
+        reason: `Razorpay order was created but could not be attached: ${
+          error instanceof Error ? error.message : 'unknown persistence failure'
+        }`,
+      })
+      if (!recorded) {
+        throw new AppError(
+          503,
+          'PAYMENT_RECONCILIATION_REQUIRED',
+          'Payment setup is being reconciled. Do not start another payment.'
+        )
+      }
+      const released = await releaseFailedCheckout(orderId, 'Razorpay order attachment failed')
+      if (!released) {
+        throw new AppError(
+          503,
+          'PAYMENT_RECONCILIATION_REQUIRED',
+          'Payment setup and reservation state require reconciliation. Do not start another payment.'
+        )
+      }
+      throw new AppError(
+        502,
+        'PAYMENT_PROVIDER_UNAVAILABLE',
+        'Payment setup failed before collection. Your reservation was released.'
+      )
+    }
+
     await releaseFailedCheckout(orderId, 'Payment provider initialization failed')
     throw new AppError(
       502,

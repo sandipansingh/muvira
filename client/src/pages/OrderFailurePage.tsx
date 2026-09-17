@@ -1,17 +1,16 @@
 import React from 'react'
-import { AlertCircle, ArrowRight, RefreshCw } from 'lucide-react'
+import { AlertCircle, ArrowRight, ListChecks } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 export const OrderFailurePage: React.FC = () => {
   const location = useLocation()
-  const reason =
-    typeof location.state === 'object' &&
-    location.state !== null &&
-    'reason' in location.state &&
-    typeof location.state.reason === 'string'
-      ? location.state.reason
+  const state =
+    typeof location.state === 'object' && location.state !== null
+      ? (location.state as Record<string, unknown>)
       : null
+  const reason = state && typeof state['reason'] === 'string' ? state['reason'] : null
+  const paymentStatus = state?.['paymentStatus'] === 'released' ? 'released' : 'unknown'
 
   return (
     <main className="editorial-page py-6 sm:py-12">
@@ -44,15 +43,24 @@ export const OrderFailurePage: React.FC = () => {
             </span>
             <p className="text-sm font-medium text-[var(--color-ink)]">
               {reason ||
-                'The payment transaction was incomplete or cancelled. You can safely retry from checkout.'}
+                'Payment status could not be confirmed. Check your orders before attempting another payment.'}
             </p>
           </div>
 
           <div className="flex flex-col justify-center gap-3 pt-3 sm:flex-row">
-            <Link to="/checkout" className="button-primary py-3.5 px-6 text-sm font-semibold gap-2">
-              <RefreshCw className="h-4 w-4 shrink-0" />
-              <span>Retry Payment</span>
-            </Link>
+            {paymentStatus === 'released' ? (
+              <Link
+                to="/checkout"
+                className="button-primary gap-2 px-6 py-3.5 text-sm font-semibold"
+              >
+                <span>Return to Checkout</span>
+              </Link>
+            ) : (
+              <Link to="/orders" className="button-primary gap-2 px-6 py-3.5 text-sm font-semibold">
+                <ListChecks className="h-4 w-4 shrink-0" />
+                <span>Check My Orders</span>
+              </Link>
+            )}
             <Link to="/cart" className="button-secondary py-3.5 px-6 text-sm font-semibold gap-2">
               <span>Return to Cart</span>
               <ArrowRight className="h-4 w-4 shrink-0" />

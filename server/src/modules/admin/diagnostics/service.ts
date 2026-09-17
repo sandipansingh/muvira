@@ -159,13 +159,9 @@ export async function getRetryQueue(params: {
 }
 
 export async function retryJob(jobId: string): Promise<boolean> {
-  const { data, error } = await adminSupabase
-    .from('retry_jobs')
-    .update({ status: 'pending', next_retry_at: new Date().toISOString() })
-    .eq('id', jobId)
-    .in('status', ['dead', 'failed'])
-    .select('id')
-    .maybeSingle()
+  const { data, error } = await adminSupabase.rpc('requeue_retry_job', {
+    p_job_id: jobId,
+  })
 
   return !error && data !== null
 }
@@ -364,7 +360,9 @@ export async function getCommerceFailures(): Promise<Record<string, unknown>> {
       .limit(20),
     adminSupabase
       .from('payment_reconciliation_cases')
-      .select('id, order_id, reason, status, updated_at')
+      .select(
+        'id, order_id, payment_id, razorpay_order_id, razorpay_payment_id, reason, status, updated_at'
+      )
       .neq('status', 'resolved')
       .order('updated_at', { ascending: false })
       .limit(20),
