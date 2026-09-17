@@ -124,13 +124,13 @@ FROM (VALUES ('webhook_events'), ('sync_jobs')) AS expected(table_name);
 
 SELECT is(
   (public.get_runtime_schema_status()->>'contract_version')::INTEGER,
-  39,
-  'runtime schema contract reports version 39'
+  40,
+  'runtime schema contract reports version 40'
 );
 
 SELECT is(
   (public.get_runtime_schema_status()->>'migration_version')::TEXT,
-  '039',
+  '040',
   'runtime schema contract reports the latest migration'
 );
 
@@ -138,6 +138,21 @@ SELECT is(
   (public.get_runtime_schema_status()->>'ready')::BOOLEAN,
   TRUE,
   'runtime schema contract reports ready after migration replay'
+);
+
+SELECT ok(
+  EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.orders'::REGCLASS
+      AND conname = 'orders_shiprocket_status_raw'
+      AND PG_GET_CONSTRAINTDEF(oid) ILIKE '%char_length(shiprocket_status)%'
+  )
+  AND NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.orders'::REGCLASS
+      AND conname IN ('orders_shiprocket_status_check', 'orders_shiprocket_status_allowed')
+  ),
+  'Shiprocket raw status uses the bounded contract instead of the legacy enumeration'
 );
 
 SELECT is(

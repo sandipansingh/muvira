@@ -117,6 +117,23 @@ test('Razorpay recovery producers and retry-safe failure UI remain connected', (
   assert.doesNotMatch(failurePage, /You can safely retry/)
 })
 
+test('Shiprocket raw statuses and production webhook readiness use one contract', () => {
+  const migration = read('supabase/migrations/040_shiprocket_raw_status.sql')
+  const env = read('server/src/config/env.ts')
+  const service = read('server/src/modules/shiprocket/service.ts')
+
+  assert.match(migration, /DROP CONSTRAINT IF EXISTS orders_shiprocket_status_check/)
+  assert.match(migration, /ADD CONSTRAINT orders_shiprocket_status_raw/)
+  assert.match(migration, /CHAR_LENGTH\(shiprocket_status\) BETWEEN 1 AND 120/i)
+  assert.match(migration, /contract_version['"],\s*40/i)
+  assert.match(
+    env,
+    /NODE_ENV === ['"]production['"][\s\S]+SHIPROCKET_WEBHOOK_ENABLED !== ['"]true['"]/
+  )
+  assert.match(service, /shiprocket_status: event\.currentStatus/)
+  assert.match(service, /mapShiprocketStatusToOrderStatus\(event\.currentStatus\)/)
+})
+
 test('production migration pushes require the expected runtime and linked project refs', () => {
   const packageJson = JSON.parse(read('package.json'))
   const guard = read('scripts/push-supabase-migrations.sh')

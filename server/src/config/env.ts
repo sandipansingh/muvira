@@ -53,6 +53,13 @@ const envSchema = z
         message: 'SHIPROCKET_WEBHOOK_SECRET is required when Shiprocket webhooks are enabled',
       })
     }
+    if (value.NODE_ENV === 'production' && value.SHIPROCKET_WEBHOOK_ENABLED !== 'true') {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SHIPROCKET_WEBHOOK_ENABLED'],
+        message: 'SHIPROCKET_WEBHOOK_ENABLED must be true in production',
+      })
+    }
     if (value.NODE_ENV === 'production' && !value.RESEND_API_KEY) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
