@@ -216,6 +216,8 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
   deleteCacheByPattern('GET:/api/products')
 
   let providerOrderId: string | undefined
+  let providerAmount: number | undefined
+  let providerCurrency: string | undefined
   try {
     const providerOrder = await razorpay.orders.create({
       amount: totalAmountPaisa,
@@ -232,37 +234,56 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
       notes: { local_order_id: orderId },
     })
 
+    providerOrderId =
+      typeof providerOrder.id === 'string' && providerOrder.id.trim()
+        ? providerOrder.id.trim()
+        : undefined
+    providerAmount = Number(providerOrder.amount)
+    providerCurrency = providerOrder.currency
+
     if (
-      !providerOrder.id ||
+      !providerOrderId ||
       Number(providerOrder.amount) !== totalAmountPaisa ||
       providerOrder.currency !== 'INR'
     ) {
       throw new Error('Razorpay returned an inconsistent order')
     }
-    providerOrderId = providerOrder.id
-
     const { error: attachError } = await adminSupabase.rpc('attach_razorpay_order', {
       p_user_id: userId,
       p_order_id: orderId,
-      p_razorpay_order_id: providerOrder.id,
+      p_razorpay_order_id: providerOrderId,
     })
     if (attachError) throw attachError
 
     return {
       order_id: orderId,
       order_number: orderNumber,
-      razorpay_order_id: providerOrder.id,
+      razorpay_order_id: providerOrderId,
       amount_paisa: totalAmountPaisa,
       currency: 'INR',
       key_id: env.RAZORPAY_KEY_ID,
       expires_at: initialized.order['checkout_expires_at'] as string,
     }
   } catch (error) {
-    logger.error({ error, orderId }, 'Razorpay checkout initialization failed')
+    logger.error(
+      {
+        error,
+        orderId,
+        razorpayOrderId: providerOrderId,
+        providerAmount,
+        providerCurrency,
+        expectedAmountPaisa: totalAmountPaisa,
+        expectedCurrency: 'INR',
+        occurredAt: new Date().toISOString(),
+      },
+      'Razorpay checkout initialization failed'
+    )
     if (providerOrderId) {
       const recorded = await recordPaymentReconciliation({
         orderId,
         razorpayOrderId: providerOrderId,
+        providerAmount,
+        providerCurrency,
         reason: `Razorpay order was created but could not be attached: ${
           error instanceof Error ? error.message : 'unknown persistence failure'
         }`,

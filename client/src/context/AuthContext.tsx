@@ -1,9 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import type { Profile } from '../lib/types/auth'
 import { authApiService } from '../lib/services/auth.service'
 import { supabase } from '../lib/supabase'
 import { authRedirectUrl, PASSWORD_RECOVERY_SESSION_KEY } from '../lib/authRedirect'
+import { createLatestAttemptGuard } from '../lib/latestAttempt'
 import { useToast } from './ToastContext'
 
 export interface AuthContextType {
@@ -34,65 +35,92 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [profileError, setProfileError] = useState<string | null>(null)
+  const sessionAttempts = useRef(createLatestAttemptGuard())
   const { showToast } = useToast()
 
-  const restoreSession = useCallback(async (session: Session): Promise<boolean> => {
-    setUser(null)
-    setToken(null)
-    setProfileError(null)
-    try {
-      const profileResponse = await authApiService.getProfile()
-      if (!profileResponse.success) throw new Error(profileResponse.error.message)
-      setToken(session.access_token)
-      setUser(profileResponse.data)
-      return true
-    } catch (error) {
-      setProfileError(
-        error instanceof Error ? error.message : 'Your account profile could not be loaded.'
-      )
-      return false
-    }
-  }, [])
+  const restoreSession = useCallback(
+    async (session: Session, existingAttempt?: number): Promise<boolean> => {
+      const attempt = existingAttempt ?? sessionAttempts.current.begin()
+      if (!sessionAttempts.current.isCurrent(attempt)) return false
+
+      setLoading(true)
+      setUser(null)
+      setToken(null)
+      setProfileError(null)
+      try {
+        const profileResponse = await authApiService.getProfile()
+        if (!profileResponse.success) throw new Error(profileResponse.error.message)
+        if (!sessionAttempts.current.isCurrent(attempt)) return false
+
+        setToken(session.access_token)
+        setUser(profileResponse.data)
+        return true
+      } catch (error) {
+        if (!sessionAttempts.current.isCurrent(attempt)) return false
+        setProfileError(
+          error instanceof Error ? error.message : 'Your account profile could not be loaded.'
+        )
+        return false
+      } finally {
+        if (sessionAttempts.current.isCurrent(attempt)) setLoading(false)
+      }
+    },
+    []
+  )
 
   const retryProfile = useCallback(async (): Promise<boolean> => {
+    const attempt = sessionAttempts.current.begin()
     setLoading(true)
     try {
       const { data } = await supabase.auth.getSession()
+      if (!sessionAttempts.current.isCurrent(attempt)) return false
       if (!data.session) {
         setProfileError('Your session has expired. Please sign in again.')
+        setLoading(false)
         return false
       }
-      return await restoreSession(data.session)
-    } finally {
-      setLoading(false)
+      return restoreSession(data.session, attempt)
+    } catch (error) {
+      if (sessionAttempts.current.isCurrent(attempt)) {
+        setProfileError(
+          error instanceof Error ? error.message : 'Your session could not be restored.'
+        )
+        setLoading(false)
+      }
+      return false
     }
   }, [restoreSession])
 
   useEffect(() => {
     let isMounted = true
+    const attempts = sessionAttempts.current
 
     const initialize = async () => {
+      const attempt = attempts.begin()
       try {
         const { data } = await supabase.auth.getSession()
-        if (data.session && isMounted) await restoreSession(data.session)
+        if (!isMounted || !attempts.isCurrent(attempt)) return
+        if (data.session) await restoreSession(data.session, attempt)
       } catch (error) {
-        console.error('Auth initialization error', error)
+        if (attempts.isCurrent(attempt)) {
+          console.error('Auth initialization error', error)
+        }
       } finally {
-        if (isMounted) setLoading(false)
+        if (isMounted && attempts.isCurrent(attempt)) setLoading(false)
       }
     }
 
     void initialize()
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      const attempt = attempts.begin()
       if (event === 'PASSWORD_RECOVERY' && session) {
         sessionStorage.setItem(PASSWORD_RECOVERY_SESSION_KEY, session.access_token)
       } else if (!session || event === 'SIGNED_OUT') {
         sessionStorage.removeItem(PASSWORD_RECOVERY_SESSION_KEY)
       }
       if (session) {
-        setLoading(true)
-        void restoreSession(session).finally(() => setLoading(false))
+        void restoreSession(session, attempt)
       } else {
         setToken(null)
         setUser(null)
@@ -103,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       isMounted = false
+      attempts.invalidate()
       authListener.subscription.unsubscribe()
     }
   }, [restoreSession])
@@ -175,6 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const logout = async (): Promise<void> => {
+    sessionAttempts.current.invalidate()
     await supabase.auth.signOut()
     setUser(null)
     setToken(null)

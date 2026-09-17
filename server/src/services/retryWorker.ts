@@ -17,12 +17,17 @@ import { writeTrackingSnapshot } from './trackingAnalytics'
 
 type JobHandler = (payload: Record<string, unknown>, referenceId: string | null) => Promise<void>
 
-interface RetryJob {
+export interface RetryJob {
   id: string
   job_type: string
   reference_id: string | null
   payload: Record<string, unknown>
   lease_token: string
+}
+
+interface RetryLeaseOptions {
+  heartbeatMs?: number
+  leaseSeconds?: number
 }
 
 const handlers: Record<string, JobHandler> = {
@@ -207,24 +212,25 @@ export async function processRetryJobs(batchSize = 10): Promise<{
   succeeded: number
   failed: number
 }> {
-  const { data, error } = await adminSupabase.rpc('claim_retry_jobs', {
-    p_limit: Math.max(1, Math.min(batchSize, 100)),
-    p_lease_seconds: 300,
-  })
-  const jobs = (data ?? []) as unknown as RetryJob[]
-
-  if (error) {
-    logger.error({ error }, 'retryWorker: failed to claim jobs')
-    return { processed: 0, succeeded: 0, failed: 0 }
-  }
-  if (jobs.length === 0) {
-    return { processed: 0, succeeded: 0, failed: 0 }
-  }
-
+  const limit = Math.max(1, Math.min(batchSize, 100))
+  let processed = 0
   let succeeded = 0
   let failed = 0
 
-  for (const job of jobs) {
+  for (let index = 0; index < limit; index += 1) {
+    const { data, error } = await adminSupabase.rpc('claim_retry_jobs', {
+      p_limit: 1,
+      p_lease_seconds: 300,
+    })
+    if (error) {
+      logger.error({ error }, 'retryWorker: failed to claim jobs')
+      break
+    }
+
+    const job = ((data ?? []) as unknown as RetryJob[])[0]
+    if (!job) break
+    processed += 1
+
     const handler = handlers[job.job_type]
     if (!handler) {
       await failClaimedJob(job, `Unknown job_type: ${job.job_type}`)
@@ -232,31 +238,87 @@ export async function processRetryJobs(batchSize = 10): Promise<{
       continue
     }
 
-    try {
-      await handler(job.payload as Record<string, unknown>, job.reference_id)
-      const { data: completed, error: completionError } = await adminSupabase.rpc(
-        'complete_retry_job',
-        {
-          p_job_id: job.id,
-          p_lease_token: job.lease_token,
-        }
-      )
-      if (completionError || completed !== true) {
-        throw new Error('Retry job lease expired before completion could be recorded')
-      }
+    const completed = await runClaimedRetryJob(job, handler)
+    if (completed) {
       succeeded += 1
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err)
-      await failClaimedJob(job, errorMsg)
+    } else {
       failed++
     }
   }
 
   if (succeeded + failed > 0) {
-    logger.info({ succeeded, failed, total: jobs.length }, 'retryWorker: batch processed')
+    logger.info({ succeeded, failed, total: processed }, 'retryWorker: batch processed')
   }
 
-  return { processed: jobs.length, succeeded, failed }
+  return { processed, succeeded, failed }
+}
+
+export async function runClaimedRetryJob(
+  job: RetryJob,
+  handler: JobHandler,
+  options: RetryLeaseOptions = {}
+): Promise<boolean> {
+  const heartbeatMs = options.heartbeatMs ?? 60_000
+  const leaseSeconds = options.leaseSeconds ?? 300
+  let stopped = false
+  let leaseLost = false
+  let renewal: Promise<void> | null = null
+
+  const renew = async (): Promise<void> => {
+    if (stopped || leaseLost) return
+    const { data, error } = await adminSupabase.rpc('renew_retry_job_lease', {
+      p_job_id: job.id,
+      p_lease_token: job.lease_token,
+      p_lease_seconds: leaseSeconds,
+    })
+    if (error || data !== true) leaseLost = true
+  }
+
+  const scheduleRenewal = (): void => {
+    if (renewal || stopped || leaseLost) return
+    renewal = renew().finally(() => {
+      renewal = null
+    })
+  }
+
+  const timer = setInterval(scheduleRenewal, heartbeatMs)
+  timer.unref()
+
+  const assertOwned = async (): Promise<void> => {
+    if (renewal) await renewal
+    if (!leaseLost) await renew()
+    if (leaseLost) throw new Error('Retry job lease expired before side effects completed')
+  }
+
+  const stop = async (): Promise<void> => {
+    stopped = true
+    clearInterval(timer)
+    if (renewal) await renewal
+  }
+
+  try {
+    await assertOwned()
+    await handler(job.payload as Record<string, unknown>, job.reference_id)
+    await assertOwned()
+    await stop()
+
+    const { data: completed, error: completionError } = await adminSupabase.rpc(
+      'complete_retry_job',
+      {
+        p_job_id: job.id,
+        p_lease_token: job.lease_token,
+      }
+    )
+    if (completionError || completed !== true) {
+      throw new Error('Retry job lease expired before completion could be recorded')
+    }
+    return true
+  } catch (err) {
+    await stop()
+    const errorMsg = err instanceof Error ? err.message : String(err)
+    await failClaimedJob(job, errorMsg)
+    return false
+  }
 }
 
 async function failClaimedJob(job: RetryJob, error: string): Promise<void> {

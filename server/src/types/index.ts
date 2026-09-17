@@ -237,7 +237,7 @@ export interface Order {
   awb_code: string | null
   // Shiprocket integration
   shiprocket_order_id: string | null
-  shiprocket_status: 'pending' | 'created' | 'failed' | null
+  shiprocket_status: string | null
   shiprocket_error: string | null
   shipment_id: string | null
   courier_name: string | null
@@ -425,7 +425,7 @@ export interface WebhookEvent {
   event_type: string | null
   payload_hash: string
   raw_payload: Record<string, unknown>
-  processing_status: 'received' | 'verified' | 'processed' | 'failed' | 'duplicate'
+  processing_status: 'received' | 'verified' | 'processing' | 'processed' | 'failed' | 'duplicate'
   retry_count: number
   error_message: string | null
   processed_at: string | null

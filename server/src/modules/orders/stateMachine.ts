@@ -81,6 +81,7 @@ export function shiprocketStatusToOrderStatus(srStatus?: string): OrderStatus | 
   if (!srStatus) return null
 
   const s = srStatus.toLowerCase().trim()
+  const words = s.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ')
 
   // --- RTO states ---
   if (s.includes('rto')) {
@@ -88,16 +89,26 @@ export function shiprocketStatusToOrderStatus(srStatus?: string): OrderStatus | 
     return 'rto'
   }
 
+  // --- Delivery failures (must precede positive delivered matches) ---
+  if (
+    words === 'undelivered' ||
+    words.includes('not delivered') ||
+    words.includes('delivery failed') ||
+    words.includes('failed delivery') ||
+    words.includes('delivery unsuccessful') ||
+    words === 'exception'
+  ) {
+    return 'delivery_failed'
+  }
+
   // --- Terminal states ---
-  if (s === 'delivered' || s.includes('delivered')) return 'delivered'
+  if (words === 'delivered' || /\bdelivered\b/.test(words)) return 'delivered'
   if (s === 'cancelled' || s === 'cancelled before shipping') return 'cancelled'
   if (s === 'lost') return 'lost'
   if (s === 'damaged') return 'damaged'
 
   // --- Delivery states ---
   if (s === 'out for delivery' || s.includes('out for delivery')) return 'out_for_delivery'
-  if (s === 'undelivered' || s === 'exception' || s === 'delivery failed') return 'delivery_failed'
-
   // --- In transit ---
   if (
     s === 'shipped' ||

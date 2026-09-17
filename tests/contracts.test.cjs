@@ -117,6 +117,18 @@ test('Razorpay recovery producers and retry-safe failure UI remain connected', (
   assert.doesNotMatch(failurePage, /You can safely retry/)
 })
 
+test('migration 042 leases webhook processing and renews long retry work', () => {
+  const migration = read('supabase/migrations/042_payment_recovery_rework.sql')
+
+  assert.match(migration, /contract_version['"],\s*42/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION claim_razorpay_webhook/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION complete_razorpay_webhook/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION fail_razorpay_webhook/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION renew_razorpay_webhook_lease/i)
+  assert.match(migration, /CREATE OR REPLACE FUNCTION renew_retry_job_lease/i)
+  assert.match(migration, /FOR UPDATE SKIP LOCKED/i)
+})
+
 test('Shiprocket raw statuses and production webhook readiness use one contract', () => {
   const migration = read('supabase/migrations/040_shiprocket_raw_status.sql')
   const env = read('server/src/config/env.ts')

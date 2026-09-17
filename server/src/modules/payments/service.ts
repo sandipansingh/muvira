@@ -33,28 +33,78 @@ interface RegisteredWebhook {
   duplicate: boolean
 }
 
+interface ClaimedWebhook {
+  id: string
+  raw_payload: Record<string, unknown>
+  processing_token: string
+}
+
+const RECONCILIATION_WRITE_ATTEMPTS = 3
+const WEBHOOK_ENQUEUE_ATTEMPTS = 3
+
+function wait(delayMs: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, delayMs))
+}
+
 export async function recordPaymentReconciliation(input: {
   orderId: string
   paymentId?: string
   razorpayOrderId: string
   razorpayPaymentId?: string
+  providerAmount?: number
+  providerCurrency?: string
   reason: string
 }): Promise<boolean> {
-  const { error } = await adminSupabase.rpc('record_payment_reconciliation', {
-    p_order_id: input.orderId,
-    p_payment_id: input.paymentId ?? null,
-    p_razorpay_order_id: input.razorpayOrderId,
-    p_razorpay_payment_id: input.razorpayPaymentId ?? null,
-    p_reason: input.reason,
-  })
-  if (error) {
-    logger.error(
-      { error, orderId: input.orderId, razorpayOrderId: input.razorpayOrderId },
-      'Failed to persist payment reconciliation case'
+  for (let attempt = 1; attempt <= RECONCILIATION_WRITE_ATTEMPTS; attempt += 1) {
+    let error: unknown
+    try {
+      const result = await adminSupabase.rpc('record_payment_reconciliation', {
+        p_order_id: input.orderId,
+        p_payment_id: input.paymentId ?? null,
+        p_razorpay_order_id: input.razorpayOrderId,
+        p_razorpay_payment_id: input.razorpayPaymentId ?? null,
+        p_reason: input.reason,
+      })
+      error = result.error
+    } catch (rpcError) {
+      error = rpcError
+    }
+    if (!error) return true
+
+    if (attempt < RECONCILIATION_WRITE_ATTEMPTS) {
+      logger.warn(
+        {
+          error,
+          attempt,
+          orderId: input.orderId,
+          razorpayOrderId: input.razorpayOrderId,
+        },
+        'Retrying payment reconciliation persistence'
+      )
+      await wait(50 * 2 ** (attempt - 1))
+      continue
+    }
+
+    logger.fatal(
+      {
+        alert: 'payment_reconciliation_persistence_failed',
+        error,
+        attempts: attempt,
+        orderId: input.orderId,
+        paymentId: input.paymentId,
+        razorpayOrderId: input.razorpayOrderId,
+        razorpayPaymentId: input.razorpayPaymentId,
+        providerAmount: input.providerAmount,
+        providerCurrency: input.providerCurrency,
+        reason: input.reason,
+        occurredAt: new Date().toISOString(),
+      },
+      'CRITICAL: captured or orphaned provider payment reference has no reconciliation row'
     )
     return false
   }
-  return true
+
+  return false
 }
 
 async function getOwnedPayment(userId: string, razorpayOrderId: string): Promise<LocalPayment> {
@@ -116,13 +166,22 @@ async function finalizePayment(
 
   if (error || !data) {
     logger.error({ error, orderId: payment.order_id }, 'Atomic payment finalization failed')
-    await recordPaymentReconciliation({
+    const reconciliationRecorded = await recordPaymentReconciliation({
       orderId: payment.order_id,
       paymentId: payment.id,
       razorpayOrderId: payment.razorpay_order_id,
       razorpayPaymentId: providerPaymentId,
+      providerAmount: amountPaisa,
+      providerCurrency: currency,
       reason: `Captured payment could not be finalized: ${error?.message ?? 'empty finalization result'}`,
     })
+    if (!reconciliationRecorded) {
+      throw new AppError(
+        503,
+        'PAYMENT_RECONCILIATION_PERSISTENCE_FAILED',
+        'Payment was received but recovery could not be recorded. Please contact support.'
+      )
+    }
     throw new AppError(
       409,
       'PAYMENT_RECONCILIATION_REQUIRED',
@@ -179,6 +238,36 @@ export async function verifyPayment(
         razorpay_order_id: input.razorpay_order_id,
         reason: 'provider_state_mismatch',
       })
+      const providerShowsCapturedFunds =
+        providerPayment.status === 'captured' ||
+        providerPayment.captured === true ||
+        providerOrder.status === 'paid' ||
+        Number(providerOrder.amount_paid) > 0
+
+      if (providerShowsCapturedFunds) {
+        const reconciliationRecorded = await recordPaymentReconciliation({
+          orderId: payment.order_id,
+          paymentId: payment.id,
+          razorpayOrderId: payment.razorpay_order_id,
+          razorpayPaymentId: providerPayment.id,
+          providerAmount: Number(providerPayment.amount),
+          providerCurrency: providerPayment.currency,
+          reason: 'Captured provider state did not match the local payment contract',
+        })
+        if (!reconciliationRecorded) {
+          throw new AppError(
+            503,
+            'PAYMENT_RECONCILIATION_PERSISTENCE_FAILED',
+            'Payment was received but recovery could not be recorded. Please contact support.'
+          )
+        }
+        throw new AppError(
+          409,
+          'PAYMENT_RECONCILIATION_REQUIRED',
+          'Payment was received but the order requires reconciliation. Please contact support.'
+        )
+      }
+
       throw new AppError(409, 'PAYMENT_STATE_MISMATCH', 'Payment is not confirmed by Razorpay')
     }
 
@@ -243,23 +332,6 @@ async function registerWebhook(
       return { id: existing.id as string, duplicate: true }
     }
 
-    const { error: resetError } = await adminSupabase
-      .from('webhook_events')
-      .update({
-        processing_status: 'verified',
-        error_message: null,
-        processed_at: null,
-        raw_payload: payload,
-      })
-      .eq('id', existing.id)
-    if (resetError) {
-      throw databaseError(
-        'payments.recover_failed_webhook',
-        resetError,
-        'Webhook could not be recovered',
-        { code: 'WEBHOOK_AUDIT_FAILED' }
-      )
-    }
     return { id: existing.id as string, duplicate: false }
   }
   if (error)
@@ -270,26 +342,98 @@ async function registerWebhook(
   return { id: data.id as string, duplicate: false }
 }
 
-async function setWebhookStatus(
-  webhookId: string,
-  status: 'processed' | 'failed',
-  errorMessage?: string
-): Promise<void> {
-  const { error } = await adminSupabase
-    .from('webhook_events')
-    .update({
-      processing_status: status,
-      processed_at: new Date().toISOString(),
-      error_message: errorMessage?.slice(0, 2000) ?? null,
-    })
-    .eq('id', webhookId)
+async function claimRazorpayWebhook(webhookId: string): Promise<ClaimedWebhook | null> {
+  const { data, error } = await adminSupabase.rpc('claim_razorpay_webhook', {
+    p_webhook_id: webhookId,
+    p_lease_seconds: 120,
+  })
   if (error) {
+    throw databaseError('payments.claim_webhook', error, 'Webhook could not be claimed', {
+      code: 'WEBHOOK_AUDIT_FAILED',
+    })
+  }
+
+  const claimed = Array.isArray(data) ? data[0] : data
+  if (!claimed) return null
+  return claimed as unknown as ClaimedWebhook
+}
+
+async function completeRazorpayWebhook(webhookId: string, processingToken: string): Promise<void> {
+  const { data, error } = await adminSupabase.rpc('complete_razorpay_webhook', {
+    p_webhook_id: webhookId,
+    p_processing_token: processingToken,
+  })
+  if (error || data !== true) {
     throw databaseError(
-      'payments.update_webhook_status',
+      'payments.complete_webhook',
       error,
-      'Webhook status could not be persisted',
+      'Webhook completion could not be persisted',
       { code: 'WEBHOOK_AUDIT_FAILED' }
     )
+  }
+}
+
+async function failRazorpayWebhook(
+  webhookId: string,
+  processingToken: string,
+  errorMessage: string
+): Promise<void> {
+  const { data, error } = await adminSupabase.rpc('fail_razorpay_webhook', {
+    p_webhook_id: webhookId,
+    p_processing_token: processingToken,
+    p_error: errorMessage.slice(0, 2000),
+  })
+  if (error || data !== true) {
+    throw databaseError('payments.fail_webhook', error, 'Webhook failure could not be persisted', {
+      code: 'WEBHOOK_AUDIT_FAILED',
+    })
+  }
+}
+
+function startWebhookLeaseHeartbeat(
+  webhookId: string,
+  processingToken: string
+): {
+  assertOwned: () => Promise<void>
+  stop: () => Promise<void>
+} {
+  let stopped = false
+  let leaseLost = false
+  let renewal: Promise<void> | null = null
+
+  const renew = async (): Promise<void> => {
+    if (stopped || leaseLost) return
+    const { data, error } = await adminSupabase.rpc('renew_razorpay_webhook_lease', {
+      p_webhook_id: webhookId,
+      p_processing_token: processingToken,
+      p_lease_seconds: 120,
+    })
+    if (error || data !== true) leaseLost = true
+  }
+
+  const scheduleRenewal = (): void => {
+    if (renewal || stopped || leaseLost) return
+    renewal = renew().finally(() => {
+      renewal = null
+    })
+  }
+
+  const timer = setInterval(scheduleRenewal, 30_000)
+  timer.unref()
+
+  return {
+    assertOwned: async () => {
+      if (renewal) await renewal
+      if (!leaseLost) await renew()
+      if (leaseLost) {
+        throw new AppError(409, 'WEBHOOK_LEASE_LOST', 'Webhook processing lease is no longer owned')
+      }
+    },
+    stop: async () => {
+      stopped = true
+      clearInterval(timer)
+      if (renewal) await renewal
+    },
   }
 }
 
@@ -302,19 +446,48 @@ export function parseRazorpayWebhookPayment(
   return parsed.success ? parsed.data : undefined
 }
 
-async function enqueueRazorpayWebhookRetry(webhookId: string): Promise<void> {
-  const { error } = await adminSupabase.rpc('enqueue_retry_job', {
-    p_job_type: 'razorpay_webhook',
-    p_reference_id: webhookId,
-    p_payload: { webhookId },
-    p_max_retries: 10,
-  })
-  if (error) {
-    logger.error({ error, webhookId }, 'Failed to enqueue Razorpay webhook retry')
+export async function enqueueRazorpayWebhookRetry(webhookId: string): Promise<boolean> {
+  for (let attempt = 1; attempt <= WEBHOOK_ENQUEUE_ATTEMPTS; attempt += 1) {
+    let error: unknown
+    try {
+      const result = await adminSupabase.rpc('enqueue_retry_job', {
+        p_job_type: 'razorpay_webhook',
+        p_reference_id: webhookId,
+        p_payload: { webhookId },
+        p_max_retries: 10,
+      })
+      error = result.error
+    } catch (rpcError) {
+      error = rpcError
+    }
+    if (!error) return true
+
+    if (attempt < WEBHOOK_ENQUEUE_ATTEMPTS) {
+      logger.warn({ error, webhookId, attempt }, 'Retrying Razorpay webhook retry enqueue')
+      await wait(50 * 2 ** (attempt - 1))
+      continue
+    }
+
+    logger.fatal(
+      {
+        alert: 'razorpay_webhook_retry_enqueue_failed',
+        error,
+        webhookId,
+        attempts: attempt,
+        occurredAt: new Date().toISOString(),
+      },
+      'CRITICAL: failed Razorpay webhook is visible but could not be queued for retry'
+    )
+    return false
   }
+
+  return false
 }
 
-async function cancelFailedPaymentCheckout(providerPayment: RazorpayWebhookPayment): Promise<void> {
+async function cancelFailedPaymentCheckout(
+  providerPayment: RazorpayWebhookPayment,
+  assertLeaseOwned: () => Promise<void>
+): Promise<void> {
   const { data: localPayment, error } = await adminSupabase
     .from('payments')
     .select('id, order_id, razorpay_order_id, amount_paisa, currency, status')
@@ -353,15 +526,37 @@ async function cancelFailedPaymentCheckout(providerPayment: RazorpayWebhookPayme
     providerOrder.status === 'paid' ||
     Number(providerOrder.amount_paid) > 0
   if (isCapturedOrInProgress) {
-    throw new AppError(
-      409,
-      'PAYMENT_IN_PROGRESS',
-      'Payment state is still in progress and the checkout was not released'
+    logger.info(
+      {
+        orderId: localPayment.order_id,
+        razorpayOrderId: localPayment.razorpay_order_id,
+        providerOrderStatus: providerOrder.status,
+      },
+      'Failed payment webhook retained checkout reservations due to captured or in-progress state'
     )
+    return
   }
   if (currentProviderPayment.status !== 'failed') {
     throw new AppError(409, 'PAYMENT_IN_PROGRESS', 'Payment failure is not confirmed by Razorpay')
   }
+
+  const providerOrderStatus = String(providerOrder.status).toLowerCase()
+  const providerOrderIsExhausted = ['cancelled', 'closed', 'expired', 'failed'].includes(
+    providerOrderStatus
+  )
+  if (!providerOrderIsExhausted) {
+    logger.info(
+      {
+        orderId: localPayment.order_id,
+        razorpayOrderId: localPayment.razorpay_order_id,
+        providerOrderStatus,
+      },
+      'Failed payment attempt retained checkout reservations because provider order accepts retries'
+    )
+    return
+  }
+
+  await assertLeaseOwned()
 
   const { data: released, error: releaseError } = await adminSupabase.rpc('fail_checkout', {
     p_order_id: localPayment.order_id,
@@ -375,10 +570,12 @@ async function cancelFailedPaymentCheckout(providerPayment: RazorpayWebhookPayme
 
 async function processVerifiedRazorpayWebhook(
   webhookId: string,
+  processingToken: string,
   payload: Record<string, unknown>
 ): Promise<{ status: 'processed' | 'ignored' }> {
   const event = typeof payload['event'] === 'string' ? payload['event'] : ''
   const providerPayment = parseRazorpayWebhookPayment(payload)
+  const heartbeat = startWebhookLeaseHeartbeat(webhookId, processingToken)
 
   try {
     if (event === 'payment.captured') {
@@ -398,6 +595,7 @@ async function processVerifiedRazorpayWebhook(
         .single()
       if (error || !localPayment) throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
 
+      await heartbeat.assertOwned()
       await finalizePayment(
         localPayment as LocalPayment,
         providerPayment.id,
@@ -406,7 +604,9 @@ async function processVerifiedRazorpayWebhook(
         providerPayment.currency,
         providerPayment.method
       )
-      await setWebhookStatus(webhookId, 'processed')
+      await heartbeat.assertOwned()
+      await heartbeat.stop()
+      await completeRazorpayWebhook(webhookId, processingToken)
       return { status: 'processed' }
     }
 
@@ -414,31 +614,29 @@ async function processVerifiedRazorpayWebhook(
       if (!providerPayment?.id || !providerPayment.order_id) {
         throw new AppError(400, 'WEBHOOK_MALFORMED', 'Malformed failed-payment webhook')
       }
-      await cancelFailedPaymentCheckout(providerPayment)
-      await setWebhookStatus(webhookId, 'processed')
+      await cancelFailedPaymentCheckout(providerPayment, heartbeat.assertOwned)
+      await heartbeat.assertOwned()
+      await heartbeat.stop()
+      await completeRazorpayWebhook(webhookId, processingToken)
       return { status: 'processed' }
     }
 
-    await setWebhookStatus(webhookId, 'processed')
+    await heartbeat.assertOwned()
+    await heartbeat.stop()
+    await completeRazorpayWebhook(webhookId, processingToken)
     return { status: 'ignored' }
   } catch (error) {
+    await heartbeat.stop()
     const message = error instanceof Error ? error.message : 'Webhook processing failed'
-    await setWebhookStatus(webhookId, 'failed', message)
+    await failRazorpayWebhook(webhookId, processingToken, message)
     throw error
   }
 }
 
 export async function processStoredRazorpayWebhook(webhookId: string): Promise<void> {
-  const { data: event, error } = await adminSupabase
-    .from('webhook_events')
-    .select('source, raw_payload, processing_status')
-    .eq('id', webhookId)
-    .single()
-  if (error || !event || event.source !== 'razorpay') {
-    throw new Error('Stored Razorpay webhook was not found')
-  }
-  if (event.processing_status === 'processed') return
-  await processVerifiedRazorpayWebhook(webhookId, event.raw_payload as Record<string, unknown>)
+  const event = await claimRazorpayWebhook(webhookId)
+  if (!event) return
+  await processVerifiedRazorpayWebhook(webhookId, event.processing_token, event.raw_payload)
 }
 
 export async function processRazorpayWebhook(
@@ -454,10 +652,24 @@ export async function processRazorpayWebhook(
   const registered = await registerWebhook(rawBody, payload, providerEventId)
   if (registered.duplicate) return { status: 'duplicate' }
 
+  const claimed = await claimRazorpayWebhook(registered.id)
+  if (!claimed) return { status: 'duplicate' }
+
   try {
-    return await processVerifiedRazorpayWebhook(registered.id, payload)
+    return await processVerifiedRazorpayWebhook(
+      registered.id,
+      claimed.processing_token,
+      claimed.raw_payload
+    )
   } catch (error) {
-    await enqueueRazorpayWebhookRetry(registered.id)
+    const enqueued = await enqueueRazorpayWebhookRetry(registered.id)
+    if (!enqueued) {
+      throw new AppError(
+        503,
+        'WEBHOOK_RETRY_UNAVAILABLE',
+        'Webhook processing failed and automatic recovery could not be queued'
+      )
+    }
     throw error
   }
 }

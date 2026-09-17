@@ -124,13 +124,13 @@ FROM (VALUES ('webhook_events'), ('sync_jobs')) AS expected(table_name);
 
 SELECT is(
   (public.get_runtime_schema_status()->>'contract_version')::INTEGER,
-  41,
-  'runtime schema contract reports version 41'
+  42,
+  'runtime schema contract reports version 42'
 );
 
 SELECT is(
   (public.get_runtime_schema_status()->>'migration_version')::TEXT,
-  '041',
+  '042',
   'runtime schema contract reports the latest migration'
 );
 
@@ -192,6 +192,16 @@ SELECT is(
     WHERE reference_id = 'webhook-dedup-test'),
   0,
   'an active lease prevents a second claim'
+);
+
+SELECT is(
+  public.renew_retry_job_lease(
+    (SELECT id FROM retry_jobs WHERE reference_id = 'webhook-dedup-test'),
+    (SELECT lease_token FROM retry_jobs WHERE reference_id = 'webhook-dedup-test'),
+    30
+  ),
+  TRUE,
+  'the current retry worker can renew its unexpired lease'
 );
 
 UPDATE retry_jobs
@@ -261,6 +271,75 @@ SELECT ok(
       AND next_retry_at <= NOW()
   ),
   'manual requeue resets retry, error, lease, and schedule state'
+);
+
+INSERT INTO webhook_events (
+  id, source, event_id, event_type, payload_hash, raw_payload, processing_status
+) VALUES (
+  '44444444-4444-4444-8444-444444444444',
+  'razorpay',
+  'webhook-claim-test',
+  'payment.captured',
+  'webhook-claim-test-hash',
+  '{"event":"payment.captured"}',
+  'verified'
+);
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER
+   FROM public.claim_razorpay_webhook('44444444-4444-4444-8444-444444444444', 30)),
+  1,
+  'an eligible Razorpay webhook is claimed once'
+);
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER
+   FROM public.claim_razorpay_webhook('44444444-4444-4444-8444-444444444444', 30)),
+  0,
+  'an active Razorpay webhook lease prevents concurrent processing'
+);
+
+SELECT is(
+  public.renew_razorpay_webhook_lease(
+    '44444444-4444-4444-8444-444444444444',
+    (SELECT processing_token FROM webhook_events
+     WHERE id = '44444444-4444-4444-8444-444444444444'),
+    30
+  ),
+  TRUE,
+  'the current Razorpay webhook worker can renew its lease'
+);
+
+UPDATE webhook_events
+SET processing_token = '55555555-5555-4555-8555-555555555555',
+    processing_lease_expires_at = NOW() - INTERVAL '1 second'
+WHERE id = '44444444-4444-4444-8444-444444444444';
+
+SELECT is(
+  (SELECT COUNT(*)::INTEGER
+   FROM public.claim_razorpay_webhook('44444444-4444-4444-8444-444444444444', 30)
+   WHERE processing_token <> '55555555-5555-4555-8555-555555555555'),
+  1,
+  'an expired Razorpay webhook lease is reclaimed with a new token'
+);
+
+SELECT is(
+  public.complete_razorpay_webhook(
+    '44444444-4444-4444-8444-444444444444',
+    '55555555-5555-4555-8555-555555555555'
+  ),
+  FALSE,
+  'a stale Razorpay webhook token cannot complete processing'
+);
+
+SELECT is(
+  public.complete_razorpay_webhook(
+    '44444444-4444-4444-8444-444444444444',
+    (SELECT processing_token FROM webhook_events
+     WHERE id = '44444444-4444-4444-8444-444444444444')
+  ),
+  TRUE,
+  'the current Razorpay webhook owner can complete processing'
 );
 
 SELECT * FROM finish();

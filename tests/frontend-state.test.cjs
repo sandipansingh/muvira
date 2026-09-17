@@ -120,6 +120,31 @@ test('post-auth return paths remain normalized and same-origin', async () => {
   assert.equal(safeReturnPath('%E0%A4%A'), '/profile')
 })
 
+test('stale profile restores cannot overwrite a newer session or sign-out', async () => {
+  const { createLatestAttemptGuard } = await loadClientModule('lib/latestAttempt.ts')
+  const guard = createLatestAttemptGuard()
+  let visibleSession = null
+
+  const firstAttempt = guard.begin()
+  const applyFirst = () => {
+    if (guard.isCurrent(firstAttempt)) visibleSession = 'session-a'
+  }
+
+  const secondAttempt = guard.begin()
+  const applySecond = () => {
+    if (guard.isCurrent(secondAttempt)) visibleSession = 'session-b'
+  }
+
+  applySecond()
+  applyFirst()
+  assert.equal(visibleSession, 'session-b')
+
+  const thirdAttempt = guard.begin()
+  guard.invalidate()
+  if (guard.isCurrent(thirdAttempt)) visibleSession = 'session-c'
+  assert.equal(visibleSession, 'session-b')
+})
+
 test('order confirmation requires an owned paid order response', async () => {
   const { orderConfirmationError } = await loadClientModule('lib/utils/orderConfirmation.ts')
   const paidOrder = { id: 'order-1', paymentStatus: 'paid' }

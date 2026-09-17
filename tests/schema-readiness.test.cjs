@@ -47,8 +47,8 @@ test(
     assert.equal(workerStarts, expectedReady ? 1 : 0)
 
     if (expectedReady) {
-      assert.equal(status.contract.contract_version, 38)
-      assert.equal(status.contract.migration_version, '038')
+      assert.equal(status.contract.contract_version, 42)
+      assert.equal(status.contract.migration_version, '042')
       for (const [key, value] of Object.entries(status.contract)) {
         if (key.startsWith('missing_') || key.startsWith('invalid_')) assert.deepEqual(value, [])
       }
