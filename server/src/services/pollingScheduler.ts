@@ -10,6 +10,8 @@ import { writeTrackingSnapshot } from './trackingAnalytics'
 import { recordFullPoll, recordOfdPoll, recordSyncError } from './metricsCollector'
 import { checkOperationalAlerts } from './operationalAlerts'
 import { expireAbandonedCheckouts } from '../modules/checkout/service'
+import { reconcileActionableProviderOperations } from './providerOperations'
+import { processLateCaptureWatches } from './retainedCheckout'
 
 /**
  * Intelligent Polling Scheduler
@@ -60,6 +62,7 @@ export function startPollingScheduler(): void {
   const checkoutExpiryWorker = cron.schedule('* * * * *', async () => {
     try {
       const result = await expireAbandonedCheckouts(100)
+      await processLateCaptureWatches(20)
       if (result.released > 0 || result.retained > 0) {
         logger.info(result, 'PollingScheduler: inspected expired checkouts')
       }
@@ -68,6 +71,15 @@ export function startPollingScheduler(): void {
     }
   })
   scheduledJobs.push(checkoutExpiryWorker)
+
+  const providerReconciliationWorker = cron.schedule('*/2 * * * *', async () => {
+    try {
+      await reconcileActionableProviderOperations(20)
+    } catch (error) {
+      logger.error({ error }, 'PollingScheduler: provider reconciliation failed')
+    }
+  })
+  scheduledJobs.push(providerReconciliationWorker)
 
   const notificationWorker = cron.schedule('* * * * *', async () => {
     try {
@@ -88,7 +100,7 @@ export function startPollingScheduler(): void {
   scheduledJobs.push(operationalAlertWorker)
 
   logger.info(
-    'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, notifications=*/1, alerts=*/5)'
+    'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, provider=*/2, notifications=*/1, alerts=*/5)'
   )
 }
 

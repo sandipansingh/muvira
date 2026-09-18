@@ -225,6 +225,38 @@ test(
       })
       assert.equal(forbidden.status, 403)
       assert.equal(forbidden.body.error.code, 'FORBIDDEN')
+
+      const operationId = crypto.randomUUID()
+      const missingCancellationReason = await request(
+        baseUrl,
+        `/api/admin/orders/${operationId}/shiprocket-cancel`,
+        { method: 'POST', accessToken: admin.accessToken, body: {} }
+      )
+      assert.equal(missingCancellationReason.status, 400)
+      assert.equal(missingCancellationReason.body.error.code, 'VALIDATION_ERROR')
+
+      const missingPartialIntent = await request(
+        baseUrl,
+        `/api/admin/orders/${operationId}/refund`,
+        {
+          method: 'POST',
+          accessToken: admin.accessToken,
+          body: { reason: 'Partial refund requested', amount_paisa: 500 },
+        }
+      )
+      assert.equal(missingPartialIntent.status, 400)
+      assert.equal(missingPartialIntent.body.error.code, 'VALIDATION_ERROR')
+
+      const forbiddenReconcile = await request(
+        baseUrl,
+        `/api/admin/diagnostics/provider-operations/${operationId}/reconcile`,
+        {
+          method: 'POST',
+          accessToken: customer.accessToken,
+          body: { reason: 'Customer must not reconcile provider operations' },
+        }
+      )
+      assert.equal(forbiddenReconcile.status, 403)
     })
 
     await context.test(

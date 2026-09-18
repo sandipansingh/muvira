@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
+import { auditProviderAction } from '../../services/providerOperations'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import { logger } from '../../lib/logger'
 import type { ListOrdersQuery, AdminListOrdersQuery } from './schema'
@@ -239,7 +240,17 @@ export async function adminCancelShiprocketOrder(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await service.adminCancelShiprocketOrder(req.params['id'] as string)
+    const orderId = req.params['id'] as string
+    const reason = req.body['reason'] as string
+    const result = await service.adminCancelShiprocketOrder(orderId, reason)
+    await auditProviderAction({
+      operationId: result.cancellation.id,
+      orderId,
+      actorId: req.user!.id,
+      action: 'cancel',
+      reason,
+      outcome: result.cancellation.local_applied_at ? 'success' : 'no_change',
+    })
     res.json({ success: true, data: result })
   } catch (err) {
     next(err)
@@ -252,8 +263,54 @@ export async function adminCancelShiprocketShipment(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await service.adminCancelShiprocketShipment(req.params['id'] as string)
+    const orderId = req.params['id'] as string
+    const reason = req.body['reason'] as string
+    const result = await service.adminCancelShiprocketShipment(orderId, reason)
+    await auditProviderAction({
+      operationId: result.cancellation.id,
+      orderId,
+      actorId: req.user!.id,
+      action: 'cancel',
+      reason,
+      outcome: result.cancellation.local_applied_at ? 'success' : 'no_change',
+    })
     res.json({ success: true, data: result })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function adminRefundOrder(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const orderId = req.params['id'] as string
+    const reason = req.body['reason'] as string
+    const operation = await service.adminRefundOrder(orderId, req.body)
+    if (!operation) {
+      res.json({ success: true, data: { status: 'already_refunded' } })
+      return
+    }
+    await auditProviderAction({
+      operationId: operation.id,
+      orderId,
+      actorId: req.user!.id,
+      action: 'refund',
+      reason,
+      outcome: operation.local_applied_at ? 'success' : 'no_change',
+    })
+    res.json({
+      success: true,
+      data: {
+        operation_id: operation.id,
+        provider_state: operation.state,
+        local_applied_at: operation.local_applied_at,
+        amount_paisa: operation.amount_paisa,
+        currency: operation.currency,
+      },
+    })
   } catch (err) {
     next(err)
   }

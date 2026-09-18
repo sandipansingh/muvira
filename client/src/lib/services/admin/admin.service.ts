@@ -778,12 +778,12 @@ export const adminApiService = {
   /**
    * Cancels a Shiprocket order.
    */
-  async cancelShiprocketOrder(id: string): Promise<ApiResponse<{ status: string }>> {
+  async cancelShiprocketOrder(id: string, reason: string): Promise<ApiResponse<AnyRecord>> {
     const res = await adminPost<{
       success: boolean
-      data?: { status: string }
+      data?: AnyRecord
       error?: AnyRecord
-    }>(`/api/admin/orders/${id}/shiprocket-cancel`)
+    }>(`/api/admin/orders/${id}/shiprocket-cancel`, { reason })
     if (!res.success || !res.data)
       return {
         success: false,
@@ -998,7 +998,87 @@ export const adminApiService = {
       lastError: (row['message'] as string | null) ?? null,
       updatedAt: (row['last_seen_at'] as string) ?? (row['updated_at'] as string),
     }))
-    return { success: true, data: [...outbox, ...invoices, ...reconciliations, ...alerts] }
+    const operations = (res.data['provider_operations'] ?? []).map((row) => ({
+      id: row['id'] as string,
+      orderId: row['order_id'] as string,
+      kind: 'provider_operation' as const,
+      label: `${row['provider'] as string} ${String(row['operation_type']).replaceAll('_', ' ')}`,
+      lastError:
+        (row['manual_review_reason'] as string | null) ??
+        (row['provider_status'] ? `Provider status: ${row['provider_status'] as string}` : null),
+      updatedAt: row['updated_at'] as string,
+      state: row['state'] as string,
+      provider: row['provider'] as string,
+      operationType: row['operation_type'] as string,
+      businessKey: row['business_key'] as string,
+      targetType: row['provider_target_type'] as string,
+      target: row['provider_target_id'] as string,
+      providerStatus: (row['provider_status'] as string | null) ?? null,
+      dispatchAttempts: (row['dispatch_attempts'] as number) ?? 0,
+      reconciliationAttempts: (row['reconciliation_attempts'] as number) ?? 0,
+      manualReviewReason: (row['manual_review_reason'] as string | null) ?? null,
+      amountPaisa: (row['amount_paisa'] as number | null) ?? null,
+      currency: (row['currency'] as string | null) ?? null,
+      localCompletionPending:
+        row['state'] === 'provider_succeeded' && row['local_applied_at'] == null,
+    }))
+    const retained = (res.data['retained_checkout_cases'] ?? []).map((row) => ({
+      id: row['order_id'] as string,
+      orderId: row['order_id'] as string,
+      kind: 'retained_checkout' as const,
+      label: `${row['escalation'] as string} retained checkout`,
+      lastError: `Provider status: ${row['last_provider_status'] as string}; extension ${row['extension_count'] as number}`,
+      updatedAt: row['updated_at'] as string,
+      state: row['state'] as string,
+      amountPaisa: row['last_provider_amount_paid'] as number,
+      currency: row['last_provider_currency'] as string,
+      deadlineAt: row['retention_deadline_at'] as string,
+      extensionCount: row['extension_count'] as number,
+      escalation: row['escalation'] as 'warning' | 'critical',
+      lastVerifiedAt: row['last_verified_at'] as string,
+      providerStatus: row['last_provider_status'] as string,
+    }))
+    const lateCaptures = (res.data['late_capture_watches'] ?? []).map((row) => ({
+      id: row['id'] as string,
+      orderId: row['order_id'] as string,
+      kind: 'late_capture_watch' as const,
+      label: 'Late capture watch',
+      lastError: row['last_provider_status']
+        ? `Provider status: ${row['last_provider_status'] as string}`
+        : 'Awaiting provider state',
+      updatedAt: row['updated_at'] as string,
+      state: row['status'] as string,
+      provider: 'razorpay' as const,
+      target: row['razorpay_order_id'] as string,
+      providerStatus: (row['last_provider_status'] as string | null) ?? null,
+      lastCheckedAt: (row['last_checked_at'] as string | null) ?? null,
+      amountPaisa: row['expected_amount_paisa'] as number,
+      currency: row['currency'] as string,
+    }))
+    return {
+      success: true,
+      data: [
+        ...outbox,
+        ...invoices,
+        ...reconciliations,
+        ...alerts,
+        ...operations,
+        ...retained,
+        ...lateCaptures,
+      ],
+    }
+  },
+
+  async reconcileProviderOperation(id: string, reason: string): Promise<ApiResponse<AnyRecord>> {
+    return adminPost(`/api/admin/diagnostics/provider-operations/${id}/reconcile`, { reason })
+  },
+
+  async resolveRetainedCheckout(
+    orderId: string,
+    action: 'recheck' | 'release',
+    reason: string
+  ): Promise<ApiResponse<AnyRecord>> {
+    return adminPost(`/api/admin/diagnostics/retained-checkouts/${orderId}/${action}`, { reason })
   },
 
   /**

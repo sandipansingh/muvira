@@ -16,6 +16,8 @@ const applicationRelations = [
   'coupons',
   'inventory_reservations',
   'invoice_records',
+  'late_capture_watches',
+  'retained_checkout_action_log',
   'low_stock_products',
   'notification_deliveries',
   'notification_logs',
@@ -29,11 +31,14 @@ const applicationRelations = [
   'payment_logs',
   'payment_reconciliation_cases',
   'payments',
+  'provider_operation_audit_log',
+  'provider_operations',
   'product_images',
   'product_reviews',
   'products',
   'profiles',
   'retry_jobs',
+  'retained_checkout_cases',
   'shipment_events',
   'shipment_health',
   'site_settings',
@@ -46,12 +51,15 @@ const privilegedRpcNames = [
   'add_cart_item_checked',
   'add_product_image_atomic',
   'attach_razorpay_order',
+  'audit_provider_operation_action',
+  'authorize_razorpay_refund_retry',
   'begin_invoice_generation',
   'check_webhook_duplicate',
   'claim_razorpay_webhook',
   'claim_notification_deliveries',
   'claim_notification_outbox',
   'claim_operation_lease',
+  'claim_provider_operation_dispatch',
   'complete_notification_delivery',
   'complete_notification_outbox',
   'complete_razorpay_webhook',
@@ -64,6 +72,7 @@ const privilegedRpcNames = [
   'fail_notification_delivery',
   'fail_notification_outbox',
   'fail_razorpay_webhook',
+  'finalize_provider_operation',
   'finalize_captured_payment',
   'finalize_captured_payment_fenced',
   'generate_order_number',
@@ -71,11 +80,19 @@ const privilegedRpcNames = [
   'get_runtime_schema_status',
   'increment_coupon_usage',
   'initialize_checkout',
+  'assert_fulfillment_mutation_allowed',
+  'prepare_late_capture_refund_fenced',
+  'prepare_provider_operation',
+  'prepare_shiprocket_cancellation',
+  'record_provider_operation_result',
+  'record_retained_checkout_action',
   'reorder_product_images_atomic',
   'renew_razorpay_webhook_lease',
   'renew_operation_lease',
   'renew_retry_job_lease',
   'release_operation_lease',
+  'release_retained_checkout_fenced',
+  'retain_payable_checkout_fenced',
   'set_cart_item_quantity_checked',
   'set_default_address',
   'skip_notification_delivery',
@@ -217,8 +234,8 @@ test(
           'get_runtime_schema_status'
         )
         assert.ifError(schemaStatusError)
-        assert.equal(schemaStatus.contract_version, 43)
-        assert.equal(schemaStatus.migration_version, '043')
+        assert.equal(schemaStatus.contract_version, 48)
+        assert.equal(schemaStatus.migration_version, '048')
         assert.equal(schemaStatus.ready, true)
         for (const [key, value] of Object.entries(schemaStatus)) {
           if (key.startsWith('missing_') || key.startsWith('invalid_')) {

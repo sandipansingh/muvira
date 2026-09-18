@@ -69,6 +69,15 @@ function paymentQuery(localPayment) {
   return builder
 }
 
+function missingLateCaptureQuery() {
+  const builder = {
+    select: () => builder,
+    eq: () => builder,
+    maybeSingle: async () => ({ data: null, error: null }),
+  }
+  return builder
+}
+
 let executionLeaseSequence = 0
 function executionLeaseRpc(name, args = {}) {
   if (name === 'claim_operation_lease') {
@@ -148,6 +157,7 @@ test('a failed attempt racing a capture never releases reservations', async () =
   let orderPaymentStatus = 'pending'
 
   adminSupabase.from = (relation) => {
+    if (relation === 'late_capture_watches') return missingLateCaptureQuery()
     assert.equal(relation, 'payments')
     return paymentQuery(localPayment)
   }
@@ -271,6 +281,7 @@ test('concurrent processors cannot execute the same stored webhook twice', async
   let finalizationCalls = 0
 
   adminSupabase.from = (relation) => {
+    if (relation === 'late_capture_watches') return missingLateCaptureQuery()
     assert.equal(relation, 'payments')
     return paymentQuery({
       id: 'payment-local-once',
@@ -468,6 +479,7 @@ test('captured finalization cannot report normal reconciliation when case persis
     if (relation === 'payment_logs') {
       return { insert: async () => ({ error: null }) }
     }
+    if (relation === 'late_capture_watches') return missingLateCaptureQuery()
     throw new Error(`Unexpected relation: ${relation}`)
   }
   adminSupabase.rpc = async (name) => {
@@ -706,6 +718,7 @@ test('expired payable checkout retains reservations and a later capture commits 
       return builder
     }
     if (relation === 'payments') return paymentQuery(localPayment)
+    if (relation === 'late_capture_watches') return missingLateCaptureQuery()
     throw new Error(`Unexpected relation: ${relation}`)
   }
 
@@ -922,8 +935,8 @@ test('webhook enqueue exhaustion returns 503 and remains visible to admin diagno
     if (name === 'get_runtime_schema_status') {
       return {
         data: {
-          contract_version: 43,
-          migration_version: '043',
+          contract_version: 48,
+          migration_version: '048',
           ready: true,
           missing_relations: [],
           missing_columns: [],

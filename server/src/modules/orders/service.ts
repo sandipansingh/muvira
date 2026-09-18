@@ -11,12 +11,16 @@ import {
   schedulePickup as shiprocketSchedulePickup,
   generateLabel as shiprocketGenerateLabel,
   generateManifest as shiprocketGenerateManifest,
-  cancelOrder as shiprocketCancelOrder,
-  cancelShipment as shiprocketCancelShipment,
   getPickupLocations as shiprocketGetPickupLocations,
   getShipmentDetails as shiprocketGetShipmentDetails,
   generateInvoice as shiprocketGenerateInvoice,
 } from '../../services/shiprocket'
+import {
+  cancelOrderWithProviderSafety,
+  dispatchRazorpayRefund,
+  prepareRefund,
+  withFulfillmentMutationLease,
+} from '../../services/providerOperations'
 import { logger } from '../../lib/logger'
 import { emitStatusChangeEvents } from '../../services/eventBus'
 import { shiprocketStatusToOrderStatus, isValidTransition } from './stateMachine'
@@ -28,6 +32,7 @@ import type {
   AddOrderNoteInput,
   AssignAwbInput,
   FulfillOrderInput,
+  RefundOrderInput,
 } from './schema'
 
 //
@@ -187,6 +192,28 @@ export async function adminUpdateOrderStatus(
   const oldStatus = current.status as string
   const newStatus = input.status
 
+  if (newStatus === 'refunded') {
+    throw new AppError(
+      409,
+      'PROVIDER_REFUND_REQUIRED',
+      'Refunded status is applied only after Razorpay confirms a processed refund'
+    )
+  }
+  if (newStatus === 'cancelled') {
+    const { data: providerOrder } = await adminSupabase
+      .from('orders')
+      .select('shiprocket_order_id')
+      .eq('id', orderId)
+      .single()
+    if (providerOrder?.shiprocket_order_id) {
+      throw new AppError(
+        409,
+        'PROVIDER_CANCELLATION_REQUIRED',
+        'Use the Shiprocket cancellation action for provider-managed orders'
+      )
+    }
+  }
+
   if (!isValidTransition(oldStatus, newStatus)) {
     logger.warn(
       { orderId, oldStatus, newStatus, source: 'admin_manual' },
@@ -207,7 +234,7 @@ export async function adminUpdateOrderStatus(
   return adminGetOrder(orderId)
 }
 
-export async function adminUpdateFulfillment(
+async function adminUpdateFulfillmentInternal(
   orderId: string,
   input: UpdateFulfillmentInput
 ): Promise<Order> {
@@ -229,6 +256,13 @@ export async function adminUpdateFulfillment(
     throw databaseError('orders.update_fulfillment', error, 'Failed to update fulfillment')
   if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
   return adminGetOrder(orderId)
+}
+
+export async function adminUpdateFulfillment(
+  orderId: string,
+  input: UpdateFulfillmentInput
+): Promise<Order> {
+  return withFulfillmentMutationLease(orderId, () => adminUpdateFulfillmentInternal(orderId, input))
 }
 
 export async function adminAddOrderNote(orderId: string, input: AddOrderNoteInput): Promise<Order> {
@@ -537,7 +571,9 @@ export async function createShiprocketOrder(
   orderId: string,
   pickupLocationOverride?: string
 ): Promise<{ shiprocket_order_id: number; shipment_id: number }> {
-  return createShiprocketOrderInternal(orderId, { pickupLocation: pickupLocationOverride })
+  return withFulfillmentMutationLease(orderId, () =>
+    createShiprocketOrderInternal(orderId, { pickupLocation: pickupLocationOverride })
+  )
 }
 
 async function createShiprocketOrderInternal(
@@ -693,10 +729,11 @@ async function assertPickupLocationConfigured(pickupLocation: string): Promise<v
 }
 
 export async function adminCreateShipment(orderId: string, pickupLocation: string): Promise<Order> {
-  await assertPickupLocationConfigured(pickupLocation)
-  await createShiprocketOrder(orderId, pickupLocation)
-
-  return adminGetOrder(orderId)
+  return withFulfillmentMutationLease(orderId, async () => {
+    await assertPickupLocationConfigured(pickupLocation)
+    await createShiprocketOrderInternal(orderId, { pickupLocation })
+    return adminGetOrder(orderId)
+  })
 }
 
 //
@@ -779,7 +816,7 @@ async function getOrderShipmentId(
   return { shipmentId: Number(order.shipment_id), awbCode: order.awb_code }
 }
 
-export async function adminAssignAwb(orderId: string, input: AssignAwbInput): Promise<Order> {
+async function adminAssignAwbInternal(orderId: string, input: AssignAwbInput): Promise<Order> {
   const { shipmentId } = await getOrderShipmentId(orderId)
 
   const result = await shiprocketAssignAwb({
@@ -810,7 +847,11 @@ export async function adminAssignAwb(orderId: string, input: AssignAwbInput): Pr
   return adminGetOrder(orderId)
 }
 
-export async function adminSchedulePickup(orderId: string): Promise<{ status: string }> {
+export async function adminAssignAwb(orderId: string, input: AssignAwbInput): Promise<Order> {
+  return withFulfillmentMutationLease(orderId, () => adminAssignAwbInternal(orderId, input))
+}
+
+async function adminSchedulePickupInternal(orderId: string): Promise<{ status: string }> {
   const { shipmentId } = await getOrderShipmentId(orderId)
 
   const result = await shiprocketSchedulePickup({
@@ -838,12 +879,16 @@ export async function adminSchedulePickup(orderId: string): Promise<{ status: st
   return { status: pickupStatus }
 }
 
+export async function adminSchedulePickup(orderId: string): Promise<{ status: string }> {
+  return withFulfillmentMutationLease(orderId, () => adminSchedulePickupInternal(orderId))
+}
+
 export async function adminGenerateLabel(orderId: string): Promise<Buffer> {
-  return adminGenerateDocument(orderId, 'label')
+  return withFulfillmentMutationLease(orderId, () => adminGenerateDocument(orderId, 'label'))
 }
 
 export async function adminGenerateManifest(orderId: string): Promise<Buffer> {
-  return adminGenerateDocument(orderId, 'manifest')
+  return withFulfillmentMutationLease(orderId, () => adminGenerateDocument(orderId, 'manifest'))
 }
 
 async function adminGenerateDocument(
@@ -1099,49 +1144,22 @@ export async function adminGenerateInvoice(
   return generateInvoice(await loadInvoiceOrder(orderId), executionLease)
 }
 
-export async function adminCancelShiprocketOrder(orderId: string): Promise<{ status: string }> {
-  const { data: order } = await adminSupabase
-    .from('orders')
-    .select('id, shiprocket_order_id, status, user_id, order_number')
-    .eq('id', orderId)
-    .single()
-
-  if (!order) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  if (!order.shiprocket_order_id)
-    throw new AppError(400, 'NO_SHIPROCKET_ORDER', 'No Shiprocket order exists')
-
-  await shiprocketCancelOrder({
-    ids: [Number(order.shiprocket_order_id)],
-  })
-
-  await transitionRemoteOrderStatus(order, 'cancelled', {
-    shiprocketOrderId: order.shiprocket_order_id,
-  })
-  logger.info(
-    { orderId, shiprocketOrderId: order.shiprocket_order_id },
-    'Shiprocket order cancelled'
-  )
-  return { status: 'cancelled' }
+export async function adminCancelShiprocketOrder(orderId: string, reason: string) {
+  return cancelOrderWithProviderSafety(orderId, reason)
 }
 
-export async function adminCancelShiprocketShipment(orderId: string): Promise<{ status: string }> {
-  const { data: order } = await adminSupabase
-    .from('orders')
-    .select('id, awb_code, status, user_id, order_number')
-    .eq('id', orderId)
-    .single()
+export async function adminCancelShiprocketShipment(orderId: string, reason: string) {
+  return cancelOrderWithProviderSafety(orderId, reason)
+}
 
-  if (!order) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  if (!order.awb_code)
-    throw new AppError(400, 'NO_AWB', 'No AWB code found. Cannot cancel shipment.')
-
-  const result = await shiprocketCancelShipment({
-    awbs: [order.awb_code],
+export async function adminRefundOrder(orderId: string, input: RefundOrderInput) {
+  const operation = await prepareRefund(orderId, {
+    cause: input.reason,
+    amountPaisa: input.amount_paisa,
+    refundIntentId: input.refund_intent_id,
   })
-
-  await transitionRemoteOrderStatus(order, 'cancelled', { awbCode: order.awb_code })
-  logger.info({ orderId, awb: order.awb_code }, 'Shiprocket shipment cancelled')
-  return result
+  if (!operation) return null
+  return dispatchRazorpayRefund(operation.id)
 }
 
 //
@@ -1198,31 +1216,7 @@ async function persistFulfillmentState(
   }
 }
 
-async function transitionRemoteOrderStatus(
-  order: { id: string; status: string; user_id: string; order_number?: string },
-  newStatus: string,
-  metadata: Record<string, unknown>
-): Promise<void> {
-  try {
-    await transitionOrderStatus(order, newStatus, 'admin_manual', metadata)
-  } catch (error) {
-    const { error: retryError } = await adminSupabase.rpc('enqueue_retry_job', {
-      p_job_type: 'shiprocket_persist',
-      p_reference_id: order.id,
-      p_payload: {
-        orderId: order.id,
-        transition: { newStatus, metadata },
-      },
-      p_max_retries: 10,
-    })
-    if (retryError) {
-      logger.error({ orderId: order.id, retryError }, 'Failed to enqueue remote transition repair')
-    }
-    throw error
-  }
-}
-
-export async function adminFulfillOrder(
+async function adminFulfillOrderInternal(
   orderId: string,
   input: FulfillOrderInput
 ): Promise<FulfillOrderResult> {
@@ -1515,4 +1509,11 @@ export async function adminFulfillOrder(
     manifest_generated: savedManifestGenerated,
     pickup_scheduled_date: savedPickupDate,
   }
+}
+
+export async function adminFulfillOrder(
+  orderId: string,
+  input: FulfillOrderInput
+): Promise<FulfillOrderResult> {
+  return withFulfillmentMutationLease(orderId, () => adminFulfillOrderInternal(orderId, input))
 }

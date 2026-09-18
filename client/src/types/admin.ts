@@ -31,14 +31,57 @@ export interface NotificationDeliverySummary {
   createdAt: string
 }
 
-export interface CommerceFailureItem {
+interface CommerceFailureBase {
   id: string
   orderId: string | null
-  kind: 'outbox' | 'invoice' | 'payment_reconciliation' | 'operational_alert'
   label: string
   lastError: string | null
   updatedAt: string
+  state?: string
+  amountPaisa?: number | null
+  currency?: string | null
 }
+
+export interface StandardCommerceFailureItem extends CommerceFailureBase {
+  kind: 'outbox' | 'invoice' | 'payment_reconciliation' | 'operational_alert'
+}
+
+export interface ProviderOperationFailureItem extends CommerceFailureBase {
+  kind: 'provider_operation'
+  provider: string
+  operationType: string
+  businessKey: string
+  targetType: string
+  target: string
+  providerStatus: string | null
+  dispatchAttempts: number
+  reconciliationAttempts: number
+  manualReviewReason: string | null
+  localCompletionPending: boolean
+}
+
+export interface RetainedCheckoutFailureItem extends CommerceFailureBase {
+  kind: 'retained_checkout'
+  deadlineAt: string
+  extensionCount: number
+  escalation: 'warning' | 'critical'
+  lastVerifiedAt: string
+  providerStatus: string
+}
+
+export interface LateCaptureWatchFailureItem extends CommerceFailureBase {
+  kind: 'late_capture_watch'
+  provider: 'razorpay'
+  target: string
+  providerStatus: string | null
+  lastCheckedAt: string | null
+}
+
+export type CommerceFailureItem =
+  | StandardCommerceFailureItem
+  | ProviderOperationFailureItem
+  | RetainedCheckoutFailureItem
+  | LateCaptureWatchFailureItem
 
 export interface WebhookFailureItem {
   id: string

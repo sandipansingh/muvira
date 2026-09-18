@@ -5,6 +5,11 @@ import { trackSingle } from '../../../services/shiprocket'
 import { shiprocketStatusToOrderStatus, isValidTransition } from '../../orders/stateMachine'
 import { writeTrackingSnapshot } from '../../../services/trackingAnalytics'
 import { transitionOrderStatus } from '../../orders/service'
+import { resolveRetainedCheckout } from '../../checkout/service'
+import {
+  auditProviderAction,
+  reconcileProviderOperation,
+} from '../../../services/providerOperations'
 
 // --- Shipment Health ---
 
@@ -345,38 +350,73 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
 }
 
 export async function getCommerceFailures(): Promise<Record<string, unknown>> {
-  const [outbox, invoices, reconciliation, alerts] = await Promise.all([
-    adminSupabase
-      .from('outbox_events')
-      .select('id, aggregate_id, event_type, attempts, last_error, updated_at')
-      .eq('status', 'dead')
-      .order('updated_at', { ascending: false })
-      .limit(20),
-    adminSupabase
-      .from('invoice_records')
-      .select('id, order_id, attempts, last_error, updated_at')
-      .eq('status', 'failed')
-      .order('updated_at', { ascending: false })
-      .limit(20),
-    adminSupabase
-      .from('payment_reconciliation_cases')
-      .select(
-        'id, order_id, payment_id, razorpay_order_id, razorpay_payment_id, reason, status, updated_at'
-      )
-      .neq('status', 'resolved')
-      .order('updated_at', { ascending: false })
-      .limit(20),
-    adminSupabase
-      .from('operational_alerts')
-      .select(
-        'id, alert_type, severity, source, reference_id, order_id, webhook_event_id, message, details, status, occurrences, last_seen_at, updated_at'
-      )
-      .neq('status', 'resolved')
-      .order('last_seen_at', { ascending: false })
-      .limit(20),
-  ])
+  const [outbox, invoices, reconciliation, alerts, operations, retention, lateCaptures] =
+    await Promise.all([
+      adminSupabase
+        .from('outbox_events')
+        .select('id, aggregate_id, event_type, attempts, last_error, updated_at')
+        .eq('status', 'dead')
+        .order('updated_at', { ascending: false })
+        .limit(20),
+      adminSupabase
+        .from('invoice_records')
+        .select('id, order_id, attempts, last_error, updated_at')
+        .eq('status', 'failed')
+        .order('updated_at', { ascending: false })
+        .limit(20),
+      adminSupabase
+        .from('payment_reconciliation_cases')
+        .select(
+          'id, order_id, payment_id, razorpay_order_id, razorpay_payment_id, reason, status, updated_at'
+        )
+        .neq('status', 'resolved')
+        .order('updated_at', { ascending: false })
+        .limit(20),
+      adminSupabase
+        .from('operational_alerts')
+        .select(
+          'id, alert_type, severity, source, reference_id, order_id, webhook_event_id, message, details, status, occurrences, last_seen_at, updated_at'
+        )
+        .neq('status', 'resolved')
+        .order('last_seen_at', { ascending: false })
+        .limit(20),
+      adminSupabase
+        .from('provider_operations')
+        .select(
+          'id, provider, operation_type, business_key, order_id, provider_target_type, provider_target_id, provider_generation, amount_paisa, currency, state, provider_status, error_classification, manual_review_reason, dispatch_attempts, reconciliation_attempts, dispatch_started_at, last_reconciled_at, provider_completed_at, local_applied_at, created_at, updated_at'
+        )
+        .or(
+          'state.in.(dispatching,outcome_unknown,provider_pending,provider_failed,manual_review),and(state.eq.provider_succeeded,local_applied_at.is.null)'
+        )
+        .order('updated_at', { ascending: false })
+        .limit(50),
+      adminSupabase
+        .from('retained_checkout_cases')
+        .select(
+          'order_id, state, escalation, retention_started_at, retention_deadline_at, extension_count, last_provider_status, last_provider_amount_paid, last_provider_currency, last_verified_at, updated_at'
+        )
+        .eq('state', 'active')
+        .order('retention_deadline_at', { ascending: true })
+        .limit(50),
+      adminSupabase
+        .from('late_capture_watches')
+        .select(
+          'id, order_id, payment_id, razorpay_order_id, expected_amount_paisa, currency, status, last_provider_status, last_provider_payment_id, last_checked_at, provider_operation_id, created_at, updated_at'
+        )
+        .neq('status', 'refunded')
+        .order('updated_at', { ascending: false })
+        .limit(50),
+    ])
 
-  const failed = [outbox, invoices, reconciliation, alerts].find((result) => result.error)
+  const failed = [
+    outbox,
+    invoices,
+    reconciliation,
+    alerts,
+    operations,
+    retention,
+    lateCaptures,
+  ].find((result) => result.error)
   if (failed?.error) {
     throw databaseError(
       'admin.diagnostics.commerce_failures',
@@ -391,7 +431,96 @@ export async function getCommerceFailures(): Promise<Record<string, unknown>> {
     failed_invoices: invoices.data ?? [],
     payment_reconciliation_cases: reconciliation.data ?? [],
     operational_alerts: alerts.data ?? [],
+    provider_operations: operations.data ?? [],
+    retained_checkout_cases: retention.data ?? [],
+    late_capture_watches: lateCaptures.data ?? [],
   }
+}
+
+export async function reconcileProviderOperationAsAdmin(input: {
+  operationId: string
+  actorId: string
+  reason: string
+}) {
+  const { data: target, error } = await adminSupabase
+    .from('provider_operations')
+    .select('order_id, state, local_applied_at')
+    .eq('id', input.operationId)
+    .single()
+  if (error || !target) {
+    await auditProviderAction({
+      actorId: input.actorId,
+      action: 'reconcile',
+      reason: input.reason,
+      outcome: 'failed',
+      details: { requestedOperationId: input.operationId, error: 'Provider operation not found' },
+    })
+    throw databaseError(
+      'admin.diagnostics.provider_operation',
+      error,
+      'Provider operation was not found',
+      { statusCode: 404, code: 'PROVIDER_OPERATION_NOT_FOUND' }
+    )
+  }
+  try {
+    const operation = await reconcileProviderOperation(input.operationId, {
+      allowRefundReplay: false,
+    })
+    const changed =
+      operation.state !== target.state || operation.local_applied_at !== target.local_applied_at
+    await auditProviderAction({
+      operationId: input.operationId,
+      orderId: operation.order_id,
+      actorId: input.actorId,
+      action: 'reconcile',
+      reason: input.reason,
+      outcome: changed ? 'success' : 'no_change',
+      details: {
+        resultingState: operation.state,
+        localApplied: operation.local_applied_at !== null,
+      },
+    })
+    return operation
+  } catch (reconcileError) {
+    await auditProviderAction({
+      operationId: input.operationId,
+      orderId: target.order_id as string,
+      actorId: input.actorId,
+      action: 'reconcile',
+      reason: input.reason,
+      outcome: 'failed',
+      details: {
+        error:
+          reconcileError instanceof Error
+            ? reconcileError.message.slice(0, 500)
+            : 'Reconciliation failed',
+      },
+    })
+    throw reconcileError
+  }
+}
+
+export async function resolveRetainedCheckoutAsAdmin(input: {
+  orderId: string
+  action: 'recheck' | 'release'
+  actorId: string
+  reason: string
+}) {
+  const result = await resolveRetainedCheckout(
+    input.orderId,
+    input.action,
+    input.reason,
+    input.actorId
+  )
+  await auditProviderAction({
+    orderId: input.orderId,
+    actorId: input.actorId,
+    action: `retention_${input.action}`,
+    reason: input.reason,
+    outcome: result.status === 'retained' ? 'no_change' : 'success',
+    details: result,
+  })
+  return result
 }
 
 /**

@@ -13,6 +13,7 @@ import {
 } from '../../services/executionLease'
 import { AppError } from '../../types'
 import type { Order } from '../../types'
+import { handleLateCapture } from '../../services/providerOperations'
 import {
   RazorpayWebhookPaymentSchema,
   type RazorpayWebhookPayment,
@@ -322,17 +323,40 @@ export async function verifyPayment(
       throw new AppError(409, 'PAYMENT_STATE_MISMATCH', 'Payment is not confirmed by Razorpay')
     }
 
-    const result = await withExecutionLease('checkout_payment', payment.order_id, (heartbeat) =>
-      finalizePayment(
-        payment,
-        providerPayment.id,
-        input.razorpay_signature,
-        Number(providerPayment.amount),
-        providerPayment.currency,
-        providerPayment.method,
-        heartbeat.lease
-      )
+    const result = await withExecutionLease(
+      'checkout_payment',
+      payment.order_id,
+      async (heartbeat) => {
+        const lateCapture = await handleLateCapture(
+          {
+            orderId: payment.order_id,
+            razorpayOrderId: payment.razorpay_order_id,
+            razorpayPaymentId: providerPayment.id,
+            amountPaisa: Number(providerPayment.amount),
+            currency: providerPayment.currency,
+          },
+          heartbeat.lease
+        )
+        if (lateCapture) return null
+        return finalizePayment(
+          payment,
+          providerPayment.id,
+          input.razorpay_signature,
+          Number(providerPayment.amount),
+          providerPayment.currency,
+          providerPayment.method,
+          heartbeat.lease
+        )
+      }
     )
+
+    if (!result) {
+      throw new AppError(
+        409,
+        'LATE_CAPTURE_REFUND_INITIATED',
+        'This checkout had expired. The captured payment is being refunded.'
+      )
+    }
 
     return { order: result.order, alreadyCaptured: result.already_captured }
   } catch (error) {
@@ -674,8 +698,19 @@ async function processVerifiedRazorpayWebhook(
       await withExecutionLease(
         'checkout_payment',
         localPayment.order_id as string,
-        ({ lease }) =>
-          finalizePayment(
+        async ({ lease }) => {
+          const lateCapture = await handleLateCapture(
+            {
+              orderId: localPayment.order_id as string,
+              razorpayOrderId: localPayment.razorpay_order_id as string,
+              razorpayPaymentId: providerPayment.id,
+              amountPaisa: Number(providerPayment.amount),
+              currency: providerPayment.currency,
+            },
+            lease
+          )
+          if (lateCapture) return
+          await finalizePayment(
             localPayment as LocalPayment,
             providerPayment.id,
             '',
@@ -683,7 +718,8 @@ async function processVerifiedRazorpayWebhook(
             providerPayment.currency,
             providerPayment.method,
             lease
-          ),
+          )
+        },
         { guard: webhookGuard }
       )
       await heartbeat.assertOwned()

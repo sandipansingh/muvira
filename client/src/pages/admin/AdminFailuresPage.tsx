@@ -11,6 +11,9 @@ import type {
   WebhookFailureItem,
 } from '../../types/admin'
 import { formatDate } from '../../lib/utils/format'
+import { FailureActionDialog } from '../../components/admin/FailureActionDialog'
+
+type CommerceAction = 'reconcile' | 'recheck' | 'release'
 
 export const AdminFailuresPage: React.FC = () => {
   const { showToast } = useToast()
@@ -22,6 +25,10 @@ export const AdminFailuresPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [pendingAction, setPendingAction] = useState<{
+    failure: CommerceFailureItem
+    action: CommerceAction
+  } | null>(null)
 
   const loadFailures = async () => {
     setLoading(true)
@@ -67,6 +74,34 @@ export const AdminFailuresPage: React.FC = () => {
       await loadFailures()
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Retry job could not be requeued.'
+      setError(message)
+      showToast(message, 'error')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const runCommerceAction = async (
+    failure: CommerceFailureItem,
+    action: CommerceAction,
+    reason: string
+  ) => {
+    setBusyId(failure.id)
+    try {
+      const response =
+        action === 'reconcile'
+          ? await adminApiService.reconcileProviderOperation(failure.id, reason)
+          : await adminApiService.resolveRetainedCheckout(
+              failure.orderId ?? failure.id,
+              action,
+              reason
+            )
+      if (!response.success) throw new Error(response.error.message)
+      showToast(`Commerce action ${action} completed.`, 'success')
+      setPendingAction(null)
+      await loadFailures()
+    } catch (reason) {
+      const message = reason instanceof Error ? reason.message : 'Commerce action failed.'
       setError(message)
       showToast(message, 'error')
     } finally {
@@ -193,6 +228,62 @@ export const AdminFailuresPage: React.FC = () => {
                     {failure.lastError && (
                       <p className="mt-2 text-sm text-danger">{failure.lastError}</p>
                     )}
+                    {failure.state && (
+                      <p className="mt-2 text-xs text-muted">
+                        State: {failure.state}
+                        {failure.amountPaisa != null
+                          ? ` · ${failure.currency ?? 'INR'} ${(failure.amountPaisa / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                          : ''}
+                      </p>
+                    )}
+                    {failure.kind === 'provider_operation' && (
+                      <div className="mt-2 space-y-2 text-xs text-muted">
+                        <p>
+                          Target: {failure.targetType} {failure.target} · Business key:{' '}
+                          {failure.businessKey}
+                        </p>
+                        <p>
+                          Attempts: {failure.dispatchAttempts} dispatch /{' '}
+                          {failure.reconciliationAttempts} reconcile
+                          {failure.localCompletionPending ? ' · Local completion pending' : ''}
+                        </p>
+                        <button
+                          type="button"
+                          disabled={busyId === failure.id}
+                          onClick={() => setPendingAction({ failure, action: 'reconcile' })}
+                          className="button-secondary mt-1"
+                        >
+                          Reconcile
+                        </button>
+                      </div>
+                    )}
+                    {failure.kind === 'retained_checkout' && (
+                      <div className="mt-3 space-y-3">
+                        <p className="text-xs text-muted">
+                          Deadline {formatDate(failure.deadlineAt)} · Extension{' '}
+                          {failure.extensionCount}/96 · {failure.escalation} · Last verified{' '}
+                          {formatDate(failure.lastVerifiedAt)}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={busyId === failure.id}
+                            onClick={() => setPendingAction({ failure, action: 'recheck' })}
+                            className="button-secondary"
+                          >
+                            Recheck
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busyId === failure.id}
+                            onClick={() => setPendingAction({ failure, action: 'release' })}
+                            className="button-secondary"
+                          >
+                            Release inventory
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <p className="mt-2 text-xs text-muted">
                       Updated {formatDate(failure.updatedAt)}
                     </p>
@@ -238,6 +329,27 @@ export const AdminFailuresPage: React.FC = () => {
           </section>
         </>
       )}
+      <FailureActionDialog
+        isOpen={pendingAction !== null}
+        title={
+          pendingAction?.action === 'release'
+            ? 'Release retained checkout'
+            : pendingAction?.action === 'recheck'
+              ? 'Recheck retained checkout'
+              : 'Reconcile provider operation'
+        }
+        description="This action is audited. Describe why you are performing it."
+        confirmLabel={pendingAction?.action === 'release' ? 'Release' : 'Reconcile'}
+        isSubmitting={pendingAction ? busyId === pendingAction.failure.id : false}
+        onClose={() => {
+          if (!busyId) setPendingAction(null)
+        }}
+        onConfirm={(reason) => {
+          if (pendingAction) {
+            void runCommerceAction(pendingAction.failure, pendingAction.action, reason)
+          }
+        }}
+      />
     </div>
   )
 }

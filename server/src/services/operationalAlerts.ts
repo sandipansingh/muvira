@@ -53,6 +53,27 @@ export async function checkOperationalAlerts(): Promise<Record<string, number>> 
       .from('operational_alerts')
       .select('id', { count: 'exact', head: true })
       .neq('status', 'resolved'),
+    adminSupabase
+      .from('provider_operations')
+      .select('id', { count: 'exact', head: true })
+      .is('local_applied_at', null)
+      .in('state', [
+        'dispatching',
+        'outcome_unknown',
+        'provider_pending',
+        'provider_succeeded',
+        'provider_failed',
+        'manual_review',
+      ]),
+    adminSupabase
+      .from('retained_checkout_cases')
+      .select('order_id', { count: 'exact', head: true })
+      .eq('state', 'active')
+      .eq('escalation', 'critical'),
+    adminSupabase
+      .from('late_capture_watches')
+      .select('id', { count: 'exact', head: true })
+      .neq('status', 'refunded'),
   ])
 
   const failedProbe = results.find((result) => result.error)
@@ -72,6 +93,9 @@ export async function checkOperationalAlerts(): Promise<Record<string, number>> 
     stuck_notification_deliveries: results[8].count ?? 0,
     shiprocket_persistence_retries: results[9].count ?? 0,
     operational_alerts: results[10].count ?? 0,
+    actionable_provider_operations: results[11].count ?? 0,
+    critical_retained_checkouts: results[12].count ?? 0,
+    late_capture_watches: results[13].count ?? 0,
   }
 
   if (Object.values(counts).some((count) => count > 0)) {

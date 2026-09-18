@@ -2,6 +2,7 @@ import { adminSupabase } from '../../lib/supabase/admin'
 import { databaseError } from '../../lib/databaseError'
 import { razorpay } from '../../lib/razorpay/client'
 import { logger } from '../../lib/logger'
+import { inspectRetainedCheckoutProvider } from '../../services/retainedCheckout'
 import { deleteCacheByPattern } from '../../config/cache'
 import { AppError } from '../../types'
 import { validateCoupon } from '../coupons/service'
@@ -325,42 +326,166 @@ function firstPayment(
   return payments ?? null
 }
 
-async function persistCheckoutAlert(input: {
-  orderId: string
-  alertType: string
-  message: string
-  details: Record<string, unknown>
-}): Promise<void> {
-  const { error } = await adminSupabase.rpc('persist_operational_alert', {
-    p_alert_type: input.alertType,
-    p_severity: 'critical',
-    p_source: 'checkout_expiry',
-    p_reference_id: input.orderId,
-    p_message: input.message,
-    p_details: input.details,
-    p_order_id: input.orderId,
-    p_webhook_event_id: null,
-  })
-  if (error) logger.fatal({ error, orderId: input.orderId }, 'Checkout alert persistence failed')
-}
-
 async function retainCheckout(
   orderId: string,
   providerStatus: string,
   providerAmountPaid: number,
+  providerCurrency: string,
   reason: string,
   lease: Parameters<typeof executionLeaseRpcArgs>[0]
-): Promise<void> {
+): Promise<boolean> {
   const { data, error } = await adminSupabase.rpc('retain_payable_checkout_fenced', {
     ...executionLeaseRpcArgs(lease),
     p_order_id: orderId,
     p_provider_status: providerStatus,
     p_provider_amount_paid: providerAmountPaid,
+    p_provider_currency: providerCurrency,
     p_reason: reason,
   })
-  if (error || data !== true) {
+  if (error) {
     throw new AppError(409, 'EXECUTION_FENCED_OUT', 'Checkout retention could not be committed')
   }
+  return data === true
+}
+
+async function releaseRetainedCheckout(
+  checkout: ExpiredCheckout,
+  providerStatus: string,
+  providerAmountPaid: number,
+  reason: string,
+  resolutionType: 'hard_deadline' | 'admin_release',
+  actorId: string | null,
+  lease: Parameters<typeof executionLeaseRpcArgs>[0]
+): Promise<void> {
+  const { data, error } = await adminSupabase.rpc('release_retained_checkout_fenced', {
+    ...executionLeaseRpcArgs(lease),
+    p_order_id: checkout.id,
+    p_provider_status: providerStatus,
+    p_provider_amount_paid: providerAmountPaid,
+    p_provider_currency: firstPayment(checkout.payments)?.currency ?? 'INR',
+    p_resolution_type: resolutionType,
+    p_reason: reason,
+    p_actor_id: actorId,
+  })
+  if (error || !data) {
+    throw databaseError(
+      'checkout.release_retained',
+      error,
+      'Retained checkout could not be released safely',
+      { statusCode: 409, code: 'RETAINED_CHECKOUT_RELEASE_FAILED' }
+    )
+  }
+}
+
+async function retainOrReleaseCheckout(
+  checkout: ExpiredCheckout,
+  providerStatus: string,
+  providerAmountPaid: number,
+  reason: string,
+  lease: Parameters<typeof executionLeaseRpcArgs>[0],
+  options: { forceRelease?: boolean; actorId?: string | null } = {}
+): Promise<'retained' | 'released'> {
+  const providerCurrency = firstPayment(checkout.payments)?.currency ?? 'INR'
+  if (!options.forceRelease) {
+    const retained = await retainCheckout(
+      checkout.id,
+      providerStatus,
+      providerAmountPaid,
+      providerCurrency,
+      reason,
+      lease
+    )
+    if (retained) return 'retained'
+  }
+  await releaseRetainedCheckout(
+    checkout,
+    providerStatus,
+    providerAmountPaid,
+    reason,
+    options.forceRelease ? 'admin_release' : 'hard_deadline',
+    options.actorId ?? null,
+    lease
+  )
+  return 'released'
+}
+
+async function inspectCheckoutProviderState(
+  checkout: ExpiredCheckout,
+  lease: Parameters<typeof executionLeaseRpcArgs>[0],
+  options: { forceRelease?: boolean; actorId?: string | null; reason?: string } = {}
+): Promise<'retained' | 'released' | 'captured'> {
+  const payment = firstPayment(checkout.payments)
+  if (!payment?.razorpay_order_id) return 'retained'
+
+  const inspection = await inspectRetainedCheckoutProvider({
+    razorpayOrderId: payment.razorpay_order_id,
+    amountPaisa: payment.amount_paisa,
+    currency: payment.currency,
+  })
+  const { providerStatus, amountPaidPaisa: amountPaid } = inspection
+  if (inspection.classification === 'unavailable') {
+    return retainOrReleaseCheckout(
+      checkout,
+      providerStatus,
+      amountPaid,
+      options.reason ?? 'Checkout retained because Razorpay state could not be verified',
+      lease,
+      options
+    )
+  }
+  if (inspection.classification === 'identity_mismatch') {
+    return retainOrReleaseCheckout(
+      checkout,
+      providerStatus,
+      amountPaid,
+      options.reason ?? 'Checkout retained because Razorpay identity did not match',
+      lease,
+      options
+    )
+  }
+
+  if (inspection.classification === 'captured' && inspection.capturedPayment) {
+    const captured = inspection.capturedPayment
+    const { data, error } = await adminSupabase.rpc('finalize_captured_payment_fenced', {
+      ...executionLeaseRpcArgs(lease),
+      p_razorpay_order_id: payment.razorpay_order_id,
+      p_razorpay_payment_id: captured.id,
+      p_razorpay_signature: '',
+      p_amount_paisa: captured.amountPaisa,
+      p_currency: captured.currency,
+      p_payment_method: captured.method,
+    })
+    if (error || !data) {
+      throw databaseError(
+        'checkout.finalize_retained_capture',
+        error,
+        'Captured checkout could not be finalized',
+        { statusCode: 503, code: 'PAYMENT_RECONCILIATION_REQUIRED' }
+      )
+    }
+    return 'captured'
+  }
+
+  if (inspection.classification === 'terminal_unpaid') {
+    const { data, error } = await adminSupabase.rpc('fail_checkout_fenced', {
+      ...executionLeaseRpcArgs(lease),
+      p_order_id: checkout.id,
+      p_reason: `Checkout expired after provider became ${providerStatus}`,
+    })
+    if (error || data !== true) {
+      throw new AppError(409, 'EXECUTION_FENCED_OUT', 'Expired checkout was not released')
+    }
+    return 'released'
+  }
+
+  return retainOrReleaseCheckout(
+    checkout,
+    providerStatus,
+    amountPaid,
+    options.reason ?? 'Checkout retained because the Razorpay order remains payable or ambiguous',
+    lease,
+    options
+  )
 }
 
 export async function expireAbandonedCheckouts(limit = 100): Promise<{
@@ -393,75 +518,9 @@ export async function expireAbandonedCheckouts(limit = 100): Promise<{
 
     try {
       await withExecutionLease('checkout_payment', checkout.id, async ({ lease }) => {
-        let providerOrder
-        try {
-          providerOrder = await razorpay.orders.fetch(payment.razorpay_order_id)
-        } catch (providerError) {
-          await retainCheckout(
-            checkout.id,
-            'provider_unavailable',
-            0,
-            'Expired checkout retained because Razorpay state could not be verified',
-            lease
-          )
-          await persistCheckoutAlert({
-            orderId: checkout.id,
-            alertType: 'checkout_expiry_provider_unavailable',
-            message: 'Expired checkout retained because Razorpay state could not be verified',
-            details: {
-              razorpayOrderId: payment.razorpay_order_id,
-              error: providerError instanceof Error ? providerError.message : String(providerError),
-            },
-          })
-          retained += 1
-          return
-        }
-
-        const amountPaid = Number(providerOrder.amount_paid)
-        const providerStatus = String(providerOrder.status).toLowerCase()
-        const identityMatches =
-          providerOrder.id === payment.razorpay_order_id &&
-          Number(providerOrder.amount) === payment.amount_paisa &&
-          providerOrder.currency === payment.currency
-
-        if (!identityMatches || !Number.isSafeInteger(amountPaid) || amountPaid < 0) {
-          await retainCheckout(
-            checkout.id,
-            providerStatus || 'invalid_provider_response',
-            Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
-            'Expired checkout retained because Razorpay state did not match the local contract',
-            lease
-          )
-          retained += 1
-          return
-        }
-
-        const terminalUnpaid =
-          amountPaid === 0 && ['cancelled', 'closed', 'expired', 'failed'].includes(providerStatus)
-        if (terminalUnpaid) {
-          const { data: didRelease, error: fencedError } = await adminSupabase.rpc(
-            'fail_checkout_fenced',
-            {
-              ...executionLeaseRpcArgs(lease),
-              p_order_id: checkout.id,
-              p_reason: `Checkout expired after provider became ${providerStatus}`,
-            }
-          )
-          if (fencedError || didRelease !== true) {
-            throw new AppError(409, 'EXECUTION_FENCED_OUT', 'Expired checkout was not released')
-          }
-          released += 1
-          return
-        }
-
-        await retainCheckout(
-          checkout.id,
-          providerStatus,
-          amountPaid,
-          'Expired checkout retained because the Razorpay order remains payable or paid',
-          lease
-        )
-        retained += 1
+        const result = await inspectCheckoutProviderState(checkout, lease)
+        if (result === 'retained') retained += 1
+        else released += result === 'released' ? 1 : 0
       })
     } catch (expiryError) {
       if (expiryError instanceof AppError && expiryError.code === 'EXECUTION_ALREADY_CLAIMED') {
@@ -473,6 +532,56 @@ export async function expireAbandonedCheckouts(limit = 100): Promise<{
 
   if (released > 0) deleteCacheByPattern('GET:/api/products')
   return { released, retained }
+}
+
+export async function resolveRetainedCheckout(
+  orderId: string,
+  action: 'recheck' | 'release',
+  reason: string,
+  actorId: string
+): Promise<{ status: 'retained' | 'released' | 'captured' }> {
+  const { data, error } = await adminSupabase
+    .from('orders')
+    .select('id, payments ( razorpay_order_id, amount_paisa, currency )')
+    .eq('id', orderId)
+    .single()
+  if (error || !data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
+  const checkout = data as unknown as ExpiredCheckout
+  const status = await withExecutionLease('checkout_payment', orderId, ({ lease }) =>
+    inspectCheckoutProviderState(checkout, lease, {
+      forceRelease: action === 'release',
+      actorId,
+      reason,
+    })
+  )
+  if (action === 'recheck' || status !== 'released') {
+    const { data: retention } = await adminSupabase
+      .from('retained_checkout_cases')
+      .select('last_provider_status, last_provider_amount_paid, last_provider_currency')
+      .eq('order_id', orderId)
+      .single()
+    if (retention) {
+      const { error: actionError } = await adminSupabase.rpc('record_retained_checkout_action', {
+        p_order_id: orderId,
+        p_actor_id: actorId,
+        p_action: action === 'recheck' ? 'admin_recheck' : 'admin_release',
+        p_reason: reason,
+        p_provider_status: retention.last_provider_status,
+        p_provider_amount_paid: retention.last_provider_amount_paid,
+        p_provider_currency: retention.last_provider_currency,
+        p_outcome: status,
+      })
+      if (actionError) {
+        throw databaseError(
+          'checkout.audit_retained_action',
+          actionError,
+          'Retained checkout action could not be audited'
+        )
+      }
+    }
+  }
+  deleteCacheByPattern('GET:/api/products')
+  return { status }
 }
 
 export async function cancelCheckout(userId: string, orderId: string): Promise<void> {
@@ -497,18 +606,23 @@ export async function cancelCheckout(userId: string, orderId: string): Promise<v
   }
 
   await withExecutionLease('checkout_payment', orderId, async ({ lease }) => {
+    const checkout = { id: orderId, payments: relatedPayments ?? null }
     let providerOrder
     try {
       providerOrder = await razorpay.orders.fetch(providerOrderId)
     } catch (error) {
       logger.error({ error, orderId }, 'Failed to verify Razorpay order before cancellation')
-      await retainCheckout(
-        orderId,
+      const result = await retainOrReleaseCheckout(
+        checkout,
         'provider_unavailable',
         0,
         'Customer cancellation retained because Razorpay state could not be verified',
         lease
       )
+      if (result === 'released') {
+        deleteCacheByPattern('GET:/api/products')
+        return
+      }
       throw new AppError(502, 'PAYMENT_PROVIDER_UNAVAILABLE', 'Unable to confirm cancellation')
     }
 
@@ -521,13 +635,17 @@ export async function cancelCheckout(userId: string, orderId: string): Promise<v
       Number(providerOrder.amount) === localPayment.amount_paisa &&
       providerOrder.currency === localPayment.currency
     if (!identityMatches || !Number.isSafeInteger(amountPaid) || amountPaid < 0) {
-      await retainCheckout(
-        orderId,
+      const result = await retainOrReleaseCheckout(
+        checkout,
         providerStatus || 'invalid_provider_response',
         Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
         'Customer cancellation retained because Razorpay state did not match the local contract',
         lease
       )
+      if (result === 'released') {
+        deleteCacheByPattern('GET:/api/products')
+        return
+      }
       throw new AppError(
         409,
         'PAYMENT_STATE_MISMATCH',
@@ -537,13 +655,17 @@ export async function cancelCheckout(userId: string, orderId: string): Promise<v
     const terminalUnpaid =
       amountPaid === 0 && ['cancelled', 'closed', 'expired', 'failed'].includes(providerStatus)
     if (!terminalUnpaid) {
-      await retainCheckout(
-        orderId,
+      const result = await retainOrReleaseCheckout(
+        checkout,
         providerStatus,
         Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
         'Customer cancellation retained because the Razorpay order remains payable or paid',
         lease
       )
+      if (result === 'released') {
+        deleteCacheByPattern('GET:/api/products')
+        return
+      }
       throw new AppError(
         409,
         'PAYMENT_IN_PROGRESS',

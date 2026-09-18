@@ -11,6 +11,8 @@ import {
   AssignAwbSchema,
   CreateShipmentSchema,
   FulfillOrderSchema,
+  ProviderActionReasonSchema,
+  RefundOrderSchema,
 } from './schema'
 import * as controller from './controller'
 
@@ -66,13 +68,18 @@ adminOrdersRouter.post('/:id/generate-manifest', controller.adminGenerateManifes
 adminOrdersRouter.post('/:id/generate-invoice', controller.adminGenerateInvoice)
 adminOrdersRouter.post(
   '/:id/shiprocket-cancel',
-  validate({ params: OrderIdParamsSchema }),
+  validate({ params: OrderIdParamsSchema, body: ProviderActionReasonSchema }),
   controller.adminCancelShiprocketOrder
 )
 adminOrdersRouter.post(
   '/:id/cancel-shipment',
-  validate({ params: OrderIdParamsSchema }),
+  validate({ params: OrderIdParamsSchema, body: ProviderActionReasonSchema }),
   controller.adminCancelShiprocketShipment
+)
+adminOrdersRouter.post(
+  '/:id/refund',
+  validate({ params: OrderIdParamsSchema, body: RefundOrderSchema }),
+  controller.adminRefundOrder
 )
 adminOrdersRouter.post('/:id/retry-shiprocket', controller.adminRetryShiprocket)
 adminOrdersRouter.post(

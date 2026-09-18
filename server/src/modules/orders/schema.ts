@@ -104,7 +104,37 @@ export const PackageDimensionsSchema = z
   })
   .strict()
 
-export const ShiprocketCancelSchema = z.object({}).strict()
+export const ProviderActionReasonSchema = z
+  .object({
+    reason: z.string().trim().min(3).max(1000),
+  })
+  .strict()
+
+export const RefundOrderSchema = z
+  .object({
+    reason: z.string().trim().min(3).max(1000),
+    amount_paisa: z.number().int().positive().optional(),
+    refund_intent_id: z.string().uuid().optional(),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.amount_paisa !== undefined && !value.refund_intent_id) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['refund_intent_id'],
+        message: 'A stable refund intent ID is required for a partial refund',
+      })
+    }
+    if (value.amount_paisa === undefined && value.refund_intent_id !== undefined) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['refund_intent_id'],
+        message: 'Refund intent ID is only valid for a partial refund',
+      })
+    }
+  })
+
+export type RefundOrderInput = z.infer<typeof RefundOrderSchema>
 
 export const CreateShipmentSchema = z
   .object({

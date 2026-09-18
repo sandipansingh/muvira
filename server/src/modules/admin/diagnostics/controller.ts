@@ -137,6 +137,58 @@ export async function getCommerceFailures(
   }
 }
 
+export async function reconcileProviderOperation(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const data = await service.reconcileProviderOperationAsAdmin({
+      operationId: req.params['id'] as string,
+      actorId: req.user!.id,
+      reason: req.body['reason'] as string,
+    })
+    res.json({ success: true, data })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function retainedCheckoutAction(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  action: 'recheck' | 'release'
+): Promise<void> {
+  try {
+    const data = await service.resolveRetainedCheckoutAsAdmin({
+      orderId: req.params['id'] as string,
+      actorId: req.user!.id,
+      reason: req.body['reason'] as string,
+      action,
+    })
+    res.json({ success: true, data })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function recheckRetainedCheckout(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await retainedCheckoutAction(req, res, next, 'recheck')
+}
+
+export async function releaseRetainedCheckout(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  await retainedCheckoutAction(req, res, next, 'release')
+}
+
 export async function refreshShipment(
   req: Request,
   res: Response,

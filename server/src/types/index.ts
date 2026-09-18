@@ -356,6 +356,7 @@ export interface Payment {
   razorpay_payment_id: string | null
   razorpay_signature: string | null
   amount_paisa: number
+  refunded_amount_paisa: number
   currency: string
   status: 'created' | 'captured' | 'failed' | 'refunded'
   failure_reason: string | null
@@ -377,9 +378,67 @@ export interface PaymentLog {
     | 'webhook_processed'
     | 'webhook_duplicate'
     | 'webhook_failed'
+    | 'refund_processed'
   payload: Record<string, unknown> | null
   razorpay_event_id: string | null
   created_at: string
+}
+
+export type ProviderName = 'razorpay' | 'shiprocket'
+
+export type ProviderOperationType =
+  | 'full_refund'
+  | 'partial_refund'
+  | 'cancel_order'
+  | 'cancel_shipment'
+
+export type ProviderTargetType = 'payment' | 'order' | 'awb'
+
+export type ProviderOperationState =
+  | 'prepared'
+  | 'dispatching'
+  | 'outcome_unknown'
+  | 'provider_pending'
+  | 'provider_succeeded'
+  | 'provider_failed'
+  | 'manual_review'
+
+export interface ProviderOperation {
+  id: string
+  provider: ProviderName
+  operation_type: ProviderOperationType
+  business_key: string
+  order_id: string
+  payment_id: string | null
+  provider_target_type: ProviderTargetType
+  provider_target_id: string
+  provider_generation: string | null
+  amount_paisa: number | null
+  currency: string | null
+  request_hash: string
+  idempotency_key: string
+  cause: string
+  preserve_order_state: boolean
+  state: ProviderOperationState
+  provider_operation_id: string | null
+  provider_status: string | null
+  response_metadata: Record<string, unknown>
+  error_classification: string | null
+  manual_review_reason: string | null
+  dispatch_attempts: number
+  reconciliation_attempts: number
+  dispatch_started_at: string | null
+  last_reconciled_at: string | null
+  provider_completed_at: string | null
+  local_applied_at: string | null
+  identical_retry_authorized_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ProviderMutationAdapter<TResult> {
+  mutate(operation: ProviderOperation): Promise<TResult>
+  reconcile(operation: ProviderOperation): Promise<TResult | null>
 }
 
 // Shipment tracking events (populated via Shiprocket webhook)

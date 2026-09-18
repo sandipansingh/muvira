@@ -194,9 +194,16 @@ function invalidateToken(): void {
 
 async function apiFetch<T>(
   path: string,
-  options: { method?: string; body?: unknown; timeout?: number; maxRetries?: number } = {}
+  options: {
+    method?: string
+    body?: unknown
+    timeout?: number
+    maxRetries?: number
+    policy?: 'retry_safe_read' | 'at_most_once_mutation'
+  } = {}
 ): Promise<T> {
-  const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES
+  const maxRetries =
+    options.policy === 'at_most_once_mutation' ? 0 : (options.maxRetries ?? DEFAULT_MAX_RETRIES)
   const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS
   let lastError: ShiprocketError | null = null
   const callStart = Date.now()
@@ -779,6 +786,7 @@ export async function cancelOrder(
   return apiFetch<Record<string, unknown>>('/orders/cancel', {
     method: 'POST',
     body: input,
+    policy: 'at_most_once_mutation',
   })
 }
 
@@ -792,6 +800,7 @@ export async function cancelShipment(
   return apiFetch<{ status: string }>('/orders/cancel/shipment/awbs', {
     method: 'POST',
     body: input,
+    policy: 'at_most_once_mutation',
   })
 }
 
