@@ -127,7 +127,7 @@ export const NewArrivals: React.FC = () => {
         >
           {displayedProducts.map((product) => (
             <div key={product.id} className="w-[240px] shrink-0 snap-start sm:w-[280px] lg:w-auto">
-              <ProductCard product={product} />
+              <ProductCard product={product} badgeText="NEW" />
             </div>
           ))}
         </motion.div>

@@ -9,11 +9,14 @@ interface ShopHeroProps {
   className?: string
 }
 
+export const HOME_DECOR_HERO_IMAGE =
+  'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1600&q=85'
+
 export const ShopHero: React.FC<ShopHeroProps> = ({
   title,
   subtitle,
   breadcrumbs,
-  imageUrl,
+  imageUrl = HOME_DECOR_HERO_IMAGE,
   className = '',
 }) => {
   return (
