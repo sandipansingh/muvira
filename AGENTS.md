@@ -15,23 +15,23 @@ There is no Next.js, Prisma, or server-side React rendering in this repository.
 
 Run commands from the repository root unless noted otherwise.
 
-- `npm run dev` — run the Vite client and Express API
-- `npm run lint` / `npm run lint:fix` — check or fix ESLint findings
-- `npm run format:check` / `npm run format` — check or write Prettier formatting
-- `npm run type-check` — type-check client and API
-- `npm run build` — build client and API
-- `npm test` — build and run regression tests
-- `npm run db:start` / `npm run db:stop` — manage local Supabase
-- `npm run db:reset` — replay all migrations against local Supabase without seed data
-- `npm run db:migrate` — push migrations to the explicitly linked Supabase project
+- `pnpm run dev` — run the Vite client and Express API
+- `pnpm run lint` / `pnpm run lint:fix` — check or fix ESLint findings
+- `pnpm run format:check` / `pnpm run format` — check or write Prettier formatting
+- `pnpm run type-check` — type-check client and API
+- `pnpm run build` — build client and API
+- `pnpm test` — build and run regression tests
+- `pnpm run db:start` / `pnpm run db:stop` — manage local Supabase
+- `pnpm run db:reset` — replay all migrations against local Supabase without seed data
+- `pnpm run db:migrate` — push migrations to the explicitly linked Supabase project
 
 After modifying code, run these commands in order before completing a task or committing a milestone:
 
-1. `npm run lint:fix`
-2. `npm run format`
-3. `npm run build`
-4. `npm run type-check`
-5. `npm test`
+1. `pnpm run lint:fix`
+2. `pnpm run format`
+3. `pnpm run build`
+4. `pnpm run type-check`
+5. `pnpm test`
 6. `graphify update .`
 
 ## Architecture

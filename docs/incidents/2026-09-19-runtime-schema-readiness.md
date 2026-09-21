@@ -17,9 +17,9 @@ The current application contract is version 48 and requires migrations through `
 The checkout link was corrected to `mmpsquheiibatsjficwm`. The local database was rebuilt first to prove that every checked-in migration replays cleanly:
 
 ```sh
-npm run db:start
-npm run db:reset
-npm run db:test
+pnpm run db:start
+pnpm run db:reset
+pnpm run db:test
 ```
 
 The database test suite passed all 313 checks. A direct local call to `public.get_runtime_schema_status()` returned:
@@ -37,7 +37,7 @@ All `missing_*` and `invalid_*` lists were empty.
 After confirming the link and runtime URL referred to the same project, the guarded push was run:
 
 ```sh
-npm run db:migrate -- \
+pnpm run db:migrate -- \
   --project-ref mmpsquheiibatsjficwm \
   --runtime-url https://mmpsquheiibatsjficwm.supabase.co
 ```

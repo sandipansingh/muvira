@@ -19,13 +19,14 @@ The browser may use the Supabase anonymous key for Auth and approved Storage ope
 ### Prerequisites
 
 - Node.js 20.19 or newer
-- npm
+- Corepack with pnpm 12.5.1
 - Docker, only when running the local Supabase stack
 
 Install all three workspaces:
 
 ```bash
-npm install
+corepack enable
+pnpm install
 ```
 
 Create local environment files:
@@ -40,14 +41,14 @@ Set the Supabase, Razorpay test-mode, Shiprocket, and Resend values in those fil
 Start the local database and replay every migration:
 
 ```bash
-npm run db:start
-npm run db:reset
+pnpm run db:start
+pnpm run db:reset
 ```
 
 Start the client and API:
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 - Storefront: `http://localhost:5173`
@@ -55,28 +56,28 @@ npm run dev
 - Liveness: `http://localhost:4000/api/health`
 - Readiness: `http://localhost:4000/api/health/ready`
 
-Stop the local Supabase stack with `npm run db:stop`.
+Stop the local Supabase stack with `pnpm run db:stop`.
 
 ## Quality commands
 
 ```bash
-npm run lint
-npm run lint:fix
-npm run format:check
-npm run format
-npm run type-check
-npm run build
-npm test
+pnpm run lint
+pnpm run lint:fix
+pnpm run format:check
+pnpm run format
+pnpm run type-check
+pnpm run build
+pnpm test
 ```
 
-`npm test` builds both services, runs provider-fixture and order-state tests, and verifies critical frontend/backend and migration contracts. The database authorization and HTTP API integration tests run when `SUPABASE_TEST_URL`, `SUPABASE_TEST_ANON_KEY`, and `SUPABASE_TEST_SERVICE_ROLE_KEY` are supplied; CI provides them from an isolated local Supabase instance. CI also verifies both a clean migration replay and an additive upgrade from migration 025.
+`pnpm test` builds both services, runs provider-fixture and order-state tests, and verifies critical frontend/backend and migration contracts. The database authorization and HTTP API integration tests run when `SUPABASE_TEST_URL`, `SUPABASE_TEST_ANON_KEY`, and `SUPABASE_TEST_SERVICE_ROLE_KEY` are supplied; CI provides them from an isolated local Supabase instance. CI also verifies both a clean migration replay and an additive upgrade from migration 025.
 
 ## Database releases
 
 Never edit a migration that has already shipped. Add the next numbered migration under `supabase/migrations/`, verify an upgrade in staging, and then run the explicit release command from a trusted environment:
 
 ```bash
-npm run db:migrate
+pnpm run db:migrate
 ```
 
 This command pushes migrations to the linked Supabase project. Review its target before running it. Application deployment must wait for the migration step to succeed and for `/api/health/ready` to return HTTP 200.
@@ -87,10 +88,12 @@ Generated schema dumps are intentionally untracked because the previous snapshot
 
 Deploy two services from the same revision:
 
-1. API: use root `nixpacks.toml` or `server/Dockerfile`; expose port 4000 and probe `/api/health/ready`.
-2. Client: use `client/nixpacks.toml` or `client/Dockerfile`; configure `VITE_API_URL` with the API origin before building.
+1. API: use root `nixpacks.toml` or build `server/Dockerfile` from the repository root; expose port 4000 and probe `/api/health/ready`.
+2. Client: use `client/nixpacks.toml` from the repository root or build `client/Dockerfile` from the repository root; configure `VITE_API_URL` with the API origin before building.
 
-Run `npm run db:migrate` before promoting the API. Do not run migrations from an application startup command.
+Keep the repository root as the build context for both services so `pnpm-workspace.yaml` and `pnpm-lock.yaml` are available. Point the client service at `client/nixpacks.toml` when using Nixpacks.
+
+Run `pnpm run db:migrate` before promoting the API. Do not run migrations from an application startup command.
 
 Production startup validates mandatory Supabase, Razorpay, Shiprocket, CORS, and email configuration. Generic `.env` files do not override values already supplied by the platform or the environment-specific file.
 

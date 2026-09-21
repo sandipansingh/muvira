@@ -1,19 +1,22 @@
 FROM node:20-alpine AS build
 
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-COPY tsconfig.json ./
-COPY src ./src
-RUN npm run build
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY client/package.json ./client/package.json
+COPY server/package.json ./server/package.json
+RUN pnpm install --frozen-lockfile
+
+COPY server ./server
+RUN pnpm --filter server build
+RUN pnpm deploy --filter server --prod /prod/server
 
 FROM node:20-alpine AS runtime
 
 ENV NODE_ENV=production
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
-COPY --from=build /app/dist ./dist
+COPY --from=build /prod/server ./
 
 EXPOSE 4000
 CMD ["node", "dist/server.js"]

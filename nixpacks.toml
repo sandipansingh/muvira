@@ -4,10 +4,10 @@
 nixPkgs = ['nodejs_20']
 
 [phases.install]
-cmds = ['cd server && npm ci --include=dev']
+cmds = ['corepack enable', 'pnpm install --frozen-lockfile']
 
 [phases.build]
-cmds = ['cd server && npm run build']
+cmds = ['pnpm --filter server build']
 
 [start]
 cmd = 'node server/dist/server.js'

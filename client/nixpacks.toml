@@ -5,10 +5,10 @@
 nixPkgs = ['nodejs_20']
 
 [phases.install]
-cmds = ['npm ci --include=dev']
+cmds = ['corepack enable', 'pnpm install --frozen-lockfile']
 
 [phases.build]
-cmds = ['npm run build']
+cmds = ['pnpm --filter client build']
 
 [start]
-cmd = 'node scripts/serve-static.mjs'
+cmd = 'node client/scripts/serve-static.mjs'
