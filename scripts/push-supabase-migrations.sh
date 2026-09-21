@@ -25,7 +25,7 @@ while (($# > 0)); do
 done
 
 if [[ -z "$requested_ref" || -z "$runtime_url" ]]; then
-  echo 'Usage: npm run db:migrate -- --project-ref mmpsquheiibatsjficwm --runtime-url https://mmpsquheiibatsjficwm.supabase.co' >&2
+  echo 'Usage: pnpm run db:migrate -- --project-ref mmpsquheiibatsjficwm --runtime-url https://mmpsquheiibatsjficwm.supabase.co' >&2
   exit 2
 fi
 
@@ -56,4 +56,4 @@ if [[ "$linked_ref" != "$EXPECTED_PROJECT_REF" ]]; then
 fi
 
 cd "$repo_root/server"
-exec npx supabase db push --workdir .. --linked
+exec pnpm exec supabase db push --workdir .. --linked
