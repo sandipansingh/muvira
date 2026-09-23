@@ -1,0 +1,7 @@
+# Storefront responsive guidelines
+
+- Use the shared Tailwind screens in `client/tailwind.config.js`: `xs` 360px, `mobile` 480px, `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px, and `2xl` 1536px. Start with the 320px layout and add `min-width` enhancements; do not add one-off viewport breakpoints.
+- Use `.layout-container` or `.editorial-container` for page width and responsive gutters. Let grid and flex children shrink with `min-w-0`; wrap long names, addresses, and prices. Keep tables and galleries inside their own scrolling region rather than allowing page-level horizontal scroll.
+- Make interactive controls at least `var(--tap-target)` (44 CSS px) in both dimensions, with 8px between adjacent targets. Inputs and selects need 16px text, visible labels, and appropriate `type`, `inputMode`, and `autoComplete`.
+- Use `100dvh` with a `100vh` fallback for viewport-height UI, safe-area padding for fixed controls, and the shared `--z-*` tokens for header, drawer, modal, and toast layers. Drawers and modals must lock page scroll, trap focus, and remain internally scrollable.
+- Before merging a page, check 320px and 390px phones, phone landscape, 768px and 1024px tablets, 1280px and 1920px desktops, effective zoom widths 960px/1097px, and 200% text at 320px. Verify no document overflow, clipped controls, small touch targets, or CTA/footer overlap. Exercise populated cart and authenticated checkout/order states as well as empty states.

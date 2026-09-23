@@ -68,7 +68,11 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
         <div className="p-4 sm:p-6">
           {/* Header with Brand Logo & Close X */}
           <div className="flex items-center justify-between pb-5">
-            <Link to="/" onClick={onClose} className="flex items-center gap-2.5 select-none">
+            <Link
+              to="/"
+              onClick={onClose}
+              className="flex min-h-[var(--tap-target)] items-center gap-2.5 select-none"
+            >
               <img
                 src="/logo.png"
                 alt="Muvira"

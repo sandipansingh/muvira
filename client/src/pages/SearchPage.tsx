@@ -309,7 +309,7 @@ export const SearchPage: React.FC = () => {
                       <Link
                         key={cat.id}
                         to={`/category/${cat.slug}`}
-                        className="h-8 px-3.5 inline-flex items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-xs text-ink-soft hover:text-primary hover:border-primary transition-colors select-none"
+                        className="min-h-[var(--tap-target)] px-3.5 inline-flex items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-sm text-ink-soft hover:text-primary hover:border-primary transition-colors select-none"
                       >
                         {cat.name}
                       </Link>
@@ -320,7 +320,7 @@ export const SearchPage: React.FC = () => {
                 <div className="mt-8">
                   <Link
                     to="/shop"
-                    className="inline-block rounded-lg bg-primary hover:bg-primary-hover text-white px-5 py-2.5 text-xs font-normal transition-colors"
+                    className="inline-flex min-h-[var(--tap-target)] items-center rounded-lg bg-primary hover:bg-primary-hover text-white px-5 py-2.5 text-sm font-normal transition-colors"
                   >
                     View All Products
                   </Link>
