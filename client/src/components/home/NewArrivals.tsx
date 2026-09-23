@@ -57,7 +57,7 @@ export const NewArrivals: React.FC = () => {
   return (
     <section id="new-arrivals" className="editorial-container overflow-hidden py-8 sm:py-10">
       {/* Section Header */}
-      <div className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 sm:mb-6">
         <div>
           <span className="eyebrow mb-1.5 block">Just In</span>
           <h2 className="text-h2 text-ink">New Arrivals</h2>
@@ -68,7 +68,7 @@ export const NewArrivals: React.FC = () => {
           <button
             type="button"
             onClick={scrollLeft}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
             aria-label="Previous new arrivals"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -76,14 +76,14 @@ export const NewArrivals: React.FC = () => {
           <button
             type="button"
             onClick={scrollRight}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
             aria-label="Next new arrivals"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           <Link
             to="/shop?sort=newest"
-            className="inline-flex items-center justify-center shrink-0 h-8 px-3.5 text-xs font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
+            className="inline-flex items-center justify-center shrink-0 min-h-[var(--tap-target)] px-3.5 text-sm font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
           >
             View all
           </Link>

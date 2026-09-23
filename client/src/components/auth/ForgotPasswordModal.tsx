@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { X, Mail, ArrowRight } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { authRedirectUrl } from '../../lib/authRedirect'
 import { useToast } from '../../context/ToastContext'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
+import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
 
 interface ForgotPasswordModalProps {
   isOpen: boolean
@@ -21,6 +22,9 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const { showToast } = useToast()
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useDialogFocus(isOpen, onClose, panelRef)
 
   if (!isOpen) return null
 
@@ -60,9 +64,13 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
-      <div className="relative w-full max-w-md rounded-2xl bg-paper p-6 sm:p-8 shadow-2xl">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-paper p-6 shadow-2xl sm:p-8"
+      >
         <Button
           type="button"
           variant="ghost"

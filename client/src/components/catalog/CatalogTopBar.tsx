@@ -16,7 +16,7 @@ interface CatalogTopBarProps {
   className?: string
 }
 
-const SORT_OPTIONS: DropdownOption[] = [
+export const SORT_OPTIONS: DropdownOption[] = [
   { value: 'newest', label: 'Newest Arrivals' },
   { value: 'price_asc', label: 'Price: Low to High' },
   { value: 'price_desc', label: 'Price: High to Low' },
@@ -36,23 +36,23 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-line ${className}`}
+      className={`flex flex-col 2xl:flex-row 2xl:flex-wrap 2xl:items-center justify-between gap-4 pb-6 mb-6 border-b border-line ${className}`}
     >
       {/* Title & Count */}
-      <div className="flex items-baseline gap-3">
+      <div className="flex flex-wrap items-baseline gap-3 min-w-0">
         <h2 className="font-display text-xl sm:text-2xl font-bold text-ink">{title}</h2>
-        <span className="text-xs sm:text-sm text-muted font-normal">
+        <span className="text-sm text-muted font-normal">
           <strong className="text-ink">{totalCount}</strong> pieces
         </span>
       </div>
 
       {/* Controls: Mobile Filter Button, Sort Dropdown & View Mode Switcher */}
-      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-5">
+      <div className="flex flex-wrap items-center justify-between 2xl:justify-end gap-3 min-w-0">
         {/* Mobile Filter Toggle */}
         <button
           type="button"
           onClick={onOpenMobileFilters}
-          className="lg:hidden flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line bg-surface text-ink text-xs font-normal hover:bg-line transition-colors cursor-pointer"
+          className="lg:hidden flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line bg-surface text-ink text-sm font-normal hover:bg-line transition-colors cursor-pointer"
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           <span>Filter</span>
@@ -63,22 +63,22 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
           )}
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted font-normal hidden sm:inline">Sort by:</span>
+          <div className="hidden lg:flex items-center gap-2 min-w-0">
+            <span className="text-sm text-muted font-normal hidden sm:inline">Sort by:</span>
             <Dropdown
               id="catalog-sort"
               value={sortBy}
               onChange={onSortChange}
               options={SORT_OPTIONS}
               variant="slim"
-              className="w-40 sm:w-44 text-xs"
+              className="w-[min(11rem,52vw)] sm:w-44 text-sm"
             />
           </div>
 
           {/* View Density Switcher (Desktop only) */}
-          <div className="hidden md:flex items-center gap-1 border border-line rounded-lg p-0.5 bg-paper">
+          <div className="hidden 2xl:flex items-center gap-1 border border-line rounded-lg p-0.5 bg-paper">
             <button
               type="button"
               onClick={() => onViewModeChange('grid-4')}

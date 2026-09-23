@@ -32,7 +32,7 @@ export const CartPage: React.FC = () => {
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-[var(--color-ink)] mt-6">
             Your cart is empty
           </h1>
-          <p className="mx-auto mt-3 max-w-sm text-sm text-[var(--color-muted)]">
+          <p className="mx-auto mt-3 max-w-sm text-base text-[var(--color-muted)]">
             Browse the current catalog to add products to your cart.
           </p>
           <Link
@@ -65,7 +65,7 @@ export const CartPage: React.FC = () => {
           <div className="space-y-6 lg:col-span-7 xl:col-span-8">
             <section className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs space-y-6">
               {/* Header with Clear Cart */}
-              <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-line)] pb-4">
                 <div className="flex items-center gap-3">
                   <h1 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
                     Order Summary
@@ -96,7 +96,7 @@ export const CartPage: React.FC = () => {
               <div className="pt-2">
                 <Link
                   to="/shop"
-                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-primary)] hover:underline"
+                  className="inline-flex min-h-[var(--tap-target)] items-center gap-2 text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-primary)] hover:underline"
                 >
                   <ArrowLeft className="h-4 w-4 shrink-0" />
                   <span>Continue Shopping</span>

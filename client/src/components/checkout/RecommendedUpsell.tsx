@@ -78,6 +78,8 @@ export const RecommendedUpsell: React.FC = () => {
             <img
               src={product.primaryImageUrl}
               alt={product.name}
+              width={80}
+              height={80}
               className="h-full w-full object-cover"
             />
           ) : (

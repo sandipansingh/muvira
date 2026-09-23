@@ -151,7 +151,7 @@ export const OrderDetailPage: React.FC = () => {
               Shipment Tracking
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 text-xs sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
             <div className="border-t border-[var(--color-line)] pt-3">
               <span className="block text-muted">AWB tracking number</span>
               <strong className="mt-1 block text-sm text-ink">
@@ -178,7 +178,7 @@ export const OrderDetailPage: React.FC = () => {
               href={trackingUrl}
               target="_blank"
               rel="noreferrer"
-              className="text-ink underline underline-offset-2 hover:underline text-xs inline-block"
+              className="inline-flex min-h-[var(--tap-target)] items-center text-sm text-ink underline underline-offset-2 hover:underline"
             >
               Open carrier tracking
             </a>
@@ -191,7 +191,7 @@ export const OrderDetailPage: React.FC = () => {
           {trackingEvents.length > 0 && (
             <div className="space-y-4 border-t border-[var(--color-line)] pt-5">
               {trackingEvents.map((event) => (
-                <div key={event.id} className="flex gap-3 text-xs">
+                <div key={event.id} className="flex gap-3 text-base">
                   <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-ink" />
                   <div>
                     <p className="font-normal text-ink">{event.status}</p>
@@ -216,12 +216,14 @@ export const OrderDetailPage: React.FC = () => {
           <h2 className="heading mb-4 text-xl">Ordered Items</h2>
           <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
             {order.items.map((item) => (
-              <div key={item.id} className="flex items-center justify-between gap-4 py-4">
+              <div key={item.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
                 <div className="flex min-w-0 items-center gap-4">
                   {item.productImage ? (
                     <img
                       src={item.productImage}
                       alt={item.productName}
+                      width={64}
+                      height={64}
                       className="h-16 w-16 rounded-2xl shrink-0 object-cover border border-line"
                     />
                   ) : (
@@ -230,7 +232,7 @@ export const OrderDetailPage: React.FC = () => {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <h3 className="truncate font-display text-base font-semibold text-ink">
+                    <h3 className="font-display text-base font-semibold text-ink">
                       {item.productName}
                     </h3>
                     <p className="text-xs font-normal text-muted">Qty: {item.quantity}</p>
@@ -245,7 +247,7 @@ export const OrderDetailPage: React.FC = () => {
         </section>
 
         <div className="grid grid-cols-1 gap-6 border-t border-line pt-6 sm:grid-cols-2">
-          <div className="panel space-y-2 p-5 text-xs">
+          <div className="panel space-y-2 p-5 text-base">
             <h2 className="mb-3 flex items-center gap-1.5 font-sans text-sm font-bold leading-tight text-ink">
               <MapPin className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Shipping Address</span>
@@ -260,7 +262,7 @@ export const OrderDetailPage: React.FC = () => {
               {order.shippingAddress.pincode} · {order.shippingAddress.phone}
             </p>
           </div>
-          <div className="panel space-y-2 p-5 text-xs">
+          <div className="panel space-y-2 p-5 text-base">
             <h2 className="mb-3 flex items-center gap-1.5 font-sans text-sm font-bold leading-tight text-ink">
               <ShieldCheck className="h-4 w-4 shrink-0 text-ink" />
               <span className="leading-none">Payment Details</span>

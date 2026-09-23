@@ -27,6 +27,8 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
             <img
               src={imageUrl}
               alt=""
+              width={1600}
+              height={900}
               className="absolute inset-0 h-full w-full object-cover object-center"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/30 via-white/40 to-white/60" />
@@ -37,12 +39,12 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
         <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
           <Breadcrumbs items={breadcrumbs} className="mb-2 justify-center" />
 
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-ink tracking-tight leading-tight">
+          <h1 className="font-display text-[clamp(1.75rem,5vw,3rem)] font-bold text-ink tracking-tight leading-tight">
             {title}
           </h1>
 
           {subtitle && (
-            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-ink-soft font-normal max-w-lg leading-relaxed">
+            <p className="mt-2 sm:mt-3 text-base text-ink-soft font-normal max-w-lg leading-relaxed">
               {subtitle}
             </p>
           )}

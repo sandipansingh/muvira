@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useRef } from 'react'
 import { X } from 'lucide-react'
+import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
 
 interface ModalProps {
   isOpen: boolean
@@ -16,12 +17,8 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'md',
 }) => {
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [isOpen])
+  const panelRef = useRef<HTMLDivElement>(null)
+  useDialogFocus(isOpen, onClose, panelRef)
 
   if (!isOpen) return null
 
@@ -36,7 +33,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
     >
@@ -47,7 +44,9 @@ export const Modal: React.FC<ModalProps> = ({
         aria-label="Close dialog"
       />
       <div
-        className={`overlay-panel relative z-10 flex max-h-[90vh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`}
+        ref={panelRef}
+        tabIndex={-1}
+        className={`overlay-panel relative z-10 flex max-h-[90dvh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`}
       >
         {title ? (
           <div className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-4">

@@ -171,12 +171,12 @@ export const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
             Secure payment
           </h2>
         </div>
-        <p className="mt-2 text-sm leading-relaxed text-neutral-900">
+        <p className="mt-2 text-base leading-relaxed text-ink">
           Payment details are entered only in Razorpay's secure checkout.
         </p>
       </div>
 
-      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--color-line)] p-3 text-sm text-[var(--color-ink)]">
+      <label className="flex min-h-[var(--tap-target)] cursor-pointer items-center gap-3 rounded-xl border border-[var(--color-line)] p-3 text-base text-[var(--color-ink)]">
         <input
           type="checkbox"
           checked={billingSameAsShipping}
@@ -188,74 +188,100 @@ export const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
 
       {!billingSameAsShipping && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <input
-            type="text"
-            required
-            value={billing.fullName}
-            onChange={(event) => updateBilling('fullName', event.target.value)}
-            placeholder="Billing name"
-            className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
-          />
-          <input
-            type="text"
-            required
-            value={billing.line1}
-            onChange={(event) => updateBilling('line1', event.target.value)}
-            placeholder="Billing address"
-            className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
-          />
-          <input
-            type="text"
-            value={billing.line2}
-            onChange={(event) => updateBilling('line2', event.target.value)}
-            placeholder="Apartment or landmark (optional)"
-            className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
-          />
-          <input
-            type="text"
-            required
-            value={billing.city}
-            onChange={(event) => updateBilling('city', event.target.value)}
-            placeholder="City"
-            className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
-          />
-          <Dropdown
-            value={billing.state}
-            onChange={(value) => updateBilling('state', value)}
-            options={INDIAN_STATES}
-            aria-label="Billing state"
-            className="w-full"
-            triggerClassName="min-h-11 !text-base"
-            menuClassName="w-full"
-          />
-          <input
-            type="text"
-            inputMode="numeric"
-            required
-            maxLength={6}
-            value={billing.pincode}
-            onChange={(event) =>
-              updateBilling('pincode', event.target.value.replace(/\D/g, '').slice(0, 6))
-            }
-            placeholder="PIN code"
-            className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
-          />
-          <input
-            type="text"
-            maxLength={15}
-            value={billing.gstNumber}
-            onChange={(event) =>
-              updateBilling(
-                'gstNumber',
-                event.target.value
-                  .toUpperCase()
-                  .replace(/[^0-9A-Z]/g, '')
-                  .slice(0, 15)
-              )
-            }
-            placeholder="GSTIN (optional)"
-            className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base uppercase text-[var(--color-ink)]"
-          />
+          <label className="flex flex-col gap-1 text-sm font-semibold text-ink">
+            Billing name
+            <input
+              type="text"
+              required
+              autoComplete="name"
+              value={billing.fullName}
+              onChange={(event) => updateBilling('fullName', event.target.value)}
+              placeholder="Billing name"
+              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm font-semibold text-ink">
+            Billing address
+            <input
+              type="text"
+              required
+              autoComplete="address-line1"
+              value={billing.line1}
+              onChange={(event) => updateBilling('line1', event.target.value)}
+              placeholder="Billing address"
+              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm font-semibold text-ink">
+            Apartment or landmark (optional)
+            <input
+              type="text"
+              autoComplete="address-line2"
+              value={billing.line2}
+              onChange={(event) => updateBilling('line2', event.target.value)}
+              placeholder="Apartment or landmark (optional)"
+              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm font-semibold text-ink">
+            City
+            <input
+              type="text"
+              required
+              autoComplete="address-level2"
+              value={billing.city}
+              onChange={(event) => updateBilling('city', event.target.value)}
+              placeholder="City"
+              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
+            />
+          </label>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-ink">State</span>
+            <Dropdown
+              value={billing.state}
+              onChange={(value) => updateBilling('state', value)}
+              options={INDIAN_STATES}
+              aria-label="Billing state"
+              className="w-full"
+              triggerClassName="min-h-11 !text-base"
+              menuClassName="w-full"
+            />
+          </div>
+          <label className="flex flex-col gap-1 text-sm font-semibold text-ink">
+            PIN code
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="postal-code"
+              required
+              maxLength={6}
+              value={billing.pincode}
+              onChange={(event) =>
+                updateBilling('pincode', event.target.value.replace(/\D/g, '').slice(0, 6))
+              }
+              placeholder="PIN code"
+              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)]"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm font-semibold text-ink">
+            GSTIN (optional)
+            <input
+              type="text"
+              maxLength={15}
+              value={billing.gstNumber}
+              onChange={(event) =>
+                updateBilling(
+                  'gstNumber',
+                  event.target.value
+                    .toUpperCase()
+                    .replace(/[^0-9A-Z]/g, '')
+                    .slice(0, 15)
+                )
+              }
+              placeholder="GSTIN (optional)"
+              className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base uppercase text-[var(--color-ink)]"
+            />
+          </label>
         </div>
       )}
 

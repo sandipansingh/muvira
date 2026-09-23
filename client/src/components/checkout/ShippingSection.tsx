@@ -89,7 +89,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
     <div className="space-y-8">
       {/* Shipping Address Header & Form */}
       <section className="space-y-5 rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs">
-        <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-line)] pb-4">
           <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
             Shipping Address
           </h2>
@@ -113,10 +113,12 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {savedAddresses.map((addr) => (
-                <div
+                <button
                   key={addr.id}
+                  type="button"
                   onClick={() => onSelectSavedAddress?.(addr.id)}
-                  className={`cursor-pointer rounded-2xl border p-4 transition-all ${
+                  aria-pressed={selectedAddressId === addr.id}
+                  className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition-all ${
                     selectedAddressId === addr.id
                       ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-1 ring-[var(--color-primary)] shadow-xs'
                       : 'border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-field-border)] hover:bg-[var(--color-surface)]'
@@ -139,7 +141,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
                   <p className="mt-1 text-[11px] text-[var(--color-muted)]">
                     {addr.city}, {addr.state} {addr.pincode} &bull; {addr.phone}
                   </p>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -151,11 +153,16 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
             {/* Row 1: First Name & Last Name (2 cols) */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+                <label
+                  htmlFor="shipping-first-name"
+                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                >
                   First Name*
                 </label>
                 <input
+                  id="shipping-first-name"
                   type="text"
+                  autoComplete="given-name"
                   required
                   placeholder="First name"
                   value={shippingData.firstName}
@@ -165,11 +172,16 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+                <label
+                  htmlFor="shipping-last-name"
+                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                >
                   Last Name*
                 </label>
                 <input
+                  id="shipping-last-name"
                   type="text"
+                  autoComplete="family-name"
                   required
                   placeholder="Last name"
                   value={shippingData.lastName}
@@ -182,11 +194,16 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
             {/* Row 2: Email & Phone number with IND selector (2 cols) */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+                <label
+                  htmlFor="shipping-email"
+                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                >
                   Email*
                 </label>
                 <input
+                  id="shipping-email"
                   type="email"
+                  autoComplete="email"
                   required
                   placeholder="name@example.com"
                   value={shippingData.email}
@@ -196,11 +213,15 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+                <label
+                  htmlFor="shipping-phone"
+                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                >
                   Phone number*
                 </label>
                 <div className="flex rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] focus-within:border-[var(--color-primary)] focus-within:bg-[var(--color-paper)]">
                   <select
+                    aria-label="Country calling code"
                     value={countryCode}
                     onChange={(e) => setCountryCode(e.target.value)}
                     className="rounded-l-xl border-r border-[var(--color-line)] bg-transparent px-2.5 py-2.5 text-xs font-semibold text-[var(--color-ink)] focus:outline-none"
@@ -211,14 +232,17 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
                     <option value="+971">UAE +971</option>
                   </select>
                   <input
+                    id="shipping-phone"
                     type="tel"
+                    inputMode="tel"
+                    autoComplete="tel-national"
                     required
                     placeholder="9876543210"
                     value={shippingData.phone}
                     onChange={(e) =>
                       handleFieldChange('phone', e.target.value.replace(/\D/g, '').slice(0, 10))
                     }
-                    className="w-full rounded-r-xl bg-transparent px-3 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:outline-none"
+                    className="min-w-0 w-full rounded-r-xl bg-transparent px-3 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:outline-none"
                   />
                 </div>
               </div>
@@ -227,11 +251,16 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
             {/* Row 3: City, State, Zip Code (3 cols) */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+                <label
+                  htmlFor="shipping-city"
+                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                >
                   City*
                 </label>
                 <input
+                  id="shipping-city"
                   type="text"
+                  autoComplete="address-level2"
                   required
                   placeholder="Kolkata / City"
                   value={shippingData.city}
@@ -241,10 +270,15 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+                <label
+                  htmlFor="shipping-state"
+                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                >
                   State*
                 </label>
                 <select
+                  id="shipping-state"
+                  autoComplete="address-level1"
                   value={shippingData.state}
                   onChange={(e) => handleFieldChange('state', e.target.value)}
                   className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
@@ -258,11 +292,17 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
-                  Zip Code*
+                <label
+                  htmlFor="shipping-pincode"
+                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                >
+                  Pincode*
                 </label>
                 <input
+                  id="shipping-pincode"
                   type="text"
+                  inputMode="numeric"
+                  autoComplete="postal-code"
                   required
                   placeholder="700001"
                   maxLength={6}
@@ -277,10 +317,15 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
 
             {/* Row 4: Description / Street Address (textarea matching Reference #2) */}
             <div>
-              <label className="mb-1 block text-xs font-semibold text-[var(--color-ink)]">
+              <label
+                htmlFor="shipping-street"
+                className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+              >
                 Description* / Street Address
               </label>
               <textarea
+                id="shipping-street"
+                autoComplete="street-address"
                 rows={3}
                 required
                 placeholder="Enter street address, building, landmark..."

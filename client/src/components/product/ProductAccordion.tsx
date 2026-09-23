@@ -1,4 +1,5 @@
 import React from 'react'
+import { ChevronDown } from 'lucide-react'
 import type { ProductDetail, ProductReview } from '../../lib/types/product'
 import { ReviewsSection } from './ReviewsSection'
 
@@ -44,7 +45,27 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
     <div className="mt-10 pt-6 sm:mt-12">
       {/* Horizontal Tabs Header (Matching Reference Image 1 & 3) */}
       <div className="border-b border-line/60">
-        <div className="flex gap-6 overflow-x-auto no-scrollbar sm:gap-8">
+        <div className="flex flex-col md:hidden">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => onToggleSection(tab.id)}
+              className="flex min-h-[var(--tap-target)] w-full items-center justify-between gap-3 border-t border-line py-2 text-left text-base text-ink"
+              aria-expanded={activeTab === tab.id}
+              aria-controls="product-detail-panel"
+            >
+              <span>
+                {tab.label}
+                {tab.id === 'reviews' && reviewCount > 0 ? ` (${reviewCount})` : ''}
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 transition-transform ${activeTab === tab.id ? 'rotate-180' : ''}`}
+              />
+            </button>
+          ))}
+        </div>
+        <div className="hidden gap-6 overflow-x-auto no-scrollbar md:flex md:gap-8">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
@@ -69,16 +90,14 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
       </div>
 
       {/* Tab Content Container */}
-      <div className="py-6">
+      <div id="product-detail-panel" className="py-6">
         {/* Description Tab (Matching Reference Image 1) */}
         {activeTab === 'description' && (
           <div className="max-w-3xl space-y-5">
             {product.description ? (
-              <p className="text-sm leading-relaxed text-ink-soft/90 sm:text-base">
-                {product.description}
-              </p>
+              <p className="text-base leading-relaxed text-ink-soft/90">{product.description}</p>
             ) : (
-              <p className="text-sm text-muted">A product description is not available.</p>
+              <p className="text-base text-muted">A product description is not available.</p>
             )}
           </div>
         )}
@@ -86,8 +105,8 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
         {/* Specifications Tab */}
         {activeTab === 'specifications' && (
           <div className="max-w-3xl space-y-3">
-            <div className="overflow-hidden rounded-xl border border-line">
-              <table className="w-full text-left text-xs sm:text-sm">
+            <div className="max-w-full overflow-x-auto rounded-xl border border-line">
+              <table className="w-full text-left text-sm">
                 <tbody className="divide-y divide-line">
                   <tr className="bg-surface/50">
                     <td className="w-1/3 px-4 py-3 font-normal text-muted uppercase tracking-wider text-xs">
@@ -142,7 +161,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
 
         {/* Shipping tab */}
         {activeTab === 'shipping' && (
-          <div className="max-w-3xl space-y-3 text-sm text-ink-soft">
+          <div className="max-w-3xl space-y-3 text-base text-ink-soft">
             <p className="leading-relaxed">
               Available shipping methods and their exact charges are calculated from the current
               delivery configuration during checkout.

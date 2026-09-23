@@ -16,7 +16,7 @@ import { formatPrice } from '../lib/utils/format'
 import { checkoutService } from '../lib/services/checkout.service'
 import type { CheckoutQuote, ShippingMethod } from '../types/checkout'
 import { checkoutTotals } from '../lib/utils/checkoutState'
-import { Tag, CheckCircle, X, HelpCircle } from 'lucide-react'
+import { Tag, CheckCircle, X, HelpCircle, ChevronDown } from 'lucide-react'
 
 function toAddressData(address: Address): AddressData {
   return {
@@ -310,6 +310,7 @@ export const CheckoutPage: React.FC = () => {
                 buttonLabel="Continue to Payment"
                 isProcessing={quoteLoading}
                 disabled={Boolean(quoteError || !quote || hasUnmergedItems)}
+                collapsibleOnMobile
               />
             </div>
           </div>
@@ -320,16 +321,22 @@ export const CheckoutPage: React.FC = () => {
           <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
             {/* Left Column: Order Summary (Reference #1 Left Column) */}
             <div className="space-y-6 lg:col-span-7 xl:col-span-7">
-              <section className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs space-y-6">
+              <details
+                open
+                className="group rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs space-y-6"
+              >
                 {/* Header with Items pill badge */}
-                <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
+                <summary className="flex min-h-[var(--tap-target)] cursor-pointer items-center justify-between gap-3 border-b border-[var(--color-line)] pb-4 list-none [&::-webkit-details-marker]:hidden">
                   <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
                     Order Summary
                   </h2>
-                  <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-ink)]">
-                    {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-sm font-semibold text-[var(--color-ink)]">
+                      {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                    </span>
+                    <ChevronDown className="h-4 w-4 text-muted transition-transform group-open:rotate-180" />
                   </span>
-                </div>
+                </summary>
 
                 {/* Items List */}
                 <div className="space-y-3.5">
@@ -359,6 +366,7 @@ export const CheckoutPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={removeCoupon}
+                        aria-label="Remove discount code"
                         className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-[var(--color-muted)] hover:bg-danger-soft hover:text-danger transition-colors"
                       >
                         <X className="h-4 w-4" />
@@ -441,7 +449,7 @@ export const CheckoutPage: React.FC = () => {
                     </span>
                   </div>
                 </div>
-              </section>
+              </details>
 
               {/* Recommended For You Upsell Carousel matching bottom-left of Reference #1 */}
               <RecommendedUpsell />

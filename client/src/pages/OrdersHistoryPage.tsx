@@ -76,7 +76,7 @@ export const OrdersHistoryPage: React.FC = () => {
         <div className="mb-6 border-b border-border-light pb-4">
           <span className="eyebrow mb-2 block">Account / Purchases</span>
           <h1 className="heading page-title">Order History</h1>
-          <p className="body-copy mt-2 text-sm">Track your past purchases and deliveries.</p>
+          <p className="body-copy mt-2 text-base">Track your past purchases and deliveries.</p>
         </div>
         {loading && (
           <div className="space-y-4">
@@ -122,6 +122,8 @@ export const OrdersHistoryPage: React.FC = () => {
                     <img
                       src={order.firstItemImage}
                       alt={order.firstItemName ?? 'Ordered product'}
+                      width={56}
+                      height={56}
                       className="h-14 w-14 shrink-0 rounded-lg border border-line object-cover"
                     />
                   ) : (
@@ -129,17 +131,17 @@ export const OrdersHistoryPage: React.FC = () => {
                       <Package className="h-6 w-6 text-disabled" />
                     </div>
                   )}
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-3">
                       <span className="font-sans text-base font-bold text-ink">
                         #{order.orderNumber}
                       </span>
                       <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>
                     </div>
-                    <p className="mt-1 text-xs font-normal text-ink">
+                    <p className="mt-1 text-base font-normal text-ink">
                       {order.firstItemName ?? `${order.itemCount} item(s)`}
                     </p>
-                    <p className="mt-1 flex items-center gap-1 text-[11px] text-muted">
+                    <p className="mt-1 flex items-center gap-1 text-sm text-muted">
                       <Clock className="h-3 w-3 shrink-0" />
                       <span className="leading-none">Placed on {formatDate(order.createdAt)}</span>
                     </p>

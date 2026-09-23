@@ -17,7 +17,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' 
 
   return (
     <nav
-      className={`mb-4 flex flex-wrap items-center gap-1.5 text-xs font-normal text-muted ${className}`}
+      className={`mb-4 flex flex-wrap items-center gap-1.5 text-sm font-normal text-muted ${className}`}
       aria-label="Breadcrumb"
     >
       {items.map((item, idx) => {
@@ -33,7 +33,10 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = '' 
                 {item.label}
               </span>
             ) : (
-              <Link to={item.href} className="shrink-0 transition-colors hover:text-primary">
+              <Link
+                to={item.href}
+                className="inline-flex min-h-[var(--tap-target)] min-w-[var(--tap-target)] shrink-0 items-center transition-colors hover:text-primary"
+              >
                 {item.label}
               </Link>
             )}

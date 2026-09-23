@@ -48,10 +48,9 @@ export const ToastContainer: React.FC = () => {
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="pointer-events-auto fixed bottom-6 right-6 z-[99999] flex select-none items-end justify-end"
+      className="pointer-events-auto fixed right-4 top-[calc(4rem+env(safe-area-inset-top))] z-[var(--z-toast)] flex select-none items-end justify-end sm:bottom-6 sm:right-6 sm:top-auto"
       style={{
-        width: 380,
-        maxWidth: 'calc(100vw - 2rem)',
+        width: 'min(23.75rem, calc(100vw - 2rem))',
         height: containerHeight,
       }}
       aria-live="polite"
@@ -112,11 +111,9 @@ export const ToastContainer: React.FC = () => {
 
                 <div className="flex min-w-0 flex-1 flex-col text-left">
                   {toast.title && (
-                    <span className="truncate text-xs font-normal leading-snug text-ink">
-                      {toast.title}
-                    </span>
+                    <span className="text-sm font-normal leading-snug text-ink">{toast.title}</span>
                   )}
-                  <span className="line-clamp-2 text-xs font-normal leading-snug text-ink-soft">
+                  <span className="line-clamp-2 text-sm font-normal leading-snug text-ink-soft">
                     {toast.message}
                   </span>
                 </div>
@@ -127,7 +124,7 @@ export const ToastContainer: React.FC = () => {
                     e.stopPropagation()
                     removeToast(toast.id)
                   }}
-                  className="shrink-0 cursor-pointer rounded-[var(--radius-control)] p-1 text-muted transition-colors hover:bg-surface hover:text-ink-soft"
+                  className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-muted transition-colors hover:bg-surface hover:text-ink-soft"
                   aria-label="Dismiss notification"
                 >
                   <X className="h-4 w-4" />

@@ -78,6 +78,8 @@ export const CategoriesPage: React.FC = () => {
                   <img
                     src={category.imageUrl}
                     alt={category.name}
+                    width={800}
+                    height={600}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
                   />

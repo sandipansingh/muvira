@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
@@ -18,6 +19,15 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
   const [isBuyingNow, setIsBuyingNow] = useState(false)
+  const [isFooterVisible, setIsFooterVisible] = useState(false)
+
+  useEffect(() => {
+    const footer = document.querySelector('footer')
+    if (!footer) return
+    const observer = new IntersectionObserver(([entry]) => setIsFooterVisible(entry.isIntersecting))
+    observer.observe(footer)
+    return () => observer.disconnect()
+  }, [])
 
   const originalPrice =
     product.salePrice && product.salePrice > product.price ? product.salePrice : null
@@ -56,7 +66,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
     <div className="flex flex-col space-y-5 pr-0 sm:pr-2 lg:pr-8 xl:pr-12">
       {/* Product Title */}
       <div className="space-y-2">
-        <h1 className="font-display text-2xl font-bold leading-tight text-ink sm:text-3xl lg:text-[2rem]">
+        <h1 className="font-display text-[clamp(1.5rem,5vw,2rem)] font-bold leading-tight text-ink">
           {product.name}
         </h1>
 
@@ -78,7 +88,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
 
       {/* Short Editorial Lead Description */}
       {(product.shortDescription || product.description) && (
-        <p className="text-sm leading-relaxed text-ink-soft/90">
+        <p className="text-base leading-relaxed text-ink-soft/90">
           {product.shortDescription || product.description}
         </p>
       )}
@@ -103,24 +113,24 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
       {/* Quantity Selector, Buy Now & Add to Cart Controls (Divided into 2 Rows) */}
       <div className="space-y-3 pt-2">
         {/* Row 1: Stepper and Add to Cart */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           {/* Quantity Stepper */}
-          <div className="flex h-11 items-center rounded-[var(--radius-control)] border border-line bg-surface px-1.5">
+          <div className="flex min-h-[var(--tap-target)] items-center rounded-[var(--radius-control)] border border-line bg-surface">
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
               disabled={quantity <= 1}
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-base font-normal text-ink transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-base font-normal text-ink transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Decrease quantity"
             >
               −
             </button>
-            <span className="w-8 text-center text-sm font-normal text-ink">{quantity}</span>
+            <span className="min-w-8 text-center text-base font-normal text-ink">{quantity}</span>
             <button
               type="button"
               onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
               disabled={quantity >= product.stock}
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded text-base font-normal text-ink transition-colors hover:bg-white"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-base font-normal text-ink transition-colors hover:bg-white"
               aria-label="Increase quantity"
             >
               +
@@ -136,7 +146,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             onClick={handleAddToCart}
             disabled={!product.inStock}
             leftIcon={<ShoppingBag className="h-4 w-4 shrink-0" />}
-            className="flex-1 font-bold"
+            className="min-w-[9rem] flex-1 font-bold"
           >
             {product.inStock ? 'Add to Cart' : 'Unavailable'}
           </Button>
@@ -155,6 +165,32 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           {product.inStock ? 'Buy Now' : 'Unavailable'}
         </Button>
       </div>
+      {!isFooterVisible &&
+        createPortal(
+          <div className="fixed inset-x-0 bottom-0 z-[var(--z-header)] grid grid-cols-2 gap-2 border-t border-line bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-overlay)] sm:hidden">
+            <Button
+              variant="secondary"
+              size="lg"
+              isLoading={isAdding}
+              onClick={handleAddToCart}
+              disabled={!product.inStock}
+              className="min-w-0 px-2 text-sm"
+            >
+              Add to Cart
+            </Button>
+            <Button
+              variant="primary"
+              size="lg"
+              isLoading={isBuyingNow}
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
+              className="min-w-0 px-2 text-sm"
+            >
+              Buy Now
+            </Button>
+          </div>,
+          document.body
+        )}
     </div>
   )
 }

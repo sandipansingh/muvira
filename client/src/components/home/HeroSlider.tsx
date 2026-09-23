@@ -49,7 +49,7 @@ export const HeroSlider: React.FC = () => {
   if (loading) {
     return (
       <section className="layout-container py-2 sm:py-3" aria-busy="true">
-        <div className="w-full h-[clamp(500px,76vh,840px)] rounded-[2.5rem] lg:rounded-[3rem] animate-pulse bg-surface" />
+        <div className="w-full h-[clamp(22rem,76dvh,52.5rem)] rounded-[2.5rem] lg:rounded-[3rem] animate-pulse bg-surface" />
       </section>
     )
   }
@@ -119,7 +119,7 @@ export const HeroSlider: React.FC = () => {
       </div>
 
       {/* Main Full-Image Hero Banner Container */}
-      <div className="relative w-full h-[clamp(500px,76vh,840px)] rounded-2xl lg:rounded-3xl overflow-hidden shadow-premium flex flex-col justify-end p-6 sm:p-10 lg:p-12 bg-ink">
+      <div className="relative w-full h-[clamp(22rem,76dvh,52.5rem)] rounded-2xl lg:rounded-3xl overflow-hidden shadow-premium flex flex-col justify-end p-6 sm:p-10 lg:p-12 bg-ink">
         {/* Full-Bleed Slider Background Photo */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -133,7 +133,10 @@ export const HeroSlider: React.FC = () => {
             <img
               src={currentSlide.imageUrl}
               alt={currentSlide.title || 'Hero Banner'}
+              width={1600}
+              height={900}
               className="h-full w-full object-cover"
+              fetchPriority="high"
             />
             {/* Subtle Gradient to ensure bottom white text/buttons pop cleanly */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent z-10" />
@@ -145,7 +148,7 @@ export const HeroSlider: React.FC = () => {
           <button
             type="button"
             onClick={prevSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-[var(--radius-control)] bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-11 h-11 rounded-[var(--radius-control)] bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Previous slide"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -153,7 +156,7 @@ export const HeroSlider: React.FC = () => {
           <button
             type="button"
             onClick={nextSlide}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-[var(--radius-control)] bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
+            className="w-11 h-11 rounded-[var(--radius-control)] bg-white/80 hover:bg-white text-ink-soft backdrop-blur-md border border-white/40 shadow-xs flex items-center justify-center cursor-pointer transition-all active:scale-95"
             aria-label="Next slide"
           >
             <ChevronRight className="w-4 h-4" />
@@ -175,7 +178,7 @@ export const HeroSlider: React.FC = () => {
             <Link to={currentSlide.link || '/shop'} aria-label="Start shopping arrow">
               <Button
                 variant="inverse"
-                className="!h-9 !w-9 sm:!h-11 sm:!w-11 !p-0 shadow-md hover:shadow-lg active:scale-98 shrink-0"
+                className="!h-11 !w-11 !p-0 shadow-md hover:shadow-lg active:scale-98 shrink-0"
               >
                 <ArrowUpRight className="h-4.5 w-4.5 stroke-[2.5]" />
               </Button>
@@ -184,7 +187,7 @@ export const HeroSlider: React.FC = () => {
 
           <Link
             to="/shop"
-            className="text-body-sm font-normal text-white drop-shadow-md hover:text-white/85 transition-colors cursor-pointer"
+            className="inline-flex min-h-[var(--tap-target)] items-center text-base font-normal text-white drop-shadow-md hover:text-white/85 transition-colors cursor-pointer"
           >
             Top collections
           </Link>
