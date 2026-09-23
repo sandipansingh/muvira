@@ -10,3 +10,5 @@ server/dist
 .git
 design-reference
 dev-scripts
+responsive-audit/before
+responsive-audit/after

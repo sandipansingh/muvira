@@ -35,6 +35,8 @@ Thumbs.db
 
 # Miscellaneous
 graphify-out/
+responsive-audit/before/
+responsive-audit/after/
 design-reference
 supabase/data.sql
 supabase/schema.sql
