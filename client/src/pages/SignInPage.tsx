@@ -44,7 +44,7 @@ export const SignInPage: React.FC = () => {
           >
             <img
               src="/logo.png"
-              alt="Muvira"
+              alt=""
               width={659}
               height={723}
               className="brand-mark w-auto object-contain shrink-0"

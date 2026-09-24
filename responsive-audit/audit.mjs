@@ -8,6 +8,7 @@ const sample = process.argv.includes('--sample')
 const overlays = process.argv.includes('--overlays')
 const dprOnly = process.argv.includes('--dpr-only')
 const textOnly = process.argv.includes('--text-only')
+const cartOnly = process.argv.includes('--cart-only')
 const apiCache = new Map()
 
 const viewports = [
@@ -73,7 +74,8 @@ async function getRoutes() {
   ])
   const products = productsResponse.ok ? (await productsResponse.json()).data || [] : []
   const categories = categoriesResponse.ok ? (await categoriesResponse.json()).data || [] : []
-  const slug = products.find((product) => product.slug)?.slug || 'audit-missing-product'
+  const slug =
+    products.find((product) => product.slug && product.stock > 0)?.slug || 'audit-missing-product'
   const category = categories.find((item) => item.slug)?.slug || 'audit-missing-category'
 
   return [
@@ -86,6 +88,7 @@ async function getRoutes() {
     { name: 'search', path: '/search?q=wood' },
     { name: 'product', path: `/product/${encodeURIComponent(slug)}` },
     { name: 'cart', path: '/cart' },
+    { name: 'cart-populated', path: '/cart', setupPath: `/product/${encodeURIComponent(slug)}` },
     { name: 'signin', path: '/signin' },
     { name: 'signup', path: '/signup' },
     { name: 'reset-password', path: '/reset-password' },
@@ -328,6 +331,15 @@ async function auditRoute(browser, viewport, route) {
   )
   let navigationError
   try {
+    if (route.setupPath) {
+      await page.goto(new URL(route.setupPath, baseUrl).href, {
+        waitUntil: 'domcontentloaded',
+        timeout: 20000,
+      })
+      await page.locator('main h1').first().waitFor({ state: 'visible', timeout: 10000 })
+      await page.getByRole('button', { name: 'Add to Cart', exact: true }).first().click()
+      await page.waitForFunction(() => !!localStorage.getItem('muvira_guest_cart_v1'))
+    }
     await page.goto(new URL(route.path, baseUrl).href, {
       waitUntil: 'domcontentloaded',
       timeout: 20000,
@@ -421,8 +433,9 @@ const cases = overlays
       : textOnly
         ? viewports.filter((item) => item.label === 'text-200')
         : viewports
-const testedRoutes =
-  sample || dprOnly
+const testedRoutes = cartOnly
+  ? routes.filter((item) => item.name === 'cart-populated')
+  : sample || dprOnly
     ? routes.filter((item) => ['home', 'shop', 'product', 'signin'].includes(item.name))
     : routes
 const browser = await chromium.launch({ headless: true })
@@ -471,11 +484,13 @@ if (overlays) {
 await browser.close()
 const findingsName = overlays
   ? 'overlay-findings.json'
-  : dprOnly
-    ? 'dpr-findings.json'
-    : textOnly
-      ? 'text-findings.json'
-      : 'findings.json'
+  : cartOnly
+    ? 'cart-findings.json'
+    : dprOnly
+      ? 'dpr-findings.json'
+      : textOnly
+        ? 'text-findings.json'
+        : 'findings.json'
 const cachedResponses = await Promise.all(
   [...apiCache.entries()].map(async ([url, response]) => ({
     url: new URL(url).pathname,

@@ -22,7 +22,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             >
               <img
                 src="/logo.png"
-                alt="Muvira"
+                alt=""
                 width={659}
                 height={723}
                 className="brand-mark w-auto shrink-0 object-contain"

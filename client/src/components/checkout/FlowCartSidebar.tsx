@@ -53,7 +53,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
   const estimatedTaxPaisa = 0
 
   return (
-    <aside className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-6 shadow-xs lg:sticky lg:top-24 lg:self-start space-y-5">
+    <aside className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-6 shadow-xs lg:sticky lg:top-24 lg:self-start space-y-5">
       {/* Title */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg sm:text-xl font-bold text-[var(--color-ink)]">
@@ -82,8 +82,11 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
         {/* Item List with Quantity Badges on Thumbnails */}
         <div className="max-h-72 space-y-3.5 overflow-y-auto dropdown-scrollbar pr-1">
           {items.map((item) => (
-            <div key={item.id} className="flex items-center justify-between gap-3 text-xs">
-              <div className="flex min-w-0 items-center gap-3">
+            <div
+              key={item.id}
+              className="flex flex-wrap items-center justify-between gap-3 text-xs"
+            >
+              <div className="flex min-w-0 flex-[1_1_10rem] items-center gap-3">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]">
                   {item.productImage ? (
                     <img
@@ -107,17 +110,17 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                 <div className="min-w-0">
                   <Link
                     to={`/product/${item.productSlug}`}
-                    className="line-clamp-2 font-display text-sm font-bold text-[var(--color-ink)] hover:text-[var(--color-primary)] transition-colors"
+                    className="min-h-[var(--tap-target)] break-words font-display text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)] xs:line-clamp-2 sm:text-sm"
                   >
                     {item.productName}
                   </Link>
-                  <p className="mt-0.5 text-[11px] text-[var(--color-muted)]">
+                  <p className="mt-0.5 text-base text-[var(--color-muted)]">
                     ₹{(item.unitPrice / 100).toFixed(0)} each
                   </p>
                 </div>
               </div>
 
-              <span className="shrink-0 font-sans text-xs sm:text-sm font-bold text-[var(--color-ink)]">
+              <span className="shrink-0 font-sans text-base font-bold text-[var(--color-ink)] sm:text-sm">
                 {formatPrice(item.lineTotal)}
               </span>
             </div>
@@ -194,7 +197,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
             </span>
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap items-center justify-between gap-1">
             <span className="flex items-center gap-1">
               Estimated taxes
               <HelpCircle className="h-3 w-3 text-[var(--color-muted)]" />

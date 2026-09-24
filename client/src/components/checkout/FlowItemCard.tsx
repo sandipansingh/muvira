@@ -27,7 +27,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
   }
 
   return (
-    <article className="relative flex items-start gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-3.5 sm:gap-4 sm:p-4 shadow-xs transition-all hover:border-[var(--color-field-border)]">
+    <article className="relative flex flex-wrap items-start gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] sm:gap-4 sm:p-4 shadow-xs transition-all hover:border-[var(--color-field-border)]">
       {/* Product image */}
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-24 sm:w-24">
         {item.productImage ? (
@@ -51,11 +51,11 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
       </div>
 
       {/* Item Details */}
-      <div className="min-w-0 flex-1 flex flex-col justify-between self-stretch">
+      <div className="flex min-w-0 flex-[1_1_8rem] flex-col justify-between self-stretch">
         <div>
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 pr-10 font-display text-base font-bold text-[var(--color-ink)] hover:text-[var(--color-primary)] transition-colors"
+            className="min-h-[var(--tap-target)] break-words pr-10 font-display text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)] xs:line-clamp-2"
           >
             {item.productName}
           </Link>

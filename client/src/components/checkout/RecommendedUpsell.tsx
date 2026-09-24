@@ -71,7 +71,7 @@ export const RecommendedUpsell: React.FC = () => {
         Featured product
       </h3>
 
-      <div className="relative flex items-center gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-3.5 shadow-xs transition-all hover:border-[var(--color-field-border)]">
+      <div className="relative flex flex-wrap items-center gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] shadow-xs transition-all hover:border-[var(--color-field-border)]">
         {/* Product Image */}
         <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]">
           {product.primaryImageUrl ? (
@@ -95,9 +95,9 @@ export const RecommendedUpsell: React.FC = () => {
         </div>
 
         {/* Info */}
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-start justify-between gap-2">
-            <h4 className="line-clamp-1 font-display text-xs sm:text-sm font-bold text-[var(--color-ink)]">
+        <div className="min-w-0 flex-[1_1_8rem] space-y-1">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <h4 className="min-w-0 flex-[1_1_8rem] break-words font-display text-xs font-bold text-[var(--color-ink)] xs:line-clamp-1 sm:text-sm">
               {product.name}
             </h4>
             <div className="text-right shrink-0">

@@ -57,7 +57,7 @@ export const HeroSlider: React.FC = () => {
   if (error || activeSlides.length === 0) {
     return (
       <section className="layout-container py-2 sm:py-3">
-        <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl bg-surface px-6 text-center lg:rounded-3xl">
+        <div className="flex min-h-[clamp(22rem,76dvh,52.5rem)] flex-col items-center justify-center rounded-2xl bg-surface px-6 text-center lg:rounded-3xl">
           <h1 className="text-h1 text-ink">Explore Muvira</h1>
           <p className="mt-3 max-w-lg text-base text-ink">
             {error
@@ -179,6 +179,7 @@ export const HeroSlider: React.FC = () => {
               <Button
                 variant="inverse"
                 className="!h-11 !w-11 !p-0 shadow-md hover:shadow-lg active:scale-98 shrink-0"
+                aria-label="Start shopping"
               >
                 <ArrowUpRight className="h-4.5 w-4.5 stroke-[2.5]" />
               </Button>

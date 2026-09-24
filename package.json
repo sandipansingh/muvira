@@ -14,6 +14,7 @@
     "format:check": "prettier --check .",
     "type-check": "pnpm --filter client exec tsc -b && pnpm --filter server type-check",
     "test": "pnpm run build && node --test tests/*.test.cjs",
+    "test:responsive": "playwright test tests/responsive.spec.ts",
     "test:contracts": "node --test tests/contracts.test.cjs",
     "db:start": "pnpm --filter server exec supabase start --workdir ..",
     "db:reset": "pnpm --filter server exec supabase db reset --workdir .. --local --no-seed",
