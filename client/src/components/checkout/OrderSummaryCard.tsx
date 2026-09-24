@@ -46,6 +46,8 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                 <img
                   src={item.productImage}
                   alt={item.productName}
+                  width={48}
+                  height={48}
                   className="h-12 w-12 shrink-0 rounded-xl border border-[var(--color-line)] object-cover"
                 />
               ) : (

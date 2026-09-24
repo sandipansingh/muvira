@@ -55,13 +55,13 @@ export const Pagination: React.FC<PaginationProps> = ({
     <nav
       role="navigation"
       aria-label="Pagination Navigation"
-      className={`flex items-center justify-center gap-1 max-w-fit mx-auto ${className}`}
+      className={`flex max-w-full flex-wrap items-center justify-center gap-2 mx-auto ${className}`}
     >
       <button
         type="button"
         onClick={() => onPageChange(1)}
         disabled={currentPage === 1}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+        className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to first page"
       >
         <ChevronsLeft className="w-4 h-4 stroke-[2]" />
@@ -71,7 +71,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         type="button"
         onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
         disabled={currentPage === 1}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+        className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to previous page"
       >
         <ChevronLeft className="w-4 h-4 stroke-[2]" />
@@ -82,7 +82,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           return (
             <span
               key={`ellipsis-${idx}`}
-              className="w-8 h-8 flex items-center justify-center text-muted font-normal text-xs select-none"
+              className="w-11 h-11 flex items-center justify-center text-muted font-normal text-sm select-none"
               aria-hidden="true"
             >
               ...
@@ -99,7 +99,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             onClick={() => onPageChange(Number(page))}
             aria-label={`Go to page ${page}`}
             aria-current={isPageActive ? 'page' : undefined}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all duration-200 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
+            className={`w-11 h-11 rounded-full flex items-center justify-center text-sm transition-all duration-200 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
               isPageActive
                 ? 'bg-primary text-white font-normal shadow-sm scale-105 hover:bg-primary-hover'
                 : 'text-ink font-normal hover:bg-surface'
@@ -114,7 +114,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         type="button"
         onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
         disabled={currentPage === totalPages}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+        className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to next page"
       >
         <ChevronRight className="w-4 h-4 stroke-[2]" />
@@ -124,7 +124,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         type="button"
         onClick={() => onPageChange(totalPages)}
         disabled={currentPage === totalPages}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+        className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to last page"
       >
         <ChevronsRight className="w-4 h-4 stroke-[2]" />

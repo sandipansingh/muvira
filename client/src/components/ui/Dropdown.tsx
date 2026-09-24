@@ -52,6 +52,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false)
   const [openUpwards, setOpenUpwards] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
   const selectedOption = options.find((opt) => opt.value === value)
   const isSlim = variant === 'slim'
@@ -91,14 +92,24 @@ export const Dropdown: React.FC<DropdownProps> = ({
   }
 
   return (
-    <div className={`relative inline-block text-left ${className}`} ref={dropdownRef}>
+    <div
+      className={`relative inline-block text-left ${className}`}
+      ref={dropdownRef}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && isOpen) {
+          setIsOpen(false)
+          triggerRef.current?.focus()
+        }
+      }}
+    >
       <button
+        ref={triggerRef}
         id={id}
         type="button"
         onClick={handleToggle}
-        className={`flex items-center justify-between gap-2 w-full cursor-pointer transition-all duration-200 focus:outline-none border border-line bg-paper text-ink hover:bg-surface ${
+        className={`flex items-center justify-between gap-2 w-full cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 border border-line bg-paper text-ink hover:bg-surface ${
           isSlim
-            ? 'rounded-[var(--radius-control)] px-3 py-1.5 text-xs font-normal'
+            ? 'rounded-[var(--radius-control)] px-3 py-1.5 text-sm font-normal'
             : 'rounded-[var(--radius-control)] px-3.5 py-2 text-sm font-normal'
         } ${triggerClassName}`}
         aria-haspopup="true"
@@ -170,10 +181,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
                     <button
                       type="button"
                       onClick={() => handleOptionClick(option)}
-                      className={`flex items-center justify-between w-full text-left transition-colors duration-150 select-none outline-none cursor-pointer rounded-lg ${
+                      className={`flex items-center justify-between w-full text-left transition-colors duration-150 select-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 cursor-pointer rounded-lg ${
                         isSlim
-                          ? 'px-2.5 py-1.5 text-xs font-normal'
-                          : 'px-3 py-2 text-xs font-normal'
+                          ? 'px-2.5 py-1.5 text-sm font-normal'
+                          : 'px-3 py-2 text-sm font-normal'
                       } ${
                         isSelected
                           ? 'bg-surface text-ink font-normal'

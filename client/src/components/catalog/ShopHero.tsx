@@ -21,13 +21,24 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
 }) => {
   return (
     <div className={`layout-container pt-4 pb-6 sm:pt-6 sm:pb-8 ${className}`}>
-      <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-line h-[300px] sm:h-[350px] md:h-[390px] flex items-center justify-center text-center p-6">
+      <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-line min-h-[18.75rem] sm:min-h-[21.875rem] md:min-h-[24.375rem] flex items-center justify-center text-center p-6">
         {imageUrl && (
           <>
             <img
               src={imageUrl}
               alt=""
+              width={1600}
+              height={900}
+              srcSet={
+                imageUrl === HOME_DECOR_HERO_IMAGE
+                  ? [480, 800, 1200, 1600, 2400]
+                      .map((width) => `${imageUrl.replace('w=1600', `w=${width}`)} ${width}w`)
+                      .join(', ')
+                  : undefined
+              }
+              sizes="(max-width: 1600px) calc(100vw - 2rem), 1600px"
               className="absolute inset-0 h-full w-full object-cover object-center"
+              fetchPriority="high"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/30 via-white/40 to-white/60" />
           </>
@@ -37,12 +48,12 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
         <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
           <Breadcrumbs items={breadcrumbs} className="mb-2 justify-center" />
 
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-ink tracking-tight leading-tight">
+          <h1 className="font-display text-[clamp(1.75rem,5vw,3rem)] font-bold text-ink tracking-tight leading-tight">
             {title}
           </h1>
 
           {subtitle && (
-            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-ink-soft font-normal max-w-lg leading-relaxed">
+            <p className="mt-2 sm:mt-3 text-base text-ink-soft font-normal max-w-lg leading-relaxed">
               {subtitle}
             </p>
           )}

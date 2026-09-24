@@ -70,7 +70,7 @@ export const FeaturedProducts: React.FC = () => {
           )}
           <Link
             to="/shop?sort=featured"
-            className="inline-flex items-center justify-center shrink-0 h-8 px-3.5 text-xs font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
+            className="inline-flex items-center justify-center shrink-0 min-h-[var(--tap-target)] px-3.5 text-sm font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
           >
             View all
           </Link>

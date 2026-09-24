@@ -13,50 +13,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.5.1
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.0
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            client/package-lock.json
-            server/package-lock.json
-      - run: npm ci --ignore-scripts
-      - run: npm ci
-        working-directory: client
-      - run: npm ci
-        working-directory: server
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npm run type-check
-      - run: npm run test
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run format:check
+      - run: pnpm run type-check
+      - run: pnpm run test
 
   migrations:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.5.1
       - uses: actions/setup-node@v4
         with:
           node-version: 20.19.0
-          cache: npm
-          cache-dependency-path: server/package-lock.json
-      - run: npm ci
-        working-directory: server
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
       - name: Build API for integration tests
-        run: npm run build
-        working-directory: server
+        run: pnpm --filter server build
       - name: Start local Supabase
-        run: npm run db:start
+        run: pnpm run db:start
       - name: Replay migrations from scratch
-        run: npm run db:reset
+        run: pnpm run db:reset
       - name: Verify schema grants, RLS, policies, and constraints
-        run: npm run db:test
+        run: pnpm run db:test
       - name: Verify live database and API contracts
         shell: bash
         run: |
-          cd server
-          npx supabase status --workdir .. -o env > ../supabase/.temp/test-status.env
-          cd ..
+          pnpm --filter server exec supabase status --workdir .. -o env > supabase/.temp/test-status.env
           source supabase/.temp/test-status.env
           SUPABASE_TEST_URL="$API_URL" \
           SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
@@ -65,19 +60,16 @@ jobs:
       - name: Replay remediation as an upgrade from migration 025
         shell: bash
         run: |
-          cd server
-          npx supabase db reset --workdir .. --local --no-seed --version 025
-          cd ..
+          pnpm --filter server exec supabase db reset --workdir .. --local --no-seed --version 025
           source supabase/.temp/test-status.env
           EXPECTED_SCHEMA_READY=false \
           SUPABASE_TEST_URL="$API_URL" \
           SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
           SUPABASE_TEST_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
           node --test tests/schema-readiness.test.cjs
-          cd server
-          npx supabase migration up --workdir .. --local
+          pnpm --filter server exec supabase migration up --workdir .. --local
       - name: Verify upgraded schema invariants
-        run: npm run db:test
+        run: pnpm run db:test
       - name: Verify upgraded runtime readiness
         shell: bash
         run: |
@@ -89,4 +81,4 @@ jobs:
           node --test tests/schema-readiness.test.cjs
       - name: Stop local Supabase
         if: always()
-        run: npm run db:stop
+        run: pnpm run db:stop

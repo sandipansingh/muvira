@@ -2,7 +2,7 @@ node_modules
 dist
 build
 *.lock
-package-lock.json
+pnpm-lock.yaml
 *.md
 supabase/migrations
 client/dist
@@ -10,3 +10,5 @@ server/dist
 .git
 design-reference
 dev-scripts
+responsive-audit/before
+responsive-audit/after

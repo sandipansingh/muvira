@@ -1,6 +1,9 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Check, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
 import { Button } from '../ui/Button'
+import { Dropdown } from '../ui/Dropdown'
+import { SORT_OPTIONS } from './CatalogTopBar'
+import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
 
 export interface PriceRangeOption {
   id: string
@@ -33,6 +36,8 @@ export interface CatalogSidebarProps {
   onClearFilters: () => void
   isMobileOpen?: boolean
   onMobileClose?: () => void
+  sortBy?: string
+  onSortChange?: (sort: string) => void
   className?: string
 }
 
@@ -52,10 +57,15 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
   onClearFilters,
   isMobileOpen = false,
   onMobileClose,
+  sortBy,
+  onSortChange,
   className = '',
 }) => {
   const [customMin, setCustomMin] = useState(minPrice ? String(minPrice) : '')
   const [customMax, setCustomMax] = useState(maxPrice ? String(maxPrice) : '')
+  const panelRef = useRef<HTMLDivElement>(null)
+
+  useDialogFocus(isMobileOpen, () => onMobileClose?.(), panelRef)
 
   const hasActiveFilters =
     Boolean(searchQuery) ||
@@ -261,30 +271,53 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
 
       {/* Mobile Drawer */}
       {isMobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+        <div
+          className="fixed inset-0 z-[var(--z-drawer)] lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product filters"
+        >
           <button
             type="button"
             onClick={onMobileClose}
             className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
             aria-label="Close filters"
           />
-          <div className="absolute inset-y-0 right-0 max-w-xs w-full bg-paper p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
-            <div>
+          <div
+            ref={panelRef}
+            tabIndex={-1}
+            className="absolute inset-y-0 right-0 flex h-screen w-full max-w-sm flex-col overflow-hidden bg-paper pt-[env(safe-area-inset-top)] shadow-2xl"
+          >
+            <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-line">
                 <span className="font-display text-lg text-ink">Filters</span>
                 <button
                   type="button"
                   onClick={onMobileClose}
-                  className="p-1 rounded-md text-muted hover:text-ink transition-colors cursor-pointer"
+                  className="flex items-center justify-center rounded-md text-muted hover:text-ink transition-colors cursor-pointer"
                   aria-label="Close modal"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
+              {sortBy && onSortChange && (
+                <div className="mb-5">
+                  <span className="mb-2 block text-sm font-bold text-ink">Sort by</span>
+                  <Dropdown
+                    id="mobile-catalog-sort"
+                    value={sortBy}
+                    onChange={onSortChange}
+                    options={SORT_OPTIONS}
+                    aria-label="Sort products"
+                    className="w-full"
+                    menuClassName="w-full"
+                  />
+                </div>
+              )}
               {sidebarContent}
             </div>
 
-            <div className="mt-8 pt-4 border-t border-line flex gap-3">
+            <div className="flex shrink-0 gap-3 border-t border-line bg-paper p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <Button
                 variant="secondary"
                 size="md"

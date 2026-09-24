@@ -20,13 +20,13 @@ const variantStyles: Record<ButtonVariant, string> = {
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  xs: 'h-7 px-2.5 text-xs gap-1.5 rounded-[var(--radius-control)]',
-  sm: 'h-9 px-3 text-xs gap-1.5 rounded-[var(--radius-control)]',
-  md: 'h-10 px-3.5 text-sm gap-1.5 rounded-[var(--radius-control)]',
+  xs: 'min-h-[var(--tap-target)] px-2.5 text-sm gap-1.5 rounded-[var(--radius-control)]',
+  sm: 'min-h-[var(--tap-target)] px-3 text-sm gap-1.5 rounded-[var(--radius-control)]',
+  md: 'min-h-[var(--tap-target)] px-3.5 text-sm gap-1.5 rounded-[var(--radius-control)]',
   lg: 'h-11 px-5 text-sm gap-2 rounded-[var(--radius-control)]',
   xl: 'h-12 px-6 text-base gap-2 rounded-[var(--radius-control)]',
-  icon: 'h-10 w-10 p-0 rounded-[var(--radius-control)]',
-  'icon-sm': 'h-8 w-8 p-0 rounded-[var(--radius-control)]',
+  icon: 'h-11 w-11 p-0 rounded-[var(--radius-control)]',
+  'icon-sm': 'h-11 w-11 p-0 rounded-[var(--radius-control)]',
   'icon-lg': 'h-11 w-11 p-0 rounded-[var(--radius-control)]',
 }
 

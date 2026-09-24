@@ -65,6 +65,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <img
                 src={selectedImage}
                 alt={product.name}
+                width={800}
+                height={800}
                 className="absolute inset-0 h-full w-full object-cover"
               />
             ) : (
@@ -99,6 +101,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                   <img
                     src={image}
                     alt={`${product.name} view ${index + 1}`}
+                    width={56}
+                    height={56}
                     className="h-full w-full object-cover"
                   />
                 </button>
@@ -151,14 +155,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
             {/* Product Description */}
             {description && (
-              <p className="body-copy mt-3 line-clamp-3 text-xs leading-relaxed sm:text-sm">
-                {description}
-              </p>
+              <p className="body-copy mt-3 line-clamp-3 text-base leading-relaxed">{description}</p>
             )}
 
             {/* Metadata Chips */}
             {'sku' in product && product.sku && (
-              <div className="mt-2.5 text-[11px] text-muted">
+              <div className="mt-2.5 text-sm text-muted">
                 <span className="font-normal uppercase">SKU:</span>{' '}
                 <span className="font-normal text-ink">{product.sku}</span>
               </div>
@@ -173,19 +175,19 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-normal text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
+                  className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-base font-normal text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
                   aria-label="Decrease quantity"
                 >
                   −
                 </button>
-                <span className="min-w-7 text-center text-xs font-normal text-[var(--color-ink)]">
+                <span className="min-w-7 text-center text-base font-normal text-[var(--color-ink)]">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                   disabled={quantity >= product.stock}
-                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-xs font-normal text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
+                  className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-base font-normal text-[var(--color-ink)] transition-colors hover:bg-[var(--color-line)]"
                   aria-label="Increase quantity"
                 >
                   +
@@ -198,7 +200,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 type="button"
                 onClick={handleAddToCart}
                 disabled={added || !product.inStock}
-                className="button-primary min-h-10 gap-1.5 px-4 text-xs"
+                className="button-primary min-h-[var(--tap-target)] gap-1.5 px-4 text-sm"
               >
                 {added ? (
                   <>
@@ -217,7 +219,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
-                className="button-secondary min-h-10 justify-center gap-1.5 px-4 text-center text-xs"
+                className="button-secondary min-h-[var(--tap-target)] justify-center gap-1.5 px-4 text-center text-sm"
               >
                 <span className="leading-none">View Full Details</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />

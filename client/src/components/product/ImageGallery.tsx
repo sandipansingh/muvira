@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { ProductImage } from '../../lib/types/product'
+import { Modal } from '../common/Modal'
 
 interface ImageGalleryProps {
   images: (ProductImage | string)[]
@@ -19,6 +20,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   const [activeIndex, setActiveIndex] = useState(0)
   const [isZooming, setIsZooming] = useState(false)
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 })
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const suppressClick = useRef(false)
 
   if (imageUrls.length === 0) {
     return (
@@ -47,6 +51,17 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
     setZoomPos({ x, y })
   }
 
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (!touchStart.current || imageUrls.length <= 1) return
+    const deltaX = event.changedTouches[0].clientX - touchStart.current.x
+    const deltaY = event.changedTouches[0].clientY - touchStart.current.y
+    touchStart.current = null
+    if (Math.abs(deltaX) < 40 || Math.abs(deltaX) <= Math.abs(deltaY)) return
+    suppressClick.current = true
+    setActiveIndex((index) => (index + (deltaX < 0 ? 1 : imageUrls.length - 1)) % imageUrls.length)
+    window.setTimeout(() => (suppressClick.current = false), 300)
+  }
+
   return (
     <div className="relative flex flex-col-reverse gap-3.5 md:flex-row md:items-start md:gap-4">
       {/* Thumbnails Navigation */}
@@ -71,6 +86,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                   alt={`${title} thumbnail ${index + 1}`}
                   className="h-full w-full object-cover"
                   loading="lazy"
+                  width={80}
+                  height={80}
                 />
               </button>
             )
@@ -83,7 +100,14 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         onMouseEnter={() => setIsZooming(true)}
         onMouseLeave={() => setIsZooming(false)}
         onMouseMove={handleMouseMove}
-        className="group relative aspect-square max-h-[480px] w-full flex-1 cursor-crosshair overflow-hidden rounded-2xl border border-line/70 bg-surface md:max-h-[500px] lg:max-h-[520px]"
+        onTouchStart={(event) => {
+          touchStart.current = {
+            x: event.touches[0].clientX,
+            y: event.touches[0].clientY,
+          }
+        }}
+        onTouchEnd={handleTouchEnd}
+        className="group relative aspect-square max-h-[480px] w-full flex-1 overflow-hidden rounded-2xl border border-line/70 bg-surface touch-pan-y md:max-h-[500px] lg:max-h-[520px]"
       >
         {/* Badges Stack */}
         <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
@@ -105,7 +129,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Previous image"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -113,7 +137,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             <button
               type="button"
               onClick={handleNext}
-              className="absolute right-3 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+              className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
               aria-label="Next image"
             >
               <ChevronRight className="h-4 w-4" />
@@ -122,7 +146,22 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         )}
 
         {/* Main Base Image */}
-        <img src={activeImage} alt={title} className="h-full w-full object-cover" />
+        <button
+          type="button"
+          onClick={() => {
+            if (!suppressClick.current) setIsLightboxOpen(true)
+          }}
+          className="absolute inset-0 h-full w-full cursor-zoom-in"
+          aria-label={`Enlarge image of ${title}`}
+        >
+          <img
+            src={activeImage}
+            alt={title}
+            width={800}
+            height={800}
+            className="h-full w-full object-cover"
+          />
+        </button>
 
         {/* Amazon-Style Lens Overlay Box */}
         {isZooming && (
@@ -148,6 +187,20 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
           }}
         />
       )}
+      <Modal
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        title={title}
+        maxWidth="xl"
+      >
+        <img
+          src={activeImage}
+          alt={title}
+          width={1200}
+          height={1200}
+          className="mx-auto max-h-[70dvh] w-full object-contain"
+        />
+      </Modal>
     </div>
   )
 }

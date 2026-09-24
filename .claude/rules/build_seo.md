@@ -4,7 +4,7 @@ The storefront is a client-rendered Vite single-page application. Express is a s
 
 ## Build and routing
 
-- Build the client with `npm run build` in `client/`; Vite writes `client/dist/`.
+- Build the client with `pnpm --filter client build` from the repository root; Vite writes `client/dist/`.
 - Every production static host must use `client/nginx.conf`-equivalent history fallback so React Router paths resolve to `index.html`.
 - Route pages are lazy-loaded from `client/src/App.tsx`. Keep new substantial pages behind dynamic imports.
 - `VITE_*` values are compiled into the browser bundle. Never place secrets in them.

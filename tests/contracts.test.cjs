@@ -223,5 +223,5 @@ test('production migration pushes require the expected runtime and linked projec
   assert.match(guard, /EXPECTED_PROJECT_REF='mmpsquheiibatsjficwm'/)
   assert.match(guard, /runtime_host.*EXPECTED_PROJECT_REF\.supabase\.co/)
   assert.match(guard, /linked_ref.*EXPECTED_PROJECT_REF/)
-  assert.match(guard, /exec npx supabase db push --workdir \.\. --linked/)
+  assert.match(guard, /exec pnpm exec supabase db push --workdir \.\. --linked/)
 })

@@ -24,7 +24,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) =
 
   return (
     <header className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-paper)] py-3 sm:py-4">
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3 sm:gap-4">
         {/* Back / Close button */}
         <button
           type="button"
@@ -38,11 +38,11 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) =
         {/* Step Breadcrumbs */}
         <nav
           aria-label="Checkout Progress"
-          className="flex items-center gap-1.5 text-xs sm:text-sm"
+          className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs sm:text-sm"
         >
           <Link
             to="/cart"
-            className={`font-medium transition-colors ${
+            className={`inline-flex min-h-[var(--tap-target)] items-center font-medium transition-colors ${
               currentStep === 'cart'
                 ? 'font-bold text-[var(--color-ink)]'
                 : 'text-[var(--color-muted)] hover:text-[var(--color-primary)]'
@@ -59,7 +59,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) =
             <>
               <Link
                 to="/checkout?step=shipping"
-                className={`font-medium transition-colors ${
+                className={`inline-flex min-h-[var(--tap-target)] items-center font-medium transition-colors ${
                   currentStep === 'shipping'
                     ? 'font-bold text-[var(--color-ink)]'
                     : 'text-[var(--color-muted)] hover:text-[var(--color-primary)]'
@@ -88,7 +88,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) =
         Need help?{' '}
         <Link
           to="/shop"
-          className="font-semibold text-[var(--color-ink)] hover:text-[var(--color-primary)] hover:underline"
+          className="inline-flex min-h-[var(--tap-target)] items-center font-semibold text-[var(--color-ink)] hover:text-[var(--color-primary)] hover:underline"
         >
           Contact Support
         </Link>

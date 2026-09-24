@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { ArrowRight, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { formatPrice } from '../../lib/utils/format'
 import { CartItemRow } from './CartItemRow'
 import { CouponInput } from './CouponInput'
+import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -19,6 +20,8 @@ export const CartDrawer: React.FC = () => {
     loading,
   } = useCart()
   const navigate = useNavigate()
+  const panelRef = useRef<HTMLElement>(null)
+  useDialogFocus(isDrawerOpen, closeCartDrawer, panelRef)
   if (!isDrawerOpen) return null
 
   const openCheckout = () => {
@@ -29,7 +32,7 @@ export const CartDrawer: React.FC = () => {
   const totalItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[var(--z-drawer)] overflow-hidden animate-in fade-in duration-200">
       <button
         type="button"
         className="fixed inset-0 h-full w-full bg-black/40 backdrop-blur-xs transition-opacity cursor-pointer"
@@ -37,7 +40,11 @@ export const CartDrawer: React.FC = () => {
         aria-label="Close cart drawer"
       />
       <aside
-        className="fixed inset-y-0 right-0 z-10 flex w-full max-w-md flex-col border-l border-[var(--color-line)] bg-[var(--color-paper)] shadow-2xl"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
+        className="fixed inset-y-0 right-0 z-10 flex h-screen w-full max-w-md flex-col border-l border-[var(--color-line)] bg-[var(--color-paper)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-2xl"
         aria-label="Shopping cart"
       >
         {/* Drawer Header */}
@@ -52,7 +59,7 @@ export const CartDrawer: React.FC = () => {
           <button
             type="button"
             onClick={closeCartDrawer}
-            className="cursor-pointer rounded-[var(--radius-control)] p-1.5 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
+            className="flex cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
             aria-label="Close cart"
           >
             <X className="h-4 w-4" />
@@ -69,7 +76,7 @@ export const CartDrawer: React.FC = () => {
               <h3 className="mt-4 font-display text-base font-semibold text-[var(--color-ink)]">
                 Your cart is empty
               </h3>
-              <p className="mx-auto mt-1.5 max-w-xs text-xs leading-relaxed text-[var(--color-muted)]">
+              <p className="mx-auto mt-1.5 max-w-xs text-base leading-relaxed text-[var(--color-muted)]">
                 Browse the current catalog to add products to your cart.
               </p>
               <button
@@ -94,7 +101,7 @@ export const CartDrawer: React.FC = () => {
           <div className="space-y-3 border-t border-[var(--color-line)] bg-[var(--color-paper)] p-4 shadow-xs">
             <CouponInput />
 
-            <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-[11px] font-normal text-[var(--color-muted)]">
+            <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-sm font-normal text-[var(--color-muted)]">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="font-normal text-[var(--color-ink)]">
@@ -119,11 +126,11 @@ export const CartDrawer: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 pt-0.5">
+            <div className="grid grid-cols-1 gap-2 pt-0.5 sm:grid-cols-3">
               <Link
                 to="/cart"
                 onClick={closeCartDrawer}
-                className="button-secondary h-10 !min-h-0 rounded-lg py-0 text-center !text-xs justify-center"
+                className="button-secondary rounded-lg py-0 text-center text-sm justify-center"
               >
                 View Cart
               </Link>
@@ -131,7 +138,7 @@ export const CartDrawer: React.FC = () => {
                 type="button"
                 onClick={openCheckout}
                 disabled={loading || hasUnmergedItems}
-                className="button-primary col-span-2 h-10 !min-h-0 rounded-lg py-0 !text-xs shadow-xs"
+                className="button-primary h-10 rounded-lg py-0 text-sm shadow-xs sm:col-span-2"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
               </button>

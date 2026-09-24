@@ -69,6 +69,12 @@ export const AuthHeroCard: React.FC<AuthHeroCardProps> = ({ className = '' }) =>
           key={slide.image}
           src={slide.image}
           alt={slide.title}
+          width={1600}
+          height={900}
+          srcSet={[800, 1200, 1600, 2400]
+            .map((width) => `${slide.image.replace('w=1600', `w=${width}`)} ${width}w`)
+            .join(', ')}
+          sizes="(min-width: 1024px) 50vw, 100vw"
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}

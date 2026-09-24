@@ -85,6 +85,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   src={primaryImage}
                   alt={product.name}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  width={320}
+                  height={320}
                   loading="lazy"
                 />
               ) : (
@@ -112,17 +114,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {product.rating != null && (product.reviewCount ?? 0) > 0 && (
               <RatingStars rating={product.rating} count={product.reviewCount} size="xs" />
             )}
-            <Link to={`/product/${product.slug}`} className="block">
+            <Link to={`/product/${product.slug}`} className="block min-h-[var(--tap-target)]">
               <h3 className="font-display text-base sm:text-lg text-ink group-hover:underline underline-offset-2 line-clamp-1">
                 {product.name}
               </h3>
             </Link>
-            <div className="flex items-baseline gap-2">
-              <span className="font-sans text-sm sm:text-base font-bold text-ink">
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="whitespace-nowrap font-sans text-sm sm:text-base font-bold text-ink">
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.salePrice && (
-                <span className="font-sans text-xs text-muted line-through">
+                <span className="whitespace-nowrap font-sans text-xs text-muted line-through">
                   {formatPrice(product.salePrice)}
                 </span>
               )}
@@ -180,6 +182,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 src={primaryImage}
                 alt={product.name}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+                width={480}
+                height={480}
                 loading="lazy"
               />
             ) : (
@@ -192,7 +196,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {badgeText && <span className="neutral-badge font-normal uppercase">{badgeText}</span>}
             {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
           </div>
-          <div className="absolute inset-x-3 bottom-3 z-10 hidden gap-2 sm:flex">
+          <div className="product-card__desktop-actions absolute inset-x-3 bottom-3 z-10 hidden gap-2 sm:flex">
             <button
               type="button"
               onClick={handleAddToCart}
@@ -219,7 +223,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleOpenQuickView}
-              className="button-secondary h-9 min-h-9 w-9 p-0 text-[var(--color-ink)] shadow-[var(--shadow-overlay)]"
+              className="button-secondary h-11 w-11 p-0 text-[var(--color-ink)] shadow-[var(--shadow-overlay)]"
               aria-label={`Quick view ${product.name}`}
             >
               <Eye className="h-3.5 w-3.5 shrink-0 text-[var(--color-ink)]" strokeWidth={2.5} />
@@ -227,7 +231,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAddToCart}
-              className="button-primary h-9 min-h-9 w-9 p-0"
+              className="button-primary h-11 w-11 p-0"
               aria-label={`Add ${product.name} to cart`}
             >
               {isAdded ? (
@@ -242,15 +246,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {product.rating != null && (product.reviewCount ?? 0) > 0 && (
             <RatingStars rating={product.rating} count={product.reviewCount} size="xs" />
           )}
-          <Link to={`/product/${product.slug}`} className="block">
+          <Link to={`/product/${product.slug}`} className="block min-h-[var(--tap-target)]">
             <h3 className="product-card__name line-clamp-2 group-hover:underline underline-offset-2">
               {product.name}
             </h3>
           </Link>
-          <div className="flex items-baseline gap-2">
-            <span className="product-card__price">{formatPrice(product.price)}</span>
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span className="product-card__price whitespace-nowrap">
+              {formatPrice(product.price)}
+            </span>
             {hasDiscount && product.salePrice && (
-              <span className="product-card__meta line-through">
+              <span className="product-card__meta whitespace-nowrap line-through">
                 {formatPrice(product.salePrice)}
               </span>
             )}

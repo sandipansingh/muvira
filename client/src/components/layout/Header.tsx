@@ -39,13 +39,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 bg-white/80 backdrop-blur-2xl ${
+      className={`sticky top-0 z-[var(--z-header)] w-full pt-[env(safe-area-inset-top)] transition-all duration-200 bg-white/80 backdrop-blur-2xl ${
         scrolled ? 'border-b border-line shadow-xs' : 'border-b border-transparent'
       }`}
     >
-      <div className="relative layout-container py-3 sm:py-4 flex items-center justify-between gap-4">
+      <div className="layout-container grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 py-2 sm:gap-3 sm:py-3">
         {/* Left: Hamburger Menu Button (Functional on Desktop & Mobile) */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           <Button
             type="button"
             variant="ghost"
@@ -57,21 +57,26 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           </Button>
         </div>
 
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-auto">
-          <Link to="/" className="flex items-center gap-2.5 select-none">
+        <div className="min-w-0 justify-self-center">
+          <Link
+            to="/"
+            className="flex min-h-[var(--tap-target)] min-w-0 items-center justify-center gap-1.5 select-none sm:gap-2.5"
+          >
             <img
               src="/logo.png"
-              alt="Muvira"
-              className="h-7 sm:h-8 md:h-8.5 w-auto object-contain shrink-0"
+              alt=""
+              width="659"
+              height="723"
+              className="brand-mark w-auto object-contain shrink-0"
             />
-            <span className="translate-y-[2px] font-display text-xl sm:text-2xl md:text-3xl tracking-tight text-ink leading-none">
+            <span className="min-w-0 truncate translate-y-[2px] font-display text-xl sm:text-2xl md:text-3xl tracking-tight text-ink leading-none">
               Muvira
             </span>
           </Link>
         </div>
 
         {/* Right: Search, User, Cart */}
-        <div className="flex items-center gap-3 sm:gap-6">
+        <div className="flex items-center justify-self-end gap-2">
           {/* Search Trigger for Mobile/Header */}
           <Button
             type="button"
@@ -85,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
           </Button>
 
           {/* User Account / Auth */}
-          <div className="relative flex items-center justify-center">
+          <div className="relative hidden items-center justify-center xs:flex">
             {isAuthenticated ? (
               <Button
                 type="button"
@@ -100,7 +105,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             ) : (
               <Link
                 to="/signin"
-                className="flex h-10 w-10 items-center justify-center text-ink-soft hover:text-ink hover:bg-surface rounded-[var(--radius-control)] transition-colors cursor-pointer"
+                className="flex h-[var(--tap-target)] w-[var(--tap-target)] items-center justify-center text-ink-soft hover:text-ink hover:bg-surface rounded-[var(--radius-control)] transition-colors cursor-pointer"
                 aria-label="Sign in"
               >
                 <User className="w-5 h-5 stroke-[1.75]" />
@@ -182,7 +187,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent border-none outline-none px-3 py-1.5 text-sm text-ink placeholder:text-muted focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+              className="min-w-0 flex-1 bg-transparent border-none outline-none px-3 py-1.5 text-base text-ink placeholder:text-muted focus:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
             />
             <Button
               type="button"

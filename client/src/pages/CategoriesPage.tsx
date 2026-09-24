@@ -78,6 +78,8 @@ export const CategoriesPage: React.FC = () => {
                   <img
                     src={category.imageUrl}
                     alt={category.name}
+                    width={800}
+                    height={600}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
                   />
@@ -96,9 +98,7 @@ export const CategoriesPage: React.FC = () => {
                     {category.name}
                   </h3>
                   {category.description && (
-                    <p className="mt-1 text-xs text-white/80 line-clamp-1">
-                      {category.description}
-                    </p>
+                    <p className="mt-1 text-base text-white/80">{category.description}</p>
                   )}
                   <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-white group-hover:underline underline-offset-4">
                     <span>Explore Collection</span>

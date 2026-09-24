@@ -34,20 +34,22 @@ export const SignUpPage: React.FC = () => {
   }
 
   return (
-    <main className="flex min-h-screen lg:h-screen w-full items-center justify-center bg-paper p-4 sm:p-6 lg:p-8 overflow-y-auto lg:overflow-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 w-full max-w-5xl my-auto lg:h-[84vh] lg:max-h-[580px]">
+    <main className="flex min-h-screen w-full items-center justify-center bg-paper p-4 sm:p-6 lg:p-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 w-full max-w-5xl my-auto">
         {/* Left Column: Sign Up Form */}
         <div className="flex flex-col items-center justify-center px-2 py-1 sm:px-6 md:px-8 w-full max-w-[390px] mx-auto">
           {/* Brand Logo & Name */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 mb-3 select-none transition-transform hover:scale-105"
+            className="flex min-h-[var(--tap-target)] items-center gap-2.5 mb-3 select-none transition-transform hover:scale-105"
             aria-label="Back to home"
           >
             <img
               src="/logo.png"
-              alt="Muvira"
-              className="h-7 sm:h-8 w-auto object-contain shrink-0"
+              alt=""
+              width={659}
+              height={723}
+              className="brand-mark w-auto object-contain shrink-0"
             />
             <span className="translate-y-[2px] font-display text-2xl sm:text-3xl tracking-tight text-ink leading-none">
               Muvira
@@ -59,7 +61,7 @@ export const SignUpPage: React.FC = () => {
             <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
               Create an Account
             </h1>
-            <p className="text-xs sm:text-sm text-muted font-normal">
+            <p className="text-base text-muted font-normal">
               Sign up to get started on your journey.
             </p>
           </div>
@@ -168,18 +170,18 @@ export const SignUpPage: React.FC = () => {
           </form>
 
           {/* Switch to Sign In */}
-          <p className="mt-3.5 text-center text-xs sm:text-sm text-ink-soft">
+          <p className="mt-3.5 text-center text-base text-ink-soft">
             Already have an account?{' '}
             <Link
               to="/signin"
-              className="font-normal text-ink hover:text-primary hover:underline transition-colors"
+              className="inline-flex min-h-[var(--tap-target)] items-center font-normal text-ink hover:text-primary hover:underline transition-colors"
             >
               Sign in
             </Link>
           </p>
 
           {/* Terms & Privacy Disclaimer */}
-          <p className="mt-4 text-center text-[11px] sm:text-xs text-muted max-w-xs mx-auto leading-relaxed">
+          <p className="mt-4 text-center text-sm text-muted max-w-xs mx-auto leading-relaxed">
             By continuing you agree to our{' '}
             <span className="underline font-normal text-ink-soft cursor-pointer hover:text-primary">
               Terms &amp; Conditions
@@ -193,7 +195,7 @@ export const SignUpPage: React.FC = () => {
         </div>
 
         {/* Right Column: Visual Hero Card with Multi-Slide Carousel */}
-        <div className="hidden lg:block h-full w-full max-h-[580px]">
+        <div className="hidden lg:block h-full w-full min-h-[27.5rem]">
           <AuthHeroCard className="h-full min-h-[440px] max-h-[580px]" />
         </div>
       </div>

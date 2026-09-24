@@ -27,13 +27,15 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
   }
 
   return (
-    <article className="relative flex items-start gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-3.5 sm:gap-4 sm:p-4 shadow-xs transition-all hover:border-[var(--color-field-border)]">
+    <article className="relative flex flex-wrap items-start gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] sm:gap-4 sm:p-4 shadow-xs transition-all hover:border-[var(--color-field-border)]">
       {/* Product image */}
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-24 sm:w-24">
         {item.productImage ? (
           <img
             src={item.productImage}
             alt={item.productName}
+            width={96}
+            height={96}
             className="h-full w-full object-cover"
           />
         ) : (
@@ -49,15 +51,15 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
       </div>
 
       {/* Item Details */}
-      <div className="min-w-0 flex-1 flex flex-col justify-between self-stretch pr-6">
+      <div className="flex min-w-0 flex-[1_1_8rem] flex-col justify-between self-stretch">
         <div>
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-1 font-display text-sm font-bold text-[var(--color-ink)] hover:text-[var(--color-primary)] transition-colors sm:text-base"
+            className="min-h-[var(--tap-target)] break-words pr-10 font-display text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)] xs:line-clamp-2"
           >
             {item.productName}
           </Link>
-          <p className="mt-0.5 text-xs text-[var(--color-muted)]">
+          <p className="mt-0.5 text-sm text-[var(--color-muted)]">
             {item.inStock ? `${item.availableStock} available` : 'Currently unavailable'}
           </p>
         </div>
@@ -70,14 +72,14 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
                 type="button"
                 onClick={() => setIsQtyMenuOpen(!isQtyMenuOpen)}
                 disabled={loading}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-[11px] font-semibold text-[var(--color-ink)] hover:border-[var(--color-field-border)] transition-colors disabled:opacity-50"
+                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] hover:border-[var(--color-field-border)] transition-colors disabled:opacity-50"
               >
                 <span>Qty {item.quantity}</span>
                 <ChevronDown className="h-3 w-3 text-[var(--color-muted)]" />
               </button>
 
               {isQtyMenuOpen && (
-                <div className="absolute left-0 top-full z-20 mt-1 max-h-36 w-20 overflow-y-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] p-1 shadow-lg">
+                <div className="absolute left-0 top-full z-20 mt-1 max-h-44 min-w-20 overflow-y-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] p-1 shadow-lg">
                   {Array.from(
                     { length: Math.min(10, item.availableStock) },
                     (_, index) => index + 1
@@ -86,7 +88,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
                       key={num}
                       type="button"
                       onClick={() => handleQtySelect(num)}
-                      className={`flex w-full cursor-pointer items-center justify-center rounded px-2 py-1 text-xs transition-colors ${
+                      className={`flex w-full cursor-pointer items-center justify-center rounded px-2 py-1 text-sm transition-colors ${
                         item.quantity === num
                           ? 'bg-[var(--color-primary-soft)] font-bold text-[var(--color-primary)]'
                           : 'text-[var(--color-ink)] hover:bg-[var(--color-surface)]'
@@ -100,6 +102,9 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
             </div>
           )}
         </div>
+        <span className="mt-2 block font-sans text-base font-bold text-[var(--color-ink)]">
+          {formatPrice(item.lineTotal)}
+        </span>
       </div>
 
       {/* Delete [X] Button on Top Right */}
@@ -108,17 +113,10 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
         onClick={() => void removeFromCart(item.productId).catch(() => undefined)}
         disabled={loading}
         aria-label={`Remove ${item.productName}`}
-        className="absolute right-3 top-3 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-[var(--color-surface)] text-[var(--color-muted)] transition-all hover:bg-danger-soft hover:text-danger disabled:opacity-50"
+        className="absolute right-3 top-3 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-[var(--color-surface)] text-[var(--color-muted)] transition-all hover:bg-danger-soft hover:text-danger disabled:opacity-50"
       >
         <X className="h-3.5 w-3.5 stroke-[2.5]" />
       </button>
-
-      {/* Price Aligned at Bottom Right */}
-      <div className="absolute bottom-3 right-3 text-right">
-        <span className="font-sans text-sm font-bold text-[var(--color-ink)] sm:text-base">
-          {formatPrice(item.lineTotal)}
-        </span>
-      </div>
     </article>
   )
 }

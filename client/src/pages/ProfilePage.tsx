@@ -231,7 +231,7 @@ export const ProfilePage: React.FC = () => {
     <main className="editorial-page py-8 sm:py-10">
       <div className="editorial-container max-w-5xl space-y-8">
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Profile' }]} />
-        <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line)] pb-4">
           <div>
             <span className="eyebrow mb-1 block">Account Overview</span>
             <h1 className="heading page-title">My Profile</h1>
@@ -307,6 +307,7 @@ export const ProfilePage: React.FC = () => {
                     id="profile-full-name"
                     name="fullName"
                     type="text"
+                    autoComplete="name"
                     required
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
@@ -324,6 +325,8 @@ export const ProfilePage: React.FC = () => {
                     id="profile-phone"
                     name="phone"
                     type="tel"
+                    inputMode="tel"
+                    autoComplete="tel-national"
                     required
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
@@ -375,7 +378,7 @@ export const ProfilePage: React.FC = () => {
             </section>
 
             <section id="addresses" className="panel space-y-4 p-5 sm:p-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
                   Saved Addresses
                 </h2>
@@ -404,34 +407,61 @@ export const ProfilePage: React.FC = () => {
                         ['pincode', 'Pincode'],
                       ] as const
                     ).map(([field, label]) => (
-                      <input
+                      <label
                         key={field}
-                        id={`address-${field}`}
-                        name={field}
-                        type="text"
-                        required={!['line2'].includes(field)}
-                        placeholder={label}
-                        value={addressForm[field]}
-                        onChange={(event) =>
-                          setAddressForm((previous) => ({
-                            ...previous,
-                            [field]: event.target.value,
-                          }))
-                        }
-                        className="input"
-                      />
+                        htmlFor={`address-${field}`}
+                        className="flex flex-col gap-1 text-sm text-ink"
+                      >
+                        <span>{label}</span>
+                        <input
+                          id={`address-${field}`}
+                          name={field}
+                          type={field === 'phone' ? 'tel' : 'text'}
+                          inputMode={
+                            field === 'pincode' ? 'numeric' : field === 'phone' ? 'tel' : undefined
+                          }
+                          autoComplete={
+                            field === 'fullName'
+                              ? 'name'
+                              : field === 'phone'
+                                ? 'tel-national'
+                                : field === 'line1'
+                                  ? 'address-line1'
+                                  : field === 'line2'
+                                    ? 'address-line2'
+                                    : field === 'city'
+                                      ? 'address-level2'
+                                      : 'postal-code'
+                          }
+                          required={!['line2'].includes(field)}
+                          placeholder={label}
+                          value={addressForm[field]}
+                          onChange={(event) =>
+                            setAddressForm((previous) => ({
+                              ...previous,
+                              [field]: event.target.value,
+                            }))
+                          }
+                          className="input"
+                        />
+                      </label>
                     ))}
-                    <Select
-                      id="address-state"
-                      name="state"
-                      value={addressForm.state}
-                      onChange={(event) =>
-                        setAddressForm((previous) => ({ ...previous, state: event.target.value }))
-                      }
-                      options={INDIAN_STATES}
-                    />
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="address-state" className="text-sm text-ink">
+                        State
+                      </label>
+                      <Select
+                        id="address-state"
+                        name="state"
+                        value={addressForm.state}
+                        onChange={(event) =>
+                          setAddressForm((previous) => ({ ...previous, state: event.target.value }))
+                        }
+                        options={INDIAN_STATES}
+                      />
+                    </div>
                   </div>
-                  <label className="flex items-center gap-2 text-xs font-normal text-ink-soft">
+                  <label className="flex min-h-[var(--tap-target)] items-center gap-2 text-base font-normal text-ink-soft">
                     <input
                       type="checkbox"
                       checked={addressForm.isDefault}
@@ -472,9 +502,9 @@ export const ProfilePage: React.FC = () => {
                 addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="flex flex-col gap-4 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] p-4 sm:flex-row sm:items-start sm:justify-between"
+                    className="flex flex-col gap-4 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] p-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"
                   >
-                    <div className="space-y-1 text-xs text-muted">
+                    <div className="min-w-0 space-y-1 text-base text-muted">
                       <div className="flex items-center gap-2">
                         <strong className="text-sm text-ink">{address.fullName}</strong>
                         {address.isDefault && <span className="status-badge">Default</span>}
@@ -488,7 +518,7 @@ export const ProfilePage: React.FC = () => {
                       </p>
                       <p>{address.phone}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       {!address.isDefault && (
                         <button
                           onClick={() => setDefaultAddress(address.id)}

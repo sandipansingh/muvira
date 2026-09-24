@@ -186,7 +186,7 @@ export const ShopPage: React.FC = () => {
 
       {/* Main 2-Column Catalog Container */}
       <div className="layout-container" ref={resultsContainerRef}>
-        <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[260px_1fr] gap-8 xl:gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,16.25rem)_minmax(0,1fr)] gap-8 xl:gap-12 items-start">
           {/* Left Sidebar */}
           <CatalogSidebar
             categories={categories.map(({ name, slug }) => ({ name, slug }))}
@@ -204,10 +204,12 @@ export const ShopPage: React.FC = () => {
             onClearFilters={handleClearFilters}
             isMobileOpen={isMobileFiltersOpen}
             onMobileClose={() => setIsMobileFiltersOpen(false)}
+            sortBy={sortBy}
+            onSortChange={(sort) => updateParams({ sort, page: undefined })}
           />
 
           {/* Right Content Area */}
-          <div className="w-full">
+          <div className="w-full min-w-0">
             <CatalogTopBar
               title={currentTitle}
               totalCount={totalCount}

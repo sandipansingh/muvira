@@ -36,14 +36,14 @@ export const CategoryGrid: React.FC = () => {
 
   return (
     <section id="shop-collection" className="editorial-container py-8 sm:py-10">
-      <div className="mb-5 flex items-center justify-between gap-4 sm:mb-6">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 sm:mb-6">
         <div>
           <span className="eyebrow mb-1.5 block">Featured</span>
           <h2 className="text-h2 text-ink">Shop Collection</h2>
         </div>
         <Link
           to="/categories"
-          className="inline-flex h-8 shrink-0 select-none items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper px-3.5 text-xs font-normal text-ink transition-colors hover:border-primary hover:bg-surface hover:text-primary"
+          className="inline-flex min-h-[var(--tap-target)] shrink-0 select-none items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper px-3.5 text-sm font-normal text-ink transition-colors hover:border-primary hover:bg-surface hover:text-primary"
         >
           View all categories
         </Link>
@@ -79,6 +79,8 @@ export const CategoryGrid: React.FC = () => {
                   <img
                     src={category.imageUrl}
                     alt={category.name}
+                    width={480}
+                    height={360}
                     className="max-h-[220px] w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
