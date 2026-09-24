@@ -9,6 +9,14 @@ function read(relativePath) {
   return readFileSync(join(root, relativePath), 'utf8')
 }
 
+test('the server runtime image includes every compiled module', () => {
+  const dockerfile = read('server/Dockerfile')
+
+  assert.match(dockerfile, /RUN pnpm --filter server build/)
+  assert.match(dockerfile, /COPY --chown=node:node --from=build \/prod\/server \.\//)
+  assert.match(dockerfile, /COPY --chown=node:node --from=build \/app\/server\/dist \.\/dist/)
+})
+
 test('the fabricated payment endpoint and instrument fields stay removed', () => {
   const checkoutRoutes = read('server/src/modules/checkout/routes.ts')
   const checkoutSchema = read('server/src/modules/checkout/schema.ts')

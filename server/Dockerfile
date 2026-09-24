@@ -17,6 +17,7 @@ FROM node:20-alpine AS runtime
 ENV NODE_ENV=production PORT=4000
 WORKDIR /app
 COPY --chown=node:node --from=build /prod/server ./
+COPY --chown=node:node --from=build /app/server/dist ./dist
 
 USER node
 EXPOSE 4000
