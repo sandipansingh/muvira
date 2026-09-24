@@ -36,28 +36,38 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col 2xl:flex-row 2xl:flex-wrap 2xl:items-center justify-between gap-4 pb-6 mb-6 border-b border-line ${className}`}
+      className={`flex items-center justify-between gap-4 pb-6 mb-6 border-b border-line ${className}`}
     >
       {/* Title & Count */}
-      <div className="flex flex-wrap items-baseline gap-3 min-w-0">
-        <h2 className="font-display text-xl sm:text-2xl font-bold text-ink">{title}</h2>
-        <span className="text-sm text-muted font-normal">
+      <div className="flex min-w-0 flex-1 items-baseline gap-3">
+        <h2
+          className="min-w-0 truncate font-display text-xl sm:text-2xl font-bold text-ink"
+          title={title}
+        >
+          {title}
+        </h2>
+        <span className="hidden shrink-0 text-sm text-muted font-normal sm:inline">
           <strong className="text-ink">{totalCount}</strong> pieces
         </span>
       </div>
 
       {/* Controls: Mobile Filter Button, Sort Dropdown & View Mode Switcher */}
-      <div className="flex flex-wrap items-center justify-between 2xl:justify-end gap-3 min-w-0">
+      <div className="flex shrink-0 items-center gap-3">
         {/* Mobile Filter Toggle */}
         <button
           type="button"
           onClick={onOpenMobileFilters}
-          className="lg:hidden flex items-center gap-2 px-3 py-1.5 rounded-lg border border-line bg-surface text-ink text-sm font-normal hover:bg-line transition-colors cursor-pointer"
+          className="relative flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-surface text-ink transition-colors hover:bg-line focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden"
+          aria-label={
+            activeFiltersCount > 0 ? `Open filters, ${activeFiltersCount} active` : 'Open filters'
+          }
         >
-          <SlidersHorizontal className="h-3.5 w-3.5" />
-          <span>Filter</span>
+          <SlidersHorizontal className="h-4 w-4" />
           {activeFiltersCount > 0 && (
-            <span className="h-4 w-4 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold">
+            <span
+              aria-hidden="true"
+              className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-primary text-white text-[10px] flex items-center justify-center font-bold"
+            >
               {activeFiltersCount}
             </span>
           )}
@@ -65,8 +75,8 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
 
         <div className="flex flex-wrap items-center gap-3 min-w-0">
           {/* Sort Dropdown */}
-          <div className="hidden lg:flex items-center gap-2 min-w-0">
-            <span className="text-sm text-muted font-normal hidden sm:inline">Sort by:</span>
+          <div className="hidden lg:flex items-center gap-2">
+            <span className="shrink-0 text-sm text-muted font-normal">Sort by:</span>
             <Dropdown
               id="catalog-sort"
               value={sortBy}

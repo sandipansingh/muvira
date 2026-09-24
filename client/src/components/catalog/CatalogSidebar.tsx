@@ -84,7 +84,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
     }
   }
 
-  const sidebarContent = (
+  const sidebarContent = (priceGroupName: string) => (
     <div className="flex flex-col gap-5 text-ink">
       {/* Header */}
       <div className="flex items-center justify-between pb-1">
@@ -112,7 +112,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full rounded-lg border border-field-border bg-white pl-8 pr-7 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-0 focus:border-field-border transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+            className="w-full rounded-lg border border-field-border bg-white pl-10 pr-7 py-2 text-base text-ink placeholder:text-muted focus:outline-none focus:ring-0 focus:border-field-border transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
           />
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted pointer-events-none" />
           {searchQuery && (
@@ -168,14 +168,22 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
       {/* Price Filter Section */}
       <div className="space-y-3 pt-2 border-t border-line">
         <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-muted">Price</h3>
-        <div className="space-y-2">
+        <div className="space-y-1" role="group" aria-label="Price range">
           {PRICE_RANGES.map((range) => {
             const isChecked = selectedPriceRange === range.id
             return (
               <label
                 key={range.id}
-                className="flex items-center justify-between gap-3 text-sm cursor-pointer select-none group"
+                className="group flex min-h-11 w-full items-center justify-between gap-3 text-left text-sm cursor-pointer select-none focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary"
               >
+                <input
+                  type="radio"
+                  name={priceGroupName}
+                  value={range.id}
+                  checked={isChecked}
+                  onChange={() => onSelectPriceRange(range.id, range.min, range.max)}
+                  className="sr-only"
+                />
                 <span
                   className={`transition-colors ${
                     isChecked ? 'text-primary font-bold' : 'text-muted group-hover:text-ink'
@@ -183,19 +191,16 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
                 >
                   {range.label}
                 </span>
-                <button
-                  type="button"
-                  role="checkbox"
-                  aria-checked={isChecked}
-                  onClick={() => onSelectPriceRange(range.id, range.min, range.max)}
-                  className={`h-5 w-5 rounded border flex items-center justify-center transition-colors cursor-pointer ${
+                <span
+                  aria-hidden="true"
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
                     isChecked
                       ? 'bg-primary border-primary text-white'
                       : 'border-field-border bg-white hover:border-primary'
                   }`}
                 >
-                  {isChecked && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
-                </button>
+                  {isChecked && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                </span>
               </label>
             )
           })}
@@ -235,7 +240,13 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
           <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-muted">
             Availability
           </h3>
-          <label className="flex items-center justify-between gap-3 text-sm cursor-pointer select-none group">
+          <label className="group flex min-h-11 w-full items-center justify-between gap-3 text-left text-sm cursor-pointer select-none focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
+            <input
+              type="checkbox"
+              checked={inStockOnly}
+              onChange={(event) => onToggleInStock(event.target.checked)}
+              className="sr-only"
+            />
             <span
               className={`transition-colors ${
                 inStockOnly ? 'text-primary font-bold' : 'text-muted group-hover:text-ink'
@@ -243,19 +254,16 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             >
               In Stock Only
             </span>
-            <button
-              type="button"
-              role="checkbox"
-              aria-checked={inStockOnly}
-              onClick={() => onToggleInStock(!inStockOnly)}
-              className={`h-5 w-5 rounded border flex items-center justify-center transition-colors cursor-pointer ${
+            <span
+              aria-hidden="true"
+              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
                 inStockOnly
                   ? 'bg-primary border-primary text-white'
                   : 'border-field-border bg-white hover:border-primary'
               }`}
             >
-              {inStockOnly && <Check className="h-3.5 w-3.5 stroke-[2.5]" />}
-            </button>
+              {inStockOnly && <Check className="h-3 w-3 stroke-[2.5]" />}
+            </span>
           </label>
         </div>
       )}
@@ -266,7 +274,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
     <>
       {/* Desktop Sidebar */}
       <aside className={`hidden lg:block w-full lg:sticky lg:top-24 lg:self-start ${className}`}>
-        {sidebarContent}
+        {sidebarContent('desktop-catalog-price-range')}
       </aside>
 
       {/* Mobile Drawer */}
@@ -314,7 +322,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
                   />
                 </div>
               )}
-              {sidebarContent}
+              {sidebarContent('mobile-catalog-price-range')}
             </div>
 
             <div className="flex shrink-0 gap-3 border-t border-line bg-paper p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">

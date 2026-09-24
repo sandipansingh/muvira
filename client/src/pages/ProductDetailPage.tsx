@@ -206,7 +206,7 @@ export const ProductDetailPage: React.FC = () => {
               title="You May Also Like"
               subtitle={`More products from ${product.category.name}`}
             />
-            <div className="mt-6 grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-3 2xl:grid-cols-5">
+            <div className="mt-6 grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
               {relatedProducts.slice(0, 5).map((related) => (
                 <ProductCard key={related.id} product={related} />
               ))}

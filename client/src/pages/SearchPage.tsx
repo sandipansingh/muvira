@@ -210,9 +210,9 @@ export const SearchPage: React.FC = () => {
       <div className="layout-container mb-8">
         <form
           onSubmit={handleSearchSubmit}
-          className="relative max-w-xl mx-auto flex items-center shadow-xs rounded-xl border border-field-border bg-white p-1.5 transition-colors"
+          className="relative max-w-xl mx-auto flex items-center gap-3 shadow-xs rounded-xl border border-field-border bg-white p-1.5 transition-colors"
         >
-          <div className="pl-3 pr-2 text-muted">
+          <div className="pl-3 text-muted shrink-0">
             <Search className="h-5 w-5" />
           </div>
           <input
