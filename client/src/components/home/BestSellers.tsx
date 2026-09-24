@@ -49,15 +49,13 @@ export const FeaturedProducts: React.FC = () => {
 
   return (
     <section id="featured-pieces" className="editorial-container overflow-hidden py-8 sm:py-10">
-      {/* Section Header */}
-      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 sm:flex-row sm:items-end">
+      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 lg:flex-row lg:items-end">
         <div>
-          <span className="eyebrow mb-1.5 block">Featured</span>
-          <h2 className="text-h2 text-ink">Featured Pieces</h2>
+          <span className="eyebrow mb-1.5 block">Explore</span>
+          <h2 className="text-h2 text-ink">Featured Products</h2>
         </div>
 
-        {/* Right Controls: Category Pills & View All */}
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex w-full min-w-0 items-center gap-1.5 lg:w-auto">
           {filterOptions.length > 1 && (
             <SegmentedControl
               options={filterOptions}
@@ -66,11 +64,12 @@ export const FeaturedProducts: React.FC = () => {
               layoutId="muvira-featured-filter"
               variant="pill"
               size="sm"
+              className="min-w-0 flex-1 lg:flex-none"
             />
           )}
           <Link
             to="/shop?sort=featured"
-            className="inline-flex items-center justify-center shrink-0 min-h-[var(--tap-target)] px-3.5 text-sm font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
+            className="inline-flex min-h-[var(--tap-target)] shrink-0 select-none items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper px-3.5 text-sm font-normal text-ink transition-colors hover:border-primary hover:bg-surface hover:text-primary"
           >
             View all
           </Link>
@@ -100,7 +99,7 @@ export const FeaturedProducts: React.FC = () => {
 
       {!loading && !error && filteredProducts.length === 0 && (
         <div className="text-body-sm text-muted py-8 text-center">
-          Featured pieces are being updated. Please check back soon.
+          Featured products are being updated. Please check back soon.
         </div>
       )}
 
