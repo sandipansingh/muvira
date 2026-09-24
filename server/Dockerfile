@@ -14,9 +14,10 @@ RUN pnpm deploy --filter server --prod /prod/server
 
 FROM node:20-alpine AS runtime
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production PORT=4000
 WORKDIR /app
-COPY --from=build /prod/server ./
+COPY --chown=node:node --from=build /prod/server ./
 
+USER node
 EXPOSE 4000
 CMD ["node", "dist/server.js"]

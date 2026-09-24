@@ -86,7 +86,21 @@ Generated schema dumps are intentionally untracked because the previous snapshot
 
 ## Production deployment
 
-Deploy two services from the same revision:
+### Docker Compose on Dokploy
+
+The root `docker-compose.yml` builds both services from the repository root. Use a **Docker Compose** service in Dokploy, not a Docker Stack service (Stack cannot build images):
+
+1. Select this Git repository and production branch. Set the Compose path to `./docker-compose.yml` and leave the base/build directory at the repository root (`./`, not `client/` or `server/`). Enable **Isolated Deployments** so both services share Dokploy's isolated network.
+2. In the Compose service's **Environment** tab, enter the values from root `.env.example`, replacing every placeholder. A local root `.env.production` can combine the client and server production values, but it is Git-ignored and must never be committed. Enter its values in Dokploy securely; do not upload it to Git. If a value contains `$`, single-quote it in the Compose environment editor to prevent interpolation.
+3. Set `VITE_API_URL` to the public HTTPS API origin, `VITE_AUTH_REDIRECT_URL` to the public HTTPS storefront origin, and `ALLOWED_ORIGINS` to include the storefront origin. Do not use `http://server:4000` for `VITE_API_URL`: the browser must reach the API domain. The `VITE_*` values are embedded during the client image build, so changing them requires a rebuild and redeploy.
+4. In **Domains**, add the storefront hostname to service `client`, container port `80`; add the API hostname to service `server`, container port `4000`. Enable HTTPS for both and point their DNS records to Dokploy. Use **Preview Compose** to confirm both domain routes before deployment. No host port mapping or hand-written Traefik labels are needed.
+5. Apply any required Supabase migration separately, then deploy. Verify the storefront and `https://<api-host>/api/health/ready` return successfully. Update the allowed Supabase Auth redirect URL and provider webhook URLs to the public HTTPS domains. Once this Compose deployment is verified, stop the old standalone client/server applications to avoid duplicate API workers and webhook processing.
+
+For direct Docker Compose deployment outside Dokploy, create an ignored root `.env.production` from `.env.example`, then run `docker compose --env-file .env.production up -d --build`. The services expose only internal container ports; attach a reverse proxy or configure host port mappings separately for direct access. Avoid printing `docker compose config` to logs because it expands secrets; use `docker compose --env-file .env.production config --quiet` for validation.
+
+The API container probes `/api/health/ready`; the client probes `/healthz`. The client waits for API readiness, so if the database schema or required provider settings are incomplete, inspect the server logs and resolve the configuration before expecting the storefront to start.
+
+For deployments without Compose, deploy two services from the same revision:
 
 1. API: use root `nixpacks.toml` or build `server/Dockerfile` from the repository root; expose port 4000 and probe `/api/health/ready`.
 2. Client: use `client/nixpacks.toml` from the repository root or build `client/Dockerfile` from the repository root; configure `VITE_API_URL` with the API origin before building.

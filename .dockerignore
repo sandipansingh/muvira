@@ -8,3 +8,13 @@ dist
 .env.*
 **/.env
 **/.env.*
+responsive-audit/
+tests/
+supabase/
+docs/
+.github/
+.claude/
+.opencode/
+.husky/
+design-reference/
+misc/

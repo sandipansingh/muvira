@@ -1,0 +1,63 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      PORT: '4000'
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SUPABASE_URL: ${SUPABASE_URL:?Set SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY:?Set SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:?Set SUPABASE_SERVICE_ROLE_KEY}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:?Set RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:?Set RAZORPAY_KEY_SECRET}
+      RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:?Set RAZORPAY_WEBHOOK_SECRET}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?Set ALLOWED_ORIGINS}
+      RESEND_API_KEY: ${RESEND_API_KEY:?Set RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM:?Set EMAIL_FROM}
+      ORDER_PREFIX: ${ORDER_PREFIX:-MUV}
+      STORE_NAME: ${STORE_NAME:-Muvira}
+      CACHE_ENABLED: ${CACHE_ENABLED:-true}
+      CACHE_DEBUG: ${CACHE_DEBUG:-false}
+      SHIPROCKET_EMAIL: ${SHIPROCKET_EMAIL:?Set SHIPROCKET_EMAIL}
+      SHIPROCKET_PASSWORD: ${SHIPROCKET_PASSWORD:?Set SHIPROCKET_PASSWORD}
+      SHIPROCKET_WEBHOOK_ENABLED: ${SHIPROCKET_WEBHOOK_ENABLED:?Set SHIPROCKET_WEBHOOK_ENABLED}
+      SHIPROCKET_WEBHOOK_SECRET: ${SHIPROCKET_WEBHOOK_SECRET:?Set SHIPROCKET_WEBHOOK_SECRET}
+    expose:
+      - '4000'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:4000/api/health/ready').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:?Set VITE_API_URL}
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:?Set VITE_SUPABASE_URL}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:?Set VITE_SUPABASE_ANON_KEY}
+        VITE_STORE_NAME: ${VITE_STORE_NAME:-Muvira}
+        VITE_AUTH_REDIRECT_URL: ${VITE_AUTH_REDIRECT_URL:?Set VITE_AUTH_REDIRECT_URL}
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    expose:
+      - '80'
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1/healthz']
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
