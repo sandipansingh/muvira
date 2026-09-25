@@ -80,6 +80,8 @@ Wishlist, newsletter subscriptions, customer returns, SMS, push notifications, a
 
 ## Repository workflow
 
+- Prefer Morph `edit_file` over `str_replace` or full-file writes for edits. It accepts partial code snippets, so the full file content is unnecessary.
+- Use the `warp-grep` subagent at the beginning of broad codebase exploration to find relevant files and lines from a natural-language search, such as “Find the XYZ flow” or “Where is XYZ handled?” Do not use it for pinpoint keyword searches.
 - Preserve unrelated work in a dirty tree and stage only files belonging to the current milestone.
 - Commit logical milestones incrementally with Conventional Commit messages.
 - Development-only data tools belong in git-ignored `dev-scripts/`; production runtime helpers belong in `scripts/` only when required at runtime.
