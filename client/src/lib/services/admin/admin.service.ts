@@ -795,6 +795,28 @@ export const adminApiService = {
     return { success: true, data: res.data }
   },
 
+  async refundOrder(
+    id: string,
+    input: { reason: string; amount_paisa: number; refund_intent_id: string },
+    userId: string
+  ): Promise<ApiResponse<AnyRecord>> {
+    const res = await api.post<{
+      success: boolean
+      data?: AnyRecord
+      error?: { code: string; message: string }
+    }>(`/api/admin/orders/${id}/refund`, input, true, userId)
+    if (!res.success || !res.data)
+      return {
+        success: false,
+        error: res.error ?? {
+          code: 'REFUND_FAILED',
+          message:
+            'Refund could not be confirmed. Recover this saved intent before starting another.',
+        },
+      }
+    return { success: true, data: res.data }
+  },
+
   /**
    * Fetches single order details for admin view.
    */
@@ -821,6 +843,10 @@ export const adminApiService = {
       true,
       'POST'
     )
+  },
+
+  async downloadFulfillmentDocument(id: string, kind: 'label' | 'manifest'): Promise<Blob> {
+    return api.download(`/api/admin/orders/${id}/generate-${kind}`, true, 'POST')
   },
 
   async getRetryJobs(page = 1, status = 'dead'): Promise<ApiPaginatedResponse<RetryJob>> {
@@ -1146,7 +1172,7 @@ export const adminApiService = {
   async checkServiceability(params: {
     pickup_pincode: string
     delivery_pincode: string
-    weight: number
+    weight_grams: number
     cod: boolean
   }): Promise<ApiResponse<ServiceabilityResult>> {
     const res = await adminPost<{
@@ -1189,7 +1215,7 @@ export const adminApiService = {
       success: true,
       data: {
         success: (res.data['success'] as boolean) ?? false,
-        order: mapOrderDetail(res.data['order'] as AnyRecord),
+        order: res.data['order'] ? mapOrderDetail(res.data['order'] as AnyRecord) : null,
         steps: (res.data['steps'] as FulfillOrderResult['steps']) ?? [],
         shiprocket_order_id: (res.data['shiprocket_order_id'] as number | null) ?? null,
         shipment_id: (res.data['shipment_id'] as number | null) ?? null,

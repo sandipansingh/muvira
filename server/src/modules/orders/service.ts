@@ -35,6 +35,7 @@ import type {
   RefundOrderInput,
 } from './schema'
 import { ShiprocketSettingsSchema } from '../settings/schema'
+import { refundBalances } from './refundBalances'
 
 //
 // User-facing: only see own orders
@@ -162,7 +163,8 @@ export async function adminGetOrder(orderId: string): Promise<Order> {
       *,
       order_items(*),
       profiles ( email, full_name, phone ),
-      payments ( id, razorpay_order_id, razorpay_payment_id, amount_paisa, status, captured_at )
+      payments ( id, razorpay_order_id, razorpay_payment_id, amount_paisa, refunded_amount_paisa, currency, status, captured_at ),
+      provider_operations ( id, provider, operation_type, business_key, state, amount_paisa, cause, local_applied_at )
     `
     )
     .eq('id', orderId)
@@ -173,7 +175,21 @@ export async function adminGetOrder(orderId: string): Promise<Order> {
   if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
   // Return from DB only — tracking is synced by webhooks + cron polling
-  return data as unknown as Order
+  const payments = data.payments as unknown as Array<{
+    amount_paisa: number
+    refunded_amount_paisa: number
+    status: string
+  }>
+  const operations = data.provider_operations as unknown as Array<{
+    provider: string
+    state: string
+    amount_paisa: number | null
+    local_applied_at: string | null
+  }>
+  return {
+    ...data,
+    refund_balances: refundBalances(payments[0] ?? null, operations),
+  } as unknown as Order
 }
 
 export async function adminUpdateOrderStatus(
@@ -435,7 +451,7 @@ interface ShiprocketOrderOverrides {
   heightCm?: number
 }
 
-async function buildShiprocketOrderPayload(
+export async function buildShiprocketOrderPayload(
   order: Record<string, unknown>,
   orderItems: Array<{
     product_id: string
@@ -446,27 +462,6 @@ async function buildShiprocketOrderPayload(
   }>,
   overrides: ShiprocketOrderOverrides
 ) {
-  // Resolve weight: override > order.package_weight_grams > compute from products > default 500g
-  let weightGrams =
-    overrides.weightGrams ?? (order['package_weight_grams'] as number | undefined) ?? 0
-  if (weightGrams <= 0) {
-    const productIds = orderItems.map((item) => item.product_id).filter(Boolean)
-    if (productIds.length > 0) {
-      const { data: products } = await adminSupabase
-        .from('products')
-        .select('id, weight_grams')
-        .in('id', productIds)
-      if (products && products.length > 0) {
-        const weightMap = new Map(products.map((p) => [p.id, p.weight_grams ?? 200]))
-        weightGrams = orderItems.reduce(
-          (sum, item) => sum + (weightMap.get(item.product_id) ?? 200) * item.quantity,
-          0
-        )
-      }
-    }
-  }
-  if (weightGrams <= 0) weightGrams = 500
-
   // Resolve dimensions: override > order > site_settings defaults
   const { data: settingsData, error: settingsError } = await adminSupabase
     .from('site_settings')
@@ -489,22 +484,39 @@ async function buildShiprocketOrderPayload(
       'Complete Shiprocket setup in Store settings: select a registered pickup location and save package dimensions and weight.'
     )
   const defaults = validatedDefaults.data
+  let weightGrams = overrides.weightGrams ?? (order['package_weight_grams'] as number | undefined)
+  if (weightGrams == null) {
+    const productIds = orderItems.map((item) => item.product_id).filter(Boolean)
+    const { data: products, error: productError } = productIds.length
+      ? await adminSupabase.from('products').select('id, weight_grams').in('id', productIds)
+      : { data: [], error: null }
+    if (productError)
+      throw databaseError(
+        'orders.load_product_weights',
+        productError,
+        'Package weight could not be calculated'
+      )
+    const weights = new Map((products ?? []).map((product) => [product.id, product.weight_grams]))
+    weightGrams =
+      orderItems.reduce(
+        (sum, item) =>
+          sum + (weights.get(item.product_id) ?? defaults.default_weight_grams) * item.quantity,
+        0
+      ) || defaults.default_weight_grams
+  }
+  if (!Number.isSafeInteger(weightGrams) || weightGrams <= 0)
+    throw new AppError(
+      400,
+      'INVALID_PACKAGE_WEIGHT',
+      'Package weight must be a positive number of grams'
+    )
 
   const lengthCm =
-    overrides.lengthCm ??
-    (order['package_length_cm'] as number) ??
-    (defaults['default_length_cm'] as number) ??
-    15
+    overrides.lengthCm ?? (order['package_length_cm'] as number) ?? defaults.default_length_cm
   const breadthCm =
-    overrides.breadthCm ??
-    (order['package_breadth_cm'] as number) ??
-    (defaults['default_breadth_cm'] as number) ??
-    10
+    overrides.breadthCm ?? (order['package_breadth_cm'] as number) ?? defaults.default_breadth_cm
   const heightCm =
-    overrides.heightCm ??
-    (order['package_height_cm'] as number) ??
-    (defaults['default_height_cm'] as number) ??
-    5
+    overrides.heightCm ?? (order['package_height_cm'] as number) ?? defaults.default_height_cm
   const pickupLocation =
     overrides.pickupLocation ??
     (order['pickup_location'] as string) ??
@@ -534,40 +546,56 @@ async function buildShiprocketOrderPayload(
     tax: 0,
   }))
 
-  // Build billing name
-  const fullName = (order['shipping_full_name'] as string) ?? 'Customer'
-  const nameParts = fullName.trim().split(/\s+/)
-  const firstName = nameParts[0] ?? 'Customer'
-  const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : ''
-
-  // Build address
-  const addr1 = (order['shipping_address_line1'] as string) ?? ''
-  const addr2 = (order['shipping_address_line2'] as string) ?? ''
-  const fullAddress = addr2 ? `${addr1}, ${addr2}` : addr1
+  const billingSame = order['billing_same_as_shipping'] !== false
+  const billingPrefix = billingSame ? 'shipping' : 'billing'
+  const splitName = (value: unknown) => {
+    const [first, ...rest] = String(value ?? '')
+      .trim()
+      .split(/\s+/)
+    return { first: first ?? '', last: rest.join(' ') }
+  }
+  const billingName = splitName(order[`${billingPrefix}_full_name`])
+  const shippingName = splitName(order['shipping_full_name'])
 
   return {
     order_id: order['order_number'] as string,
     order_date: new Date((order['created_at'] as string) || Date.now()).toISOString().slice(0, 10),
     pickup_location: pickupLocation,
-    billing_customer_name: firstName,
-    billing_last_name: lastName,
-    billing_address: fullAddress,
-    billing_city: order['shipping_city'] as string,
-    billing_pincode: order['shipping_pincode'] as string,
-    billing_state: order['shipping_state'] as string,
-    billing_country: (order['shipping_country'] as string) ?? 'India',
+    billing_customer_name: billingName.first,
+    billing_last_name: billingName.last,
+    billing_address: String(order[`${billingPrefix}_address_line1`] ?? ''),
+    billing_address_2: String(order[`${billingPrefix}_address_line2`] ?? ''),
+    billing_city: String(order[`${billingPrefix}_city`] ?? ''),
+    billing_pincode: String(order[`${billingPrefix}_pincode`] ?? ''),
+    billing_state: String(order[`${billingPrefix}_state`] ?? ''),
+    billing_country: String(order[`${billingPrefix}_country`] ?? 'India'),
     billing_email: contactEmail,
-    billing_phone: order['shipping_phone'] as string,
-    shipping_is_billing: true,
+    billing_phone: String(order['shipping_phone'] ?? ''),
+    shipping_is_billing: billingSame,
+    shipping_customer_name: shippingName.first,
+    shipping_last_name: shippingName.last,
+    shipping_address: String(order['shipping_address_line1'] ?? ''),
+    shipping_address_2: String(order['shipping_address_line2'] ?? ''),
+    shipping_city: String(order['shipping_city'] ?? ''),
+    shipping_pincode: String(order['shipping_pincode'] ?? ''),
+    shipping_state: String(order['shipping_state'] ?? ''),
+    shipping_country: String(order['shipping_country'] ?? 'India'),
+    shipping_email: contactEmail,
+    shipping_phone: String(order['shipping_phone'] ?? ''),
+    customer_gstin: (order['billing_gst_number'] as string | null) ?? undefined,
     order_items: srItems,
     payment_method: 'Prepaid' as const,
-    sub_total: (order['subtotal_paisa'] as number) / 100,
+    sub_total:
+      ((order['subtotal_paisa'] as number) -
+        ((order['discount_amount_paisa'] as number) ?? 0) +
+        ((order['tax_amount_paisa'] as number) ?? 0)) /
+      100,
     shipping_charges: ((order['shipping_amount_paisa'] as number) ?? 0) / 100,
     total_discount: ((order['discount_amount_paisa'] as number) ?? 0) / 100,
     length: lengthCm,
     breadth: breadthCm,
     height: heightCm,
-    weight: Math.max(weightGrams / 1000, 0.1),
+    weight: weightGrams / 1000,
     package_weight_grams: weightGrams,
     package_length_cm: lengthCm,
     package_breadth_cm: breadthCm,
@@ -656,7 +684,12 @@ async function createShiprocketOrderInternal(
   const shiprocketOrderId = Number(resolved['shiprocket_order_id'] ?? resolved['order_id'])
   const shipmentId = Number(resolved['shipment_id'])
 
-  if (!Number.isSafeInteger(shiprocketOrderId) || !Number.isSafeInteger(shipmentId)) {
+  if (
+    !Number.isSafeInteger(shiprocketOrderId) ||
+    shiprocketOrderId <= 0 ||
+    !Number.isSafeInteger(shipmentId) ||
+    shipmentId <= 0
+  ) {
     throw new AppError(
       502,
       'SHIPROCKET_INVALID_RESPONSE',
@@ -885,7 +918,7 @@ async function adminSchedulePickupInternal(orderId: string): Promise<{ status: s
     shipment_id: [shipmentId],
   })
 
-  const pickupInfo = result.response?.[0]
+  const pickupInfo = result.response
   if (!pickupInfo?.status) {
     throw new AppError(502, 'PICKUP_FAILED', 'Shiprocket did not confirm pickup scheduling')
   }
@@ -954,10 +987,19 @@ async function adminGenerateDocument(
     throw new Error(`Shiprocket did not return a ${name.toLowerCase()} URL`)
   }
 
+  const documentUrl = new URL(docUrl)
+  if (documentUrl.protocol !== 'https:' || documentUrl.username || documentUrl.password)
+    throw new Error('Shiprocket document URL is invalid')
+
   const pdfRes = await fetch(docUrl)
   if (!pdfRes.ok) {
     throw new Error(`Failed to download ${name.toLowerCase()} PDF: ${pdfRes.status}`)
   }
+  await persistFulfillmentState(
+    orderId,
+    docType === 'label' ? { label_generated: true } : { manifest_generated: true },
+    `${name} generated but confirmation could not be persisted`
+  )
   return Buffer.from(await pdfRes.arrayBuffer())
 }
 
@@ -1422,7 +1464,7 @@ async function adminFulfillOrderInternal(
       const pickupResult = await shiprocketSchedulePickup({
         shipment_id: [shipmentId],
       })
-      const pickupInfo = pickupResult.response?.[0]
+      const pickupInfo = pickupResult.response
       if (!pickupInfo?.status) {
         throw new Error('Shiprocket did not confirm pickup scheduling')
       }

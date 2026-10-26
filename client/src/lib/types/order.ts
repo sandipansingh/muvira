@@ -104,11 +104,32 @@ export interface OrderDetail {
   subtotal: number
   discountAmount: number
   shippingAmount: number
+  taxAmount: number
   totalAmount: number
   couponCode: string | null
   paymentMethod: string | null
   shippingMethod: 'standard' | 'express'
   shippingAddress: OrderAddress
+  billingAddress: OrderAddress
+  billingGstin: string | null
+  billingSameAsShipping: boolean
+  refundBalances?: {
+    captured_paisa: number
+    refunded_paisa: number
+    reserved_paisa: number
+    refundable_paisa: number
+    requires_review: boolean
+  }
+  providerOperations?: Array<{
+    id: string
+    provider: string
+    operation_type: string
+    business_key: string
+    state: string
+    amount_paisa: number | null
+    cause: string
+    local_applied_at: string | null
+  }>
   awbCode: string | null
   items: OrderItem[]
   createdAt: string
@@ -127,6 +148,7 @@ export interface OrderDetail {
   manifestGenerated: boolean
   // Package dimensions
   packageWeightGrams: number | null
+  pickupLocation: string | null
   packageLengthCm: number | null
   packageBreadthCm: number | null
   packageHeightCm: number | null
@@ -197,7 +219,7 @@ export interface FulfillmentStepResult {
 
 export interface FulfillOrderResult {
   success: boolean
-  order: OrderDetail
+  order: OrderDetail | null
   steps: FulfillmentStepResult[]
   shiprocket_order_id: number | null
   shipment_id: number | null
@@ -213,7 +235,7 @@ export interface FulfillOrderResult {
 export interface CourierOption {
   courier_name: string
   courier_id: number
-  rate: number
+  rate_paisa: number
   estimated_delivery_days: number
   cod: boolean
   is_recommended?: boolean

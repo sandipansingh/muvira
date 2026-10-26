@@ -323,6 +323,7 @@ export interface ShiprocketOrderInput {
   billing_email: string
   billing_phone: string
   shipping_is_billing: boolean
+  customer_gstin?: string
   shipping_customer_name?: string
   shipping_last_name?: string
   shipping_address?: string
@@ -426,12 +427,11 @@ export interface ShiprocketPickupInput {
 
 export interface ShiprocketPickupResponse {
   pickup_status: number
-  response: Array<{
-    shipment_id: number
+  response: {
     status: string
     pickup_scheduled_date: string
     pickup_token_number: string
-  }>
+  }
 }
 
 export interface ShiprocketCancelOrderInput {
@@ -445,7 +445,7 @@ export interface ShiprocketCancelShipmentInput {
 export interface ShiprocketServiceabilityInput {
   pickup_pincode: string
   delivery_pincode: string
-  weight: number
+  weight_grams: number
   cod: boolean
 }
 
@@ -454,14 +454,14 @@ export interface ShiprocketServiceabilityResponse {
     available_courier: Array<{
       courier_name: string
       courier_id: number
-      rate: number
+      rate_paisa: number
       estimated_delivery_days: number
       cod: boolean
     }>
     recommended_courier?: {
       courier_name: string
       courier_id: number
-      rate: number
+      rate_paisa: number
       estimated_delivery_days: number
     }
   }
@@ -589,13 +589,22 @@ export async function getPickupLocations(): Promise<ShiprocketPickupLocation[]> 
 // 2. Courier Serviceability
 //
 
+export function courierRatePaisa(value: unknown): number {
+  if (value === null || value === undefined || value === '')
+    throw new Error('Shiprocket courier price is missing')
+  const rate = Number(value)
+  if (!Number.isFinite(rate) || rate < 0 || !Number.isSafeInteger(Math.round(rate * 100)))
+    throw new Error('Shiprocket courier price is invalid')
+  return Math.round(rate * 100)
+}
+
 export async function checkServiceability(
   input: ShiprocketServiceabilityInput
 ): Promise<ShiprocketServiceabilityResponse['data']> {
   const params = new URLSearchParams({
-    pickup_pincode: input.pickup_pincode,
-    delivery_pincode: input.delivery_pincode,
-    weight: String(input.weight),
+    pickup_postcode: input.pickup_pincode,
+    delivery_postcode: input.delivery_pincode,
+    weight: String(input.weight_grams / 1000),
     cod: input.cod ? '1' : '0',
   })
   const result = await apiFetch<Record<string, unknown>>(
@@ -617,7 +626,7 @@ export async function checkServiceability(
     return companies.map((c) => ({
       courier_name: str(c['courier_name']) || str(c['name']),
       courier_id: num(c['courier_company_id']) || num(c['courier_id']) || num(c['id']),
-      rate: num(c['rate']) || num(c['freight_charge']),
+      rate_paisa: courierRatePaisa(c['rate'] ?? c['freight_charge']),
       estimated_delivery_days: num(c['estimated_delivery_days']) || num(c['edd']),
       cod: bol(c['cod']) || bol(c['is_cod_available']),
     }))
@@ -633,7 +642,11 @@ export async function checkServiceability(
     }
   }
   if (topData?.['available_courier']) {
-    return topData as unknown as ShiprocketServiceabilityResponse['data']
+    return {
+      available_courier: mapCourierList(
+        topData['available_courier'] as Array<Record<string, unknown>>
+      ),
+    }
   }
   if (raw['available_courier_companies']) {
     return {
@@ -643,13 +656,15 @@ export async function checkServiceability(
     }
   }
   if (raw['available_courier']) {
-    return raw as unknown as ShiprocketServiceabilityResponse['data']
+    return {
+      available_courier: mapCourierList(raw['available_courier'] as Array<Record<string, unknown>>),
+    }
   }
   if (raw['recommended_courier_company_id']) {
     const rec = {
       courier_name: str(raw['recommended_courier_company_name']),
       courier_id: num(raw['recommended_courier_company_id']),
-      rate: num(raw['recommended_rate']),
+      rate_paisa: courierRatePaisa(raw['recommended_rate']),
       estimated_delivery_days: num(raw['recommended_edd']),
       cod: false,
     }
@@ -668,10 +683,30 @@ export async function checkServiceability(
 export async function createOrder(
   input: ShiprocketOrderInput
 ): Promise<ShiprocketCreateOrderResponse> {
-  return apiFetch<ShiprocketCreateOrderResponse>('/orders/create/adhoc', {
+  const result = await apiFetch<Record<string, unknown>>('/orders/create/adhoc', {
     method: 'POST',
     body: input,
   })
+  const response = (result['data'] ?? result) as Record<string, unknown>
+  const orderId = Number(response['shiprocket_order_id'] ?? response['order_id'])
+  const shipmentId = Number(response['shipment_id'])
+  if (
+    !Number.isSafeInteger(orderId) ||
+    orderId <= 0 ||
+    !Number.isSafeInteger(shipmentId) ||
+    shipmentId <= 0 ||
+    response['status_code'] !== 1 ||
+    String(response['status']).toUpperCase() !== 'NEW'
+  ) {
+    throw new Error(
+      'Shiprocket did not confirm order creation. Check the provider order before retrying.'
+    )
+  }
+  return {
+    ...response,
+    order_id: orderId,
+    shipment_id: shipmentId,
+  } as unknown as ShiprocketCreateOrderResponse
 }
 
 //
@@ -701,8 +736,13 @@ export async function assignAwb(
   // Shiprocket sometimes wraps the entire response in a top-level 'data' key
   const raw = result as unknown as Record<string, unknown>
   if (raw['data'] && raw['data'] !== null && typeof raw['data'] === 'object' && !raw['response']) {
-    return raw['data'] as unknown as ShiprocketAssignAwbResponse
+    const normalized = raw['data'] as unknown as ShiprocketAssignAwbResponse
+    if (normalized.awb_assign_status !== 1)
+      throw new Error('Shiprocket did not confirm AWB assignment')
+    return normalized
   }
+  if ((result as ShiprocketAssignAwbResponse).awb_assign_status !== 1)
+    throw new Error('Shiprocket did not confirm AWB assignment')
   return result as ShiprocketAssignAwbResponse
 }
 
@@ -713,10 +753,30 @@ export async function assignAwb(
 export async function schedulePickup(
   input: ShiprocketPickupInput
 ): Promise<ShiprocketPickupResponse> {
-  return apiFetch<ShiprocketPickupResponse>('/courier/generate/pickup', {
+  const result = await apiFetch<Record<string, unknown>>('/courier/generate/pickup', {
     method: 'POST',
     body: input,
   })
+  const raw = Array.isArray(result['response']) ? result['response'][0] : result['response']
+  const confirmed = raw as Record<string, unknown> | undefined
+  if (
+    result['pickup_status'] !== 1 ||
+    Number(confirmed?.['status']) !== 3 ||
+    typeof confirmed?.['pickup_scheduled_date'] !== 'string' ||
+    !confirmed['pickup_scheduled_date'].trim()
+  ) {
+    throw new Error(
+      'Shiprocket did not confirm pickup scheduling. Check shipment details before retrying.'
+    )
+  }
+  return {
+    pickup_status: 1,
+    response: {
+      status: 'scheduled',
+      pickup_scheduled_date: confirmed['pickup_scheduled_date'],
+      pickup_token_number: String(confirmed['pickup_token_number'] ?? ''),
+    },
+  }
 }
 
 export interface ShiprocketGenerateLabelResponse {
@@ -731,15 +791,30 @@ export interface ShiprocketGenerateManifestResponse {
   manifest_url: string
 }
 
+export function assertDocumentResult(value: unknown, kind: 'label' | 'manifest'): string {
+  if (!value || typeof value !== 'object') throw new Error(`Shiprocket ${kind} response is invalid`)
+  const result = value as Record<string, unknown>
+  const success = kind === 'label' ? result['label_created'] === 1 : result['status'] === 1
+  const url = result[kind === 'label' ? 'label_url' : 'manifest_url']
+  if (!success || typeof url !== 'string')
+    throw new Error(`Shiprocket did not confirm ${kind} generation`)
+  const parsed = new URL(url)
+  if (parsed.protocol !== 'https:' || parsed.username || parsed.password)
+    throw new Error(`Shiprocket ${kind} URL is invalid`)
+  return url
+}
+
 //
 // 7. Generate Label
 //
 
 export async function generateLabel(shipmentId: number): Promise<ShiprocketGenerateLabelResponse> {
-  return apiFetch<ShiprocketGenerateLabelResponse>('/courier/generate/label', {
+  const result = await apiFetch<ShiprocketGenerateLabelResponse>('/courier/generate/label', {
     method: 'POST',
     body: { shipment_id: [shipmentId] },
   })
+  assertDocumentResult(result, 'label')
+  return result
 }
 
 //
@@ -749,10 +824,12 @@ export async function generateLabel(shipmentId: number): Promise<ShiprocketGener
 export async function generateManifest(
   shipmentId?: number
 ): Promise<ShiprocketGenerateManifestResponse> {
-  return apiFetch<ShiprocketGenerateManifestResponse>('/manifests/generate', {
+  const result = await apiFetch<ShiprocketGenerateManifestResponse>('/manifests/generate', {
     method: 'POST',
     body: shipmentId != null ? { shipment_id: [shipmentId] } : {},
   })
+  assertDocumentResult(result, 'manifest')
+  return result
 }
 
 //

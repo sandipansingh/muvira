@@ -31,6 +31,7 @@ export interface DropdownProps {
   variant?: 'default' | 'slim'
   label?: string
   id?: string
+  disabled?: boolean
   'aria-label'?: string
 }
 
@@ -47,6 +48,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   variant = 'default',
   label,
   id,
+  disabled = false,
   'aria-label': ariaLabel,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -71,6 +73,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   }, [])
 
   const handleToggle = () => {
+    if (disabled) return
     if (!isOpen && dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect()
       const viewportHeight = window.innerHeight
@@ -84,6 +87,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   }
 
   const handleOptionClick = (option: DropdownOption) => {
+    if (disabled) return
     onChange(option.value)
     if (option.onClick) {
       option.onClick()
@@ -106,6 +110,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         ref={triggerRef}
         id={id}
         type="button"
+        disabled={disabled}
         onClick={handleToggle}
         className={`flex items-center justify-between gap-2 w-full cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 border border-line bg-paper text-ink hover:bg-surface ${
           isSlim
@@ -144,7 +149,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       </button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && !disabled && (
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: openUpwards ? 6 : -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

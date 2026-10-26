@@ -525,6 +525,14 @@ test(
       assert.equal(adminDetail.status, 200)
       assert.ok(Array.isArray(adminDetail.body.data.order_items))
       assert.ok(Array.isArray(adminDetail.body.data.payments))
+      assert.equal(
+        adminDetail.body.data.refund_balances.captured_paisa,
+        adminDetail.body.data.payments[0].amount_paisa
+      )
+      assert.equal(
+        adminDetail.body.data.refund_balances.refundable_paisa,
+        adminDetail.body.data.payments[0].amount_paisa
+      )
     })
   }
 )

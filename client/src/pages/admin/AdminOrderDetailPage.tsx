@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Download, RefreshCw } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { Breadcrumbs } from '../../components/common/Breadcrumbs'
@@ -7,6 +7,8 @@ import { useToast } from '../../context/ToastContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import type { OrderDetail, OrderStatus } from '../../lib/types/order'
 import { formatDate, formatPrice } from '../../lib/utils/format'
+import { OrderFulfillmentControls } from '../../components/admin/OrderFulfillmentControls'
+import { OrderRefundControls } from '../../components/admin/OrderRefundControls'
 
 const statusOptions = [
   'pending',
@@ -15,10 +17,8 @@ const statusOptions = [
   'shipped',
   'out_for_delivery',
   'delivered',
-  'cancelled',
   'rto',
   'returned',
-  'refunded',
   'lost',
   'damaged',
   'delivery_failed',
@@ -26,33 +26,43 @@ const statusOptions = [
 
 export const AdminOrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  return <AdminOrderDetail key={id} id={id} />
+}
+
+const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
   const { showToast } = useToast()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [status, setStatus] = useState('pending')
-  const [pickupLocation, setPickupLocation] = useState('')
   const [note, setNote] = useState('')
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const request = useRef(0)
 
   const loadOrder = async () => {
     if (!id) return
+    const current = ++request.current
     setLoading(true)
     setError(null)
     try {
       const response = await adminApiService.getOrderById(id)
+      if (current !== request.current) return
       if (!response.success) throw new Error(response.error.message)
       setOrder(response.data)
       setStatus(response.data.status)
     } catch (reason) {
+      if (current !== request.current) return
       setError(reason instanceof Error ? reason.message : 'Order could not be loaded.')
     } finally {
-      setLoading(false)
+      if (current === request.current) setLoading(false)
     }
   }
 
   useEffect(() => {
     void loadOrder()
+    return () => {
+      request.current += 1
+    }
     // The order ID is the only route input that should trigger a reload.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
@@ -87,7 +97,7 @@ export const AdminOrderDetailPage: React.FC = () => {
     }, 'Invoice downloaded.')
   }
 
-  if (loading) return <div className="h-56 animate-pulse rounded-3xl bg-surface" />
+  if (loading && !order) return <div className="h-56 animate-pulse rounded-3xl bg-surface" />
   if (!order || !id) {
     return (
       <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">
@@ -121,6 +131,68 @@ export const AdminOrderDetailPage: React.FC = () => {
         </button>
       </div>
       {error && <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">{error}</p>}
+      <OrderRefundControls key={order.id} order={order} refresh={loadOrder} />
+
+      <section className="panel space-y-4 p-5">
+        <h3 className="heading text-xl">Purchased items and totals</h3>
+        {order.items.map((item) => (
+          <div key={item.id} className="flex justify-between gap-4 border-b border-line py-2">
+            <span>
+              {item.productName} × {item.quantity}
+              <span className="block text-sm text-muted">{formatPrice(item.unitPrice)} each</span>
+            </span>
+            <span>{formatPrice(item.totalPrice)}</span>
+          </div>
+        ))}
+        <dl className="space-y-2 text-sm">
+          {[
+            ['Subtotal', order.subtotal],
+            ['Discount', -order.discountAmount],
+            ['Shipping', order.shippingAmount],
+            ['Tax', order.taxAmount],
+            ['Total', order.totalAmount],
+          ].map(([label, value]) => (
+            <div key={label} className="flex justify-between">
+              <dt>{label}</dt>
+              <dd>{formatPrice(Number(value))}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="text-sm">Shipping method: {order.shippingMethod}</p>
+      </section>
+      <section className="panel grid gap-6 p-5 sm:grid-cols-2">
+        {(
+          [
+            ['Shipping address', order.shippingAddress],
+            ['Billing address', order.billingAddress],
+          ] as const
+        ).map(([label, address]) => (
+          <div key={label}>
+            <h3 className="heading text-xl">{label}</h3>
+            <address className="mt-3 text-sm not-italic">
+              {address.fullName}
+              <br />
+              {address.line1}
+              <br />
+              {address.line2 && (
+                <>
+                  {address.line2}
+                  <br />
+                </>
+              )}
+              {address.city}, {address.state} {address.pincode}
+              <br />
+              {address.country}
+              <br />
+              {address.phone}
+            </address>
+          </div>
+        ))}
+        {order.billingGstin && <p>GSTIN: {order.billingGstin}</p>}
+        {order.deliveryInstructions && (
+          <p className="whitespace-pre-wrap">Delivery instructions: {order.deliveryInstructions}</p>
+        )}
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="panel space-y-4 p-5">
@@ -175,69 +247,27 @@ export const AdminOrderDetailPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="panel space-y-4 p-5">
-          <h3 className="heading text-xl">Manual fulfillment</h3>
-          <input
-            type="text"
-            value={pickupLocation}
-            onChange={(event) => setPickupLocation(event.target.value)}
-            placeholder="Shiprocket pickup location"
-            className="w-full rounded-xl border border-line bg-paper px-4 py-2 text-base text-ink"
-          />
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={busy || !pickupLocation.trim() || Boolean(order.shiprocketOrderId)}
-              onClick={() =>
-                void runAction(async () => {
-                  const response = await adminApiService.createShipment(id, pickupLocation.trim())
-                  if (!response.success) throw new Error(response.error.message)
-                }, 'Shipment created.')
-              }
-              className="button-secondary"
-            >
-              Create shipment
-            </button>
-            <button
-              type="button"
-              disabled={busy || !order.shipmentId || Boolean(order.awbCode)}
-              onClick={() =>
-                void runAction(async () => {
-                  const response = await adminApiService.assignAwb(id)
-                  if (!response.success) throw new Error(response.error.message)
-                }, 'AWB assigned.')
-              }
-              className="button-secondary"
-            >
-              Assign AWB
-            </button>
-            <button
-              type="button"
-              disabled={busy || !order.shipmentId || !order.awbCode}
-              onClick={() =>
-                void runAction(async () => {
-                  const response = await adminApiService.schedulePickup(id)
-                  if (!response.success) throw new Error(response.error.message)
-                }, 'Pickup scheduled.')
-              }
-              className="button-secondary"
-            >
-              Schedule pickup
-            </button>
-            <button
-              type="button"
-              disabled={busy || order.paymentStatus !== 'paid' || !order.shiprocketOrderId}
-              onClick={() => void downloadInvoice()}
-              className="button-secondary"
-            >
-              <Download className="h-4 w-4" /> Invoice
-            </button>
-          </div>
-        </section>
+        <div className="space-y-4">
+          <OrderFulfillmentControls order={order} refresh={loadOrder} />
+          <button
+            type="button"
+            disabled={busy || order.paymentStatus !== 'paid' || !order.shiprocketOrderId}
+            onClick={() => void downloadInvoice()}
+            className="button-secondary"
+          >
+            <Download className="h-4 w-4" /> Invoice
+          </button>
+        </div>
       </div>
 
       <section className="panel space-y-4 p-5">
         <h3 className="heading text-xl">Internal note</h3>
+        {order.adminNotes?.map((saved) => (
+          <div key={saved.id} className="border-b border-line pb-3">
+            <p className="whitespace-pre-wrap text-sm">{saved.note}</p>
+            <p className="text-xs text-muted">{saved.createdAt}</p>
+          </div>
+        ))}
         <textarea
           value={note}
           onChange={(event) => setNote(event.target.value)}
