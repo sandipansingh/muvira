@@ -1,28 +1,36 @@
 import { logger } from '../lib/logger'
 import { getRuntimeSchemaStatus } from './runtimeSchema'
 import { startPollingScheduler } from './pollingScheduler'
+import { createWorkerStartup } from './workerStartupState'
+
+let start = startPollingScheduler
+const startup = createWorkerStartup({
+  inspect: async () => {
+    const status = await getRuntimeSchemaStatus({ forceRefresh: true })
+    if (!status.ready)
+      logger.warn(
+        { contractVersion: status.contract?.contract_version ?? null },
+        'Workers waiting for database schema; startup will retry'
+      )
+    return status.ready
+  },
+  start: () => start(),
+  schedule: (work, delay) => {
+    const timer = setTimeout(() => {
+      void work()
+    }, delay)
+    timer.unref()
+    return timer
+  },
+  cancel: clearTimeout,
+})
+
+export const getWorkerStartupStatus = startup.status
+export const stopWorkerStartup = startup.stop
 
 export async function startWorkersWhenSchemaReady(
   startWorkers: () => void = startPollingScheduler
 ): Promise<boolean> {
-  const status = await getRuntimeSchemaStatus({ forceRefresh: true })
-  if (!status.ready) {
-    logger.error(
-      {
-        operation: 'worker_startup_schema_contract',
-        contractVersion: status.contract?.contract_version ?? null,
-        missingRelations: status.contract?.missing_relations ?? [],
-        missingColumns: status.contract?.missing_columns ?? [],
-        missingFunctions: status.contract?.missing_functions ?? [],
-        postgrestCode: status.error?.code ?? null,
-        postgrestMessage: status.error?.message ?? null,
-        postgrestDetails: status.error?.details ?? null,
-      },
-      'Background workers suppressed because the database schema is incompatible'
-    )
-    return false
-  }
-
-  startWorkers()
-  return true
+  start = startWorkers
+  return startup.ensureStarted()
 }

@@ -16,7 +16,13 @@ import {
   trackSingle,
   type ShiprocketError,
 } from './shiprocket'
-import { executionLeaseRpcArgs, withExecutionLease, type ExecutionLease } from './executionLease'
+import {
+  executionLeaseRpcArgs,
+  withExecutionLease,
+  type ExecutionLease,
+  type ExecutionLeaseGuard,
+} from './executionLease'
+import { hasSchemaCapability, getRuntimeSchemaStatus } from './runtimeSchema'
 
 export interface RefundRecord {
   id: string
@@ -194,6 +200,16 @@ export async function prepareRefund(
   orderId: string,
   input: { cause: string; amountPaisa?: number; refundIntentId?: string }
 ): Promise<ProviderOperation | null> {
+  if (input.amountPaisa === undefined && (await hasSchemaCapability(51))) {
+    const result = await prepareRemainingRefund(orderId, input.cause)
+    if (result.status === 'waiting')
+      throw new AppError(
+        409,
+        'REFUND_PENDING',
+        'An earlier refund is unresolved. Reconcile it before refunding the remaining balance.'
+      )
+    return result.operation
+  }
   const { data: payment, error } = await adminSupabase
     .from('payments')
     .select(
@@ -203,8 +219,8 @@ export async function prepareRefund(
     .maybeSingle()
   if (error)
     throw databaseError('provider_operations.load_refund_payment', error, 'Payment unavailable')
-  if (!payment || payment.status === 'refunded') return null
-  if (payment.status !== 'captured' || !payment.razorpay_payment_id) {
+  if (!payment || (payment.status === 'refunded' && input.amountPaisa === undefined)) return null
+  if (!['captured', 'refunded'].includes(payment.status) || !payment.razorpay_payment_id) {
     throw new AppError(409, 'PAYMENT_NOT_REFUNDABLE', 'The order has no captured payment to refund')
   }
 
@@ -248,6 +264,13 @@ export async function prepareRefund(
     p_cause: input.cause,
   })
   if (prepareError || !data) {
+    if (prepareError && ['22023', '23514'].includes(prepareError.code)) {
+      throw new AppError(
+        409,
+        'REFUND_INTENT_REJECTED',
+        'This refund exceeds the available balance or is no longer eligible. Refresh the order and correct the amount.'
+      )
+    }
     throw databaseError(
       'provider_operations.prepare_refund',
       prepareError,
@@ -255,6 +278,54 @@ export async function prepareRefund(
     )
   }
   return asOperation(data)
+}
+
+export async function prepareRemainingRefund(
+  orderId: string,
+  cause: string,
+  cancellationOperationId?: string,
+  executionLease?: ExecutionLease
+): Promise<{ status: 'prepared' | 'waiting' | 'complete'; operation: ProviderOperation | null }> {
+  const { data, error } = await adminSupabase.rpc(
+    executionLease ? 'prepare_cancellation_refund_fenced' : 'prepare_remaining_refund',
+    {
+      ...(executionLease ? executionLeaseRpcArgs(executionLease) : {}),
+      p_order_id: orderId,
+      p_cause: cause,
+      p_cancellation_operation_id: cancellationOperationId ?? null,
+    }
+  )
+  if (error || !data)
+    throw databaseError(
+      'provider_operations.prepare_remaining_refund',
+      error,
+      'Remaining refund could not be prepared'
+    )
+  return data as {
+    status: 'prepared' | 'waiting' | 'complete'
+    operation: ProviderOperation | null
+  }
+}
+
+export async function processCancellationRefund(
+  cancellationOperationId: string,
+  execution?: { executionLease: ExecutionLease; guard: ExecutionLeaseGuard }
+): Promise<{ pending: boolean; operation: ProviderOperation | null }> {
+  const cancellation = await loadOperation(cancellationOperationId)
+  const result = await prepareRemainingRefund(
+    cancellation.order_id,
+    `Refund after cancellation ${cancellation.id}`,
+    cancellation.id,
+    execution?.executionLease
+  )
+  if (result.status === 'waiting') return { pending: true, operation: null }
+  if (!result.operation) return { pending: false, operation: null }
+  const operation = await dispatchRazorpayRefund(
+    result.operation.id,
+    razorpayRefundAdapter,
+    execution?.guard
+  )
+  return { pending: !operation.local_applied_at, operation }
 }
 
 export async function prepareFullRefund(
@@ -525,30 +596,36 @@ async function reconcileRefund(
 
 export async function dispatchRazorpayRefund(
   operationId: string,
-  adapter: ProviderMutationAdapter<RefundRecord> = razorpayRefundAdapter
+  adapter: ProviderMutationAdapter<RefundRecord> = razorpayRefundAdapter,
+  guard?: ExecutionLeaseGuard
 ): Promise<ProviderOperation> {
-  return withExecutionLease('provider_operation', operationId, async ({ lease }) => {
-    let operation = await loadOperation(operationId)
-    if (operation.local_applied_at) return operation
-    if (operation.state === 'prepared') {
-      operation = await dispatchRefundOnce(operation, lease, adapter)
-      if (operation.state !== 'outcome_unknown') return operation
-    }
-    if (
-      operation.state === 'dispatching' ||
-      operation.state === 'outcome_unknown' ||
-      operation.state === 'provider_pending'
-    ) {
-      return reconcileRefund(
-        operation,
-        lease,
-        operation.state !== 'provider_pending' && operation.dispatch_attempts < 2,
-        adapter
-      )
-    }
-    if (operation.state === 'provider_succeeded') return finalizeOperation(operation, lease)
-    return operation
-  })
+  return withExecutionLease(
+    'provider_operation',
+    operationId,
+    async ({ lease }) => {
+      let operation = await loadOperation(operationId)
+      if (operation.local_applied_at) return operation
+      if (operation.state === 'prepared') {
+        operation = await dispatchRefundOnce(operation, lease, adapter)
+        if (operation.state !== 'outcome_unknown') return operation
+      }
+      if (
+        operation.state === 'dispatching' ||
+        operation.state === 'outcome_unknown' ||
+        operation.state === 'provider_pending'
+      ) {
+        return reconcileRefund(
+          operation,
+          lease,
+          operation.state !== 'provider_pending' && operation.dispatch_attempts < 2,
+          adapter
+        )
+      }
+      if (operation.state === 'provider_succeeded') return finalizeOperation(operation, lease)
+      return operation
+    },
+    { guard }
+  )
 }
 
 async function prepareShiprocketCancellation(
@@ -729,17 +806,16 @@ export async function cancelOrderWithProviderSafety(
   let refund: ProviderOperation | null = null
   if (cancellation.local_applied_at) {
     try {
-      refund = await prepareFullRefund(orderId, `Refund after Shiprocket cancellation: ${cause}`)
+      if (await hasSchemaCapability(51)) {
+        refund = (await processCancellationRefund(cancellation.id)).operation
+      } else {
+        refund = await prepareFullRefund(orderId, `Refund after Shiprocket cancellation: ${cause}`)
+        if (refund && !refund.local_applied_at && refund.state !== 'provider_failed') {
+          refund = await dispatchRazorpayRefund(refund.id)
+        }
+      }
     } catch (error) {
       if (!(error instanceof AppError) || error.code !== 'PAYMENT_NOT_REFUNDABLE') throw error
-    }
-    if (refund && !refund.local_applied_at && refund.state !== 'provider_failed') {
-      try {
-        refund = await dispatchRazorpayRefund(refund.id)
-      } catch (error) {
-        logger.error({ error, orderId, operationId: refund.id }, 'Cancellation refund is pending')
-        refund = await loadOperation(refund.id)
-      }
     }
   }
   return { cancellation, refund }
@@ -766,6 +842,13 @@ export async function reconcileProviderOperation(
         options.refundAdapter ?? razorpayRefundAdapter
       )
     }
+    if (operation.state === 'prepared') {
+      return dispatchShiprocketCancellation(
+        operation,
+        lease,
+        options.cancellationAdapter ?? shiprocketCancellationAdapter
+      )
+    }
     return reconcileShiprocketCancellation(
       operation,
       lease,
@@ -777,9 +860,15 @@ export async function reconcileProviderOperation(
 export async function reconcileActionableProviderOperations(limit = 20): Promise<number> {
   const { data, error } = await adminSupabase
     .from('provider_operations')
-    .select('id')
+    .select('id, provider, state')
     .is('local_applied_at', null)
-    .in('state', ['dispatching', 'outcome_unknown', 'provider_pending', 'provider_succeeded'])
+    .in('state', [
+      'prepared',
+      'dispatching',
+      'outcome_unknown',
+      'provider_pending',
+      'provider_succeeded',
+    ])
     .order('updated_at', { ascending: true })
     .limit(Math.max(1, Math.min(limit, 100)))
   if (error) {
@@ -792,7 +881,9 @@ export async function reconcileActionableProviderOperations(limit = 20): Promise
   let reconciled = 0
   for (const row of data ?? []) {
     try {
-      await reconcileProviderOperation(row.id as string, { allowRefundReplay: true })
+      if (row.provider === 'razorpay' && row.state === 'prepared')
+        await dispatchRazorpayRefund(row.id as string)
+      else await reconcileProviderOperation(row.id as string, { allowRefundReplay: true })
       reconciled += 1
     } catch (error) {
       if (error instanceof AppError && error.code === 'EXECUTION_ALREADY_CLAIMED') continue
@@ -802,62 +893,114 @@ export async function reconcileActionableProviderOperations(limit = 20): Promise
   return reconciled
 }
 
+let legacyWatchCursor: string | null = null
+
 export async function processLateCaptureWatches(limit = 20): Promise<number> {
-  const { data, error } = await adminSupabase
+  const schema = await getRuntimeSchemaStatus()
+  if (!schema.ready) return 0
+  const scheduled = (schema.contract?.contract_version ?? 0) >= 51
+  let query = adminSupabase
     .from('late_capture_watches')
     .select('order_id, razorpay_order_id, expected_amount_paisa, currency')
     .in('status', ['open', 'manual_review'])
-    .order('updated_at', { ascending: true })
+  if (scheduled)
+    query = query
+      .lte('next_check_at', new Date().toISOString())
+      .order('next_check_at', { ascending: true })
+  else if (legacyWatchCursor) query = query.gt('order_id', legacyWatchCursor)
+  const { data, error } = await query
+    .order('order_id', { ascending: true })
     .limit(Math.max(1, Math.min(limit, 100)))
-  if (error) {
+  if (error)
     throw databaseError(
       'provider_operations.load_late_capture_watches',
       error,
       'Late capture watches could not be loaded'
     )
-  }
-
   let processed = 0
+  if (!scheduled && !data?.length) legacyWatchCursor = null
   for (const watch of data ?? []) {
+    if (!scheduled) legacyWatchCursor = watch.order_id as string
     try {
-      const providerOrder = await razorpay.orders.fetch(watch.razorpay_order_id as string)
+      await withExecutionLease('checkout_payment', watch.order_id as string, async ({ lease }) => {
+        const args = { ...executionLeaseRpcArgs(lease), p_order_id: watch.order_id }
+        if (scheduled) {
+          const claim = await adminSupabase.rpc('begin_late_capture_check', args)
+          if (claim.error)
+            throw databaseError('watch.claim', claim.error, 'Watch could not be claimed')
+          if (claim.data !== true) return
+        }
+        let failure: string | null = null
+        try {
+          const providerOrder = await withProviderTimeout(
+            razorpay.orders.fetch(watch.razorpay_order_id as string)
+          )
+          if (
+            providerOrder.id !== watch.razorpay_order_id ||
+            Number(providerOrder.amount) !== watch.expected_amount_paisa ||
+            providerOrder.currency !== watch.currency
+          ) {
+            throw new Error('Provider order identity or amount mismatch')
+          }
+          if (providerOrder.status !== 'paid') return
+          if (Number(providerOrder.amount_paid) !== watch.expected_amount_paisa)
+            throw new Error('Provider paid amount mismatch')
+          const providerPayments = await withProviderTimeout(
+            razorpay.orders.fetchPayments(watch.razorpay_order_id as string)
+          )
+          const captured = providerPayments.items.find(
+            (payment) =>
+              payment.order_id === watch.razorpay_order_id &&
+              payment.status === 'captured' &&
+              payment.captured === true &&
+              Number(payment.amount) === watch.expected_amount_paisa &&
+              payment.currency === watch.currency
+          )
+          if (!captured) throw new Error('Paid provider order has no matching captured payment')
+          await handleLateCapture(
+            {
+              orderId: watch.order_id as string,
+              razorpayOrderId: watch.razorpay_order_id as string,
+              razorpayPaymentId: captured.id,
+              amountPaisa: Number(captured.amount),
+              currency: captured.currency,
+            },
+            lease
+          )
+          processed += 1
+        } catch (inspectionError) {
+          failure =
+            inspectionError instanceof Error
+              ? inspectionError.message
+              : 'Provider inspection failed'
+          logger.warn(
+            { orderId: watch.order_id },
+            'Late capture watch inspection failed; retry scheduled'
+          )
+        } finally {
+          const observed = scheduled
+            ? await adminSupabase.rpc('finish_late_capture_check', {
+                ...args,
+                p_error: failure,
+              })
+            : { error: null }
+          if (observed.error)
+            logger.error(
+              { orderId: watch.order_id, error: observed.error },
+              'Watch observation was fenced out; claim expiry permits recovery'
+            )
+        }
+      })
+    } catch (inspectionError) {
       if (
-        providerOrder.id !== watch.razorpay_order_id ||
-        Number(providerOrder.amount) !== watch.expected_amount_paisa ||
-        providerOrder.currency !== watch.currency ||
-        providerOrder.status !== 'paid' ||
-        Number(providerOrder.amount_paid) !== watch.expected_amount_paisa
-      ) {
+        inspectionError instanceof AppError &&
+        inspectionError.code === 'EXECUTION_ALREADY_CLAIMED'
+      )
         continue
-      }
-      const providerPayments = await razorpay.orders.fetchPayments(
-        watch.razorpay_order_id as string
+      logger.error(
+        { error: inspectionError, orderId: watch.order_id },
+        'Late capture watch check failed'
       )
-      const captured = providerPayments.items.find(
-        (payment) =>
-          payment.order_id === watch.razorpay_order_id &&
-          payment.status === 'captured' &&
-          payment.captured === true &&
-          Number(payment.amount) === watch.expected_amount_paisa &&
-          payment.currency === watch.currency
-      )
-      if (!captured) continue
-      await withExecutionLease('checkout_payment', watch.order_id as string, ({ lease }) =>
-        handleLateCapture(
-          {
-            orderId: watch.order_id as string,
-            razorpayOrderId: watch.razorpay_order_id as string,
-            razorpayPaymentId: captured.id,
-            amountPaisa: Number(captured.amount),
-            currency: captured.currency,
-          },
-          lease
-        )
-      )
-      processed += 1
-    } catch (error) {
-      if (error instanceof AppError && error.code === 'EXECUTION_ALREADY_CLAIMED') continue
-      logger.error({ error, orderId: watch.order_id }, 'Late capture watch check failed')
     }
   }
   return processed

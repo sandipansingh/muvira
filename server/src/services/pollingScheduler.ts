@@ -34,74 +34,79 @@ let scheduledJobs: ScheduledTask[] = []
  * Start all polling cron jobs. Called once at server startup.
  */
 export function startPollingScheduler(): void {
+  if (scheduledJobs.length > 0) return
   logger.info('PollingScheduler: starting cron jobs')
+  try {
+    // Full poll: all active shipments — every 15 minutes
+    const fullPoll = cron.schedule('*/15 * * * *', async () => {
+      await pollActiveShipments('full_poll', ['processing', 'shipped', 'delivery_failed', 'rto'])
+      await pollActiveShipments('full_poll', ['out_for_delivery'])
+    })
+    scheduledJobs.push(fullPoll)
 
-  // Full poll: all active shipments — every 15 minutes
-  const fullPoll = cron.schedule('*/15 * * * *', async () => {
-    await pollActiveShipments('full_poll', ['processing', 'shipped'])
-    await pollActiveShipments('full_poll', ['out_for_delivery'])
-  })
-  scheduledJobs.push(fullPoll)
+    // OFD poll: out-for-delivery shipments — every 5 minutes
+    const ofdPoll = cron.schedule('*/5 * * * *', async () => {
+      await pollActiveShipments('ofd_poll', ['out_for_delivery'])
+    })
+    scheduledJobs.push(ofdPoll)
 
-  // OFD poll: out-for-delivery shipments — every 5 minutes
-  const ofdPoll = cron.schedule('*/5 * * * *', async () => {
-    await pollActiveShipments('ofd_poll', ['out_for_delivery'])
-  })
-  scheduledJobs.push(ofdPoll)
-
-  // Retry worker: process failed jobs — every 10 minutes
-  const retryWorker = cron.schedule('*/10 * * * *', async () => {
-    try {
-      await processRetryJobs(10)
-    } catch (err) {
-      logger.error({ err }, 'PollingScheduler: retryWorker failed')
-    }
-  })
-  scheduledJobs.push(retryWorker)
-
-  const checkoutExpiryWorker = cron.schedule('* * * * *', async () => {
-    try {
-      const result = await expireAbandonedCheckouts(100)
-      await processLateCaptureWatches(20)
-      if (result.released > 0 || result.retained > 0) {
-        logger.info(result, 'PollingScheduler: inspected expired checkouts')
+    // Retry worker: process failed jobs — every 10 minutes
+    const retryWorker = cron.schedule('*/10 * * * *', async () => {
+      try {
+        await processRetryJobs(10)
+      } catch (err) {
+        logger.error({ err }, 'PollingScheduler: retryWorker failed')
       }
-    } catch (error) {
-      logger.error({ error }, 'PollingScheduler: checkout expiry failed')
-    }
-  })
-  scheduledJobs.push(checkoutExpiryWorker)
+    })
+    scheduledJobs.push(retryWorker)
 
-  const providerReconciliationWorker = cron.schedule('*/2 * * * *', async () => {
-    try {
-      await reconcileActionableProviderOperations(20)
-    } catch (error) {
-      logger.error({ error }, 'PollingScheduler: provider reconciliation failed')
-    }
-  })
-  scheduledJobs.push(providerReconciliationWorker)
+    const checkoutExpiryWorker = cron.schedule('* * * * *', async () => {
+      try {
+        const result = await expireAbandonedCheckouts(100)
+        await processLateCaptureWatches(20)
+        if (result.released > 0 || result.retained > 0) {
+          logger.info(result, 'PollingScheduler: inspected expired checkouts')
+        }
+      } catch (error) {
+        logger.error({ error }, 'PollingScheduler: checkout expiry failed')
+      }
+    })
+    scheduledJobs.push(checkoutExpiryWorker)
 
-  const notificationWorker = cron.schedule('* * * * *', async () => {
-    try {
-      await processNotificationQueue(20)
-    } catch (err) {
-      logger.error({ err }, 'PollingScheduler: notification queue failed')
-    }
-  })
-  scheduledJobs.push(notificationWorker)
+    const providerReconciliationWorker = cron.schedule('*/2 * * * *', async () => {
+      try {
+        await reconcileActionableProviderOperations(20)
+      } catch (error) {
+        logger.error({ error }, 'PollingScheduler: provider reconciliation failed')
+      }
+    })
+    scheduledJobs.push(providerReconciliationWorker)
 
-  const operationalAlertWorker = cron.schedule('*/5 * * * *', async () => {
-    try {
-      await checkOperationalAlerts()
-    } catch (err) {
-      logger.error({ err }, 'PollingScheduler: operational alert check failed')
-    }
-  })
-  scheduledJobs.push(operationalAlertWorker)
+    const notificationWorker = cron.schedule('* * * * *', async () => {
+      try {
+        await processNotificationQueue(20)
+      } catch (err) {
+        logger.error({ err }, 'PollingScheduler: notification queue failed')
+      }
+    })
+    scheduledJobs.push(notificationWorker)
 
-  logger.info(
-    'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, provider=*/2, notifications=*/1, alerts=*/5)'
-  )
+    const operationalAlertWorker = cron.schedule('*/5 * * * *', async () => {
+      try {
+        await checkOperationalAlerts()
+      } catch (err) {
+        logger.error({ err }, 'PollingScheduler: operational alert check failed')
+      }
+    })
+    scheduledJobs.push(operationalAlertWorker)
+
+    logger.info(
+      'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, provider=*/2, notifications=*/1, alerts=*/5)'
+    )
+  } catch (error) {
+    stopPollingScheduler()
+    throw error
+  }
 }
 
 /**

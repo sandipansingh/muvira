@@ -4,7 +4,12 @@ import { trackSingle, generateLabel } from './shiprocket'
 import { isValidTransition, shiprocketStatusToOrderStatus } from '../modules/orders/stateMachine'
 import { transitionOrderStatus } from '../modules/orders/service'
 import { writeTrackingSnapshot } from './trackingAnalytics'
-import { executionLeaseRpcArgs, withExecutionLease, type ExecutionLease } from './executionLease'
+import {
+  executionLeaseRpcArgs,
+  withExecutionLease,
+  type ExecutionLease,
+  type ExecutionLeaseGuard,
+} from './executionLease'
 
 /**
  * Retry Worker
@@ -19,7 +24,8 @@ import { executionLeaseRpcArgs, withExecutionLease, type ExecutionLease } from '
 type JobHandler = (
   payload: Record<string, unknown>,
   referenceId: string | null,
-  executionLease: ExecutionLease
+  executionLease: ExecutionLease,
+  guard: ExecutionLeaseGuard
 ) => Promise<void>
 
 export interface RetryJob {
@@ -35,7 +41,18 @@ interface RetryLeaseOptions {
   leaseSeconds?: number
 }
 
+class DeferredRetryError extends Error {}
+
 const handlers: Record<string, JobHandler> = {
+  cancellation_refund: async (_payload, referenceId, executionLease, guard) => {
+    if (!referenceId) throw new Error('Cancellation operation ID is required')
+    const { processCancellationRefund } = await import('./providerOperations')
+    const result = await processCancellationRefund(referenceId, { executionLease, guard })
+    if (result.pending)
+      throw new DeferredRetryError(
+        'Waiting for refund reconciliation; inspect provider operations for pending or manual-review outcomes.'
+      )
+  },
   razorpay_webhook: async (payload, referenceId) => {
     const webhookId = (payload['webhookId'] as string | undefined) ?? referenceId
     if (!webhookId) throw new Error('Missing webhookId in razorpay_webhook payload')
@@ -326,7 +343,8 @@ export async function runClaimedRetryJob(
         await handler(
           job.payload as Record<string, unknown>,
           job.reference_id,
-          effectHeartbeat.lease
+          effectHeartbeat.lease,
+          { type: 'retry_job', id: job.id, token: job.lease_token }
         )
         await effectHeartbeat.assertOwned()
       },
@@ -352,6 +370,16 @@ export async function runClaimedRetryJob(
     return true
   } catch (err) {
     await stop()
+    if (err instanceof DeferredRetryError) {
+      const { data, error } = await adminSupabase.rpc('defer_retry_job', {
+        p_job_id: job.id,
+        p_lease_token: job.lease_token,
+        p_reason: err.message,
+      })
+      if (error || data !== true)
+        logger.error({ jobId: job.id, error }, 'Cancellation refund deferral was fenced out')
+      return false
+    }
     const errorMsg = err instanceof Error ? err.message : String(err)
     await failClaimedJob(job, errorMsg)
     return false

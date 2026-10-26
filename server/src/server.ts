@@ -3,7 +3,7 @@ import { createApp } from './app'
 import { logger } from './lib/logger'
 import { env } from './config/env'
 import { stopPollingScheduler } from './services/pollingScheduler'
-import { startWorkersWhenSchemaReady } from './services/workerStartup'
+import { startWorkersWhenSchemaReady, stopWorkerStartup } from './services/workerStartup'
 
 const PORT = parseInt(env.PORT, 10)
 
@@ -27,6 +27,7 @@ void (async () => {
   function shutdown(signal: string) {
     logger.info({ signal }, 'Graceful shutdown initiated')
 
+    stopWorkerStartup()
     stopPollingScheduler()
 
     server.close(() => {

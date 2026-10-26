@@ -6,6 +6,7 @@ import {
   RUNTIME_SCHEMA_CONTRACT_VERSION,
 } from '../../services/runtimeSchema'
 import { getSettings } from '../settings/service'
+import { getWorkerStartupStatus } from '../../services/workerStartup'
 
 export const healthRouter = Router()
 
@@ -26,6 +27,7 @@ async function readinessChecks() {
     services: {
       database: schema.contract ? 'ok' : 'error',
       database_contract: schema.ready ? 'ok' : 'error',
+      workers: getWorkerStartupStatus() === 'running' ? 'ok' : 'error',
       razorpay: 'configured',
       shiprocket: 'configured',
       shiprocket_webhook: env.SHIPROCKET_WEBHOOK_ENABLED === 'true' ? 'enabled' : 'disabled',

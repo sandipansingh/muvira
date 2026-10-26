@@ -90,6 +90,11 @@ async function claimLease(client, scope, resourceId, leaseSeconds = 300) {
 }
 
 async function cleanupOrderFixture(client, fixture) {
+  await client
+    .from('retry_jobs')
+    .delete()
+    .eq('job_type', 'cancellation_refund')
+    .contains('payload', { orderId: fixture.orderId })
   await client.from('provider_operation_audit_log').delete().eq('order_id', fixture.orderId)
   await client.from('retained_checkout_action_log').delete().eq('order_id', fixture.orderId)
   await client.from('late_capture_watches').delete().eq('order_id', fixture.orderId)

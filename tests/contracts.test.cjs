@@ -110,7 +110,7 @@ test('readiness and database routes are gated by the runtime schema contract', (
   assert.match(healthRoutes, /getRuntimeSchemaStatus/)
   assert.match(app, /app\.use\(['"]\/api\/health['"], healthRouter\)[\s\S]+requireRuntimeSchema/)
   assert.match(workerStartup, /if \(!status\.ready\)/)
-  assert.match(workerStartup, /startWorkers\(\)/)
+  assert.match(workerStartup, /startup\.ensureStarted\(\)/)
   assert.doesNotMatch(healthRoutes, /shiprocketAuthCheck|getToken/)
 })
 
