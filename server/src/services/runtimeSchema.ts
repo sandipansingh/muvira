@@ -2,8 +2,9 @@ import { z } from 'zod'
 import { adminSupabase } from '../lib/supabase/admin'
 import { sanitizePostgrestError } from '../lib/databaseError'
 import type { SanitizedPostgrestError } from '../types'
+import { env } from '../config/env'
 
-export const RUNTIME_SCHEMA_CONTRACT_VERSION = 48
+export const RUNTIME_SCHEMA_CONTRACT_VERSION = env.SCHEMA_RELEASE_MODE === 'compatibility' ? 48 : 52
 export const SUPPORTED_RUNTIME_SCHEMA_VERSIONS = [48, 49, 50, 51, 52] as const
 const CACHE_TTL_MS = 15_000
 
@@ -55,6 +56,7 @@ async function fetchRuntimeSchemaStatus(): Promise<RuntimeSchemaStatus> {
 
     const ready =
       parsed.data.ready &&
+      parsed.data.contract_version >= RUNTIME_SCHEMA_CONTRACT_VERSION &&
       SUPPORTED_RUNTIME_SCHEMA_VERSIONS.some((version) => version === parsed.data.contract_version)
     return { ready, contract: parsed.data }
   } catch (error) {

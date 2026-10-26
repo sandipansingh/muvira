@@ -23,6 +23,8 @@ test('staging API reports ready', { skip: !enabled }, async () => {
 
   const response = await fetchWithTimeout(new URL('/api/health/ready', apiUrl))
   assert.equal(response.status, 200, 'The staging API did not report ready')
+  const commerce = await fetchWithTimeout(new URL('/api/health/commerce', apiUrl))
+  assert.equal(commerce.status, 200, 'The staging commerce configuration did not report ready')
 })
 
 test('Razorpay test-mode credentials authenticate', { skip: !enabled }, async () => {

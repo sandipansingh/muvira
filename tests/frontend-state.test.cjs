@@ -12,6 +12,7 @@ before(async () => {
   )
   vite = await viteModule.createServer({
     root: join(root, 'client'),
+    cacheDir: join(root, 'client/node_modules/.vite-frontend-state-tests'),
     configFile: false,
     logLevel: 'error',
     appType: 'custom',

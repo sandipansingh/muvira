@@ -44,3 +44,4 @@ design-reference
 supabase/data.sql
 supabase/schema.sql
 supabase/.temp/
+supabase/.branches/

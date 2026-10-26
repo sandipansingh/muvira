@@ -60,6 +60,7 @@ before(async () => {
   }
   vite = await createServer({
     root: join(__dirname, '../client'),
+    cacheDir: join(__dirname, '../client/node_modules/.vite-cart-browser-tests'),
     configFile: false,
     logLevel: 'error',
     server: { host: '127.0.0.1', port: 0 },

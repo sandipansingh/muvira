@@ -14,6 +14,8 @@ RUN pnpm deploy --filter server --prod /prod/server
 
 FROM node:20-alpine AS runtime
 
+ARG SCHEMA_RELEASE_MODE=final
+ENV SCHEMA_RELEASE_MODE=$SCHEMA_RELEASE_MODE
 ENV NODE_ENV=production PORT=4000
 WORKDIR /app
 COPY --chown=node:node --from=build /prod/server ./

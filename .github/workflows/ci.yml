@@ -86,3 +86,31 @@ jobs:
       - name: Stop local Supabase
         if: always()
         run: pnpm run db:stop
+
+  compatibility-upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.5.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter server build
+      - run: pnpm run db:start
+      - name: Verify intermediate upgrades and compatible rollback
+        shell: bash
+        run: |
+          pnpm --filter server exec supabase status --workdir .. -o env > supabase/.temp/test-status.env
+          source supabase/.temp/test-status.env
+          SUPABASE_TEST_URL="$API_URL" \
+          SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
+          SUPABASE_TEST_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+          SUPABASE_TEST_ISOLATED_LOCAL=true \
+          pnpm run test:upgrade
+      - name: Stop local Supabase
+        if: always()
+        run: pnpm run db:stop

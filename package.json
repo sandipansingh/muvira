@@ -27,7 +27,8 @@
     "build": "pnpm -r run build",
     "install:all": "pnpm install",
     "prepare": "husky",
-    "test:integration": "node tests/run-local-integration.cjs"
+    "test:integration": "node tests/run-local-integration.cjs",
+    "test:upgrade": "node tests/verify-upgrade.cjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.1.0",

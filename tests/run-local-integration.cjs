@@ -19,6 +19,9 @@ const suites = [
   'retained-checkout-integration',
   'shipping-integration',
   'cart-transfer-integration',
+  'refund-worker-integration',
+  'reporting-integration',
+  'catalog-media-integration',
 ]
 const result = spawnSync(
   process.execPath,

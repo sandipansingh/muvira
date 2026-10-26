@@ -10,6 +10,7 @@ const envSchema = z
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     PORT: z.string().regex(/^\d+$/, 'PORT must be numeric').default('4000'),
     LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
+    SCHEMA_RELEASE_MODE: z.enum(['compatibility', 'final']).default('final'),
 
     // Supabase
     SUPABASE_URL: z.string().url('SUPABASE_URL must be a valid URL'),
