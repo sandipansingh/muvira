@@ -4,7 +4,6 @@ import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { AuthHeroCard } from '../components/auth/AuthHeroCard'
-import { SocialAuthButtons } from '../components/auth/SocialAuthButtons'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 
@@ -66,22 +65,8 @@ export const SignUpPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Social Auth (Google) */}
-          <div className="w-full mt-4">
-            <SocialAuthButtons disabled={loading} />
-          </div>
-
-          {/* Clean OR Divider */}
-          <div className="relative w-full flex items-center justify-center my-3.5">
-            <div className="w-full border-t border-line" />
-            <span className="bg-paper px-3 text-xs font-normal text-muted tracking-wider select-none">
-              OR
-            </span>
-            <div className="w-full border-t border-line" />
-          </div>
-
           {/* Sign Up Form */}
-          <form onSubmit={handleSubmit} className="w-full flex flex-col gap-3 text-left">
+          <form onSubmit={handleSubmit} className="mt-6 w-full flex flex-col gap-3 text-left">
             {/* Full Name */}
             <div>
               <label htmlFor="signup-name" className="block text-sm font-normal text-ink-soft mb-1">

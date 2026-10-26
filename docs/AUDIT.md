@@ -7,7 +7,7 @@
   ## Feature: Authentication and profile
 
   - Status: ⚠️ Partially working
-  - Frontend: Email/password, Google OAuth, password recovery, password reset, session restoration, and profile editing all use real Supabase/Auth APIs. See client/src/
+  - Frontend: Email/password, password recovery, password reset, session restoration, and profile editing all use real Supabase/Auth APIs. See client/src/
     context/AuthContext.tsx:46-161, client/src/components/auth/ForgotPasswordModal.tsx:27-51, and client/src/pages/ResetPasswordPage.tsx:21-87.
 
   - Backend: GET/PATCH /api/profile exists, authenticates the Supabase bearer token, and reads/writes the real profiles table. See server/src/modules/profile/

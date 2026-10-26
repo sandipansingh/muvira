@@ -4,7 +4,7 @@ This document records the durable business invariants implemented by the current
 
 ## Identity and authorization
 
-- Supabase Auth owns email/password and Google OAuth sessions.
+- Supabase Auth owns email/password authentication and session management.
 - The Express API verifies bearer tokens with Supabase and loads the current role from `profiles`.
 - Customers cannot update `profiles.role` through direct Supabase access.
 - Every `/api/admin/*` request passes both authentication and server-side admin authorization.

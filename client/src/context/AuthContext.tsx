@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js'
 import type { Profile } from '../lib/types/auth'
 import { authApiService } from '../lib/services/auth.service'
 import { supabase } from '../lib/supabase'
-import { authRedirectUrl, PASSWORD_RECOVERY_SESSION_KEY } from '../lib/authRedirect'
+import { PASSWORD_RECOVERY_SESSION_KEY } from '../lib/authRedirect'
 import { createLatestAttemptGuard } from '../lib/latestAttempt'
 import { createGuardedLogout, runGuardedProfileUpdate } from '../lib/authMutations'
 import { useToast } from './ToastContext'
@@ -23,7 +23,6 @@ export interface AuthContextType {
     name: string,
     phone: string
   ) => Promise<'authenticated' | 'confirmation' | false>
-  loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   updateProfile: (fullName: string, phone: string) => Promise<boolean>
   updateUser: (profile: Profile) => void
@@ -192,22 +191,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  const loginWithGoogle = async (): Promise<void> => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: authRedirectUrl('/profile'),
-        },
-      })
-      if (error) {
-        showToast(error.message || 'Failed to sign in with Google.', 'error')
-      }
-    } catch {
-      showToast('An unexpected error occurred during Google sign-in.', 'error')
-    }
-  }
-
   const logout = async (): Promise<void> => {
     await createGuardedLogout({
       attempts: sessionAttempts.current,
@@ -247,7 +230,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         retryProfile,
         login,
         signup,
-        loginWithGoogle,
         logout,
         updateProfile,
         updateUser,
