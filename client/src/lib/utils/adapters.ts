@@ -103,6 +103,7 @@ export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
     stock: raw['stock'] as number,
     inStock: (raw['stock'] as number) > 0,
     sku: (raw['sku'] as string | null) ?? '',
+    weightGrams: (raw['weight_grams'] as number | null) ?? 0,
     isFeatured: raw['is_featured'] as boolean,
     isActive: raw['is_active'] as boolean,
     category: {

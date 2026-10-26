@@ -6,6 +6,7 @@ import type { SiteSettings } from '../../lib/types/settings'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import { Dropdown } from '../../components/ui/Dropdown'
+import { AdminContentEditor } from '../../components/admin/AdminContentEditor'
 
 export const AdminSettingsPage: React.FC = () => {
   const { showToast } = useToast()
@@ -289,6 +290,13 @@ export const AdminSettingsPage: React.FC = () => {
           {saving ? 'Saving…' : 'Save settings'}
         </button>
       </form>
+      <AdminContentEditor
+        settings={settings}
+        onSaved={(updated) => {
+          setSettings(updated)
+          applySettings(updated)
+        }}
+      />
     </div>
   )
 }

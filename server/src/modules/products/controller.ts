@@ -181,6 +181,21 @@ export async function adminDeleteProductImage(
   }
 }
 
+export async function adminUpdateProductImage(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const productId = req.params['id'] as string
+    await service.updateProductImage(productId, req.params['imageId'] as string, req.body.alt_text)
+    invalidateOn('PRODUCT_UPDATED', { id: productId })
+    res.json({ success: true, data: null })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export async function adminReorderProductImages(
   req: Request,
   res: Response,

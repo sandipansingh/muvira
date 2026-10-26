@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { validate } from '../../middleware/validate'
-import { cacheMiddleware } from '../../middleware/cacheMiddleware'
+import { noStore } from '../../middleware/noStore'
 import {
   ListProductsQuerySchema,
   ProductParamsSchema,
@@ -14,28 +14,21 @@ import * as controller from './controller'
 
 export const productsRouter = Router()
 
-productsRouter.get(
-  '/',
-  cacheMiddleware(300), // 5 min
-  validate({ query: ListProductsQuerySchema }),
-  controller.listProducts
-)
+// Every product representation contains stock; process-local caches cannot track other replicas.
+productsRouter.use(noStore)
 
-productsRouter.get(
-  '/:slug',
-  cacheMiddleware(600), // 10 min
-  validate({ params: ProductParamsSchema }),
-  controller.getProduct
-)
+productsRouter.get('/', validate({ query: ListProductsQuerySchema }), controller.listProducts)
+
+productsRouter.get('/:slug', validate({ params: ProductParamsSchema }), controller.getProduct)
 
 productsRouter.get(
   '/:id/related',
-  cacheMiddleware(300), // 5 min
   validate({ params: ProductIdParamsSchema }),
   controller.getRelatedProducts
 )
 
 export const adminProductsRouter = Router()
+adminProductsRouter.use(noStore)
 
 adminProductsRouter.get(
   '/',
@@ -90,4 +83,13 @@ adminProductsRouter.patch(
     }),
   }),
   controller.adminReorderProductImages
+)
+
+adminProductsRouter.patch(
+  '/:id/images/:imageId',
+  validate({
+    params: z.object({ id: z.string().uuid(), imageId: z.string().uuid() }),
+    body: z.object({ alt_text: z.string().max(300) }).strict(),
+  }),
+  controller.adminUpdateProductImage
 )

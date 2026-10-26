@@ -40,6 +40,7 @@ export interface ProductDetail {
   stock: number
   inStock: boolean
   sku: string
+  weightGrams?: number
   isFeatured: boolean
   isActive: boolean
   category: {

@@ -337,6 +337,22 @@ export async function deleteProductImage(productId: string, imageId: string): Pr
   if (data !== true) throw new AppError(404, 'IMAGE_NOT_FOUND', 'Product image not found')
 }
 
+export async function updateProductImage(
+  productId: string,
+  imageId: string,
+  altText: string
+): Promise<void> {
+  const { data, error } = await adminSupabase
+    .from('product_images')
+    .update({ alt_text: altText })
+    .eq('product_id', productId)
+    .eq('id', imageId)
+    .select('id')
+    .maybeSingle()
+  if (error) throw databaseError('products.update_image', error, 'Failed to update product image')
+  if (!data) throw new AppError(404, 'IMAGE_NOT_FOUND', 'Product image not found')
+}
+
 export async function getProductById(id: string): Promise<Record<string, unknown>> {
   const { data, error } = await adminSupabase
     .from('products')

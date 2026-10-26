@@ -1,10 +1,12 @@
 import { Router } from 'express'
+import { noStore } from '../../../middleware/noStore'
 import { z } from 'zod'
 import { validate } from '../../../middleware/validate'
 import { InventoryQuerySchema, UpdateStockSchema } from './schema'
 import * as controller from './controller'
 
 export const adminInventoryRouter = Router()
+adminInventoryRouter.use(noStore)
 
 adminInventoryRouter.get('/', validate({ query: InventoryQuerySchema }), controller.getInventory)
 

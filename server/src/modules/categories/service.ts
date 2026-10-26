@@ -99,6 +99,13 @@ export async function createCategory(input: CreateCategoryInput): Promise<Catego
 
   const { data, error } = await adminSupabase.from('categories').insert(input).select().single()
 
+  if (error?.code === '23514' && error.message.includes('Maximum of 5 categories')) {
+    throw new AppError(
+      400,
+      'NAVBAR_LIMIT_REACHED',
+      'Maximum of 5 categories can be shown in the navbar'
+    )
+  }
   if (error) {
     if (error.code === '23505')
       throw new AppError(409, 'DUPLICATE_SLUG', 'Category slug already exists')
@@ -144,6 +151,13 @@ export async function updateCategory(id: string, input: UpdateCategoryInput): Pr
     .select()
     .single()
 
+  if (error?.code === '23514' && error.message.includes('Maximum of 5 categories')) {
+    throw new AppError(
+      400,
+      'NAVBAR_LIMIT_REACHED',
+      'Maximum of 5 categories can be shown in the navbar'
+    )
+  }
   if (error && !isPostgrestNoRows(error))
     throw databaseError('categories.update', error, 'Failed to update category')
   if (!data) throw new AppError(404, 'CATEGORY_NOT_FOUND', 'Category not found')

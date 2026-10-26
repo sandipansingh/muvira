@@ -17,7 +17,7 @@ export const CreateCategorySchema = z
       .max(200)
       .regex(/^[a-z0-9-]+$/, 'slug must be lowercase alphanumeric with hyphens'),
     description: z.string().max(2000).optional(),
-    image_url: z.string().url().optional(),
+    image_url: z.string().url().nullable().optional(),
     parent_id: z.string().uuid().optional(),
     is_active: z.boolean().default(true),
     sort_order: z.number().int().min(0).default(0),

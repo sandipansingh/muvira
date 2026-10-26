@@ -176,6 +176,7 @@ export const adminApiService = {
       compare_at_price_paisa: data.compareAtPricePaisa ?? null,
       sku: data.sku,
       stock: data.stock,
+      weight_grams: data.weightGrams,
       is_active: data.isActive,
       is_featured: data.isFeatured,
       metadata: data.metadata,
@@ -212,6 +213,7 @@ export const adminApiService = {
       body['compare_at_price_paisa'] = data.compareAtPricePaisa
     if (data.sku !== undefined) body['sku'] = data.sku
     if (data.stock !== undefined) body['stock'] = data.stock
+    if (data.weightGrams !== undefined) body['weight_grams'] = data.weightGrams
     if (data.isActive !== undefined) body['is_active'] = data.isActive
     if (data.isFeatured !== undefined) body['is_featured'] = data.isFeatured
     if (data.metadata !== undefined) body['metadata'] = data.metadata
@@ -255,25 +257,59 @@ export const adminApiService = {
    */
   async uploadProductImages(
     productId: string,
-    urls: string[]
-  ): Promise<ApiResponse<ProductDetail>> {
-    for (const url of urls) {
-      await adminPost(`/api/admin/products/${productId}/images`, {
-        url,
-        is_primary: urls.indexOf(url) === 0,
-      })
-    }
-    const res = await adminGet<{
-      success: boolean
-      data?: AnyRecord
-      error?: AnyRecord
-    }>(`/api/admin/products/${productId}`)
-    if (!res.success || !res.data)
+    urls: string[],
+    options: { altText?: string; isPrimary?: boolean; sortOrder?: number } = {}
+  ): Promise<ApiResponse<{ attached: boolean }>> {
+    for (const [index, url] of urls.entries()) {
+      try {
+        const response = await adminPost<{ success: boolean }>(
+          `/api/admin/products/${productId}/images`,
+          {
+            url,
+            alt_text: options.altText ?? '',
+            is_primary: options.isPrimary ?? false,
+            sort_order: (options.sortOrder ?? 0) + index,
+          }
+        )
+        if (response.success) continue
+      } catch {
+        // A lost response may follow a committed attachment. Reconcile before retrying.
+      }
+      try {
+        const response = await adminGet<{ success: boolean; data?: AnyRecord }>(
+          `/api/admin/products/${productId}`
+        )
+        const images = response.data?.['product_images'] as AnyRecord[] | undefined
+        if (response.success && images?.some((image) => image['url'] === url)) continue
+      } catch {
+        // Keep the uploaded file until its reference can be established.
+      }
       return {
         success: false,
-        error: { code: 'UNKNOWN', message: 'Failed to fetch updated product' },
+        error: {
+          code: 'ATTACHMENT_UNKNOWN',
+          message:
+            'Image attachment could not be verified. The upload is preserved; check again before retrying.',
+        },
       }
-    return { success: true, data: mapProductDetail(res.data) }
+    }
+    return { success: true, data: { attached: true } }
+  },
+
+  async getProduct(id: string): Promise<ApiResponse<ProductDetail>> {
+    const response = await adminGet<{ success: boolean; data?: AnyRecord }>(
+      `/api/admin/products/${id}`
+    )
+    if (!response.success || !response.data)
+      return { success: false, error: { code: 'FETCH_ERROR', message: 'Product unavailable.' } }
+    return { success: true, data: mapProductDetail(response.data) }
+  },
+
+  async updateProductImage(productId: string, imageId: string, altText: string) {
+    return adminPatch<{ success: boolean; error?: { message: string } }>(
+      `/api/admin/products/${productId}/images/${imageId}`,
+      { alt_text: altText }
+    )
   },
 
   /**

@@ -103,6 +103,7 @@ export interface AdminProductInput {
   compareAtPricePaisa?: number | null
   sku?: string
   stock: number
+  weightGrams?: number
   isActive: boolean
   isFeatured: boolean
   metadata?: Record<string, string>
@@ -114,7 +115,7 @@ export interface AdminCategoryInput {
   name: string
   slug?: string
   description?: string
-  imageUrl?: string
+  imageUrl?: string | null
   isActive?: boolean
   sortOrder?: number
   showInNavbar?: boolean
