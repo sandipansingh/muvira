@@ -21,6 +21,8 @@ import type {
   AdminProductInput,
   AdminProductPatch,
   CommerceFailureItem,
+  CommerceFailureKind,
+  DiagnosticSummary,
   NotificationDeliverySummary,
   RetryJob,
   WebhookFailureItem,
@@ -971,7 +973,7 @@ export const adminApiService = {
 
   async getNotificationDeliveries(
     page = 1,
-    status?: string
+    status = 'failures'
   ): Promise<ApiPaginatedResponse<NotificationDeliverySummary>> {
     const query = new URLSearchParams({ page: String(page), limit: '20' })
     if (status) query.set('status', status)
@@ -1013,12 +1015,41 @@ export const adminApiService = {
     }
   },
 
-  async getCommerceFailures(): Promise<ApiResponse<CommerceFailureItem[]>> {
+  async getDiagnosticSummary(): Promise<ApiResponse<DiagnosticSummary>> {
+    const response = await adminGet<{
+      success: boolean
+      data?: AnyRecord
+      error?: { code: string; message: string }
+    }>('/api/admin/diagnostics/summary')
+    if (!response.success || !response.data)
+      return {
+        success: false,
+        error: response.error ?? {
+          code: 'FETCH_ERROR',
+          message: 'Diagnostic summary unavailable.',
+        },
+      }
+    return {
+      success: true,
+      data: {
+        workerState: response.data['worker_state'] as DiagnosticSummary['workerState'],
+        overdueLateCaptureWatches: Number(response.data['overdue_late_capture_watches'] ?? 0),
+        pendingCancellationRefunds: Number(response.data['pending_cancellation_refunds'] ?? 0),
+      },
+    }
+  },
+
+  async getCommerceFailures(
+    page = 1,
+    kind: CommerceFailureKind = 'outbox'
+  ): Promise<ApiPaginatedResponse<CommerceFailureItem>> {
+    const query = new URLSearchParams({ page: String(page), limit: '20', kind })
     const res = await adminGet<{
       success: boolean
       data?: Record<string, AnyRecord[]>
+      meta?: { page: number; limit: number; total: number }
       error?: AnyRecord
-    }>('/api/admin/diagnostics/commerce-failures')
+    }>(`/api/admin/diagnostics/commerce-failures?${query}`)
     if (!res.success || !res.data) {
       return {
         success: false,
@@ -1114,8 +1145,23 @@ export const adminApiService = {
       target: row['razorpay_order_id'] as string,
       providerStatus: (row['last_provider_status'] as string | null) ?? null,
       lastCheckedAt: (row['last_checked_at'] as string | null) ?? null,
+      nextCheckAt: (row['next_check_at'] as string | null) ?? null,
+      checkAttempts: Number(row['check_attempts'] ?? 0),
+      failedChecks: Number(row['failed_checks'] ?? 0),
+      lastCheckError: (row['last_check_error'] as string | null) ?? null,
       amountPaisa: row['expected_amount_paisa'] as number,
       currency: row['currency'] as string,
+    }))
+    const cancellationRefunds = (res.data['cancellation_refunds'] ?? []).map((row) => ({
+      id: row['id'] as string,
+      orderId: ((row['payload'] as AnyRecord | null)?.['orderId'] as string | undefined) ?? null,
+      kind: 'cancellation_refund' as const,
+      label: 'Cancellation refund',
+      lastError: (row['last_error'] as string | null) ?? null,
+      updatedAt: (row['updated_at'] as string) ?? (row['created_at'] as string),
+      state: row['status'] as string,
+      referenceId: (row['reference_id'] as string | null) ?? null,
+      nextRetryAt: (row['next_retry_at'] as string | null) ?? null,
     }))
     return {
       success: true,
@@ -1127,7 +1173,14 @@ export const adminApiService = {
         ...operations,
         ...retained,
         ...lateCaptures,
+        ...cancellationRefunds,
       ],
+      pagination: {
+        page,
+        limit: 20,
+        total: res.meta?.total ?? 0,
+        totalPages: Math.max(1, Math.ceil((res.meta?.total ?? 0) / 20)),
+      },
     }
   },
 

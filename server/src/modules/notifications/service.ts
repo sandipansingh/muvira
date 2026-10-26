@@ -73,12 +73,14 @@ export async function adminListNotificationLogs(params: {
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .range(offset, offset + params.limit - 1)
 
   if (params.orderId) {
     query = query.eq('order_id', params.orderId)
   }
-  if (params.status) query = query.eq('status', params.status)
+  if (params.status === 'failures') query = query.in('status', ['failed', 'dead', 'processing'])
+  else if (params.status) query = query.eq('status', params.status)
 
   const { data, error, count } = await query
   if (error) throw error

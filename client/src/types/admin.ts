@@ -75,6 +75,22 @@ export interface LateCaptureWatchFailureItem extends CommerceFailureBase {
   target: string
   providerStatus: string | null
   lastCheckedAt: string | null
+  nextCheckAt: string | null
+  checkAttempts: number
+  failedChecks: number
+  lastCheckError: string | null
+}
+
+export interface CancellationRefundFailureItem extends CommerceFailureBase {
+  kind: 'cancellation_refund'
+  referenceId: string | null
+  nextRetryAt: string | null
+}
+
+export interface DiagnosticSummary {
+  workerState: 'idle' | 'checking' | 'waiting' | 'running' | 'stopped'
+  overdueLateCaptureWatches: number
+  pendingCancellationRefunds: number
 }
 
 export type CommerceFailureItem =
@@ -82,6 +98,9 @@ export type CommerceFailureItem =
   | ProviderOperationFailureItem
   | RetainedCheckoutFailureItem
   | LateCaptureWatchFailureItem
+  | CancellationRefundFailureItem
+
+export type CommerceFailureKind = CommerceFailureItem['kind']
 
 export interface WebhookFailureItem {
   id: string

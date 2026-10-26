@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
+import { CommerceFailuresQuerySchema } from './schema'
 import { getMetricsSnapshot } from '../../../services/metricsCollector'
 import { getBreakerStatus, resetShiprocketBreaker } from '../../../services/circuitBreaker'
 
@@ -126,12 +127,20 @@ export async function getMetrics(req: Request, res: Response, next: NextFunction
 }
 
 export async function getCommerceFailures(
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    res.json({ success: true, data: await service.getCommerceFailures() })
+    const query = CommerceFailuresQuerySchema.parse(req.query)
+    if (query.kind) {
+      const result = await service.getCommerceFailurePage({ ...query, kind: query.kind })
+      res.json({
+        success: true,
+        data: { [result.key]: result.rows },
+        meta: { page: query.page, limit: query.limit, total: result.total },
+      })
+    } else res.json({ success: true, data: await service.getCommerceFailures() })
   } catch (err) {
     next(err)
   }

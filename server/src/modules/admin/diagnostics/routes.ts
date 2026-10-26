@@ -1,20 +1,43 @@
 import { Router } from 'express'
 import * as controller from './controller'
 import { validate } from '../../../middleware/validate'
-import { DiagnosticActionSchema, DiagnosticIdParamsSchema } from './schema'
+import {
+  DiagnosticActionSchema,
+  DiagnosticIdParamsSchema,
+  DiagnosticPageSchema,
+  RetryQueueQuerySchema,
+  WebhookLogsQuerySchema,
+  CommerceFailuresQuerySchema,
+} from './schema'
 
 export const adminDiagnosticsRouter = Router()
 
 adminDiagnosticsRouter.get('/summary', controller.getSummary)
 adminDiagnosticsRouter.get('/shipment-health', controller.getShipmentHealth)
 adminDiagnosticsRouter.get('/sync-health', controller.getSyncHealth)
-adminDiagnosticsRouter.get('/webhook-logs', controller.getWebhookLogs)
-adminDiagnosticsRouter.get('/retry-queue', controller.getRetryQueue)
+adminDiagnosticsRouter.get(
+  '/webhook-logs',
+  validate({ query: WebhookLogsQuerySchema }),
+  controller.getWebhookLogs
+)
+adminDiagnosticsRouter.get(
+  '/retry-queue',
+  validate({ query: RetryQueueQuerySchema }),
+  controller.getRetryQueue
+)
 adminDiagnosticsRouter.post('/retry-queue/:id/retry', controller.retryJob)
-adminDiagnosticsRouter.get('/shiprocket-errors', controller.getShiprocketErrors)
+adminDiagnosticsRouter.get(
+  '/shiprocket-errors',
+  validate({ query: DiagnosticPageSchema }),
+  controller.getShiprocketErrors
+)
 adminDiagnosticsRouter.get('/courier-performance', controller.getCourierPerformance)
 adminDiagnosticsRouter.get('/metrics', controller.getMetrics)
-adminDiagnosticsRouter.get('/commerce-failures', controller.getCommerceFailures)
+adminDiagnosticsRouter.get(
+  '/commerce-failures',
+  validate({ query: CommerceFailuresQuerySchema }),
+  controller.getCommerceFailures
+)
 adminDiagnosticsRouter.post(
   '/provider-operations/:id/reconcile',
   validate({ params: DiagnosticIdParamsSchema, body: DiagnosticActionSchema }),

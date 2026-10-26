@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { validate } from '../../middleware/validate'
 import { requireAuth } from '../../middleware/requireAuth'
-import { UpdateNotificationPrefsSchema } from './schema'
+import { UpdateNotificationPrefsSchema, NotificationLogsQuerySchema } from './schema'
 import * as controller from './controller'
 
 // User routes
@@ -16,4 +16,8 @@ notificationsRouter.put(
 
 // Admin routes — requireAdmin is applied at parent level
 export const adminNotificationsRouter = Router()
-adminNotificationsRouter.get('/logs', controller.adminListNotificationLogs)
+adminNotificationsRouter.get(
+  '/logs',
+  validate({ query: NotificationLogsQuerySchema }),
+  controller.adminListNotificationLogs
+)

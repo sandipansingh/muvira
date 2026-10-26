@@ -1,3 +1,6 @@
+import { hasSchemaCapability } from '../../../services/runtimeSchema'
+import { getWorkerStartupStatus } from '../../../services/workerStartup'
+import { CommerceKinds, type CommerceKind } from './schema'
 import { adminSupabase } from '../../../lib/supabase/admin'
 import { databaseError } from '../../../lib/databaseError'
 import { logger } from '../../../lib/logger'
@@ -120,6 +123,7 @@ export async function getWebhookLogs(params: {
     .from('webhook_events')
     .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .range(offset, offset + params.limit - 1)
 
   if (params.source) query = query.eq('source', params.source)
@@ -150,6 +154,7 @@ export async function getRetryQueue(params: {
     .from('retry_jobs')
     .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .range(offset, offset + params.limit - 1)
 
   if (params.status) query = query.eq('status', params.status)
@@ -186,6 +191,7 @@ export async function getShiprocketErrors(params: { page: number; limit: number 
     })
     .eq('shiprocket_status', 'failed')
     .order('updated_at', { ascending: false })
+    .order('id', { ascending: false })
     .range(offset, offset + params.limit - 1)
 
   if (error) throw error
@@ -338,7 +344,35 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
     )
   }
 
+  const modern = await hasSchemaCapability(51)
+  let overdueWatches = 0,
+    cancellationRefunds = 0
+  if (modern) {
+    const [watches, refunds] = await Promise.all([
+      adminSupabase
+        .from('late_capture_watches')
+        .select('id', { count: 'exact', head: true })
+        .in('status', ['open', 'manual_review'])
+        .lt('next_check_at', new Date().toISOString()),
+      adminSupabase
+        .from('retry_jobs')
+        .select('id', { count: 'exact', head: true })
+        .eq('job_type', 'cancellation_refund')
+        .neq('status', 'completed'),
+    ])
+    if (watches.error || refunds.error)
+      throw databaseError(
+        'admin.diagnostics.recovery',
+        watches.error ?? refunds.error,
+        'Recovery diagnostics are unavailable'
+      )
+    overdueWatches = watches.count ?? 0
+    cancellationRefunds = refunds.count ?? 0
+  }
   return {
+    worker_state: getWorkerStartupStatus(),
+    overdue_late_capture_watches: overdueWatches,
+    pending_cancellation_refunds: cancellationRefunds,
     orders_pending: ordersPending.count ?? 0,
     active_shipments: activeShipments.count ?? 0,
     failed_shiprocket_orders: failedOrders.count ?? 0,
@@ -349,92 +383,127 @@ export async function getDashboardSummary(): Promise<Record<string, unknown>> {
   }
 }
 
-export async function getCommerceFailures(): Promise<Record<string, unknown>> {
-  const [outbox, invoices, reconciliation, alerts, operations, retention, lateCaptures] =
-    await Promise.all([
-      adminSupabase
-        .from('outbox_events')
-        .select('id, aggregate_id, event_type, attempts, last_error, updated_at')
-        .eq('status', 'dead')
-        .order('updated_at', { ascending: false })
-        .limit(20),
-      adminSupabase
-        .from('invoice_records')
-        .select('id, order_id, attempts, last_error, updated_at')
-        .eq('status', 'failed')
-        .order('updated_at', { ascending: false })
-        .limit(20),
-      adminSupabase
-        .from('payment_reconciliation_cases')
-        .select(
-          'id, order_id, payment_id, razorpay_order_id, razorpay_payment_id, reason, status, updated_at'
-        )
-        .neq('status', 'resolved')
-        .order('updated_at', { ascending: false })
-        .limit(20),
-      adminSupabase
-        .from('operational_alerts')
-        .select(
-          'id, alert_type, severity, source, reference_id, order_id, webhook_event_id, message, details, status, occurrences, last_seen_at, updated_at'
-        )
-        .neq('status', 'resolved')
-        .order('last_seen_at', { ascending: false })
-        .limit(20),
-      adminSupabase
-        .from('provider_operations')
-        .select(
-          'id, provider, operation_type, business_key, order_id, provider_target_type, provider_target_id, provider_generation, amount_paisa, currency, state, provider_status, error_classification, manual_review_reason, dispatch_attempts, reconciliation_attempts, dispatch_started_at, last_reconciled_at, provider_completed_at, local_applied_at, created_at, updated_at'
-        )
-        .or(
-          'state.in.(dispatching,outcome_unknown,provider_pending,provider_failed,manual_review),and(state.eq.provider_succeeded,local_applied_at.is.null)'
-        )
-        .order('updated_at', { ascending: false })
-        .limit(50),
-      adminSupabase
-        .from('retained_checkout_cases')
-        .select(
-          'order_id, state, escalation, retention_started_at, retention_deadline_at, extension_count, last_provider_status, last_provider_amount_paid, last_provider_currency, last_verified_at, updated_at'
-        )
-        .eq('state', 'active')
-        .order('retention_deadline_at', { ascending: true })
-        .limit(50),
-      adminSupabase
-        .from('late_capture_watches')
-        .select(
-          'id, order_id, payment_id, razorpay_order_id, expected_amount_paisa, currency, status, last_provider_status, last_provider_payment_id, last_checked_at, provider_operation_id, created_at, updated_at'
-        )
-        .neq('status', 'refunded')
-        .order('updated_at', { ascending: false })
-        .limit(50),
-    ])
+const commerceSources = {
+  outbox: {
+    table: 'outbox_events',
+    key: 'dead_outbox_events',
+    fields: 'id,aggregate_id,event_type,attempts,last_error,updated_at',
+  },
+  invoice: {
+    table: 'invoice_records',
+    key: 'failed_invoices',
+    fields: 'id,order_id,attempts,last_error,updated_at',
+  },
+  payment_reconciliation: {
+    table: 'payment_reconciliation_cases',
+    key: 'payment_reconciliation_cases',
+    fields: 'id,order_id,payment_id,reason,status,updated_at',
+  },
+  operational_alert: {
+    table: 'operational_alerts',
+    key: 'operational_alerts',
+    fields: 'id,alert_type,severity,order_id,message,status,occurrences,last_seen_at,updated_at',
+  },
+  provider_operation: {
+    table: 'provider_operations',
+    key: 'provider_operations',
+    fields:
+      'id,provider,operation_type,business_key,order_id,provider_target_type,provider_target_id,amount_paisa,currency,state,provider_status,error_classification,manual_review_reason,dispatch_attempts,reconciliation_attempts,last_reconciled_at,local_applied_at,updated_at',
+  },
+  retained_checkout: {
+    table: 'retained_checkout_cases',
+    key: 'retained_checkout_cases',
+    fields:
+      'order_id,state,escalation,retention_deadline_at,extension_count,last_provider_status,last_provider_amount_paid,last_provider_currency,last_verified_at,updated_at',
+  },
+  late_capture_watch: {
+    table: 'late_capture_watches',
+    key: 'late_capture_watches',
+    fields:
+      'id,order_id,razorpay_order_id,expected_amount_paisa,currency,status,last_provider_status,last_checked_at,updated_at',
+  },
+  cancellation_refund: {
+    table: 'retry_jobs',
+    key: 'cancellation_refunds',
+    fields: 'id,reference_id,payload,status,last_error,next_retry_at,created_at,updated_at',
+  },
+} as const
 
-  const failed = [
-    outbox,
-    invoices,
-    reconciliation,
-    alerts,
-    operations,
-    retention,
-    lateCaptures,
-  ].find((result) => result.error)
-  if (failed?.error) {
+export async function getCommerceFailurePage(params: {
+  kind: CommerceKind
+  page: number
+  limit: number
+}) {
+  const source = commerceSources[params.kind]
+  const modern = await hasSchemaCapability(51)
+  if (params.kind === 'cancellation_refund' && !modern)
+    return { rows: [], total: 0, key: source.key }
+  const fields =
+    source.fields +
+    (params.kind === 'late_capture_watch' && modern
+      ? ',next_check_at,check_attempts,failed_checks,last_check_error'
+      : '')
+  let query = adminSupabase.from(source.table).select(fields, { count: 'exact' })
+  switch (params.kind) {
+    case 'outbox':
+      query = query.eq('status', 'dead')
+      break
+    case 'invoice':
+      query = query.eq('status', 'failed')
+      break
+    case 'payment_reconciliation':
+    case 'operational_alert':
+      query = query.neq('status', 'resolved')
+      break
+    case 'provider_operation':
+      query = query.or(
+        'state.in.(prepared,dispatching,outcome_unknown,provider_pending,provider_failed,manual_review),and(state.eq.provider_succeeded,local_applied_at.is.null)'
+      )
+      break
+    case 'retained_checkout':
+      query = query.eq('state', 'active')
+      break
+    case 'late_capture_watch':
+      query = query.neq('status', 'refunded')
+      break
+    case 'cancellation_refund':
+      query = query.eq('job_type', 'cancellation_refund').neq('status', 'completed')
+      break
+  }
+  const timeColumn =
+    params.kind === 'retained_checkout'
+      ? 'retention_deadline_at'
+      : params.kind === 'operational_alert'
+        ? 'last_seen_at'
+        : params.kind === 'late_capture_watch' && modern
+          ? 'next_check_at'
+          : 'updated_at'
+  const ascending = params.kind === 'retained_checkout' || params.kind === 'late_capture_watch'
+  const idColumn = params.kind === 'retained_checkout' ? 'order_id' : 'id'
+  const offset = (params.page - 1) * params.limit
+  const { data, error, count } = await query
+    .order(timeColumn, { ascending })
+    .order(idColumn, { ascending })
+    .range(offset, offset + params.limit - 1)
+  if (error)
     throw databaseError(
       'admin.diagnostics.commerce_failures',
-      failed.error,
+      error,
       'Commerce failure queues are unavailable',
       { statusCode: 503, code: 'DIAGNOSTICS_UNAVAILABLE' }
     )
-  }
-
   return {
-    dead_outbox_events: outbox.data ?? [],
-    failed_invoices: invoices.data ?? [],
-    payment_reconciliation_cases: reconciliation.data ?? [],
-    operational_alerts: alerts.data ?? [],
-    provider_operations: operations.data ?? [],
-    retained_checkout_cases: retention.data ?? [],
-    late_capture_watches: lateCaptures.data ?? [],
+    rows: (data ?? []) as unknown as Array<Record<string, unknown>>,
+    total: count ?? 0,
+    key: source.key,
   }
+}
+
+export async function getCommerceFailures(): Promise<Record<string, unknown>> {
+  const pages = await Promise.all(
+    CommerceKinds.map((kind) => getCommerceFailurePage({ kind, page: 1, limit: 20 }))
+  )
+  return Object.fromEntries(pages.map((page) => [page.key, page.rows]))
 }
 
 export async function reconcileProviderOperationAsAdmin(input: {

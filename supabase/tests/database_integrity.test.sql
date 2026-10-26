@@ -470,6 +470,20 @@ SELECT isnt(
   'the current execution owner can commit its database mutation'
 );
 
+INSERT INTO auth.users(id,email) VALUES ('aaaa0052-0000-4000-8000-000000000001','dashboard-timezone@example.test');
+INSERT INTO public.orders(id,order_number,user_id,status,payment_status,contact_email,
+  shipping_full_name,shipping_phone,shipping_address_line1,shipping_city,shipping_state,shipping_pincode,
+  billing_full_name,billing_address_line1,billing_city,billing_state,billing_pincode,billing_country,
+  subtotal_paisa,total_amount_paisa,created_at)
+VALUES ('aaaa0052-0000-4000-8000-000000000002','TEST-DASHBOARD-TIMEZONE','aaaa0052-0000-4000-8000-000000000001','confirmed','paid','dashboard-timezone@example.test',
+  'Fixture','9876543210','Fixture address','Mumbai','Maharashtra','400001',
+  'Fixture','Fixture address','Mumbai','Maharashtra','400001','India',100,100,'2026-03-08 18:15:00+00');
+SET LOCAL TIME ZONE 'UTC';
+CREATE TEMP TABLE dashboard_utc AS SELECT public.get_dashboard_stats(NULL,NULL,'2026-03-08 12:00:00+00') AS stats;
+SET LOCAL TIME ZONE 'America/New_York';
+SELECT is(public.get_dashboard_stats(NULL,NULL,'2026-03-08 12:00:00+00'),(SELECT stats FROM dashboard_utc),'Kolkata dashboard day is unchanged across a session DST boundary');
+SET LOCAL TIME ZONE 'UTC';
+
 SELECT * FROM finish();
 
 ROLLBACK;
