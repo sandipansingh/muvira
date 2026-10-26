@@ -2,8 +2,18 @@ import { createReadStream } from 'node:fs'
 import { access, stat } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { extname, resolve, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const distRoot = resolve('dist')
+const distRoot = fileURLToPath(new URL('../dist/', import.meta.url)).replace(/[\\/]$/, '')
+const indexPath = resolve(distRoot, 'index.html')
+try {
+  if (!(await stat(indexPath)).isFile()) throw new Error('index.html is not a file')
+} catch (error) {
+  console.error(
+    `Static build missing at ${indexPath}: ${error.message}. Build the client before starting.`
+  )
+  process.exit(1)
+}
 const port = Number.parseInt(process.env.PORT ?? '3000', 10)
 const mimeTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -47,7 +57,20 @@ const server = createServer(async (request, response) => {
     return
   }
 
-  const filePath = (await existingFile(pathname)) ?? resolve(distRoot, 'index.html')
+  let filePath = await existingFile(pathname)
+  if (
+    !filePath &&
+    !extname(pathname) &&
+    !pathname.startsWith('/assets/') &&
+    request.headers.accept?.includes('text/html')
+  ) {
+    filePath = indexPath
+  }
+  if (!filePath) {
+    response.writeHead(404)
+    response.end('Not found')
+    return
+  }
   const extension = extname(filePath)
   const immutableAsset = filePath.includes(`${sep}assets${sep}`)
   response.writeHead(200, {
@@ -60,7 +83,15 @@ const server = createServer(async (request, response) => {
     response.end()
     return
   }
-  createReadStream(filePath).pipe(response)
+  const stream = createReadStream(filePath)
+  stream.on('error', (error) => {
+    console.error(`Static stream failed: ${error.message}`)
+    response.destroy(error)
+  })
+  response.on('close', () => stream.destroy())
+  stream.pipe(response)
 })
 
-server.listen(port, '0.0.0.0')
+server.listen(port, '0.0.0.0', () => {
+  console.log(`Listening on ${server.address().port}`)
+})
