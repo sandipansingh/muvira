@@ -32,8 +32,25 @@ type ApiEnvelope = {
 class ApiClient {
   private readonly baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
-  private async getAuthHeader(requireAuth: boolean): Promise<Record<string, string>> {
+  private async signOutRequestSession(authorization?: string): Promise<void> {
+    if (!authorization) return
     const { data } = await supabase.auth.getSession()
+    if (`Bearer ${data.session?.access_token}` === authorization) {
+      await supabase.auth.signOut().catch(() => undefined)
+    }
+  }
+
+  private async getAuthHeader(
+    requireAuth: boolean,
+    expectedUserId?: string
+  ): Promise<Record<string, string>> {
+    const { data } = await supabase.auth.getSession()
+    if (expectedUserId && data.session?.user.id !== expectedUserId) {
+      throw new ApiError(409, {
+        code: 'SESSION_CHANGED',
+        message: 'Your account changed. Retry loading your cart.',
+      })
+    }
     if (data.session?.access_token) {
       return { Authorization: `Bearer ${data.session.access_token}` }
     }
@@ -48,8 +65,13 @@ class ApiClient {
     return {}
   }
 
-  private async request<T>(endpoint: string, init: RequestInit, requireAuth: boolean): Promise<T> {
-    const authHeaders = await this.getAuthHeader(requireAuth)
+  private async request<T>(
+    endpoint: string,
+    init: RequestInit,
+    requireAuth: boolean,
+    expectedUserId?: string
+  ): Promise<T> {
+    const authHeaders = await this.getAuthHeader(requireAuth, expectedUserId)
     let response: Response
 
     try {
@@ -77,7 +99,7 @@ class ApiClient {
     try {
       body = await this.parseBody(response)
     } catch (error) {
-      if (response.status === 401) await supabase.auth.signOut().catch(() => undefined)
+      if (response.status === 401) await this.signOutRequestSession(authHeaders.Authorization)
       throw error
     }
     const envelope = body as ApiEnvelope | null
@@ -89,7 +111,7 @@ class ApiClient {
       }
 
       if (response.status === 401) {
-        await supabase.auth.signOut().catch(() => undefined)
+        await this.signOutRequestSession(authHeaders.Authorization)
       }
 
       throw new ApiError(response.status, { ...error, details: envelope?.data ?? error.details })
@@ -112,23 +134,35 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string, requireAuth = false): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' }, requireAuth)
+  async get<T>(endpoint: string, requireAuth = false, expectedUserId?: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET' }, requireAuth, expectedUserId)
   }
 
-  async post<T>(endpoint: string, body?: unknown, requireAuth = false): Promise<T> {
+  async post<T>(
+    endpoint: string,
+    body?: unknown,
+    requireAuth = false,
+    expectedUserId?: string
+  ): Promise<T> {
     return this.request<T>(
       endpoint,
       { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) },
-      requireAuth
+      requireAuth,
+      expectedUserId
     )
   }
 
-  async patch<T>(endpoint: string, body?: unknown, requireAuth = false): Promise<T> {
+  async patch<T>(
+    endpoint: string,
+    body?: unknown,
+    requireAuth = false,
+    expectedUserId?: string
+  ): Promise<T> {
     return this.request<T>(
       endpoint,
       { method: 'PATCH', body: body === undefined ? undefined : JSON.stringify(body) },
-      requireAuth
+      requireAuth,
+      expectedUserId
     )
   }
 
@@ -140,8 +174,8 @@ class ApiClient {
     )
   }
 
-  async delete<T>(endpoint: string, requireAuth = false): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' }, requireAuth)
+  async delete<T>(endpoint: string, requireAuth = false, expectedUserId?: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE' }, requireAuth, expectedUserId)
   }
 
   async download(

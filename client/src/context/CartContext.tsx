@@ -14,6 +14,7 @@ import { cartApiService } from '../lib/services/cart.service'
 import { checkoutService } from '../lib/services/checkout.service'
 import type { CheckoutQuote } from '../types/checkout'
 import { MAX_CART_ITEM_QTY } from '../lib/constants/cart.constants'
+import { guestCartStore } from '../lib/services/guestCart.store'
 import { addGuestCartItem } from '../lib/utils/cartState'
 import { useAuth } from './AuthContext'
 import { useSiteSettings } from './SiteSettingsContext'
@@ -26,8 +27,8 @@ interface CartContextType {
   openCartDrawer: () => void
   closeCartDrawer: () => void
   addToCart: (product: ProductDetail | ProductListItem, quantity?: number) => Promise<void>
-  removeFromCart: (productId: string) => Promise<void>
-  updateQuantity: (productId: string, delta: number) => Promise<void>
+  removeFromCart: (itemId: string) => Promise<void>
+  updateQuantity: (itemId: string, delta: number) => Promise<void>
   clearCart: () => Promise<void>
   resetAfterOrder: () => void
   coupon: CouponPreview | null
@@ -42,22 +43,12 @@ interface CartContextType {
   amountForFreeShippingPaisa: number
   loading: boolean
   error: string | null
+  status: 'loading' | 'merging' | 'ready' | 'error'
+  retry: () => void
   hasUnmergedItems: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
-const CART_STORAGE_KEY = 'muvira_guest_cart_v1'
-
-function readGuestItems(): CartItem[] {
-  try {
-    const saved = localStorage.getItem(CART_STORAGE_KEY)
-    const items = saved ? (JSON.parse(saved) as unknown) : []
-    return Array.isArray(items) ? (items as CartItem[]) : []
-  } catch {
-    return []
-  }
-}
-
 function isGuestItem(item: CartItem): boolean {
   return item.id.startsWith('guest-')
 }
@@ -66,96 +57,140 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user, loading: authLoading } = useAuth()
   const { settings, error: settingsError } = useSiteSettings()
   const { showToast } = useToast()
-  const [items, setItems] = useState<CartItem[]>(readGuestItems)
+  const [items, setItems] = useState<CartItem[]>([])
   const [coupon, setCoupon] = useState<CouponPreview | null>(null)
   const [checkoutQuote, setCheckoutQuote] = useState<CheckoutQuote | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState<'loading' | 'merging' | 'ready' | 'error'>('loading')
+  const [retryCount, setRetryCount] = useState(0)
+  const retry = () => setRetryCount((value) => value + 1)
   const [error, setError] = useState<string | null>(null)
-  const guestItemsRef = useRef<CartItem[]>(readGuestItems())
-  const mergedUserRef = useRef<string | null>(null)
+  const userId = user?.id
+  const sessionRef = useRef(userId)
+  const epochRef = useRef(0)
+  if (sessionRef.current !== user?.id) {
+    sessionRef.current = user?.id
+    epochRef.current++
+  }
+  const [itemsOwner, setItemsOwner] = useState<string | undefined>(undefined)
+  const sessionReady = itemsOwner === user?.id && !authLoading
 
-  const refreshServerCart = useCallback(async (): Promise<CartItem[]> => {
-    const response = await cartApiService.getCart()
+  const refreshServerCart = useCallback(async (accountId: string): Promise<CartItem[]> => {
+    const epoch = epochRef.current
+    const response = await cartApiService.getCart(accountId)
     if (!response.success) throw new Error(response.error.message)
-    setItems(response.data.items)
+    if (epoch === epochRef.current && sessionRef.current === accountId) {
+      const saved = await guestCartStore.read()
+      if (epoch === epochRef.current && sessionRef.current === accountId)
+        setItems([
+          ...response.data.items,
+          ...saved.operations
+            .filter((operation) => operation.userId === accountId)
+            .map((operation) => ({ ...operation.item, id: `guest-transfer-${operation.id}` })),
+        ])
+    }
     return response.data.items
   }, [])
 
   useEffect(() => {
-    const guestItems = items.filter(isGuestItem)
-    const persistedItems = !user && guestItems.length === 0 ? guestItemsRef.current : guestItems
-    guestItemsRef.current = persistedItems
-    try {
-      if (persistedItems.length > 0) {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(persistedItems))
-      } else localStorage.removeItem(CART_STORAGE_KEY)
-    } catch {
-      setError('Unable to save your guest cart on this device.')
-    }
-  }, [items, user])
-
-  useEffect(() => {
-    if (authLoading) return
-
-    if (!user) {
-      mergedUserRef.current = null
-      setCoupon(null)
-      setCheckoutQuote(null)
-      setItems(readGuestItems())
-      setLoading(false)
-      return
-    }
-
-    if (mergedUserRef.current === user.id) return
-    mergedUserRef.current = user.id
+    const epoch = ++epochRef.current
     let active = true
-
-    const synchronizeCart = async () => {
-      setLoading(true)
-      setError(null)
-      const failedItems: CartItem[] = []
-
-      for (const item of guestItemsRef.current) {
-        try {
-          const response = await cartApiService.addToCart(item.productId, item.quantity)
-          if (!response.success) failedItems.push(item)
-        } catch {
-          failedItems.push(item)
-        }
-      }
-
+    const current = () => active && epoch === epochRef.current
+    setItemsOwner(userId)
+    setItems([])
+    setCoupon(null)
+    setCheckoutQuote(null)
+    setLoading(true)
+    setStatus('loading')
+    setError(null)
+    if (authLoading) return
+    const synchronize = async () => {
       try {
-        const response = await cartApiService.getCart()
-        if (!response.success) throw new Error(response.error.message)
-        if (active) {
-          setItems([...response.data.items, ...failedItems])
-          guestItemsRef.current = failedItems
-          if (failedItems.length > 0) {
-            setError('Some guest cart items could not be added. They remain saved for retry.')
+        if (!userId) {
+          const saved = await guestCartStore.read()
+          if (current()) {
+            setItems(saved.guest)
+            setStatus('ready')
           }
+          return
+        }
+        const operations = await guestCartStore.claim(userId)
+        if (current()) setStatus('merging')
+        for (const operation of operations) {
+          if (!current()) return
+          if (operation.status === 'rejected') continue
+          const response = await cartApiService.mergeGuestItem(
+            operation.id,
+            operation.item.productId,
+            operation.item.quantity,
+            operation.userId
+          )
+          if (!response.success || !response.data)
+            throw new Error(
+              response.error?.message ??
+                'Unable to transfer saved cart. Retry to confirm its status.'
+            )
+          // Persist acknowledgement before any refresh, including if the account changed in flight.
+          if (response.data.status === 'applied') await guestCartStore.acknowledge(operation.id)
+          else if (response.data.status === 'rejected') await guestCartStore.reject(operation.id)
+          else
+            throw new Error('Cart transfer confirmation is invalid. Retry to confirm its status.')
+        }
+        if (!current()) return
+        const response = await cartApiService.getCart(userId)
+        if (!response.success) throw new Error(response.error.message)
+        const saved = await guestCartStore.read()
+        const remaining = saved.operations.filter((operation) => operation.userId === userId)
+        if (current()) {
+          setItems([
+            ...response.data.items,
+            ...remaining.map((operation) => ({
+              ...operation.item,
+              id: `guest-transfer-${operation.id}`,
+            })),
+          ])
+          setStatus('ready')
+          if (remaining.length)
+            setError(
+              'Some saved items are unavailable. Remove them or correct their quantity, then retry.'
+            )
         }
       } catch (reason) {
-        if (active) {
-          setItems(failedItems.length > 0 ? failedItems : guestItemsRef.current)
-          setError(reason instanceof Error ? reason.message : 'Unable to load your cart.')
+        if (current()) {
+          setStatus('error')
+          setError(
+            reason instanceof Error ? reason.message : 'Unable to load your cart. Please retry.'
+          )
         }
       } finally {
-        if (active) setLoading(false)
+        if (current()) setLoading(false)
       }
     }
-
-    void synchronizeCart()
+    void synchronize()
     return () => {
       active = false
     }
-  }, [authLoading, user])
+  }, [authLoading, userId, retryCount])
+
+  const persistGuest = async (mutate: (previous: CartItem[]) => CartItem[]) => {
+    try {
+      const saved = await guestCartStore.edit(mutate)
+      if (!sessionRef.current) setItems(saved)
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Unable to save your cart.')
+      setStatus('error')
+      throw reason
+    }
+  }
 
   const openCartDrawer = () => setIsDrawerOpen(true)
   const closeCartDrawer = () => setIsDrawerOpen(false)
 
   const addToCart = async (product: ProductDetail | ProductListItem, quantity = 1) => {
     const requestedQuantity = Math.min(Math.max(1, quantity), MAX_CART_ITEM_QTY)
+    if (status !== 'ready' || !sessionReady)
+      throw new Error('Wait for your cart to load, or retry loading it.')
     setError(null)
 
     if (!user) {
@@ -166,7 +201,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(result.error)
       }
 
-      setItems(result.items)
+      await persistGuest((previous) => {
+        const next = addGuestCartItem(previous, product, requestedQuantity)
+        if (next.error) throw new Error(next.error)
+        return next.items
+      })
       setCoupon(null)
       setCheckoutQuote(null)
       showToast(product.name, 'success', 'Added to Cart')
@@ -174,64 +213,78 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return
     }
 
+    const mutationEpoch = epochRef.current
     setLoading(true)
     try {
-      const response = await cartApiService.addToCart(product.id, requestedQuantity)
+      const response = await cartApiService.addToCart(product.id, requestedQuantity, user!.id)
+      if (mutationEpoch !== epochRef.current) return
       if (!response.success) throw new Error(response.error.message)
-      const failedGuests = guestItemsRef.current.filter((item) => item.productId !== product.id)
-      const serverItems = await refreshServerCart()
-      setItems([...serverItems, ...failedGuests])
+      await refreshServerCart(user!.id)
+      if (mutationEpoch !== epochRef.current) return
       setCoupon(null)
       setCheckoutQuote(null)
       showToast(product.name, 'success', 'Added to Cart')
       openCartDrawer()
     } catch (reason) {
+      if (mutationEpoch !== epochRef.current) return
       const message = reason instanceof Error ? reason.message : 'Unable to add this item to cart.'
       setError(message)
       showToast(message, 'error')
       throw reason instanceof Error ? reason : new Error(message)
     } finally {
-      setLoading(false)
+      if (mutationEpoch === epochRef.current) setLoading(false)
     }
   }
 
-  const removeFromCart = async (productId: string) => {
-    const item = items.find((candidate) => candidate.productId === productId)
+  const removeFromCart = async (itemId: string) => {
+    if (status !== 'ready' || !sessionReady)
+      throw new Error('Wait for your cart to load, or retry loading it.')
+    const item = items.find((candidate) => candidate.id === itemId)
     if (!item) return
 
     if (isGuestItem(item)) {
-      setItems((previous) => previous.filter((candidate) => candidate.productId !== productId))
+      if (user) {
+        await guestCartStore.correct(user.id, itemId.replace('guest-transfer-', ''), 0)
+        retry()
+      } else
+        await persistGuest((previous) => previous.filter((candidate) => candidate.id !== itemId))
       setCoupon(null)
       setCheckoutQuote(null)
       showToast('Item removed from cart', 'info')
       return
     }
 
+    const mutationEpoch = epochRef.current
     setLoading(true)
     try {
-      const response = await cartApiService.deleteCartItem(item.id)
+      const response = await cartApiService.deleteCartItem(item.id, user!.id)
+      if (mutationEpoch !== epochRef.current) return
       if (!response.success) throw new Error(response.error.message)
-      await refreshServerCart()
+      await refreshServerCart(user!.id)
+      if (mutationEpoch !== epochRef.current) return
       setCoupon(null)
       setCheckoutQuote(null)
       showToast('Item removed from cart', 'info')
     } catch (reason) {
+      if (mutationEpoch !== epochRef.current) return
       const message = reason instanceof Error ? reason.message : 'Unable to remove this item.'
       setError(message)
       showToast(message, 'error')
       throw reason instanceof Error ? reason : new Error(message)
     } finally {
-      setLoading(false)
+      if (mutationEpoch === epochRef.current) setLoading(false)
     }
   }
 
-  const updateQuantity = async (productId: string, delta: number) => {
-    const item = items.find((candidate) => candidate.productId === productId)
+  const updateQuantity = async (itemId: string, delta: number) => {
+    if (status !== 'ready' || !sessionReady)
+      throw new Error('Wait for your cart to load, or retry loading it.')
+    const item = items.find((candidate) => candidate.id === itemId)
     if (!item) return
     const nextQuantity = item.quantity + delta
 
     if (nextQuantity <= 0) {
-      await removeFromCart(productId)
+      await removeFromCart(itemId)
       return
     }
 
@@ -243,9 +296,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         showToast(message, 'error')
         throw new Error(message)
       }
-      setItems((previous) =>
+      if (user) {
+        await guestCartStore.correct(
+          user.id,
+          itemId.replace('guest-transfer-', ''),
+          boundedQuantity
+        )
+        retry()
+        return
+      }
+      await persistGuest((previous) =>
         previous.map((candidate) =>
-          candidate.productId === productId
+          candidate.id === itemId
             ? {
                 ...candidate,
                 quantity: boundedQuantity,
@@ -259,44 +321,58 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return
     }
 
+    const mutationEpoch = epochRef.current
     setLoading(true)
     try {
       const response = await cartApiService.updateCartItem(
         item.id,
-        Math.min(nextQuantity, MAX_CART_ITEM_QTY)
+        Math.min(nextQuantity, MAX_CART_ITEM_QTY),
+        user!.id
       )
+      if (mutationEpoch !== epochRef.current) return
       if (!response.success) throw new Error(response.error.message)
-      await refreshServerCart()
+      await refreshServerCart(user!.id)
+      if (mutationEpoch !== epochRef.current) return
       setCoupon(null)
       setCheckoutQuote(null)
     } catch (reason) {
+      if (mutationEpoch !== epochRef.current) return
       const message = reason instanceof Error ? reason.message : 'Unable to update cart quantity.'
       setError(message)
       showToast(message, 'error')
       throw reason instanceof Error ? reason : new Error(message)
     } finally {
-      setLoading(false)
+      if (mutationEpoch === epochRef.current) setLoading(false)
     }
   }
 
   const clearCart = async () => {
+    if (status !== 'ready' || !sessionReady)
+      throw new Error('Wait for your cart to load, or retry loading it.')
+    const mutationEpoch = epochRef.current
     setLoading(true)
     try {
       if (user) {
-        const response = await cartApiService.clearCart()
+        await guestCartStore.assertClearable(user.id)
+        if (mutationEpoch !== epochRef.current) return
+        const response = await cartApiService.clearCart(user.id)
         if (!response.success) throw new Error(response.error.message)
       }
+      if (mutationEpoch !== epochRef.current) return
+      if (user) await guestCartStore.clearRejected(user.id)
+      else await persistGuest(() => [])
+      if (mutationEpoch !== epochRef.current) return
       setItems([])
       setCoupon(null)
       setCheckoutQuote(null)
-      guestItemsRef.current = []
     } catch (reason) {
+      if (mutationEpoch !== epochRef.current) return
       const message = reason instanceof Error ? reason.message : 'Unable to clear your cart.'
       setError(message)
       showToast(message, 'error')
       throw reason instanceof Error ? reason : new Error(message)
     } finally {
-      setLoading(false)
+      if (mutationEpoch === epochRef.current) setLoading(false)
     }
   }
 
@@ -304,7 +380,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems([])
     setCoupon(null)
     setCheckoutQuote(null)
-    guestItemsRef.current = []
   }
 
   const applyCoupon = async (code: string): Promise<boolean> => {
@@ -313,9 +388,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false
     }
 
+    const mutationEpoch = epochRef.current
     setLoading(true)
     try {
       const quote = await checkoutService.quote('standard', code)
+      if (mutationEpoch !== epochRef.current) return false
       if (!quote.coupon) throw new Error('Coupon could not be applied.')
       setCheckoutQuote(quote)
       setCoupon({
@@ -328,12 +405,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       showToast('Coupon applied successfully.', 'success')
       return true
     } catch (reason) {
+      if (mutationEpoch !== epochRef.current) return false
       const message = reason instanceof Error ? reason.message : 'Unable to apply this coupon.'
       setError(message)
       showToast(message, 'error')
       return false
     } finally {
-      setLoading(false)
+      if (mutationEpoch === epochRef.current) setLoading(false)
     }
   }
 
@@ -344,7 +422,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   useEffect(() => {
-    if (!user || items.length === 0 || items.some(isGuestItem)) {
+    if (
+      !sessionReady ||
+      status !== 'ready' ||
+      !user ||
+      items.length === 0 ||
+      items.some(isGuestItem)
+    ) {
       setCheckoutQuote(null)
       return
     }
@@ -364,7 +448,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       active = false
     }
-  }, [coupon?.code, items, user])
+  }, [coupon?.code, items, user, sessionReady, status])
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items])
   const localSubtotalPaisa = useMemo(
@@ -393,7 +477,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <CartContext.Provider
       value={{
-        items,
+        items: sessionReady ? items : [],
         isDrawerOpen,
         setIsDrawerOpen,
         openCartDrawer,
@@ -413,7 +497,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         totalPaisa,
         freeShippingThresholdPaisa,
         amountForFreeShippingPaisa,
-        loading,
+        loading: loading || !sessionReady,
+        status: sessionReady ? status : 'loading',
+        retry,
         error:
           error ??
           settingsError ??

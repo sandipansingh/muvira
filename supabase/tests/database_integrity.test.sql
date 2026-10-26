@@ -124,13 +124,13 @@ FROM (VALUES ('webhook_events'), ('sync_jobs')) AS expected(table_name);
 
 SELECT is(
   (public.get_runtime_schema_status()->>'contract_version')::INTEGER,
-  49,
-  'runtime schema contract reports version 49'
+  (SELECT MAX(version)::INTEGER FROM supabase_migrations.schema_migrations),
+  'runtime schema contract reports the applied version'
 );
 
 SELECT is(
   (public.get_runtime_schema_status()->>'migration_version')::TEXT,
-  '049',
+  (SELECT MAX(version)::TEXT FROM supabase_migrations.schema_migrations),
   'runtime schema contract reports the latest migration'
 );
 

@@ -1,7 +1,12 @@
 import { Router } from 'express'
 import { validate } from '../../middleware/validate'
 import { requireAuth } from '../../middleware/requireAuth'
-import { CartItemIdParamsSchema, AddToCartSchema, UpdateCartItemSchema } from './schema'
+import {
+  CartItemIdParamsSchema,
+  AddToCartSchema,
+  UpdateCartItemSchema,
+  MergeCartSchema,
+} from './schema'
 import * as controller from './controller'
 
 export const cartRouter = Router()
@@ -9,6 +14,7 @@ export const cartRouter = Router()
 cartRouter.use(requireAuth)
 
 cartRouter.get('/', controller.getCart)
+cartRouter.post('/merge', validate({ body: MergeCartSchema }), controller.mergeGuestItem)
 cartRouter.post('/', validate({ body: AddToCartSchema }), controller.addToCart)
 cartRouter.delete('/', controller.clearCart)
 cartRouter.patch(

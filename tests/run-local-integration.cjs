@@ -18,6 +18,7 @@ const suites = [
   'provider-cancellations',
   'retained-checkout-integration',
   'shipping-integration',
+  'cart-transfer-integration',
 ]
 const result = spawnSync(
   process.execPath,

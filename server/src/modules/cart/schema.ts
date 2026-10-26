@@ -18,4 +18,5 @@ export const UpdateCartItemSchema = z
   .strict()
 
 export type AddToCartInput = z.infer<typeof AddToCartSchema>
+export const MergeCartSchema = AddToCartSchema.extend({ operation_id: z.string().uuid() }).strict()
 export type UpdateCartItemInput = z.infer<typeof UpdateCartItemSchema>

@@ -1,6 +1,18 @@
 import type { Request, Response, NextFunction } from 'express'
 import * as service from './service'
 
+export async function mergeGuestItem(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    res.json({ success: true, data: await service.mergeGuestItem(req.user!.id, req.body) })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export async function getCart(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const items = await service.getCart(req.user!.id)

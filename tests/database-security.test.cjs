@@ -12,6 +12,7 @@ const shouldRun = Boolean(apiUrl && anonKey && serviceRoleKey)
 const applicationRelations = [
   'addresses',
   'cart_items',
+  'guest_cart_transfers',
   'categories',
   'coupon_redemption_reservations',
   'coupons',
@@ -50,6 +51,7 @@ const applicationRelations = [
 
 const privilegedRpcNames = [
   'add_cart_item_checked',
+  'merge_guest_cart_item',
   'add_product_image_atomic',
   'attach_razorpay_order',
   'audit_provider_operation_action',
@@ -235,8 +237,9 @@ test(
           'get_runtime_schema_status'
         )
         assert.ifError(schemaStatusError)
-        assert.equal(schemaStatus.contract_version, 49)
-        assert.equal(schemaStatus.migration_version, '049')
+        const { latestSchemaVersion } = require('./helpers/schema-version.cjs')
+        assert.equal(schemaStatus.contract_version, latestSchemaVersion)
+        assert.equal(schemaStatus.migration_version, String(latestSchemaVersion).padStart(3, '0'))
         assert.equal(schemaStatus.ready, true)
         for (const [key, value] of Object.entries(schemaStatus)) {
           if (key.startsWith('missing_') || key.startsWith('invalid_')) {

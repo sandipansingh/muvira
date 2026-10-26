@@ -53,7 +53,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => void removeFromCart(item.productId).catch(() => undefined)}
+                onClick={() => void removeFromCart(item.id).catch(() => undefined)}
                 disabled={loading}
                 className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg p-2 text-[var(--color-muted)] transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
                 aria-label={`Remove ${item.productName} from cart`}
@@ -69,7 +69,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               <div className="inline-flex items-center rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-1">
                 <button
                   type="button"
-                  onClick={() => void updateQuantity(item.productId, -1).catch(() => undefined)}
+                  onClick={() => void updateQuantity(item.id, -1).catch(() => undefined)}
                   disabled={loading}
                   className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
                   aria-label="Decrease quantity"
@@ -81,7 +81,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
                 </span>
                 <button
                   type="button"
-                  onClick={() => void updateQuantity(item.productId, 1).catch(() => undefined)}
+                  onClick={() => void updateQuantity(item.id, 1).catch(() => undefined)}
                   disabled={loading}
                   className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
                   aria-label="Increase quantity"
@@ -137,7 +137,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           </Link>
           <button
             type="button"
-            onClick={() => void removeFromCart(item.productId).catch(() => undefined)}
+            onClick={() => void removeFromCart(item.id).catch(() => undefined)}
             disabled={loading}
             className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
             aria-label={`Remove ${item.productName}`}
@@ -151,7 +151,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           <div className="inline-flex items-center rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5">
             <button
               type="button"
-              onClick={() => void updateQuantity(item.productId, -1).catch(() => undefined)}
+              onClick={() => void updateQuantity(item.id, -1).catch(() => undefined)}
               disabled={loading}
               className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
               aria-label="Decrease quantity"
@@ -163,7 +163,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
             </span>
             <button
               type="button"
-              onClick={() => void updateQuantity(item.productId, 1).catch(() => undefined)}
+              onClick={() => void updateQuantity(item.id, 1).catch(() => undefined)}
               disabled={loading}
               className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
               aria-label="Increase quantity"

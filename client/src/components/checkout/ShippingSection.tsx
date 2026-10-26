@@ -38,7 +38,6 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
   shippingOptions,
 }) => {
   const [useManualForm, setUseManualForm] = useState(savedAddresses.length === 0)
-  const [countryCode, setCountryCode] = useState('+91')
 
   const onShippingDataChangeRef = useRef(onShippingDataChange)
   onShippingDataChangeRef.current = onShippingDataChange
@@ -220,17 +219,9 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
                   Phone number*
                 </label>
                 <div className="flex rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] focus-within:border-[var(--color-primary)] focus-within:bg-[var(--color-paper)]">
-                  <select
-                    aria-label="Country calling code"
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="rounded-l-xl border-r border-[var(--color-line)] bg-transparent px-2.5 py-2.5 text-xs font-semibold text-[var(--color-ink)] focus:outline-none"
-                  >
-                    <option value="+91">IND +91</option>
-                    <option value="+1">USA +1</option>
-                    <option value="+44">UK +44</option>
-                    <option value="+971">UAE +971</option>
-                  </select>
+                  <span className="border-r border-[var(--color-line)] px-3 py-2.5 text-base font-semibold">
+                    +91
+                  </span>
                   <input
                     id="shipping-phone"
                     type="tel"

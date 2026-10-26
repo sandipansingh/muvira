@@ -39,7 +39,17 @@ export const CheckoutPage: React.FC = () => {
   const currentStep: 'shipping' | 'payment' = stepParam === 'payment' ? 'payment' : 'shipping'
 
   const { user, loading: authLoading } = useAuth()
-  const { items, itemCount, coupon, applyCoupon, removeCoupon, hasUnmergedItems } = useCart()
+  const {
+    items,
+    itemCount,
+    coupon,
+    applyCoupon,
+    removeCoupon,
+    hasUnmergedItems,
+    status: cartStatus,
+    error: cartError,
+    retry: retryCart,
+  } = useCart()
   const { showToast } = useToast()
   const navigate = useNavigate()
 
@@ -150,11 +160,11 @@ export const CheckoutPage: React.FC = () => {
 
   // Redirect if cart is empty
   useEffect(() => {
-    if (!authLoading && items.length === 0) {
+    if (!authLoading && cartStatus === 'ready' && items.length === 0) {
       // Cart is empty, navigate to cart
       navigate('/cart', { replace: true })
     }
-  }, [items.length, authLoading, navigate])
+  }, [items.length, authLoading, cartStatus, navigate])
 
   const handleApplyPromoCode = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -257,6 +267,20 @@ export const CheckoutPage: React.FC = () => {
       </main>
     )
   }
+
+  if (cartStatus !== 'ready')
+    return (
+      <main className="editorial-page py-16">
+        <div className="editorial-container" role="status">
+          <p>{cartStatus === 'error' ? cartError : 'Loading your cart…'}</p>
+          {cartStatus === 'error' && (
+            <button type="button" className="button-primary mt-4" onClick={retryCart}>
+              Retry loading cart
+            </button>
+          )}
+        </div>
+      </main>
+    )
 
   return (
     <main className="min-h-screen bg-[var(--color-paper)] pb-16">

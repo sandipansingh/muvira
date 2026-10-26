@@ -25,6 +25,7 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run format:check
       - run: pnpm run type-check
+      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm run test
 
   migrations:

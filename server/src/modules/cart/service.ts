@@ -3,6 +3,33 @@ import { databaseError } from '../../lib/databaseError'
 import { AppError } from '../../types'
 import type { CartItem } from '../../types'
 import type { AddToCartInput, UpdateCartItemInput } from './schema'
+import { hasSchemaCapability } from '../../services/runtimeSchema'
+
+export async function mergeGuestItem(
+  userId: string,
+  input: AddToCartInput & { operation_id: string }
+): Promise<{ status: 'applied' | 'rejected'; message?: string }> {
+  if (!(await hasSchemaCapability(50)))
+    throw new AppError(
+      503,
+      'SCHEMA_NOT_READY',
+      'Cart transfer is temporarily unavailable. Please retry.'
+    )
+  const { data, error } = await adminSupabase.rpc('merge_guest_cart_item', {
+    p_operation_id: input.operation_id,
+    p_user_id: userId,
+    p_product_id: input.product_id,
+    p_quantity: input.quantity,
+  })
+  if (error?.message.includes('conflicts'))
+    throw new AppError(
+      409,
+      'TRANSFER_CONFLICT',
+      'Transfer operation conflicts with its original input'
+    )
+  if (error || !data) throw databaseError('cart.merge', error, 'Unable to transfer guest cart')
+  return data
+}
 
 interface CartItemWithProduct extends CartItem {
   products: {

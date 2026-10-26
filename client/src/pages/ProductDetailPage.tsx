@@ -34,6 +34,7 @@ export const ProductDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [openAccordionSection, setOpenAccordionSection] = useState<string | null>('description')
 
+  const navigationRef = useRef(0)
   const accordionRef = useRef<HTMLDivElement | null>(null)
 
   const handleReviewClick = () => {
@@ -46,16 +47,19 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   const loadReviews = useCallback(async (productId: string, page = 1) => {
+    const navigation = navigationRef.current
     setReviewError(null)
     if (page > 1) setLoadingMoreReviews(true)
     try {
       const response = await reviewService.getProductReviews(productId, page)
+      if (navigation !== navigationRef.current) return
       if (!response.success) throw new Error(response.error.message)
       setReviews((current) => mergeReviewPage(current, response.data, page))
       setReviewSummary(response.summary)
       setReviewPage(response.pagination.page)
       setReviewTotalPages(response.pagination.totalPages)
     } catch (reason) {
+      if (navigation !== navigationRef.current) return
       if (page === 1) {
         setReviews([])
         setReviewSummary({ avgRating: null, totalReviews: 0 })
@@ -64,7 +68,7 @@ export const ProductDetailPage: React.FC = () => {
       }
       setReviewError(reason instanceof Error ? reason.message : 'Unable to load reviews.')
     } finally {
-      if (page > 1) setLoadingMoreReviews(false)
+      if (navigation === navigationRef.current && page > 1) setLoadingMoreReviews(false)
     }
   }, [])
 
@@ -76,6 +80,13 @@ export const ProductDetailPage: React.FC = () => {
   useEffect(() => {
     if (!slug) return
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    const navigationState = navigationRef
+    const navigation = ++navigationState.current
+    setReviews([])
+    setReviewSummary({ avgRating: null, totalReviews: 0 })
+    setReviewPage(1)
+    setReviewTotalPages(1)
+    setLoadingMoreReviews(false)
     let active = true
     const loadProduct = async () => {
       setLoading(true)
@@ -86,18 +97,23 @@ export const ProductDetailPage: React.FC = () => {
         const response = await productService.getProductBySlug(slug)
         if (!response.success) throw new Error(response.error.message)
         const productData = response.data
-        const [relatedResponse] = await Promise.all([
-          productService.getRelatedProducts(productData.id),
-          loadReviews(productData.id),
-        ])
-        if (active) {
-          setProduct(productData)
-          if (relatedResponse.success) {
-            setRelatedProducts(relatedResponse.data)
-          } else {
-            setRelatedError(relatedResponse.error.message)
-          }
-        }
+        if (!active) return
+        setProduct(productData)
+        setLoading(false)
+        void loadReviews(productData.id)
+        void productService
+          .getRelatedProducts(productData.id)
+          .then((relatedResponse) => {
+            if (!active) return
+            if (relatedResponse.success) setRelatedProducts(relatedResponse.data)
+            else setRelatedError(relatedResponse.error.message)
+          })
+          .catch((reason: unknown) => {
+            if (active)
+              setRelatedError(
+                reason instanceof Error ? reason.message : 'Unable to load related products.'
+              )
+          })
       } catch (reason) {
         if (active)
           setError(reason instanceof Error ? reason.message : 'Unable to load this product.')
@@ -108,6 +124,7 @@ export const ProductDetailPage: React.FC = () => {
     void loadProduct()
     return () => {
       active = false
+      if (navigationState.current === navigation) navigationState.current++
     }
   }, [loadReviews, slug])
 

@@ -16,12 +16,28 @@ export const CartPage: React.FC = () => {
     shippingPaisa,
     totalPaisa,
     loading,
+    status,
+    retry,
     error,
     hasUnmergedItems,
     clearCart,
   } = useCart()
   const navigate = useNavigate()
 
+  if (status === 'loading' || status === 'merging' || status === 'error') {
+    return (
+      <main className="editorial-page py-16">
+        <div className="editorial-container" role="status">
+          <p>{status === 'error' ? error : 'Loading your cart…'}</p>
+          {status === 'error' && (
+            <button type="button" className="button-primary mt-4" onClick={retry}>
+              Retry loading cart
+            </button>
+          )}
+        </div>
+      </main>
+    )
+  }
   if (items.length === 0) {
     return (
       <main className="min-h-[75vh] bg-[var(--color-paper)] px-4 py-16 sm:px-6 lg:px-8">
@@ -57,6 +73,9 @@ export const CartPage: React.FC = () => {
         {error && (
           <div className="mt-4 rounded-xl border border-warning/30 bg-warning-soft p-4 text-xs font-medium text-warning">
             {error}
+            <button type="button" onClick={retry} className="ml-3 underline">
+              Retry
+            </button>
           </div>
         )}
 

@@ -48,7 +48,10 @@ test(
     assert.equal(workerStarts, expectedReady ? 1 : 0)
 
     if (expectedReady) {
-      const expectedVersion = Number(process.env.EXPECTED_SCHEMA_VERSION ?? 49)
+      const expectedVersion = Number(
+        process.env.EXPECTED_SCHEMA_VERSION ??
+          require('./helpers/schema-version.cjs').latestSchemaVersion
+      )
       assert.equal(status.contract.contract_version, expectedVersion)
       assert.equal(status.contract.migration_version, String(expectedVersion).padStart(3, '0'))
       for (const [key, value] of Object.entries(status.contract)) {

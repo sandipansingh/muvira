@@ -19,6 +19,8 @@ export const CartDrawer: React.FC = () => {
     hasUnmergedItems,
     loading,
     error,
+    status,
+    retry,
   } = useCart()
   const navigate = useNavigate()
   const panelRef = useRef<HTMLElement>(null)
@@ -69,7 +71,16 @@ export const CartDrawer: React.FC = () => {
 
         {/* Cart Items List */}
         <div className="flex-1 space-y-3.5 overflow-y-auto px-5 py-4 dropdown-scrollbar">
-          {items.length === 0 ? (
+          {status !== 'ready' ? (
+            <div role="status" className="py-10 text-center">
+              <p>{status === 'error' ? error : 'Loading your cart…'}</p>
+              {status === 'error' && (
+                <button type="button" className="button-primary mt-4" onClick={retry}>
+                  Retry loading cart
+                </button>
+              )}
+            </div>
+          ) : items.length === 0 ? (
             <div className="py-10 text-center">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-surface)] text-muted">
                 <ShoppingBag className="h-6 w-6 stroke-[1.5]" />
@@ -98,7 +109,7 @@ export const CartDrawer: React.FC = () => {
         </div>
 
         {/* Cart Summary & Footer Actions */}
-        {items.length > 0 && (
+        {status === 'ready' && items.length > 0 && (
           <div className="space-y-3 border-t border-[var(--color-line)] bg-[var(--color-paper)] p-4 shadow-xs">
             <CouponInput />
             {error && (
