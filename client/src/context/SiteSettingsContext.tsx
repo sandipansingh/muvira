@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { settingsService } from '../lib/services/settings.service'
 import type { SiteSettings } from '../lib/types/settings'
 
@@ -7,6 +7,7 @@ interface SiteSettingsContextValue {
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
+  applySettings: (settings: SiteSettings) => void
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -15,10 +16,9 @@ const DEFAULT_SETTINGS: SiteSettings = {
   heroSlides: [],
   promoBanners: [],
   storeDescription: '',
-  shippingRules: {
-    shippingChargePaisa: 15000,
-    freeShippingThresholdPaisa: 100000,
-  },
+  shippingMethods: null,
+  configuration: { shipping_ready: false, fulfillment_ready: false, errors: [] },
+  shippingRules: null,
   shiprocketSettings: {
     pickupLocation: '',
     defaultLengthCm: 15,
@@ -34,20 +34,31 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const requestVersion = useRef(0)
+
+  const applySettings = useCallback((value: SiteSettings) => {
+    requestVersion.current += 1
+    setSettings(value)
+    setError(null)
+    setLoading(false)
+  }, [])
 
   const refresh = useCallback(async () => {
+    const version = ++requestVersion.current
     setLoading(true)
     setError(null)
 
     try {
       const response = await settingsService.getSettings()
+      if (version !== requestVersion.current) return
       if (!response.success) throw new Error(response.error.message)
       setSettings(response.data)
     } catch (reason) {
+      if (version !== requestVersion.current) return
       const message = reason instanceof Error ? reason.message : 'Failed to load site settings.'
       setError(message)
     } finally {
-      setLoading(false)
+      if (version === requestVersion.current) setLoading(false)
     }
   }, [])
 
@@ -56,7 +67,7 @@ export const SiteSettingsProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [refresh])
 
   return (
-    <SiteSettingsContext.Provider value={{ settings, loading, error, refresh }}>
+    <SiteSettingsContext.Provider value={{ settings, loading, error, refresh, applySettings }}>
       {children}
     </SiteSettingsContext.Provider>
   )

@@ -34,6 +34,7 @@ export const settingsService = {
       hero_slides: SiteSettings['heroSlides']
       promo_banners: SiteSettings['promoBanners']
       store_description: string
+      shipping_methods: NonNullable<SiteSettings['shippingMethods']>
       shipping_rules: {
         shipping_charge_paisa: number
         free_shipping_threshold_paisa: number

@@ -1,3 +1,4 @@
+require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
 const test = require('node:test')

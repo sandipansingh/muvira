@@ -18,6 +18,7 @@ export const CartDrawer: React.FC = () => {
     totalPaisa,
     hasUnmergedItems,
     loading,
+    error,
   } = useCart()
   const navigate = useNavigate()
   const panelRef = useRef<HTMLElement>(null)
@@ -100,6 +101,11 @@ export const CartDrawer: React.FC = () => {
         {items.length > 0 && (
           <div className="space-y-3 border-t border-[var(--color-line)] bg-[var(--color-paper)] p-4 shadow-xs">
             <CouponInput />
+            {error && (
+              <p role="alert" className="text-sm text-danger">
+                {error}
+              </p>
+            )}
 
             <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-sm font-normal text-[var(--color-muted)]">
               <div className="flex justify-between">
@@ -117,12 +123,16 @@ export const CartDrawer: React.FC = () => {
               <div className="flex justify-between">
                 <span>Estimated shipping</span>
                 <span className="font-normal text-[var(--color-ink)]">
-                  {shippingPaisa === 0 ? 'FREE' : formatPrice(shippingPaisa)}
+                  {error
+                    ? 'Unavailable'
+                    : shippingPaisa === 0
+                      ? 'Free shipping'
+                      : formatPrice(shippingPaisa)}
                 </span>
               </div>
               <div className="flex justify-between border-t border-[var(--color-line)] pt-2 text-xs font-normal text-[var(--color-ink)]">
                 <span>Total</span>
-                <span>{formatPrice(totalPaisa)}</span>
+                <span>{error ? 'Unavailable' : formatPrice(totalPaisa)}</span>
               </div>
             </div>
 
@@ -137,7 +147,7 @@ export const CartDrawer: React.FC = () => {
               <button
                 type="button"
                 onClick={openCheckout}
-                disabled={loading || hasUnmergedItems}
+                disabled={loading || hasUnmergedItems || Boolean(error)}
                 className="button-primary h-10 rounded-lg py-0 text-sm shadow-xs sm:col-span-2"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>

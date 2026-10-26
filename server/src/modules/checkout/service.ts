@@ -10,6 +10,7 @@ import type { CheckoutQuoteInput, CreateCheckoutOrderInput, ShippingMethod } fro
 import { env } from '../../config/env'
 import { recordPaymentReconciliation } from '../payments/service'
 import { executionLeaseRpcArgs, withExecutionLease } from '../../services/executionLease'
+import { ShippingMethodsSchema } from '../settings/schema'
 
 interface CartProduct {
   id: string
@@ -33,23 +34,6 @@ interface ShippingMethodConfig {
   free_threshold_paisa: number
 }
 
-const DEFAULT_SHIPPING_METHODS: Record<ShippingMethod, ShippingMethodConfig> = {
-  standard: {
-    enabled: true,
-    label: 'Standard Shipping',
-    description: '5–7 business days',
-    charge_paisa: 15000,
-    free_threshold_paisa: 100000,
-  },
-  express: {
-    enabled: true,
-    label: 'Express Shipping',
-    description: '1–2 business days',
-    charge_paisa: 9900,
-    free_threshold_paisa: 0,
-  },
-}
-
 async function getShippingMethods(): Promise<Record<ShippingMethod, ShippingMethodConfig>> {
   const { data, error } = await adminSupabase
     .from('site_settings')
@@ -60,26 +44,15 @@ async function getShippingMethods(): Promise<Record<ShippingMethod, ShippingMeth
   if (error)
     throw databaseError('checkout.load_shipping_methods', error, 'Failed to load shipping methods')
 
-  const configuredMethods = data?.value as
-    | Partial<Record<ShippingMethod, ShippingMethodConfig>>
-    | undefined
-  const methods = {
-    standard: configuredMethods?.standard ?? DEFAULT_SHIPPING_METHODS.standard,
-    express: configuredMethods?.express ?? DEFAULT_SHIPPING_METHODS.express,
+  const parsed = ShippingMethodsSchema.safeParse(data?.value)
+  if (!parsed.success) {
+    throw new AppError(
+      503,
+      'SHIPPING_CONFIG_INVALID',
+      'Shipping is not configured. Please contact the store or try again later.'
+    )
   }
-
-  for (const config of Object.values(methods)) {
-    if (
-      !Number.isInteger(config.charge_paisa) ||
-      config.charge_paisa < 0 ||
-      !Number.isInteger(config.free_threshold_paisa) ||
-      config.free_threshold_paisa < 0
-    ) {
-      throw new AppError(500, 'SHIPPING_CONFIG_INVALID', 'Shipping configuration is invalid')
-    }
-  }
-
-  return methods
+  return parsed.data
 }
 
 async function getValidatedCart(userId: string): Promise<QuoteCartItem[]> {
@@ -128,6 +101,13 @@ export async function quoteCheckout(userId: string, input: CheckoutQuoteInput) {
   }
 
   const discountedSubtotalPaisa = Math.max(0, subtotalPaisa - discountAmountPaisa)
+  if (discountedSubtotalPaisa < 100) {
+    throw new AppError(
+      400,
+      'ORDER_BELOW_MINIMUM',
+      'The payable total must be at least ₹1. Add an item or remove the coupon.'
+    )
+  }
   const shippingMethods = await getShippingMethods()
   const shippingConfig = shippingMethods[input.shipping_method]
   if (!shippingConfig.enabled) {
@@ -138,11 +118,7 @@ export async function quoteCheckout(userId: string, input: CheckoutQuoteInput) {
     enabled: config.enabled,
     label: config.label,
     description: config.description,
-    amount_paisa:
-      discountedSubtotalPaisa === 0 ||
-      (config.free_threshold_paisa > 0 && discountedSubtotalPaisa >= config.free_threshold_paisa)
-        ? 0
-        : config.charge_paisa,
+    amount_paisa: 0,
   })
   const availableShippingMethods = {
     standard: quoteShipping(shippingMethods.standard),

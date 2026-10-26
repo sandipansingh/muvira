@@ -26,7 +26,8 @@
     "dev:server": "pnpm --filter server dev",
     "build": "pnpm -r run build",
     "install:all": "pnpm install",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:integration": "node tests/run-local-integration.cjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.1.0",

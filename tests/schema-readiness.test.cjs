@@ -1,3 +1,4 @@
+require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const { once } = require('node:events')
 const test = require('node:test')
@@ -47,8 +48,9 @@ test(
     assert.equal(workerStarts, expectedReady ? 1 : 0)
 
     if (expectedReady) {
-      assert.equal(status.contract.contract_version, 48)
-      assert.equal(status.contract.migration_version, '048')
+      const expectedVersion = Number(process.env.EXPECTED_SCHEMA_VERSION ?? 49)
+      assert.equal(status.contract.contract_version, expectedVersion)
+      assert.equal(status.contract.migration_version, String(expectedVersion).padStart(3, '0'))
       for (const [key, value] of Object.entries(status.contract)) {
         if (key.startsWith('missing_') || key.startsWith('invalid_')) assert.deepEqual(value, [])
       }

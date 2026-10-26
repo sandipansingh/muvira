@@ -56,12 +56,14 @@ jobs:
           SUPABASE_TEST_URL="$API_URL" \
           SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
           SUPABASE_TEST_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
-          node --test tests/database-security.test.cjs tests/api-integration.test.cjs
+          SUPABASE_TEST_ISOLATED_LOCAL=true \
+          pnpm run test:integration
       - name: Replay remediation as an upgrade from migration 025
         shell: bash
         run: |
           pnpm --filter server exec supabase db reset --workdir .. --local --no-seed --version 025
           source supabase/.temp/test-status.env
+          SUPABASE_TEST_ISOLATED_LOCAL=true \
           EXPECTED_SCHEMA_READY=false \
           SUPABASE_TEST_URL="$API_URL" \
           SUPABASE_TEST_ANON_KEY="$ANON_KEY" \
@@ -74,6 +76,7 @@ jobs:
         shell: bash
         run: |
           source supabase/.temp/test-status.env
+          SUPABASE_TEST_ISOLATED_LOCAL=true \
           EXPECTED_SCHEMA_READY=true \
           SUPABASE_TEST_URL="$API_URL" \
           SUPABASE_TEST_ANON_KEY="$ANON_KEY" \

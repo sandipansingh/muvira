@@ -1,3 +1,4 @@
+require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
 const { once } = require('node:events')
@@ -293,8 +294,8 @@ test(
           {
             subtotal_paisa: 90000,
             discount_amount_paisa: 5000,
-            shipping_amount_paisa: 15000,
-            total_amount_paisa: 100000,
+            shipping_amount_paisa: 0,
+            total_amount_paisa: 85000,
           }
         )
       }
@@ -305,9 +306,9 @@ test(
       providerCreateInput = input
       return {
         id: providerOrderId,
-        amount: 100000,
+        amount: 85000,
         amount_paid: 0,
-        amount_due: 100000,
+        amount_due: 85000,
         currency: 'INR',
         receipt: input.receipt,
         status: 'created',
@@ -344,9 +345,9 @@ test(
           },
         })
         assert.equal(createResult.status, 201)
-        assert.equal(createResult.body.data.amount_paisa, 100000)
+        assert.equal(createResult.body.data.amount_paisa, 85000)
         assert.equal(createResult.body.data.razorpay_order_id, providerOrderId)
-        assert.equal(providerCreateInput.amount, 100000)
+        assert.equal(providerCreateInput.amount, 85000)
         assert.equal(providerCreateInput.currency, 'INR')
         assert.equal(providerCreateInput.payment.capture, 'automatic')
         createdOrderId = createResult.body.data.order_id
@@ -356,7 +357,7 @@ test(
     razorpay.payments.fetch = async () => ({
       id: providerPaymentId,
       order_id: providerOrderId,
-      amount: 100000,
+      amount: 85000,
       currency: 'INR',
       status: 'captured',
       captured: true,
@@ -364,8 +365,8 @@ test(
     })
     razorpay.orders.fetch = async () => ({
       id: providerOrderId,
-      amount: 100000,
-      amount_paid: 100000,
+      amount: 85000,
+      amount_paid: 85000,
       currency: 'INR',
       status: 'paid',
     })
@@ -441,7 +442,7 @@ test(
               entity: {
                 id: providerPaymentId,
                 order_id: providerOrderId,
-                amount: 100000,
+                amount: 85000,
                 currency: 'INR',
                 status: 'failed',
                 captured: false,

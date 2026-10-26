@@ -547,11 +547,42 @@ export interface ShiprocketTrackData {
 // 1. Pickup Locations
 //
 
+export function normalizePickupLocations(value: unknown): ShiprocketPickupLocation[] {
+  if (!Array.isArray(value)) throw new Error('Shiprocket pickup locations response is invalid')
+  return value.map((entry: unknown) => {
+    if (!entry || typeof entry !== 'object')
+      throw new Error('Shiprocket pickup location is invalid')
+    const row = entry as Record<string, unknown>
+    const pickupId = Number(row['pickup_id'] ?? row['id'])
+    const pickupLocation = row['pickup_location']
+    const pincode = String(row['pincode'] ?? row['pin_code'] ?? '')
+    if (
+      !Number.isInteger(pickupId) ||
+      pickupId <= 0 ||
+      typeof pickupLocation !== 'string' ||
+      !pickupLocation.trim() ||
+      !/^\d{6}$/.test(pincode)
+    ) {
+      throw new Error(
+        'Shiprocket pickup location is missing its registered name, identifier or pincode'
+      )
+    }
+    return {
+      pickup_id: pickupId,
+      pickup_location: pickupLocation,
+      pincode,
+      address: String(row['address'] ?? ''),
+      city: String(row['city'] ?? ''),
+      state: String(row['state'] ?? ''),
+      phone: String(row['phone'] ?? ''),
+      name: String(row['name'] ?? ''),
+    }
+  })
+}
+
 export async function getPickupLocations(): Promise<ShiprocketPickupLocation[]> {
-  const data = await apiFetch<{ data: { shipping_address: ShiprocketPickupLocation[] } }>(
-    '/settings/company/pickup'
-  )
-  return data.data.shipping_address
+  const data = await apiFetch<{ data?: { shipping_address?: unknown } }>('/settings/company/pickup')
+  return normalizePickupLocations(data.data?.shipping_address)
 }
 
 //

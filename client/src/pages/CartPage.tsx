@@ -118,7 +118,7 @@ export const CartPage: React.FC = () => {
               totalPaisa={totalPaisa}
               onProceed={() => navigate('/checkout?step=shipping')}
               buttonLabel="Proceed to Checkout"
-              disabled={hasUnmergedItems}
+              disabled={loading || hasUnmergedItems || Boolean(error)}
             />
           </div>
         </div>

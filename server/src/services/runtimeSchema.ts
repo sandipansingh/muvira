@@ -4,6 +4,7 @@ import { sanitizePostgrestError } from '../lib/databaseError'
 import type { SanitizedPostgrestError } from '../types'
 
 export const RUNTIME_SCHEMA_CONTRACT_VERSION = 48
+export const SUPPORTED_RUNTIME_SCHEMA_VERSIONS = [48, 49, 50, 51, 52] as const
 const CACHE_TTL_MS = 15_000
 
 const contractSchema = z.object({
@@ -53,7 +54,8 @@ async function fetchRuntimeSchemaStatus(): Promise<RuntimeSchemaStatus> {
     }
 
     const ready =
-      parsed.data.ready && parsed.data.contract_version === RUNTIME_SCHEMA_CONTRACT_VERSION
+      parsed.data.ready &&
+      SUPPORTED_RUNTIME_SCHEMA_VERSIONS.some((version) => version === parsed.data.contract_version)
     return { ready, contract: parsed.data }
   } catch (error) {
     return { ready: false, contract: null, error: sanitizePostgrestError(error) }
@@ -84,4 +86,9 @@ export function clearRuntimeSchemaStatusCache(): void {
   cachedStatus = null
   cachedAt = 0
   inFlight = null
+}
+
+export async function hasSchemaCapability(minimumVersion: number): Promise<boolean> {
+  const status = await getRuntimeSchemaStatus()
+  return status.ready && (status.contract?.contract_version ?? 0) >= minimumVersion
 }

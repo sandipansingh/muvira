@@ -3,9 +3,34 @@ import { Breadcrumbs } from '../../components/common/Breadcrumbs'
 import { useToast } from '../../context/ToastContext'
 import { settingsService } from '../../lib/services/settings.service'
 import type { SiteSettings } from '../../lib/types/settings'
+import { useSiteSettings } from '../../context/SiteSettingsContext'
+import { adminApiService } from '../../lib/services/admin/admin.service'
+import { Dropdown } from '../../components/ui/Dropdown'
 
 export const AdminSettingsPage: React.FC = () => {
   const { showToast } = useToast()
+  const { applySettings } = useSiteSettings()
+  const [pickupLocation, setPickupLocation] = useState('')
+  const [pickupOptions, setPickupOptions] = useState<Array<{ value: string; label: string }>>([])
+  const [pickupError, setPickupError] = useState<string | null>(null)
+
+  const loadPickupLocations = async () => {
+    setPickupError(null)
+    try {
+      const response = await adminApiService.getPickupLocations()
+      if (!response.success) throw new Error(response.error.message)
+      setPickupOptions(
+        response.data.map((location) => ({
+          value: location.pickup_location,
+          label: `${location.pickup_location} — ${location.city} ${location.pincode}`,
+        }))
+      )
+    } catch (reason) {
+      setPickupError(
+        reason instanceof Error ? reason.message : 'Pickup locations could not be loaded.'
+      )
+    }
+  }
   const [settings, setSettings] = useState<SiteSettings | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -19,6 +44,7 @@ export const AdminSettingsPage: React.FC = () => {
         if (!active) return
         if (!response.success) throw new Error(response.error.message)
         setSettings(response.data)
+        setPickupLocation(response.data.shiprocketSettings.pickupLocation)
       })
       .catch((reason) => {
         if (active) setError(reason instanceof Error ? reason.message : 'Settings are unavailable.')
@@ -29,6 +55,10 @@ export const AdminSettingsPage: React.FC = () => {
     return () => {
       active = false
     }
+  }, [])
+
+  useEffect(() => {
+    void loadPickupLocations()
   }, [])
 
   const saveSettings = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -49,12 +79,24 @@ export const AdminSettingsPage: React.FC = () => {
           badge: String(form.get('announcementBadge') ?? ''),
           message: String(form.get('announcementMessage') ?? ''),
         },
-        shipping_rules: {
-          shipping_charge_paisa: Math.round(Number(form.get('shippingCharge')) * 100),
-          free_shipping_threshold_paisa: Math.round(Number(form.get('freeThreshold')) * 100),
+        shipping_methods: {
+          standard: {
+            enabled: true,
+            label: settings.shippingMethods?.standard.label ?? 'Standard Shipping',
+            description: settings.shippingMethods?.standard.description ?? '5–7 business days',
+            charge_paisa: 0,
+            free_threshold_paisa: 0,
+          },
+          express: {
+            enabled: true,
+            label: settings.shippingMethods?.express.label ?? 'Express Shipping',
+            description: settings.shippingMethods?.express.description ?? '1–2 business days',
+            charge_paisa: 0,
+            free_threshold_paisa: 0,
+          },
         },
         shiprocket_settings: {
-          pickup_location: String(form.get('pickupLocation')),
+          pickup_location: pickupLocation,
           default_length_cm: Number(form.get('length')),
           default_breadth_cm: Number(form.get('breadth')),
           default_height_cm: Number(form.get('height')),
@@ -63,6 +105,7 @@ export const AdminSettingsPage: React.FC = () => {
       })
       if (!response.success) throw new Error(response.error.message)
       setSettings(response.data)
+      applySettings(response.data)
       showToast('Settings saved atomically.', 'success')
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Settings could not be saved.'
@@ -159,43 +202,40 @@ export const AdminSettingsPage: React.FC = () => {
           </label>
         </section>
         <section className="panel grid gap-4 p-5 sm:grid-cols-2">
-          <h3 className="heading text-xl sm:col-span-2">Shipping prices</h3>
-          <label className="text-sm text-ink">
-            Standard shipping ₹
-            <input
-              name="shippingCharge"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              defaultValue={settings.shippingRules.shippingChargePaisa / 100}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-          <label className="text-sm text-ink">
-            Free threshold ₹
-            <input
-              name="freeThreshold"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              defaultValue={settings.shippingRules.freeShippingThresholdPaisa / 100}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
+          <h3 className="heading text-xl sm:col-span-2">Free shipping</h3>
+          <p className="text-ink sm:col-span-2">
+            Standard and express shipping are free on every new order, with no minimum spend.
+          </p>
         </section>
         <section className="panel grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
           <h3 className="heading text-xl sm:col-span-2 lg:col-span-5">Shiprocket defaults</h3>
-          <label className="text-sm text-ink">
-            Pickup location
-            <input
-              name="pickupLocation"
-              required
-              defaultValue={settings.shiprocketSettings.pickupLocation}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+          <div className="sm:col-span-2 lg:col-span-5">
+            {!settings.configuration.fulfillment_ready && (
+              <p className="mb-3 text-warning">
+                Complete setup by selecting a registered pickup location and saving package
+                defaults.
+              </p>
+            )}
+            <Dropdown
+              label="Registered pickup location"
+              value={pickupLocation}
+              onChange={setPickupLocation}
+              options={pickupOptions}
+              placeholder="Select pickup location"
             />
-          </label>
+            {pickupError && (
+              <p role="alert" className="mt-2 text-danger">
+                {pickupError}
+              </p>
+            )}
+            <button
+              type="button"
+              className="mt-2 text-primary"
+              onClick={() => void loadPickupLocations()}
+            >
+              Refresh pickup locations
+            </button>
+          </div>
           <label className="text-sm text-ink">
             Length cm
             <input
@@ -241,7 +281,11 @@ export const AdminSettingsPage: React.FC = () => {
             />
           </label>
         </section>
-        <button type="submit" disabled={saving} className="button-primary">
+        <button
+          type="submit"
+          disabled={saving || !pickupOptions.some((option) => option.value === pickupLocation)}
+          className="button-primary"
+        >
           {saving ? 'Saving…' : 'Save settings'}
         </button>
       </form>

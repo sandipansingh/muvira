@@ -34,6 +34,14 @@ export interface ShippingRules {
   freeShippingThresholdPaisa: number
 }
 
+export interface ShippingMethodSettings {
+  enabled: boolean
+  label: string
+  description: string
+  charge_paisa: number
+  free_threshold_paisa: number
+}
+
 export interface ShiprocketSettings {
   pickupLocation: string
   defaultLengthCm: number
@@ -48,6 +56,8 @@ export interface SiteSettings {
   heroSlides: HeroSlide[]
   promoBanners: PromoBanner[]
   storeDescription: string
-  shippingRules: ShippingRules
+  shippingMethods: Record<'standard' | 'express', ShippingMethodSettings> | null
+  configuration: { shipping_ready: boolean; fulfillment_ready: boolean; errors: string[] }
+  shippingRules: ShippingRules | null
   shiprocketSettings: ShiprocketSettings
 }

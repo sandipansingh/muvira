@@ -5,6 +5,7 @@ import {
   getRuntimeSchemaStatus,
   RUNTIME_SCHEMA_CONTRACT_VERSION,
 } from '../../services/runtimeSchema'
+import { getSettings } from '../settings/service'
 
 export const healthRouter = Router()
 
@@ -68,4 +69,16 @@ healthRouter.get('/ready', async (_req, res) => {
 
 healthRouter.get('/full', async (_req, res) => {
   await sendReadiness(res, true)
+})
+
+healthRouter.get('/commerce', async (_req, res, next) => {
+  try {
+    const { configuration } = await getSettings()
+    const ready = configuration.shipping_ready && configuration.fulfillment_ready
+    res
+      .status(ready ? 200 : 503)
+      .json({ success: ready, data: { status: ready ? 'ready' : 'not_ready', ...configuration } })
+  } catch (error) {
+    next(error)
+  }
 })

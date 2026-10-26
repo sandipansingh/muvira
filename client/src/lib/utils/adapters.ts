@@ -380,8 +380,22 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
   const announcementRaw = (raw['announcement_bar'] as Record<string, unknown>) ?? {}
   const slidesRaw = (raw['hero_slides'] as Record<string, unknown>[]) ?? []
   const bannersRaw = (raw['promo_banners'] as Record<string, unknown>[]) ?? []
-  const shippingRaw = (raw['shipping_rules'] as Record<string, unknown>) ?? {}
   const shiprocketRaw = (raw['shiprocket_settings'] as Record<string, unknown>) ?? {}
+  const methodsRaw = raw['shipping_methods'] as SiteSettings['shippingMethods']
+  const validShipping =
+    methodsRaw &&
+    ['standard', 'express'].every((name) => {
+      const method = methodsRaw[name as 'standard' | 'express']
+      return (
+        method &&
+        typeof method.enabled === 'boolean' &&
+        typeof method.label === 'string' &&
+        !!method.label.trim() &&
+        typeof method.description === 'string' &&
+        method.charge_paisa === 0 &&
+        method.free_threshold_paisa === 0
+      )
+    })
 
   return {
     contactInfo: {
@@ -409,11 +423,22 @@ export function mapSiteSettings(raw: Record<string, unknown>): SiteSettings {
       link: (b['link'] as string) ?? '/',
     })),
     storeDescription: (raw['store_description'] as string) ?? '',
-    shippingRules: {
-      shippingChargePaisa: (shippingRaw['shipping_charge_paisa'] as number) ?? 15000,
-      freeShippingThresholdPaisa:
-        (shippingRaw['free_shipping_threshold_paisa'] as number) ?? 100000,
+    shippingMethods: validShipping ? methodsRaw : null,
+    configuration: {
+      shipping_ready: Boolean(validShipping),
+      fulfillment_ready:
+        (raw['configuration'] as SiteSettings['configuration'] | undefined)?.fulfillment_ready ??
+        false,
+      errors:
+        (raw['configuration'] as SiteSettings['configuration'] | undefined)?.errors ??
+        (validShipping ? [] : ['Shipping is not configured. Please try again later.']),
     },
+    shippingRules: validShipping
+      ? {
+          shippingChargePaisa: methodsRaw.standard.charge_paisa,
+          freeShippingThresholdPaisa: methodsRaw.standard.free_threshold_paisa,
+        }
+      : null,
     shiprocketSettings: {
       pickupLocation: (shiprocketRaw['pickup_location'] as string) ?? '',
       defaultLengthCm: (shiprocketRaw['default_length_cm'] as number) ?? 15,

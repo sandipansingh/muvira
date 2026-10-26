@@ -34,6 +34,7 @@ import type {
   FulfillOrderInput,
   RefundOrderInput,
 } from './schema'
+import { ShiprocketSettingsSchema } from '../settings/schema'
 
 //
 // User-facing: only see own orders
@@ -480,7 +481,14 @@ async function buildShiprocketOrderPayload(
       { code: 'SETTINGS_UNAVAILABLE' }
     )
   }
-  const defaults = (settingsData?.value as Record<string, number | string>) ?? {}
+  const validatedDefaults = ShiprocketSettingsSchema.safeParse(settingsData?.value)
+  if (!validatedDefaults.success)
+    throw new AppError(
+      409,
+      'FULFILLMENT_CONFIG_INVALID',
+      'Complete Shiprocket setup in Store settings: select a registered pickup location and save package dimensions and weight.'
+    )
+  const defaults = validatedDefaults.data
 
   const lengthCm =
     overrides.lengthCm ??
@@ -613,6 +621,8 @@ async function createShiprocketOrderInternal(
     unit_price_paisa: number
   }>
 
+  const payload = await buildShiprocketOrderPayload(order, orderItems, overrides)
+  await assertPickupLocationConfigured(payload.pickup_location)
   const { error: pendingError } = await adminSupabase
     .from('orders')
     .update({ shiprocket_status: 'pending', shiprocket_error: null })
@@ -624,7 +634,6 @@ async function createShiprocketOrderInternal(
       'Failed to prepare Shiprocket order'
     )
 
-  const payload = await buildShiprocketOrderPayload(order, orderItems, overrides)
   let result: Awaited<ReturnType<typeof shiprocketCreateOrder>>
   try {
     result = await shiprocketCreateOrder(payload)
@@ -705,6 +714,24 @@ async function createShiprocketOrderInternal(
 //
 
 async function assertPickupLocationConfigured(pickupLocation: string): Promise<void> {
+  const { data, error } = await adminSupabase
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'shiprocket_settings')
+    .maybeSingle()
+  if (error)
+    throw databaseError(
+      'orders.validate_fulfillment_settings',
+      error,
+      'Fulfillment settings are unavailable'
+    )
+  if (!ShiprocketSettingsSchema.safeParse(data?.value).success) {
+    throw new AppError(
+      409,
+      'FULFILLMENT_CONFIG_INVALID',
+      'Complete Shiprocket setup in Store settings before fulfilling an order.'
+    )
+  }
   try {
     const availableLocations = await shiprocketGetPickupLocations()
     const valid = availableLocations.some(

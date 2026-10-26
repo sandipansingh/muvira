@@ -64,7 +64,7 @@ function isGuestItem(item: CartItem): boolean {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading: authLoading } = useAuth()
-  const { settings } = useSiteSettings()
+  const { settings, error: settingsError } = useSiteSettings()
   const { showToast } = useToast()
   const [items, setItems] = useState<CartItem[]>(readGuestItems)
   const [coupon, setCoupon] = useState<CouponPreview | null>(null)
@@ -380,19 +380,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     ? (checkoutQuote?.discountAmountPaisa ?? 0)
     : (coupon?.discountAmount ?? 0)
   const discountedSubtotal = Math.max(0, subtotalPaisa - discountPaisa)
-  const freeShippingThresholdPaisa = settings.shippingRules.freeShippingThresholdPaisa
-  const estimatedShippingPaisa =
-    discountedSubtotal === 0 ||
-    (freeShippingThresholdPaisa > 0 && discountedSubtotal >= freeShippingThresholdPaisa)
-      ? 0
-      : settings.shippingRules.shippingChargePaisa
+  const freeShippingThresholdPaisa = 0
+  const estimatedShippingPaisa = settings.shippingMethods?.standard.charge_paisa ?? 0
   const shippingPaisa = hasAuthoritativeQuote
     ? (checkoutQuote?.shippingAmountPaisa ?? 0)
     : estimatedShippingPaisa
   const totalPaisa = hasAuthoritativeQuote
     ? (checkoutQuote?.totalAmountPaisa ?? 0)
     : discountedSubtotal + shippingPaisa
-  const amountForFreeShippingPaisa = Math.max(0, freeShippingThresholdPaisa - discountedSubtotal)
+  const amountForFreeShippingPaisa = 0
 
   return (
     <CartContext.Provider
@@ -418,7 +414,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         freeShippingThresholdPaisa,
         amountForFreeShippingPaisa,
         loading,
-        error,
+        error:
+          error ??
+          settingsError ??
+          (!settings.configuration.shipping_ready
+            ? 'Shipping configuration is unavailable. Please try again later.'
+            : null),
         hasUnmergedItems,
       }}
     >

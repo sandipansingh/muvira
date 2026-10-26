@@ -1,3 +1,4 @@
+require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
 const test = require('node:test')
@@ -234,8 +235,8 @@ test(
           'get_runtime_schema_status'
         )
         assert.ifError(schemaStatusError)
-        assert.equal(schemaStatus.contract_version, 48)
-        assert.equal(schemaStatus.migration_version, '048')
+        assert.equal(schemaStatus.contract_version, 49)
+        assert.equal(schemaStatus.migration_version, '049')
         assert.equal(schemaStatus.ready, true)
         for (const [key, value] of Object.entries(schemaStatus)) {
           if (key.startsWith('missing_') || key.startsWith('invalid_')) {

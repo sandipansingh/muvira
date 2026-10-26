@@ -30,7 +30,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
   disabled = false,
   collapsibleOnMobile = false,
 }) => {
-  const { coupon, applyCoupon, removeCoupon } = useCart()
+  const { coupon, applyCoupon, removeCoupon, error } = useCart()
   const [couponCode, setCouponCode] = useState('')
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [isSummaryOpen, setIsSummaryOpen] = useState(false)
@@ -189,7 +189,9 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
           <div className="flex justify-between">
             <span>Shipping</span>
             <span className="font-semibold text-[var(--color-ink)]">
-              {shippingPaisa === 0 ? (
+              {error ? (
+                'Unavailable'
+              ) : shippingPaisa === 0 ? (
                 <span className="text-accent font-bold">FREE</span>
               ) : (
                 formatPrice(shippingPaisa)
