@@ -1,0 +1,1721 @@
+{
+  "baseUrl": "http://127.0.0.1:62677",
+  "routes": [
+    {
+      "name": "home",
+      "path": "/"
+    },
+    {
+      "name": "shop",
+      "path": "/shop"
+    },
+    {
+      "name": "shop-category",
+      "path": "/shop?category=best-selling"
+    },
+    {
+      "name": "categories",
+      "path": "/categories"
+    },
+    {
+      "name": "category-redirect",
+      "path": "/category/best-selling"
+    },
+    {
+      "name": "categories-redirect",
+      "path": "/categories/best-selling"
+    },
+    {
+      "name": "search",
+      "path": "/search?q=wood"
+    },
+    {
+      "name": "product",
+      "path": "/product/handcrafted-blue-krishna-idol-with-flute-premium-resin-decorative-statue-for-home-temple-office-gift"
+    },
+    {
+      "name": "cart",
+      "path": "/cart"
+    },
+    {
+      "name": "cart-populated",
+      "path": "/cart",
+      "setupPath": "/product/handcrafted-blue-krishna-idol-with-flute-premium-resin-decorative-statue-for-home-temple-office-gift"
+    },
+    {
+      "name": "signin",
+      "path": "/signin"
+    },
+    {
+      "name": "signup",
+      "path": "/signup"
+    },
+    {
+      "name": "reset-password",
+      "path": "/reset-password"
+    },
+    {
+      "name": "login-redirect",
+      "path": "/login"
+    },
+    {
+      "name": "checkout-guest",
+      "path": "/checkout"
+    },
+    {
+      "name": "orders-guest",
+      "path": "/orders"
+    },
+    {
+      "name": "order-detail-guest",
+      "path": "/orders/audit-order"
+    },
+    {
+      "name": "order-success-guest",
+      "path": "/orders/success?orderId=audit-order"
+    },
+    {
+      "name": "order-failure-guest",
+      "path": "/orders/failure"
+    },
+    {
+      "name": "profile-guest",
+      "path": "/profile"
+    },
+    {
+      "name": "not-found",
+      "path": "/responsive-audit-not-found"
+    }
+  ],
+  "viewports": [],
+  "cachedResponses": [],
+  "results": [
+    {
+      "route": "menu-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 320,
+        "height": 568,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "menu-open__320x568-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 320,
+        "height": 568,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 320,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Main menu"
+            },
+            "width": 320,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x256"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x256"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.h-full.w-full",
+            "text": "",
+            "source": "1280x853",
+            "rendered": "288x360"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x192"
+          }
+        ],
+        "imageCount": 25
+      }
+    },
+    {
+      "route": "cart-drawer-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 320,
+        "height": 568,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "cart-drawer-open__320x568-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 320,
+        "height": 568,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 320,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Your shopping bag1Handcrafted Blue Krishna Idol with Flute – Premium R"
+            },
+            "width": 320,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "width": 320,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 320,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 320,
+            "height": 568
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x256"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x256"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.h-full.w-full",
+            "text": "",
+            "source": "1280x853",
+            "rendered": "288x360"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x192"
+          }
+        ],
+        "imageCount": 25
+      }
+    },
+    {
+      "route": "header-search-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 320,
+        "height": 568,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "header-search-open__320x568-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 320,
+        "height": 568,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 320,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Find something meaningfulSearch the collectionSearchExplore a collecti"
+            },
+            "width": 320,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 320,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x256"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x256"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.h-full.w-full",
+            "text": "",
+            "source": "1280x853",
+            "rendered": "288x360"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x216"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x192"
+          }
+        ],
+        "imageCount": 24
+      }
+    },
+    {
+      "route": "filters-open",
+      "path": "/shop",
+      "actualPath": "/shop",
+      "viewport": {
+        "width": 320,
+        "height": 568,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "filters-open__320x568-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 320,
+        "height": 568,
+        "heading": "The collection",
+        "productCardCount": 4,
+        "scrollWidth": 320,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Product filters"
+            },
+            "width": 320,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.h-full.w-full",
+            "text": "",
+            "source": "1280x853",
+            "rendered": "288x360"
+          }
+        ],
+        "imageCount": 15
+      }
+    },
+    {
+      "route": "quick-view-open",
+      "path": "/shop",
+      "actualPath": "/shop",
+      "viewport": {
+        "width": 320,
+        "height": 568,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "quick-view-open__320x568-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 320,
+        "height": 568,
+        "heading": "The collection",
+        "productCardCount": 4,
+        "scrollWidth": 320,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "A closer look-67%God IdolsHandcrafted Blue Krishna Idol with Flute – P"
+            },
+            "width": 320,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 320,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.h-full.w-full",
+            "text": "",
+            "source": "1280x853",
+            "rendered": "288x360"
+          }
+        ],
+        "imageCount": 16
+      }
+    },
+    {
+      "route": "forgot-password-open",
+      "path": "/signin",
+      "actualPath": "/signin",
+      "viewport": {
+        "width": 320,
+        "height": 568,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "forgot-password-open__320x568-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 320,
+        "height": 568,
+        "heading": "Welcome back.",
+        "productCardCount": 0,
+        "scrollWidth": 320,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "320x213",
+            "rendered": "288x458"
+          }
+        ],
+        "imageCount": 2
+      }
+    },
+    {
+      "route": "menu-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "menu-open__390x844-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 390,
+        "height": 844,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 390,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Main menu"
+            },
+            "width": 390,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x256"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x256"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "358x269"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "358x239"
+          }
+        ],
+        "imageCount": 25
+      }
+    },
+    {
+      "route": "cart-drawer-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "cart-drawer-open__390x844-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 390,
+        "height": 844,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 390,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Your shopping bag1Handcrafted Blue Krishna Idol with Flute – Premium R"
+            },
+            "width": 390,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "width": 390,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 390,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 390,
+            "height": 844
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x256"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x256"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "358x269"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "358x239"
+          }
+        ],
+        "imageCount": 25
+      }
+    },
+    {
+      "route": "header-search-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "header-search-open__390x844-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 390,
+        "height": 844,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 390,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Find something meaningfulSearch the collectionSearchExplore a collecti"
+            },
+            "width": 390,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 390,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x256"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x256"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image.browse-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "173x130"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "358x269"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "358x239"
+          }
+        ],
+        "imageCount": 24
+      }
+    },
+    {
+      "route": "filters-open",
+      "path": "/shop",
+      "actualPath": "/shop",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "filters-open__390x844-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 390,
+        "height": 844,
+        "heading": "The collection",
+        "productCardCount": 4,
+        "scrollWidth": 390,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Product filters"
+            },
+            "width": 390,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [],
+        "imageCount": 15
+      }
+    },
+    {
+      "route": "quick-view-open",
+      "path": "/shop",
+      "actualPath": "/shop",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "quick-view-open__390x844-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 390,
+        "height": 844,
+        "heading": "The collection",
+        "productCardCount": 4,
+        "scrollWidth": 390,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "A closer look-67%God IdolsHandcrafted Blue Krishna Idol with Flute – P"
+            },
+            "width": 390,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 390,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [],
+        "imageCount": 16
+      }
+    },
+    {
+      "route": "forgot-password-open",
+      "path": "/signin",
+      "actualPath": "/signin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "touch": true,
+        "dpr": 3,
+        "label": "phone"
+      },
+      "screenshot": "forgot-password-open__390x844-phone-dpr3.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 390,
+        "height": 844,
+        "heading": "Welcome back.",
+        "productCardCount": 0,
+        "scrollWidth": 390,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "390x260",
+            "rendered": "358x396"
+          }
+        ],
+        "imageCount": 2
+      }
+    },
+    {
+      "route": "cart-drawer-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "cart-drawer-open__1280x720-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 1280,
+        "height": 720,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 1280,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Your shopping bag1Handcrafted Blue Krishna Idol with Flute – Premium R"
+            },
+            "width": 1280,
+            "height": 134
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "width": 1280,
+            "height": 134
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 512,
+            "height": 134
+          },
+          {
+            "first": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 512,
+            "height": 720
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "576x384",
+            "rendered": "646x512"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "576x384",
+            "rendered": "389x486"
+          }
+        ],
+        "imageCount": 25
+      }
+    },
+    {
+      "route": "header-search-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "header-search-open__1280x720-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 1280,
+        "height": 720,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 1280,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Find something meaningfulSearch the collectionSearchExplore a collecti"
+            },
+            "width": 1280,
+            "height": 134
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 1280,
+            "height": 134
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "576x384",
+            "rendered": "646x512"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "576x384",
+            "rendered": "389x486"
+          }
+        ],
+        "imageCount": 24
+      }
+    },
+    {
+      "route": "quick-view-open",
+      "path": "/shop",
+      "actualPath": "/shop",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "quick-view-open__1280x720-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 1280,
+        "height": 720,
+        "heading": "The collection",
+        "productCardCount": 4,
+        "scrollWidth": 1280,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "A closer look-67%God IdolsHandcrafted Blue Krishna Idol with Flute – P"
+            },
+            "width": 1280,
+            "height": 134
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 1280,
+            "height": 134
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [],
+        "imageCount": 16
+      }
+    },
+    {
+      "route": "forgot-password-open",
+      "path": "/signin",
+      "actualPath": "/signin",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "forgot-password-open__1280x720-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 1280,
+        "height": 720,
+        "heading": "Welcome back.",
+        "productCardCount": 0,
+        "scrollWidth": 1280,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "576x384",
+            "rendered": "576x672"
+          }
+        ],
+        "imageCount": 2
+      }
+    },
+    {
+      "route": "menu-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 960,
+        "height": 540,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "menu-open__960x540-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 960,
+        "height": 540,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 960,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Main menu"
+            },
+            "width": 960,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "480x320",
+            "rendered": "482x402"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "480x320",
+            "rendered": "426x532"
+          }
+        ],
+        "imageCount": 25
+      }
+    },
+    {
+      "route": "cart-drawer-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 960,
+        "height": 540,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "cart-drawer-open__960x540-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 960,
+        "height": 540,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 960,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Your shopping bag1Handcrafted Blue Krishna Idol with Flute – Premium R"
+            },
+            "width": 960,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "width": 960,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 512,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close cart drawer"
+            },
+            "second": {
+              "selector": "aside.fixed.inset-y-0",
+              "text": "Shopping cart"
+            },
+            "width": 512,
+            "height": 540
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "480x320",
+            "rendered": "482x402"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "480x320",
+            "rendered": "426x532"
+          }
+        ],
+        "imageCount": 25
+      }
+    },
+    {
+      "route": "header-search-open",
+      "path": "/",
+      "actualPath": "/",
+      "viewport": {
+        "width": 960,
+        "height": 540,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "header-search-open__960x540-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 960,
+        "height": 540,
+        "heading": "Ganesha Idols",
+        "productCardCount": 8,
+        "scrollWidth": 960,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Find something meaningfulSearch the collectionSearchExplore a collecti"
+            },
+            "width": 960,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 960,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "480x320",
+            "rendered": "482x402"
+          },
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "480x320",
+            "rendered": "426x532"
+          }
+        ],
+        "imageCount": 24
+      }
+    },
+    {
+      "route": "filters-open",
+      "path": "/shop",
+      "actualPath": "/shop",
+      "viewport": {
+        "width": 960,
+        "height": 540,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "filters-open__960x540-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 960,
+        "height": 540,
+        "heading": "The collection",
+        "productCardCount": 4,
+        "scrollWidth": 960,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "Product filters"
+            },
+            "width": 960,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [],
+        "imageCount": 15
+      }
+    },
+    {
+      "route": "quick-view-open",
+      "path": "/shop",
+      "actualPath": "/shop",
+      "viewport": {
+        "width": 960,
+        "height": 540,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "quick-view-open__960x540-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 960,
+        "height": 540,
+        "heading": "The collection",
+        "productCardCount": 4,
+        "scrollWidth": 960,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "div.fixed.inset-0",
+              "text": "A closer look-67%God IdolsHandcrafted Blue Krishna Idol with Flute – P"
+            },
+            "width": 960,
+            "height": 131
+          },
+          {
+            "first": {
+              "selector": "header.store-header",
+              "text": "MuviraSearch products and collectionsSearchSign inBag1All collectionsS"
+            },
+            "second": {
+              "selector": "button.fixed.inset-0",
+              "text": "Close dialog"
+            },
+            "width": 960,
+            "height": 131
+          }
+        ],
+        "imageRisks": [],
+        "imageResolutionRisks": [],
+        "imageCount": 16
+      }
+    },
+    {
+      "route": "forgot-password-open",
+      "path": "/signin",
+      "actualPath": "/signin",
+      "viewport": {
+        "width": 960,
+        "height": 540,
+        "touch": false,
+        "dpr": 1,
+        "label": "desktop"
+      },
+      "screenshot": "forgot-password-open__960x540-desktop-dpr1.jpg",
+      "consoleMessages": [
+        {
+          "type": "warning",
+          "text": "You have Reduced Motion enabled on your device. Animations may not appear as expected.. For more information and steps for solving, visit https://motion.dev/troubleshooting/reduced-motion-disabled"
+        }
+      ],
+      "findings": {
+        "width": 960,
+        "height": 540,
+        "heading": "Welcome back.",
+        "productCardCount": 0,
+        "scrollWidth": 960,
+        "horizontalOverflow": false,
+        "outOfViewport": [],
+        "smallTargets": [],
+        "smallText": [],
+        "clippedContent": [],
+        "floatingOverlaps": [],
+        "imageRisks": [],
+        "imageResolutionRisks": [
+          {
+            "selector": "img.collection-image",
+            "text": "",
+            "source": "480x320",
+            "rendered": "912x444"
+          }
+        ],
+        "imageCount": 2
+      }
+    }
+  ]
+}

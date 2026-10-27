@@ -109,8 +109,8 @@ test('authenticated customer and admin pages render across mobile, tablet, deskt
   const report = JSON.parse(
     await readFile('responsive-audit/redesign/authenticated-findings.json', 'utf8')
   )
-  expect(report.routes).toHaveLength(37)
-  expect(report.results).toHaveLength(185)
+  expect(report.routes).toHaveLength(45)
+  expect(report.results).toHaveLength(225)
   for (const result of report.results) {
     expect(result.error, `${result.name} ${result.viewport.label}`).toBeUndefined()
     expect(result.errors).toEqual([])
@@ -131,7 +131,7 @@ test('protected editors and confirmation dialogs reflow and restore keyboard foc
   const report = JSON.parse(
     await readFile('responsive-audit/redesign/protected-overlays.json', 'utf8')
   )
-  expect(report.results).toHaveLength(43)
+  expect(report.results).toHaveLength(78)
   expect(report.failures).toEqual([])
 })
 

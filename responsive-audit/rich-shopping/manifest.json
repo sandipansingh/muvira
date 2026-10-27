@@ -1,0 +1,734 @@
+[
+  {
+    "name": "collections",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "heritage-collections-mobile.webp"
+  },
+  {
+    "name": "lightbox-2x",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "heritage-lightbox-2x-mobile.webp"
+  },
+  {
+    "name": "collections",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "heritage-collections-tablet.webp"
+  },
+  {
+    "name": "lightbox-2x",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "heritage-lightbox-2x-tablet.webp"
+  },
+  {
+    "name": "collections",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "heritage-collections-desktop.webp"
+  },
+  {
+    "name": "lightbox-2x",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "heritage-lightbox-2x-desktop.webp"
+  },
+  {
+    "name": "cart-empty",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "cart-empty-mobile.webp"
+  },
+  {
+    "name": "cart-empty",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "cart-empty-tablet.webp"
+  },
+  {
+    "name": "cart-empty",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "cart-empty-desktop.webp"
+  },
+  {
+    "name": "home",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "home-mobile.webp"
+  },
+  {
+    "name": "shop",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "shop-mobile.webp"
+  },
+  {
+    "name": "categories",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "categories-mobile.webp"
+  },
+  {
+    "name": "search",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "search-mobile.webp"
+  },
+  {
+    "name": "product",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "product-mobile.webp"
+  },
+  {
+    "name": "cart",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "cart-mobile.webp"
+  },
+  {
+    "name": "checkout",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "checkout-mobile.webp"
+  },
+  {
+    "name": "payment",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "payment-mobile.webp"
+  },
+  {
+    "name": "signin",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "signin-mobile.webp"
+  },
+  {
+    "name": "signup",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "signup-mobile.webp"
+  },
+  {
+    "name": "recovery",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "recovery-mobile.webp"
+  },
+  {
+    "name": "profile",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "profile-mobile.webp"
+  },
+  {
+    "name": "orders",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "orders-mobile.webp"
+  },
+  {
+    "name": "order-detail",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "order-detail-mobile.webp"
+  },
+  {
+    "name": "order-invoice",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "order-invoice-mobile.webp"
+  },
+  {
+    "name": "order-success",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "order-success-mobile.webp"
+  },
+  {
+    "name": "order-pending",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "order-pending-mobile.webp"
+  },
+  {
+    "name": "order-failure",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "order-failure-mobile.webp"
+  },
+  {
+    "name": "not-found",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "not-found-mobile.webp"
+  },
+  {
+    "name": "product-one-photo",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "product-one-photo-mobile.webp"
+  },
+  {
+    "name": "product-two-photos",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "product-two-photos-mobile.webp"
+  },
+  {
+    "name": "product-four-photos",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "product-four-photos-mobile.webp"
+  },
+  {
+    "name": "product-many-photos",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "product-many-photos-mobile.webp"
+  },
+  {
+    "name": "home-sparse",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "home-sparse-mobile.webp"
+  },
+  {
+    "name": "home-unknown-collections",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "home-unknown-collections-mobile.webp"
+  },
+  {
+    "name": "home-unconfigured",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "home-unconfigured-mobile.webp"
+  },
+  {
+    "name": "shop-missing-images",
+    "viewport": "mobile",
+    "kind": "page",
+    "file": "shop-missing-images-mobile.webp"
+  },
+  {
+    "name": "home",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "home-tablet.webp"
+  },
+  {
+    "name": "shop",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "shop-tablet.webp"
+  },
+  {
+    "name": "categories",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "categories-tablet.webp"
+  },
+  {
+    "name": "search",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "search-tablet.webp"
+  },
+  {
+    "name": "product",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "product-tablet.webp"
+  },
+  {
+    "name": "cart",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "cart-tablet.webp"
+  },
+  {
+    "name": "checkout",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "checkout-tablet.webp"
+  },
+  {
+    "name": "payment",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "payment-tablet.webp"
+  },
+  {
+    "name": "signin",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "signin-tablet.webp"
+  },
+  {
+    "name": "signup",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "signup-tablet.webp"
+  },
+  {
+    "name": "recovery",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "recovery-tablet.webp"
+  },
+  {
+    "name": "profile",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "profile-tablet.webp"
+  },
+  {
+    "name": "orders",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "orders-tablet.webp"
+  },
+  {
+    "name": "order-detail",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "order-detail-tablet.webp"
+  },
+  {
+    "name": "order-invoice",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "order-invoice-tablet.webp"
+  },
+  {
+    "name": "order-success",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "order-success-tablet.webp"
+  },
+  {
+    "name": "order-pending",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "order-pending-tablet.webp"
+  },
+  {
+    "name": "order-failure",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "order-failure-tablet.webp"
+  },
+  {
+    "name": "not-found",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "not-found-tablet.webp"
+  },
+  {
+    "name": "product-one-photo",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "product-one-photo-tablet.webp"
+  },
+  {
+    "name": "product-two-photos",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "product-two-photos-tablet.webp"
+  },
+  {
+    "name": "product-four-photos",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "product-four-photos-tablet.webp"
+  },
+  {
+    "name": "product-many-photos",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "product-many-photos-tablet.webp"
+  },
+  {
+    "name": "home-sparse",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "home-sparse-tablet.webp"
+  },
+  {
+    "name": "home-unknown-collections",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "home-unknown-collections-tablet.webp"
+  },
+  {
+    "name": "home-unconfigured",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "home-unconfigured-tablet.webp"
+  },
+  {
+    "name": "shop-missing-images",
+    "viewport": "tablet",
+    "kind": "page",
+    "file": "shop-missing-images-tablet.webp"
+  },
+  {
+    "name": "home",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "home-desktop.webp"
+  },
+  {
+    "name": "shop",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "shop-desktop.webp"
+  },
+  {
+    "name": "categories",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "categories-desktop.webp"
+  },
+  {
+    "name": "search",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "search-desktop.webp"
+  },
+  {
+    "name": "product",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "product-desktop.webp"
+  },
+  {
+    "name": "cart",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "cart-desktop.webp"
+  },
+  {
+    "name": "checkout",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "checkout-desktop.webp"
+  },
+  {
+    "name": "payment",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "payment-desktop.webp"
+  },
+  {
+    "name": "signin",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "signin-desktop.webp"
+  },
+  {
+    "name": "signup",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "signup-desktop.webp"
+  },
+  {
+    "name": "recovery",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "recovery-desktop.webp"
+  },
+  {
+    "name": "profile",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "profile-desktop.webp"
+  },
+  {
+    "name": "orders",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "orders-desktop.webp"
+  },
+  {
+    "name": "order-detail",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "order-detail-desktop.webp"
+  },
+  {
+    "name": "order-invoice",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "order-invoice-desktop.webp"
+  },
+  {
+    "name": "order-success",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "order-success-desktop.webp"
+  },
+  {
+    "name": "order-pending",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "order-pending-desktop.webp"
+  },
+  {
+    "name": "order-failure",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "order-failure-desktop.webp"
+  },
+  {
+    "name": "not-found",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "not-found-desktop.webp"
+  },
+  {
+    "name": "product-one-photo",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "product-one-photo-desktop.webp"
+  },
+  {
+    "name": "product-two-photos",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "product-two-photos-desktop.webp"
+  },
+  {
+    "name": "product-four-photos",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "product-four-photos-desktop.webp"
+  },
+  {
+    "name": "product-many-photos",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "product-many-photos-desktop.webp"
+  },
+  {
+    "name": "home-sparse",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "home-sparse-desktop.webp"
+  },
+  {
+    "name": "home-unknown-collections",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "home-unknown-collections-desktop.webp"
+  },
+  {
+    "name": "home-unconfigured",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "home-unconfigured-desktop.webp"
+  },
+  {
+    "name": "shop-missing-images",
+    "viewport": "desktop",
+    "kind": "page",
+    "file": "shop-missing-images-desktop.webp"
+  },
+  {
+    "name": "store-search",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-store-search-mobile.webp"
+  },
+  {
+    "name": "shopping-bag",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-shopping-bag-mobile.webp"
+  },
+  {
+    "name": "empty-shopping-bag",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-empty-shopping-bag-mobile.webp"
+  },
+  {
+    "name": "quick-view",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-quick-view-mobile.webp"
+  },
+  {
+    "name": "mobile-menu",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-mobile-menu-mobile.webp"
+  },
+  {
+    "name": "catalog-filters",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-catalog-filters-mobile.webp"
+  },
+  {
+    "name": "review-editor",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-review-editor-mobile.webp"
+  },
+  {
+    "name": "password-recovery",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-password-recovery-mobile.webp"
+  },
+  {
+    "name": "checkout-address",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-checkout-address-mobile.webp"
+  },
+  {
+    "name": "address-editor",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-address-editor-mobile.webp"
+  },
+  {
+    "name": "gallery-zoom",
+    "viewport": "mobile",
+    "kind": "overlay",
+    "file": "overlay-gallery-zoom-mobile.webp"
+  },
+  {
+    "name": "store-search",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-store-search-tablet.webp"
+  },
+  {
+    "name": "shopping-bag",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-shopping-bag-tablet.webp"
+  },
+  {
+    "name": "empty-shopping-bag",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-empty-shopping-bag-tablet.webp"
+  },
+  {
+    "name": "quick-view",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-quick-view-tablet.webp"
+  },
+  {
+    "name": "mobile-menu",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-mobile-menu-tablet.webp"
+  },
+  {
+    "name": "catalog-filters",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-catalog-filters-tablet.webp"
+  },
+  {
+    "name": "review-editor",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-review-editor-tablet.webp"
+  },
+  {
+    "name": "password-recovery",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-password-recovery-tablet.webp"
+  },
+  {
+    "name": "checkout-address",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-checkout-address-tablet.webp"
+  },
+  {
+    "name": "address-editor",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-address-editor-tablet.webp"
+  },
+  {
+    "name": "gallery-zoom",
+    "viewport": "tablet",
+    "kind": "overlay",
+    "file": "overlay-gallery-zoom-tablet.webp"
+  },
+  {
+    "name": "store-search",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-store-search-desktop.webp"
+  },
+  {
+    "name": "shopping-bag",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-shopping-bag-desktop.webp"
+  },
+  {
+    "name": "empty-shopping-bag",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-empty-shopping-bag-desktop.webp"
+  },
+  {
+    "name": "quick-view",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-quick-view-desktop.webp"
+  },
+  {
+    "name": "review-editor",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-review-editor-desktop.webp"
+  },
+  {
+    "name": "password-recovery",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-password-recovery-desktop.webp"
+  },
+  {
+    "name": "checkout-address",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-checkout-address-desktop.webp"
+  },
+  {
+    "name": "photographic-collections",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-photographic-collections-desktop.webp"
+  },
+  {
+    "name": "address-editor",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-address-editor-desktop.webp"
+  },
+  {
+    "name": "gallery-zoom",
+    "viewport": "desktop",
+    "kind": "overlay",
+    "file": "overlay-gallery-zoom-desktop.webp"
+  }
+]

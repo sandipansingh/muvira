@@ -1,0 +1,941 @@
+{
+  "results": [
+    {
+      "name": "store-search",
+      "viewport": "mobile",
+      "screenshot": "overlay-store-search-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shopping-bag",
+      "viewport": "mobile",
+      "screenshot": "overlay-shopping-bag-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "empty-shopping-bag",
+      "viewport": "mobile",
+      "screenshot": "overlay-empty-shopping-bag-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "quick-view",
+      "viewport": "mobile",
+      "screenshot": "overlay-quick-view-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "mobile-menu",
+      "viewport": "mobile",
+      "screenshot": "overlay-mobile-menu-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-filters",
+      "viewport": "mobile",
+      "screenshot": "overlay-catalog-filters-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "review-editor",
+      "viewport": "mobile",
+      "screenshot": "overlay-review-editor-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "password-recovery",
+      "viewport": "mobile",
+      "screenshot": "overlay-password-recovery-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout-address",
+      "viewport": "mobile",
+      "screenshot": "overlay-checkout-address-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-navigation",
+      "viewport": "mobile",
+      "screenshot": "overlay-admin-navigation-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "coupon-editor",
+      "viewport": "mobile",
+      "screenshot": "overlay-coupon-editor-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-editor",
+      "viewport": "mobile",
+      "screenshot": "overlay-product-editor-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "category-editor",
+      "viewport": "mobile",
+      "screenshot": "overlay-category-editor-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "remove-image",
+      "viewport": "mobile",
+      "screenshot": "overlay-remove-image-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "refund-confirmation",
+      "viewport": "mobile",
+      "screenshot": "overlay-refund-confirmation-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cancellation-confirmation",
+      "viewport": "mobile",
+      "screenshot": "overlay-cancellation-confirmation-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "reconcile-confirmation",
+      "viewport": "mobile",
+      "screenshot": "overlay-reconcile-confirmation-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "release-confirmation",
+      "viewport": "mobile",
+      "screenshot": "overlay-release-confirmation-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "address-editor",
+      "viewport": "mobile",
+      "screenshot": "overlay-address-editor-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "gallery-zoom",
+      "viewport": "mobile",
+      "screenshot": "overlay-gallery-zoom-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "store-search",
+      "viewport": "tablet",
+      "screenshot": "overlay-store-search-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shopping-bag",
+      "viewport": "tablet",
+      "screenshot": "overlay-shopping-bag-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "empty-shopping-bag",
+      "viewport": "tablet",
+      "screenshot": "overlay-empty-shopping-bag-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "quick-view",
+      "viewport": "tablet",
+      "screenshot": "overlay-quick-view-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "mobile-menu",
+      "viewport": "tablet",
+      "screenshot": "overlay-mobile-menu-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-filters",
+      "viewport": "tablet",
+      "screenshot": "overlay-catalog-filters-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "review-editor",
+      "viewport": "tablet",
+      "screenshot": "overlay-review-editor-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "password-recovery",
+      "viewport": "tablet",
+      "screenshot": "overlay-password-recovery-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout-address",
+      "viewport": "tablet",
+      "screenshot": "overlay-checkout-address-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-navigation",
+      "viewport": "tablet",
+      "screenshot": "overlay-admin-navigation-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "coupon-editor",
+      "viewport": "tablet",
+      "screenshot": "overlay-coupon-editor-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-editor",
+      "viewport": "tablet",
+      "screenshot": "overlay-product-editor-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "category-editor",
+      "viewport": "tablet",
+      "screenshot": "overlay-category-editor-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "remove-image",
+      "viewport": "tablet",
+      "screenshot": "overlay-remove-image-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "refund-confirmation",
+      "viewport": "tablet",
+      "screenshot": "overlay-refund-confirmation-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cancellation-confirmation",
+      "viewport": "tablet",
+      "screenshot": "overlay-cancellation-confirmation-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "reconcile-confirmation",
+      "viewport": "tablet",
+      "screenshot": "overlay-reconcile-confirmation-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "release-confirmation",
+      "viewport": "tablet",
+      "screenshot": "overlay-release-confirmation-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "address-editor",
+      "viewport": "tablet",
+      "screenshot": "overlay-address-editor-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "gallery-zoom",
+      "viewport": "tablet",
+      "screenshot": "overlay-gallery-zoom-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "store-search",
+      "viewport": "desktop",
+      "screenshot": "overlay-store-search-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shopping-bag",
+      "viewport": "desktop",
+      "screenshot": "overlay-shopping-bag-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "empty-shopping-bag",
+      "viewport": "desktop",
+      "screenshot": "overlay-empty-shopping-bag-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "quick-view",
+      "viewport": "desktop",
+      "screenshot": "overlay-quick-view-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "review-editor",
+      "viewport": "desktop",
+      "screenshot": "overlay-review-editor-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "password-recovery",
+      "viewport": "desktop",
+      "screenshot": "overlay-password-recovery-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout-address",
+      "viewport": "desktop",
+      "screenshot": "overlay-checkout-address-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "photographic-collections",
+      "viewport": "desktop",
+      "screenshot": "overlay-photographic-collections-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "coupon-editor",
+      "viewport": "desktop",
+      "screenshot": "overlay-coupon-editor-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-editor",
+      "viewport": "desktop",
+      "screenshot": "overlay-product-editor-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "category-editor",
+      "viewport": "desktop",
+      "screenshot": "overlay-category-editor-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "remove-image",
+      "viewport": "desktop",
+      "screenshot": "overlay-remove-image-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "refund-confirmation",
+      "viewport": "desktop",
+      "screenshot": "overlay-refund-confirmation-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cancellation-confirmation",
+      "viewport": "desktop",
+      "screenshot": "overlay-cancellation-confirmation-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "reconcile-confirmation",
+      "viewport": "desktop",
+      "screenshot": "overlay-reconcile-confirmation-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "release-confirmation",
+      "viewport": "desktop",
+      "screenshot": "overlay-release-confirmation-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "address-editor",
+      "viewport": "desktop",
+      "screenshot": "overlay-address-editor-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "gallery-zoom",
+      "viewport": "desktop",
+      "screenshot": "overlay-gallery-zoom-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "store-search",
+      "viewport": "text-200",
+      "screenshot": "overlay-store-search-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shopping-bag",
+      "viewport": "text-200",
+      "screenshot": "overlay-shopping-bag-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "empty-shopping-bag",
+      "viewport": "text-200",
+      "screenshot": "overlay-empty-shopping-bag-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "quick-view",
+      "viewport": "text-200",
+      "screenshot": "overlay-quick-view-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "mobile-menu",
+      "viewport": "text-200",
+      "screenshot": "overlay-mobile-menu-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-filters",
+      "viewport": "text-200",
+      "screenshot": "overlay-catalog-filters-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "review-editor",
+      "viewport": "text-200",
+      "screenshot": "overlay-review-editor-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "password-recovery",
+      "viewport": "text-200",
+      "screenshot": "overlay-password-recovery-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout-address",
+      "viewport": "text-200",
+      "screenshot": "overlay-checkout-address-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-navigation",
+      "viewport": "text-200",
+      "screenshot": "overlay-admin-navigation-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "coupon-editor",
+      "viewport": "text-200",
+      "screenshot": "overlay-coupon-editor-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-editor",
+      "viewport": "text-200",
+      "screenshot": "overlay-product-editor-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "category-editor",
+      "viewport": "text-200",
+      "screenshot": "overlay-category-editor-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "remove-image",
+      "viewport": "text-200",
+      "screenshot": "overlay-remove-image-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "refund-confirmation",
+      "viewport": "text-200",
+      "screenshot": "overlay-refund-confirmation-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cancellation-confirmation",
+      "viewport": "text-200",
+      "screenshot": "overlay-cancellation-confirmation-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "reconcile-confirmation",
+      "viewport": "text-200",
+      "screenshot": "overlay-reconcile-confirmation-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "release-confirmation",
+      "viewport": "text-200",
+      "screenshot": "overlay-release-confirmation-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "address-editor",
+      "viewport": "text-200",
+      "screenshot": "overlay-address-editor-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "gallery-zoom",
+      "viewport": "text-200",
+      "screenshot": "overlay-gallery-zoom-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "smallFields": []
+      },
+      "focusRestored": true,
+      "errors": [],
+      "blocked": []
+    }
+  ],
+  "failures": []
+}

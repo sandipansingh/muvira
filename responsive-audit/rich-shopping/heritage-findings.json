@@ -1,0 +1,461 @@
+{
+  "results": [
+    {
+      "name": "hero-1",
+      "path": "/",
+      "viewport": "mobile",
+      "screenshot": "heritage-hero-1-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-2",
+      "path": "/",
+      "viewport": "mobile",
+      "screenshot": "heritage-hero-2-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-3",
+      "path": "/",
+      "viewport": "mobile",
+      "screenshot": "heritage-hero-3-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unknown-hero",
+      "path": "/?hero=unknown",
+      "viewport": "mobile",
+      "screenshot": "heritage-unknown-hero-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "collections",
+      "path": "/",
+      "viewport": "mobile",
+      "screenshot": "heritage-collections-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "lightbox-2x",
+      "path": "/product/fixture",
+      "viewport": "mobile",
+      "screenshot": "heritage-lightbox-2x-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unavailable-purchase",
+      "path": "/product/fixture?stock=0",
+      "viewport": "mobile",
+      "screenshot": "heritage-unavailable-purchase-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-care",
+      "path": "/product/fixture?care=1",
+      "viewport": "mobile",
+      "screenshot": "heritage-catalog-care-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "tracking-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": "mobile",
+      "screenshot": "heritage-tracking-invoice-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "no-search-results",
+      "path": "/search?q=nonexistent&scenario=empty",
+      "viewport": "mobile",
+      "screenshot": "heritage-no-search-results-mobile.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-1",
+      "path": "/",
+      "viewport": "tablet",
+      "screenshot": "heritage-hero-1-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-2",
+      "path": "/",
+      "viewport": "tablet",
+      "screenshot": "heritage-hero-2-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-3",
+      "path": "/",
+      "viewport": "tablet",
+      "screenshot": "heritage-hero-3-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unknown-hero",
+      "path": "/?hero=unknown",
+      "viewport": "tablet",
+      "screenshot": "heritage-unknown-hero-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "collections",
+      "path": "/",
+      "viewport": "tablet",
+      "screenshot": "heritage-collections-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "lightbox-2x",
+      "path": "/product/fixture",
+      "viewport": "tablet",
+      "screenshot": "heritage-lightbox-2x-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unavailable-purchase",
+      "path": "/product/fixture?stock=0",
+      "viewport": "tablet",
+      "screenshot": "heritage-unavailable-purchase-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-care",
+      "path": "/product/fixture?care=1",
+      "viewport": "tablet",
+      "screenshot": "heritage-catalog-care-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "tracking-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": "tablet",
+      "screenshot": "heritage-tracking-invoice-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "no-search-results",
+      "path": "/search?q=nonexistent&scenario=empty",
+      "viewport": "tablet",
+      "screenshot": "heritage-no-search-results-tablet.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-1",
+      "path": "/",
+      "viewport": "desktop",
+      "screenshot": "heritage-hero-1-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-2",
+      "path": "/",
+      "viewport": "desktop",
+      "screenshot": "heritage-hero-2-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-3",
+      "path": "/",
+      "viewport": "desktop",
+      "screenshot": "heritage-hero-3-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unknown-hero",
+      "path": "/?hero=unknown",
+      "viewport": "desktop",
+      "screenshot": "heritage-unknown-hero-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "collections",
+      "path": "/",
+      "viewport": "desktop",
+      "screenshot": "heritage-collections-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "lightbox-2x",
+      "path": "/product/fixture",
+      "viewport": "desktop",
+      "screenshot": "heritage-lightbox-2x-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unavailable-purchase",
+      "path": "/product/fixture?stock=0",
+      "viewport": "desktop",
+      "screenshot": "heritage-unavailable-purchase-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-care",
+      "path": "/product/fixture?care=1",
+      "viewport": "desktop",
+      "screenshot": "heritage-catalog-care-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "tracking-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": "desktop",
+      "screenshot": "heritage-tracking-invoice-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "no-search-results",
+      "path": "/search?q=nonexistent&scenario=empty",
+      "viewport": "desktop",
+      "screenshot": "heritage-no-search-results-desktop.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-1",
+      "path": "/",
+      "viewport": "text-200",
+      "screenshot": "heritage-hero-1-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-2",
+      "path": "/",
+      "viewport": "text-200",
+      "screenshot": "heritage-hero-2-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-3",
+      "path": "/",
+      "viewport": "text-200",
+      "screenshot": "heritage-hero-3-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unknown-hero",
+      "path": "/?hero=unknown",
+      "viewport": "text-200",
+      "screenshot": "heritage-unknown-hero-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "collections",
+      "path": "/",
+      "viewport": "text-200",
+      "screenshot": "heritage-collections-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "lightbox-2x",
+      "path": "/product/fixture",
+      "viewport": "text-200",
+      "screenshot": "heritage-lightbox-2x-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unavailable-purchase",
+      "path": "/product/fixture?stock=0",
+      "viewport": "text-200",
+      "screenshot": "heritage-unavailable-purchase-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-care",
+      "path": "/product/fixture?care=1",
+      "viewport": "text-200",
+      "screenshot": "heritage-catalog-care-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "tracking-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": "text-200",
+      "screenshot": "heritage-tracking-invoice-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "no-search-results",
+      "path": "/search?q=nonexistent&scenario=empty",
+      "viewport": "text-200",
+      "screenshot": "heritage-no-search-results-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-1",
+      "path": "/",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-hero-1-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-2",
+      "path": "/",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-hero-2-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "hero-3",
+      "path": "/",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-hero-3-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unknown-hero",
+      "path": "/?hero=unknown",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-unknown-hero-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "collections",
+      "path": "/",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-collections-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "lightbox-2x",
+      "path": "/product/fixture",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-lightbox-2x-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "unavailable-purchase",
+      "path": "/product/fixture?stock=0",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-unavailable-purchase-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "catalog-care",
+      "path": "/product/fixture?care=1",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-catalog-care-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "tracking-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-tracking-invoice-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "no-search-results",
+      "path": "/search?q=nonexistent&scenario=empty",
+      "viewport": "desktop-text-200",
+      "screenshot": "heritage-no-search-results-desktop-text-200.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "card-zoom",
+      "path": "/shop",
+      "viewport": "fine",
+      "screenshot": "heritage-card-zoom-fine.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "gallery-complete-photographs",
+      "path": "/product/fixture",
+      "viewport": "fine",
+      "screenshot": "heritage-gallery-complete-photographs-fine.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "card-zoom",
+      "path": "/shop",
+      "viewport": "touch",
+      "screenshot": "heritage-card-zoom-touch.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "gallery-complete-photographs",
+      "path": "/product/fixture",
+      "viewport": "touch",
+      "screenshot": "heritage-gallery-complete-photographs-touch.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "card-zoom",
+      "path": "/shop",
+      "viewport": "reduced",
+      "screenshot": "heritage-card-zoom-reduced.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "gallery-complete-photographs",
+      "path": "/product/fixture",
+      "viewport": "reduced",
+      "screenshot": "heritage-gallery-complete-photographs-reduced.png",
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "broken-images",
+      "path": "/shop?scenario=broken-images",
+      "viewport": "mobile",
+      "screenshot": "heritage-broken-images-mobile.png",
+      "errors": [],
+      "blocked": []
+    }
+  ],
+  "failures": []
+}

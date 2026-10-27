@@ -1,0 +1,4580 @@
+{
+  "routes": [
+    [
+      "home",
+      "/"
+    ],
+    [
+      "shop",
+      "/shop"
+    ],
+    [
+      "categories",
+      "/categories"
+    ],
+    [
+      "search",
+      "/search?q=Krishna"
+    ],
+    [
+      "product",
+      "/product/fixture"
+    ],
+    [
+      "cart",
+      "/cart"
+    ],
+    [
+      "checkout",
+      "/checkout"
+    ],
+    [
+      "payment",
+      "/checkout?step=payment"
+    ],
+    [
+      "signin",
+      "/signin?fixtureRole=guest"
+    ],
+    [
+      "signup",
+      "/signup?fixtureRole=guest"
+    ],
+    [
+      "recovery",
+      "/reset-password"
+    ],
+    [
+      "profile",
+      "/profile"
+    ],
+    [
+      "orders",
+      "/orders"
+    ],
+    [
+      "order-detail",
+      "/orders/fixture-order"
+    ],
+    [
+      "order-invoice",
+      "/orders/fixture-order?shipment=1"
+    ],
+    [
+      "order-success",
+      "/orders/success?orderId=fixture-order"
+    ],
+    [
+      "order-pending",
+      "/orders/success?orderId=fixture-order&payment=pending"
+    ],
+    [
+      "order-failure",
+      "/orders/failure"
+    ],
+    [
+      "not-found",
+      "/missing"
+    ],
+    [
+      "admin-dashboard",
+      "/admin?fixtureRole=admin"
+    ],
+    [
+      "admin-orders",
+      "/admin/orders?fixtureRole=admin"
+    ],
+    [
+      "admin-order-detail",
+      "/admin/orders/fixture-order?fixtureRole=admin"
+    ],
+    [
+      "admin-catalog",
+      "/admin/catalog?fixtureRole=admin"
+    ],
+    [
+      "admin-coupons",
+      "/admin/coupons?fixtureRole=admin"
+    ],
+    [
+      "admin-settings",
+      "/admin/settings?fixtureRole=admin"
+    ],
+    [
+      "admin-failures",
+      "/admin/failures?fixtureRole=admin"
+    ],
+    [
+      "product-one-photo",
+      "/product/fixture?photos=1"
+    ],
+    [
+      "product-two-photos",
+      "/product/fixture?photos=2"
+    ],
+    [
+      "product-four-photos",
+      "/product/fixture?photos=4"
+    ],
+    [
+      "product-many-photos",
+      "/product/fixture?photos=10"
+    ],
+    [
+      "categories-empty",
+      "/categories?scenario=empty"
+    ],
+    [
+      "categories-error",
+      "/categories?scenario=error"
+    ],
+    [
+      "home-sparse",
+      "/?scenario=sparse"
+    ],
+    [
+      "home-unknown-collections",
+      "/?scenario=unknown-collections"
+    ],
+    [
+      "home-loading",
+      "/?scenario=loading"
+    ],
+    [
+      "home-error",
+      "/?scenario=error"
+    ],
+    [
+      "home-empty",
+      "/?scenario=empty"
+    ],
+    [
+      "home-unconfigured",
+      "/?scenario=unconfigured"
+    ],
+    [
+      "home-campaigns",
+      "/?campaigns=1"
+    ],
+    [
+      "home-unknown-photo",
+      "/?hero=unknown"
+    ],
+    [
+      "home-long-title",
+      "/?hero=long"
+    ],
+    [
+      "shop-empty",
+      "/shop?scenario=empty"
+    ],
+    [
+      "shop-error",
+      "/shop?scenario=error"
+    ],
+    [
+      "shop-missing-images",
+      "/shop?scenario=missing-images"
+    ],
+    [
+      "shop-long-name",
+      "/shop?scenario=long-name"
+    ]
+  ],
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844,
+      "label": "mobile"
+    },
+    {
+      "width": 820,
+      "height": 1180,
+      "label": "tablet"
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "label": "desktop"
+    },
+    {
+      "width": 320,
+      "height": 800,
+      "label": "text-200",
+      "textScale": 2
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "label": "desktop-text-200",
+      "textScale": 2
+    }
+  ],
+  "results": [
+    {
+      "name": "home",
+      "path": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop",
+      "path": "/shop",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "shop-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories",
+      "path": "/categories",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "categories-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "search",
+      "path": "/search?q=Krishna",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "search-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Find your piece",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product",
+      "path": "/product/fixture",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "product-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "cart-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Your shopping bag",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout",
+      "path": "/checkout",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "checkout-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Where shall we send it?",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "payment",
+      "path": "/checkout?step=payment",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "payment-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The final details",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signin",
+      "path": "/signin?fixtureRole=guest",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "signin-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Welcome back.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signup",
+      "path": "/signup?fixtureRole=guest",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "signup-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Create an Account",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "recovery",
+      "path": "/reset-password",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "recovery-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Set a new password",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "profile",
+      "path": "/profile",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "profile-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "My Profile",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "orders",
+      "path": "/orders",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "orders-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order History",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-detail",
+      "path": "/orders/fixture-order",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "order-detail-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "order-invoice-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-success",
+      "path": "/orders/success?orderId=fixture-order",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "order-success-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Thank you for your order",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-pending",
+      "path": "/orders/success?orderId=fixture-order&payment=pending",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "order-pending-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Payment is being confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-failure",
+      "path": "/orders/failure",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "order-failure-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order could not be confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "not-found",
+      "path": "/missing",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "not-found-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A little off the path.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-dashboard",
+      "path": "/admin?fixtureRole=admin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "admin-dashboard-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Operations overview",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-orders",
+      "path": "/admin/orders?fixtureRole=admin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "admin-orders-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Orders",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-order-detail",
+      "path": "/admin/orders/fixture-order?fixtureRole=admin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "admin-order-detail-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-catalog",
+      "path": "/admin/catalog?fixtureRole=admin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "admin-catalog-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Catalog",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-coupons",
+      "path": "/admin/coupons?fixtureRole=admin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "admin-coupons-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Coupons",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-settings",
+      "path": "/admin/settings?fixtureRole=admin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "admin-settings-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Store settings",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-failures",
+      "path": "/admin/failures?fixtureRole=admin",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "admin-failures-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Failure queues",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-one-photo",
+      "path": "/product/fixture?photos=1",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "product-one-photo-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-two-photos",
+      "path": "/product/fixture?photos=2",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "product-two-photos-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-four-photos",
+      "path": "/product/fixture?photos=4",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "product-four-photos-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-many-photos",
+      "path": "/product/fixture?photos=10",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "product-many-photos-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-empty",
+      "path": "/categories?scenario=empty",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "categories-empty-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-error",
+      "path": "/categories?scenario=error",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "categories-error-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-sparse",
+      "path": "/?scenario=sparse",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-sparse-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-collections",
+      "path": "/?scenario=unknown-collections",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-unknown-collections-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-loading",
+      "path": "/?scenario=loading",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-loading-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-error",
+      "path": "/?scenario=error",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-error-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-empty",
+      "path": "/?scenario=empty",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-empty-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unconfigured",
+      "path": "/?scenario=unconfigured",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-unconfigured-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-campaigns",
+      "path": "/?campaigns=1",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-campaigns-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-photo",
+      "path": "/?hero=unknown",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-unknown-photo-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A new photograph",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-long-title",
+      "path": "/?hero=long",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "home-long-title-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Meaningful pieces for your everyday moments of devotion and celebration",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-empty",
+      "path": "/shop?scenario=empty",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "shop-empty-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-error",
+      "path": "/shop?scenario=error",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "shop-error-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-missing-images",
+      "path": "/shop?scenario=missing-images",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "shop-missing-images-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-long-name",
+      "path": "/shop?scenario=long-name",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "label": "mobile"
+      },
+      "screenshot": "shop-long-name-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home",
+      "path": "/",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop",
+      "path": "/shop",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "shop-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories",
+      "path": "/categories",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "categories-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "search",
+      "path": "/search?q=Krishna",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "search-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Find your piece",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product",
+      "path": "/product/fixture",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "product-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "cart-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Your shopping bag",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout",
+      "path": "/checkout",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "checkout-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Where shall we send it?",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "payment",
+      "path": "/checkout?step=payment",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "payment-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The final details",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signin",
+      "path": "/signin?fixtureRole=guest",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "signin-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Welcome back.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signup",
+      "path": "/signup?fixtureRole=guest",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "signup-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Create an Account",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "recovery",
+      "path": "/reset-password",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "recovery-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Set a new password",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "profile",
+      "path": "/profile",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "profile-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "My Profile",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "orders",
+      "path": "/orders",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "orders-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order History",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-detail",
+      "path": "/orders/fixture-order",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "order-detail-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "order-invoice-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-success",
+      "path": "/orders/success?orderId=fixture-order",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "order-success-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Thank you for your order",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-pending",
+      "path": "/orders/success?orderId=fixture-order&payment=pending",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "order-pending-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Payment is being confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-failure",
+      "path": "/orders/failure",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "order-failure-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order could not be confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "not-found",
+      "path": "/missing",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "not-found-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A little off the path.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-dashboard",
+      "path": "/admin?fixtureRole=admin",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "admin-dashboard-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Operations overview",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-orders",
+      "path": "/admin/orders?fixtureRole=admin",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "admin-orders-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Orders",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-order-detail",
+      "path": "/admin/orders/fixture-order?fixtureRole=admin",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "admin-order-detail-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-catalog",
+      "path": "/admin/catalog?fixtureRole=admin",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "admin-catalog-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Catalog",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-coupons",
+      "path": "/admin/coupons?fixtureRole=admin",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "admin-coupons-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Coupons",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-settings",
+      "path": "/admin/settings?fixtureRole=admin",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "admin-settings-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Store settings",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-failures",
+      "path": "/admin/failures?fixtureRole=admin",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "admin-failures-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Failure queues",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-one-photo",
+      "path": "/product/fixture?photos=1",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "product-one-photo-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-two-photos",
+      "path": "/product/fixture?photos=2",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "product-two-photos-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-four-photos",
+      "path": "/product/fixture?photos=4",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "product-four-photos-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-many-photos",
+      "path": "/product/fixture?photos=10",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "product-many-photos-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-empty",
+      "path": "/categories?scenario=empty",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "categories-empty-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-error",
+      "path": "/categories?scenario=error",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "categories-error-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-sparse",
+      "path": "/?scenario=sparse",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-sparse-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-collections",
+      "path": "/?scenario=unknown-collections",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-unknown-collections-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-loading",
+      "path": "/?scenario=loading",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-loading-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-error",
+      "path": "/?scenario=error",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-error-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-empty",
+      "path": "/?scenario=empty",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-empty-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unconfigured",
+      "path": "/?scenario=unconfigured",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-unconfigured-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-campaigns",
+      "path": "/?campaigns=1",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-campaigns-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-photo",
+      "path": "/?hero=unknown",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-unknown-photo-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A new photograph",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-long-title",
+      "path": "/?hero=long",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "home-long-title-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Meaningful pieces for your everyday moments of devotion and celebration",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-empty",
+      "path": "/shop?scenario=empty",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "shop-empty-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-error",
+      "path": "/shop?scenario=error",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "shop-error-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-missing-images",
+      "path": "/shop?scenario=missing-images",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "shop-missing-images-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-long-name",
+      "path": "/shop?scenario=long-name",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "label": "tablet"
+      },
+      "screenshot": "shop-long-name-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home",
+      "path": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop",
+      "path": "/shop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "shop-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories",
+      "path": "/categories",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "categories-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "search",
+      "path": "/search?q=Krishna",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "search-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Find your piece",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product",
+      "path": "/product/fixture",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "product-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "cart-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Your shopping bag",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout",
+      "path": "/checkout",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "checkout-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Where shall we send it?",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "payment",
+      "path": "/checkout?step=payment",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "payment-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The final details",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signin",
+      "path": "/signin?fixtureRole=guest",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "signin-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Welcome back.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signup",
+      "path": "/signup?fixtureRole=guest",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "signup-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Create an Account",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "recovery",
+      "path": "/reset-password",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "recovery-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Set a new password",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "profile",
+      "path": "/profile",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "profile-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "My Profile",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "orders",
+      "path": "/orders",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "orders-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order History",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-detail",
+      "path": "/orders/fixture-order",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "order-detail-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "order-invoice-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-success",
+      "path": "/orders/success?orderId=fixture-order",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "order-success-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Thank you for your order",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-pending",
+      "path": "/orders/success?orderId=fixture-order&payment=pending",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "order-pending-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Payment is being confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-failure",
+      "path": "/orders/failure",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "order-failure-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order could not be confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "not-found",
+      "path": "/missing",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "not-found-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A little off the path.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-dashboard",
+      "path": "/admin?fixtureRole=admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "admin-dashboard-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Operations overview",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-orders",
+      "path": "/admin/orders?fixtureRole=admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "admin-orders-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Orders",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-order-detail",
+      "path": "/admin/orders/fixture-order?fixtureRole=admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "admin-order-detail-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-catalog",
+      "path": "/admin/catalog?fixtureRole=admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "admin-catalog-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Catalog",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-coupons",
+      "path": "/admin/coupons?fixtureRole=admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "admin-coupons-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Coupons",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-settings",
+      "path": "/admin/settings?fixtureRole=admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "admin-settings-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Store settings",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-failures",
+      "path": "/admin/failures?fixtureRole=admin",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "admin-failures-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Failure queues",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-one-photo",
+      "path": "/product/fixture?photos=1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "product-one-photo-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-two-photos",
+      "path": "/product/fixture?photos=2",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "product-two-photos-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-four-photos",
+      "path": "/product/fixture?photos=4",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "product-four-photos-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-many-photos",
+      "path": "/product/fixture?photos=10",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "product-many-photos-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-empty",
+      "path": "/categories?scenario=empty",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "categories-empty-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-error",
+      "path": "/categories?scenario=error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "categories-error-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-sparse",
+      "path": "/?scenario=sparse",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-sparse-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-collections",
+      "path": "/?scenario=unknown-collections",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-unknown-collections-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-loading",
+      "path": "/?scenario=loading",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-loading-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-error",
+      "path": "/?scenario=error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-error-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-empty",
+      "path": "/?scenario=empty",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-empty-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unconfigured",
+      "path": "/?scenario=unconfigured",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-unconfigured-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-campaigns",
+      "path": "/?campaigns=1",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-campaigns-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-photo",
+      "path": "/?hero=unknown",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-unknown-photo-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A new photograph",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-long-title",
+      "path": "/?hero=long",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "home-long-title-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Meaningful pieces for your everyday moments of devotion and celebration",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-empty",
+      "path": "/shop?scenario=empty",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "shop-empty-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-error",
+      "path": "/shop?scenario=error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "shop-error-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-missing-images",
+      "path": "/shop?scenario=missing-images",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "shop-missing-images-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-long-name",
+      "path": "/shop?scenario=long-name",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "label": "desktop"
+      },
+      "screenshot": "shop-long-name-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home",
+      "path": "/",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop",
+      "path": "/shop",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories",
+      "path": "/categories",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "categories-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "search",
+      "path": "/search?q=Krishna",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "search-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Find your piece",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product",
+      "path": "/product/fixture",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "cart-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Your shopping bag",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout",
+      "path": "/checkout",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "checkout-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Where shall we send it?",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "payment",
+      "path": "/checkout?step=payment",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "payment-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The final details",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signin",
+      "path": "/signin?fixtureRole=guest",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "signin-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Welcome back.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signup",
+      "path": "/signup?fixtureRole=guest",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "signup-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Create an Account",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "recovery",
+      "path": "/reset-password",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "recovery-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Set a new password",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "profile",
+      "path": "/profile",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "profile-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "My Profile",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "orders",
+      "path": "/orders",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "orders-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order History",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-detail",
+      "path": "/orders/fixture-order",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-detail-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-invoice-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-success",
+      "path": "/orders/success?orderId=fixture-order",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-success-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Thank you for your order",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-pending",
+      "path": "/orders/success?orderId=fixture-order&payment=pending",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-pending-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Payment is being confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-failure",
+      "path": "/orders/failure",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-failure-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order could not be confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "not-found",
+      "path": "/missing",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "not-found-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A little off the path.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-dashboard",
+      "path": "/admin?fixtureRole=admin",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-dashboard-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Operations overview",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-orders",
+      "path": "/admin/orders?fixtureRole=admin",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-orders-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Orders",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-order-detail",
+      "path": "/admin/orders/fixture-order?fixtureRole=admin",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-order-detail-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-catalog",
+      "path": "/admin/catalog?fixtureRole=admin",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-catalog-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Catalog",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-coupons",
+      "path": "/admin/coupons?fixtureRole=admin",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-coupons-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Coupons",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-settings",
+      "path": "/admin/settings?fixtureRole=admin",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-settings-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Store settings",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-failures",
+      "path": "/admin/failures?fixtureRole=admin",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-failures-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Failure queues",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-one-photo",
+      "path": "/product/fixture?photos=1",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-one-photo-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-two-photos",
+      "path": "/product/fixture?photos=2",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-two-photos-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-four-photos",
+      "path": "/product/fixture?photos=4",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-four-photos-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-many-photos",
+      "path": "/product/fixture?photos=10",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-many-photos-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-empty",
+      "path": "/categories?scenario=empty",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "categories-empty-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-error",
+      "path": "/categories?scenario=error",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "categories-error-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-sparse",
+      "path": "/?scenario=sparse",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-sparse-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-collections",
+      "path": "/?scenario=unknown-collections",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-unknown-collections-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-loading",
+      "path": "/?scenario=loading",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-loading-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-error",
+      "path": "/?scenario=error",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-error-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-empty",
+      "path": "/?scenario=empty",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-empty-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unconfigured",
+      "path": "/?scenario=unconfigured",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-unconfigured-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-campaigns",
+      "path": "/?campaigns=1",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-campaigns-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-photo",
+      "path": "/?hero=unknown",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-unknown-photo-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A new photograph",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-long-title",
+      "path": "/?hero=long",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-long-title-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Meaningful pieces for your everyday moments of devotion and celebration",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-empty",
+      "path": "/shop?scenario=empty",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-empty-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-error",
+      "path": "/shop?scenario=error",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-error-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-missing-images",
+      "path": "/shop?scenario=missing-images",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-missing-images-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-long-name",
+      "path": "/shop?scenario=long-name",
+      "viewport": {
+        "width": 320,
+        "height": 800,
+        "label": "text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-long-name-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home",
+      "path": "/",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop",
+      "path": "/shop",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories",
+      "path": "/categories",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "categories-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "search",
+      "path": "/search?q=Krishna",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "search-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Find your piece",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product",
+      "path": "/product/fixture",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "cart-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Your shopping bag",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "checkout",
+      "path": "/checkout",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "checkout-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Where shall we send it?",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "payment",
+      "path": "/checkout?step=payment",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "payment-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The final details",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signin",
+      "path": "/signin?fixtureRole=guest",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "signin-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Welcome back.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "signup",
+      "path": "/signup?fixtureRole=guest",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "signup-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Create an Account",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "recovery",
+      "path": "/reset-password",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "recovery-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Set a new password",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "profile",
+      "path": "/profile",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "profile-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "My Profile",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "orders",
+      "path": "/orders",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "orders-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order History",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-detail",
+      "path": "/orders/fixture-order",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-detail-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-invoice",
+      "path": "/orders/fixture-order?shipment=1",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-invoice-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "#MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-success",
+      "path": "/orders/success?orderId=fixture-order",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-success-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Thank you for your order",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-pending",
+      "path": "/orders/success?orderId=fixture-order&payment=pending",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-pending-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Payment is being confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "order-failure",
+      "path": "/orders/failure",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "order-failure-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order could not be confirmed",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "not-found",
+      "path": "/missing",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "not-found-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A little off the path.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-dashboard",
+      "path": "/admin?fixtureRole=admin",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-dashboard-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Operations overview",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-orders",
+      "path": "/admin/orders?fixtureRole=admin",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-orders-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Orders",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-order-detail",
+      "path": "/admin/orders/fixture-order?fixtureRole=admin",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-order-detail-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Order MUV-2026-1042",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-catalog",
+      "path": "/admin/catalog?fixtureRole=admin",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-catalog-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Catalog",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-coupons",
+      "path": "/admin/coupons?fixtureRole=admin",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-coupons-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Coupons",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-settings",
+      "path": "/admin/settings?fixtureRole=admin",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-settings-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Store settings",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "admin-failures",
+      "path": "/admin/failures?fixtureRole=admin",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "admin-failures-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Failure queues",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-one-photo",
+      "path": "/product/fixture?photos=1",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-one-photo-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-two-photos",
+      "path": "/product/fixture?photos=2",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-two-photos-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-four-photos",
+      "path": "/product/fixture?photos=4",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-four-photos-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "product-many-photos",
+      "path": "/product/fixture?photos=10",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "product-many-photos-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Handcrafted Blue Krishna Idol with Flute – Premium Resin Decorative Statue for Home Temple, Office & Gift",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-empty",
+      "path": "/categories?scenario=empty",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "categories-empty-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "categories-error",
+      "path": "/categories?scenario=error",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "categories-error-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Something meaningful.Somewhere to begin.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-sparse",
+      "path": "/?scenario=sparse",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-sparse-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-collections",
+      "path": "/?scenario=unknown-collections",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-unknown-collections-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-loading",
+      "path": "/?scenario=loading",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-loading-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-error",
+      "path": "/?scenario=error",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-error-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-empty",
+      "path": "/?scenario=empty",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-empty-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unconfigured",
+      "path": "/?scenario=unconfigured",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-unconfigured-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "For your everyday devotion.",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-campaigns",
+      "path": "/?campaigns=1",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-campaigns-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Ganesha Idols",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-unknown-photo",
+      "path": "/?hero=unknown",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-unknown-photo-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "A new photograph",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "home-long-title",
+      "path": "/?hero=long",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "home-long-title-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "Meaningful pieces for your everyday moments of devotion and celebration",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-empty",
+      "path": "/shop?scenario=empty",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-empty-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-error",
+      "path": "/shop?scenario=error",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-error-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-missing-images",
+      "path": "/shop?scenario=missing-images",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-missing-images-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    },
+    {
+      "name": "shop-long-name",
+      "path": "/shop?scenario=long-name",
+      "viewport": {
+        "width": 1280,
+        "height": 900,
+        "label": "desktop-text-200",
+        "textScale": 2
+      },
+      "screenshot": "shop-long-name-desktop-text-200.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "headings": 1,
+        "smallFields": [],
+        "heading": "The collection",
+        "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
+      },
+      "errors": [],
+      "blocked": []
+    }
+  ]
+}

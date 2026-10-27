@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "name": "cart-empty",
+      "viewport": "mobile",
+      "kind": "page",
+      "screenshot": "cart-empty-mobile.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "heading": "Your cart is empty"
+      }
+    },
+    {
+      "name": "cart-empty",
+      "viewport": "tablet",
+      "kind": "page",
+      "screenshot": "cart-empty-tablet.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "heading": "Your cart is empty"
+      }
+    },
+    {
+      "name": "cart-empty",
+      "viewport": "desktop",
+      "kind": "page",
+      "screenshot": "cart-empty-desktop.png",
+      "findings": {
+        "horizontalOverflow": false,
+        "heading": "Your cart is empty"
+      }
+    }
+  ]
+}

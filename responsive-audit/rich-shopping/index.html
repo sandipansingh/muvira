@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Muvira · Rich shopping review gallery</title
+  ><style>
+    body {
+      margin: 0;
+      padding: 32px;
+      background: #faf8f4;
+      color: #1f2521;
+      font: 16px/1.6 system-ui;
+    }
+    header {
+      max-width: 1000px;
+      margin-bottom: 32px;
+    }
+    h1 {
+      font: 400 40px/1.2 Georgia;
+      margin: 0 0 16px;
+    }
+    p {
+      margin: 8px 0;
+    }
+    a {
+      color: inherit;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 24px 0;
+    }
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid #657168;
+      border-radius: 8px;
+      background: white;
+      color: #1f2521;
+      min-height: 44px;
+      padding: 8px 16px;
+    }
+    button[aria-pressed='true'] {
+      background: #334b42;
+      color: white;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 24px;
+    }
+    article {
+      min-width: 0;
+      background: white;
+      border: 1px solid #e9e3d9;
+      padding: 16px;
+      border-radius: 12px;
+    }
+    img {
+      width: 100%;
+      height: 360px;
+      object-fit: cover;
+      object-position: top;
+      background: #e9e3d9;
+    }
+    h2 {
+      font-size: 16px;
+      text-transform: capitalize;
+      margin: 16px 0 0;
+    }
+    article p {
+      color: #657168;
+      font-size: 14px;
+    }
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid #334b42;
+      outline-offset: 3px;
+    }
+    [hidden] {
+      display: none;
+    }
+  </style>
+  <header>
+    <h1>Muvira · Rich shopping experience</h1>
+    <p>
+      All customer page families and major overlays, with the real catalog snapshot. Open any
+      capture for its complete page.
+    </p>
+    <p>
+      <a href="verification.md">Verification report</a> ·
+      <a href="manifest.json">Capture manifest</a> · Source comparisons:
+      <a href="source-comparisons/god-idols.webp">God Idols</a>,
+      <a href="source-comparisons/home-decor.webp">Home Decor</a>,
+      <a href="source-comparisons/handmade-showpiece.webp">Handmade Showpiece</a>
+    </p>
+    <nav aria-label="Filter captures">
+      <button type="button" data-filter="all" aria-pressed="true">all</button
+      ><button type="button" data-filter="mobile" aria-pressed="false">mobile</button
+      ><button type="button" data-filter="tablet" aria-pressed="false">tablet</button
+      ><button type="button" data-filter="desktop" aria-pressed="false">desktop</button
+      ><button type="button" data-filter="page" aria-pressed="false">page</button
+      ><button type="button" data-filter="overlay" aria-pressed="false">overlay</button>
+    </nav>
+    <p id="count" aria-live="polite">122 captures</p>
+  </header>
+  <main class="grid">
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="heritage-collections-mobile.webp"
+        ><img loading="lazy" src="heritage-collections-mobile.webp" alt="collections at mobile"
+      /></a>
+      <h2>collections</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="heritage-lightbox-2x-mobile.webp"
+        ><img loading="lazy" src="heritage-lightbox-2x-mobile.webp" alt="lightbox-2x at mobile"
+      /></a>
+      <h2>lightbox 2x</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="heritage-collections-tablet.webp"
+        ><img loading="lazy" src="heritage-collections-tablet.webp" alt="collections at tablet"
+      /></a>
+      <h2>collections</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="heritage-lightbox-2x-tablet.webp"
+        ><img loading="lazy" src="heritage-lightbox-2x-tablet.webp" alt="lightbox-2x at tablet"
+      /></a>
+      <h2>lightbox 2x</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="heritage-collections-desktop.webp"
+        ><img loading="lazy" src="heritage-collections-desktop.webp" alt="collections at desktop"
+      /></a>
+      <h2>collections</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="heritage-lightbox-2x-desktop.webp"
+        ><img loading="lazy" src="heritage-lightbox-2x-desktop.webp" alt="lightbox-2x at desktop"
+      /></a>
+      <h2>lightbox 2x</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="cart-empty-mobile.webp"
+        ><img loading="lazy" src="cart-empty-mobile.webp" alt="cart-empty at mobile"
+      /></a>
+      <h2>cart empty</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="cart-empty-tablet.webp"
+        ><img loading="lazy" src="cart-empty-tablet.webp" alt="cart-empty at tablet"
+      /></a>
+      <h2>cart empty</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="cart-empty-desktop.webp"
+        ><img loading="lazy" src="cart-empty-desktop.webp" alt="cart-empty at desktop"
+      /></a>
+      <h2>cart empty</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="home-mobile.webp"
+        ><img loading="lazy" src="home-mobile.webp" alt="home at mobile"
+      /></a>
+      <h2>home</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="shop-mobile.webp"
+        ><img loading="lazy" src="shop-mobile.webp" alt="shop at mobile"
+      /></a>
+      <h2>shop</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="categories-mobile.webp"
+        ><img loading="lazy" src="categories-mobile.webp" alt="categories at mobile"
+      /></a>
+      <h2>categories</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="search-mobile.webp"
+        ><img loading="lazy" src="search-mobile.webp" alt="search at mobile"
+      /></a>
+      <h2>search</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="product-mobile.webp"
+        ><img loading="lazy" src="product-mobile.webp" alt="product at mobile"
+      /></a>
+      <h2>product</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="cart-mobile.webp"
+        ><img loading="lazy" src="cart-mobile.webp" alt="cart at mobile"
+      /></a>
+      <h2>cart</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="checkout-mobile.webp"
+        ><img loading="lazy" src="checkout-mobile.webp" alt="checkout at mobile"
+      /></a>
+      <h2>checkout</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="payment-mobile.webp"
+        ><img loading="lazy" src="payment-mobile.webp" alt="payment at mobile"
+      /></a>
+      <h2>payment</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="signin-mobile.webp"
+        ><img loading="lazy" src="signin-mobile.webp" alt="signin at mobile"
+      /></a>
+      <h2>signin</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="signup-mobile.webp"
+        ><img loading="lazy" src="signup-mobile.webp" alt="signup at mobile"
+      /></a>
+      <h2>signup</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="recovery-mobile.webp"
+        ><img loading="lazy" src="recovery-mobile.webp" alt="recovery at mobile"
+      /></a>
+      <h2>recovery</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="profile-mobile.webp"
+        ><img loading="lazy" src="profile-mobile.webp" alt="profile at mobile"
+      /></a>
+      <h2>profile</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="orders-mobile.webp"
+        ><img loading="lazy" src="orders-mobile.webp" alt="orders at mobile"
+      /></a>
+      <h2>orders</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="order-detail-mobile.webp"
+        ><img loading="lazy" src="order-detail-mobile.webp" alt="order-detail at mobile"
+      /></a>
+      <h2>order detail</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="order-invoice-mobile.webp"
+        ><img loading="lazy" src="order-invoice-mobile.webp" alt="order-invoice at mobile"
+      /></a>
+      <h2>order invoice</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="order-success-mobile.webp"
+        ><img loading="lazy" src="order-success-mobile.webp" alt="order-success at mobile"
+      /></a>
+      <h2>order success</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="order-pending-mobile.webp"
+        ><img loading="lazy" src="order-pending-mobile.webp" alt="order-pending at mobile"
+      /></a>
+      <h2>order pending</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="order-failure-mobile.webp"
+        ><img loading="lazy" src="order-failure-mobile.webp" alt="order-failure at mobile"
+      /></a>
+      <h2>order failure</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="not-found-mobile.webp"
+        ><img loading="lazy" src="not-found-mobile.webp" alt="not-found at mobile"
+      /></a>
+      <h2>not found</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="product-one-photo-mobile.webp"
+        ><img loading="lazy" src="product-one-photo-mobile.webp" alt="product-one-photo at mobile"
+      /></a>
+      <h2>product one photo</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="product-two-photos-mobile.webp"
+        ><img
+          loading="lazy"
+          src="product-two-photos-mobile.webp"
+          alt="product-two-photos at mobile"
+      /></a>
+      <h2>product two photos</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="product-four-photos-mobile.webp"
+        ><img
+          loading="lazy"
+          src="product-four-photos-mobile.webp"
+          alt="product-four-photos at mobile"
+      /></a>
+      <h2>product four photos</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="product-many-photos-mobile.webp"
+        ><img
+          loading="lazy"
+          src="product-many-photos-mobile.webp"
+          alt="product-many-photos at mobile"
+      /></a>
+      <h2>product many photos</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="home-sparse-mobile.webp"
+        ><img loading="lazy" src="home-sparse-mobile.webp" alt="home-sparse at mobile"
+      /></a>
+      <h2>home sparse</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="home-unknown-collections-mobile.webp"
+        ><img
+          loading="lazy"
+          src="home-unknown-collections-mobile.webp"
+          alt="home-unknown-collections at mobile"
+      /></a>
+      <h2>home unknown collections</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="home-unconfigured-mobile.webp"
+        ><img loading="lazy" src="home-unconfigured-mobile.webp" alt="home-unconfigured at mobile"
+      /></a>
+      <h2>home unconfigured</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="mobile">
+      <a href="shop-missing-images-mobile.webp"
+        ><img
+          loading="lazy"
+          src="shop-missing-images-mobile.webp"
+          alt="shop-missing-images at mobile"
+      /></a>
+      <h2>shop missing images</h2>
+      <p>mobile · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="home-tablet.webp"
+        ><img loading="lazy" src="home-tablet.webp" alt="home at tablet"
+      /></a>
+      <h2>home</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="shop-tablet.webp"
+        ><img loading="lazy" src="shop-tablet.webp" alt="shop at tablet"
+      /></a>
+      <h2>shop</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="categories-tablet.webp"
+        ><img loading="lazy" src="categories-tablet.webp" alt="categories at tablet"
+      /></a>
+      <h2>categories</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="search-tablet.webp"
+        ><img loading="lazy" src="search-tablet.webp" alt="search at tablet"
+      /></a>
+      <h2>search</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="product-tablet.webp"
+        ><img loading="lazy" src="product-tablet.webp" alt="product at tablet"
+      /></a>
+      <h2>product</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="cart-tablet.webp"
+        ><img loading="lazy" src="cart-tablet.webp" alt="cart at tablet"
+      /></a>
+      <h2>cart</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="checkout-tablet.webp"
+        ><img loading="lazy" src="checkout-tablet.webp" alt="checkout at tablet"
+      /></a>
+      <h2>checkout</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="payment-tablet.webp"
+        ><img loading="lazy" src="payment-tablet.webp" alt="payment at tablet"
+      /></a>
+      <h2>payment</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="signin-tablet.webp"
+        ><img loading="lazy" src="signin-tablet.webp" alt="signin at tablet"
+      /></a>
+      <h2>signin</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="signup-tablet.webp"
+        ><img loading="lazy" src="signup-tablet.webp" alt="signup at tablet"
+      /></a>
+      <h2>signup</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="recovery-tablet.webp"
+        ><img loading="lazy" src="recovery-tablet.webp" alt="recovery at tablet"
+      /></a>
+      <h2>recovery</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="profile-tablet.webp"
+        ><img loading="lazy" src="profile-tablet.webp" alt="profile at tablet"
+      /></a>
+      <h2>profile</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="orders-tablet.webp"
+        ><img loading="lazy" src="orders-tablet.webp" alt="orders at tablet"
+      /></a>
+      <h2>orders</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="order-detail-tablet.webp"
+        ><img loading="lazy" src="order-detail-tablet.webp" alt="order-detail at tablet"
+      /></a>
+      <h2>order detail</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="order-invoice-tablet.webp"
+        ><img loading="lazy" src="order-invoice-tablet.webp" alt="order-invoice at tablet"
+      /></a>
+      <h2>order invoice</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="order-success-tablet.webp"
+        ><img loading="lazy" src="order-success-tablet.webp" alt="order-success at tablet"
+      /></a>
+      <h2>order success</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="order-pending-tablet.webp"
+        ><img loading="lazy" src="order-pending-tablet.webp" alt="order-pending at tablet"
+      /></a>
+      <h2>order pending</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="order-failure-tablet.webp"
+        ><img loading="lazy" src="order-failure-tablet.webp" alt="order-failure at tablet"
+      /></a>
+      <h2>order failure</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="not-found-tablet.webp"
+        ><img loading="lazy" src="not-found-tablet.webp" alt="not-found at tablet"
+      /></a>
+      <h2>not found</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="product-one-photo-tablet.webp"
+        ><img loading="lazy" src="product-one-photo-tablet.webp" alt="product-one-photo at tablet"
+      /></a>
+      <h2>product one photo</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="product-two-photos-tablet.webp"
+        ><img
+          loading="lazy"
+          src="product-two-photos-tablet.webp"
+          alt="product-two-photos at tablet"
+      /></a>
+      <h2>product two photos</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="product-four-photos-tablet.webp"
+        ><img
+          loading="lazy"
+          src="product-four-photos-tablet.webp"
+          alt="product-four-photos at tablet"
+      /></a>
+      <h2>product four photos</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="product-many-photos-tablet.webp"
+        ><img
+          loading="lazy"
+          src="product-many-photos-tablet.webp"
+          alt="product-many-photos at tablet"
+      /></a>
+      <h2>product many photos</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="home-sparse-tablet.webp"
+        ><img loading="lazy" src="home-sparse-tablet.webp" alt="home-sparse at tablet"
+      /></a>
+      <h2>home sparse</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="home-unknown-collections-tablet.webp"
+        ><img
+          loading="lazy"
+          src="home-unknown-collections-tablet.webp"
+          alt="home-unknown-collections at tablet"
+      /></a>
+      <h2>home unknown collections</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="home-unconfigured-tablet.webp"
+        ><img loading="lazy" src="home-unconfigured-tablet.webp" alt="home-unconfigured at tablet"
+      /></a>
+      <h2>home unconfigured</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="tablet">
+      <a href="shop-missing-images-tablet.webp"
+        ><img
+          loading="lazy"
+          src="shop-missing-images-tablet.webp"
+          alt="shop-missing-images at tablet"
+      /></a>
+      <h2>shop missing images</h2>
+      <p>tablet · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="home-desktop.webp"
+        ><img loading="lazy" src="home-desktop.webp" alt="home at desktop"
+      /></a>
+      <h2>home</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="shop-desktop.webp"
+        ><img loading="lazy" src="shop-desktop.webp" alt="shop at desktop"
+      /></a>
+      <h2>shop</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="categories-desktop.webp"
+        ><img loading="lazy" src="categories-desktop.webp" alt="categories at desktop"
+      /></a>
+      <h2>categories</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="search-desktop.webp"
+        ><img loading="lazy" src="search-desktop.webp" alt="search at desktop"
+      /></a>
+      <h2>search</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="product-desktop.webp"
+        ><img loading="lazy" src="product-desktop.webp" alt="product at desktop"
+      /></a>
+      <h2>product</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="cart-desktop.webp"
+        ><img loading="lazy" src="cart-desktop.webp" alt="cart at desktop"
+      /></a>
+      <h2>cart</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="checkout-desktop.webp"
+        ><img loading="lazy" src="checkout-desktop.webp" alt="checkout at desktop"
+      /></a>
+      <h2>checkout</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="payment-desktop.webp"
+        ><img loading="lazy" src="payment-desktop.webp" alt="payment at desktop"
+      /></a>
+      <h2>payment</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="signin-desktop.webp"
+        ><img loading="lazy" src="signin-desktop.webp" alt="signin at desktop"
+      /></a>
+      <h2>signin</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="signup-desktop.webp"
+        ><img loading="lazy" src="signup-desktop.webp" alt="signup at desktop"
+      /></a>
+      <h2>signup</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="recovery-desktop.webp"
+        ><img loading="lazy" src="recovery-desktop.webp" alt="recovery at desktop"
+      /></a>
+      <h2>recovery</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="profile-desktop.webp"
+        ><img loading="lazy" src="profile-desktop.webp" alt="profile at desktop"
+      /></a>
+      <h2>profile</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="orders-desktop.webp"
+        ><img loading="lazy" src="orders-desktop.webp" alt="orders at desktop"
+      /></a>
+      <h2>orders</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="order-detail-desktop.webp"
+        ><img loading="lazy" src="order-detail-desktop.webp" alt="order-detail at desktop"
+      /></a>
+      <h2>order detail</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="order-invoice-desktop.webp"
+        ><img loading="lazy" src="order-invoice-desktop.webp" alt="order-invoice at desktop"
+      /></a>
+      <h2>order invoice</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="order-success-desktop.webp"
+        ><img loading="lazy" src="order-success-desktop.webp" alt="order-success at desktop"
+      /></a>
+      <h2>order success</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="order-pending-desktop.webp"
+        ><img loading="lazy" src="order-pending-desktop.webp" alt="order-pending at desktop"
+      /></a>
+      <h2>order pending</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="order-failure-desktop.webp"
+        ><img loading="lazy" src="order-failure-desktop.webp" alt="order-failure at desktop"
+      /></a>
+      <h2>order failure</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="not-found-desktop.webp"
+        ><img loading="lazy" src="not-found-desktop.webp" alt="not-found at desktop"
+      /></a>
+      <h2>not found</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="product-one-photo-desktop.webp"
+        ><img
+          loading="lazy"
+          src="product-one-photo-desktop.webp"
+          alt="product-one-photo at desktop"
+      /></a>
+      <h2>product one photo</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="product-two-photos-desktop.webp"
+        ><img
+          loading="lazy"
+          src="product-two-photos-desktop.webp"
+          alt="product-two-photos at desktop"
+      /></a>
+      <h2>product two photos</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="product-four-photos-desktop.webp"
+        ><img
+          loading="lazy"
+          src="product-four-photos-desktop.webp"
+          alt="product-four-photos at desktop"
+      /></a>
+      <h2>product four photos</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="product-many-photos-desktop.webp"
+        ><img
+          loading="lazy"
+          src="product-many-photos-desktop.webp"
+          alt="product-many-photos at desktop"
+      /></a>
+      <h2>product many photos</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="home-sparse-desktop.webp"
+        ><img loading="lazy" src="home-sparse-desktop.webp" alt="home-sparse at desktop"
+      /></a>
+      <h2>home sparse</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="home-unknown-collections-desktop.webp"
+        ><img
+          loading="lazy"
+          src="home-unknown-collections-desktop.webp"
+          alt="home-unknown-collections at desktop"
+      /></a>
+      <h2>home unknown collections</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="home-unconfigured-desktop.webp"
+        ><img
+          loading="lazy"
+          src="home-unconfigured-desktop.webp"
+          alt="home-unconfigured at desktop"
+      /></a>
+      <h2>home unconfigured</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="page" data-viewport="desktop">
+      <a href="shop-missing-images-desktop.webp"
+        ><img
+          loading="lazy"
+          src="shop-missing-images-desktop.webp"
+          alt="shop-missing-images at desktop"
+      /></a>
+      <h2>shop missing images</h2>
+      <p>desktop · page</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-store-search-mobile.webp"
+        ><img loading="lazy" src="overlay-store-search-mobile.webp" alt="store-search at mobile"
+      /></a>
+      <h2>store search</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-shopping-bag-mobile.webp"
+        ><img loading="lazy" src="overlay-shopping-bag-mobile.webp" alt="shopping-bag at mobile"
+      /></a>
+      <h2>shopping bag</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-empty-shopping-bag-mobile.webp"
+        ><img
+          loading="lazy"
+          src="overlay-empty-shopping-bag-mobile.webp"
+          alt="empty-shopping-bag at mobile"
+      /></a>
+      <h2>empty shopping bag</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-quick-view-mobile.webp"
+        ><img loading="lazy" src="overlay-quick-view-mobile.webp" alt="quick-view at mobile"
+      /></a>
+      <h2>quick view</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-mobile-menu-mobile.webp"
+        ><img loading="lazy" src="overlay-mobile-menu-mobile.webp" alt="mobile-menu at mobile"
+      /></a>
+      <h2>mobile menu</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-catalog-filters-mobile.webp"
+        ><img
+          loading="lazy"
+          src="overlay-catalog-filters-mobile.webp"
+          alt="catalog-filters at mobile"
+      /></a>
+      <h2>catalog filters</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-review-editor-mobile.webp"
+        ><img loading="lazy" src="overlay-review-editor-mobile.webp" alt="review-editor at mobile"
+      /></a>
+      <h2>review editor</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-password-recovery-mobile.webp"
+        ><img
+          loading="lazy"
+          src="overlay-password-recovery-mobile.webp"
+          alt="password-recovery at mobile"
+      /></a>
+      <h2>password recovery</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-checkout-address-mobile.webp"
+        ><img
+          loading="lazy"
+          src="overlay-checkout-address-mobile.webp"
+          alt="checkout-address at mobile"
+      /></a>
+      <h2>checkout address</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-address-editor-mobile.webp"
+        ><img
+          loading="lazy"
+          src="overlay-address-editor-mobile.webp"
+          alt="address-editor at mobile"
+      /></a>
+      <h2>address editor</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="mobile">
+      <a href="overlay-gallery-zoom-mobile.webp"
+        ><img loading="lazy" src="overlay-gallery-zoom-mobile.webp" alt="gallery-zoom at mobile"
+      /></a>
+      <h2>gallery zoom</h2>
+      <p>mobile · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-store-search-tablet.webp"
+        ><img loading="lazy" src="overlay-store-search-tablet.webp" alt="store-search at tablet"
+      /></a>
+      <h2>store search</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-shopping-bag-tablet.webp"
+        ><img loading="lazy" src="overlay-shopping-bag-tablet.webp" alt="shopping-bag at tablet"
+      /></a>
+      <h2>shopping bag</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-empty-shopping-bag-tablet.webp"
+        ><img
+          loading="lazy"
+          src="overlay-empty-shopping-bag-tablet.webp"
+          alt="empty-shopping-bag at tablet"
+      /></a>
+      <h2>empty shopping bag</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-quick-view-tablet.webp"
+        ><img loading="lazy" src="overlay-quick-view-tablet.webp" alt="quick-view at tablet"
+      /></a>
+      <h2>quick view</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-mobile-menu-tablet.webp"
+        ><img loading="lazy" src="overlay-mobile-menu-tablet.webp" alt="mobile-menu at tablet"
+      /></a>
+      <h2>mobile menu</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-catalog-filters-tablet.webp"
+        ><img
+          loading="lazy"
+          src="overlay-catalog-filters-tablet.webp"
+          alt="catalog-filters at tablet"
+      /></a>
+      <h2>catalog filters</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-review-editor-tablet.webp"
+        ><img loading="lazy" src="overlay-review-editor-tablet.webp" alt="review-editor at tablet"
+      /></a>
+      <h2>review editor</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-password-recovery-tablet.webp"
+        ><img
+          loading="lazy"
+          src="overlay-password-recovery-tablet.webp"
+          alt="password-recovery at tablet"
+      /></a>
+      <h2>password recovery</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-checkout-address-tablet.webp"
+        ><img
+          loading="lazy"
+          src="overlay-checkout-address-tablet.webp"
+          alt="checkout-address at tablet"
+      /></a>
+      <h2>checkout address</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-address-editor-tablet.webp"
+        ><img
+          loading="lazy"
+          src="overlay-address-editor-tablet.webp"
+          alt="address-editor at tablet"
+      /></a>
+      <h2>address editor</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="tablet">
+      <a href="overlay-gallery-zoom-tablet.webp"
+        ><img loading="lazy" src="overlay-gallery-zoom-tablet.webp" alt="gallery-zoom at tablet"
+      /></a>
+      <h2>gallery zoom</h2>
+      <p>tablet · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-store-search-desktop.webp"
+        ><img loading="lazy" src="overlay-store-search-desktop.webp" alt="store-search at desktop"
+      /></a>
+      <h2>store search</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-shopping-bag-desktop.webp"
+        ><img loading="lazy" src="overlay-shopping-bag-desktop.webp" alt="shopping-bag at desktop"
+      /></a>
+      <h2>shopping bag</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-empty-shopping-bag-desktop.webp"
+        ><img
+          loading="lazy"
+          src="overlay-empty-shopping-bag-desktop.webp"
+          alt="empty-shopping-bag at desktop"
+      /></a>
+      <h2>empty shopping bag</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-quick-view-desktop.webp"
+        ><img loading="lazy" src="overlay-quick-view-desktop.webp" alt="quick-view at desktop"
+      /></a>
+      <h2>quick view</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-review-editor-desktop.webp"
+        ><img
+          loading="lazy"
+          src="overlay-review-editor-desktop.webp"
+          alt="review-editor at desktop"
+      /></a>
+      <h2>review editor</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-password-recovery-desktop.webp"
+        ><img
+          loading="lazy"
+          src="overlay-password-recovery-desktop.webp"
+          alt="password-recovery at desktop"
+      /></a>
+      <h2>password recovery</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-checkout-address-desktop.webp"
+        ><img
+          loading="lazy"
+          src="overlay-checkout-address-desktop.webp"
+          alt="checkout-address at desktop"
+      /></a>
+      <h2>checkout address</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-photographic-collections-desktop.webp"
+        ><img
+          loading="lazy"
+          src="overlay-photographic-collections-desktop.webp"
+          alt="photographic-collections at desktop"
+      /></a>
+      <h2>photographic collections</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-address-editor-desktop.webp"
+        ><img
+          loading="lazy"
+          src="overlay-address-editor-desktop.webp"
+          alt="address-editor at desktop"
+      /></a>
+      <h2>address editor</h2>
+      <p>desktop · overlay</p>
+    </article>
+    <article data-kind="overlay" data-viewport="desktop">
+      <a href="overlay-gallery-zoom-desktop.webp"
+        ><img loading="lazy" src="overlay-gallery-zoom-desktop.webp" alt="gallery-zoom at desktop"
+      /></a>
+      <h2>gallery zoom</h2>
+      <p>desktop · overlay</p>
+    </article>
+  </main>
+  <script>
+    document.querySelectorAll('[data-filter]').forEach((button) =>
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter
+        document
+          .querySelectorAll('[data-filter]')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b === button)))
+        let count = 0
+        document.querySelectorAll('article').forEach((card) => {
+          card.hidden =
+            filter !== 'all' && card.dataset.viewport !== filter && card.dataset.kind !== filter
+          if (!card.hidden) count++
+        })
+        document.getElementById('count').textContent = count + ' captures'
+      })
+    )
+  </script>
+</html>

@@ -1,0 +1,57 @@
+{
+  "verified_at": "2026-10-27T18:36:46.249614+00:00",
+  "implementation_commit": "880e5ed",
+  "lint": "passed",
+  "format": "completed; unrelated baseline formatting preserved",
+  "build": "passed",
+  "type_check": "passed",
+  "regressions": {
+    "total": 170,
+    "passed": 141,
+    "skipped": 29,
+    "failed": 0
+  },
+  "responsive": {
+    "canonical_checks_passed": 5,
+    "viewport_cases": 735,
+    "viewport_overlays": 22,
+    "authenticated_cases": 225,
+    "customer_admin_overlays": 78,
+    "photography_input_cases": 57,
+    "canonical_total": 1117,
+    "supplemental_empty_cart": 3,
+    "failures": 0
+  },
+  "gallery": {
+    "images": 122,
+    "viewports": {
+      "mobile": 41,
+      "tablet": 41,
+      "desktop": 40
+    },
+    "page_captures": 84,
+    "overlay_captures": 38
+  },
+  "review": {
+    "critical_remaining": 0,
+    "important_remaining": 0,
+    "findings_fixed": ["empty modal search focus", "pagination/header offsets"],
+    "audit_fixes": ["44px short navigation targets", "readable drawer prices and search prompt"]
+  },
+  "graph": {
+    "command": "graphify update .",
+    "result": "code graph updated",
+    "llm_tokens": 0,
+    "limitations": "Optional SQL parser absent; no SQL or new document/image semantic extraction"
+  },
+  "static_contract_audit": {
+    "findings": 40,
+    "rules": ["form.novalidate-missing", "form.textarea-resize-missing"],
+    "disposition": "Existing UX-CONTRACT native validation/resizable-textarea exceptions preserved"
+  },
+  "limits": [
+    "29 database/integration/provider tests environment-gated",
+    "Chromium emulation only; physical mobile keyboards, Safari/Firefox and assistive technology not exercised",
+    "No live provider or production commerce mutations"
+  ]
+}
