@@ -121,19 +121,19 @@ export const CartDrawer: React.FC = () => {
             <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-sm font-normal text-[var(--color-muted)]">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-normal text-[var(--color-ink)]">
+                <span className="font-product font-normal text-[var(--color-ink)]">
                   {formatPrice(subtotalPaisa)}
                 </span>
               </div>
               {discountPaisa > 0 && (
                 <div className="flex justify-between font-normal text-emerald-700">
                   <span>Discount</span>
-                  <span>-{formatPrice(discountPaisa)}</span>
+                  <span className="font-product">-{formatPrice(discountPaisa)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>Estimated shipping</span>
-                <span className="font-normal text-[var(--color-ink)]">
+                <span className="font-product font-normal text-[var(--color-ink)]">
                   {error
                     ? 'Unavailable'
                     : shippingPaisa === 0
@@ -143,7 +143,9 @@ export const CartDrawer: React.FC = () => {
               </div>
               <div className="flex justify-between border-t border-[var(--color-line)] pt-2 text-xs font-normal text-[var(--color-ink)]">
                 <span>Total</span>
-                <span>{error ? 'Unavailable' : formatPrice(totalPaisa)}</span>
+                <span className="font-product">
+                  {error ? 'Unavailable' : formatPrice(totalPaisa)}
+                </span>
               </div>
             </div>
 

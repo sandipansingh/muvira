@@ -138,7 +138,7 @@ export const OrdersHistoryPage: React.FC = () => {
                       </span>
                       <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>
                     </div>
-                    <p className="mt-1 text-base font-normal text-ink">
+                    <p className="font-product mt-1 text-base font-normal text-ink">
                       {order.firstItemName ?? `${order.itemCount} item(s)`}
                     </p>
                     <p className="mt-1 flex items-center gap-1 text-sm text-muted">
@@ -149,7 +149,7 @@ export const OrdersHistoryPage: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between gap-4 border-t border-line pt-3 sm:border-t-0 sm:pt-0">
                   <div className="text-right">
-                    <span className="block text-base font-normal text-ink">
+                    <span className="font-product block text-base font-normal text-ink">
                       {formatPrice(order.totalAmount)}
                     </span>
                     <span className="text-[11px] text-muted">{order.itemCount} item(s)</span>

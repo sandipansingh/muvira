@@ -67,7 +67,7 @@ All money is integer paisa at API and database boundaries. UI conversion to rupe
 - Use `₹` and Indian localization for customer-visible currency.
 - Use existing CSS variables and Tailwind tokens; do not add raw colors to JSX or component CSS.
 - Reserve the primary brand color for interactive actions, selected controls, prices, and hover states.
-- Headings use Raleway (`font-display`); body and controls use Lato (`font-sans`).
+- Headings use Sawarabi Mincho (`font-display` / `font-serif`) at regular weight without font synthesis; body and controls use Roboto (`font-sans`). Product names and standalone prices use Open Sans (`font-product`).
 - Form controls must render at 16px or larger to avoid iOS focus zoom.
 - Use `Breadcrumbs`, `Dropdown`, and `Pagination` rather than hand-rolled equivalents. Paginated screens retain the existing scroll-to-results behavior.
 - Logo images must not be wrapped in decorative frames, borders, backgrounds, or shadows.

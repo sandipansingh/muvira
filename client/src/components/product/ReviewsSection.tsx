@@ -174,7 +174,7 @@ export const ReviewsSection: React.FC<ProductReviewsProps> = ({
               Sign in with the account used for your purchase to submit a verified review.
             </div>
           )}
-          {productName && <p className="text-sm font-bold text-ink">{productName}</p>}
+          {productName && <p className="font-product text-sm font-bold text-ink">{productName}</p>}
           <div>
             <span className="mb-2 block text-xs uppercase tracking-wider text-ink-soft">
               Overall rating

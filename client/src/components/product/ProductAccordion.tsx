@@ -112,7 +112,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                     <td className="w-1/3 px-4 py-3 font-normal text-muted uppercase tracking-wider text-xs">
                       Product Name
                     </td>
-                    <td className="px-4 py-3 font-normal text-ink">{product.name}</td>
+                    <td className="font-product px-4 py-3 font-normal text-ink">{product.name}</td>
                   </tr>
                   {product.sku && (
                     <tr>

@@ -56,11 +56,13 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
                 </div>
               )}
               <div className="min-w-0">
-                <p className="truncate font-semibold text-[var(--color-ink)]">{item.productName}</p>
+                <p className="font-product truncate font-semibold text-[var(--color-ink)]">
+                  {item.productName}
+                </p>
                 <p className="text-[var(--color-muted)]">Qty: {item.quantity}</p>
               </div>
             </div>
-            <span className="shrink-0 font-bold text-[var(--color-ink)]">
+            <span className="font-product shrink-0 font-bold text-[var(--color-ink)]">
               {formatPrice(item.unitPrice * item.quantity)}
             </span>
           </div>
@@ -77,17 +79,19 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
       <div className="space-y-2.5 border-t border-[var(--color-line)] pt-3 text-xs text-[var(--color-muted)]">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span className="font-medium text-[var(--color-ink)]">{formatPrice(subtotalPaisa)}</span>
+          <span className="font-product font-medium text-[var(--color-ink)]">
+            {formatPrice(subtotalPaisa)}
+          </span>
         </div>
         {discountPaisa > 0 && (
           <div className="flex justify-between font-semibold text-accent">
             <span>Coupon Discount ({coupon?.code})</span>
-            <span>-{formatPrice(discountPaisa)}</span>
+            <span className="font-product">-{formatPrice(discountPaisa)}</span>
           </div>
         )}
         <div className="flex justify-between">
           <span>Delivery Charge</span>
-          <span className="font-medium text-[var(--color-ink)]">
+          <span className="font-product font-medium text-[var(--color-ink)]">
             {shippingPaisa === 0 ? (
               <span className="text-accent font-bold">FREE</span>
             ) : (
@@ -97,7 +101,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         </div>
         <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-sm font-bold text-[var(--color-ink)]">
           <span>Total Amount</span>
-          <span className="font-sans text-lg font-bold text-[var(--color-primary)]">
+          <span className="font-product text-lg font-bold text-[var(--color-primary)]">
             {formatPrice(totalPaisa)}
           </span>
         </div>

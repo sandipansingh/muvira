@@ -232,13 +232,13 @@ export const OrderDetailPage: React.FC = () => {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <h3 className="font-display text-base font-semibold text-ink">
+                    <h3 className="font-product leading-[1.15] tracking-tight text-base font-semibold text-ink">
                       {item.productName}
                     </h3>
                     <p className="text-xs font-normal text-muted">Qty: {item.quantity}</p>
                   </div>
                 </div>
-                <span className="shrink-0 text-base font-normal text-ink">
+                <span className="font-product shrink-0 text-base font-normal text-ink">
                   {formatPrice(item.totalPrice)}
                 </span>
               </div>
@@ -276,23 +276,25 @@ export const OrderDetailPage: React.FC = () => {
             <div className="space-y-1.5 border-t border-line pt-3 text-ink-soft">
               <p className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-normal text-ink">{formatPrice(order.subtotal)}</span>
+                <span className="font-product font-normal text-ink">
+                  {formatPrice(order.subtotal)}
+                </span>
               </p>
               {order.discountAmount > 0 && (
                 <p className="flex justify-between text-accent font-normal">
                   <span>Discount</span>
-                  <span>-{formatPrice(order.discountAmount)}</span>
+                  <span className="font-product">-{formatPrice(order.discountAmount)}</span>
                 </p>
               )}
               <p className="flex justify-between">
                 <span>Shipping</span>
-                <span className="font-normal text-ink">
+                <span className="font-product font-normal text-ink">
                   {order.shippingAmount ? formatPrice(order.shippingAmount) : 'FREE'}
                 </span>
               </p>
               <p className="flex justify-between border-t border-line pt-2 font-normal text-ink text-sm">
                 <span>Total</span>
-                <span>{formatPrice(order.totalAmount)}</span>
+                <span className="font-product">{formatPrice(order.totalAmount)}</span>
               </p>
             </div>
           </div>

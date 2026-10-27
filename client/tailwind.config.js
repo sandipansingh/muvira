@@ -64,6 +64,7 @@ export default {
         sans: 'var(--font-sans)',
         display: 'var(--font-display)',
         serif: 'var(--font-display)',
+        product: 'var(--font-product)',
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       spacing: {

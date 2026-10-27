@@ -435,7 +435,7 @@ export const CheckoutPage: React.FC = () => {
                 <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-xs text-[var(--color-muted)]">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span className="font-semibold text-[var(--color-ink)]">
+                    <span className="font-product font-semibold text-[var(--color-ink)]">
                       {formatPrice(effectiveSubtotalPaisa)}
                     </span>
                   </div>
@@ -443,13 +443,13 @@ export const CheckoutPage: React.FC = () => {
                   {effectiveDiscountPaisa > 0 && (
                     <div className="flex justify-between font-semibold text-accent">
                       <span>Coupon Discount</span>
-                      <span>-{formatPrice(effectiveDiscountPaisa)}</span>
+                      <span className="font-product">-{formatPrice(effectiveDiscountPaisa)}</span>
                     </div>
                   )}
 
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span className="font-semibold text-[var(--color-ink)]">
+                    <span className="font-product font-semibold text-[var(--color-ink)]">
                       {effectiveShippingPaisa === 0 ? (
                         <span className="text-accent font-bold">Free</span>
                       ) : (
@@ -463,12 +463,14 @@ export const CheckoutPage: React.FC = () => {
                       Tax
                       <HelpCircle className="h-3 w-3 text-[var(--color-muted)]" />
                     </span>
-                    <span className="font-semibold text-[var(--color-ink)]">₹0.00 (Included)</span>
+                    <span className="font-product font-semibold text-[var(--color-ink)]">
+                      ₹0.00 (Included)
+                    </span>
                   </div>
 
                   <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-bold text-[var(--color-ink)]">
                     <span>Total</span>
-                    <span className="font-sans text-xl font-bold text-[var(--color-ink)]">
+                    <span className="font-product text-xl font-bold text-[var(--color-ink)]">
                       {formatPrice(effectiveTotalPaisa)}
                     </span>
                   </div>

@@ -4,8 +4,11 @@ The canonical visual tokens live in `client/src/index.css` and `client/tailwind.
 
 ## Typography
 
-- Raleway (`font-display`) is used for headings and display labels.
-- Lato (`font-sans`) is used for body copy, navigation, forms, and controls.
+- Sawarabi Mincho (`font-display` / `font-serif`, `--font-display`) is used for page/section headings and display labels. It has only regular (400); do not synthesize bold or italic.
+- Roboto (`font-sans`, `--font-sans`) is used for body copy, navigation, forms, buttons, and control labels.
+- Open Sans (`font-product`, `--font-product`) is used for product names and standalone prices, including sale prices and order totals. Prices within control labels retain Roboto.
+- Font variables in `client/src/index.css` feed `theme.extend.fontFamily` in `client/tailwind.config.js`; product typography selectors must respect the product family.
+- Fonts are locally hosted WOFF2 with `font-display: swap`; Latin Extended subsets support accented text; ₹ uses the local Roboto fallback when absent in Open Sans. Sources and SIL licenses live in `client/public/fonts/`.
 - Heading line-height must be at least 1.15 and normally uses tight letter spacing.
 - Uppercase badges use `tracking-wider`; section eyebrows use the established wider tracking.
 - Inputs, textareas, and selects render at `text-base` or larger to prevent iOS focus zoom.

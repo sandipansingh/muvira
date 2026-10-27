@@ -115,16 +115,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <RatingStars rating={product.rating} count={product.reviewCount} size="xs" />
             )}
             <Link to={`/product/${product.slug}`} className="block min-h-[var(--tap-target)]">
-              <h3 className="font-display text-base sm:text-lg text-ink group-hover:underline underline-offset-2 line-clamp-1">
+              <h3 className="font-product leading-[1.15] tracking-tight text-base sm:text-lg font-semibold text-ink group-hover:underline underline-offset-2 line-clamp-1">
                 {product.name}
               </h3>
             </Link>
             <div className="flex flex-wrap items-baseline gap-2">
-              <span className="whitespace-nowrap font-sans text-sm sm:text-base font-bold text-ink">
+              <span className="whitespace-nowrap font-product text-sm sm:text-base font-bold text-ink">
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.salePrice && (
-                <span className="whitespace-nowrap font-sans text-xs text-muted line-through">
+                <span className="whitespace-nowrap font-product text-xs text-muted line-through">
                   {formatPrice(product.salePrice)}
                 </span>
               )}
@@ -247,16 +247,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <RatingStars rating={product.rating} count={product.reviewCount} size="xs" />
           )}
           <Link to={`/product/${product.slug}`} className="block min-h-[var(--tap-target)]">
-            <h3 className="product-card__name line-clamp-2 group-hover:underline underline-offset-2">
+            <h3 className="font-product product-card__name line-clamp-2 group-hover:underline underline-offset-2">
               {product.name}
             </h3>
           </Link>
           <div className="flex flex-wrap items-baseline gap-2">
-            <span className="product-card__price whitespace-nowrap">
+            <span className="font-product product-card__price whitespace-nowrap">
               {formatPrice(product.price)}
             </span>
             {hasDiscount && product.salePrice && (
-              <span className="product-card__meta whitespace-nowrap line-through">
+              <span className="font-product product-card__meta whitespace-nowrap line-through">
                 {formatPrice(product.salePrice)}
               </span>
             )}

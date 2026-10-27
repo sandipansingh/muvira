@@ -121,7 +121,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             </div>
 
             {/* Product Title */}
-            <h2 className="text-product-title mt-2 pr-10 line-clamp-2 text-[var(--color-ink)]">
+            <h2 className="font-product text-product-title mt-2 pr-10 line-clamp-2 text-[var(--color-ink)]">
               {product.name}
             </h2>
 
@@ -138,11 +138,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
             {/* Pricing Row */}
             <div className="mt-3 flex flex-wrap items-baseline gap-2.5">
-              <span className="font-sans text-2xl font-bold text-[var(--color-ink)]">
+              <span className="font-product text-2xl font-bold text-[var(--color-ink)]">
                 {formatPrice(product.price)}
               </span>
               {hasDiscount && product.salePrice && (
-                <span className="product-card__meta text-sm line-through">
+                <span className="font-product product-card__meta text-sm line-through">
                   {formatPrice(product.salePrice)}
                 </span>
               )}

@@ -97,16 +97,16 @@ export const RecommendedUpsell: React.FC = () => {
         {/* Info */}
         <div className="min-w-0 flex-[1_1_8rem] space-y-1">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <h4 className="min-w-0 flex-[1_1_8rem] break-words font-display text-xs font-bold text-[var(--color-ink)] xs:line-clamp-1 sm:text-sm">
+            <h4 className="min-w-0 flex-[1_1_8rem] break-words font-product leading-[1.15] tracking-tight text-xs font-semibold text-[var(--color-ink)] xs:line-clamp-1 sm:text-sm">
               {product.name}
             </h4>
             <div className="text-right shrink-0">
               {product.salePrice != null && (
-                <span className="block text-[10px] text-[var(--color-muted)] line-through">
+                <span className="font-product block text-[10px] text-[var(--color-muted)] line-through">
                   {formatPrice(product.price)}
                 </span>
               )}
-              <span className="font-sans text-xs sm:text-sm font-bold text-[var(--color-primary)]">
+              <span className="font-product text-xs sm:text-sm font-bold text-[var(--color-primary)]">
                 {formatPrice(product.price)}
               </span>
             </div>

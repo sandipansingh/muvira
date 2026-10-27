@@ -210,7 +210,7 @@ export const SearchPage: React.FC = () => {
       <div className="layout-container mb-8">
         <form
           onSubmit={handleSearchSubmit}
-          className="relative max-w-xl mx-auto flex items-center gap-3 shadow-xs rounded-xl border border-field-border bg-white p-1.5 transition-colors"
+          className="relative max-w-xl mx-auto flex flex-wrap items-center gap-3 shadow-xs rounded-xl border border-field-border bg-white p-1.5 transition-colors"
         >
           <div className="pl-3 text-muted shrink-0">
             <Search className="h-5 w-5" />
@@ -220,7 +220,7 @@ export const SearchPage: React.FC = () => {
             placeholder="Search for idols, decor, showpieces, wooden furniture..."
             value={localInput}
             onChange={(e) => setLocalInput(e.target.value)}
-            className="w-full min-w-0 bg-transparent text-base text-ink placeholder:text-muted outline-none py-1.5 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+            className="min-w-0 flex-1 basis-16 bg-transparent text-base text-ink placeholder:text-muted outline-none py-1.5 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
           />
           {localInput && (
             <button

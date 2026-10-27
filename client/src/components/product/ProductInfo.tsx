@@ -66,7 +66,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
     <div className="flex flex-col space-y-5 pr-0 sm:pr-2 lg:pr-8 xl:pr-12">
       {/* Product Title */}
       <div className="space-y-2">
-        <h1 className="font-display text-[clamp(1.5rem,5vw,2rem)] font-bold leading-tight text-ink">
+        <h1 className="font-product leading-[1.15] tracking-tight text-[clamp(1.5rem,5vw,2rem)] font-semibold text-ink">
           {product.name}
         </h1>
 
@@ -95,12 +95,12 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
 
       {/* Price Section with Savings Pill */}
       <div className="flex flex-wrap items-baseline gap-3 py-1.5">
-        <span className="font-sans text-2xl font-bold text-ink sm:text-3xl">
+        <span className="font-product text-2xl font-bold text-ink sm:text-3xl">
           {formatPrice(product.price)}
         </span>
         {originalPrice && originalPrice > product.price && (
           <>
-            <span className="text-base font-normal text-muted line-through">
+            <span className="font-product text-base font-normal text-muted line-through">
               {formatPrice(originalPrice)}
             </span>
             <span className="inline-flex items-center rounded-full bg-primary-soft px-2.5 py-0.5 text-xs font-normal text-primary">

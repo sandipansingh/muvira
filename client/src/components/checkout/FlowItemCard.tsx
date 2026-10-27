@@ -55,9 +55,9 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
         <div>
           <Link
             to={`/product/${item.productSlug}`}
-            className="min-h-[var(--tap-target)] break-words pr-10 font-display text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)] xs:line-clamp-2"
+            className="block min-h-[var(--tap-target)] break-words pr-10 font-product leading-[1.15] tracking-tight text-base font-semibold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
           >
-            {item.productName}
+            <span className="xs:line-clamp-2">{item.productName}</span>
           </Link>
           <p className="mt-0.5 text-sm text-[var(--color-muted)]">
             {item.inStock ? `${item.availableStock} available` : 'Currently unavailable'}
@@ -102,7 +102,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
             </div>
           )}
         </div>
-        <span className="mt-2 block font-sans text-base font-bold text-[var(--color-ink)]">
+        <span className="mt-2 block font-product text-base font-bold text-[var(--color-ink)]">
           {formatPrice(item.lineTotal)}
         </span>
       </div>

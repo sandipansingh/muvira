@@ -110,17 +110,17 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                 <div className="min-w-0">
                   <Link
                     to={`/product/${item.productSlug}`}
-                    className="min-h-[var(--tap-target)] break-words font-display text-base font-bold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)] xs:line-clamp-2 sm:text-sm"
+                    className="block min-h-[var(--tap-target)] break-words font-product leading-[1.15] tracking-tight text-base font-semibold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)] sm:text-sm"
                   >
-                    {item.productName}
+                    <span className="xs:line-clamp-2">{item.productName}</span>
                   </Link>
-                  <p className="mt-0.5 text-base text-[var(--color-muted)]">
+                  <p className="mt-0.5 font-product text-base text-[var(--color-muted)]">
                     ₹{(item.unitPrice / 100).toFixed(0)} each
                   </p>
                 </div>
               </div>
 
-              <span className="shrink-0 font-sans text-base font-bold text-[var(--color-ink)] sm:text-sm">
+              <span className="shrink-0 font-product text-base font-bold text-[var(--color-ink)] sm:text-sm">
                 {formatPrice(item.lineTotal)}
               </span>
             </div>
@@ -136,7 +136,9 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                 <span className="font-semibold uppercase tracking-wider text-[var(--color-ink)]">
                   {coupon.code}
                 </span>
-                <span className="text-accent">(-{formatPrice(coupon.discountAmount)})</span>
+                <span className="font-product text-accent">
+                  (-{formatPrice(coupon.discountAmount)})
+                </span>
               </div>
               <button
                 type="button"
@@ -174,7 +176,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
         <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-sm text-[var(--color-muted)]">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="font-semibold text-[var(--color-ink)]">
+            <span className="font-product font-semibold text-[var(--color-ink)]">
               {formatPrice(subtotalPaisa)}
             </span>
           </div>
@@ -182,13 +184,13 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
           {discountPaisa > 0 && (
             <div className="flex justify-between font-semibold text-accent">
               <span>Coupon Discount</span>
-              <span>-{formatPrice(discountPaisa)}</span>
+              <span className="font-product">-{formatPrice(discountPaisa)}</span>
             </div>
           )}
 
           <div className="flex justify-between">
             <span>Shipping</span>
-            <span className="font-semibold text-[var(--color-ink)]">
+            <span className="font-product font-semibold text-[var(--color-ink)]">
               {error ? (
                 'Unavailable'
               ) : shippingPaisa === 0 ? (
@@ -204,14 +206,14 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
               Estimated taxes
               <HelpCircle className="h-3 w-3 text-[var(--color-muted)]" />
             </span>
-            <span className="font-semibold text-[var(--color-ink)]">
+            <span className="font-product font-semibold text-[var(--color-ink)]">
               {estimatedTaxPaisa === 0 ? 'Included' : formatPrice(estimatedTaxPaisa)}
             </span>
           </div>
 
           <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-bold text-[var(--color-ink)]">
             <span>Total</span>
-            <span className="font-sans text-xl font-bold text-[var(--color-ink)]">
+            <span className="font-product text-xl font-bold text-[var(--color-ink)]">
               {formatPrice(totalPaisa)}
             </span>
           </div>
