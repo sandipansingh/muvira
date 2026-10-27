@@ -160,16 +160,23 @@ function inspectPage({ touch, dpr }) {
         )
       )
     : []
+  const targetRect = (element) => {
+    if (element.matches('input[type="checkbox"],input[type="radio"]')) {
+      const label = [...element.labels].find(visible)
+      if (label) return label.getBoundingClientRect()
+    }
+    return element.getBoundingClientRect()
+  }
   const smallTargets = interactive
     .filter((element) => {
-      const rect = element.getBoundingClientRect()
+      const rect = targetRect(element)
       return rect.width < 43.5 || rect.height < 43.5
     })
     .slice(0, 60)
     .map((element) => ({
       ...sample(element),
-      width: Math.round(element.getBoundingClientRect().width),
-      height: Math.round(element.getBoundingClientRect().height),
+      width: Math.round(targetRect(element).width),
+      height: Math.round(targetRect(element).height),
     }))
 
   const smallText = elements
@@ -338,16 +345,14 @@ async function auditRoute(browser, viewport, route) {
       })
       await page.locator('main h1').first().waitFor({ state: 'visible', timeout: 10000 })
       await page.getByRole('button', { name: 'Add to Cart', exact: true }).first().click()
-      await page.waitForFunction(() => !!localStorage.getItem('muvira_guest_cart_v1'))
+      await page.getByRole('dialog', { name: 'Shopping cart', exact: true }).waitFor()
     }
     await page.goto(new URL(route.path, baseUrl).href, {
       waitUntil: 'domcontentloaded',
       timeout: 20000,
     })
+    await page.locator('h1').first().waitFor({ state: 'visible', timeout: 10000 })
     await page.waitForTimeout(600)
-    if (route.name === 'product') {
-      await page.locator('main h1').first().waitFor({ state: 'visible', timeout: 10000 })
-    }
     await page.evaluate(() =>
       Promise.race([document.fonts.ready, new Promise((done) => setTimeout(done, 1500))])
     )
@@ -389,19 +394,19 @@ async function auditRoute(browser, viewport, route) {
   let findings = null
   let screenshot = null
   if (!navigationError) {
-    findings = await page.evaluate(inspectPage, { touch: viewport.touch, dpr: viewport.dpr })
     const suffix = `${viewport.width}x${viewport.height}-${viewport.label}-dpr${viewport.dpr}${viewport.textScale ? '-text200' : ''}`
     screenshot = `${route.name}__${suffix}.jpg`
     try {
+      findings = await page.evaluate(inspectPage, { touch: viewport.touch, dpr: viewport.dpr })
       await page.screenshot({
         path: resolve(output, screenshot),
         type: 'jpeg',
         quality: 65,
-        fullPage: true,
+        fullPage: !route.action,
         timeout: 20000,
       })
     } catch (error) {
-      navigationError = `Screenshot: ${error instanceof Error ? error.message : String(error)}`
+      navigationError = `Inspection: ${error instanceof Error ? error.message : String(error)}`
       screenshot = null
     }
   }
@@ -462,9 +467,9 @@ if (overlays) {
       item.label !== 'text-200'
   )
   const scenarios = [
-    { name: 'menu-open', path: '/', action: 'menu' },
+    { name: 'menu-open', path: '/', action: 'menu', maxWidth: 1023 },
     { name: 'cart-drawer-open', path: '/', action: 'cart-drawer' },
-    { name: 'header-search-open', path: '/', action: 'header-search', maxWidth: 767 },
+    { name: 'header-search-open', path: '/', action: 'header-search' },
     { name: 'filters-open', path: '/shop', action: 'filters', maxWidth: 1023 },
     { name: 'quick-view-open', path: '/shop', action: 'quick-view' },
     { name: 'forgot-password-open', path: '/signin', action: 'forgot-password' },

@@ -82,21 +82,25 @@ export const AdminOrdersPage: React.FC = () => {
         <p className="mt-2 text-ink">Search by order number or customer email.</p>
       </div>
       <form
-        className="flex flex-col gap-3 sm:flex-row"
+        className="flex flex-col gap-3 sm:flex-row sm:items-end"
         onSubmit={(event) => {
           event.preventDefault()
           setPage(1)
           setQuery(search.trim())
         }}
       >
-        <input
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Order number or email"
-          className="min-w-0 flex-1 rounded-xl border border-line bg-paper px-4 py-2 text-base text-ink"
-        />
+        <label className="block min-w-0 flex-1 space-y-2 text-sm text-ink">
+          <span>Order number or email</span>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Order number or email"
+            className="w-full min-w-0 rounded-xl border border-line bg-paper px-4 py-2 text-base text-ink"
+          />
+        </label>
         <Dropdown
+          label="Order status"
           value={status}
           options={[...statusOptions]}
           onChange={(value) => {

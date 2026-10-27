@@ -84,7 +84,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                 <img
                   src={image}
                   alt={`${title} thumbnail ${index + 1}`}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                   loading="lazy"
                   width={80}
                   height={80}
@@ -159,7 +159,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
             alt={title}
             width={800}
             height={800}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
           />
         </button>
 

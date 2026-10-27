@@ -96,19 +96,26 @@ export const AdminCouponsPage: React.FC = () => {
       {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       <form onSubmit={createCoupon} className="panel grid gap-4 p-5 lg:grid-cols-3">
         <h3 className="heading text-xl lg:col-span-3">New coupon</h3>
-        <input
-          name="code"
-          required
-          minLength={3}
-          placeholder="Coupon code"
-          className="rounded-xl border border-line px-4 py-2 text-base uppercase"
-        />
-        <input
-          name="description"
-          placeholder="Description"
-          className="rounded-xl border border-line px-4 py-2 text-base"
-        />
+        <label className="block space-y-2 text-sm text-ink">
+          <span>Coupon code</span>
+          <input
+            name="code"
+            required
+            minLength={3}
+            placeholder="Coupon code"
+            className="w-full rounded-xl border border-line px-4 py-2 text-base uppercase"
+          />
+        </label>
+        <label className="block space-y-2 text-sm text-ink">
+          <span>Description</span>
+          <input
+            name="description"
+            placeholder="Description"
+            className="w-full rounded-xl border border-line px-4 py-2 text-base"
+          />
+        </label>
         <Dropdown
+          label="Discount type"
           value={discountType}
           onChange={setDiscountType}
           options={[
@@ -116,33 +123,42 @@ export const AdminCouponsPage: React.FC = () => {
             { value: 'fixed', label: 'Fixed rupees' },
           ]}
         />
-        <input
-          name="value"
-          type="number"
-          min="0.01"
-          step="0.01"
-          required
-          placeholder={discountType === 'fixed' ? 'Discount ₹' : 'Discount %'}
-          className="rounded-xl border border-line px-4 py-2 text-base"
-        />
-        <input
-          name="minimum"
-          type="number"
-          min="0"
-          step="0.01"
-          defaultValue="0"
-          required
-          placeholder="Minimum order ₹"
-          className="rounded-xl border border-line px-4 py-2 text-base"
-        />
-        <input
-          name="usageLimit"
-          type="number"
-          min="1"
-          step="1"
-          placeholder="Usage limit (optional)"
-          className="rounded-xl border border-line px-4 py-2 text-base"
-        />
+        <label className="block space-y-2 text-sm text-ink">
+          <span>{discountType === 'fixed' ? 'Discount amount ₹' : 'Discount percentage'}</span>
+          <input
+            name="value"
+            type="number"
+            min="0.01"
+            step="0.01"
+            required
+            placeholder={discountType === 'fixed' ? 'Discount ₹' : 'Discount %'}
+            className="w-full rounded-xl border border-line px-4 py-2 text-base"
+          />
+        </label>
+        <label className="block space-y-2 text-sm text-ink">
+          <span>Minimum order amount ₹</span>
+          <input
+            name="minimum"
+            type="number"
+            min="0"
+            step="0.01"
+            defaultValue="0"
+            required
+            placeholder="Minimum order ₹"
+            className="w-full rounded-xl border border-line px-4 py-2 text-base"
+          />
+        </label>
+        <label className="block space-y-2 text-sm text-ink">
+          <span>Usage limit (optional)</span>
+          <input
+            name="usageLimit"
+            type="number"
+            min="1"
+            step="1"
+            placeholder="Usage limit (optional)"
+            className="w-full rounded-xl border border-line px-4 py-2 text-base"
+          />
+        </label>
         <button type="submit" disabled={busy} className="button-primary lg:col-span-3 lg:w-fit">
           Create coupon
         </button>

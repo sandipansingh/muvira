@@ -49,7 +49,7 @@ export const FeaturedProducts: React.FC = () => {
 
   return (
     <section id="featured-pieces" className="editorial-container section-space">
-      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 lg:flex-row lg:items-end">
+      <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 lg:flex-row lg:flex-wrap lg:items-end">
         <div>
           <span className="eyebrow mb-1.5 block">Explore</span>
           <h2 className="text-h2 text-ink">Pieces to make your own</h2>

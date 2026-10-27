@@ -72,6 +72,15 @@ function violations(results: AuditResult[], overlay: boolean): string[] {
       ) {
         continue // Chromium warning from the externally hosted Razorpay checkout SDK.
       }
+      if (
+        message.type === 'warning' &&
+        message.text.startsWith(
+          'You have Reduced Motion enabled on your device. Animations may not appear as expected.'
+        ) &&
+        message.text.includes('https://motion.dev/troubleshooting/reduced-motion-disabled')
+      ) {
+        continue // Motion reports the reduced-motion preference deliberately enabled by this audit.
+      }
       problems.push(`${label}: console ${message.type}: ${message.text}`)
     }
   }
@@ -88,6 +97,40 @@ test('storefront routes reflow across the full viewport, DPR, and text-size matr
 
 test('mobile and desktop overlays remain reachable without layout failures', async () => {
   const result = await audit(['--overlays'], 'overlay-findings.json')
-  expect(result.results.length).toBe(21)
+  expect(result.results.length).toBe(22)
   expect(violations(result.results, true).slice(0, 30)).toEqual([])
+})
+
+test('authenticated customer and admin pages render across mobile, tablet, desktop and enlarged text', async () => {
+  await run(process.execPath, ['tests/fixtures/editorial-audit.mjs'], {
+    timeout: 10 * 60 * 1000,
+    maxBuffer: 2 * 1024 * 1024,
+  })
+  const report = JSON.parse(
+    await readFile('responsive-audit/redesign/authenticated-findings.json', 'utf8')
+  )
+  expect(report.routes).toHaveLength(34)
+  expect(report.results).toHaveLength(136)
+  for (const result of report.results) {
+    expect(result.error, `${result.name} ${result.viewport.label}`).toBeUndefined()
+    expect(result.errors).toEqual([])
+    expect(result.blocked).toEqual([])
+    expect(result.findings.horizontalOverflow, `${result.name} ${result.viewport.label}`).toBe(
+      false
+    )
+    expect(result.findings.headings).toBe(1)
+    expect(result.findings.smallFields).toEqual([])
+  }
+})
+
+test('protected editors and confirmation dialogs reflow and restore keyboard focus', async () => {
+  await run(process.execPath, ['tests/fixtures/editorial-overlays.mjs'], {
+    timeout: 10 * 60 * 1000,
+    maxBuffer: 2 * 1024 * 1024,
+  })
+  const report = JSON.parse(
+    await readFile('responsive-audit/redesign/protected-overlays.json', 'utf8')
+  )
+  expect(report.results).toHaveLength(43)
+  expect(report.failures).toEqual([])
 })

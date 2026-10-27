@@ -89,6 +89,12 @@ test('coupon editor uses a labeled dialog and preserves values when saving fails
     await page.keyboard.press('Escape')
     assert.equal(await trigger.evaluate((el) => document.activeElement === el), true)
   }))
+test('admin catalog shows the selling price instead of the comparison price', () =>
+  pageFor('/admin/catalog?fixtureRole=admin', async (page) => {
+    const firstProduct = page.locator('tbody tr').first()
+    await firstProduct.waitFor()
+    assert.equal(await firstProduct.locator('td').nth(1).innerText(), '₹499')
+  }))
 test('out of stock product cards cannot add merchandise', () =>
   pageFor('/shop?stock=0', async (page) => {
     const buttons = page.getByRole('button', { name: /^Add .* to cart$/ })

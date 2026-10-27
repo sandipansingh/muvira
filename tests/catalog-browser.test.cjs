@@ -213,17 +213,18 @@ test('product editor saves commercial fields, descriptions, weight and visibilit
   fixture(async (page) => {
     await page.evaluate(() => window.render('catalog'))
     await page.getByRole('button', { name: 'Edit product Cotton wrap', exact: true }).click()
-    await page.getByLabel('Product name', { exact: true }).fill('Handwoven wrap')
-    await page.getByLabel('Price ₹', { exact: true }).fill('175.50')
-    await page.getByLabel('Compare at price ₹', { exact: true }).fill('225')
-    await page.getByLabel('Weight grams', { exact: true }).fill('325')
-    await page.getByLabel('SKU', { exact: true }).fill('WRAP-NEW')
-    await page.getByLabel('Short description', { exact: false }).fill('Soft handwoven cotton')
-    await page
+    const editor = page.getByRole('region', { name: 'Product editor' })
+    await editor.getByLabel('Product name', { exact: true }).fill('Handwoven wrap')
+    await editor.getByLabel('Price ₹', { exact: true }).fill('175.50')
+    await editor.getByLabel('Compare at price ₹', { exact: true }).fill('225')
+    await editor.getByLabel('Weight grams', { exact: true }).fill('325')
+    await editor.getByLabel('SKU', { exact: true }).fill('WRAP-NEW')
+    await editor.getByLabel('Short description', { exact: false }).fill('Soft handwoven cotton')
+    await editor
       .getByLabel('Description', { exact: false })
       .last()
       .fill('Made with handwoven cotton for daily wear.')
-    await page.getByLabel('Featured', { exact: true }).check()
+    await editor.getByLabel('Featured', { exact: true }).check()
     await page.getByRole('button', { name: 'Save product', exact: true }).click()
     await page.waitForFunction(() =>
       window.mutations.some((m) => m.path === '/api/admin/products/product-1')

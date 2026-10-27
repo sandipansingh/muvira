@@ -250,49 +250,65 @@ export const AdminCatalogPage: React.FC = () => {
       <div className="grid gap-6 lg:grid-cols-2">
         <form onSubmit={createProduct} className="panel space-y-4 p-5">
           <h3 className="heading text-xl">New product</h3>
-          <input
-            name="name"
-            required
-            placeholder="Product name"
-            className="w-full rounded-xl border border-line px-4 py-2 text-base"
-          />
+          <label className="block space-y-2 text-sm text-ink">
+            <span>Product name</span>
+            <input
+              name="name"
+              required
+              placeholder="Product name"
+              className="w-full rounded-xl border border-line px-4 py-2 text-base"
+            />
+          </label>
           <Dropdown
+            label="Product category"
             value={categoryId}
             options={categories.map((category) => ({ value: category.id, label: category.name }))}
             onChange={setCategoryId}
             placeholder="Choose category"
           />
           <div className="grid gap-3 sm:grid-cols-3">
-            <input
-              name="price"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              placeholder="Price ₹"
-              className="rounded-xl border border-line px-4 py-2 text-base"
-            />
-            <input
-              name="stock"
-              type="number"
-              min="0"
-              step="1"
-              required
-              placeholder="Stock"
-              className="rounded-xl border border-line px-4 py-2 text-base"
-            />
-            <input
-              name="sku"
-              placeholder="SKU"
-              className="rounded-xl border border-line px-4 py-2 text-base"
-            />
+            <label className="block space-y-2 text-sm text-ink">
+              <span>Price ₹</span>
+              <input
+                name="price"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                placeholder="Price ₹"
+                className="w-full rounded-xl border border-line px-4 py-2 text-base"
+              />
+            </label>
+            <label className="block space-y-2 text-sm text-ink">
+              <span>Stock</span>
+              <input
+                name="stock"
+                type="number"
+                min="0"
+                step="1"
+                required
+                placeholder="Stock"
+                className="w-full rounded-xl border border-line px-4 py-2 text-base"
+              />
+            </label>
+            <label className="block space-y-2 text-sm text-ink">
+              <span>SKU</span>
+              <input
+                name="sku"
+                placeholder="SKU"
+                className="w-full rounded-xl border border-line px-4 py-2 text-base"
+              />
+            </label>
           </div>
-          <input
-            name="image"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/avif"
-            className="w-full text-base text-ink"
-          />
+          <label className="block space-y-2 text-sm text-ink">
+            <span>Product image</span>
+            <input
+              name="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              className="w-full text-base text-ink"
+            />
+          </label>
           <button type="submit" disabled={busy || !categoryId} className="button-primary">
             Create product
           </button>
@@ -300,18 +316,24 @@ export const AdminCatalogPage: React.FC = () => {
 
         <form onSubmit={createCategory} className="panel space-y-4 p-5">
           <h3 className="heading text-xl">New category</h3>
-          <input
-            name="name"
-            required
-            placeholder="Category name"
-            className="w-full rounded-xl border border-line px-4 py-2 text-base"
-          />
-          <input
-            name="image"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/avif"
-            className="w-full text-base text-ink"
-          />
+          <label className="block space-y-2 text-sm text-ink">
+            <span>Category name</span>
+            <input
+              name="name"
+              required
+              placeholder="Category name"
+              className="w-full rounded-xl border border-line px-4 py-2 text-base"
+            />
+          </label>
+          <label className="block space-y-2 text-sm text-ink">
+            <span>Category image</span>
+            <input
+              name="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              className="w-full text-base text-ink"
+            />
+          </label>
           <button type="submit" disabled={busy} className="button-primary">
             Create category
           </button>
@@ -368,8 +390,8 @@ export const AdminCatalogPage: React.FC = () => {
                       Edit product
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-ink">
-                    {formatPrice(product.salePrice ?? product.price)}
+                  <td className="px-4 py-3 whitespace-nowrap text-ink">
+                    {formatPrice(product.price)}
                   </td>
                   <td className="px-4 py-3">
                     <form
@@ -385,6 +407,7 @@ export const AdminCatalogPage: React.FC = () => {
                     >
                       <input
                         name="stock"
+                        aria-label={`${product.name} stock`}
                         type="number"
                         min="0"
                         step="1"

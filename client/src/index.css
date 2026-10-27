@@ -180,7 +180,8 @@ input[type='search']::-webkit-search-results-decoration {
   box-sizing: border-box;
 }
 
-:is(.flex, .grid) > :is(div, section, article, form) {
+:is(.flex, .grid) > :is(div, section, article, form, label),
+.grid > fieldset.contents > * {
   min-width: 0;
 }
 
@@ -1221,6 +1222,7 @@ button:disabled {
   font-size: 0.875rem;
 }
 .admin-shell th {
+  white-space: nowrap;
   background: var(--color-surface);
   color: var(--color-muted);
   font-size: 0.75rem;
@@ -1229,6 +1231,9 @@ button:disabled {
 }
 .admin-shell :is(td, th) {
   padding: 1rem;
+}
+.admin-shell td button {
+  white-space: nowrap;
 }
 .admin-shell tbody tr:hover {
   background: var(--background);

@@ -179,8 +179,8 @@ export const ProductDetailPage: React.FC = () => {
         />
 
         {/* Gallery + Product Info Grid */}
-        <div className="grid grid-cols-1 items-start gap-8 pt-6 lg:grid-cols-12 lg:gap-12 xl:gap-16">
-          <div className="lg:col-span-6 xl:col-span-6">
+        <div className="grid grid-cols-1 items-start gap-8 pt-6 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+          <div>
             <ImageGallery
               images={product.images}
               title={product.name}
@@ -188,7 +188,7 @@ export const ProductDetailPage: React.FC = () => {
               discountPercent={product.discountPercent}
             />
           </div>
-          <div className="lg:col-span-6 xl:col-span-6 lg:sticky lg:top-44 lg:self-start">
+          <div className="lg:sticky lg:top-44 lg:self-start">
             <ProductInfo product={product} onReviewClick={handleReviewClick} />
           </div>
         </div>

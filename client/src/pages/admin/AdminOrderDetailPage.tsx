@@ -141,7 +141,7 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
               {item.productName} × {item.quantity}
               <span className="block text-sm text-muted">{formatPrice(item.unitPrice)} each</span>
             </span>
-            <span>{formatPrice(item.totalPrice)}</span>
+            <span className="shrink-0 whitespace-nowrap">{formatPrice(item.totalPrice)}</span>
           </div>
         ))}
         <dl className="space-y-2 text-sm">
