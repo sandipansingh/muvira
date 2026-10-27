@@ -90,7 +90,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <StoreImage
                   src={primaryImage}
                   alt={product.name}
-                  className="h-full w-full object-cover browse-image"
+                  className="h-full w-full object-contain browse-image"
                   width={320}
                   height={320}
                   loading="lazy"
@@ -197,7 +197,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <StoreImage
                 src={primaryImage}
                 alt={product.name}
-                className="h-full w-full object-cover browse-image"
+                className="h-full w-full object-contain browse-image"
                 width={480}
                 height={480}
                 loading="lazy"
@@ -211,63 +211,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div className="absolute left-3 top-3 flex flex-col gap-1.5">
             {badgeText && <span className="neutral-badge font-normal uppercase">{badgeText}</span>}
             {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
-          </div>
-          <div className="product-card__desktop-actions absolute inset-x-3 bottom-3 z-10 hidden gap-2 sm:flex">
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={!product.inStock || isAdding}
-              aria-busy={isAdding}
-              className="button-primary min-h-10 flex-1 px-3 text-xs opacity-0 shadow-[var(--shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100 gap-1.5"
-              aria-label={`Add ${product.name} to cart`}
-            >
-              {isAdded ? (
-                <Check className="h-4 w-4 shrink-0" />
-              ) : (
-                <ShoppingBag className="h-4 w-4 shrink-0" />
-              )}
-              <span className="leading-none">
-                {!product.inStock
-                  ? 'Unavailable'
-                  : isAdding
-                    ? 'Adding…'
-                    : isAdded
-                      ? 'Added'
-                      : 'Add to cart'}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={handleOpenQuickView}
-              className="button-secondary h-10 min-h-10 w-10 p-0 text-[var(--color-ink)] opacity-0 shadow-[var(--shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100"
-              aria-label={`Quick view ${product.name}`}
-            >
-              <Eye className="h-4 w-4 shrink-0 text-[var(--color-ink)]" strokeWidth={2.5} />
-            </button>
-          </div>
-          <div className="absolute bottom-3 right-3 z-10 flex gap-1.5 sm:hidden">
-            <button
-              type="button"
-              onClick={handleOpenQuickView}
-              className="button-secondary h-11 w-11 p-0 text-[var(--color-ink)] shadow-[var(--shadow-overlay)]"
-              aria-label={`Quick view ${product.name}`}
-            >
-              <Eye className="h-3.5 w-3.5 shrink-0 text-[var(--color-ink)]" strokeWidth={2.5} />
-            </button>
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={!product.inStock || isAdding}
-              aria-busy={isAdding}
-              className="button-primary h-11 w-11 p-0"
-              aria-label={`Add ${product.name} to cart`}
-            >
-              {isAdded ? (
-                <Check className="h-3.5 w-3.5" />
-              ) : (
-                <ShoppingBag className="h-3.5 w-3.5" />
-              )}
-            </button>
           </div>
         </div>
         <div className="flex flex-col gap-1.5 pt-2.5">
@@ -292,6 +235,39 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {showDescription && description && (
             <p className="product-card__meta line-clamp-2">{description}</p>
           )}
+        </div>
+        <div className="product-card__actions">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={!product.inStock || isAdding}
+            aria-busy={isAdding}
+            className="button-secondary product-card__add"
+            aria-label={`Add ${product.name} to cart`}
+          >
+            {isAdded ? (
+              <Check className="h-4 w-4 shrink-0" />
+            ) : (
+              <ShoppingBag className="h-4 w-4 shrink-0" />
+            )}
+            <span>
+              {!product.inStock
+                ? 'Unavailable'
+                : isAdding
+                  ? 'Adding…'
+                  : isAdded
+                    ? 'Added'
+                    : 'Add to bag'}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={handleOpenQuickView}
+            className="button-secondary product-card__quick"
+            aria-label={`Quick view ${product.name}`}
+          >
+            <Eye className="h-4 w-4" />
+          </button>
         </div>
       </article>
       <QuickViewModal

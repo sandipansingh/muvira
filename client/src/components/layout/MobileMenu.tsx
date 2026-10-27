@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import React, { useEffect, useRef, useState } from 'react'
 import { LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -34,6 +34,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
       active = false
     }
   }, [])
+  const reducedMotion = useReducedMotion()
   const navigate = useNavigate()
   const panelRef = useRef<HTMLElement>(null)
 
@@ -72,12 +73,12 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
       {/* Drawer Container */}
       <motion.aside
-        initial={{ x: -40, opacity: 0 }}
+        initial={{ x: reducedMotion ? 0 : -40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.2 }}
         ref={panelRef}
         tabIndex={-1}
-        className="relative flex h-screen w-[min(90vw,24rem)] flex-col justify-between overflow-y-auto border-r border-line bg-paper pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
+        className="mobile-menu-panel relative flex h-dvh w-[min(90vw,24rem)] flex-col justify-between overflow-y-auto border-r border-line bg-paper pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
       >
         <div className="p-4 sm:p-6">
           {/* Header with Brand Logo & Close X */}
@@ -141,11 +142,19 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <Link to="/shop" onClick={onClose} className="header-link text-lg">
               Shop all
             </Link>
-            {categories.some((category) => category.slug === 'god-idols') && (
-              <Link to="/shop?category=god-idols" onClick={onClose} className="header-link text-lg">
-                God Idols
-              </Link>
-            )}
+            <span className="eyebrow mt-3">Shop by collection</span>
+            {categories
+              .filter((category) => category.showInNavbar)
+              .map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/shop?category=${encodeURIComponent(category.slug)}`}
+                  onClick={onClose}
+                  className="header-link text-base"
+                >
+                  {category.name}
+                </Link>
+              ))}
             <Dropdown
               variant="navigation"
               placeholder="Collections"
@@ -167,6 +176,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <Link to="/shop?sort=newest" onClick={onClose} className="header-link text-lg">
               New arrivals
             </Link>
+            <span className="eyebrow mt-5 border-t border-line pt-5">Your Muvira</span>
             <Link
               to={isAuthenticated ? '/profile' : '/signin'}
               onClick={onClose}

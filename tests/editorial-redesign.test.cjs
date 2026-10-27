@@ -229,10 +229,10 @@ test('search dialog traps keyboard focus and restores the trigger on Escape', ()
     await dialog.waitFor()
     await page.waitForFunction(() => document.activeElement?.matches('[data-dialog-initial-focus]'))
     assert.equal(
-      await page.getByRole('searchbox').evaluate((el) => document.activeElement === el),
+      await dialog.getByRole('searchbox').evaluate((el) => document.activeElement === el),
       true
     )
-    await page.getByRole('searchbox').fill('Krishna')
+    await dialog.getByRole('searchbox').fill('Krishna')
     for (let index = 0; index < 6; index++) {
       await page.keyboard.press('Tab')
       assert.equal(await dialog.evaluate((el) => el.contains(document.activeElement)), true)

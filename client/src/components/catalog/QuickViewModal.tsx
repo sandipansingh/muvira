@@ -1,5 +1,5 @@
 import { StoreImage } from '../common/StoreImage'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ArrowRight, Check, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { ProductDetail, ProductListItem } from '../../lib/types/product'
@@ -29,6 +29,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
   const [selectedImage, setSelectedImage] = useState(images[0] || '')
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const isOpenRef = useRef(isOpen)
+  isOpenRef.current = isOpen
 
   const discountPercent = getDiscountPercent(product)
   const hasDiscount = Boolean(product.salePrice && product.salePrice > product.price)
@@ -40,24 +45,39 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
       setSelectedImage(initialImg || '')
       setQuantity(1)
       setAdded(false)
+      setAddError(null)
     }
+    return () => clearTimeout(closeTimer.current)
   }, [isOpen, product, isDetail])
 
   const handleAddToCart = async () => {
+    if (isAdding || !product.inStock) return
+    setIsAdding(true)
+    setAddError(null)
     try {
       await addToCart(product, quantity)
+      if (!isOpenRef.current) return
       setAdded(true)
-      setTimeout(() => {
+      closeTimer.current = setTimeout(() => {
         onClose()
         setAdded(false)
       }, 600)
-    } catch {
-      setAdded(false)
+    } catch (reason) {
+      if (isOpenRef.current) {
+        setAdded(false)
+        setAddError(
+          reason instanceof Error
+            ? reason.message
+            : 'This item could not be added. Please try again.'
+        )
+      }
+    } finally {
+      setIsAdding(false)
     }
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl">
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl" title="A closer look">
       <div className="grid gap-5 md:grid-cols-2 md:items-stretch">
         {/* Left Column: Product Gallery & Badges */}
         <div className="flex flex-col justify-between space-y-3 md:h-full">
@@ -68,7 +88,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 alt={product.name}
                 width={800}
                 height={800}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-contain"
               />
             ) : (
               <div className="flex h-full items-center justify-center text-xs font-normal text-muted">
@@ -105,7 +125,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                     alt={`${product.name} view ${index + 1}`}
                     width={56}
                     height={56}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                   />
                 </button>
               ))}
@@ -197,11 +217,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
               </div>
             </div>
 
+            {addError && (
+              <p
+                role="alert"
+                className="mb-3 rounded-control border border-danger bg-danger-soft p-3 text-sm text-danger"
+              >
+                {addError}
+              </p>
+            )}
             <div className="grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={added || !product.inStock}
+                disabled={isAdding || added || !product.inStock}
+                aria-busy={isAdding}
                 className="button-primary min-h-[var(--tap-target)] gap-1.5 px-4 text-sm"
               >
                 {added ? (
@@ -213,7 +242,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                   <>
                     <ShoppingBag className="h-4 w-4 shrink-0" />
                     <span className="leading-none">
-                      {product.inStock ? 'Add to Cart' : 'Unavailable'}
+                      {isAdding ? 'Adding…' : product.inStock ? 'Add to Cart' : 'Unavailable'}
                     </span>
                   </>
                 )}

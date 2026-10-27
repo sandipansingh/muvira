@@ -39,3 +39,7 @@ The homepage uses a full-width continuous mandir scene, compact circular categor
 Hero composites are matched only to exact configured source URLs. Unknown photographs render directly with contrast protection. Missing legacy category destinations resolve to `/shop` in presentation without changing stored settings. No commerce types, APIs, schema or payment behavior change.
 
 Lightbox icon actions keep 44px targets when text enlarges; the control groups stay within the dialog's content width. Gallery titles use Manrope, preserve the full accessible name, and clamp their visual height. Dropdown keyboard opening focuses only the committed popup; selection restores the trigger after pending work unless focus has moved elsewhere.
+
+## Rich shopping storefront
+
+The approved composition is maintained in `DESIGN.md`. Runtime colors, typography, geometry and responsive rules remain in `client/src/index.css`; Tailwind maps those tokens without duplicating their values. Customer selectors use `storefront-shell` or `auth-page`. The header, collection directory, photographic Dropdown variant, complete product frames, viewport-fit sticky panels and account/commerce surfaces share this system. `collectionImage.ts` owns exact-source substitutions and `productPresentation.ts` owns conservative description facts.

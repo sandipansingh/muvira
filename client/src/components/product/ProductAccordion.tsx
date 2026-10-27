@@ -2,6 +2,7 @@ import React from 'react'
 import { ChevronDown } from 'lucide-react'
 import type { ProductDetail, ProductReview } from '../../lib/types/product'
 import { ReviewsSection } from './ReviewsSection'
+import { productSpecifications } from '../../lib/utils/productPresentation'
 
 interface ProductAccordionProps {
   product: ProductDetail
@@ -151,7 +152,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                       <td className="px-4 py-3">{product.weightGrams.toLocaleString('en-IN')} g</td>
                     </tr>
                   )}
-                  {Object.entries(product.metadata ?? {}).map(([label, value]) => (
+                  {productSpecifications(product).map(({ label, value }) => (
                     <tr key={label}>
                       <td className="px-4 py-3 text-xs font-normal uppercase tracking-wider text-muted">
                         {label.replaceAll('_', ' ')}

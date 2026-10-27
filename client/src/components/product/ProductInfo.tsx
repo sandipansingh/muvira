@@ -6,6 +6,7 @@ import type { ProductDetail } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
 import { RatingStars } from '../common/RatingStars'
+import { productHighlights } from '../../lib/utils/productPresentation'
 import { Button } from '../ui/Button'
 
 interface ProductInfoProps {
@@ -20,6 +21,21 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
   const [isAdding, setIsAdding] = useState(false)
   const [isBuyingNow, setIsBuyingNow] = useState(false)
   const [isFooterVisible, setIsFooterVisible] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  useEffect(() => {
+    const update = () =>
+      setIsEditing(
+        Boolean(
+          document.activeElement?.matches('input, textarea, select, [contenteditable="true"]')
+        )
+      )
+    document.addEventListener('focusin', update)
+    document.addEventListener('focusout', update)
+    return () => {
+      document.removeEventListener('focusin', update)
+      document.removeEventListener('focusout', update)
+    }
+  }, [])
 
   useEffect(() => {
     const footer = document.querySelector('footer')
@@ -87,15 +103,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         )}
       </div>
 
-      {/* Short Editorial Lead Description */}
-      {(product.shortDescription || product.description) && (
-        <p className="text-base leading-relaxed text-ink-soft/90">
-          {product.shortDescription || product.description}
-        </p>
-      )}
-
       {/* Price Section with Savings Pill */}
-      <div className="flex flex-wrap items-baseline gap-3 py-1.5">
+      <div className="product-price-block flex flex-wrap items-baseline gap-3 py-1.5">
         <span className="font-product text-2xl font-bold text-primary sm:text-3xl">
           {formatPrice(product.price)}
         </span>
@@ -111,22 +120,25 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         )}
       </div>
 
+      {/* Short Editorial Lead Description */}
+      {(product.shortDescription || product.description) && (
+        <p className="product-lead text-base leading-relaxed text-ink-soft/90">
+          {product.shortDescription || product.description}
+        </p>
+      )}
+
       <div className="border-y border-line py-4 text-sm">
         <p className={product.inStock ? 'text-ink' : 'text-danger'}>
           {product.inStock ? 'In stock' : 'Currently unavailable'}
         </p>
-        {Object.entries(product.metadata ?? {}).filter(([key]) =>
-          /^(material|dimensions|finish)$/i.test(key)
-        ).length > 0 && (
-          <dl className="mt-4 grid grid-cols-2 gap-3">
-            {Object.entries(product.metadata ?? {})
-              .filter(([key]) => /^(material|dimensions|finish)$/i.test(key))
-              .map(([key, value]) => (
-                <div key={key}>
-                  <dt className="text-xs capitalize text-muted">{key}</dt>
-                  <dd className="mt-1">{value}</dd>
-                </div>
-              ))}
+        {productHighlights(product).length > 0 && (
+          <dl className="product-highlights">
+            {productHighlights(product).map(({ label, value }) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
           </dl>
         )}
       </div>
@@ -135,7 +147,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         {/* Row 1: Stepper and Add to Cart */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Quantity Stepper */}
-          <div className="flex min-h-[var(--tap-target)] items-center rounded-[var(--radius-control)] border border-line bg-surface">
+          <div className="quantity-control flex min-h-[var(--tap-target)] items-center rounded-[var(--radius-control)] border border-line bg-surface">
             <button
               type="button"
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -164,9 +176,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
             size="lg"
             isLoading={isAdding}
             onClick={handleAddToCart}
-            disabled={!product.inStock}
+            disabled={!product.inStock || isAdding || isBuyingNow}
             leftIcon={<ShoppingBag className="h-4 w-4 shrink-0" />}
-            className="min-w-[9rem] flex-1 font-bold"
+            className="product-add-button flex-1 font-bold"
           >
             {product.inStock ? 'Add to Cart' : 'Unavailable'}
           </Button>
@@ -179,21 +191,22 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           size="lg"
           isLoading={isBuyingNow}
           onClick={handleBuyNow}
-          disabled={!product.inStock}
+          disabled={!product.inStock || isAdding || isBuyingNow}
           className="w-full font-bold"
         >
           {product.inStock ? 'Buy Now' : 'Unavailable'}
         </Button>
       </div>
       {!isFooterVisible &&
+        !isEditing &&
         createPortal(
-          <div className="fixed inset-x-0 bottom-0 z-[var(--z-header)] grid grid-cols-2 gap-2 border-t border-line bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-overlay)] sm:hidden">
+          <div className="mobile-purchase-actions fixed inset-x-0 bottom-0 z-[var(--z-header)] grid grid-cols-2 gap-2 border-t border-line bg-paper px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-overlay)] sm:hidden">
             <Button
               variant="secondary"
               size="lg"
               isLoading={isAdding}
               onClick={handleAddToCart}
-              disabled={!product.inStock}
+              disabled={!product.inStock || isAdding || isBuyingNow}
               className="min-w-0 px-2 text-sm"
             >
               Add to Cart
@@ -203,7 +216,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
               size="lg"
               isLoading={isBuyingNow}
               onClick={handleBuyNow}
-              disabled={!product.inStock}
+              disabled={!product.inStock || isAdding || isBuyingNow}
               className="min-w-0 px-2 text-sm"
             >
               Buy Now

@@ -204,6 +204,7 @@ export const SearchPage: React.FC = () => {
     <main className="catalog-page min-h-screen pb-16 bg-background">
       <div className="layout-container search-heading">
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Search' }]} className="mb-6" />
+        <span className="eyebrow mb-3 block">The Muvira collection</span>
         <h1 className="page-title mb-5">Find your piece</h1>
         <label htmlFor="catalog-query" className="text-sm text-ink-soft">
           Search the collection

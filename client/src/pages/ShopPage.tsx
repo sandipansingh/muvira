@@ -1,5 +1,7 @@
+import { CollectionImage } from '../components/catalog/CollectionImage'
+import { collectionHref } from '../lib/utils/collectionPresentation'
 import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
@@ -194,6 +196,20 @@ export const ShopPage: React.FC = () => {
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]}
       />
 
+      {categories.length > 0 && (
+        <nav className="layout-container catalog-siblings" aria-label="Browse sibling collections">
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              to={collectionHref(category)}
+              aria-current={category.slug === categoryParam ? 'page' : undefined}
+            >
+              <CollectionImage category={category} />
+              {category.name}
+            </Link>
+          ))}
+        </nav>
+      )}
       {/* Main 2-Column Catalog Container */}
       <div className="layout-container" ref={resultsContainerRef}>
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,16.25rem)_minmax(0,1fr)] gap-8 xl:gap-12 items-start">

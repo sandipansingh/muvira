@@ -15,8 +15,10 @@ import { ProductCard } from '../components/catalog/ProductCard'
 import { SectionHeader } from '../components/common/SectionHeader'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 import { mergeReviewPage } from '../lib/utils/reviewState'
+import { useStickyPanel } from '../lib/hooks/useStickyPanel'
 
 export const ProductDetailPage: React.FC = () => {
+  const { panelRef, canStick } = useStickyPanel()
   const { slug } = useParams<{ slug: string }>()
   const [product, setProduct] = useState<ProductDetail | null>(null)
   const [relatedProducts, setRelatedProducts] = useState<ProductListItem[]>([])
@@ -188,7 +190,10 @@ export const ProductDetailPage: React.FC = () => {
               discountPercent={product.discountPercent}
             />
           </div>
-          <div className="lg:sticky lg:top-28 lg:self-start">
+          <div
+            ref={panelRef}
+            className={`purchase-panel ${canStick ? 'purchase-panel--sticky' : ''}`}
+          >
             <ProductInfo product={product} onReviewClick={handleReviewClick} />
           </div>
         </div>

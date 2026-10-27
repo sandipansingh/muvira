@@ -2,11 +2,14 @@ import React from 'react'
 import { StoreImage } from '../common/StoreImage'
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { CollectionSpotlight } from './ShoppingDiscovery'
+import { useStoreCollections } from '../../context/StoreCollectionsContext'
+import { CollectionImage } from '../catalog/CollectionImage'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export const EditorialCampaigns: React.FC = () => {
   const { settings, error } = useSiteSettings()
-  if (error || settings.promoBanners.length === 0) return null
+  if (error || settings.promoBanners.length === 0) return <CollectionSpotlight />
   return (
     <section className="layout-container section-space" aria-label="From the collection">
       <div className="campaign-grid">
@@ -40,10 +43,17 @@ export const EditorialCampaigns: React.FC = () => {
 
 export const StoreIntroduction: React.FC = () => {
   const { settings, error } = useSiteSettings()
+  const { categories } = useStoreCollections()
+  const category = categories.find((item) => item.slug === 'handmade-showpiece') || categories[0]
   if (error || !settings.storeDescription) return null
   return (
     <section className="store-introduction section-space">
-      <div className="layout-container grid gap-8 md:grid-cols-[0.8fr_1.2fr] md:gap-20">
+      <div className="layout-container store-story-layout">
+        {category && (
+          <div className="store-story-image">
+            <CollectionImage category={category} />
+          </div>
+        )}
         <div>
           <span className="eyebrow">The Muvira story</span>
           <h2 className="mt-4 text-h2">

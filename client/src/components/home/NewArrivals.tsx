@@ -58,7 +58,7 @@ export const NewArrivals: React.FC = () => {
         <p className="py-12 text-muted">New arrivals will appear here as the collection grows.</p>
       )}
       {!loading && !error && (
-        <div className="product-collection">
+        <div className="new-arrivals-collection">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

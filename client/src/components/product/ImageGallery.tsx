@@ -68,118 +68,166 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   return (
     <div className="product-gallery">
-      <div
-        className="gallery-stage group"
-        onPointerMove={(event) => {
-          if (
-            event.pointerType !== 'mouse' ||
-            reducedMotion ||
-            !window.matchMedia('(hover: hover) and (pointer: fine)').matches
-          )
-            return
-          const rect = event.currentTarget.getBoundingClientRect()
-          setZoomPos({
-            x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
-            y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
-          })
-          setIsZooming(true)
-        }}
-        onPointerLeave={() => setIsZooming(false)}
-        onTouchStart={(event) => {
-          touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }
-        }}
-        onTouchEnd={(event) => {
-          if (!touchStart.current) return
-          const dx = event.changedTouches[0].clientX - touchStart.current.x
-          const dy = event.changedTouches[0].clientY - touchStart.current.y
-          touchStart.current = null
-          if (imageUrls.length < 2 || Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) return
-          selectImage(index + (dx < 0 ? 1 : -1))
-          suppressClick.current = true
-          window.setTimeout(() => {
-            suppressClick.current = false
-          }, 300)
-        }}
-      >
-        <button
-          type="button"
-          className="absolute inset-0 h-full w-full cursor-zoom-in"
-          aria-label={`Enlarge image of ${title}`}
-          onClick={() => {
-            if (!suppressClick.current) {
-              resetView()
-              setIsLightboxOpen(true)
-              setIsZooming(false)
+      <div className={`gallery-desktop ${imageUrls.length === 1 ? 'gallery-desktop--single' : ''}`}>
+        {imageUrls.slice(0, 4).map((source, photoIndex) => (
+          <button
+            type="button"
+            key={`${source}-${photoIndex}`}
+            data-gallery-index={photoIndex}
+            className="gallery-photograph"
+            aria-label={
+              photoIndex === 0
+                ? `Enlarge image of ${title}`
+                : `Open photo ${photoIndex + 1} of ${title}`
             }
-          }}
-        >
-          <motion.div
-            className="h-full w-full"
-            animate={{ scale: isZooming ? 2 : 1 }}
-            style={{ transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` }}
-            transition={{ duration: reducedMotion ? 0 : 0.2 }}
+            onClick={() => {
+              selectImage(photoIndex)
+              setIsLightboxOpen(true)
+            }}
           >
             <StoreImage
-              key={activeImage}
-              src={activeImage}
-              alt={title}
-              width={1200}
-              height={1500}
+              src={source}
+              alt={`${title} — photograph ${photoIndex + 1}`}
+              width={900}
+              height={1200}
               className="h-full w-full object-contain"
+              loading={photoIndex < 2 ? 'eager' : 'lazy'}
             />
-          </motion.div>
-        </button>
-        <div className="pointer-events-none absolute left-4 top-4 flex flex-col items-start gap-2">
-          {isNew && <span className="neutral-badge">Featured</span>}
-          {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
-        </div>
-        {imageUrls.length > 1 && (
-          <>
-            <button
-              type="button"
-              className="gallery-arrow left-3"
-              aria-label="Previous image"
-              onClick={() => selectImage(index - 1)}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              className="gallery-arrow right-3"
-              aria-label="Next image"
-              onClick={() => selectImage(index + 1)}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </>
-        )}
-        <span className="pointer-events-none absolute bottom-4 right-4 flex items-center gap-2 rounded-pill bg-paper/90 px-3 py-2 text-xs text-ink">
-          <Expand className="h-4 w-4" /> Enlarge
-        </span>
+            <span>
+              <Expand className="h-4 w-4" />
+              {photoIndex + 1}
+            </span>
+          </button>
+        ))}
       </div>
-      {imageUrls.length > 1 && (
-        <div className="gallery-thumbnails" aria-label="Product photographs">
-          {imageUrls.map((image, thumbnail) => (
-            <button
-              key={`${image}-${thumbnail}`}
-              type="button"
-              aria-label={`View ${title} thumbnail ${thumbnail + 1}`}
-              aria-pressed={thumbnail === index}
-              onClick={() => selectImage(thumbnail)}
-              className={`gallery-thumbnail ${thumbnail === index ? 'border-primary ring-1 ring-primary' : 'border-line hover:border-primary'}`}
+      <div className="gallery-mobile">
+        <div
+          className="gallery-stage group"
+          onPointerMove={(event) => {
+            if (
+              event.pointerType !== 'mouse' ||
+              reducedMotion ||
+              !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+            )
+              return
+            const rect = event.currentTarget.getBoundingClientRect()
+            setZoomPos({
+              x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
+              y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
+            })
+            setIsZooming(true)
+          }}
+          onPointerLeave={() => setIsZooming(false)}
+          onTouchStart={(event) => {
+            touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }
+          }}
+          onTouchEnd={(event) => {
+            if (!touchStart.current) return
+            const dx = event.changedTouches[0].clientX - touchStart.current.x
+            const dy = event.changedTouches[0].clientY - touchStart.current.y
+            touchStart.current = null
+            if (imageUrls.length < 2 || Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) return
+            selectImage(index + (dx < 0 ? 1 : -1))
+            suppressClick.current = true
+            window.setTimeout(() => {
+              suppressClick.current = false
+            }, 300)
+          }}
+        >
+          <button
+            type="button"
+            className="absolute inset-0 h-full w-full cursor-zoom-in"
+            aria-label={`Enlarge image of ${title}`}
+            onClick={() => {
+              if (!suppressClick.current) {
+                resetView()
+                setIsLightboxOpen(true)
+                setIsZooming(false)
+              }
+            }}
+          >
+            <motion.div
+              className="h-full w-full"
+              animate={{ scale: isZooming ? 2 : 1 }}
+              style={{ transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` }}
+              transition={{ duration: reducedMotion ? 0 : 0.2 }}
             >
               <StoreImage
-                src={image}
-                alt=""
-                width={96}
-                height={96}
-                className="h-full w-full object-cover"
-                loading="lazy"
+                key={activeImage}
+                src={activeImage}
+                alt={title}
+                width={1200}
+                height={1500}
+                className="h-full w-full object-contain"
               />
-            </button>
-          ))}
+            </motion.div>
+          </button>
+          <div className="pointer-events-none absolute left-4 top-4 flex flex-col items-start gap-2">
+            {isNew && <span className="neutral-badge">Featured</span>}
+            {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
+          </div>
+          {imageUrls.length > 1 && (
+            <>
+              <button
+                type="button"
+                className="gallery-arrow left-3"
+                aria-label="Previous image"
+                onClick={() => selectImage(index - 1)}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                className="gallery-arrow right-3"
+                aria-label="Next image"
+                onClick={() => selectImage(index + 1)}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
+          )}
+          <span className="pointer-events-none absolute bottom-4 right-4 flex items-center gap-2 rounded-pill bg-paper/90 px-3 py-2 text-xs text-ink">
+            <Expand className="h-4 w-4" /> Enlarge
+          </span>
+          <span className="gallery-position" aria-live="polite">
+            {index + 1} / {imageUrls.length}
+          </span>
         </div>
-      )}
+        {imageUrls.length > 1 && (
+          <div className="gallery-thumbnails" aria-label="Product photographs">
+            {imageUrls.map((image, thumbnail) => (
+              <button
+                key={`${image}-${thumbnail}`}
+                type="button"
+                aria-label={`View ${title} thumbnail ${thumbnail + 1}`}
+                aria-pressed={thumbnail === index}
+                onClick={() => selectImage(thumbnail)}
+                className={`gallery-thumbnail ${thumbnail === index ? 'border-primary ring-1 ring-primary' : 'border-line hover:border-primary'}`}
+              >
+                <StoreImage
+                  src={image}
+                  alt=""
+                  width={96}
+                  height={96}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        className="gallery-view-all button-secondary gap-3"
+        onClick={() => {
+          resetView()
+          setIsLightboxOpen(true)
+        }}
+      >
+        <Expand className="h-4 w-4" />
+        View all {imageUrls.length} {imageUrls.length === 1 ? 'photo' : 'photos'}
+      </button>
       <Modal
         isOpen={isLightboxOpen}
         onClose={() => setIsLightboxOpen(false)}

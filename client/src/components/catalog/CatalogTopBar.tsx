@@ -38,12 +38,12 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-center justify-between gap-4 pb-6 mb-6 border-b border-line ${className}`}
+      className={`catalog-topbar flex items-center justify-between gap-4 pb-6 mb-6 border-b border-line ${className}`}
     >
       {/* Title & Count */}
       <div className="flex min-w-0 flex-1 items-baseline gap-3">
         <h2
-          className="min-w-0 truncate font-display text-xl sm:text-2xl font-bold text-ink"
+          className="catalog-topbar__title min-w-0 font-display text-xl sm:text-2xl text-ink"
           title={title}
         >
           {title}

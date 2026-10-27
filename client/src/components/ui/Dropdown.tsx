@@ -1,7 +1,8 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ChevronDown, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { StoreImage } from '../common/StoreImage'
 
 export interface DropdownBadge {
   text: string
@@ -18,6 +19,8 @@ export interface DropdownOption {
   divider?: boolean
   onClick?: () => void
   href?: string
+  imageUrl?: string
+  description?: string
 }
 
 export interface DropdownProps {
@@ -31,6 +34,7 @@ export interface DropdownProps {
   icon?: LucideIcon | React.ComponentType<{ className?: string }>
   className?: string
   variant?: 'default' | 'slim' | 'navigation'
+  navigationLayout?: 'list' | 'collections'
   label?: string
   id?: string
   disabled?: boolean
@@ -48,6 +52,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   icon: TriggerIcon,
   className = 'w-full sm:w-auto',
   variant = 'default',
+  navigationLayout = 'list',
   label,
   id,
   disabled = false,
@@ -60,10 +65,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const restoreSelectionFocus = useRef(false)
   const keyboardEdge = useRef<'first' | 'last' | null>(null)
   const reducedMotion = useReducedMotion()
+  const menuId = useId()
 
   const selectedOption = options.find((opt) => opt.value === value)
   const isSlim = variant === 'slim'
   const isNavigation = variant === 'navigation'
+  const isCollectionPanel = isNavigation && navigationLayout === 'collections'
 
   useLayoutEffect(() => {
     if (!isOpen || !keyboardEdge.current) return
@@ -87,9 +94,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('pointerdown', handleClickOutside)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('pointerdown', handleClickOutside)
     }
   }, [])
 
@@ -102,7 +109,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
       const spaceAbove = rect.top
       const menuEstimatedHeight = Math.min(options.length * 36 + 20, 200)
       // Default to opening downwards unless space below is genuinely cramped and space above is larger
-      setOpenUpwards(spaceBelow < menuEstimatedHeight && spaceAbove > spaceBelow)
+      setOpenUpwards(
+        !isCollectionPanel && spaceBelow < menuEstimatedHeight && spaceAbove > spaceBelow
+      )
     }
     setIsOpen((prev) => !prev)
   }
@@ -120,7 +129,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <div
-      className={`relative inline-block min-w-0 max-w-full text-left ${className}`}
+      className={`${isCollectionPanel ? 'collection-disclosure' : 'relative inline-block'} min-w-0 max-w-full text-left ${className}`}
       ref={dropdownRef}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false)
@@ -131,7 +140,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
           triggerRef.current?.focus()
           event.stopPropagation()
         }
-        if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+        if (
+          [
+            'ArrowDown',
+            'ArrowUp',
+            'Home',
+            'End',
+            ...(isCollectionPanel ? ['ArrowLeft', 'ArrowRight'] : []),
+          ].includes(event.key)
+        ) {
           event.preventDefault()
           if (!isOpen) {
             keyboardEdge.current = event.key === 'ArrowUp' || event.key === 'End' ? 'last' : 'first'
@@ -146,7 +163,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 ? 0
                 : event.key === 'End'
                   ? items.length - 1
-                  : (current + (event.key === 'ArrowUp' ? -1 : 1) + items.length) % items.length
+                  : (current +
+                      (event.key === 'ArrowUp' || event.key === 'ArrowLeft' ? -1 : 1) +
+                      items.length) %
+                    items.length
             items[next]?.focus()
           }
         }
@@ -169,6 +189,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         }
         aria-haspopup="true"
         aria-expanded={isOpen}
+        aria-controls={isOpen ? menuId : undefined}
         aria-label={ariaLabel || label || placeholder}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1 text-left">
@@ -209,7 +230,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
               y: reducedMotion ? 0 : openUpwards ? 6 : -6,
             }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: openUpwards ? 6 : -6 }}
+            exit={{
+              opacity: 0,
+              scale: reducedMotion ? 1 : 0.96,
+              y: reducedMotion ? 0 : openUpwards ? 6 : -6,
+            }}
             transition={{
               type: 'spring',
               duration: 0.18,
@@ -217,16 +242,21 @@ export const Dropdown: React.FC<DropdownProps> = ({
               damping: 28,
             }}
             style={{ originY: openUpwards ? 1 : 0 }}
-            className={`absolute z-50 rounded-xl border border-line bg-paper p-1.5 shadow-premium focus:outline-none ${
+            className={`${isCollectionPanel ? 'collections-panel' : 'absolute z-50 rounded-xl border border-line bg-paper p-1.5 shadow-premium focus:outline-none'} ${
               openUpwards ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
             } ${align === 'right' ? 'right-0' : 'left-0'} ${
-              menuClassName.includes('w-') ? '' : isSlim ? 'w-44' : 'w-52'
+              isCollectionPanel || menuClassName.includes('w-') ? '' : isSlim ? 'w-44' : 'w-52'
             } ${menuClassName}`}
           >
             <div
-              className={`flex flex-col gap-0.5 overflow-y-auto pr-1 dropdown-scrollbar ${
-                isSlim ? 'max-h-48' : 'max-h-60'
-              }`}
+              id={menuId}
+              className={
+                isCollectionPanel
+                  ? 'collections-panel__grid'
+                  : `flex flex-col gap-0.5 overflow-y-auto pr-1 dropdown-scrollbar ${
+                      isSlim ? 'max-h-48' : 'max-h-60'
+                    }`
+              }
               role="menu"
               aria-orientation="vertical"
             >
@@ -247,9 +277,28 @@ export const Dropdown: React.FC<DropdownProps> = ({
                           setIsOpen(false)
                           option.onClick?.()
                         }}
-                        className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-ink hover:bg-surface hover:text-primary"
+                        className={
+                          isCollectionPanel
+                            ? `collections-panel__link ${option.imageUrl ? '' : 'collections-panel__destination'}`
+                            : 'flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-ink hover:bg-surface hover:text-primary'
+                        }
                       >
-                        {option.label}
+                        {isCollectionPanel && option.imageUrl && (
+                          <StoreImage
+                            src={option.imageUrl}
+                            alt=""
+                            width={240}
+                            height={180}
+                            loading="lazy"
+                            className="collections-panel__image"
+                          />
+                        )}
+                        <span>
+                          {option.label}
+                          {isCollectionPanel && option.description && (
+                            <small>{option.description}</small>
+                          )}
+                        </span>
                       </Link>
                     ) : (
                       <button

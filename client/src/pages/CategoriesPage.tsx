@@ -1,115 +1,106 @@
-import { StoreImage } from '../components/common/StoreImage'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Package } from 'lucide-react'
-import { categoryService } from '../lib/services/category.service'
-import type { Category } from '../lib/types/category'
-import { ShopHero } from '../components/catalog/ShopHero'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { useStoreCollections } from '../context/StoreCollectionsContext'
+import { collectionCaption, collectionHref } from '../lib/utils/collectionPresentation'
+import { CollectionImage } from '../components/catalog/CollectionImage'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
 export const CategoriesPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let active = true
-    const loadCategories = async () => {
-      try {
-        const response = await categoryService.getCategories()
-        if (!response.success) throw new Error(response.error.message)
-        if (active) setCategories(response.data.sort((a, b) => a.sortOrder - b.sortOrder))
-      } catch (reason) {
-        if (active) {
-          setError(reason instanceof Error ? reason.message : 'Unable to load categories.')
-        }
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-    void loadCategories()
-    return () => {
-      active = false
-    }
-  }, [])
-
+  const { categories, loading, error } = useStoreCollections()
+  const lead = categories.find((category) => category.slug === 'god-idols') || categories[0]
+  const remaining = categories.filter((category) => category.id !== lead?.id)
   return (
-    <main className="min-h-screen pb-16 bg-paper">
-      <ShopHero
-        title="Find your everyday ritual"
-        subtitle="Explore the collection, one meaningful piece at a time."
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Categories' }]}
-      />
-
-      <div className="layout-container py-4 sm:py-8">
-        {loading ? (
-          <div className="category-page-grid">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="aspect-[4/3] rounded-card md:rounded-card bg-surface animate-pulse"
-              />
-            ))}
+    <main className="collection-directory editorial-page pb-16">
+      <div className="layout-container">
+        <Breadcrumbs
+          items={[{ label: 'Home', href: '/' }, { label: 'Collections' }]}
+          className="py-6"
+        />
+        <div className="directory-intro">
+          <div>
+            <span className="eyebrow">The Muvira collection directory</span>
+            <h1>
+              Something meaningful.
+              <br />
+              Somewhere to begin.
+            </h1>
           </div>
-        ) : error ? (
-          <div className="py-16 text-center text-sm text-ink">
-            Categories could not be loaded: {error}
-          </div>
-        ) : categories.length === 0 ? (
-          <div className="py-16 sm:py-24 text-center flex flex-col items-center justify-center">
-            <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center text-muted mb-4">
-              <Package className="h-6 w-6 stroke-[1.5]" />
-            </div>
-            <h2 className="font-display text-2xl text-ink font-bold">No categories available</h2>
-            <Link
-              to="/shop"
-              className="mt-6 inline-block rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors"
-            >
-              Browse All Products
+          <p>
+            From your daily ritual to a thoughtful gift, explore the details that make a space feel
+            like yours.
+          </p>
+        </div>
+        {loading && (
+          <p role="status" className="py-16">
+            Loading collections…
+          </p>
+        )}
+        {!loading && error && (
+          <p role="status" className="panel p-6">
+            Collections could not be loaded: {error}{' '}
+            <Link to="/shop" className="underline">
+              Browse the shop
+            </Link>
+          </p>
+        )}
+        {!loading && !error && !lead && (
+          <div className="panel p-8">
+            <h2 className="text-h2">No categories available</h2>
+            <Link to="/shop" className="collection-link mt-4">
+              Browse all products <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        ) : (
-          <div className="category-page-grid">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                to={`/shop?category=${category.slug}`}
-                className="category-page-tile group"
-              >
-                <div className="aspect-[4/3] overflow-hidden rounded-image">
-                  {category.imageUrl ? (
-                    <StoreImage
-                      src={category.imageUrl}
-                      alt={category.name}
-                      width={800}
-                      height={600}
-                      className="w-full aspect-[4/3] object-cover bg-surface browse-image"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="aspect-[4/3] bg-surface flex items-center justify-center text-sm text-muted">
-                      No image available
-                    </div>
-                  )}
-                </div>
-
-                {/* Bottom Content */}
-                <div className="p-5 text-ink">
-                  <h2 className="font-display text-2xl text-ink">{category.name}</h2>
-                  {category.description && (
-                    <p className="mt-2 text-sm text-muted">{category.description}</p>
-                  )}
-                  <div className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-ink group-hover:underline underline-offset-4">
-                    <span>Explore Collection</span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                  </div>
-                </div>
+        )}
+        {lead && (
+          <>
+            <nav className="collection-jumps" aria-label="Jump to a collection">
+              {categories.map((category) => (
+                <a key={category.id} href={`#collection-${category.id}`}>
+                  {category.name}
+                </a>
+              ))}
+            </nav>
+            <section id={`collection-${lead.id}`} className="directory-lead">
+              <Link to={collectionHref(lead)} className="directory-lead__image group">
+                <CollectionImage category={lead} priority className="browse-image" />
               </Link>
-            ))}
-          </div>
+              <div>
+                <span className="eyebrow">Begin here</span>
+                <h2>{lead.name}</h2>
+                <p>{collectionCaption(lead)}</p>
+                <p className="mt-4 text-ink-soft">{lead.description}</p>
+                <Link to={collectionHref(lead)} className="button-primary mt-6 gap-4">
+                  Explore {lead.name} <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </section>
+            <div className="directory-grid">
+              {remaining.map((category) => (
+                <section
+                  id={`collection-${category.id}`}
+                  key={category.id}
+                  className="directory-collection"
+                >
+                  <Link to={collectionHref(category)} className="group">
+                    <div className="directory-collection__image">
+                      <CollectionImage category={category} className="browse-image" />
+                    </div>
+                    <div className="directory-collection__copy">
+                      <div>
+                        <h2>{category.name}</h2>
+                        <p>{collectionCaption(category)}</p>
+                      </div>
+                      <ArrowUpRight className="h-5 w-5 shrink-0" />
+                    </div>
+                  </Link>
+                </section>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </main>
   )
 }
-
 export default CategoriesPage

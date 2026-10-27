@@ -280,7 +280,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className={`hidden lg:block w-full lg:sticky lg:top-24 lg:self-start ${className}`}>
+      <aside className={`catalog-sidebar hidden lg:block w-full lg:self-start ${className}`}>
         {sidebarContent('desktop-catalog-price-range')}
       </aside>
 

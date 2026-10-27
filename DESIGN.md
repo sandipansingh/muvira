@@ -1,4 +1,4 @@
-# Muvira immersive heritage identity
+# Muvira rich shopping identity
 
 Muvira is an English-language Indian storefront for god idols, puja products and home pieces. Large, faithful product photography and generous space support thoughtful browsing; operational screens use compact, legible controls.
 
@@ -23,18 +23,22 @@ The approved redesign replaces the previous type and color direction. Runtime CS
 
 ## Composition
 
-The signature is a continuous, full-width stone mandir photograph, with generous copy space on the left and a prominent faithful idol on the right. The compact ivory header floats over the home scene and stays in normal flow on interior pages. Its sticky geometry is stable. Separate portrait compositions put copy above the deity on phones. Category discovery uses compact circular photographic medallions, merchandise uses larger filled 4:5 images, configured campaigns alternate image scale and alignment, and the store story separates merchandise from support.
+The signature is a composed shopping stage: the configured manual carousel takes roughly two-thirds of the desktop opening, beside two photographic collection destinations. A solid full-width header places a labeled search field between the original logo and account/bag controls, with a dedicated merchant-selected category row. The shared Dropdown navigation variant opens a photographic directory of every active collection. Phones retain visible search, grouped expandable navigation, and deliberately stacked photography.
 
-Catalog grids use four desktop, three tablet, two mobile columns, then one below 360px. Filled category and campaign photography shares the browsable-image treatment: 1.06× over 350ms only on fine-pointer hover/focus with no reduced-motion preference. Actions remain visible on touch and keyboard. Square commerce thumbnails use the same image-failure presentation. Logos retain their original proportions and receive no zoom treatment.
+All active categories participate in the homepage mosaic and collection directory. Featured merchandise, a category spotlight (or configured campaigns), deity searches, supported budget links, a differently composed new-arrivals section and an image-led store story create multiple paths through the real catalog. Small catalogs can repeat the same genuine products across these distinct sections. No counts, ratings or commercial facts are inferred.
 
-Product detail uses approximately 58/42 gallery/purchase columns. The uncapped 4:5 gallery contains complete photographs at rest, horizontal thumbnails, and in-frame fine-pointer zoom. The shared modal lightbox provides previous/next, 1×/2×, reset, drag and labeled pan buttons, arrow-key controls, Escape and focus restoration. Search places its labeled query, result count, removable filter chips, sort and products together; URL state remains authoritative.
+Catalog grids use four desktop, three tablet, two mobile columns, then one below 360px. Product photographs are complete at rest in consistent 4:5 frames; purchase and quick-view actions sit beneath the image and remain available to touch and keyboard users. Collection photography uses varied scales. The directory has a lead collection, jump links and varied photographic sections; results retain category introductions, sibling destinations and URL-owned selections.
+
+The desktop product gallery shows up to four ordered original photographs, two across, plus a complete lightbox. A single photograph receives one full frame. Mobile exposes every photograph through swipe, arrows and a position indicator. Opening any displayed photograph selects its corresponding lightbox image. Lightbox previous/next, 1×/2×, reset, drag, labeled pan, arrow keys, Escape and focus restoration remain shared behavior. The purchase panel sticks only when it fits below the measured header. Specifications prefer metadata, then recognize explicit labeled facts in descriptions; the original description remains intact and care stays conditional on supplied instructions.
+
+Commerce screens use larger complete item photographs, distinct summary surfaces and a focused checkout/outcome header. Account navigation, photographic order cards, shipment timelines, coordinated auth scenes, payment-state compositions and recovery dialogs share the same tokens and primitives. Styling is scoped to storefront/auth surfaces; shared selection and admin behavior remains intact.
 
 DM Serif Display uses no synthesized bold or italic. Manrope supports the rupee sign. Full licensed font files are self-hosted. Admin headings use Manrope. The unframed original Muvira logo remains unchanged.
 
 ## Evidence and imagery
 
-`client/public/images/editorial/README.md` records all three source photographs, desktop/mobile prompts, optimization and fidelity review. A reviewed composite is selected only when its exact source photograph remains configured. New or changed content uses its own image. Unconfigured content uses an empty atmospheric setting and the approved generic hero; it never introduces products, prices or sales claims.
+`client/public/images/editorial/README.md` records the configured hero scenes. `client/public/images/collections/README.md` records three new category scenes, exact source matches, complete prompts, responsive optimization and side-by-side fidelity comparisons. A reviewed composite is selected only when its exact source photograph remains configured. New or changed content uses its own image. Unconfigured content uses an empty atmospheric setting and the approved generic hero; it never introduces products, prices or sales claims.
 
 ## Verification
 
-The existing commerce regression tests remain authoritative for behavior. The responsive suite adds isolated authenticated customer and admin fixtures, all 23 pages, protected-route guest checks, keyboard interactions, overlays, reduced motion and enlarged text. Screenshots are development evidence under `responsive-audit/redesign/`.
+The existing commerce regression tests remain authoritative for behavior. The responsive suite uses isolated authenticated customer and admin fixtures, all route families, protected-route guest checks, keyboard/touch interactions, overlays, reduced motion and enlarged text. Raw captures are development evidence under `responsive-audit/redesign/`; the review gallery and verification report live under `responsive-audit/rich-shopping/`.

@@ -5,6 +5,7 @@ import { ToastProvider } from './context/ToastContext'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import { SiteSettingsProvider } from './context/SiteSettingsContext'
+import { StoreCollectionsProvider } from './context/StoreCollectionsContext'
 
 import { AnnouncementBar } from './components/layout/AnnouncementBar'
 import { Header } from './components/layout/Header'
@@ -51,6 +52,10 @@ const CategoryRedirect: React.FC = () => {
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { pathname } = useLocation()
+  const isFocused =
+    pathname === '/checkout' ||
+    pathname.startsWith('/orders/success') ||
+    pathname.startsWith('/orders/failure')
 
   return (
     <div
@@ -59,8 +64,8 @@ const MainLayout: React.FC = () => {
       <a href="#page-content" className="skip-link button-primary">
         Skip to content
       </a>
-      <AnnouncementBar />
-      <Header onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
+      {!isFocused && <AnnouncementBar />}
+      <Header focused={isFocused} onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       <CartDrawer />
 
@@ -137,7 +142,9 @@ export const App: React.FC = () => {
           <AuthProvider>
             <SiteSettingsProvider>
               <CartProvider>
-                <AppContent />
+                <StoreCollectionsProvider>
+                  <AppContent />
+                </StoreCollectionsProvider>
               </CartProvider>
             </SiteSettingsProvider>
           </AuthProvider>

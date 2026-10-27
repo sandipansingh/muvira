@@ -1,10 +1,13 @@
 import React from 'react'
 import { ArrowUpRight, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useStoreCollections } from '../../context/StoreCollectionsContext'
+import { collectionHref } from '../../lib/utils/collectionPresentation'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { settings, error } = useSiteSettings()
+  const { categories } = useStoreCollections()
   const { contactInfo, storeDescription } = settings
   const hasContact =
     !error && Boolean(contactInfo.phone || contactInfo.email || contactInfo.address)
@@ -79,6 +82,18 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
             </div>
           )}
         </div>
+        {categories.length > 0 && (
+          <nav className="footer-collection-nav" aria-label="Footer collections">
+            <span className="eyebrow">Discover more</span>
+            <div>
+              {categories.map((category) => (
+                <Link key={category.id} to={collectionHref(category)}>
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+          </nav>
+        )}
         <div className="store-footer__bottom">
           <p>© {new Date().getFullYear()} Muvira. All rights reserved.</p>
           <p className="flex items-center gap-2">

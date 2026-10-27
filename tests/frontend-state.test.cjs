@@ -214,3 +214,45 @@ test('review pagination de-duplicates pages and keeps failures visible', async (
   assert.equal(reviewDisplayState(first, 'Next page unavailable'), 'partial-error')
   assert.equal(reviewDisplayState(first, null), 'ready')
 })
+
+test('product facts prefer metadata, recognize explicit labels and preserve absent facts', async () => {
+  const { productSpecifications, productHighlights } = await loadClientModule(
+    'lib/utils/productPresentation.ts'
+  )
+  const description =
+    'A material story about devotion.\nSpecifications\nMaterial: Resin\nHeight: 11 cm\nWidth (Breadth): 6 cm\nFinish: Hand-painted\nPackage Includes: 1 × Idol\nThis prose is not a specification.'
+  const product = {
+    description,
+    metadata: { Material: 'Stone', colour: 'White', care_instructions: 'Wipe gently', empty: '' },
+  }
+  assert.deepEqual(productSpecifications(product), [
+    { label: 'Material', value: 'Stone' },
+    { label: 'Height', value: '11 cm' },
+    { label: 'Width', value: '6 cm' },
+    { label: 'Finish', value: 'Hand-painted' },
+    { label: 'Package includes', value: '1 × Idol' },
+    { label: 'Color', value: 'White' },
+  ])
+  assert.equal(product.description, description)
+  assert.equal(
+    productHighlights(product).some((fact) => /care/i.test(fact.label)),
+    false
+  )
+  assert.deepEqual(
+    productSpecifications({ description: 'A beautiful traditional piece.', metadata: {} }),
+    []
+  )
+  assert.deepEqual(productSpecifications({ metadata: {} }), [])
+})
+test('collection photographs substitute only the exact reviewed source', async () => {
+  const { collectionImage } = await loadClientModule('lib/utils/collectionImage.ts')
+  const source =
+    'https://mmpsquheiibatsjficwm.supabase.co/storage/v1/object/public/images/categories/1785931135221-7e7p23vd-whatsapp-image-2026-07-08-at-4.53.04-pm-2-.jpeg'
+  assert.match(collectionImage(source).src, /god-idols-960.webp$/)
+  assert.match(collectionImage(source).srcSet, /480w.*960w.*1536w/)
+  assert.equal(collectionImage(source + '?changed=1').src, source + '?changed=1')
+  assert.deepEqual(collectionImage('/a-new-collection.webp'), {
+    src: '/a-new-collection.webp',
+    srcSet: undefined,
+  })
+})

@@ -10,7 +10,7 @@ const snapshot = JSON.parse(
 const helper = `const f=()=>window.fixture; const ok=data=>({success:true,data}); const page=data=>({...ok(data),pagination:{page:1,limit:20,total:data.length,totalPages:1}}); const blocked=async()=>{throw new Error('Mutations are blocked in visual fixtures')}; const service=methods=>new Proxy(methods,{get:(target,key)=>key in target?target[key]:blocked}); const read=async data=>{if(f().scenario==='loading')await new Promise(()=>{});if(f().scenario==='error')throw new Error('Fixture service unavailable');return data};`
 const mocks = {
   AuthContext: `import React from 'react'; export const AuthProvider=({children})=>children; export const useAuth=()=>window.fixture.auth;`,
-  CartContext: `import React,{createContext,useContext,useState}from'react';const Context=createContext(null);export const useCart=()=>useContext(Context);export function CartProvider({children}){const[isDrawerOpen,setIsDrawerOpen]=useState(false);const[items,setItems]=useState(window.fixture.cart);const[loading,setLoading]=useState(false);const total=items.reduce((n,i)=>n+i.lineTotal,0);return React.createElement(Context.Provider,{value:{items,isDrawerOpen,setIsDrawerOpen,openCartDrawer:()=>setIsDrawerOpen(true),closeCartDrawer:()=>setIsDrawerOpen(false),itemCount:items.reduce((n,i)=>n+i.quantity,0),subtotalPaisa:total,totalPaisa:total,discountPaisa:0,shippingPaisa:0,freeShippingThresholdPaisa:0,amountForFreeShippingPaisa:0,loading,status:'ready',error:null,hasUnmergedItems:false,coupon:null,retry:()=>{},addToCart:async(product)=>{if(!product.inStock)throw new Error('Out of stock');setItems(window.fixture.cart);setIsDrawerOpen(true)},removeFromCart:async id=>setItems(items.filter(i=>i.id!==id)),updateQuantity:async()=>{if(new URLSearchParams(location.search).has('slowQuantity')){setLoading(true);await new Promise(done=>setTimeout(done,500));setLoading(false)}},clearCart:async()=>setItems([]),applyCoupon:async()=>false,removeCoupon:()=>{}}},children)}`,
+  CartContext: `import React,{createContext,useContext,useState}from'react';const Context=createContext(null);export const useCart=()=>useContext(Context);export function CartProvider({children}){const[isDrawerOpen,setIsDrawerOpen]=useState(false);const[items,setItems]=useState(window.fixture.cart);const[loading,setLoading]=useState(false);const total=items.reduce((n,i)=>n+i.lineTotal,0);return React.createElement(Context.Provider,{value:{items,isDrawerOpen,setIsDrawerOpen,openCartDrawer:()=>setIsDrawerOpen(true),closeCartDrawer:()=>setIsDrawerOpen(false),itemCount:items.reduce((n,i)=>n+i.quantity,0),subtotalPaisa:total,totalPaisa:total,discountPaisa:0,shippingPaisa:0,freeShippingThresholdPaisa:0,amountForFreeShippingPaisa:0,loading,status:'ready',error:null,hasUnmergedItems:false,coupon:null,retry:()=>{},addToCart:async(product)=>{const query=new URLSearchParams(location.search);if(query.has('slowAdd'))await new Promise(done=>setTimeout(done,600));if(query.has('addFailure'))throw new Error('Cart update was not confirmed');if(!product.inStock)throw new Error('Out of stock');setItems(window.fixture.cart);setIsDrawerOpen(true)},removeFromCart:async id=>setItems(items.filter(i=>i.id!==id)),updateQuantity:async()=>{if(new URLSearchParams(location.search).has('slowQuantity')){setLoading(true);await new Promise(done=>setTimeout(done,500));setLoading(false)}},clearCart:async()=>setItems([]),applyCoupon:async()=>false,removeCoupon:()=>{}}},children)}`,
   'product.service': `${helper} export const productService=service({getProducts:async()=>page(await read(f().scenario==='empty'?[]:f().products)),getProductBySlug:async()=>ok(await read(f().product)),getRelatedProducts:async()=>ok(await read(f().products.slice(1,5)))});`,
   'category.service': `${helper} export const categoryService=service({getCategories:async()=>ok(await read(f().scenario==='empty'?[]:f().categories))});`,
   'settings.service': `${helper} export const settingsService=service({getSettings:async()=>ok(await read(f().settings))});`,
@@ -36,6 +36,7 @@ const quote={items:[{productId:product.id,productName:product.name,quantity:1,un
 const user={id:'fixture-user',fullName:'Aarohi Sen',phone:address.phone,email:'aarohi@example.test',role:role==='admin'?'admin':'customer'};
 const noop=async()=>false;
 window.fixture={scenario,products,details,product,categories,settings,address,cart,order,quote,auth:{user:role==='guest'?null:user,isAuthenticated:role!=='guest',isAdmin:role==='admin',loading:false,profileError:null,login:noop,signup:noop,logout:noop,updateProfile:noop,retryProfile:noop},adminOrder:{...order,customerName:user.fullName,customerEmail:user.email,customerPhone:user.phone,destination:'Kolkata, West Bengal 700039'},stats:{totalOrders:42,ordersToday:3,totalRevenue:4280000,revenueToday:149700,totalProducts:products.length,activeProducts:products.length,totalCategories:categories.length,activeCoupons:1,lowStockCount:2,pendingOrders:4,confirmedOrders:3},coupon:{id:'fixture-coupon',code:'DEVOTION10',description:'Visual test coupon',discountType:'percentage',discountValue:10,minOrderAmount:100000,maxDiscountAmount:10000,usageLimit:100,timesUsed:8,validFrom:'2026-10-01T00:00:00Z',validUntil:null,isActive:true},retry:{id:'fixture-retry',jobType:'invoice_generation',referenceId:'fixture-order',status:'dead',retryCount:5,maxRetries:5,lastError:'Provider temporarily unavailable',nextRetryAt:'2026-10-27T10:00:00Z',createdAt:'2026-10-26T10:00:00Z'}};
+if(scenario==='empty-cart')cart.splice(0);
 if(scenario==='unconfigured')settings.heroSlides=[];
 if(scenario==='missing-images'){products.forEach(p=>p.primaryImageUrl='');details.forEach(p=>p.images=[]);}
 if(scenario==='long-name')products[0].name='Traditional handcrafted devotional idol with detailed ornaments for the home mandir and thoughtful gifting';
@@ -45,12 +46,22 @@ if(query.get('hero')==='unknown')settings.heroSlides=[{...settings.heroSlides[0]
 if(query.get('hero')==='long')settings.heroSlides[0].title='Meaningful pieces for your everyday moments of devotion and celebration';
 if(query.get('scenario')==='broken-images'){products.forEach(p=>p.primaryImageUrl='/fixture-broken-photo.webp');details.forEach(p=>p.images=[{url:'/fixture-broken-photo.webp'}]);}
 if(query.has('care'))product.metadata.care_instructions='Care instructions supplied by the fixture catalog.';
+if(query.has('photos')){const count=Number(query.get('photos'));const original=product.images;product.images=Array.from({length:count},(_,i)=>({...original[i%original.length],id:'fixture-photo-'+i,sortOrder:i}));}
+if(scenario==='sparse'){products.splice(1);details.splice(1);categories.splice(2);}
+if(scenario==='unknown-collections')categories.forEach(category=>category.imageUrl='/images/editorial/stone-alcove.webp');
 if(query.has('stock')){products.forEach(p=>{p.stock=0;p.inStock=false});details.forEach(p=>{p.stock=0;p.inStock=false});}
 sessionStorage.setItem('muvira_password_recovery','fixture-only');
 createRoot(document.getElementById('root')).render(React.createElement(App));window.fixtureReady=true;
 `
 
-export async function startEditorialServer() {
+export async function startEditorialServer({
+  defaultRole = 'customer',
+  publicCatalog = false,
+} = {}) {
+  const fixtureEntry = entry.replace(
+    "query.get('fixtureRole')||'customer'",
+    `query.get('fixtureRole')||${JSON.stringify(defaultRole)}`
+  )
   const { createServer } = await import(
     pathToFileURL(join(root, 'client/node_modules/vite/dist/node/index.js')).href
   )
@@ -88,11 +99,25 @@ export async function startEditorialServer() {
           if (mocks[key]) return '\0editorial-mock:' + key
         },
         load(id) {
-          if (id === '\0editorial-fixture') return entry
+          if (id === '\0editorial-fixture') return fixtureEntry
           if (id.startsWith('\0editorial-mock:')) return mocks[id.slice(16)]
         },
         configureServer(vite) {
           vite.middlewares.use((req, res, next) => {
+            const path = new URL(req.url, 'http://fixture.local').pathname
+            if (
+              publicCatalog &&
+              req.method === 'GET' &&
+              ['/api/products', '/api/categories'].includes(path)
+            ) {
+              res.setHeader('content-type', 'application/json')
+              return res.end(
+                JSON.stringify({
+                  success: true,
+                  data: path === '/api/products' ? snapshot.products : snapshot.categories,
+                })
+              )
+            }
             if (req.url.startsWith('/api/')) {
               res.statusCode = 500
               return res.end('Unmocked API call blocked')
