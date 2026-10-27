@@ -57,7 +57,7 @@ export const AdminShell: React.FC = () => {
             height={723}
             className="brand-mark w-auto object-contain"
           />
-          <span className="font-display text-3xl">Muvira</span>
+          <span className="brand-wordmark font-display text-3xl">Muvira</span>
         </Link>
         <p className="eyebrow mb-5 mt-12">Store management</p>
         <AdminNavigation />

@@ -24,7 +24,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 height={723}
                 className="brand-mark w-auto object-contain"
               />
-              <span className="font-display text-3xl">Muvira</span>
+              <span className="brand-wordmark font-display text-3xl">Muvira</span>
             </Link>
             {storeDescription && (
               <p className="mt-5 max-w-sm text-sm leading-7 text-ink-soft">{storeDescription}</p>

@@ -197,7 +197,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <StoreImage
                 src={primaryImage}
                 alt={product.name}
-                className="h-full w-full object-contain browse-image"
+                className="h-full w-full browse-image"
                 width={480}
                 height={480}
                 loading="lazy"

@@ -159,7 +159,7 @@ test('tall purchase panels remain in document flow and fitting panels respect th
       h = await page.locator('.store-header').boundingBox()
     assert.ok(p.y >= h.y + h.height)
   }))
-test('card actions stay below complete photographs on touch layouts', () =>
+test('card actions stay below filled photographs on touch layouts', () =>
   pageFor(
     '/shop',
     async (page) => {
@@ -170,7 +170,7 @@ test('card actions stay below complete photographs on touch layouts', () =>
       assert.ok(actions.y >= image.y + image.height)
       assert.equal(
         await card.locator('img').evaluate((el) => getComputedStyle(el).objectFit),
-        'contain'
+        'cover'
       )
     },
     390

@@ -95,7 +95,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 height="723"
                 className="brand-mark w-auto object-contain shrink-0"
               />
-              <span className="translate-y-[2px] font-display text-xl tracking-tight text-ink leading-none">
+              <span className="brand-wordmark font-display text-xl tracking-tight text-ink">
                 Muvira
               </span>
             </Link>

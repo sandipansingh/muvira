@@ -975,6 +975,12 @@ button:disabled {
 .brand-lockup .brand-mark {
   height: 2.75rem;
 }
+.brand-wordmark {
+  display: block;
+  line-height: 1;
+  white-space: nowrap;
+  translate: 0 0.08em;
+}
 .header-link {
   display: inline-flex;
   align-items: center;
@@ -2297,7 +2303,7 @@ body {
   background: var(--color-surface);
 }
 .storefront-shell .product-card .media-tile img {
-  object-fit: contain;
+  object-fit: cover;
 }
 .storefront-shell .product-card__name {
   font-size: 0.9375rem;

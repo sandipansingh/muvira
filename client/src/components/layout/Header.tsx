@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
                 height={723}
                 className="brand-mark w-auto object-contain"
               />
-              <span className="font-display text-3xl leading-none tracking-tight">Muvira</span>
+              <span className="brand-wordmark font-display text-3xl tracking-tight">Muvira</span>
             </Link>
           </div>
           {!focused && (
