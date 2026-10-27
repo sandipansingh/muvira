@@ -227,7 +227,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
                       <Link
                         to={option.href}
                         role="menuitem"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => {
+                          setIsOpen(false)
+                          option.onClick?.()
+                        }}
                         className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-ink hover:bg-surface hover:text-primary"
                       >
                         {option.label}

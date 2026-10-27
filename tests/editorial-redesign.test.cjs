@@ -60,6 +60,82 @@ test('missing legacy hero category destinations lead to the shop', () =>
       '/shop'
     )
   }))
+test('search filter removal and browser history restore labeled price fields and query', () =>
+  pageFor(
+    '/search?q=Krishna&category=god-idols&minPrice=1000&inStock=true&sort=price_asc&page=2',
+    async (page) => {
+      const input = page.getByRole('searchbox', { name: 'Search the collection', exact: true })
+      assert.equal(await input.inputValue(), 'Krishna')
+      await page.getByRole('button', { name: 'Remove From ₹1,000 filter', exact: true }).click()
+      assert.equal(new URL(page.url()).searchParams.has('page'), false)
+      await page.waitForFunction(
+        () => document.querySelector('[aria-label="Minimum price"]')?.value === ''
+      )
+      assert.equal(
+        await page.getByRole('spinbutton', { name: 'Minimum price', exact: true }).inputValue(),
+        ''
+      )
+      await page.goBack()
+      await page.waitForFunction(
+        () => document.querySelector('[aria-label="Minimum price"]')?.value === '1000'
+      )
+      assert.equal(
+        await page.getByRole('spinbutton', { name: 'Minimum price', exact: true }).inputValue(),
+        '1000'
+      )
+      await page.getByRole('button', { name: 'Clear search query', exact: true }).click()
+      assert.equal(await input.evaluate((el) => document.activeElement === el), true)
+      assert.equal(new URL(page.url()).searchParams.get('category'), 'god-idols')
+      await page.goBack()
+      await page.waitForFunction(
+        () => document.getElementById('catalog-query')?.value === 'Krishna'
+      )
+      assert.equal(await input.inputValue(), 'Krishna')
+    }
+  ))
+test('mobile collections navigation exposes actual category links', () =>
+  pageFor('/', async (page) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Main menu', exact: true })
+    await dialog.getByRole('button', { name: 'Collections', exact: true }).click()
+    const link = dialog.getByRole('menuitem', { name: 'God Idols', exact: true })
+    assert.equal(await link.getAttribute('href'), '/shop?category=god-idols')
+    await link.click()
+    assert.equal(new URL(page.url()).searchParams.get('category'), 'god-idols')
+  }))
+test('password recovery opens with the entered email and restores focus after Escape', () =>
+  pageFor('/signin?fixtureRole=guest', async (page) => {
+    await page.getByLabel('Email address', { exact: true }).fill('aarohi@example.test')
+    const trigger = page.getByRole('button', { name: /forgot password/i })
+    await trigger.click()
+    const dialog = page.getByRole('dialog', { name: 'Reset Password', exact: true })
+    await dialog.waitFor()
+    await page.waitForFunction(
+      () => document.getElementById('reset-email')?.value === 'aarohi@example.test'
+    )
+    assert.equal(
+      await dialog.getByLabel('Email address', { exact: true }).inputValue(),
+      'aarohi@example.test'
+    )
+    await page.keyboard.press('Escape')
+    assert.equal(await trigger.evaluate((el) => document.activeElement === el), true)
+  }))
+test('account navigation brings the saved-address section into view', () =>
+  pageFor('/orders', async (page) => {
+    await page
+      .getByRole('navigation', { name: 'Your account', exact: true })
+      .getByRole('link', { name: 'Saved addresses', exact: true })
+      .click()
+    await page.locator('#addresses').waitFor()
+    await page.waitForFunction(
+      () => {
+        const rect = document.getElementById('addresses')?.getBoundingClientRect()
+        return rect && rect.top >= 60 && rect.top < innerHeight - 100
+      },
+      { timeout: 3000 }
+    )
+  }))
 test('lightbox supports image navigation, 2x zoom, pan and focus restoration', () =>
   pageFor('/product/fixture', async (page) => {
     const trigger = page.getByRole('button', { name: /^Enlarge image of/ })

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { LockKeyhole } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { AuthHeroCard } from '../components/auth/AuthHeroCard'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { useToast } from '../context/ToastContext'
@@ -89,61 +90,76 @@ export const ResetPasswordPage: React.FC = () => {
 
   return (
     <main className="auth-page flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <div className="w-full max-w-md rounded-card border border-line bg-paper p-6 shadow-card sm:p-8">
-        <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
-          <LockKeyhole className="h-6 w-6" />
-        </div>
-        <h1 className="font-display text-3xl leading-tight text-ink">Set a new password</h1>
-
-        {checking ? (
-          <p className="mt-4 text-sm text-ink">Validating your recovery link…</p>
-        ) : !validRecovery ? (
-          <div className="mt-5 space-y-5">
-            <p className="text-sm text-danger">{error}</p>
-            <Link to="/signin" className="button-primary w-full justify-center">
-              Return to sign in
-            </Link>
+      <div className="grid w-full max-w-6xl items-center gap-10 lg:grid-cols-2">
+        <div className="journey-form w-full max-w-md mx-auto rounded-card border border-line bg-paper p-6 shadow-card sm:p-8">
+          <Link to="/" className="brand-lockup mb-8">
+            <img
+              src="/logo.png"
+              alt=""
+              width={659}
+              height={723}
+              className="brand-mark w-auto object-contain"
+            />
+            <span className="font-display text-2xl">Muvira</span>
+          </Link>
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
+            <LockKeyhole className="h-6 w-6" />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-            {error && (
-              <p className="rounded-lg border border-danger/30 bg-danger-soft p-3 text-sm text-danger">
-                {error}
-              </p>
-            )}
-            <div>
-              <label htmlFor="new-password" className="mb-1.5 block text-sm text-ink">
-                New password
-              </label>
-              <Input
-                id="new-password"
-                type="password"
-                minLength={8}
-                required
-                autoComplete="new-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
+          <h1 className="font-display text-3xl leading-tight text-ink">Set a new password</h1>
+
+          {checking ? (
+            <p className="mt-4 text-sm text-ink">Validating your recovery link…</p>
+          ) : !validRecovery ? (
+            <div className="mt-5 space-y-5">
+              <p className="text-sm text-danger">{error}</p>
+              <Link to="/signin" className="button-primary w-full justify-center">
+                Return to sign in
+              </Link>
             </div>
-            <div>
-              <label htmlFor="confirm-password" className="mb-1.5 block text-sm text-ink">
-                Confirm password
-              </label>
-              <Input
-                id="confirm-password"
-                type="password"
-                minLength={8}
-                required
-                autoComplete="new-password"
-                value={confirmation}
-                onChange={(event) => setConfirmation(event.target.value)}
-              />
-            </div>
-            <Button type="submit" size="lg" isLoading={submitting} className="w-full">
-              Update password
-            </Button>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              {error && (
+                <p className="rounded-lg border border-danger/30 bg-danger-soft p-3 text-sm text-danger">
+                  {error}
+                </p>
+              )}
+              <div>
+                <label htmlFor="new-password" className="mb-1.5 block text-sm text-ink">
+                  New password
+                </label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  minLength={8}
+                  required
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="confirm-password" className="mb-1.5 block text-sm text-ink">
+                  Confirm password
+                </label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  minLength={8}
+                  required
+                  autoComplete="new-password"
+                  value={confirmation}
+                  onChange={(event) => setConfirmation(event.target.value)}
+                />
+              </div>
+              <Button type="submit" size="lg" isLoading={submitting} className="w-full">
+                Update password
+              </Button>
+            </form>
+          )}
+        </div>
+        <div className="hidden lg:block">
+          <AuthHeroCard />
+        </div>
       </div>
     </main>
   )

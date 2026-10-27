@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import { StoreImage } from '../components/common/StoreImage'
+import { formatPrice } from '../lib/utils/format'
 import { ArrowRight, CheckCircle2, Clock3, PackageCheck, ShieldCheck } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
@@ -59,7 +61,7 @@ export const OrderSuccessPage: React.FC = () => {
     return (
       <main className="order-result editorial-page py-12 sm:py-16">
         <section className="mx-auto max-w-xl px-4 text-center">
-          <div className="panel space-y-6 p-6 sm:p-10">
+          <div className="result-panel result-panel--pending panel space-y-6 p-6 sm:p-10">
             <Clock3 className="mx-auto h-12 w-12 text-muted" />
             <span className="eyebrow block">Payment pending</span>
             <h1 className="page-title">Payment is being confirmed</h1>
@@ -103,7 +105,7 @@ export const OrderSuccessPage: React.FC = () => {
           ]}
         />
 
-        <div className="space-y-6 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-6 text-center shadow-none sm:p-10">
+        <div className="result-panel space-y-6 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-6 text-center shadow-none sm:p-10">
           <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-card bg-[var(--color-accent-soft)] text-accent shadow-none">
             <CheckCircle2 className="h-10 w-10 stroke-[2]" />
           </div>
@@ -121,6 +123,26 @@ export const OrderSuccessPage: React.FC = () => {
                 #{order.orderNumber}
               </strong>
             </p>
+          </div>
+
+          <div className="result-order-items text-left">
+            {order.items.map((item) => (
+              <div key={item.id} className="flex items-center gap-4 border-t border-line py-4">
+                <StoreImage
+                  src={item.productImage || undefined}
+                  alt={item.productName}
+                  width={96}
+                  height={96}
+                  className="h-20 w-20 shrink-0 rounded-image object-cover"
+                />
+                <div className="min-w-0">
+                  <p className="font-product text-sm font-semibold text-ink">{item.productName}</p>
+                  <p className="mt-2 text-sm text-muted">
+                    Qty {item.quantity} · {formatPrice(item.totalPrice)}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="rounded-card border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-left">

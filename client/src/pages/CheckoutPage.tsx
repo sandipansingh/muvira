@@ -283,7 +283,7 @@ export const CheckoutPage: React.FC = () => {
     )
 
   return (
-    <main className="checkout-page min-h-screen bg-background pb-16">
+    <main className="checkout-page journey-checkout min-h-screen bg-background pb-16">
       <div className="layout-container">
         {/* Top Navigation Flow Header */}
         <FlowHeader

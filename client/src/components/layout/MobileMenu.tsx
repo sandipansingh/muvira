@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion'
-import React, { useRef, useState } from 'react'
-import { ChevronDown, LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import { LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
+import { Dropdown } from '../ui/Dropdown'
+import { categoryService } from '../../lib/services/category.service'
+import type { Category } from '../../lib/types/category'
 import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
 
 interface MobileMenuProps {
@@ -11,19 +14,26 @@ interface MobileMenuProps {
   onClose: () => void
 }
 
-const SHOP_CATEGORIES = [
-  { label: 'All Products', href: '/shop' },
-  { label: 'All Categories', href: '/categories' },
-]
-
-const PRODUCT_LINKS = [{ label: 'New Arrivals', href: '/shop?sort=newest' }]
-
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated, user, logout } = useAuth()
   const { itemCount, openCartDrawer } = useCart()
   const [searchQuery, setSearchQuery] = useState('')
-  const [isShopExpanded, setIsShopExpanded] = useState(false)
-  const [isProductExpanded, setIsProductExpanded] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([])
+  useEffect(() => {
+    let active = true
+    void categoryService
+      .getCategories()
+      .then((response) => {
+        if (active && response.success)
+          setCategories(response.data.sort((a, b) => a.sortOrder - b.sortOrder))
+      })
+      .catch(() => {
+        /* Permanent shop links remain available. */
+      })
+    return () => {
+      active = false
+    }
+  }, [])
   const navigate = useNavigate()
   const panelRef = useRef<HTMLElement>(null)
 
@@ -103,89 +113,67 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <div className="flex items-center gap-2.5 rounded-lg border border-field-border bg-white px-3.5 py-2.5">
               <Search className="h-5 w-5 text-muted shrink-0" />
               <input
+                id="mobile-menu-search"
+                aria-label="Search the collection"
                 type="search"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="min-w-0 w-full bg-transparent text-base text-ink placeholder:text-muted outline-none [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className="grid h-11 w-11 shrink-0 place-items-center text-muted hover:text-primary"
+                  aria-label="Clear search query"
+                  onClick={() => {
+                    setSearchQuery('')
+                    document.getElementById('mobile-menu-search')?.focus()
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </form>
 
-          {/* Main Navigation List */}
-          <nav className="mt-4 divide-y divide-line">
-            {/* Home */}
-            <div>
-              <Link
-                to="/"
-                onClick={onClose}
-                className="flex min-h-[var(--tap-target)] items-center text-base font-normal text-ink hover:underline transition-colors"
-              >
-                Home
+          <nav className="mt-6 flex flex-col gap-2" aria-label="Mobile navigation">
+            <Link to="/shop" onClick={onClose} className="header-link text-lg">
+              Shop all
+            </Link>
+            {categories.some((category) => category.slug === 'god-idols') && (
+              <Link to="/shop?category=god-idols" onClick={onClose} className="header-link text-lg">
+                God Idols
               </Link>
-            </div>
-
-            {/* Shop (with Dropdown) */}
-            <div>
-              <button
-                type="button"
-                onClick={() => setIsShopExpanded((prev) => !prev)}
-                className="flex items-center justify-between w-full text-base font-normal text-ink hover:underline transition-colors cursor-pointer"
-              >
-                <span>Shop</span>
-                <ChevronDown
-                  className={`h-4 w-4 text-muted transition-transform duration-200 ${
-                    isShopExpanded ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {isShopExpanded && (
-                <div className="mt-2 pl-3 space-y-2 border-l border-line">
-                  {SHOP_CATEGORIES.map((category) => (
-                    <Link
-                      key={category.label}
-                      to={category.href}
-                      onClick={onClose}
-                      className="flex min-h-[var(--tap-target)] items-center text-sm font-normal text-muted hover:text-ink transition-colors"
-                    >
-                      {category.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Product (with Dropdown) */}
-            <div>
-              <button
-                type="button"
-                onClick={() => setIsProductExpanded((prev) => !prev)}
-                className="flex items-center justify-between w-full text-base font-normal text-ink hover:underline transition-colors cursor-pointer"
-              >
-                <span>Product</span>
-                <ChevronDown
-                  className={`h-4 w-4 text-muted transition-transform duration-200 ${
-                    isProductExpanded ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {isProductExpanded && (
-                <div className="mt-2 pl-3 space-y-2 border-l border-line">
-                  {PRODUCT_LINKS.map((link) => (
-                    <Link
-                      key={link.label}
-                      to={link.href}
-                      onClick={onClose}
-                      className="flex min-h-[var(--tap-target)] items-center text-sm font-normal text-muted hover:text-ink transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
+            <Dropdown
+              variant="navigation"
+              placeholder="Collections"
+              value=""
+              onChange={() => {}}
+              className="w-full"
+              triggerClassName="w-full justify-between text-lg"
+              menuClassName="w-full"
+              options={[
+                { value: 'all', label: 'All collections', href: '/categories', onClick: onClose },
+                ...categories.map((category) => ({
+                  value: category.id,
+                  label: category.name,
+                  href: `/shop?category=${encodeURIComponent(category.slug)}`,
+                  onClick: onClose,
+                })),
+              ]}
+            />
+            <Link to="/shop?sort=newest" onClick={onClose} className="header-link text-lg">
+              New arrivals
+            </Link>
+            <Link
+              to={isAuthenticated ? '/profile' : '/signin'}
+              onClick={onClose}
+              className="header-link text-lg"
+            >
+              {isAuthenticated ? 'My account' : 'Sign in'}
+            </Link>
           </nav>
         </div>
 

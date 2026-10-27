@@ -1,3 +1,6 @@
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
+import { AccountNavigation } from '../components/auth/AccountNavigation'
+import { StoreImage } from '../components/common/StoreImage'
 import React, { useEffect, useRef, useState } from 'react'
 import { ChevronRight, Clock, Package } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -73,11 +76,12 @@ export const OrdersHistoryPage: React.FC = () => {
             { label: 'Order History' },
           ]}
         />
-        <div className="mb-6 border-b border-line pb-4">
-          <span className="eyebrow mb-2 block">Account / Purchases</span>
-          <h1 className="heading page-title">Order History</h1>
-          <p className="body-copy mt-2 text-base">Track your past purchases and deliveries.</p>
-        </div>
+        <CustomerPageHeading
+          eyebrow="Your Muvira / Purchases"
+          title="Order History"
+          description="Follow each piece from your shopping bag to your door."
+        />
+        <AccountNavigation />
         {loading && (
           <div className="space-y-4">
             {[1, 2].map((item) => (
@@ -115,19 +119,19 @@ export const OrdersHistoryPage: React.FC = () => {
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="flex flex-col gap-4 py-4 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
+                className="flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
               >
                 <div className="flex min-w-0 flex-1 flex-wrap items-start gap-4">
                   {order.firstItemImage ? (
-                    <img
+                    <StoreImage
                       src={order.firstItemImage}
                       alt={order.firstItemName ?? 'Ordered product'}
                       width={56}
                       height={56}
-                      className="h-14 w-14 shrink-0 rounded-lg border border-line object-cover"
+                      className="h-24 w-24 shrink-0 rounded-image object-cover"
                     />
                   ) : (
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-surface">
+                    <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg bg-surface">
                       <Package className="h-6 w-6 text-disabled" />
                     </div>
                   )}

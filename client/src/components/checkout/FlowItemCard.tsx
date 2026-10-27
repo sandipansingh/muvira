@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import { StoreImage } from '../common/StoreImage'
+import React from 'react'
+import { Dropdown } from '../ui/Dropdown'
 import { Link } from 'react-router-dom'
-import { X, ChevronDown } from 'lucide-react'
+import { X } from 'lucide-react'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -12,10 +14,8 @@ export interface FlowItemCardProps {
 
 export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPicker = true }) => {
   const { updateQuantity, removeFromCart, loading } = useCart()
-  const [isQtyMenuOpen, setIsQtyMenuOpen] = useState(false)
 
   const handleQtySelect = async (qty: number) => {
-    setIsQtyMenuOpen(false)
     const delta = qty - item.quantity
     if (delta !== 0) {
       try {
@@ -27,11 +27,11 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
   }
 
   return (
-    <article className="relative flex flex-wrap items-start gap-3.5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] sm:gap-4 sm:p-4 shadow-none transition-all hover:border-[var(--color-field-border)]">
+    <article className="commerce-item relative flex flex-wrap items-start gap-3.5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] sm:gap-4 sm:p-4 shadow-none transition-all hover:border-[var(--color-field-border)]">
       {/* Product image */}
-      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-24 sm:w-24">
+      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-32 sm:w-32">
         {item.productImage ? (
-          <img
+          <StoreImage
             src={item.productImage}
             alt={item.productName}
             width={96}
@@ -67,39 +67,25 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
         {/* Variant & Quantity Pills */}
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
           {showQuantityPicker && (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsQtyMenuOpen(!isQtyMenuOpen)}
-                disabled={loading}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-sm font-semibold text-[var(--color-ink)] hover:border-[var(--color-field-border)] transition-colors disabled:opacity-50"
-              >
-                <span>Qty {item.quantity}</span>
-                <ChevronDown className="h-3 w-3 text-[var(--color-muted)]" />
-              </button>
-
-              {isQtyMenuOpen && (
-                <div className="absolute left-0 top-full z-20 mt-1 max-h-44 min-w-20 overflow-y-auto rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] p-1 shadow-lg">
-                  {Array.from(
+            <Dropdown
+              value={String(item.quantity)}
+              onChange={(value) => void handleQtySelect(Number(value))}
+              disabled={loading || item.availableStock < 1}
+              aria-label={`Quantity for ${item.productName}`}
+              variant="slim"
+              className="w-28"
+              options={Array.from(
+                new Set([
+                  item.quantity,
+                  ...Array.from(
                     { length: Math.min(10, item.availableStock) },
                     (_, index) => index + 1
-                  ).map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => handleQtySelect(num)}
-                      className={`flex w-full cursor-pointer items-center justify-center rounded px-2 py-1 text-sm transition-colors ${
-                        item.quantity === num
-                          ? 'bg-[var(--color-primary-soft)] font-bold text-[var(--color-primary)]'
-                          : 'text-[var(--color-ink)] hover:bg-[var(--color-surface)]'
-                      }`}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                  ),
+                ])
+              )
+                .sort((a, b) => a - b)
+                .map((quantity) => ({ value: String(quantity), label: `Qty ${quantity}` }))}
+            />
           )}
         </div>
         <span className="mt-2 block font-product text-base font-bold text-[var(--color-ink)]">

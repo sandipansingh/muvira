@@ -1,3 +1,6 @@
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
+import { AccountNavigation } from '../components/auth/AccountNavigation'
+import { StoreImage } from '../components/common/StoreImage'
 import React, { useEffect, useState } from 'react'
 import { Download, MapPin, Package, ShieldCheck, Truck } from 'lucide-react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -114,12 +117,11 @@ export const OrderDetailPage: React.FC = () => {
             { label: `#${order.orderNumber}` },
           ]}
         />
-        <div className="flex flex-col justify-between gap-4 border-b border-line pb-6 sm:flex-row sm:items-end">
-          <div>
-            <span className="eyebrow mb-1 block">Order Details</span>
-            <h1 className="heading page-title">#{order.orderNumber}</h1>
-            <p className="mt-1 text-xs text-muted">Placed on {formatDate(order.createdAt)}</p>
-          </div>
+        <CustomerPageHeading
+          eyebrow="Your Muvira / Order details"
+          title={`#${order.orderNumber}`}
+          description={`Placed on ${formatDate(order.createdAt)}`}
+        >
           <span className="status-badge self-start sm:self-auto">
             {order.status.replaceAll('_', ' ')}
           </span>
@@ -137,7 +139,8 @@ export const OrderDetailPage: React.FC = () => {
           {order.paymentStatus === 'paid' && !order.shiprocketOrderId && (
             <p className="text-xs text-muted">Invoice available after fulfillment begins.</p>
           )}
-        </div>
+        </CustomerPageHeading>
+        <AccountNavigation />
         {invoiceError && (
           <p className="rounded-card border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
             {invoiceError}
@@ -219,12 +222,12 @@ export const OrderDetailPage: React.FC = () => {
               <div key={item.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
                 <div className="flex min-w-0 items-center gap-4">
                   {item.productImage ? (
-                    <img
+                    <StoreImage
                       src={item.productImage}
                       alt={item.productName}
                       width={64}
                       height={64}
-                      className="h-16 w-16 rounded-card shrink-0 object-cover border border-line"
+                      className="h-24 w-24 rounded-image shrink-0 object-cover"
                     />
                   ) : (
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-card bg-surface">

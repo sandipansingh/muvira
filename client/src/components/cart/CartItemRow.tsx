@@ -1,3 +1,4 @@
+import { StoreImage } from '../common/StoreImage'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Minus, Plus, Trash2 } from 'lucide-react'
@@ -22,12 +23,12 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           aria-label={`View ${item.productName}`}
         >
           {item.productImage ? (
-            <img
+            <StoreImage
               src={item.productImage}
               alt={item.productName}
               width={112}
               height={112}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs text-muted">
@@ -116,7 +117,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
-          <img
+          <StoreImage
             src={item.productImage}
             alt={item.productName}
             width={64}

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Check, RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Dropdown } from '../ui/Dropdown'
@@ -63,6 +63,10 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
 }) => {
   const [customMin, setCustomMin] = useState(minPrice ? String(minPrice) : '')
   const [customMax, setCustomMax] = useState(maxPrice ? String(maxPrice) : '')
+  useEffect(() => {
+    setCustomMin(minPrice !== undefined ? String(minPrice) : '')
+    setCustomMax(maxPrice !== undefined ? String(maxPrice) : '')
+  }, [minPrice, maxPrice])
   const panelRef = useRef<HTMLDivElement>(null)
 
   useDialogFocus(isMobileOpen, () => onMobileClose?.(), panelRef)
@@ -109,6 +113,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
         <div className="relative">
           <input
             type="search"
+            aria-label="Search products"
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -210,19 +215,21 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
         <form onSubmit={handleApplyCustomPrice} className="pt-2 flex items-center gap-2">
           <input
             type="number"
+            aria-label="Minimum price"
             placeholder="Min ₹"
             value={customMin}
             onChange={(e) => setCustomMin(e.target.value)}
-            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-primary outline-none"
+            className="w-full min-w-0 rounded border border-field-border bg-white px-2.5 py-1.5 text-base text-ink placeholder:text-muted focus:border-primary outline-none"
             min="0"
           />
           <span className="text-muted text-xs">-</span>
           <input
             type="number"
+            aria-label="Maximum price"
             placeholder="Max ₹"
             value={customMax}
             onChange={(e) => setCustomMax(e.target.value)}
-            className="w-full rounded border border-field-border bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted focus:border-primary outline-none"
+            className="w-full min-w-0 rounded border border-field-border bg-white px-2.5 py-1.5 text-base text-ink placeholder:text-muted focus:border-primary outline-none"
             min="0"
           />
           <button

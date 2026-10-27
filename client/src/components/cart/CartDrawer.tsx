@@ -58,7 +58,7 @@ export const CartDrawer: React.FC = () => {
         <div className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-paper)] px-5 py-4">
           <div className="flex items-center gap-2.5">
             <ShoppingBag className="h-4.5 w-4.5 text-[var(--color-ink)]" />
-            <h2 className="font-display text-base font-bold text-[var(--color-ink)]">Your Cart</h2>
+            <h2 className="font-display text-2xl text-ink">Your shopping bag</h2>
             <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2 py-0.5 text-[11px] font-normal text-[var(--color-muted)]">
               {totalItemCount}
             </span>

@@ -23,7 +23,7 @@ export const OrderFailurePage: React.FC = () => {
           ]}
         />
 
-        <div className="rounded-card border border-danger/30 bg-danger-soft p-6 text-center sm:p-10 shadow-none space-y-5">
+        <div className="result-panel result-panel--error rounded-card border border-line bg-paper p-6 text-center sm:p-10 shadow-none space-y-5">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-card bg-white text-danger shadow-none">
             <AlertCircle className="h-10 w-10 stroke-[2]" />
           </div>

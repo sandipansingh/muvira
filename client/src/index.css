@@ -252,7 +252,7 @@ input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='
   ),
 textarea,
 select {
-  font-size: 16px;
+  font-size: max(1rem, 16px);
   min-height: var(--tap-target);
 }
 
@@ -262,7 +262,7 @@ select {
     ),
   textarea,
   select {
-    font-size: 16px !important;
+    font-size: max(1rem, 16px) !important;
   }
 }
 
@@ -1636,4 +1636,181 @@ body {
 }
 .search-heading .page-title {
   font-size: clamp(2rem, 3vw, 2.75rem);
+}
+
+.customer-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 1.25rem 2rem;
+  border-bottom: 1px solid var(--color-line);
+  margin-bottom: 1.75rem;
+}
+.customer-heading .eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 1.5rem;
+  height: 1px;
+  background: var(--color-brass);
+  margin-right: 0.75rem;
+  vertical-align: middle;
+}
+.account-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block: 0 2rem;
+}
+.account-navigation__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  min-height: var(--tap-target);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+}
+.account-navigation__link:hover {
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+.account-navigation__link.is-active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.account-navigation--sidebar {
+  flex-direction: column;
+  align-self: start;
+  position: sticky;
+  top: 7rem;
+}
+.account-page .panel {
+  background: var(--color-paper);
+  border-color: var(--color-line);
+}
+.account-page .panel > h2 {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+.commerce-item {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  border-radius: 0;
+  padding-inline: 0;
+  padding-block: 1.5rem;
+}
+.commerce-item:last-child {
+  border-bottom: 0;
+}
+.commerce-summary {
+  background: var(--color-surface);
+  border-top: 2px solid var(--color-brass);
+}
+.checkout-page .checkout-heading {
+  border-bottom: 1px solid var(--color-line);
+  padding-bottom: 1.5rem;
+}
+.auth-page--split > div {
+  max-width: 83rem;
+}
+.auth-page--split .auth-story {
+  min-height: 42rem;
+  border-radius: 50% 50% var(--radius-image) var(--radius-image);
+}
+.auth-story img {
+  object-position: 60% center;
+}
+.auth-story > div {
+  padding-top: 8rem;
+}
+.auth-story h2 {
+  font-size: clamp(2.5rem, 3.8vw, 4rem);
+}
+.journey-form {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.empty-journey {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 70dvh;
+  align-items: center;
+  gap: clamp(2rem, 6vw, 6rem);
+}
+.empty-journey__copy {
+  max-width: 33rem;
+}
+.empty-journey__copy > p {
+  margin-left: 0;
+}
+.empty-journey__image {
+  aspect-ratio: 4 / 5;
+  max-height: 36rem;
+  overflow: hidden;
+  border-radius: 50% 50% var(--radius-image) var(--radius-image);
+  background: var(--color-surface);
+}
+.order-result {
+  position: relative;
+  isolation: isolate;
+}
+.order-result::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, var(--background), transparent 60%),
+    url('/images/editorial/stone-alcove.webp') center / cover;
+  opacity: 0.3;
+}
+.result-panel {
+  border-top: 2px solid var(--color-brass);
+  box-shadow: var(--shadow-premium);
+}
+.result-panel--pending {
+  border-top-color: var(--color-warning);
+}
+.result-panel--error {
+  border-top-color: var(--color-danger);
+}
+.product-information {
+  border-top: 1px solid var(--color-line);
+  scroll-margin-top: 7rem;
+}
+@media (max-width: 1023px) {
+  .account-navigation--sidebar {
+    position: static;
+  }
+}
+@media (max-width: 639px) {
+  .empty-journey {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+  .empty-journey__image {
+    aspect-ratio: 4 / 3;
+    max-height: 18rem;
+    border-radius: var(--radius-image);
+  }
+  .customer-heading {
+    padding-top: 0;
+  }
+  .account-navigation {
+    gap: 0.5rem;
+  }
+  .account-navigation__link {
+    flex: 1 1 auto;
+    padding-inline: 0.75rem;
+  }
+}
+.storefront-shell [id] {
+  scroll-margin-top: calc(var(--store-header-height) + 1.5rem);
 }

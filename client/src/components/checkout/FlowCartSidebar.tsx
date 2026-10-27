@@ -1,3 +1,4 @@
+import { StoreImage } from '../common/StoreImage'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Tag, HelpCircle, ArrowRight, CheckCircle, X, ChevronDown } from 'lucide-react'
@@ -53,7 +54,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
   const estimatedTaxPaisa = 0
 
   return (
-    <aside className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-6 shadow-none lg:sticky lg:top-24 lg:self-start space-y-5">
+    <aside className="commerce-summary rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-6 shadow-none lg:sticky lg:top-24 lg:self-start space-y-5">
       {/* Title */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg sm:text-xl font-bold text-[var(--color-ink)]">
@@ -89,7 +90,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
               <div className="flex min-w-0 flex-[1_1_10rem] items-center gap-3">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]">
                   {item.productImage ? (
-                    <img
+                    <StoreImage
                       src={item.productImage}
                       alt={item.productName}
                       width={56}
@@ -115,7 +116,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                     <span className="xs:line-clamp-2">{item.productName}</span>
                   </Link>
                   <p className="mt-0.5 font-product text-base text-[var(--color-muted)]">
-                    ₹{(item.unitPrice / 100).toFixed(0)} each
+                    {formatPrice(item.unitPrice)} each
                   </p>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, useLocation, Link } from 'react-router-dom'
 import { Search, X, Sparkles } from 'lucide-react'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
@@ -16,6 +16,7 @@ const PAGE_SIZE = 12
 
 export const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+  const location = useLocation()
   const searchQuery = searchParams.get('q') || ''
   const [localInput, setLocalInput] = useState(searchQuery)
 
@@ -51,7 +52,7 @@ export const SearchPage: React.FC = () => {
   // Keep local search input synced with URL
   useEffect(() => {
     setLocalInput(searchQuery)
-  }, [searchQuery])
+  }, [searchQuery, location])
 
   // Scroll to top of results on page change
   useEffect(() => {

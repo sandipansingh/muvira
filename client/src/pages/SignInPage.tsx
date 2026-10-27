@@ -31,14 +31,14 @@ export const SignInPage: React.FC = () => {
   }
 
   return (
-    <main className="auth-page flex min-h-screen w-full items-center justify-center bg-background p-4 sm:p-6 lg:p-10">
+    <main className="auth-page auth-page--split flex min-h-screen w-full items-center justify-center bg-background p-4 sm:p-6 lg:p-10">
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 w-full max-w-6xl my-auto">
         {/* Left Column: Sign In Form */}
         <div className="flex flex-col items-center justify-center px-2 py-1 sm:px-6 md:px-8 w-full max-w-[440px] mx-auto">
           {/* Brand Logo & Name */}
           <Link
             to="/"
-            className="flex min-h-[var(--tap-target)] items-center gap-2.5 mb-10 self-start select-none transition-transform hover:scale-105"
+            className="flex min-h-[var(--tap-target)] items-center gap-2.5 mb-10 self-start select-none"
             aria-label="Back to home"
           >
             <img

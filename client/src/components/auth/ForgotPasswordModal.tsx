@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react'
-import { X, Mail, ArrowRight } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { Mail, ArrowRight } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { authRedirectUrl } from '../../lib/authRedirect'
 import { useToast } from '../../context/ToastContext'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
-import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
+import { Modal } from '../common/Modal'
 
 interface ForgotPasswordModalProps {
   isOpen: boolean
@@ -22,9 +22,14 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const { showToast } = useToast()
-  const panelRef = useRef<HTMLDivElement>(null)
-
-  useDialogFocus(isOpen, onClose, panelRef)
+  const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    if (isOpen) {
+      setEmail(initialEmail)
+      setSubmitted(false)
+      setError(null)
+    }
+  }, [isOpen, initialEmail])
 
   if (!isOpen) return null
 
@@ -35,6 +40,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
       return
     }
 
+    setError(null)
     setLoading(true)
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -42,14 +48,14 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
       })
 
       if (error) {
-        showToast(error.message || 'Failed to send password reset email.', 'error')
+        setError(error.message || 'Failed to send password reset email.')
         return
       }
 
       setSubmitted(true)
       showToast('Password reset link sent to your email!', 'success')
     } catch {
-      showToast('An unexpected error occurred. Please try again.', 'error')
+      setError('The reset link could not be sent. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -61,100 +67,85 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={submitted ? 'Check your email' : 'Reset Password'}
+      maxWidth="md"
     >
-      <div
-        ref={panelRef}
-        tabIndex={-1}
-        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-card bg-paper p-6 shadow-2xl sm:p-8"
-      >
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onClick={handleClose}
-          className="absolute right-4 top-4 text-muted hover:text-ink-soft"
-          aria-label="Close dialog"
-        >
-          <X className="h-5 w-5" />
-        </Button>
+      {submitted ? (
+        <div className="text-center py-4 space-y-4">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
+            <Mail className="h-6 w-6" />
+          </div>
 
-        {submitted ? (
-          <div className="text-center py-4 space-y-4">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
-              <Mail className="h-6 w-6" />
-            </div>
-            <h2 className="text-xl font-bold text-ink">Check Your Email</h2>
-            <p className="text-sm text-ink-soft">
-              We&apos;ve sent a password reset link to{' '}
-              <span className="font-normal text-ink">{email}</span>.
+          <p className="text-sm text-ink-soft">
+            We&apos;ve sent a password reset link to{' '}
+            <span className="font-normal text-ink">{email}</span>.
+          </p>
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
+            onClick={handleClose}
+            className="mt-4 w-full"
+          >
+            Back to Sign In
+          </Button>
+        </div>
+      ) : (
+        <form onSubmit={handleResetPassword} className="space-y-5">
+          {error && (
+            <p role="alert" className="rounded-control bg-danger-soft p-3 text-sm text-danger">
+              {error}
             </p>
+          )}
+          <div className="space-y-2">
+            <p className="text-sm text-muted">
+              Enter your email address and we&apos;ll send you instructions to reset your password.
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="reset-email" className="mb-1.5 block text-sm font-normal text-ink-soft">
+              Email address
+            </label>
+            <Input
+              id="reset-email"
+              data-dialog-initial-focus
+              type="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="your.email@example.com"
+              autoComplete="email"
+            />
+          </div>
+
+          <div className="pt-2 flex flex-col gap-2">
             <Button
-              type="button"
+              type="submit"
               variant="primary"
               size="md"
-              onClick={handleClose}
-              className="mt-4 w-full"
+              isLoading={loading}
+              rightIcon={<ArrowRight className="h-4 w-4 shrink-0" />}
+              className="w-full"
             >
-              Back to Sign In
+              Send Reset Link
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="w-full text-muted hover:text-ink-soft"
+            >
+              Cancel
             </Button>
           </div>
-        ) : (
-          <form onSubmit={handleResetPassword} className="space-y-5">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-ink">Reset Password</h2>
-              <p className="text-sm text-muted">
-                Enter your email address and we&apos;ll send you instructions to reset your
-                password.
-              </p>
-            </div>
-
-            <div>
-              <label
-                htmlFor="reset-email"
-                className="mb-1.5 block text-sm font-normal text-ink-soft"
-              >
-                Email address
-              </label>
-              <Input
-                id="reset-email"
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="your.email@example.com"
-                autoComplete="email"
-              />
-            </div>
-
-            <div className="pt-2 flex flex-col gap-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                isLoading={loading}
-                rightIcon={<ArrowRight className="h-4 w-4 shrink-0" />}
-                className="w-full"
-              >
-                Send Reset Link
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleClose}
-                className="w-full text-muted hover:text-ink-soft"
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+        </form>
+      )}
+    </Modal>
   )
 }
 

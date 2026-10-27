@@ -6,6 +6,7 @@ import { FlowHeader } from '../components/checkout/FlowHeader'
 import { FlowItemCard } from '../components/checkout/FlowItemCard'
 import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
 import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
+import { StoreImage } from '../components/common/StoreImage'
 
 export const CartPage: React.FC = () => {
   const {
@@ -40,8 +41,8 @@ export const CartPage: React.FC = () => {
   }
   if (items.length === 0) {
     return (
-      <main className="min-h-[75vh] bg-[var(--color-paper)] px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-lg text-center">
+      <main className="empty-journey layout-container py-12 sm:py-16">
+        <div className="empty-journey__copy">
           <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-card bg-[var(--color-surface)] text-[var(--color-muted)] shadow-none">
             <ShoppingBag className="h-12 w-12 stroke-[1.5] text-[var(--color-primary)]" />
           </div>
@@ -58,6 +59,15 @@ export const CartPage: React.FC = () => {
             <span>Explore Collections</span>
             <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
+        </div>
+        <div className="empty-journey__image">
+          <StoreImage
+            src="/images/editorial/stone-alcove.webp"
+            alt=""
+            width={1536}
+            height={1024}
+            className="h-full w-full object-cover"
+          />
         </div>
       </main>
     )

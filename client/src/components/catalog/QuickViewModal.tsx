@@ -1,3 +1,4 @@
+import { StoreImage } from '../common/StoreImage'
 import React, { useEffect, useState } from 'react'
 import { ArrowRight, Check, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -60,9 +61,9 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
       <div className="grid gap-5 md:grid-cols-2 md:items-stretch">
         {/* Left Column: Product Gallery & Badges */}
         <div className="flex flex-col justify-between space-y-3 md:h-full">
-          <div className="relative min-h-[280px] flex-1 overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[340px] md:min-h-[400px]">
+          <div className="relative aspect-[4/5] min-h-[280px] flex-1 overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[340px] md:min-h-[400px]">
             {selectedImage ? (
-              <img
+              <StoreImage
                 src={selectedImage}
                 alt={product.name}
                 width={800}
@@ -97,8 +98,9 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                       : 'border-[var(--color-line)] opacity-60 hover:opacity-100'
                   }`}
                   aria-label={`View image ${index + 1}`}
+                  aria-pressed={selectedImage === image}
                 >
-                  <img
+                  <StoreImage
                     src={image}
                     alt={`${product.name} view ${index + 1}`}
                     width={56}

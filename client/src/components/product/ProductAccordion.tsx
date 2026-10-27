@@ -40,12 +40,15 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
   onReviewRetry,
 }) => {
   const activeTab = openSection || 'description'
+  const care = Object.entries(product.metadata ?? {}).filter(([key]) => /care/i.test(key))
+  const availableTabs = care.length ? [...tabs, { id: 'care', label: 'Care' }] : tabs
 
   return (
-    <div className="mt-10 pt-6 sm:mt-12">
+    <div className="product-information mt-10 pt-6 sm:mt-12">
+      <h2 className="mb-6 text-h2">A closer look</h2>
       <div className="border-b border-line/60">
         <div className="flex flex-col md:hidden">
-          {tabs.map((tab) => (
+          {availableTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -65,7 +68,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
           ))}
         </div>
         <div className="hidden gap-6 overflow-x-auto no-scrollbar md:flex md:gap-8">
-          {tabs.map((tab) => {
+          {availableTabs.map((tab) => {
             const isActive = activeTab === tab.id
             return (
               <button
@@ -90,6 +93,18 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
 
       {/* Tab Content Container */}
       <div id="product-detail-panel" className="py-6">
+        {activeTab === 'care' && (
+          <div className="max-w-3xl space-y-4 text-base leading-8 text-ink-soft">
+            {care.map(([label, instructions]) => (
+              <div key={label}>
+                <h3 className="mb-2 font-sans text-sm font-semibold capitalize text-ink">
+                  {label.replaceAll('_', ' ')}
+                </h3>
+                <p className="whitespace-pre-line">{instructions}</p>
+              </div>
+            ))}
+          </div>
+        )}
         {activeTab === 'description' && (
           <div className="max-w-3xl space-y-5">
             {product.description ? (
@@ -136,7 +151,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                       <td className="px-4 py-3">{product.weightGrams.toLocaleString('en-IN')} g</td>
                     </tr>
                   )}
-                  {Object.entries(product.metadata).map(([label, value]) => (
+                  {Object.entries(product.metadata ?? {}).map(([label, value]) => (
                     <tr key={label}>
                       <td className="px-4 py-3 text-xs font-normal uppercase tracking-wider text-muted">
                         {label.replaceAll('_', ' ')}

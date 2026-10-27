@@ -2,11 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Compass, Home, ShoppingBag } from 'lucide-react'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { StoreImage } from '../components/common/StoreImage'
 
 export const NotFoundPage: React.FC = () => {
   return (
-    <main className="min-h-[80vh] flex flex-col justify-center items-center py-16 px-4 bg-background text-center">
-      <div className="max-w-md mx-auto flex flex-col items-center">
+    <main className="empty-journey layout-container py-12 sm:py-16">
+      <div className="empty-journey__copy flex flex-col items-start">
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: '404 Not Found' }]} />
 
         <div className="h-16 w-16 rounded-full bg-surface border border-line flex items-center justify-center text-muted mb-6 shadow-none">
@@ -42,6 +43,15 @@ export const NotFoundPage: React.FC = () => {
             <span>Home</span>
           </Link>
         </div>
+      </div>
+      <div className="empty-journey__image">
+        <StoreImage
+          src="/images/editorial/stone-alcove.webp"
+          alt=""
+          width={1536}
+          height={1024}
+          className="h-full w-full object-cover"
+        />
       </div>
     </main>
   )

@@ -2,7 +2,7 @@ import React from 'react'
 
 export const AuthHeroCard: React.FC<{ className?: string }> = ({ className = '' }) => (
   <aside className={`auth-story ${className}`}>
-    <img src="/images/editorial/stone-alcove.png" alt="" width={1536} height={1024} />
+    <img src="/images/editorial/stone-alcove.webp" alt="" width={1536} height={1024} />
     <div>
       <span className="eyebrow">Welcome to Muvira</span>
       <h2>

@@ -1,6 +1,8 @@
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
+import { AccountNavigation } from '../components/auth/AccountNavigation'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Bell, LogOut, MapPin, Package, Pencil, Trash2, User } from 'lucide-react'
+import { Bell, LogOut, Pencil, Trash2 } from 'lucide-react'
 import type { Address } from '../lib/types/cart'
 import { addressService } from '../lib/services/address.service'
 import { notificationService } from '../lib/services/notification.service'
@@ -231,11 +233,11 @@ export const ProfilePage: React.FC = () => {
     <main className="account-page editorial-page py-10 sm:py-14">
       <div className="editorial-container max-w-6xl space-y-8">
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Profile' }]} />
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line)] pb-4">
-          <div>
-            <span className="eyebrow mb-1 block">Account Overview</span>
-            <h1 className="heading page-title">My Profile</h1>
-          </div>
+        <CustomerPageHeading
+          eyebrow="Your Muvira"
+          title="My Profile"
+          description="Your details, addresses and preferences, together."
+        >
           <div className="flex flex-wrap items-center justify-end gap-2">
             {isAdmin && (
               <Link to="/admin" className="button-primary px-4 py-2 text-xs">
@@ -247,32 +249,10 @@ export const ProfilePage: React.FC = () => {
               <span className="leading-none">Sign out</span>
             </button>
           </div>
-        </div>
+        </CustomerPageHeading>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div className="space-y-2">
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 rounded-[var(--radius-control)] bg-primary p-4 text-xs font-normal text-white"
-            >
-              <User className="h-4 w-4 shrink-0" />
-              <span className="leading-none">Personal Info</span>
-            </Link>
-            <Link
-              to="/orders"
-              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-normal text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
-            >
-              <Package className="h-4 w-4 shrink-0" />
-              <span className="leading-none">My Orders</span>
-            </Link>
-            <a
-              href="#addresses"
-              className="flex items-center gap-3 rounded-[var(--radius-control)] border border-[var(--color-line)] p-4 text-xs font-normal text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
-            >
-              <MapPin className="h-4 w-4 shrink-0" />
-              <span className="leading-none">Saved Addresses ({addresses.length})</span>
-            </a>
-          </div>
+          <AccountNavigation addressCount={addresses.length} sidebar />
 
           <div className="space-y-6 md:col-span-2">
             <div className="panel space-y-5 p-5 sm:p-6">
