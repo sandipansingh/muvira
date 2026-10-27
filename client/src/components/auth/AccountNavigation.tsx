@@ -1,3 +1,4 @@
+import { CollectionScene } from '../common/CollectionScene'
 import { MapPin, Package, User } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 
@@ -36,6 +37,12 @@ export function AccountNavigation({
         <MapPin className="h-4 w-4 shrink-0" />
         Saved addresses{addressCount !== undefined ? ` (${addressCount})` : ''}
       </Link>
+      {sidebar && (
+        <Link to="/shop" className="account-browse">
+          <CollectionScene />
+          <span>Back to the collection</span>
+        </Link>
+      )}
     </nav>
   )
 }

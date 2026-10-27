@@ -61,7 +61,7 @@ export const SignUpPage: React.FC = () => {
               Create an Account
             </h1>
             <p className="text-base text-muted font-normal">
-              Sign up to get started on your journey.
+              Keep your details, addresses and orders together.
             </p>
           </div>
 
@@ -167,7 +167,7 @@ export const SignUpPage: React.FC = () => {
         </div>
 
         {/* Right Column: Visual Hero Card with Multi-Slide Carousel */}
-        <div className="hidden lg:block h-full w-full min-h-[27.5rem]">
+        <div className="auth-scene-container h-full w-full">
           <AuthHeroCard className="h-full min-h-[440px] max-h-[580px]" />
         </div>
       </div>

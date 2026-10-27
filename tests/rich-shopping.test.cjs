@@ -216,3 +216,77 @@ test('quick view waits for confirmed cart mutation and exposes a recoverable fai
     assert.equal(await add.isEnabled(), true)
     assert.equal(await dialog.getByText('Added to Cart', { exact: true }).count(), 0)
   }))
+test('empty modal search keeps focus inside the dialog', () =>
+  pageFor('/', async (page) => {
+    await page.getByRole('button', { name: 'Search products', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Find something meaningful' })
+    await dialog.getByRole('button', { name: 'Search', exact: true }).click()
+    assert.equal(
+      await dialog.getByRole('searchbox').evaluate((el) => document.activeElement === el),
+      true
+    )
+    await page.keyboard.type('Krishna')
+    assert.equal(await dialog.getByRole('searchbox').inputValue(), 'Krishna')
+  }))
+for (const path of ['/shop', '/search?q=Krishna'])
+  test(`results scrolling clears the measured header on ${path}`, () =>
+    pageFor(
+      path,
+      async (page) => {
+        const toolbar = page.locator('.catalog-topbar')
+        await toolbar.waitFor()
+        await toolbar.evaluate((el) =>
+          el.closest('.layout-container').scrollIntoView({ behavior: 'instant', block: 'start' })
+        )
+        await page.evaluate(() => new Promise(requestAnimationFrame))
+        const top = await toolbar.boundingBox(),
+          header = await page.locator('.store-header').boundingBox()
+        assert.ok(top.y >= header.y + header.height, 'Results controls are obscured by the header')
+      },
+      390
+    ))
+test('short collection links and compact account controls keep full touch targets', () =>
+  pageFor(
+    '/',
+    async (page) => {
+      const links = page
+        .getByRole('navigation', { name: 'Footer collections', exact: true })
+        .getByRole('link')
+      await links.last().waitFor()
+      for (const link of await links.all()) assert.ok((await link.boundingBox()).width >= 44)
+      assert.ok(
+        (
+          await page
+            .locator('.store-header')
+            .getByRole('link', { name: 'My account', exact: true })
+            .boundingBox()
+        ).width >= 44
+      )
+      await page.setViewportSize({ width: 1024, height: 1000 })
+      assert.ok(
+        (
+          await page
+            .getByRole('navigation', { name: 'Main navigation', exact: true })
+            .getByRole('link', { name: 'Shop all', exact: true })
+            .boundingBox()
+        ).width >= 44
+      )
+    },
+    667
+  ))
+
+test('drawer prices and search prompts stay readable', () =>
+  pageFor('/', async (page) => {
+    await page.getByRole('button', { name: 'Shopping cart', exact: true }).click()
+    const cart = page.getByRole('dialog', { name: 'Shopping cart', exact: true })
+    const price = cart.getByText('₹499', { exact: true }).first()
+    assert.ok(await price.evaluate((el) => parseFloat(getComputedStyle(el).fontSize) >= 14))
+    await page.keyboard.press('Escape')
+    await page.getByRole('button', { name: 'Search products', exact: true }).click()
+    const search = page.getByRole('dialog', { name: 'Find something meaningful' })
+    assert.ok(
+      await search
+        .getByText('Explore a collection', { exact: true })
+        .evaluate((el) => parseFloat(getComputedStyle(el).fontSize) >= 14)
+    )
+  }))

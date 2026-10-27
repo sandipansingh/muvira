@@ -251,7 +251,7 @@ export const ProfilePage: React.FC = () => {
           </div>
         </CustomerPageHeading>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="account-workspace grid grid-cols-1 gap-6 md:grid-cols-3">
           <AccountNavigation addressCount={addresses.length} sidebar />
 
           <div className="space-y-6 md:col-span-2">

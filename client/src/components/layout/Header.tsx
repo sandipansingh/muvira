@@ -52,11 +52,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
     }
   }, [])
 
-  const handleSearchSubmit = (event: React.FormEvent) => {
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const query = searchQuery.trim()
     if (!query) {
-      searchRef.current?.focus()
+      event.currentTarget.querySelector<HTMLInputElement>('input[type="search"]')?.focus()
       return
     }
     navigate(`/search?q=${encodeURIComponent(query)}`)
@@ -255,7 +255,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
           </Button>
         </form>
         <div className="mt-6 border-t border-line pt-5">
-          <p className="eyebrow mb-3">Explore a collection</p>
+          <p className="mb-3 text-sm font-semibold">Explore a collection</p>
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <Link

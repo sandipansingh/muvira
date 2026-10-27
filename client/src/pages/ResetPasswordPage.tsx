@@ -157,7 +157,7 @@ export const ResetPasswordPage: React.FC = () => {
             </form>
           )}
         </div>
-        <div className="hidden lg:block">
+        <div className="auth-scene-container">
           <AuthHeroCard />
         </div>
       </div>

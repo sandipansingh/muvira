@@ -119,19 +119,19 @@ export const OrdersHistoryPage: React.FC = () => {
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
+                className="order-history-card flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
               >
                 <div className="flex min-w-0 flex-1 flex-wrap items-start gap-4">
                   {order.firstItemImage ? (
                     <StoreImage
                       src={order.firstItemImage}
                       alt={order.firstItemName ?? 'Ordered product'}
-                      width={56}
-                      height={56}
-                      className="h-24 w-24 shrink-0 rounded-image object-cover"
+                      width={256}
+                      height={256}
+                      className="h-32 w-32 shrink-0 rounded-image object-contain"
                     />
                   ) : (
-                    <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg bg-surface">
+                    <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-surface">
                       <Package className="h-6 w-6 text-disabled" />
                     </div>
                   )}

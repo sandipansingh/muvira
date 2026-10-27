@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import React, { useRef } from 'react'
 import { ArrowRight, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -23,6 +23,7 @@ export const CartDrawer: React.FC = () => {
     status,
     retry,
   } = useCart()
+  const reducedMotion = useReducedMotion()
   const navigate = useNavigate()
   const panelRef = useRef<HTMLElement>(null)
   useDialogFocus(isDrawerOpen, closeCartDrawer, panelRef)
@@ -44,14 +45,14 @@ export const CartDrawer: React.FC = () => {
         aria-label="Close cart drawer"
       />
       <motion.aside
-        initial={{ x: 40, opacity: 0 }}
+        initial={{ x: reducedMotion ? 0 : 40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.2 }}
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         tabIndex={-1}
-        className="fixed inset-y-0 right-0 z-10 flex h-screen w-full max-w-md flex-col border-l border-[var(--color-line)] bg-[var(--color-paper)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
+        className="fixed inset-y-0 right-0 z-10 cart-drawer-panel flex h-dvh w-full max-w-lg flex-col border-l border-[var(--color-line)] bg-[var(--color-paper)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
         aria-label="Shopping cart"
       >
         {/* Drawer Header */}

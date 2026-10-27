@@ -28,7 +28,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
               alt={item.productName}
               width={112}
               height={112}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs text-muted">
@@ -90,7 +90,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
                   <Plus className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <span className="font-product text-xs text-[var(--color-muted)]">
+              <span className="font-product text-sm text-[var(--color-muted)]">
                 {formatPrice(item.unitPrice)} each
               </span>
             </div>
@@ -110,19 +110,19 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
   }
 
   return (
-    <article className="flex gap-3 border-b border-[var(--color-line)] pb-3.5">
+    <article className="drawer-cart-item flex gap-3 border-b border-[var(--color-line)] pb-3.5">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]"
+        className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
           <StoreImage
             src={item.productImage}
             alt={item.productName}
-            width={64}
-            height={64}
-            className="h-full w-full object-cover"
+            width={192}
+            height={192}
+            className="h-full w-full object-contain"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-muted">No image</div>
@@ -132,7 +132,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         <div className="flex items-start justify-between gap-1.5">
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 font-product leading-[1.15] tracking-tight text-xs font-semibold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
+            className="line-clamp-2 font-product leading-relaxed tracking-tight text-sm font-semibold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
           >
             {item.productName}
           </Link>
@@ -174,11 +174,11 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           </div>
 
           <div className="text-right">
-            <p className="font-product text-xs font-bold text-[var(--color-primary)]">
+            <p className="font-product text-sm font-bold text-[var(--color-primary)]">
               {formatPrice(item.lineTotal)}
             </p>
             {item.quantity > 1 && (
-              <p className="font-product text-xs text-[var(--color-muted)]">
+              <p className="font-product text-sm text-[var(--color-muted)]">
                 {formatPrice(item.unitPrice)} ea
               </p>
             )}

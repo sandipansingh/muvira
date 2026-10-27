@@ -1,8 +1,12 @@
 import { chromium } from 'playwright'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { startEditorialServer } from '../tests/fixtures/editorial-server.mjs'
 
-const baseUrl = process.env.RESPONSIVE_BASE_URL || 'http://localhost:5173'
+const isolatedFixture = process.env.RESPONSIVE_BASE_URL
+  ? null
+  : await startEditorialServer({ defaultRole: 'guest', publicCatalog: true })
+const baseUrl = process.env.RESPONSIVE_BASE_URL || isolatedFixture.origin
 const output = resolve('responsive-audit', process.argv.includes('--after') ? 'after' : 'before')
 const sample = process.argv.includes('--sample')
 const overlays = process.argv.includes('--overlays')
@@ -487,6 +491,7 @@ if (overlays) {
   }
 }
 await browser.close()
+await isolatedFixture?.server.close()
 const findingsName = overlays
   ? 'overlay-findings.json'
   : cartOnly

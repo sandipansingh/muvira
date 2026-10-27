@@ -9,6 +9,60 @@ const { server, origin } = await startEditorialServer()
 const browser = await chromium.launch({ headless: true })
 const cases = [
   {
+    name: 'store-search',
+    path: '/',
+    button: 'Search products',
+    dialog: 'Find something meaningful',
+  },
+  { name: 'shopping-bag', path: '/', button: 'Shopping cart', dialog: 'Shopping cart' },
+  {
+    name: 'empty-shopping-bag',
+    path: '/?scenario=empty-cart',
+    button: 'Shopping cart',
+    dialog: 'Shopping cart',
+  },
+  { name: 'quick-view', path: '/shop', button: /^Quick view /, dialog: 'A closer look' },
+  {
+    name: 'mobile-menu',
+    path: '/',
+    button: 'Open navigation menu',
+    dialog: 'Main menu',
+    maxWidth: 1023,
+  },
+  {
+    name: 'catalog-filters',
+    path: '/shop?category=god-idols',
+    button: /^Open filters/,
+    dialog: true,
+    maxWidth: 1023,
+  },
+  {
+    name: 'review-editor',
+    path: '/product/fixture',
+    prepare: async (page) => page.getByRole('button', { name: 'Reviews', exact: true }).click(),
+    button: 'Write a review',
+    dialog: 'Write a review',
+  },
+  {
+    name: 'password-recovery',
+    path: '/signin?fixtureRole=guest',
+    button: /forgot password/i,
+    dialog: 'Reset Password',
+  },
+  {
+    name: 'checkout-address',
+    path: '/checkout',
+    button: '+ Enter Custom Address',
+    section: '.checkout-page section:has(input#shipping-first-name)',
+  },
+  {
+    name: 'photographic-collections',
+    path: '/',
+    button: 'Collections',
+    section: '.collections-panel',
+    minWidth: 1024,
+  },
+  {
     name: 'admin-navigation',
     path: '/admin?fixtureRole=admin',
     button: 'Open admin navigation',
@@ -87,7 +141,11 @@ const results = [],
   images = new Map()
 try {
   for (const viewport of viewports) {
-    for (const item of cases.filter((item) => !item.maxWidth || viewport.width <= item.maxWidth)) {
+    for (const item of cases.filter(
+      (item) =>
+        (!item.maxWidth || viewport.width <= item.maxWidth) &&
+        (!item.minWidth || viewport.width >= item.minWidth)
+    )) {
       const page = await browser.newPage({ viewport, reducedMotion: 'reduce' })
       page.setDefaultTimeout(12000)
       const errors = [],

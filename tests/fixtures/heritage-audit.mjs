@@ -259,18 +259,21 @@ try {
       mode === 'reduced' ? 'reduce' : 'no-preference'
     )
     await runCase(
-      'gallery-in-frame-zoom',
+      'gallery-complete-photographs',
       '/product/fixture',
       viewport,
       async (page) => {
-        const stage = page.locator('.gallery-stage')
-        await stage.hover()
-        await page.waitForTimeout(250)
-        const scale = await stage
-          .locator('button > div')
-          .first()
-          .evaluate((element) => new DOMMatrix(getComputedStyle(element).transform).a)
-        assert.ok(Math.abs(scale - (mode === 'fine' ? 2 : 1)) < 0.001)
+        const stage = page.locator('.gallery-desktop')
+        const image = stage.locator('img').first()
+        await image.hover()
+        assert.equal(
+          await image.evaluate((element) => getComputedStyle(element).objectFit),
+          'contain'
+        )
+        assert.equal(await stage.locator('[data-gallery-index]').count(), 4)
+        const first = await stage.locator('button').nth(0).boundingBox()
+        const second = await stage.locator('button').nth(1).boundingBox()
+        assert.ok(Math.abs(first.y - second.y) < 1, 'First two photographs share a row')
         const purchase = await page.locator('.product-purchase').boundingBox(),
           gallery = await stage.boundingBox()
         assert.ok(gallery.x + gallery.width <= purchase.x, 'Gallery covers purchase controls')

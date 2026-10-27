@@ -192,7 +192,7 @@ export const OrderDetailPage: React.FC = () => {
             </p>
           )}
           {trackingEvents.length > 0 && (
-            <div className="space-y-4 border-t border-[var(--color-line)] pt-5">
+            <div className="shipment-timeline space-y-4 border-t border-[var(--color-line)] pt-5">
               {trackingEvents.map((event) => (
                 <div key={event.id} className="flex gap-3 text-base">
                   <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-ink" />
@@ -227,7 +227,7 @@ export const OrderDetailPage: React.FC = () => {
                       alt={item.productName}
                       width={64}
                       height={64}
-                      className="h-24 w-24 rounded-image shrink-0 object-cover"
+                      className="h-32 w-32 rounded-image shrink-0 object-contain"
                     />
                   ) : (
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-card bg-surface">

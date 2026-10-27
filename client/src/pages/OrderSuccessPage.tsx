@@ -59,7 +59,7 @@ export const OrderSuccessPage: React.FC = () => {
 
   if (order?.paymentStatus === 'pending') {
     return (
-      <main className="order-result editorial-page py-12 sm:py-16">
+      <main className="order-result order-result--pending editorial-page py-12 sm:py-16">
         <section className="mx-auto max-w-xl px-4 text-center">
           <div className="result-panel result-panel--pending panel space-y-6 p-6 sm:p-10">
             <Clock3 className="mx-auto h-12 w-12 text-muted" />
@@ -95,7 +95,7 @@ export const OrderSuccessPage: React.FC = () => {
   }
 
   return (
-    <main className="order-result editorial-page py-10 sm:py-16">
+    <main className="order-result order-result--success editorial-page py-10 sm:py-16">
       <div className="editorial-container max-w-3xl space-y-6">
         <Breadcrumbs
           items={[
@@ -131,9 +131,9 @@ export const OrderSuccessPage: React.FC = () => {
                 <StoreImage
                   src={item.productImage || undefined}
                   alt={item.productName}
-                  width={96}
-                  height={96}
-                  className="h-20 w-20 shrink-0 rounded-image object-cover"
+                  width={256}
+                  height={256}
+                  className="h-32 w-32 shrink-0 rounded-image object-contain"
                 />
                 <div className="min-w-0">
                   <p className="font-product text-sm font-semibold text-ink">{item.productName}</p>

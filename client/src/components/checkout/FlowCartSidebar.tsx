@@ -5,6 +5,7 @@ import { Tag, HelpCircle, ArrowRight, CheckCircle, X, ChevronDown } from 'lucide
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
+import { useStickyPanel } from '../../lib/hooks/useStickyPanel'
 
 export interface FlowCartSidebarProps {
   items: CartItem[]
@@ -32,6 +33,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
   collapsibleOnMobile = false,
 }) => {
   const { coupon, applyCoupon, removeCoupon, error } = useCart()
+  const { panelRef, canStick } = useStickyPanel()
   const [couponCode, setCouponCode] = useState('')
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
   const [isSummaryOpen, setIsSummaryOpen] = useState(false)
@@ -54,7 +56,10 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
   const estimatedTaxPaisa = 0
 
   return (
-    <aside className="commerce-summary rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-6 shadow-none lg:sticky lg:top-24 lg:self-start space-y-5">
+    <aside
+      ref={panelRef}
+      className={`commerce-summary ${canStick ? 'commerce-summary--sticky' : ''} rounded-card border border-line bg-paper p-[min(1.25rem,5vw)] sm:p-6 space-y-5`}
+    >
       {/* Title */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg sm:text-xl font-bold text-[var(--color-ink)]">
@@ -88,14 +93,14 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
               className="flex flex-wrap items-center justify-between gap-3 text-xs"
             >
               <div className="flex min-w-0 flex-[1_1_10rem] items-center gap-3">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]">
                   {item.productImage ? (
                     <StoreImage
                       src={item.productImage}
                       alt={item.productName}
-                      width={56}
-                      height={56}
-                      className="h-full w-full object-cover"
+                      width={160}
+                      height={160}
+                      className="h-full w-full object-contain"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-[10px] text-[var(--color-muted)]">

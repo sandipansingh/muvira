@@ -3145,3 +3145,8 @@ body {
   border-radius: var(--radius-card);
   background: var(--color-paper);
 }
+.store-header .header-action,
+.store-header .header-link,
+.footer-collection-nav a {
+  min-width: var(--tap-target);
+}

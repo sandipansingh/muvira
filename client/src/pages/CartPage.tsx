@@ -6,7 +6,7 @@ import { FlowHeader } from '../components/checkout/FlowHeader'
 import { FlowItemCard } from '../components/checkout/FlowItemCard'
 import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
 import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
-import { StoreImage } from '../components/common/StoreImage'
+import { CollectionScene } from '../components/common/CollectionScene'
 
 export const CartPage: React.FC = () => {
   const {
@@ -61,13 +61,7 @@ export const CartPage: React.FC = () => {
           </Link>
         </div>
         <div className="empty-journey__image">
-          <StoreImage
-            src="/images/editorial/stone-alcove.webp"
-            alt=""
-            width={1536}
-            height={1024}
-            className="h-full w-full object-cover"
-          />
+          <CollectionScene />
         </div>
       </main>
     )
@@ -130,7 +124,7 @@ export const CartPage: React.FC = () => {
             </section>
             <RecommendedUpsell />
           </div>
-          <div className="lg:col-span-5 xl:col-span-4">
+          <div className="commerce-summary-column lg:col-span-5 xl:col-span-4">
             <FlowCartSidebar
               items={items}
               subtotalPaisa={subtotalPaisa}

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Compass, Home, ShoppingBag } from 'lucide-react'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
-import { StoreImage } from '../components/common/StoreImage'
+import { CollectionScene } from '../components/common/CollectionScene'
 
 export const NotFoundPage: React.FC = () => {
   return (
@@ -45,13 +45,7 @@ export const NotFoundPage: React.FC = () => {
         </div>
       </div>
       <div className="empty-journey__image">
-        <StoreImage
-          src="/images/editorial/stone-alcove.webp"
-          alt=""
-          width={1536}
-          height={1024}
-          className="h-full w-full object-cover"
-        />
+        <CollectionScene preferredSlug="god-idols" />
       </div>
     </main>
   )

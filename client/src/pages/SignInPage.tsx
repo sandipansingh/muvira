@@ -154,7 +154,7 @@ export const SignInPage: React.FC = () => {
         </div>
 
         {/* Right Column: Visual Hero Card with Multi-Slide Carousel */}
-        <div className="hidden lg:block h-full w-full min-h-[27.5rem]">
+        <div className="auth-scene-container h-full w-full">
           <AuthHeroCard className="h-full min-h-[440px] max-h-[580px]" />
         </div>
       </div>

@@ -13,7 +13,7 @@ export const OrderFailurePage: React.FC = () => {
   const paymentStatus = state?.['paymentStatus'] === 'released' ? 'released' : 'unknown'
 
   return (
-    <main className="order-result editorial-page py-10 sm:py-16">
+    <main className="order-result order-result--failure editorial-page py-10 sm:py-16">
       <div className="editorial-container max-w-xl space-y-6">
         <Breadcrumbs
           items={[

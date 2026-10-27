@@ -321,7 +321,7 @@ export const CheckoutPage: React.FC = () => {
             </div>
 
             {/* Right Column: Your Cart Summary */}
-            <div className="lg:col-span-5 xl:col-span-4">
+            <div className="commerce-summary-column lg:col-span-5 xl:col-span-4">
               <FlowCartSidebar
                 items={items}
                 subtotalPaisa={effectiveSubtotalPaisa}

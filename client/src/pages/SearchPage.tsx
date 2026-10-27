@@ -236,7 +236,7 @@ export const SearchPage: React.FC = () => {
       </div>
 
       {/* Main 2-Column Search Container */}
-      <div className="layout-container" ref={resultsContainerRef}>
+      <div id="catalog-results" className="layout-container" ref={resultsContainerRef}>
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,16.25rem)_minmax(0,1fr)] gap-8 xl:gap-12 items-start">
           {/* Left Sidebar */}
           <CatalogSidebar
