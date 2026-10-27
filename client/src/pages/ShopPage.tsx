@@ -9,6 +9,7 @@ import { CatalogSidebar } from '../components/catalog/CatalogSidebar'
 import { CatalogTopBar, type GridViewMode } from '../components/catalog/CatalogTopBar'
 import { ProductGrid } from '../components/catalog/ProductGrid'
 import { Pagination } from '../components/common/Pagination'
+import { ActiveFilters } from '../components/catalog/ActiveFilters'
 
 const PAGE_SIZE = 12
 
@@ -20,6 +21,7 @@ export const ShopPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [retryAttempt, setRetryAttempt] = useState(0)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
   const [viewMode, setViewMode] = useState<GridViewMode>('grid-4')
 
@@ -107,7 +109,7 @@ export const ShopPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [categoryParam, inStockParam, maxPrice, minPrice, page, searchQuery, sortBy])
+  }, [categoryParam, inStockParam, maxPrice, minPrice, page, searchQuery, sortBy, retryAttempt])
 
   const updateParams = (changes: Record<string, string | undefined>) => {
     const next = new URLSearchParams(searchParams)
@@ -183,8 +185,12 @@ export const ShopPage: React.FC = () => {
     <main className="catalog-page min-h-screen pb-16 bg-background">
       {/* Top Rounded Hero Banner */}
       <ShopHero
-        title="The collection"
-        subtitle="God idols, puja essentials and meaningful pieces for your space."
+        title={selectedCategoryObj?.name || 'The collection'}
+        subtitle={
+          selectedCategoryObj?.description ||
+          'God idols, puja essentials and meaningful pieces for your space.'
+        }
+        imageUrl={selectedCategoryObj?.imageUrl || undefined}
         breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]}
       />
 
@@ -225,6 +231,13 @@ export const ShopPage: React.FC = () => {
               activeFiltersCount={activeFiltersCount}
             />
 
+            <ActiveFilters
+              params={searchParams}
+              categories={categories}
+              onChange={updateParams}
+              onClear={handleClearFilters}
+            />
+
             {error ? (
               <div className="py-16 text-center px-4">
                 <h3 className="font-display text-2xl font-semibold text-ink">
@@ -233,7 +246,7 @@ export const ShopPage: React.FC = () => {
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>
                 <button
                   type="button"
-                  onClick={() => updateParams({})}
+                  onClick={() => setRetryAttempt((attempt) => attempt + 1)}
                   className="mt-6 rounded-lg bg-ink hover:bg-black text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
                 >
                   Try Again

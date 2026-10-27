@@ -13,6 +13,7 @@ after(async () => {
 })
 async function pageFor(path, run) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  page.setDefaultTimeout(5000)
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.route('**/*', (route) => {
@@ -34,6 +35,50 @@ async function pageFor(path, run) {
     await page.close()
   }
 }
+test('collections navigation exposes real links and restores keyboard focus', () =>
+  pageFor('/', async (page) => {
+    const trigger = page.getByRole('button', { name: 'Collections', exact: true })
+    await trigger.click()
+    const menu = page.getByRole('menu')
+    await menu.waitFor()
+    assert.match(
+      await menu.getByRole('menuitem').first().getAttribute('href'),
+      /^\/categories$|^\/shop\?category=/
+    )
+    await page.keyboard.press('ArrowDown')
+    assert.equal(await menu.evaluate((el) => el.contains(document.activeElement)), true)
+    await page.keyboard.press('Escape')
+    assert.equal(await trigger.evaluate((el) => document.activeElement === el), true)
+  }))
+test('missing legacy hero category destinations lead to the shop', () =>
+  pageFor('/', async (page) => {
+    await page.getByRole('heading', { name: 'Ganesha Idols', exact: true }).waitFor()
+    assert.equal(
+      await page
+        .getByRole('link', { name: 'Explore the collection', exact: true })
+        .getAttribute('href'),
+      '/shop'
+    )
+  }))
+test('lightbox supports image navigation, 2x zoom, pan and focus restoration', () =>
+  pageFor('/product/fixture', async (page) => {
+    const trigger = page.getByRole('button', { name: /^Enlarge image of/ })
+    await trigger.click()
+    const dialog = page.getByRole('dialog')
+    await dialog.waitFor()
+    const first = await dialog.locator('[data-lightbox-image]').getAttribute('src')
+    await dialog.getByRole('button', { name: 'Next image', exact: true }).click()
+    assert.notEqual(await dialog.locator('[data-lightbox-image]').getAttribute('src'), first)
+    await dialog.getByRole('button', { name: 'Zoom to 2×', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Pan right', exact: true }).click()
+    assert.equal(await dialog.locator('[data-lightbox-image]').getAttribute('data-zoom'), '2')
+    await dialog.getByRole('button', { name: 'Reset view', exact: true }).click()
+    assert.equal(await dialog.locator('[data-lightbox-image]').getAttribute('data-zoom'), '1')
+    await page.keyboard.press('ArrowLeft')
+    assert.equal(await dialog.locator('[data-lightbox-image]').getAttribute('src'), first)
+    await page.keyboard.press('Escape')
+    assert.equal(await trigger.evaluate((el) => document.activeElement === el), true)
+  }))
 test('unconfigured hero offers a working catalog link and configured hero uses manual navigation', () =>
   pageFor('/?scenario=unconfigured', async (page) => {
     await page.getByRole('heading', { level: 1, name: 'For your everyday devotion.' }).waitFor()

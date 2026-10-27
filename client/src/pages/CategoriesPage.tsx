@@ -1,3 +1,4 @@
+import { StoreImage } from '../components/common/StoreImage'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Package } from 'lucide-react'
@@ -74,23 +75,22 @@ export const CategoriesPage: React.FC = () => {
                 to={`/shop?category=${category.slug}`}
                 className="category-page-tile group"
               >
-                {/* Full-Bleed Zoomed Image */}
-                {category.imageUrl ? (
-                  <img
-                    src={category.imageUrl}
-                    alt={category.name}
-                    width={800}
-                    height={600}
-                    className="w-full aspect-[4/3] object-contain bg-surface transition-transform duration-300 group-hover:scale-[1.025]"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-surface flex items-center justify-center text-xs text-muted">
-                    No image available
-                  </div>
-                )}
-
-                {/* Dark Gradient Overlay for legibility */}
+                <div className="aspect-[4/3] overflow-hidden rounded-image">
+                  {category.imageUrl ? (
+                    <StoreImage
+                      src={category.imageUrl}
+                      alt={category.name}
+                      width={800}
+                      height={600}
+                      className="w-full aspect-[4/3] object-cover bg-surface browse-image"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="aspect-[4/3] bg-surface flex items-center justify-center text-sm text-muted">
+                      No image available
+                    </div>
+                  )}
+                </div>
 
                 {/* Bottom Content */}
                 <div className="p-5 text-ink">

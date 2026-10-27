@@ -7,6 +7,7 @@ Runtime CSS variables in `client/src/index.css` are the source of truth. `client
 - DM Serif Display (`font-display` / `font-serif`) is used at regular weight for editorial headings. No synthesized bold or italic.
 - Manrope (`font-sans` and `font-product`) is used for body, navigation, products, prices, fields and all admin interfaces. Full licensed fonts are self-hosted under `client/public/fonts/`.
 - Warm white canvas, white surfaces, stone borders, charcoal text, muted green-grey secondary copy, and deep green actions come from runtime tokens.
+- Muted brass `--color-brass` is reserved for restrained decorative rules; it never replaces semantic statuses.
 - Deep green is reserved for actions, selected controls, prices and hover states. Status colors retain semantic meaning.
 - Page width is 1320px including responsive gutters. Four-column grids collapse to three, two and one as space requires.
 - Controls use 8px radii; cards and imagery use 12px. Logo images are never framed.
@@ -16,7 +17,10 @@ Runtime CSS variables in `client/src/index.css` are the source of truth. `client
 | Capability | Owner |
 | --- | --- |
 | Actions and fields | `components/ui/Button`, `Input`, `Textarea`, `Select` |
-| Authored selections | `components/ui/Dropdown` |
+| Authored selections and navigation disclosure | `components/ui/Dropdown` (`navigation` renders real links) |
+| Store photography and failures | `components/common/StoreImage` |
+| Removable catalog selections | `components/catalog/ActiveFilters` |
+| Product gallery and lightbox | `components/product/ImageGallery` |
 | Breadcrumbs and pagination | `components/common/Breadcrumbs`, `Pagination` |
 | Dialog and focus restoration | `components/common/Modal`, `lib/hooks/useDialogFocus` |
 | Toasts | `context/ToastContext`, `components/common/Toast` |
@@ -25,3 +29,11 @@ Runtime CSS variables in `client/src/index.css` are the source of truth. `client
 | Admin navigation and layout | `components/admin/AdminShell` |
 
 Form controls remain at least 16px with 44px targets. Motion uses framer-motion with `MotionConfig reducedMotion="user"`; CSS reduced-motion rules also disable decorative transitions. Hero navigation is manual. Errors remain distinct from empty content. Product specifications use only existing metadata and weight. No unsupported features or fabricated commercial content are introduced.
+
+## Immersive heritage composition
+
+The homepage uses a full-width continuous mandir scene, compact circular categories, filled 4:5 merchandise, asymmetric configured campaigns, new arrivals and configured story/support. Header categories appear through the shared navigation Dropdown, alongside the conditional God Idols link. On interior routes the same header remains in document flow.
+
+`--duration-image: 350ms` and `--scale-image-hover: 1.06` govern browsable photography. Fine pointers with no reduced-motion preference receive zoom; touch and reduced-motion users see still images and persistent actions. Product-detail images remain complete at rest. The approximately 58/42 gallery/purchase layout stacks below desktop; the gallery has no short fixed height cap. Lightbox navigation, 1×/2×, reset and drag all have keyboard/button equivalents.
+
+Hero composites are matched only to exact configured source URLs. Unknown photographs render directly with contrast protection. Missing legacy category destinations resolve to `/shop` in presentation without changing stored settings. No commerce types, APIs, schema or payment behavior change.

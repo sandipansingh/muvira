@@ -1,4 +1,5 @@
 import React from 'react'
+import { StoreImage } from '../common/StoreImage'
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
@@ -12,7 +13,16 @@ export const EditorialCampaigns: React.FC = () => {
         {settings.promoBanners.map((banner) => (
           <Link key={banner.id} to={banner.link || '/shop'} className="campaign-card group">
             {banner.imageUrl && (
-              <img src={banner.imageUrl} alt="" width={800} height={600} loading="lazy" />
+              <div className="campaign-card__image">
+                <StoreImage
+                  src={banner.imageUrl}
+                  alt=""
+                  width={1000}
+                  height={1000}
+                  loading="lazy"
+                  className="browse-image"
+                />
+              </div>
             )}
             <div className="campaign-card__copy">
               <div>

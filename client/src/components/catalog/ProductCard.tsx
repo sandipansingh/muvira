@@ -1,3 +1,4 @@
+import { StoreImage } from '../common/StoreImage'
 import React, { useState } from 'react'
 import { Check, Eye, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -86,10 +87,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               aria-label={`View ${product.name}`}
             >
               {primaryImage ? (
-                <img
+                <StoreImage
                   src={primaryImage}
                   alt={product.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="h-full w-full object-cover browse-image"
                   width={320}
                   height={320}
                   loading="lazy"
@@ -193,10 +194,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             aria-label={`View ${product.name}`}
           >
             {primaryImage ? (
-              <img
+              <StoreImage
                 src={primaryImage}
                 alt={product.name}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+                className="h-full w-full object-cover browse-image"
                 width={480}
                 height={480}
                 loading="lazy"

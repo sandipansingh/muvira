@@ -1,7 +1,20 @@
 import React, { useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  ArrowUp,
+  ChevronLeft,
+  ChevronRight,
+  Expand,
+  RotateCcw,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react'
 import type { ProductImage } from '../../lib/types/product'
 import { Modal } from '../common/Modal'
+import { StoreImage } from '../common/StoreImage'
 
 interface ImageGalleryProps {
   images: (ProductImage | string)[]
@@ -16,193 +29,295 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   isNew = false,
   discountPercent = 0,
 }) => {
-  const imageUrls = images.map((image) => (typeof image === 'string' ? image : image.url))
+  const imageUrls = images
+    .map((image) => (typeof image === 'string' ? image : image.url))
+    .filter(Boolean)
   const [activeIndex, setActiveIndex] = useState(0)
   const [isZooming, setIsZooming] = useState(false)
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 })
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [zoom, setZoom] = useState(1)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const reducedMotion = useReducedMotion()
   const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const dragStart = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null)
   const suppressClick = useRef(false)
+  const index = activeIndex < imageUrls.length ? activeIndex : 0
+  const activeImage = imageUrls[index]
+  const resetView = () => {
+    setZoom(1)
+    setPan({ x: 0, y: 0 })
+  }
+  const selectImage = (next: number) => {
+    setActiveIndex((next + imageUrls.length) % imageUrls.length)
+    resetView()
+    setIsZooming(false)
+  }
+  const movePan = (x: number, y: number) =>
+    setPan((current) => ({
+      x: Math.max(-50, Math.min(50, current.x + x)),
+      y: Math.max(-50, Math.min(50, current.y + y)),
+    }))
 
-  if (imageUrls.length === 0) {
+  if (!activeImage)
     return (
-      <div className="flex aspect-square max-h-[520px] items-center justify-center rounded-card border border-line bg-surface text-xs font-normal text-muted">
+      <div className="gallery-stage flex items-center justify-center text-sm text-muted">
         Image unavailable
       </div>
     )
-  }
-
-  const activeImage = imageUrls[activeIndex] ?? imageUrls[0]
-
-  const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setActiveIndex((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1))
-  }
-
-  const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setActiveIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1))
-  }
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
-    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100))
-    setZoomPos({ x, y })
-  }
-
-  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (!touchStart.current || imageUrls.length <= 1) return
-    const deltaX = event.changedTouches[0].clientX - touchStart.current.x
-    const deltaY = event.changedTouches[0].clientY - touchStart.current.y
-    touchStart.current = null
-    if (Math.abs(deltaX) < 40 || Math.abs(deltaX) <= Math.abs(deltaY)) return
-    suppressClick.current = true
-    setActiveIndex((index) => (index + (deltaX < 0 ? 1 : imageUrls.length - 1)) % imageUrls.length)
-    window.setTimeout(() => (suppressClick.current = false), 300)
-  }
 
   return (
-    <div className="relative flex flex-col-reverse gap-3.5 md:flex-row md:items-start md:gap-4">
-      {/* Thumbnails Navigation */}
-      {imageUrls.length > 1 && (
-        <div className="flex max-h-[480px] gap-2.5 overflow-x-auto py-0.5 no-scrollbar md:max-h-[500px] md:w-20 md:shrink-0 md:flex-col md:overflow-y-auto lg:max-h-[520px]">
-          {imageUrls.map((image, index) => {
-            const isActive = activeIndex === index
-            return (
-              <button
-                key={`${image}-${index}`}
-                type="button"
-                onClick={() => setActiveIndex(index)}
-                className={`relative aspect-square w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-200 md:w-20 ${
-                  isActive
-                    ? 'border-2 border-primary ring-2 ring-primary/15 opacity-100 shadow-none'
-                    : 'border border-line bg-surface opacity-75 hover:border-field-border hover:opacity-100'
-                }`}
-                aria-label={`View ${title} thumbnail ${index + 1}`}
-              >
-                <img
-                  src={image}
-                  alt={`${title} thumbnail ${index + 1}`}
-                  className="h-full w-full object-contain"
-                  loading="lazy"
-                  width={80}
-                  height={80}
-                />
-              </button>
-            )
-          })}
-        </div>
-      )}
-
-      {/* 1:1 Square Main Image Showcase Container */}
+    <div className="product-gallery">
       <div
-        onMouseEnter={() => setIsZooming(true)}
-        onMouseLeave={() => setIsZooming(false)}
-        onMouseMove={handleMouseMove}
-        onTouchStart={(event) => {
-          touchStart.current = {
-            x: event.touches[0].clientX,
-            y: event.touches[0].clientY,
-          }
+        className="gallery-stage group"
+        onPointerMove={(event) => {
+          if (
+            event.pointerType !== 'mouse' ||
+            reducedMotion ||
+            !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+          )
+            return
+          const rect = event.currentTarget.getBoundingClientRect()
+          setZoomPos({
+            x: Math.max(0, Math.min(100, ((event.clientX - rect.left) / rect.width) * 100)),
+            y: Math.max(0, Math.min(100, ((event.clientY - rect.top) / rect.height) * 100)),
+          })
+          setIsZooming(true)
         }}
-        onTouchEnd={handleTouchEnd}
-        className="group relative aspect-square max-h-[480px] w-full flex-1 overflow-hidden rounded-card border border-line/70 bg-surface touch-pan-y md:max-h-[500px] lg:max-h-[520px]"
+        onPointerLeave={() => setIsZooming(false)}
+        onTouchStart={(event) => {
+          touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }
+        }}
+        onTouchEnd={(event) => {
+          if (!touchStart.current) return
+          const dx = event.changedTouches[0].clientX - touchStart.current.x
+          const dy = event.changedTouches[0].clientY - touchStart.current.y
+          touchStart.current = null
+          if (imageUrls.length < 2 || Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy)) return
+          selectImage(index + (dx < 0 ? 1 : -1))
+          suppressClick.current = true
+          window.setTimeout(() => {
+            suppressClick.current = false
+          }, 300)
+        }}
       >
-        {/* Badges Stack */}
-        <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
-          {isNew && (
-            <span className="inline-flex items-center justify-center rounded bg-white/95 px-2.5 py-0.5 text-xs font-normal uppercase tracking-wider text-ink shadow-none backdrop-blur-xs">
-              NEW
-            </span>
-          )}
-          {discountPercent > 0 && (
-            <span className="inline-flex items-center justify-center rounded bg-primary px-2.5 py-0.5 text-xs font-normal text-white shadow-none">
-              -{discountPercent}%
-            </span>
-          )}
+        <button
+          type="button"
+          className="absolute inset-0 h-full w-full cursor-zoom-in"
+          aria-label={`Enlarge image of ${title}`}
+          onClick={() => {
+            if (!suppressClick.current) {
+              resetView()
+              setIsLightboxOpen(true)
+              setIsZooming(false)
+            }
+          }}
+        >
+          <motion.div
+            className="h-full w-full"
+            animate={{ scale: isZooming ? 2 : 1 }}
+            style={{ transformOrigin: `${zoomPos.x}% ${zoomPos.y}%` }}
+            transition={{ duration: reducedMotion ? 0 : 0.2 }}
+          >
+            <StoreImage
+              key={activeImage}
+              src={activeImage}
+              alt={title}
+              width={1200}
+              height={1500}
+              className="h-full w-full object-contain"
+            />
+          </motion.div>
+        </button>
+        <div className="pointer-events-none absolute left-4 top-4 flex flex-col items-start gap-2">
+          {isNew && <span className="neutral-badge">Featured</span>}
+          {discountPercent > 0 && <span className="status-badge">-{discountPercent}%</span>}
         </div>
-
-        {/* Floating Navigation Arrows */}
         {imageUrls.length > 1 && (
           <>
             <button
               type="button"
-              onClick={handlePrev}
-              className="absolute left-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+              className="gallery-arrow left-3"
               aria-label="Previous image"
+              onClick={() => selectImage(index - 1)}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               type="button"
-              onClick={handleNext}
-              className="absolute right-3 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-[var(--radius-control)] bg-white/90 text-ink shadow-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+              className="gallery-arrow right-3"
               aria-label="Next image"
+              onClick={() => selectImage(index + 1)}
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </button>
           </>
         )}
-
-        {/* Main Base Image */}
-        <button
-          type="button"
-          onClick={() => {
-            if (!suppressClick.current) setIsLightboxOpen(true)
-          }}
-          className="absolute inset-0 h-full w-full cursor-zoom-in"
-          aria-label={`Enlarge image of ${title}`}
-        >
-          <img
-            src={activeImage}
-            alt={title}
-            width={800}
-            height={800}
-            className="h-full w-full object-contain"
-          />
-        </button>
-
-        {/* Amazon-Style Lens Overlay Box */}
-        {isZooming && (
-          <div
-            className="pointer-events-none absolute h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-primary/50 bg-primary/15 shadow-sm backdrop-blur-[1px]"
-            style={{
-              left: `${zoomPos.x}%`,
-              top: `${zoomPos.y}%`,
-            }}
-          />
-        )}
+        <span className="pointer-events-none absolute bottom-4 right-4 flex items-center gap-2 rounded-pill bg-paper/90 px-3 py-2 text-xs text-ink">
+          <Expand className="h-4 w-4" /> Enlarge
+        </span>
       </div>
-
-      {/* Matching 1:1 Floating Side Zoom Preview Window */}
-      {isZooming && (
-        <div
-          className="pointer-events-none absolute left-0 top-0 z-50 hidden aspect-square h-[480px] w-[480px] overflow-hidden rounded-card border border-line/80 bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block md:h-[500px] md:w-[500px] lg:h-[520px] lg:w-[520px]"
-          style={{
-            backgroundImage: `url(${activeImage})`,
-            backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
-            backgroundSize: '280%',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
+      {imageUrls.length > 1 && (
+        <div className="gallery-thumbnails" aria-label="Product photographs">
+          {imageUrls.map((image, thumbnail) => (
+            <button
+              key={`${image}-${thumbnail}`}
+              type="button"
+              aria-label={`View ${title} thumbnail ${thumbnail + 1}`}
+              aria-pressed={thumbnail === index}
+              onClick={() => selectImage(thumbnail)}
+              className={`gallery-thumbnail ${thumbnail === index ? 'border-primary ring-1 ring-primary' : 'border-line hover:border-primary'}`}
+            >
+              <StoreImage
+                src={image}
+                alt=""
+                width={96}
+                height={96}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </button>
+          ))}
+        </div>
       )}
       <Modal
         isOpen={isLightboxOpen}
         onClose={() => setIsLightboxOpen(false)}
         title={title}
-        maxWidth="xl"
+        maxWidth="gallery"
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+            event.preventDefault()
+            const direction = event.key === 'ArrowRight' ? 1 : -1
+            if (zoom === 2) movePan(-direction * 15, 0)
+            else selectImage(index + direction)
+          } else if (zoom === 2 && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+            event.preventDefault()
+            movePan(0, event.key === 'ArrowUp' ? 15 : -15)
+          } else if (event.key === '+' || event.key === '=') setZoom(2)
+          else if (event.key === '-' || event.key === '0') resetView()
+        }}
       >
-        <img
-          src={activeImage}
-          alt={title}
-          width={1200}
-          height={1200}
-          className="mx-auto max-h-[70dvh] w-full object-contain"
-        />
+        <div>
+          <div
+            className={`lightbox-stage ${zoom === 2 ? 'cursor-grab active:cursor-grabbing touch-none' : ''}`}
+            onPointerDown={(event) => {
+              if (zoom !== 2) return
+              event.currentTarget.setPointerCapture(event.pointerId)
+              dragStart.current = { x: event.clientX, y: event.clientY, panX: pan.x, panY: pan.y }
+            }}
+            onPointerMove={(event) => {
+              const start = dragStart.current
+              if (!start || zoom !== 2) return
+              const rect = event.currentTarget.getBoundingClientRect()
+              setPan({
+                x: Math.max(
+                  -50,
+                  Math.min(50, start.panX + ((event.clientX - start.x) / rect.width) * 100)
+                ),
+                y: Math.max(
+                  -50,
+                  Math.min(50, start.panY + ((event.clientY - start.y) / rect.height) * 100)
+                ),
+              })
+            }}
+            onPointerUp={() => {
+              dragStart.current = null
+            }}
+            onPointerCancel={() => {
+              dragStart.current = null
+            }}
+          >
+            <motion.img
+              key={activeImage}
+              src={activeImage}
+              alt={title}
+              data-lightbox-image
+              data-zoom={zoom}
+              draggable={false}
+              width={1600}
+              height={1600}
+              className="h-full w-full select-none object-contain"
+              animate={{ scale: zoom, x: `${pan.x}%`, y: `${pan.y}%` }}
+              transition={{ duration: reducedMotion || dragStart.current ? 0 : 0.18 }}
+            />
+          </div>
+          <div className="lightbox-controls">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                className="button-secondary p-3"
+                aria-label="Previous image"
+                disabled={imageUrls.length < 2}
+                onClick={() => selectImage(index - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-sm tabular-nums" aria-live="polite">
+                {index + 1} / {imageUrls.length}
+              </span>
+              <button
+                type="button"
+                className="button-secondary p-3"
+                aria-label="Next image"
+                disabled={imageUrls.length < 2}
+                onClick={() => selectImage(index + 1)}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                className="button-secondary gap-2 px-3"
+                aria-label={zoom === 1 ? 'Zoom to 2×' : 'Zoom to 1×'}
+                onClick={() => {
+                  setZoom(zoom === 1 ? 2 : 1)
+                  setPan({ x: 0, y: 0 })
+                }}
+              >
+                {zoom === 1 ? <ZoomIn className="h-4 w-4" /> : <ZoomOut className="h-4 w-4" />}{' '}
+                {zoom}×
+              </button>
+              <button
+                type="button"
+                className="button-secondary p-3"
+                aria-label="Reset view"
+                onClick={resetView}
+              >
+                <RotateCcw className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          {zoom === 2 && (
+            <div
+              className="flex flex-wrap items-center justify-center gap-2 border-t border-line pt-3"
+              aria-label="Pan photograph"
+            >
+              {[
+                { label: 'Pan left', icon: ArrowLeft, x: 15, y: 0 },
+                { label: 'Pan right', icon: ArrowRight, x: -15, y: 0 },
+                { label: 'Pan up', icon: ArrowUp, x: 0, y: 15 },
+                { label: 'Pan down', icon: ArrowDown, x: 0, y: -15 },
+              ].map((control) => (
+                <button
+                  key={control.label}
+                  type="button"
+                  className="button-secondary p-3"
+                  aria-label={control.label}
+                  onClick={() => movePan(control.x, control.y)}
+                >
+                  <control.icon className="h-4 w-4" />
+                </button>
+              ))}
+              <p className="w-full text-center text-sm text-muted">
+                Drag the image or use the arrow controls to explore.
+              </p>
+            </div>
+          )}
+        </div>
       </Modal>
     </div>
   )
 }
-
 export default ImageGallery

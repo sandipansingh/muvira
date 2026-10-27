@@ -14,6 +14,7 @@ interface CatalogTopBarProps {
   onOpenMobileFilters?: () => void
   activeFiltersCount?: number
   className?: string
+  showCount?: boolean
 }
 
 export const SORT_OPTIONS: DropdownOption[] = [
@@ -33,6 +34,7 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
   onOpenMobileFilters,
   activeFiltersCount = 0,
   className = '',
+  showCount = true,
 }) => {
   return (
     <div
@@ -46,9 +48,11 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
         >
           {title}
         </h2>
-        <span className="hidden shrink-0 text-sm text-muted font-normal sm:inline">
-          <strong className="text-ink">{totalCount}</strong> pieces
-        </span>
+        {showCount && (
+          <span className="shrink-0 text-sm text-muted font-normal">
+            <strong className="text-ink">{totalCount}</strong> pieces
+          </span>
+        )}
       </div>
 
       {/* Controls: Mobile Filter Button, Sort Dropdown & View Mode Switcher */}

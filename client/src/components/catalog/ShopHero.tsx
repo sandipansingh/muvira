@@ -31,7 +31,7 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
             alt=""
             width={240}
             height={240}
-            className="hidden h-40 w-40 rounded-image object-contain md:block"
+            className="hidden h-40 w-40 rounded-image object-cover md:block"
           />
         )}
       </div>

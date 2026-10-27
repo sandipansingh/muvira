@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { ArrowRight, Menu, Search, ShoppingBag, User } from 'lucide-react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { ArrowRight, Menu, Search, ShoppingBag, User, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 import { categoryService } from '../../lib/services/category.service'
@@ -8,6 +8,7 @@ import type { Category } from '../../lib/types/category'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Modal } from '../common/Modal'
+import { Dropdown } from '../ui/Dropdown'
 
 interface HeaderProps {
   onOpenMobileMenu?: () => void
@@ -17,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
   const { itemCount, openCartDrawer } = useCart()
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
@@ -27,11 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
       .getCategories()
       .then((response) => {
         if (active && response.success)
-          setCategories(
-            response.data
-              .filter((category) => category.showInNavbar)
-              .sort((a, b) => a.sortOrder - b.sortOrder)
-          )
+          setCategories(response.data.sort((a, b) => a.sortOrder - b.sortOrder))
       })
       .catch(() => {
         /* The permanent catalog links remain available. */
@@ -52,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
 
   return (
     <>
-      <header className="store-header">
+      <header className={`store-header ${pathname === '/' ? 'store-header--home' : ''}`}>
         <div className="layout-container store-header__main">
           <div className="flex items-center gap-2">
             <Button
@@ -82,9 +80,26 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             >
               Shop all
             </NavLink>
-            <NavLink to="/categories" className="header-link">
-              Collections
-            </NavLink>
+            {categories.find((category) => category.slug === 'god-idols') && (
+              <Link to="/shop?category=god-idols" className="header-link">
+                God Idols
+              </Link>
+            )}
+            <Dropdown
+              variant="navigation"
+              value=""
+              onChange={() => {}}
+              placeholder="Collections"
+              className="w-auto"
+              options={[
+                { value: 'all', label: 'All collections', href: '/categories' },
+                ...categories.map((category) => ({
+                  value: category.id,
+                  label: category.name,
+                  href: `/shop?category=${encodeURIComponent(category.slug)}`,
+                })),
+              ]}
+            />
             <Link to="/shop?sort=newest" className="header-link">
               New arrivals
             </Link>
@@ -101,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             <Link
               to={isAuthenticated ? '/profile' : '/signin'}
               aria-label={isAuthenticated ? 'My account' : 'Sign in'}
-              className="hidden h-11 w-11 items-center justify-center rounded-control hover:bg-surface xs:flex"
+              className="hidden h-11 w-11 items-center justify-center rounded-control hover:bg-surface lg:flex"
             >
               <User className="h-5 w-5" />
             </Link>
@@ -121,21 +136,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
             </Button>
           </div>
         </div>
-        {categories.length > 0 && (
-          <nav className="store-header__categories" aria-label="Product categories">
-            <div className="layout-container flex flex-wrap items-center justify-center gap-x-8">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  to={`/shop?category=${encodeURIComponent(category.slug)}`}
-                  className="header-link text-xs"
-                >
-                  {category.name}
-                </Link>
-              ))}
-            </div>
-          </nav>
-        )}
       </header>
       <Modal
         isOpen={isSearchOpen}
@@ -144,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         maxWidth="lg"
       >
         <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-end gap-3">
-          <div className="min-w-0 flex-1">
+          <div className="relative min-w-0 flex-1">
             <label htmlFor="store-search" className="mb-2 block text-sm text-muted">
               Search the collection
             </label>
@@ -156,7 +156,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               data-dialog-initial-focus
+              className="pr-12"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                aria-label="Clear search query"
+                className="absolute bottom-0 right-0 grid h-11 w-11 place-items-center text-muted hover:text-primary"
+                onClick={() => {
+                  setSearchQuery('')
+                  document.getElementById('store-search')?.focus()
+                }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
           <Button type="submit" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
             Search

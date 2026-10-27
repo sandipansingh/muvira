@@ -1,3 +1,4 @@
+import { StoreImage } from '../common/StoreImage'
 import React, { useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -76,12 +77,12 @@ export const CategoryGrid: React.FC = () => {
             >
               <div className="category-tile__image">
                 {category.imageUrl ? (
-                  <img
+                  <StoreImage
                     src={category.imageUrl}
                     alt={category.name}
                     width={480}
                     height={360}
-                    className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.025]"
+                    className="h-full w-full object-cover browse-image"
                     loading="lazy"
                   />
                 ) : (
@@ -90,7 +91,7 @@ export const CategoryGrid: React.FC = () => {
               </div>
               <div className="mt-4">
                 <h3 className="font-sans text-base font-semibold text-ink">{category.name}</h3>
-                <span className="mt-2 inline-flex items-center gap-1.5 text-body-sm text-ink underline decoration-line underline-offset-4 transition-colors group-hover:decoration-ink">
+                <span className="collection-caption mt-2 inline-flex items-center gap-1.5 text-body-sm text-ink underline decoration-line underline-offset-4 transition-colors group-hover:decoration-ink">
                   View collection
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                 </span>

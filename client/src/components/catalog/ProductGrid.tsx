@@ -36,7 +36,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       <div className={getGridClasses()} aria-busy="true">
         {[1, 2, 3, 4, 5, 6].map((item) => (
           <div key={item} className="flex flex-col gap-3 animate-pulse">
-            <div className="aspect-square rounded-card bg-surface" />
+            <div className="aspect-[4/5] rounded-card bg-surface" />
             <div className="h-3 w-16 rounded bg-line" />
             <div className="h-4 w-3/4 rounded bg-line" />
             <div className="h-4 w-1/3 rounded bg-line" />

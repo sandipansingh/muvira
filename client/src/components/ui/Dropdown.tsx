@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ChevronDown, type LucideIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export interface DropdownBadge {
   text: string
@@ -16,6 +17,7 @@ export interface DropdownOption {
   badge?: DropdownBadge
   divider?: boolean
   onClick?: () => void
+  href?: string
 }
 
 export interface DropdownProps {
@@ -28,7 +30,7 @@ export interface DropdownProps {
   align?: 'left' | 'right'
   icon?: LucideIcon | React.ComponentType<{ className?: string }>
   className?: string
-  variant?: 'default' | 'slim'
+  variant?: 'default' | 'slim' | 'navigation'
   label?: string
   id?: string
   disabled?: boolean
@@ -55,9 +57,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const [openUpwards, setOpenUpwards] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const reducedMotion = useReducedMotion()
 
   const selectedOption = options.find((opt) => opt.value === value)
   const isSlim = variant === 'slim'
+  const isNavigation = variant === 'navigation'
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -99,10 +103,36 @@ export const Dropdown: React.FC<DropdownProps> = ({
     <div
       className={`relative inline-block text-left ${className}`}
       ref={dropdownRef}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false)
+      }}
       onKeyDown={(event) => {
         if (event.key === 'Escape' && isOpen) {
           setIsOpen(false)
           triggerRef.current?.focus()
+          event.stopPropagation()
+        }
+        if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+          event.preventDefault()
+          if (!isOpen) {
+            handleToggle()
+            requestAnimationFrame(() => {
+              const items = dropdownRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')
+              items?.[event.key === 'ArrowUp' ? items.length - 1 : 0]?.focus()
+            })
+          } else {
+            const items = Array.from(
+              dropdownRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') || []
+            )
+            const current = items.indexOf(document.activeElement as HTMLElement)
+            const next =
+              event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                  ? items.length - 1
+                  : (current + (event.key === 'ArrowUp' ? -1 : 1) + items.length) % items.length
+            items[next]?.focus()
+          }
         }
       }}
     >
@@ -112,11 +142,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`flex items-center justify-between gap-2 w-full cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 border border-line bg-paper text-ink hover:bg-surface ${
-          isSlim
-            ? 'rounded-[var(--radius-control)] px-3 py-1.5 text-sm font-normal'
-            : 'rounded-[var(--radius-control)] px-3.5 py-2 text-sm font-normal'
-        } ${triggerClassName}`}
+        className={
+          isNavigation
+            ? `header-link gap-2 ${triggerClassName}`
+            : `flex items-center justify-between gap-2 w-full cursor-pointer transition-all duration-200 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 border border-line bg-paper text-ink hover:bg-surface ${
+                isSlim
+                  ? 'rounded-[var(--radius-control)] px-3 py-1.5 text-sm font-normal'
+                  : 'rounded-[var(--radius-control)] px-3.5 py-2 text-sm font-normal'
+              } ${triggerClassName}`
+        }
         aria-haspopup="true"
         aria-expanded={isOpen}
         aria-label={ariaLabel || label || placeholder}
@@ -127,7 +161,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
           ) : TriggerIcon ? (
             <TriggerIcon className="h-3.5 w-3.5 shrink-0 text-muted" />
           ) : null}
-          {selectedOption ? (
+          {isNavigation ? (
+            <span>{placeholder}</span>
+          ) : selectedOption ? (
             <span className="truncate block flex-1">
               {label && <span className="text-muted font-normal mr-1">{label}:</span>}
               {selectedOption.triggerLabel || selectedOption.label}
@@ -151,7 +187,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
       <AnimatePresence>
         {isOpen && !disabled && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: openUpwards ? 6 : -6 }}
+            initial={{
+              opacity: 0,
+              scale: reducedMotion ? 1 : 0.96,
+              y: reducedMotion ? 0 : openUpwards ? 6 : -6,
+            }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: openUpwards ? 6 : -6 }}
             transition={{
@@ -183,42 +223,53 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   <React.Fragment key={option.value || index}>
                     {option.divider && <div className="h-[1px] bg-line my-1 mx-2" />}
 
-                    <button
-                      type="button"
-                      onClick={() => handleOptionClick(option)}
-                      className={`flex items-center justify-between w-full text-left transition-colors duration-150 select-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 cursor-pointer rounded-lg ${
-                        isSlim
-                          ? 'px-2.5 py-1.5 text-sm font-normal'
-                          : 'px-3 py-2 text-sm font-normal'
-                      } ${
-                        isSelected
-                          ? 'bg-surface text-ink font-normal'
-                          : 'text-ink-soft hover:bg-surface hover:text-ink'
-                      }`}
-                      role="menuitem"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        {OptionIcon && (
-                          <OptionIcon
-                            className={`h-3.5 w-3.5 shrink-0 ${
-                              isSelected ? 'text-ink' : 'text-muted'
-                            }`}
-                          />
-                        )}
-                        <span className="truncate">{option.label}</span>
-                      </div>
+                    {isNavigation && option.href ? (
+                      <Link
+                        to={option.href}
+                        role="menuitem"
+                        onClick={() => setIsOpen(false)}
+                        className="flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-ink hover:bg-surface hover:text-primary"
+                      >
+                        {option.label}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleOptionClick(option)}
+                        className={`flex items-center justify-between w-full text-left transition-colors duration-150 select-none focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 cursor-pointer rounded-lg ${
+                          isSlim
+                            ? 'px-2.5 py-1.5 text-sm font-normal'
+                            : 'px-3 py-2 text-sm font-normal'
+                        } ${
+                          isSelected
+                            ? 'bg-surface text-ink font-normal'
+                            : 'text-ink-soft hover:bg-surface hover:text-ink'
+                        }`}
+                        role="menuitem"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          {OptionIcon && (
+                            <OptionIcon
+                              className={`h-3.5 w-3.5 shrink-0 ${
+                                isSelected ? 'text-ink' : 'text-muted'
+                              }`}
+                            />
+                          )}
+                          <span className="truncate">{option.label}</span>
+                        </div>
 
-                      {option.badge && (
-                        <span
-                          className={`flex items-center gap-1 uppercase select-none px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider ${
-                            option.badge.className || 'bg-primary-soft text-primary'
-                          }`}
-                        >
-                          {BadgeIcon && <BadgeIcon className="h-2.5 w-2.5" />}
-                          <span>{option.badge.text}</span>
-                        </span>
-                      )}
-                    </button>
+                        {option.badge && (
+                          <span
+                            className={`flex items-center gap-1 uppercase select-none px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider ${
+                              option.badge.className || 'bg-primary-soft text-primary'
+                            }`}
+                          >
+                            {BadgeIcon && <BadgeIcon className="h-2.5 w-2.5" />}
+                            <span>{option.badge.text}</span>
+                          </span>
+                        )}
+                      </button>
+                    )}
                   </React.Fragment>
                 )
               })}

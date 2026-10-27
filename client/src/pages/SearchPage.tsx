@@ -5,7 +5,8 @@ import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
 import type { ProductListItem } from '../lib/types/product'
-import { ShopHero } from '../components/catalog/ShopHero'
+import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { ActiveFilters } from '../components/catalog/ActiveFilters'
 import { CatalogSidebar } from '../components/catalog/CatalogSidebar'
 import { CatalogTopBar, type GridViewMode } from '../components/catalog/CatalogTopBar'
 import { ProductGrid } from '../components/catalog/ProductGrid'
@@ -24,6 +25,8 @@ export const SearchPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [retryAttempt, setRetryAttempt] = useState(0)
+  const searchInputRef = useRef<HTMLInputElement>(null)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
   const [viewMode, setViewMode] = useState<GridViewMode>('grid-4')
 
@@ -115,7 +118,7 @@ export const SearchPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [categoryParam, inStockParam, maxPrice, minPrice, page, searchQuery, sortBy])
+  }, [categoryParam, inStockParam, maxPrice, minPrice, page, searchQuery, sortBy, retryAttempt])
 
   const updateParams = (changes: Record<string, string | undefined>) => {
     const next = new URLSearchParams(searchParams)
@@ -138,6 +141,7 @@ export const SearchPage: React.FC = () => {
   const handleClearSearch = () => {
     setLocalInput('')
     updateParams({ q: undefined, page: undefined })
+    searchInputRef.current?.focus()
   }
 
   const handleSelectCategory = (slug: string) => {
@@ -183,11 +187,6 @@ export const SearchPage: React.FC = () => {
     updateParams({ page: String(newPage) })
   }
 
-  const heroTitle = searchQuery ? `Search: “${searchQuery}”` : 'Search Catalog'
-  const heroSubtitle = searchQuery
-    ? `Showing catalog pieces matching your search term.`
-    : 'Search the current product catalog.'
-
   const activeFiltersCount =
     (categoryParam !== 'all' ? 1 : 0) +
     (priceRangeParam !== 'all' || minPrice !== undefined || maxPrice !== undefined ? 1 : 0) +
@@ -195,47 +194,33 @@ export const SearchPage: React.FC = () => {
 
   return (
     <main className="catalog-page min-h-screen pb-16 bg-background">
-      {/* Search Hero Banner */}
-      <ShopHero
-        title={heroTitle}
-        subtitle={heroSubtitle}
-        breadcrumbs={[
-          { label: 'Home', href: '/' },
-          { label: 'Search', href: '/search' },
-          ...(searchQuery ? [{ label: `“${searchQuery}”` }] : []),
-        ]}
-      />
-
-      {/* Prominent Live Search Bar */}
-      <div className="layout-container mb-8">
-        <form
-          onSubmit={handleSearchSubmit}
-          className="relative max-w-xl mx-auto flex flex-wrap items-center gap-3 shadow-none rounded-xl border border-field-border bg-white p-1.5 transition-colors"
-        >
-          <div className="pl-3 text-muted shrink-0">
-            <Search className="h-5 w-5" />
-          </div>
+      <div className="layout-container search-heading">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Search' }]} className="mb-6" />
+        <h1 className="page-title mb-5">Find your piece</h1>
+        <label htmlFor="catalog-query" className="text-sm text-ink-soft">
+          Search the collection
+        </label>
+        <form onSubmit={handleSearchSubmit} className="search-form">
+          <Search className="h-5 w-5 shrink-0 text-muted" aria-hidden="true" />
           <input
+            id="catalog-query"
+            ref={searchInputRef}
             type="search"
-            placeholder="Search for idols, decor, showpieces, wooden furniture..."
+            placeholder="Idols, puja essentials, home pieces…"
             value={localInput}
-            onChange={(e) => setLocalInput(e.target.value)}
-            className="min-w-0 flex-1 basis-16 bg-transparent text-base text-ink placeholder:text-muted outline-none py-1.5 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+            onChange={(event) => setLocalInput(event.target.value)}
           />
           {localInput && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="p-1.5 text-muted hover:text-ink transition-colors cursor-pointer"
+              className="grid h-11 w-11 place-items-center text-muted hover:text-primary"
               aria-label="Clear search query"
             >
               <X className="h-4 w-4" />
             </button>
           )}
-          <button
-            type="submit"
-            className="ml-2 rounded-lg bg-primary hover:bg-primary-hover text-white px-4 py-2 text-xs font-bold transition-colors shrink-0 cursor-pointer"
-          >
+          <button type="submit" className="button-primary px-5">
             Search
           </button>
         </form>
@@ -266,7 +251,12 @@ export const SearchPage: React.FC = () => {
           {/* Right Content Area */}
           <div className="w-full min-w-0">
             <CatalogTopBar
-              title={searchQuery ? `Results for “${searchQuery}”` : 'All Products'}
+              title={
+                loading
+                  ? 'Searching…'
+                  : `${totalCount.toLocaleString('en-IN')} ${totalCount === 1 ? 'result' : 'results'}`
+              }
+              showCount={false}
               totalCount={totalCount}
               sortBy={sortBy}
               onSortChange={(sort) => updateParams({ sort, page: undefined })}
@@ -274,6 +264,14 @@ export const SearchPage: React.FC = () => {
               onViewModeChange={setViewMode}
               onOpenMobileFilters={() => setIsMobileFiltersOpen(true)}
               activeFiltersCount={activeFiltersCount}
+            />
+
+            <ActiveFilters
+              params={searchParams}
+              categories={categories}
+              onChange={updateParams}
+              onClear={handleClearFilters}
+              includeQuery={false}
             />
 
             {error ? (
@@ -284,7 +282,7 @@ export const SearchPage: React.FC = () => {
                 <p className="mt-2 text-sm text-muted font-normal">{error}</p>
                 <button
                   type="button"
-                  onClick={() => updateParams({})}
+                  onClick={() => setRetryAttempt((attempt) => attempt + 1)}
                   className="mt-6 rounded-lg bg-primary hover:bg-primary-hover text-white px-5 py-2.5 text-xs font-normal transition-colors cursor-pointer"
                 >
                   Try Again

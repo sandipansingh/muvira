@@ -8,7 +8,8 @@ interface ModalProps {
   onClose: () => void
   title?: string
   children: React.ReactNode
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl'
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'gallery'
+  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -17,6 +18,7 @@ export const Modal: React.FC<ModalProps> = ({
   title,
   children,
   maxWidth = 'md',
+  onKeyDown,
 }) => {
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
@@ -25,13 +27,15 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null
 
   const widthClass =
-    maxWidth === 'sm'
-      ? 'max-w-sm'
-      : maxWidth === 'lg'
-        ? 'max-w-2xl'
-        : maxWidth === 'xl'
-          ? 'max-w-4xl'
-          : 'max-w-lg'
+    maxWidth === 'gallery'
+      ? 'max-w-[90rem]'
+      : maxWidth === 'sm'
+        ? 'max-w-sm'
+        : maxWidth === 'lg'
+          ? 'max-w-2xl'
+          : maxWidth === 'xl'
+            ? 'max-w-4xl'
+            : 'max-w-lg'
 
   return (
     <div
@@ -52,6 +56,7 @@ export const Modal: React.FC<ModalProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.18 }}
         ref={panelRef}
+        onKeyDown={onKeyDown}
         tabIndex={-1}
         className={`overlay-panel relative z-10 flex max-h-[90dvh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`}
       >
@@ -79,7 +84,11 @@ export const Modal: React.FC<ModalProps> = ({
             <X className="h-4 w-4" />
           </button>
         )}
-        <div className="overflow-y-auto p-6 dropdown-scrollbar">{children}</div>
+        <div
+          className={`overflow-y-auto dropdown-scrollbar ${maxWidth === 'gallery' ? 'p-3 sm:p-4' : 'p-6'}`}
+        >
+          {children}
+        </div>
       </motion.div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { MotionConfig } from 'framer-motion'
 import React, { lazy, Suspense, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { ToastProvider } from './context/ToastContext'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
@@ -50,9 +50,12 @@ const CategoryRedirect: React.FC = () => {
 
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { pathname } = useLocation()
 
   return (
-    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground selection:bg-primary-soft selection:text-foreground">
+    <div
+      className={`storefront-shell ${pathname === '/' ? 'storefront-shell--home' : ''} flex min-h-screen flex-col bg-background font-sans text-foreground selection:bg-primary-soft selection:text-foreground`}
+    >
       <a href="#page-content" className="skip-link button-primary">
         Skip to content
       </a>
