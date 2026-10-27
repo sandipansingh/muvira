@@ -80,6 +80,12 @@ export function AdminProductEditor({ product: initial, categories, onSaved, onCl
         slug: String(form.get('slug')).trim(),
         description: String(form.get('description')),
         shortDescription: String(form.get('shortDescription')),
+        metaTitle: String(form.get('metaTitle')).trim(),
+        metaDescription: String(form.get('metaDescription')).trim(),
+        tags: String(form.get('seoKeywords'))
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean),
         categoryId,
         pricePaisa: Math.round(Number(form.get('price')) * 100),
         compareAtPricePaisa:
@@ -204,6 +210,44 @@ export function AdminProductEditor({ product: initial, categories, onSaved, onCl
             <input type="checkbox" name="active" defaultChecked={product.isActive} />
             Published
           </label>
+          <fieldset className="sm:col-span-2 grid gap-4 rounded-xl border border-line p-4">
+            <legend className="px-1 font-sans">Search engine appearance</legend>
+            <p id="seo-defaults-help" className="text-sm text-muted">
+              Leave a field blank to use automatic catalog metadata. Aim for 50–60 characters in
+              titles and 140–160 in descriptions.
+            </p>
+            <label>
+              SEO title
+              <Input
+                name="metaTitle"
+                defaultValue={product.metaTitle ?? ''}
+                maxLength={200}
+                aria-describedby="seo-defaults-help"
+              />
+            </label>
+            <label>
+              SEO description
+              <Textarea
+                name="metaDescription"
+                defaultValue={product.metaDescription ?? ''}
+                maxLength={500}
+                rows={3}
+                aria-describedby="seo-defaults-help"
+              />
+            </label>
+            <label>
+              SEO keywords
+              <Input
+                name="seoKeywords"
+                defaultValue={(product.tags ?? []).join(', ')}
+                aria-describedby="seo-keywords-help"
+              />
+            </label>
+            <p id="seo-keywords-help" className="text-sm text-muted">
+              Separate up to 20 relevant keywords with commas (100 characters each). Google ignores
+              the keywords meta tag for ranking.
+            </p>
+          </fieldset>
           <label className="flex items-center gap-2">
             <input type="checkbox" name="featured" defaultChecked={product.isFeatured} />
             Featured

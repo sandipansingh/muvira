@@ -10,6 +10,17 @@ test('static server resolves dist from script and returns asset 404s', async () 
   const { readFile } = require('node:fs/promises')
   await mkdir(path.join(root, 'scripts'))
   await mkdir(path.join(root, 'dist'))
+  await mkdir(path.join(root, 'src/lib/seo'), { recursive: true })
+  for (const file of ['frontend-host.mjs']) {
+    await writeFile(
+      path.join(root, 'scripts', file),
+      await readFile(path.resolve('client/scripts', file))
+    )
+  }
+  await writeFile(
+    path.join(root, 'src/lib/seo/metadata.mjs'),
+    await readFile(path.resolve('client/src/lib/seo/metadata.mjs'))
+  )
   await writeFile(
     path.join(root, 'scripts/serve-static.mjs'),
     await readFile(path.resolve('client/scripts/serve-static.mjs'))
@@ -17,7 +28,12 @@ test('static server resolves dist from script and returns asset 404s', async () 
   await writeFile(path.join(root, 'dist/index.html'), '<h1>SPA fixture</h1>')
   const child = spawn(process.execPath, [path.join(root, 'scripts/serve-static.mjs')], {
     cwd: tmpdir(),
-    env: { ...process.env, PORT: '0' },
+    env: {
+      ...process.env,
+      PORT: '0',
+      SEO_API_URL: 'http://127.0.0.1:1',
+      SEO_INTERNAL_TOKEN: 'fixture-token-that-is-at-least-32-characters',
+    },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   try {

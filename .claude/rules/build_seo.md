@@ -21,7 +21,7 @@ The storefront is a client-rendered Vite single-page application. Express is a s
 
 ## SEO and accessibility
 
-- `client/index.html` owns site-wide metadata. Route-specific metadata requires an explicit client-side head strategy or a prerendering decision; do not claim server-rendered metadata.
+- `client/index.html` reserves `SEO_HEAD` for the frontend Node host. Shared rules in `client/src/lib/seo/metadata.mjs` generate route metadata before JavaScript; `RouteSeo` owns client navigation updates. React page bodies remain client rendered.
 - Keep one primary `h1` per page and use semantic heading order.
 - Prefer semantic `header`, `main`, `section`, `article`, `aside`, and `footer` elements.
 - Every form control needs an associated label or accessible name, plus stable `id` and `name` values where forms submit data.

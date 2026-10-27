@@ -92,6 +92,9 @@ export function mapProductDetail(raw: Record<string, unknown>): ProductDetail {
   const cat = catRaw ?? { id: raw['category_id'], name: '', slug: '' }
 
   return {
+    metaTitle: (raw['meta_title'] as string | null) ?? '',
+    metaDescription: (raw['meta_description'] as string | null) ?? '',
+    tags: (raw['tags'] as string[] | null) ?? [],
     id: raw['id'] as string,
     name: raw['name'] as string,
     slug: raw['slug'] as string,

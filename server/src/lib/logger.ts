@@ -7,6 +7,8 @@ export const logger = pino({
     // Redact known secret paths from log objects
     paths: [
       'req.headers.authorization',
+      'req.headers["x-muvira-seo-token"]',
+      '*.SEO_INTERNAL_TOKEN',
       'req.headers["x-razorpay-signature"]',
       '*.razorpay_key_secret',
       '*.RAZORPAY_KEY_SECRET',

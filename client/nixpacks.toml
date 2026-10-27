@@ -1,4 +1,5 @@
-# Nixpacks config for the Vite client
+# Nixpacks config for the Vite client and runtime SEO host.
+# Configure SITE_URL, SEO_API_URL, SEO_INDEXING_ENABLED and SEO_INTERNAL_TOKEN at runtime.
 # Force modern Node because Vite 8 + React Router 7 + Rolldown require >=20.19
 
 [phases.setup]

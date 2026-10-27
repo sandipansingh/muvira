@@ -182,6 +182,9 @@ export const adminApiService = {
       is_active: data.isActive,
       is_featured: data.isFeatured,
       metadata: data.metadata,
+      meta_title: data.metaTitle,
+      meta_description: data.metaDescription,
+      tags: data.tags,
     }
 
     const res = await adminPost<{
@@ -219,6 +222,9 @@ export const adminApiService = {
     if (data.isActive !== undefined) body['is_active'] = data.isActive
     if (data.isFeatured !== undefined) body['is_featured'] = data.isFeatured
     if (data.metadata !== undefined) body['metadata'] = data.metadata
+    if (data.metaTitle !== undefined) body['meta_title'] = data.metaTitle
+    if (data.metaDescription !== undefined) body['meta_description'] = data.metaDescription
+    if (data.tags !== undefined) body['tags'] = data.tags
 
     const res = await adminPatch<{
       success: boolean

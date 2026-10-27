@@ -1,4 +1,7 @@
 import rateLimit from 'express-rate-limit'
+import { timingSafeEqual } from 'node:crypto'
+import type { RequestHandler } from 'express'
+import { env } from '../config/env'
 
 const FIFTEEN_MINUTES = 15 * 60 * 1000
 const ONE_MINUTE = 60 * 1000
@@ -44,3 +47,29 @@ export const generalApiLimiter = rateLimit({
     },
   },
 })
+
+const seoCatalogLimiter = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  max: 3000,
+  keyGenerator: () => 'frontend-catalog',
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: { code: 'RATE_LIMITED', message: 'Catalog request limit reached.' },
+  },
+})
+
+export const catalogApiLimiter: RequestHandler = (req, res, next) => {
+  const supplied = req.get('X-Muvira-SEO-Token')
+  const expected = env.SEO_INTERNAL_TOKEN
+  const catalogGet =
+    req.method === 'GET' && /^\/(products|categories)(\/[a-z0-9-]+)?\/?$/.test(req.path)
+  const verified =
+    catalogGet &&
+    !!expected &&
+    !!supplied &&
+    Buffer.byteLength(supplied) === Buffer.byteLength(expected) &&
+    timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))
+  return (verified ? seoCatalogLimiter : generalApiLimiter)(req, res, next)
+}

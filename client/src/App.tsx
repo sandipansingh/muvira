@@ -14,6 +14,8 @@ import { MobileMenu } from './components/layout/MobileMenu'
 import { CartDrawer } from './components/cart/CartDrawer'
 import { ToastContainer } from './components/common/Toast'
 import { ScrollToTop } from './components/common/ScrollToTop'
+import { RouteSeo } from './components/seo/RouteSeo'
+import { categoryDestination } from './lib/seo/metadata.mjs'
 
 import { AdminGuard } from './components/admin/AdminGuard'
 import { AuthGuard } from './components/auth/AuthGuard'
@@ -46,7 +48,8 @@ const AdminFailuresPage = lazy(() => import('./pages/admin/AdminFailuresPage'))
 
 const CategoryRedirect: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  return <Navigate to={slug ? `/shop?category=${encodeURIComponent(slug)}` : '/shop'} replace />
+  const { search } = useLocation()
+  return <Navigate to={slug ? categoryDestination(slug, search) : '/shop'} replace />
 }
 
 const MainLayout: React.FC = () => {
@@ -82,6 +85,7 @@ export const AppContent: React.FC = () => {
   return (
     <div className="font-sans text-foreground selection:bg-primary-soft selection:text-foreground">
       <ScrollToTop />
+      <RouteSeo />
       <ToastContainer />
 
       <Suspense

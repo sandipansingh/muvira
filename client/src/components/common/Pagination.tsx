@@ -6,6 +6,50 @@ export interface PaginationProps {
   totalPages: number
   onPageChange: (page: number) => void
   className?: string
+  getPageHref?: (page: number) => string
+}
+
+function PageControl({
+  page,
+  onPageChange,
+  getPageHref,
+  disabled,
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  page: number
+  onPageChange: (page: number) => void
+  getPageHref?: (page: number) => string
+}) {
+  if (getPageHref && !disabled) {
+    return (
+      <a
+        href={getPageHref(page)}
+        className={props.className}
+        aria-label={props['aria-label']}
+        aria-current={props['aria-current']}
+        onClick={(event) => {
+          if (
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+          )
+            return
+          event.preventDefault()
+          onPageChange(page)
+        }}
+      >
+        {children}
+      </a>
+    )
+  }
+  return (
+    <button {...props} type="button" disabled={disabled} onClick={() => onPageChange(page)}>
+      {children}
+    </button>
+  )
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -13,6 +57,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
   className = '',
+  getPageHref,
 }) => {
   const paginationPages = useMemo(() => {
     if (totalPages <= 7) {
@@ -57,25 +102,29 @@ export const Pagination: React.FC<PaginationProps> = ({
       aria-label="Pagination Navigation"
       className={`flex max-w-full flex-wrap items-center justify-center gap-2 mx-auto ${className}`}
     >
-      <button
+      <PageControl
         type="button"
-        onClick={() => onPageChange(1)}
+        page={1}
+        onPageChange={onPageChange}
+        getPageHref={getPageHref}
         disabled={currentPage === 1}
         className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to first page"
       >
         <ChevronsLeft className="w-4 h-4 stroke-[2]" />
-      </button>
+      </PageControl>
 
-      <button
+      <PageControl
         type="button"
-        onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+        page={Math.max(currentPage - 1, 1)}
+        onPageChange={onPageChange}
+        getPageHref={getPageHref}
         disabled={currentPage === 1}
         className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to previous page"
       >
         <ChevronLeft className="w-4 h-4 stroke-[2]" />
-      </button>
+      </PageControl>
 
       {paginationPages.map((page, idx) => {
         if (page === '...') {
@@ -93,10 +142,12 @@ export const Pagination: React.FC<PaginationProps> = ({
         const isPageActive = page === currentPage
 
         return (
-          <button
+          <PageControl
             key={`page-${page}`}
             type="button"
-            onClick={() => onPageChange(Number(page))}
+            page={Number(page)}
+            onPageChange={onPageChange}
+            getPageHref={getPageHref}
             aria-label={`Go to page ${page}`}
             aria-current={isPageActive ? 'page' : undefined}
             className={`w-11 h-11 rounded-full flex items-center justify-center text-sm transition-all duration-200 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
@@ -106,29 +157,33 @@ export const Pagination: React.FC<PaginationProps> = ({
             }`}
           >
             {page}
-          </button>
+          </PageControl>
         )
       })}
 
-      <button
+      <PageControl
         type="button"
-        onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+        page={Math.min(currentPage + 1, totalPages)}
+        onPageChange={onPageChange}
+        getPageHref={getPageHref}
         disabled={currentPage === totalPages}
         className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to next page"
       >
         <ChevronRight className="w-4 h-4 stroke-[2]" />
-      </button>
+      </PageControl>
 
-      <button
+      <PageControl
         type="button"
-        onClick={() => onPageChange(totalPages)}
+        page={totalPages}
+        onPageChange={onPageChange}
+        getPageHref={getPageHref}
         disabled={currentPage === totalPages}
         className="w-11 h-11 rounded-full flex items-center justify-center text-ink hover:bg-surface disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-200 cursor-pointer disabled:cursor-not-allowed select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Go to last page"
       >
         <ChevronsRight className="w-4 h-4 stroke-[2]" />
-      </button>
+      </PageControl>
     </nav>
   )
 }

@@ -221,8 +221,7 @@ test('product editor saves commercial fields, descriptions, weight and visibilit
     await editor.getByLabel('SKU', { exact: true }).fill('WRAP-NEW')
     await editor.getByLabel('Short description', { exact: false }).fill('Soft handwoven cotton')
     await editor
-      .getByLabel('Description', { exact: false })
-      .last()
+      .getByLabel('Description', { exact: true })
       .fill('Made with handwoven cotton for daily wear.')
     await editor.getByLabel('Featured', { exact: true }).check()
     await page.getByRole('button', { name: 'Save product', exact: true }).click()
@@ -429,3 +428,41 @@ test('category API schema accepts explicit null removal while rejecting invalid 
   assert.equal(UpdateCategorySchema.safeParse({ image_url: 'not-an-image-url' }).success, false)
   assert.equal(UpdateCategorySchema.safeParse({ name: 'Category only' }).success, true)
 })
+
+test('SEO overrides survive unrelated edits and blank controls restore defaults', () =>
+  fixture(async (page) => {
+    await page.evaluate(() => {
+      Object.assign(window.product, {
+        meta_title: 'Custom Ganesha title',
+        meta_description: 'Custom catalog description',
+        tags: ['Ganesha', 'resin'],
+      })
+      window.render('catalog')
+    })
+    await page.getByRole('button', { name: 'Edit product Cotton wrap', exact: true }).click()
+    await page.getByRole('textbox', { name: 'SEO title', exact: true }).waitFor()
+    assert.equal(
+      await page.getByRole('textbox', { name: 'SEO title', exact: true }).inputValue(),
+      'Custom Ganesha title'
+    )
+    await page
+      .getByRole('region', { name: 'Product editor' })
+      .getByRole('textbox', { name: 'Product name', exact: true })
+      .fill('Updated wrap')
+    await page.getByRole('button', { name: 'Save product', exact: true }).click()
+    await page.waitForFunction(() => window.mutations.some((x) => x.body?.name === 'Updated wrap'))
+    assert.equal(await page.evaluate(() => window.product.meta_title), 'Custom Ganesha title')
+    await page.getByRole('textbox', { name: 'SEO title', exact: true }).fill('')
+    await page.getByRole('textbox', { name: 'SEO description', exact: true }).fill('')
+    await page.getByRole('textbox', { name: 'SEO keywords', exact: true }).fill('')
+    await page.getByRole('button', { name: 'Save product', exact: true }).click()
+    await page.waitForFunction(() => window.product.meta_title === '')
+    assert.deepEqual(
+      await page.evaluate(() => ({
+        title: window.product.meta_title,
+        description: window.product.meta_description,
+        tags: window.product.tags,
+      })),
+      { title: '', description: '', tags: [] }
+    )
+  }))

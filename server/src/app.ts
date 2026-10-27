@@ -6,7 +6,7 @@ import { env } from './config/env'
 import { logger } from './lib/logger'
 import { requestIdMiddleware } from './middleware/requestId'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler'
-import { generalApiLimiter } from './middleware/rateLimit'
+import { catalogApiLimiter } from './middleware/rateLimit'
 import { requireAuth } from './middleware/requireAuth'
 import { requireAdmin } from './middleware/requireAdmin'
 import { requireRuntimeSchema } from './middleware/requireRuntimeSchema'
@@ -54,6 +54,7 @@ export function createApp() {
         'req.headers.authorization',
         'req.headers["x-razorpay-signature"]',
         'req.headers["x-api-key"]',
+        'req.headers["x-muvira-seo-token"]',
       ],
       customProps: (req) => ({ requestId: (req as Request).requestId }),
     })
@@ -112,7 +113,7 @@ export function createApp() {
   app.use(express.json({ limit: '1mb' }))
 
   // 7. Global rate limiting
-  app.use('/api', generalApiLimiter)
+  app.use('/api', catalogApiLimiter)
 
   // 8. Routes
 

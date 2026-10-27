@@ -11,6 +11,7 @@ const envSchema = z
     PORT: z.string().regex(/^\d+$/, 'PORT must be numeric').default('4000'),
     LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
     SCHEMA_RELEASE_MODE: z.enum(['compatibility', 'final']).default('final'),
+    SEO_INTERNAL_TOKEN: z.string().min(32).optional(),
 
     // Supabase
     SUPABASE_URL: z.string().url('SUPABASE_URL must be a valid URL'),

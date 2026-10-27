@@ -29,6 +29,9 @@ export interface ProductListItem {
 }
 
 export interface ProductDetail {
+  metaTitle?: string
+  metaDescription?: string
+  tags?: string[]
   id: string
   name: string
   slug: string

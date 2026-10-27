@@ -22,11 +22,11 @@ RUN test -n "$VITE_API_URL" \
     && test -n "$VITE_AUTH_REDIRECT_URL" \
     && pnpm --filter client build
 
-FROM nginx:stable-alpine
-
-COPY --from=build /app/client/dist /usr/share/nginx/html
-COPY --from=build /app/client/nginx.conf /etc/nginx/conf.d/default.conf
-
+FROM node:20-alpine
+WORKDIR /app/client
+ENV PORT=80
+COPY --from=build /app/client/dist ./dist
+COPY --from=build /app/client/scripts ./scripts
+COPY --from=build /app/client/src/lib/seo ./src/lib/seo
 EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "scripts/serve-static.mjs"]

@@ -55,7 +55,10 @@ async function resolveCategoryToId(
 
   if (requireActive) q = q.eq('is_active', true)
 
-  const { data } = await q.single()
+  const { data, error } = await q.single()
+  if (error && !isPostgrestNoRows(error)) {
+    throw databaseError('products.resolve_category', error, 'Failed to resolve category')
+  }
   return data?.id ?? undefined
 }
 
@@ -149,7 +152,7 @@ export async function adminListProducts(query: ListProductsQuery) {
     `
       id, name, slug, short_description, description, category_id, price_paisa,
       compare_at_price_paisa, sku, stock, is_active, is_featured,
-      tags, metadata, created_at,
+      tags, meta_title, meta_description, metadata, created_at, updated_at,
       product_images ( id, url, alt_text, sort_order, is_primary ),
       categories ( id, name, slug )
     `,

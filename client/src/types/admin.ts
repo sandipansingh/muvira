@@ -113,6 +113,9 @@ export interface WebhookFailureItem {
 }
 
 export interface AdminProductInput {
+  metaTitle?: string
+  metaDescription?: string
+  tags?: string[]
   name: string
   slug?: string
   description?: string

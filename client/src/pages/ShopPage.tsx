@@ -193,7 +193,15 @@ export const ShopPage: React.FC = () => {
           'God idols, puja essentials and meaningful pieces for your space.'
         }
         imageUrl={selectedCategoryObj?.imageUrl || undefined}
-        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]}
+        breadcrumbs={
+          selectedCategoryObj
+            ? [
+                { label: 'Home', href: '/' },
+                { label: 'Shop', href: '/shop' },
+                { label: selectedCategoryObj.name },
+              ]
+            : [{ label: 'Home', href: '/' }, { label: 'Shop' }]
+        }
       />
 
       {categories.length > 0 && (
@@ -283,6 +291,12 @@ export const ShopPage: React.FC = () => {
                       currentPage={page}
                       totalPages={totalPages}
                       onPageChange={handlePageChange}
+                      getPageHref={(nextPage) => {
+                        const params = new URLSearchParams(searchParams)
+                        if (nextPage === 1) params.delete('page')
+                        else params.set('page', String(nextPage))
+                        return `/shop${params.size ? `?${params}` : ''}`
+                      }}
                     />
                   </div>
                 )}
