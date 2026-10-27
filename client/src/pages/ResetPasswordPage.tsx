@@ -88,14 +88,12 @@ export const ResetPasswordPage: React.FC = () => {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-surface px-4 py-10">
-      <div className="w-full max-w-md rounded-3xl border border-line bg-paper p-6 shadow-card sm:p-8">
+    <main className="auth-page flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="w-full max-w-md rounded-card border border-line bg-paper p-6 shadow-card sm:p-8">
         <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
           <LockKeyhole className="h-6 w-6" />
         </div>
-        <h1 className="font-display text-2xl font-bold leading-tight text-ink">
-          Set a new password
-        </h1>
+        <h1 className="font-display text-3xl leading-tight text-ink">Set a new password</h1>
 
         {checking ? (
           <p className="mt-4 text-sm text-ink">Validating your recovery link…</p>

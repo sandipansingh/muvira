@@ -29,7 +29,13 @@ export function useDialogFocus(
         ),
       ].filter((element) => element.getClientRects().length > 0)
 
-    const focusFrame = requestAnimationFrame(() => (focusable()[0] ?? dialog).focus())
+    const focusFrame = requestAnimationFrame(() =>
+      (
+        dialog.querySelector<HTMLElement>('[data-dialog-initial-focus]') ??
+        focusable()[0] ??
+        dialog
+      ).focus()
+    )
     const handleKeyDown = (event: KeyboardEvent) => {
       if (openDialogs[openDialogs.length - 1] !== dialog) return
       if (event.key === 'Escape') {

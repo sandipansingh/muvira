@@ -1,4 +1,5 @@
-import React, { useRef } from 'react'
+import { motion } from 'framer-motion'
+import React, { useId, useRef } from 'react'
 import { X } from 'lucide-react'
 import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
 
@@ -17,6 +18,7 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'md',
 }) => {
+  const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
   useDialogFocus(isOpen, onClose, panelRef)
 
@@ -36,6 +38,8 @@ export const Modal: React.FC<ModalProps> = ({
       className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
+      aria-labelledby={title ? titleId : undefined}
+      aria-label={title ? undefined : 'Dialog'}
     >
       <button
         type="button"
@@ -43,14 +47,19 @@ export const Modal: React.FC<ModalProps> = ({
         onClick={onClose}
         aria-label="Close dialog"
       />
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18 }}
         ref={panelRef}
         tabIndex={-1}
         className={`overlay-panel relative z-10 flex max-h-[90dvh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`}
       >
         {title ? (
           <div className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-4">
-            <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">{title}</h2>
+            <h2 id={titleId} className="font-display text-lg font-bold text-[var(--color-ink)]">
+              {title}
+            </h2>
             <button
               type="button"
               onClick={onClose}
@@ -71,7 +80,7 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         )}
         <div className="overflow-y-auto p-6 dropdown-scrollbar">{children}</div>
-      </div>
+      </motion.div>
     </div>
   )
 }

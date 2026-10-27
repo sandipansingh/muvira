@@ -78,7 +78,7 @@ export const AdminOrdersPage: React.FC = () => {
         ]}
       />
       <div>
-        <h2 className="heading text-2xl">Orders</h2>
+        <h1 className="admin-page-title">Orders</h1>
         <p className="mt-2 text-ink">Search by order number or customer email.</p>
       </div>
       <form
@@ -110,13 +110,13 @@ export const AdminOrdersPage: React.FC = () => {
         </button>
       </form>
 
-      {error && <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">{error}</p>}
-      {loading && <div className="h-48 animate-pulse rounded-3xl bg-surface" />}
+      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
+      {loading && <div className="h-48 animate-pulse rounded-card bg-surface" />}
       {!loading && !error && orders.length === 0 && (
         <p className="panel p-6 text-sm text-ink">No orders match these filters.</p>
       )}
       {!loading && orders.length > 0 && (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-paper">
+        <div className="overflow-x-auto rounded-card border border-line bg-paper">
           <table className="w-full min-w-[780px] text-left text-sm">
             <thead className="bg-surface text-ink">
               <tr>

@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import { productService } from '../../lib/services/product.service'
 import type { ProductListItem } from '../../lib/types/product'
 import { ProductCard } from '../catalog/ProductCard'
@@ -10,130 +9,62 @@ export const NewArrivals: React.FC = () => {
   const [products, setProducts] = useState<ProductListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     let active = true
-
-    const loadNewArrivals = async () => {
-      try {
-        const response = await productService.getProducts({
-          page: 1,
-          limit: 10,
-          sort: 'newest',
-        })
+    void productService
+      .getProducts({ page: 1, limit: 4, sort: 'newest' })
+      .then((response) => {
         if (!response.success) throw new Error(response.error.message)
         if (active) setProducts(response.data)
-      } catch (reason) {
-        if (active) {
+      })
+      .catch((reason) => {
+        if (active)
           setError(reason instanceof Error ? reason.message : 'Unable to load new arrivals.')
-        }
-      } finally {
+      })
+      .finally(() => {
         if (active) setLoading(false)
-      }
-    }
-
-    void loadNewArrivals()
-
+      })
     return () => {
       active = false
     }
   }, [])
-
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' })
-    }
-  }
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' })
-    }
-  }
-
-  const displayedProducts = products.slice(0, 5)
-
   return (
-    <section id="new-arrivals" className="editorial-container overflow-hidden py-8 sm:py-10">
-      {/* Section Header */}
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 sm:mb-6">
+    <section className="editorial-container section-space" aria-labelledby="new-arrivals-title">
+      <div className="collection-heading">
         <div>
-          <span className="eyebrow mb-1.5 block">Just In</span>
-          <h2 className="text-h2 text-ink">New Arrivals</h2>
+          <span className="eyebrow">A fresh discovery</span>
+          <h2 id="new-arrivals-title" className="mt-3 text-h2">
+            New to Muvira
+          </h2>
         </div>
-
-        {/* Right Controls: Scroll Buttons & View All */}
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={scrollLeft}
-            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
-            aria-label="Previous new arrivals"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={scrollRight}
-            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-line bg-paper text-ink transition-colors hover:bg-surface select-none lg:hidden"
-            aria-label="Next new arrivals"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-          <Link
-            to="/shop?sort=newest"
-            className="inline-flex items-center justify-center shrink-0 min-h-[var(--tap-target)] px-3.5 text-sm font-normal text-ink border border-line bg-paper rounded-[var(--radius-control)] hover:bg-surface hover:text-primary hover:border-primary transition-colors select-none"
-          >
-            View all
-          </Link>
-        </div>
+        <Link to="/shop?sort=newest" className="collection-link">
+          View new arrivals <ArrowRight className="h-4 w-4" />
+        </Link>
       </div>
-
       {loading && (
-        <div
-          className="flex gap-4 overflow-hidden sm:gap-5 lg:grid lg:grid-cols-5"
-          aria-busy="true"
-        >
-          {[1, 2, 3, 4, 5].map((item) => (
-            <div
-              key={item}
-              className="flex w-[240px] shrink-0 animate-pulse flex-col gap-2 sm:w-[280px] lg:w-auto"
-            >
-              <div className="aspect-square rounded-[var(--radius-card)] bg-[var(--color-surface)]" />
-              <div className="h-3 w-16 rounded bg-[var(--color-line)]" />
-              <div className="h-4 w-3/4 rounded bg-[var(--color-line)]" />
-              <div className="h-4 w-1/3 rounded bg-[var(--color-line)]" />
-            </div>
+        <p className="py-16 text-muted" role="status">
+          Loading new arrivals…
+        </p>
+      )}
+      {!loading && error && (
+        <p className="panel p-6 text-muted" role="status">
+          {error}{' '}
+          <Link to="/shop" className="underline">
+            Browse the shop
+          </Link>
+        </p>
+      )}
+      {!loading && !error && products.length === 0 && (
+        <p className="py-12 text-muted">New arrivals will appear here as the collection grows.</p>
+      )}
+      {!loading && !error && (
+        <div className="product-collection">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
-      )}
-
-      {!loading && error && <div className="text-body-sm text-muted py-8 text-center">{error}</div>}
-
-      {!loading && !error && displayedProducts.length === 0 && (
-        <div className="text-body-sm text-muted py-8 text-center">
-          New arrivals are being added. Please check back soon.
-        </div>
-      )}
-
-      {!loading && !error && displayedProducts.length > 0 && (
-        <motion.div
-          ref={scrollContainerRef}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 no-scrollbar sm:gap-5 sm:pb-0 lg:grid lg:grid-cols-5 lg:overflow-visible"
-        >
-          {displayedProducts.map((product) => (
-            <div key={product.id} className="w-[240px] shrink-0 snap-start sm:w-[280px] lg:w-auto">
-              <ProductCard product={product} badgeText="NEW" />
-            </div>
-          ))}
-        </motion.div>
       )}
     </section>
   )
 }
-
 export default NewArrivals

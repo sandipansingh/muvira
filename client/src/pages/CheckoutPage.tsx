@@ -260,8 +260,8 @@ export const CheckoutPage: React.FC = () => {
         <div className="mx-auto max-w-6xl animate-pulse space-y-6">
           <div className="h-10 w-48 rounded-xl bg-[var(--color-surface)]" />
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-            <div className="h-96 rounded-3xl bg-[var(--color-surface)] lg:col-span-7" />
-            <div className="h-96 rounded-3xl bg-[var(--color-surface)] lg:col-span-5" />
+            <div className="h-96 rounded-card bg-[var(--color-surface)] lg:col-span-7" />
+            <div className="h-96 rounded-card bg-[var(--color-surface)] lg:col-span-5" />
           </div>
         </div>
       </main>
@@ -283,8 +283,8 @@ export const CheckoutPage: React.FC = () => {
     )
 
   return (
-    <main className="min-h-screen bg-[var(--color-paper)] pb-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <main className="checkout-page min-h-screen bg-background pb-16">
+      <div className="layout-container">
         {/* Top Navigation Flow Header */}
         <FlowHeader
           currentStep={currentStep}
@@ -304,8 +304,6 @@ export const CheckoutPage: React.FC = () => {
               : quoteError}
           </div>
         )}
-
-        {/* STEP 1: SHIPPING STEP (Matches Reference #2) */}
         {currentStep === 'shipping' && (
           <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
             {/* Left Column: Shipping Address & Method */}
@@ -339,15 +337,12 @@ export const CheckoutPage: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* STEP 2: PAYMENT STEP (Matches Reference #1) */}
         {currentStep === 'payment' && (
           <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
-            {/* Left Column: Order Summary (Reference #1 Left Column) */}
             <div className="space-y-6 lg:col-span-7 xl:col-span-7">
               <details
                 open
-                className="group rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs space-y-6"
+                className="group rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-none space-y-6"
               >
                 {/* Header with Items pill badge */}
                 <summary className="flex min-h-[var(--tap-target)] cursor-pointer items-center justify-between gap-3 border-b border-[var(--color-line)] pb-4 list-none [&::-webkit-details-marker]:hidden">
@@ -370,7 +365,7 @@ export const CheckoutPage: React.FC = () => {
                 </div>
 
                 {/* Discount Code Voucher Card */}
-                <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)]/60 p-4 transition-all hover:border-[var(--color-field-border)]">
+                <div className="rounded-card border border-[var(--color-line)] bg-[var(--color-surface)]/60 p-4 transition-all hover:border-[var(--color-field-border)]">
                   {coupon ? (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -410,18 +405,21 @@ export const CheckoutPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <form onSubmit={handleApplyPromoCode} className="flex items-center gap-2">
+                      <form
+                        onSubmit={handleApplyPromoCode}
+                        className="flex flex-wrap items-center gap-2"
+                      >
                         <input
                           type="text"
                           placeholder="Coupon code"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value)}
-                          className="h-9 w-32 rounded-xl border border-[var(--color-line)] bg-[var(--color-paper)] px-3 text-xs uppercase text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:outline-none"
+                          className="h-11 w-full min-w-0 rounded-control border border-[var(--color-line)] bg-[var(--color-paper)] px-3 text-xs uppercase text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:outline-none"
                         />
                         <button
                           type="submit"
                           disabled={isApplyingPromo || !promoCode.trim()}
-                          className="flex h-9 cursor-pointer items-center gap-1 rounded-xl bg-[var(--color-ink)] px-3 text-xs font-bold text-white transition-colors hover:bg-[var(--color-primary)] disabled:opacity-40"
+                          className="flex min-h-11 cursor-pointer items-center gap-1 rounded-control bg-[var(--color-ink)] px-3 text-xs font-bold text-white transition-colors hover:bg-[var(--color-primary)] disabled:opacity-40"
                         >
                           <Tag className="h-3 w-3" />
                           <span>{isApplyingPromo ? '...' : 'Add code'}</span>
@@ -430,8 +428,6 @@ export const CheckoutPage: React.FC = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Subtotal / Shipping / Tax / Total Breakdown matching Reference #1 */}
                 <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-xs text-[var(--color-muted)]">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
@@ -476,8 +472,6 @@ export const CheckoutPage: React.FC = () => {
                   </div>
                 </div>
               </details>
-
-              {/* Recommended For You Upsell Carousel matching bottom-left of Reference #1 */}
               <RecommendedUpsell />
             </div>
 
@@ -494,7 +488,7 @@ export const CheckoutPage: React.FC = () => {
                   shippingMethod={shippingMethod}
                 />
               ) : (
-                <section className="rounded-3xl border border-warning/30 bg-warning-soft p-6 text-sm text-warning">
+                <section className="rounded-card border border-warning/30 bg-warning-soft p-6 text-sm text-warning">
                   {quoteError ?? 'Return to shipping and select a valid address before payment.'}
                 </section>
               )}

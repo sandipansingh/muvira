@@ -69,7 +69,7 @@ export const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl bg-paper p-6 shadow-2xl sm:p-8"
+        className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-card bg-paper p-6 shadow-2xl sm:p-8"
       >
         <Button
           type="button"

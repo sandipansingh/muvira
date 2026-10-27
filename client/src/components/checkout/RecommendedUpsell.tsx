@@ -71,7 +71,7 @@ export const RecommendedUpsell: React.FC = () => {
         Featured product
       </h3>
 
-      <div className="relative flex flex-wrap items-center gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] shadow-xs transition-all hover:border-[var(--color-field-border)]">
+      <div className="relative flex flex-wrap items-center gap-3.5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] shadow-none transition-all hover:border-[var(--color-field-border)]">
         {/* Product Image */}
         <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]">
           {product.primaryImageUrl ? (

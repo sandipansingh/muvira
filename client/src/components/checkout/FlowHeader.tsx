@@ -1,6 +1,8 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { X, ChevronRight } from 'lucide-react'
+import { ArrowLeft, LockKeyhole } from 'lucide-react'
+import { Breadcrumbs } from '../common/Breadcrumbs'
+import { CheckoutSteps } from './CheckoutSteps'
 
 export interface FlowHeaderProps {
   currentStep: 'cart' | 'shipping' | 'payment'
@@ -9,92 +11,60 @@ export interface FlowHeaderProps {
 
 export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) => {
   const navigate = useNavigate()
-
-  const handleClose = () => {
-    if (onBack) {
-      onBack()
-    } else if (currentStep === 'payment') {
-      navigate('/checkout?step=shipping')
-    } else if (currentStep === 'shipping') {
-      navigate('/cart')
-    } else {
-      navigate('/shop')
-    }
+  const titles = {
+    cart: 'Your shopping bag',
+    shipping: 'Where shall we send it?',
+    payment: 'The final details',
   }
-
+  const handleBack = () => {
+    if (onBack) onBack()
+    else
+      navigate(
+        currentStep === 'payment'
+          ? '/checkout?step=shipping'
+          : currentStep === 'shipping'
+            ? '/cart'
+            : '/shop'
+      )
+  }
   return (
-    <header className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-paper)] py-3 sm:py-4">
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3 sm:gap-4">
-        {/* Back / Close button */}
-        <button
-          type="button"
-          onClick={handleClose}
-          aria-label="Back / Close"
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[var(--color-line)] bg-[var(--color-paper)] text-[var(--color-ink)] transition-colors hover:border-[var(--color-field-border)] hover:bg-[var(--color-surface)]"
-        >
-          <X className="h-4 w-4 stroke-[2]" />
-        </button>
-
-        {/* Step Breadcrumbs */}
-        <nav
-          aria-label="Checkout Progress"
-          className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs sm:text-sm"
-        >
-          <Link
-            to="/cart"
-            className={`inline-flex min-h-[var(--tap-target)] items-center font-medium transition-colors ${
-              currentStep === 'cart'
-                ? 'font-bold text-[var(--color-ink)]'
-                : 'text-[var(--color-muted)] hover:text-[var(--color-primary)]'
-            }`}
-          >
-            Shopping Cart
-          </Link>
-
-          <ChevronRight className="h-3.5 w-3.5 text-[var(--color-muted)]" />
-
-          {currentStep === 'cart' ? (
-            <span className="text-[var(--color-muted)]">Checkout</span>
-          ) : (
-            <>
-              <Link
-                to="/checkout?step=shipping"
-                className={`inline-flex min-h-[var(--tap-target)] items-center font-medium transition-colors ${
-                  currentStep === 'shipping'
-                    ? 'font-bold text-[var(--color-ink)]'
-                    : 'text-[var(--color-muted)] hover:text-[var(--color-primary)]'
-                }`}
-              >
-                Shipping
-              </Link>
-
-              <ChevronRight className="h-3.5 w-3.5 text-[var(--color-muted)]" />
-
-              <span
-                className={`font-medium ${
-                  currentStep === 'payment'
-                    ? 'font-bold text-[var(--color-ink)]'
-                    : 'text-[var(--color-muted)]'
-                }`}
-              >
-                Payment
-              </span>
-            </>
-          )}
-        </nav>
-      </div>
-
-      <div className="hidden text-xs text-[var(--color-muted)] sm:block">
-        Need help?{' '}
+    <header className="checkout-heading">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Shopping bag', href: currentStep === 'cart' ? undefined : '/cart' },
+            ...(currentStep !== 'cart' ? [{ label: 'Checkout' }] : []),
+          ]}
+        />
         <Link
           to="/shop"
-          className="inline-flex min-h-[var(--tap-target)] items-center font-semibold text-[var(--color-ink)] hover:text-[var(--color-primary)] hover:underline"
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-primary"
         >
-          Contact Support
+          Continue shopping
         </Link>
       </div>
+      <div className="mb-8 mt-5 flex items-start gap-4">
+        <button
+          type="button"
+          onClick={handleBack}
+          aria-label="Back / Close"
+          className="button-secondary shrink-0 p-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div>
+          <h1 className="page-title">{titles[currentStep]}</h1>
+          <p className="mt-3 flex items-center gap-2 text-sm text-muted">
+            <LockKeyhole className="h-4 w-4" />
+            {currentStep === 'cart'
+              ? 'A few meaningful things, all in one place.'
+              : 'Review your details before paying securely with Razorpay.'}
+          </p>
+        </div>
+      </div>
+      <CheckoutSteps currentStep={currentStep} />
     </header>
   )
 }
-
 export default FlowHeader

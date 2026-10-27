@@ -228,8 +228,8 @@ export const ProfilePage: React.FC = () => {
   if (authLoading || !user) return <main className="editorial-page" />
 
   return (
-    <main className="editorial-page py-8 sm:py-10">
-      <div className="editorial-container max-w-5xl space-y-8">
+    <main className="account-page editorial-page py-10 sm:py-14">
+      <div className="editorial-container max-w-6xl space-y-8">
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Profile' }]} />
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-line)] pb-4">
           <div>
@@ -253,7 +253,7 @@ export const ProfilePage: React.FC = () => {
           <div className="space-y-2">
             <Link
               to="/profile"
-              className="flex items-center gap-3 rounded-[var(--radius-control)] bg-[var(--color-ink)] p-4 text-xs font-normal text-white"
+              className="flex items-center gap-3 rounded-[var(--radius-control)] bg-primary p-4 text-xs font-normal text-white"
             >
               <User className="h-4 w-4 shrink-0" />
               <span className="leading-none">Personal Info</span>
@@ -505,7 +505,7 @@ export const ProfilePage: React.FC = () => {
                     className="flex flex-col gap-4 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] p-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"
                   >
                     <div className="min-w-0 space-y-1 text-base text-muted">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <strong className="text-sm text-ink">{address.fullName}</strong>
                         {address.isDefault && <span className="status-badge">Default</span>}
                       </div>

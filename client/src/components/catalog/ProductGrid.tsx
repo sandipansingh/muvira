@@ -14,13 +14,13 @@ interface ProductGridProps {
 export const ProductGrid: React.FC<ProductGridProps> = ({
   products,
   loading = false,
-  viewMode = 'grid-3',
+  viewMode = 'grid-4',
   onResetFilters,
 }) => {
   const getGridClasses = () => {
     switch (viewMode) {
       case 'grid-4':
-        return 'grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
+        return 'product-collection'
       case 'grid-2':
         return 'grid grid-cols-1 sm:grid-cols-2 gap-6'
       case 'list':
@@ -36,7 +36,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       <div className={getGridClasses()} aria-busy="true">
         {[1, 2, 3, 4, 5, 6].map((item) => (
           <div key={item} className="flex flex-col gap-3 animate-pulse">
-            <div className="aspect-square rounded-2xl bg-surface" />
+            <div className="aspect-square rounded-card bg-surface" />
             <div className="h-3 w-16 rounded bg-line" />
             <div className="h-4 w-3/4 rounded bg-line" />
             <div className="h-4 w-1/3 rounded bg-line" />

@@ -42,7 +42,7 @@ export const CartPage: React.FC = () => {
     return (
       <main className="min-h-[75vh] bg-[var(--color-paper)] px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-lg text-center">
-          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-[var(--color-surface)] text-[var(--color-muted)] shadow-xs">
+          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-card bg-[var(--color-surface)] text-[var(--color-muted)] shadow-none">
             <ShoppingBag className="h-12 w-12 stroke-[1.5] text-[var(--color-primary)]" />
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-[var(--color-ink)] mt-6">
@@ -53,7 +53,7 @@ export const CartPage: React.FC = () => {
           </p>
           <Link
             to="/shop"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-6 py-3.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-[var(--color-primary-hover)]"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-6 py-3.5 text-sm font-semibold text-white shadow-none transition-all hover:bg-[var(--color-primary-hover)]"
           >
             <span>Explore Collections</span>
             <ArrowRight className="h-4 w-4 shrink-0" />
@@ -64,8 +64,8 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--color-paper)] pb-16">
-      <div className="mx-auto max-w-7xl px-[min(1rem,5vw)] sm:px-6 lg:px-8">
+    <main className="checkout-page min-h-screen bg-background pb-16">
+      <div className="layout-container">
         {/* Top Flow Header */}
         <FlowHeader currentStep="cart" onBack={() => navigate('/shop')} />
 
@@ -82,13 +82,11 @@ export const CartPage: React.FC = () => {
         <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
           {/* Main Left Column: Order Summary with Item Cards & Recommended Upsell */}
           <div className="space-y-6 lg:col-span-7 xl:col-span-8">
-            <section className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-7 shadow-xs space-y-6">
+            <section className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-7 shadow-none space-y-6">
               {/* Header with Clear Cart */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-line)] pb-4">
                 <div className="flex items-center gap-3">
-                  <h1 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
-                    Order Summary
-                  </h1>
+                  <h2 className="font-display text-xl sm:text-2xl text-ink">In your bag</h2>
                   <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-ink)]">
                     {itemCount} {itemCount === 1 ? 'item' : 'items'}
                   </span>
@@ -103,8 +101,6 @@ export const CartPage: React.FC = () => {
                   Clear Cart
                 </button>
               </div>
-
-              {/* List of Item Cards matching Reference #1 */}
               <div className="space-y-3.5">
                 {items.map((item) => (
                   <FlowItemCard key={item.id} item={item} />
@@ -122,12 +118,8 @@ export const CartPage: React.FC = () => {
                 </Link>
               </div>
             </section>
-
-            {/* Recommended Upsell Carousel matching bottom-left of Reference #1 */}
             <RecommendedUpsell />
           </div>
-
-          {/* Right Column: Sticky Your Cart Summary matching Reference #2 */}
           <div className="lg:col-span-5 xl:col-span-4">
             <FlowCartSidebar
               items={items}

@@ -17,7 +17,7 @@ export const CategoryGrid: React.FC = () => {
         const response = await categoryService.getCategories()
         if (!response.success) throw new Error(response.error.message)
         if (active) {
-          setCategories([...response.data].sort((a, b) => a.sortOrder - b.sortOrder).slice(0, 3))
+          setCategories([...response.data].sort((a, b) => a.sortOrder - b.sortOrder).slice(0, 6))
         }
       } catch (reason) {
         if (active) {
@@ -35,11 +35,11 @@ export const CategoryGrid: React.FC = () => {
   }, [])
 
   return (
-    <section id="shop-collection" className="editorial-container py-8 sm:py-10">
+    <section id="shop-collection" className="editorial-container section-space">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4 sm:mb-6">
         <div>
-          <span className="eyebrow mb-1.5 block">Featured</span>
-          <h2 className="text-h2 text-ink">Shop Collection</h2>
+          <span className="eyebrow mb-1.5 block">Find your ritual</span>
+          <h2 className="text-h2 text-ink">Explore the collections</h2>
         </div>
         <Link
           to="/categories"
@@ -50,7 +50,7 @@ export const CategoryGrid: React.FC = () => {
       </div>
 
       {loading && (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+        <div className="category-collection" aria-busy="true">
           {[1, 2, 3].map((item) => (
             <div
               key={item}
@@ -67,21 +67,21 @@ export const CategoryGrid: React.FC = () => {
       )}
 
       {!loading && !error && categories.length > 0 && (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="category-collection">
           {categories.map((category) => (
             <Link
               key={category.id}
               to={`/shop?category=${encodeURIComponent(category.slug)}`}
-              className="group flex min-h-[280px] flex-col justify-between overflow-hidden rounded-[var(--radius-card)] bg-surface p-5 sm:p-6"
+              className="category-tile group"
             >
-              <div className="flex flex-1 items-center justify-center p-4">
+              <div className="category-tile__image">
                 {category.imageUrl ? (
                   <img
                     src={category.imageUrl}
                     alt={category.name}
                     width={480}
                     height={360}
-                    className="max-h-[220px] w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                    className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.025]"
                     loading="lazy"
                   />
                 ) : (
@@ -89,7 +89,7 @@ export const CategoryGrid: React.FC = () => {
                 )}
               </div>
               <div className="mt-4">
-                <h3 className="text-h3 text-ink">{category.name}</h3>
+                <h3 className="font-sans text-base font-semibold text-ink">{category.name}</h3>
                 <span className="mt-2 inline-flex items-center gap-1.5 text-body-sm text-ink underline decoration-line underline-offset-4 transition-colors group-hover:decoration-ink">
                   View collection
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />

@@ -63,9 +63,10 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
   }
 
   return (
-    <div className="flex flex-col space-y-5 pr-0 sm:pr-2 lg:pr-8 xl:pr-12">
+    <div className="product-purchase flex flex-col space-y-5">
       {/* Product Title */}
-      <div className="space-y-2">
+      <div className="space-y-3">
+        <p className="text-sm uppercase tracking-widest text-muted">{product.category.name}</p>
         <h1 className="font-product leading-[1.15] tracking-tight text-[clamp(1.5rem,5vw,2rem)] font-semibold text-ink">
           {product.name}
         </h1>
@@ -95,7 +96,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
 
       {/* Price Section with Savings Pill */}
       <div className="flex flex-wrap items-baseline gap-3 py-1.5">
-        <span className="font-product text-2xl font-bold text-ink sm:text-3xl">
+        <span className="font-product text-2xl font-bold text-primary sm:text-3xl">
           {formatPrice(product.price)}
         </span>
         {originalPrice && originalPrice > product.price && (
@@ -110,7 +111,26 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         )}
       </div>
 
-      {/* Quantity Selector, Buy Now & Add to Cart Controls (Divided into 2 Rows) */}
+      <div className="border-y border-line py-4 text-sm">
+        <p className={product.inStock ? 'text-ink' : 'text-danger'}>
+          {product.inStock ? 'In stock' : 'Currently unavailable'}
+        </p>
+        {Object.entries(product.metadata ?? {}).filter(([key]) =>
+          /^(material|dimensions|finish)$/i.test(key)
+        ).length > 0 && (
+          <dl className="mt-4 grid grid-cols-2 gap-3">
+            {Object.entries(product.metadata ?? {})
+              .filter(([key]) => /^(material|dimensions|finish)$/i.test(key))
+              .map(([key, value]) => (
+                <div key={key}>
+                  <dt className="text-xs capitalize text-muted">{key}</dt>
+                  <dd className="mt-1">{value}</dd>
+                </div>
+              ))}
+          </dl>
+        )}
+      </div>
+
       <div className="space-y-3 pt-2">
         {/* Row 1: Stepper and Add to Cart */}
         <div className="flex flex-wrap items-center gap-2.5">

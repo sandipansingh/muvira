@@ -71,7 +71,7 @@ export const OrderDetailPage: React.FC = () => {
   if (error || !order)
     return (
       <main className="editorial-page px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-xl rounded-3xl border border-line bg-surface p-6 text-center shadow-premium">
+        <div className="mx-auto max-w-xl rounded-card border border-line bg-surface p-6 text-center shadow-premium">
           <h1 className="heading page-title">Order unavailable</h1>
           <p className="mt-2 text-sm text-muted">{error ?? 'We could not find this order.'}</p>
           <Link to="/orders" className="button-primary mt-6">
@@ -104,8 +104,8 @@ export const OrderDetailPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-8 sm:py-10">
-      <div className="editorial-container max-w-4xl space-y-8">
+    <main className="account-page editorial-page py-10 sm:py-14">
+      <div className="editorial-container max-w-6xl space-y-8">
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -139,7 +139,7 @@ export const OrderDetailPage: React.FC = () => {
           )}
         </div>
         {invoiceError && (
-          <p className="rounded-2xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
+          <p className="rounded-card border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
             {invoiceError}
           </p>
         )}
@@ -184,7 +184,7 @@ export const OrderDetailPage: React.FC = () => {
             </a>
           )}
           {trackingError && (
-            <p className="rounded-2xl border border-line bg-surface-subtle p-4 text-sm text-ink">
+            <p className="rounded-card border border-line bg-surface-subtle p-4 text-sm text-ink">
               Tracking could not be loaded: {trackingError}
             </p>
           )}
@@ -224,10 +224,10 @@ export const OrderDetailPage: React.FC = () => {
                       alt={item.productName}
                       width={64}
                       height={64}
-                      className="h-16 w-16 rounded-2xl shrink-0 object-cover border border-line"
+                      className="h-16 w-16 rounded-card shrink-0 object-cover border border-line"
                     />
                   ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-surface">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-card bg-surface">
                       <Package className="h-6 w-6 text-disabled" />
                     </div>
                   )}

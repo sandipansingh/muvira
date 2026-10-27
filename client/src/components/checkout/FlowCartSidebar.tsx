@@ -53,7 +53,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
   const estimatedTaxPaisa = 0
 
   return (
-    <aside className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-6 shadow-xs lg:sticky lg:top-24 lg:self-start space-y-5">
+    <aside className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-6 shadow-none lg:sticky lg:top-24 lg:self-start space-y-5">
       {/* Title */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-lg sm:text-xl font-bold text-[var(--color-ink)]">
@@ -102,7 +102,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                     </div>
                   )}
                   {/* Quantity Badge on Top */}
-                  <span className="absolute left-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/80 text-[10px] font-bold text-white shadow-xs">
+                  <span className="absolute left-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-black/80 text-[10px] font-bold text-white shadow-none">
                     {item.quantity}
                   </span>
                 </div>
@@ -126,8 +126,6 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
             </div>
           ))}
         </div>
-
-        {/* Discount Code Input matching Reference #2 */}
         <div className="border-t border-[var(--color-line)] pt-4">
           {coupon ? (
             <div className="flex items-center justify-between rounded-xl border border-accent/30 bg-accent-soft p-2.5 text-xs text-accent">
@@ -225,7 +223,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
         type="button"
         onClick={onProceed}
         disabled={disabled || isProcessing || items.length === 0}
-        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--color-ink)] py-3.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-[var(--color-primary)] hover:shadow-sm disabled:opacity-50"
+        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--color-ink)] py-3.5 text-sm font-semibold text-white shadow-none transition-all hover:bg-[var(--color-primary)] hover:shadow-sm disabled:opacity-50"
       >
         <span>{isProcessing ? 'Processing...' : buttonLabel}</span>
         {!isProcessing && <ArrowRight className="h-4 w-4 shrink-0" />}

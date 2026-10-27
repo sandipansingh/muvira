@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Breadcrumbs } from '../../components/common/Breadcrumbs'
 import { Pagination } from '../../components/common/Pagination'
+import { Modal } from '../../components/common/Modal'
 import { Dropdown } from '../../components/ui/Dropdown'
 import { useToast } from '../../context/ToastContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
@@ -16,6 +17,8 @@ export const AdminCouponsPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
   const resultsContainerRef = useRef<HTMLDivElement>(null)
   const shouldScrollRef = useRef(false)
 
@@ -85,12 +88,12 @@ export const AdminCouponsPage: React.FC = () => {
         ]}
       />
       <div>
-        <h2 className="heading text-2xl">Coupons</h2>
+        <h1 className="admin-page-title">Coupons</h1>
         <p className="mt-2 text-ink">
           Create real discount rules and deactivate promotions immediately.
         </p>
       </div>
-      {error && <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       <form onSubmit={createCoupon} className="panel grid gap-4 p-5 lg:grid-cols-3">
         <h3 className="heading text-xl lg:col-span-3">New coupon</h3>
         <input
@@ -145,12 +148,12 @@ export const AdminCouponsPage: React.FC = () => {
         </button>
       </form>
 
-      {loading && <div className="h-40 animate-pulse rounded-3xl bg-surface" />}
+      {loading && <div className="h-40 animate-pulse rounded-card bg-surface" />}
       {!loading && coupons.length === 0 && (
         <p className="panel p-6 text-sm text-ink">No coupons found.</p>
       )}
       {!loading && coupons.length > 0 && (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-paper">
+        <div className="overflow-x-auto rounded-card border border-line bg-paper">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="bg-surface text-ink">
               <tr>
@@ -185,7 +188,10 @@ export const AdminCouponsPage: React.FC = () => {
                       <button
                         type="button"
                         disabled={busy}
-                        onClick={() => void editCoupon(coupon)}
+                        onClick={() => {
+                          setEditError(null)
+                          setEditingCoupon(coupon)
+                        }}
                         className="button-secondary px-3 py-1 text-xs"
                       >
                         Edit
@@ -214,6 +220,69 @@ export const AdminCouponsPage: React.FC = () => {
           setPage(nextPage)
         }}
       />
+      <Modal
+        isOpen={editingCoupon !== null}
+        onClose={() => {
+          if (!busy) setEditingCoupon(null)
+        }}
+        title={editingCoupon ? `Edit ${editingCoupon.code}` : 'Edit coupon'}
+      >
+        {editingCoupon && (
+          <form key={editingCoupon.id} onSubmit={saveCoupon} className="space-y-5">
+            <label className="block space-y-2 text-sm">
+              <span>
+                {editingCoupon.discountType === 'fixed'
+                  ? 'Discount amount ₹'
+                  : 'Discount percentage'}
+              </span>
+              <input
+                data-dialog-initial-focus
+                name="discount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                required
+                defaultValue={
+                  editingCoupon.discountType === 'fixed'
+                    ? editingCoupon.discountValue / 100
+                    : editingCoupon.discountValue
+                }
+                className="w-full rounded-control border border-line bg-paper p-3 text-base"
+              />
+            </label>
+            <label className="block space-y-2 text-sm">
+              <span>Minimum order amount ₹</span>
+              <input
+                name="minimum"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                defaultValue={editingCoupon.minOrderAmount / 100}
+                className="w-full rounded-control border border-line bg-paper p-3 text-base"
+              />
+            </label>
+            {editError && (
+              <p role="alert" className="text-sm text-danger">
+                {editError}
+              </p>
+            )}
+            <div className="flex flex-wrap gap-3">
+              <button type="submit" disabled={busy} className="button-primary">
+                {busy ? 'Saving…' : 'Save coupon'}
+              </button>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setEditingCoupon(null)}
+                className="button-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </Modal>
     </div>
   )
 
@@ -235,32 +304,25 @@ export const AdminCouponsPage: React.FC = () => {
     }
   }
 
-  async function editCoupon(coupon: Coupon) {
-    const rawValue = window.prompt(
-      coupon.discountType === 'fixed' ? 'Discount amount in rupees' : 'Discount percentage',
-      coupon.discountType === 'fixed'
-        ? String(coupon.discountValue / 100)
-        : String(coupon.discountValue)
-    )
-    if (rawValue === null) return
-    const value = Number(rawValue)
+  async function saveCoupon(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const coupon = editingCoupon
+    if (!coupon || busy) return
+    const form = new FormData(event.currentTarget)
+    const value = Number(form.get('discount'))
     if (!Number.isFinite(value) || value <= 0) {
-      showToast('Enter a positive discount value.', 'error')
+      setEditError('Enter a positive discount value.')
       return
     }
 
-    const rawMinimum = window.prompt(
-      'Minimum order amount in rupees',
-      String(coupon.minOrderAmount / 100)
-    )
-    if (rawMinimum === null) return
-    const minimum = Number(rawMinimum)
+    const minimum = Number(form.get('minimum'))
     if (!Number.isFinite(minimum) || minimum < 0) {
-      showToast('Enter a valid minimum order amount.', 'error')
+      setEditError('Enter a valid minimum order amount.')
       return
     }
 
     setBusy(true)
+    setEditError(null)
     try {
       const response = await adminApiService.updateCoupon(coupon.id, {
         discountValue:
@@ -269,10 +331,11 @@ export const AdminCouponsPage: React.FC = () => {
       })
       if (!response.success) throw new Error(response.error.message)
       showToast(`${coupon.code} updated.`, 'success')
+      setEditingCoupon(null)
       await loadCoupons()
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Coupon could not be updated.'
-      setError(message)
+      setEditError(message)
       showToast(message, 'error')
     } finally {
       setBusy(false)

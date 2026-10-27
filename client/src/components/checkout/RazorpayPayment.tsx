@@ -163,7 +163,7 @@ export const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
   }
 
   return (
-    <section className="space-y-5 rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 shadow-xs sm:p-7">
+    <section className="space-y-5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 shadow-none sm:p-7">
       <div>
         <div className="flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-[var(--color-ink)]" aria-hidden="true" />

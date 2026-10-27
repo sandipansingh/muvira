@@ -39,6 +39,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addToCart } = useCart()
   const [isAdded, setIsAdded] = useState(false)
+  const [isAdding, setIsAdding] = useState(false)
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false)
   const primaryImage = getPrimaryImage(product)
   const description = getDescription(product)
@@ -50,12 +51,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       event.preventDefault()
       event.stopPropagation()
     }
+    if (isAdding || !product.inStock) return
+    setIsAdding(true)
     try {
       await addToCart(product)
       setIsAdded(true)
       window.setTimeout(() => setIsAdded(false), 2000)
     } catch {
       setIsAdded(false)
+    } finally {
+      setIsAdding(false)
     }
   }
 
@@ -71,7 +76,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return (
       <>
         <article
-          className={`group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-2xl border border-line bg-paper hover:shadow-card transition-all duration-300 w-full overflow-hidden ${className}`}
+          className={`group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-3.5 sm:p-4 rounded-card border border-line bg-paper hover:shadow-card transition-all duration-300 w-full overflow-hidden ${className}`}
         >
           {/* Product Thumbnail */}
           <div className="relative h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32 rounded-xl overflow-hidden bg-surface shrink-0">
@@ -97,7 +102,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </Link>
             <div className="absolute left-2 top-2 flex flex-col gap-1 pointer-events-none">
               {badgeText && (
-                <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink shadow-xs">
+                <span className="rounded bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-ink shadow-none">
                   {badgeText}
                 </span>
               )}
@@ -139,6 +144,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAddToCart}
+              disabled={!product.inStock || isAdding}
+              aria-busy={isAdding}
               className="button-primary min-h-9 px-4 text-xs gap-1.5 flex-1 sm:flex-initial"
               aria-label={`Add ${product.name} to cart`}
             >
@@ -147,7 +154,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ) : (
                 <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
               )}
-              <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
+              <span className="leading-none">
+                {!product.inStock
+                  ? 'Unavailable'
+                  : isAdding
+                    ? 'Adding…'
+                    : isAdded
+                      ? 'Added'
+                      : 'Add to cart'}
+              </span>
             </button>
             <button
               type="button"
@@ -200,6 +215,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAddToCart}
+              disabled={!product.inStock || isAdding}
+              aria-busy={isAdding}
               className="button-primary min-h-10 flex-1 px-3 text-xs opacity-0 shadow-[var(--shadow-overlay)] transition-opacity duration-200 group-hover:opacity-100 gap-1.5"
               aria-label={`Add ${product.name} to cart`}
             >
@@ -208,7 +225,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ) : (
                 <ShoppingBag className="h-4 w-4 shrink-0" />
               )}
-              <span className="leading-none">{isAdded ? 'Added' : 'Add to cart'}</span>
+              <span className="leading-none">
+                {!product.inStock
+                  ? 'Unavailable'
+                  : isAdding
+                    ? 'Adding…'
+                    : isAdded
+                      ? 'Added'
+                      : 'Add to cart'}
+              </span>
             </button>
             <button
               type="button"
@@ -231,6 +256,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleAddToCart}
+              disabled={!product.inStock || isAdding}
+              aria-busy={isAdding}
               className="button-primary h-11 w-11 p-0"
               aria-label={`Add ${product.name} to cart`}
             >

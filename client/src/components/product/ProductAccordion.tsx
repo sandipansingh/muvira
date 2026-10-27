@@ -43,7 +43,6 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
 
   return (
     <div className="mt-10 pt-6 sm:mt-12">
-      {/* Horizontal Tabs Header (Matching Reference Image 1 & 3) */}
       <div className="border-b border-line/60">
         <div className="flex flex-col md:hidden">
           {tabs.map((tab) => (
@@ -91,11 +90,12 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
 
       {/* Tab Content Container */}
       <div id="product-detail-panel" className="py-6">
-        {/* Description Tab (Matching Reference Image 1) */}
         {activeTab === 'description' && (
           <div className="max-w-3xl space-y-5">
             {product.description ? (
-              <p className="text-base leading-relaxed text-ink-soft/90">{product.description}</p>
+              <p className="whitespace-pre-line text-base leading-8 text-ink-soft">
+                {product.description}
+              </p>
             ) : (
               <p className="text-base text-muted">A product description is not available.</p>
             )}
@@ -128,6 +128,14 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
                     </td>
                     <td className="px-4 py-3 font-normal text-ink">{product.category.name}</td>
                   </tr>
+                  {product.weightGrams != null && (
+                    <tr>
+                      <th scope="row" className="px-4 py-3 text-left font-normal text-muted">
+                        Weight
+                      </th>
+                      <td className="px-4 py-3">{product.weightGrams.toLocaleString('en-IN')} g</td>
+                    </tr>
+                  )}
                   {Object.entries(product.metadata).map(([label, value]) => (
                     <tr key={label}>
                       <td className="px-4 py-3 text-xs font-normal uppercase tracking-wider text-muted">
@@ -167,8 +175,7 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({
               delivery configuration during checkout.
             </p>
             <p className="text-muted">
-              The final shipping amount shown in the payment step is supplied by the server and is
-              included in the Razorpay order total.
+              Review your delivery details and the final total before continuing to payment.
             </p>
           </div>
         )}

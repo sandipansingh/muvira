@@ -23,7 +23,11 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
         const current = currentStep === step.id
         return (
           <React.Fragment key={step.id}>
-            <div className="stepper__item" data-active={complete || current}>
+            <div
+              className="stepper__item"
+              data-active={complete || current}
+              aria-current={current ? 'step' : undefined}
+            >
               <span
                 className={`stepper__marker text-xs font-normal ${
                   complete || current
@@ -33,7 +37,7 @@ export const CheckoutSteps: React.FC<CheckoutStepsProps> = ({ currentStep }) => 
               >
                 {complete ? <Check className="h-4 w-4" /> : step.number}
               </span>
-              <span className="truncate">{step.label}</span>
+              <span className="min-w-0">{step.label}</span>
             </div>
             {index < steps.length - 1 && <div className="hidden" aria-hidden="true" />}
           </React.Fragment>

@@ -272,12 +272,12 @@ export const AdminFailuresPage: React.FC = () => {
         ]}
       />
       <div>
-        <h2 className="heading text-2xl">Failure queues</h2>
+        <h1 className="admin-page-title">Failure queues</h1>
         <p className="mt-2 text-ink">
           Actionable retry, payment, invoice, outbox, and email delivery failures.
         </p>
       </div>
-      {error && <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       <section className="panel space-y-2 p-5" aria-label="Diagnostic summary">
         <h3 className="heading text-xl">Recovery workers</h3>
         {summary && (
@@ -361,7 +361,7 @@ export const AdminFailuresPage: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {webhookFailures.map((webhook) => (
-              <article key={webhook.id} className="panel p-5">
+              <article key={webhook.id} className="admin-metric panel p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-semibold text-ink">
                     {webhook.eventType ?? 'Unknown webhook event'}
@@ -405,7 +405,7 @@ export const AdminFailuresPage: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {commerceFailures.map((failure) => (
-              <article key={`${failure.kind}-${failure.id}`} className="panel p-5">
+              <article key={`${failure.kind}-${failure.id}`} className="admin-metric panel p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-semibold text-ink">{failure.label}</p>
                   <span className="status-badge">{failure.kind.replaceAll('_', ' ')}</span>
@@ -529,7 +529,7 @@ export const AdminFailuresPage: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {deliveries.map((delivery) => (
-              <article key={delivery.id} className="panel p-5">
+              <article key={delivery.id} className="admin-metric panel p-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-semibold text-ink">{delivery.eventType}</p>
                   <span className="status-badge">{delivery.status}</span>

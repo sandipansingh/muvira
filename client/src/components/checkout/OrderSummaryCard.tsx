@@ -30,7 +30,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   const totalItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   return (
-    <aside className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-6 space-y-4 shadow-xs lg:sticky lg:top-24 lg:self-start">
+    <aside className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-6 space-y-4 shadow-none lg:sticky lg:top-24 lg:self-start">
       <div className="flex items-center justify-between border-b border-[var(--color-line)] pb-3">
         <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">Order Summary</h2>
         <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-ink)]">
@@ -111,7 +111,7 @@ export const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
         type="button"
         onClick={onPlaceOrder}
         disabled={isProcessing || items.length === 0}
-        className="button-primary w-full py-3.5 text-sm font-semibold shadow-xs hover:shadow-sm"
+        className="button-primary w-full py-3.5 text-sm font-semibold shadow-none hover:shadow-sm"
       >
         <Lock className="h-4 w-4 shrink-0" />
         <span className="leading-none">

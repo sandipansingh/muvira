@@ -87,7 +87,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
   return (
     <div className="space-y-8">
       {/* Shipping Address Header & Form */}
-      <section className="space-y-5 rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs">
+      <section className="space-y-5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-none">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-line)] pb-4">
           <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
             Shipping Address
@@ -117,9 +117,9 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
                   type="button"
                   onClick={() => onSelectSavedAddress?.(addr.id)}
                   aria-pressed={selectedAddressId === addr.id}
-                  className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition-all ${
+                  className={`w-full cursor-pointer rounded-card border p-4 text-left transition-all ${
                     selectedAddressId === addr.id
-                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-1 ring-[var(--color-primary)] shadow-xs'
+                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-1 ring-[var(--color-primary)] shadow-none'
                       : 'border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-field-border)] hover:bg-[var(--color-surface)]'
                   }`}
                 >
@@ -145,8 +145,6 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
             </div>
           </div>
         )}
-
-        {/* Form Fields Grid matching Reference #2 */}
         {(useManualForm || savedAddresses.length === 0) && (
           <div className="space-y-4">
             {/* Row 1: First Name & Last Name (2 cols) */}
@@ -305,8 +303,6 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
                 />
               </div>
             </div>
-
-            {/* Row 4: Description / Street Address (textarea matching Reference #2) */}
             <div>
               <label
                 htmlFor="shipping-street"
@@ -328,9 +324,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
           </div>
         )}
       </section>
-
-      {/* Shipping Method Section matching Reference #2 */}
-      <section className="space-y-4 rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-xs">
+      <section className="space-y-4 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-none">
         <h2 className="font-display text-lg sm:text-xl font-bold text-[var(--color-ink)] flex items-center gap-2">
           <Truck className="h-5 w-5 text-[var(--color-primary)] shrink-0" />
           Shipping Method
@@ -340,9 +334,9 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
           {/* Standard shipping option */}
           <label
             onClick={() => onShippingMethodChange('standard')}
-            className={`flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition-all ${
+            className={`flex cursor-pointer items-center justify-between rounded-card border p-4 transition-all ${
               shippingMethod === 'standard'
-                ? 'border-[var(--color-ink)] bg-[var(--color-surface)] shadow-xs'
+                ? 'border-[var(--color-ink)] bg-[var(--color-surface)] shadow-none'
                 : 'border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-field-border)]'
             }`}
           >
@@ -376,9 +370,9 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
           {/* Express Shipping Radio Card */}
           <label
             onClick={() => onShippingMethodChange('express')}
-            className={`flex cursor-pointer items-center justify-between rounded-2xl border p-4 transition-all ${
+            className={`flex cursor-pointer items-center justify-between rounded-card border p-4 transition-all ${
               shippingMethod === 'express'
-                ? 'border-[var(--color-ink)] bg-[var(--color-surface)] shadow-xs'
+                ? 'border-[var(--color-ink)] bg-[var(--color-surface)] shadow-none'
                 : 'border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-field-border)]'
             }`}
           >

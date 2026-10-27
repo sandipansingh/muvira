@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import React, { useRef } from 'react'
 import { ArrowRight, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -42,12 +43,15 @@ export const CartDrawer: React.FC = () => {
         onClick={closeCartDrawer}
         aria-label="Close cart drawer"
       />
-      <aside
+      <motion.aside
+        initial={{ x: 40, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.2 }}
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         tabIndex={-1}
-        className="fixed inset-y-0 right-0 z-10 flex h-screen w-full max-w-md flex-col border-l border-[var(--color-line)] bg-[var(--color-paper)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-2xl"
+        className="fixed inset-y-0 right-0 z-10 flex h-screen w-full max-w-md flex-col border-l border-[var(--color-line)] bg-[var(--color-paper)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
         aria-label="Shopping cart"
       >
         {/* Drawer Header */}
@@ -110,7 +114,7 @@ export const CartDrawer: React.FC = () => {
 
         {/* Cart Summary & Footer Actions */}
         {status === 'ready' && items.length > 0 && (
-          <div className="space-y-3 border-t border-[var(--color-line)] bg-[var(--color-paper)] p-4 shadow-xs">
+          <div className="space-y-3 border-t border-[var(--color-line)] bg-[var(--color-paper)] p-4 shadow-none">
             <CouponInput />
             {error && (
               <p role="alert" className="text-sm text-danger">
@@ -161,14 +165,14 @@ export const CartDrawer: React.FC = () => {
                 type="button"
                 onClick={openCheckout}
                 disabled={loading || hasUnmergedItems || Boolean(error)}
-                className="button-primary h-10 rounded-lg py-0 text-sm shadow-xs sm:col-span-2"
+                className="button-primary h-10 rounded-lg py-0 text-sm shadow-none sm:col-span-2"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
               </button>
             </div>
           </div>
         )}
-      </aside>
+      </motion.aside>
     </div>
   )
 }

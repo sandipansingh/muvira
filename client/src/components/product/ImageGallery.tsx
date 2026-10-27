@@ -26,7 +26,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
 
   if (imageUrls.length === 0) {
     return (
-      <div className="flex aspect-square max-h-[520px] items-center justify-center rounded-2xl border border-line bg-surface text-xs font-normal text-muted">
+      <div className="flex aspect-square max-h-[520px] items-center justify-center rounded-card border border-line bg-surface text-xs font-normal text-muted">
         Image unavailable
       </div>
     )
@@ -76,7 +76,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                 onClick={() => setActiveIndex(index)}
                 className={`relative aspect-square w-16 shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-200 md:w-20 ${
                   isActive
-                    ? 'border-2 border-primary ring-2 ring-primary/15 opacity-100 shadow-xs'
+                    ? 'border-2 border-primary ring-2 ring-primary/15 opacity-100 shadow-none'
                     : 'border border-line bg-surface opacity-75 hover:border-field-border hover:opacity-100'
                 }`}
                 aria-label={`View ${title} thumbnail ${index + 1}`}
@@ -107,17 +107,17 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
           }
         }}
         onTouchEnd={handleTouchEnd}
-        className="group relative aspect-square max-h-[480px] w-full flex-1 overflow-hidden rounded-2xl border border-line/70 bg-surface touch-pan-y md:max-h-[500px] lg:max-h-[520px]"
+        className="group relative aspect-square max-h-[480px] w-full flex-1 overflow-hidden rounded-card border border-line/70 bg-surface touch-pan-y md:max-h-[500px] lg:max-h-[520px]"
       >
         {/* Badges Stack */}
         <div className="pointer-events-none absolute left-3.5 top-3.5 z-10 flex flex-col items-start gap-1.5">
           {isNew && (
-            <span className="inline-flex items-center justify-center rounded bg-white/95 px-2.5 py-0.5 text-xs font-normal uppercase tracking-wider text-ink shadow-xs backdrop-blur-xs">
+            <span className="inline-flex items-center justify-center rounded bg-white/95 px-2.5 py-0.5 text-xs font-normal uppercase tracking-wider text-ink shadow-none backdrop-blur-xs">
               NEW
             </span>
           )}
           {discountPercent > 0 && (
-            <span className="inline-flex items-center justify-center rounded bg-primary px-2.5 py-0.5 text-xs font-normal text-white shadow-xs">
+            <span className="inline-flex items-center justify-center rounded bg-primary px-2.5 py-0.5 text-xs font-normal text-white shadow-none">
               -{discountPercent}%
             </span>
           )}
@@ -178,7 +178,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
       {/* Matching 1:1 Floating Side Zoom Preview Window */}
       {isZooming && (
         <div
-          className="pointer-events-none absolute left-0 top-0 z-50 hidden aspect-square h-[480px] w-[480px] overflow-hidden rounded-2xl border border-line/80 bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block md:h-[500px] md:w-[500px] lg:h-[520px] lg:w-[520px]"
+          className="pointer-events-none absolute left-0 top-0 z-50 hidden aspect-square h-[480px] w-[480px] overflow-hidden rounded-card border border-line/80 bg-white shadow-2xl lg:left-[calc(100%+1.25rem)] lg:block md:h-[500px] md:w-[500px] lg:h-[520px] lg:w-[520px]"
           style={{
             backgroundImage: `url(${activeImage})`,
             backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,

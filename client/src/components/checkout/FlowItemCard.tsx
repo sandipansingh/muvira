@@ -27,7 +27,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
   }
 
   return (
-    <article className="relative flex flex-wrap items-start gap-3.5 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] sm:gap-4 sm:p-4 shadow-xs transition-all hover:border-[var(--color-field-border)]">
+    <article className="relative flex flex-wrap items-start gap-3.5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] sm:gap-4 sm:p-4 shadow-none transition-all hover:border-[var(--color-field-border)]">
       {/* Product image */}
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-24 sm:w-24">
         {item.productImage ? (

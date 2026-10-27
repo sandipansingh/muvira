@@ -64,8 +64,8 @@ export const OrdersHistoryPage: React.FC = () => {
   if (authLoading || !user) return <main className="editorial-page" />
 
   return (
-    <main className="editorial-page py-8 sm:py-10">
-      <div className="editorial-container max-w-4xl" ref={resultsContainerRef}>
+    <main className="account-page editorial-page py-10 sm:py-14">
+      <div className="editorial-container max-w-6xl" ref={resultsContainerRef}>
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -73,7 +73,7 @@ export const OrdersHistoryPage: React.FC = () => {
             { label: 'Order History' },
           ]}
         />
-        <div className="mb-6 border-b border-border-light pb-4">
+        <div className="mb-6 border-b border-line pb-4">
           <span className="eyebrow mb-2 block">Account / Purchases</span>
           <h1 className="heading page-title">Order History</h1>
           <p className="body-copy mt-2 text-base">Track your past purchases and deliveries.</p>
@@ -117,7 +117,7 @@ export const OrdersHistoryPage: React.FC = () => {
                 to={`/orders/${order.id}`}
                 className="flex flex-col gap-4 py-4 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-start gap-4">
                   {order.firstItemImage ? (
                     <img
                       src={order.firstItemImage}

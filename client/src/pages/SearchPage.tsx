@@ -25,7 +25,7 @@ export const SearchPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<GridViewMode>('grid-3')
+  const [viewMode, setViewMode] = useState<GridViewMode>('grid-4')
 
   // URL state parameters
   const categoryParam = searchParams.get('category') || 'all'
@@ -194,7 +194,7 @@ export const SearchPage: React.FC = () => {
     (inStockParam ? 1 : 0)
 
   return (
-    <main className="min-h-screen pb-16 bg-paper">
+    <main className="catalog-page min-h-screen pb-16 bg-background">
       {/* Search Hero Banner */}
       <ShopHero
         title={heroTitle}
@@ -210,7 +210,7 @@ export const SearchPage: React.FC = () => {
       <div className="layout-container mb-8">
         <form
           onSubmit={handleSearchSubmit}
-          className="relative max-w-xl mx-auto flex flex-wrap items-center gap-3 shadow-xs rounded-xl border border-field-border bg-white p-1.5 transition-colors"
+          className="relative max-w-xl mx-auto flex flex-wrap items-center gap-3 shadow-none rounded-xl border border-field-border bg-white p-1.5 transition-colors"
         >
           <div className="pl-3 text-muted shrink-0">
             <Search className="h-5 w-5" />

@@ -18,7 +18,7 @@ export const FeaturedProducts: React.FC = () => {
       try {
         const response = await productService.getProducts({
           page: 1,
-          limit: 10,
+          limit: 8,
           sort: 'featured',
         })
         if (!response.success) throw new Error(response.error.message)
@@ -48,11 +48,11 @@ export const FeaturedProducts: React.FC = () => {
   )
 
   return (
-    <section id="featured-pieces" className="editorial-container overflow-hidden py-8 sm:py-10">
+    <section id="featured-pieces" className="editorial-container section-space">
       <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 lg:flex-row lg:items-end">
         <div>
           <span className="eyebrow mb-1.5 block">Explore</span>
-          <h2 className="text-h2 text-ink">Featured Products</h2>
+          <h2 className="text-h2 text-ink">Pieces to make your own</h2>
         </div>
 
         <div className="flex w-full min-w-0 items-center gap-1.5 lg:w-auto">
@@ -77,15 +77,9 @@ export const FeaturedProducts: React.FC = () => {
       </div>
 
       {loading && (
-        <div
-          className="flex gap-4 overflow-hidden sm:gap-5 lg:grid lg:grid-cols-5"
-          aria-busy="true"
-        >
+        <div className="product-collection" aria-busy="true">
           {[1, 2, 3, 4, 5].map((item) => (
-            <div
-              key={item}
-              className="flex w-[240px] shrink-0 animate-pulse flex-col gap-2 sm:w-[280px] lg:w-auto"
-            >
+            <div key={item} className="flex min-w-0 animate-pulse flex-col gap-2">
               <div className="aspect-square rounded-[var(--radius-card)] bg-[var(--color-surface)]" />
               <div className="h-3 w-16 rounded bg-[var(--color-line)]" />
               <div className="h-4 w-3/4 rounded bg-[var(--color-line)]" />
@@ -109,10 +103,10 @@ export const FeaturedProducts: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 no-scrollbar sm:gap-5 sm:pb-0 lg:grid lg:grid-cols-5 lg:overflow-visible"
+          className="product-collection"
         >
           {filteredProducts.map((product) => (
-            <div key={product.id} className="w-[240px] shrink-0 snap-start sm:w-[280px] lg:w-auto">
+            <div key={product.id} className="min-w-0">
               <ProductCard product={product} />
             </div>
           ))}

@@ -1,0 +1,17 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["client/src"],
+  "locale": "en-IN",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Select/Listbox", "Form", "Scrollbar", "Toast", "CRUD"],
+  "ownership": { "Select/Listbox": "native", "Date": "native" },
+  "requiredCommands": ["unit", "responsive"],
+  "commands": {
+    "unit": "pnpm test",
+    "responsive": "pnpm run test:responsive"
+  },
+  "evidence": {
+    "crudFullFlow": "tests/catalog-browser.test.cjs",
+    "failurePaths": "tests/refund-browser.test.cjs"
+  }
+}

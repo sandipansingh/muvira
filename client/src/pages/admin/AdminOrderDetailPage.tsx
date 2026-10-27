@@ -97,10 +97,10 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
     }, 'Invoice downloaded.')
   }
 
-  if (loading && !order) return <div className="h-56 animate-pulse rounded-3xl bg-surface" />
+  if (loading && !order) return <div className="h-56 animate-pulse rounded-card bg-surface" />
   if (!order || !id) {
     return (
-      <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">
+      <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">
         {error ?? 'Order not found.'}
       </p>
     )
@@ -118,7 +118,7 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
       />
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="heading text-2xl">Order {order.orderNumber}</h2>
+          <h1 className="admin-page-title">Order {order.orderNumber}</h1>
           <p className="mt-2 text-sm text-ink">Placed {formatDate(order.createdAt)}</p>
         </div>
         <button
@@ -130,7 +130,7 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
           <RefreshCw className="h-4 w-4" /> Refresh
         </button>
       </div>
-      {error && <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       <OrderRefundControls key={order.id} order={order} refresh={loadOrder} />
 
       <section className="panel space-y-4 p-5">

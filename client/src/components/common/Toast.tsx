@@ -101,7 +101,7 @@ export const ToastContainer: React.FC = () => {
                   right: 0,
                   transformOrigin: 'bottom center',
                 }}
-                className={`flex w-full items-center gap-3 rounded-2xl border border-line bg-white/95 p-3.5 backdrop-blur-md transition-shadow duration-200 ${
+                className={`flex w-full items-center gap-3 rounded-card border border-line bg-white/95 p-3.5 backdrop-blur-md transition-shadow duration-200 ${
                   isFront || isHovered
                     ? 'shadow-[0_12px_32px_rgba(0,0,0,0.12)]'
                     : 'shadow-[0_4px_16px_rgba(0,0,0,0.06)]'

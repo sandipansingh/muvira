@@ -133,7 +133,7 @@ export const ProductDetailPage: React.FC = () => {
       <main className="editorial-page py-8">
         <div className="editorial-container">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-10">
-            <div className="aspect-square animate-pulse rounded-2xl bg-[var(--color-surface)]" />
+            <div className="aspect-square animate-pulse rounded-card bg-[var(--color-surface)]" />
             <div className="space-y-4">
               <div className="h-6 w-1/4 animate-pulse rounded bg-[var(--color-line)]" />
               <div className="h-10 w-3/4 animate-pulse rounded bg-[var(--color-line)]" />
@@ -163,7 +163,7 @@ export const ProductDetailPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page pb-24 sm:pb-0">
+    <main className="product-page editorial-page pb-24 sm:pb-12">
       <div className="editorial-container py-4 sm:py-6">
         {/* Breadcrumbs */}
         <Breadcrumbs
@@ -179,7 +179,7 @@ export const ProductDetailPage: React.FC = () => {
         />
 
         {/* Gallery + Product Info Grid */}
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-12">
+        <div className="grid grid-cols-1 items-start gap-8 pt-6 lg:grid-cols-12 lg:gap-12 xl:gap-16">
           <div className="lg:col-span-6 xl:col-span-6">
             <ImageGallery
               images={product.images}
@@ -188,7 +188,7 @@ export const ProductDetailPage: React.FC = () => {
               discountPercent={product.discountPercent}
             />
           </div>
-          <div className="lg:col-span-6 xl:col-span-6 lg:sticky lg:top-24 lg:self-start">
+          <div className="lg:col-span-6 xl:col-span-6 lg:sticky lg:top-44 lg:self-start">
             <ProductInfo product={product} onReviewClick={handleReviewClick} />
           </div>
         </div>
@@ -223,8 +223,8 @@ export const ProductDetailPage: React.FC = () => {
               title="You May Also Like"
               subtitle={`More products from ${product.category.name}`}
             />
-            <div className="mt-6 grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-              {relatedProducts.slice(0, 5).map((related) => (
+            <div className="mt-6 product-collection">
+              {relatedProducts.slice(0, 4).map((related) => (
                 <ProductCard key={related.id} product={related} />
               ))}
             </div>

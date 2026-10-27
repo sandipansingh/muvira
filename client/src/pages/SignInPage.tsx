@@ -31,14 +31,14 @@ export const SignInPage: React.FC = () => {
   }
 
   return (
-    <main className="flex min-h-screen w-full items-center justify-center bg-paper p-4 sm:p-6 lg:p-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 w-full max-w-5xl my-auto">
+    <main className="auth-page flex min-h-screen w-full items-center justify-center bg-background p-4 sm:p-6 lg:p-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 w-full max-w-6xl my-auto">
         {/* Left Column: Sign In Form */}
-        <div className="flex flex-col items-center justify-center px-2 py-1 sm:px-6 md:px-8 w-full max-w-[390px] mx-auto">
+        <div className="flex flex-col items-center justify-center px-2 py-1 sm:px-6 md:px-8 w-full max-w-[440px] mx-auto">
           {/* Brand Logo & Name */}
           <Link
             to="/"
-            className="flex min-h-[var(--tap-target)] items-center gap-2.5 mb-3 select-none transition-transform hover:scale-105"
+            className="flex min-h-[var(--tap-target)] items-center gap-2.5 mb-10 self-start select-none transition-transform hover:scale-105"
             aria-label="Back to home"
           >
             <img
@@ -54,9 +54,9 @@ export const SignInPage: React.FC = () => {
           </Link>
 
           {/* Heading and Subtitle */}
-          <div className="text-center space-y-1 w-full">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-ink">
-              Welcome Back!
+          <div className="text-left space-y-3 w-full">
+            <h1 className="font-display text-3xl sm:text-4xl tracking-tight text-ink">
+              Welcome back.
             </h1>
             <p className="text-base text-muted font-normal">
               Sign in to continue where you left off.
@@ -150,19 +150,6 @@ export const SignInPage: React.FC = () => {
             >
               Sign Up
             </Link>
-          </p>
-
-          {/* Terms & Privacy Disclaimer */}
-          <p className="mt-4 text-center text-sm text-muted max-w-xs mx-auto leading-relaxed">
-            By continuing you agree to our{' '}
-            <span className="underline font-normal text-ink-soft cursor-pointer hover:text-primary">
-              Terms &amp; Conditions
-            </span>{' '}
-            and acknowledge our{' '}
-            <span className="underline font-normal text-ink-soft cursor-pointer hover:text-primary">
-              Privacy Policy
-            </span>
-            .
           </p>
         </div>
 

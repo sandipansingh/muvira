@@ -1,6 +1,18 @@
-import React from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
-import { AlertTriangle, Boxes, Gauge, ReceiptText, Settings, ShoppingBag } from 'lucide-react'
+import React, { useState } from 'react'
+import { Link, NavLink, Outlet } from 'react-router-dom'
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  Boxes,
+  Gauge,
+  Menu,
+  ReceiptText,
+  Settings,
+  ShoppingBag,
+} from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
+import { Modal } from '../common/Modal'
+import { Button } from '../ui/Button'
 
 const navigation = [
   { to: '/admin', label: 'Overview', icon: Gauge, end: true },
@@ -11,33 +23,79 @@ const navigation = [
   { to: '/admin/failures', label: 'Failures', icon: AlertTriangle, end: false },
 ] as const
 
-export const AdminShell: React.FC = () => (
-  <main className="editorial-page py-8 sm:py-10">
-    <div className="editorial-container max-w-7xl">
-      <div className="mb-8 border-b border-line pb-5">
-        <span className="eyebrow mb-1 block">Operations</span>
-        <h1 className="heading page-title">Admin console</h1>
-      </div>
-      <nav aria-label="Admin sections" className="mb-8 flex gap-2 overflow-x-auto pb-2">
-        {navigation.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              `flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors ${
-                isActive
-                  ? 'bg-primary text-white'
-                  : 'border border-line bg-paper text-ink hover:bg-surface'
-              }`
-            }
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </NavLink>
-        ))}
-      </nav>
-      <Outlet />
-    </div>
-  </main>
+const AdminNavigation: React.FC<{ onNavigate?: () => void }> = ({ onNavigate }) => (
+  <nav aria-label="Admin sections" className="admin-navigation">
+    {navigation.map(({ to, label, icon: Icon, end }) => (
+      <NavLink
+        key={to}
+        to={to}
+        end={end}
+        onClick={onNavigate}
+        className={({ isActive }) => `admin-navigation__link ${isActive ? 'is-active' : ''}`}
+      >
+        <Icon className="h-[18px] w-[18px]" />
+        {label}
+      </NavLink>
+    ))}
+  </nav>
 )
+
+export const AdminShell: React.FC = () => {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const { user } = useAuth()
+  return (
+    <div className="admin-shell">
+      <a href="#admin-content" className="skip-link button-primary">
+        Skip to content
+      </a>
+      <aside className="admin-sidebar">
+        <Link to="/" className="brand-lockup">
+          <img
+            src="/logo.png"
+            alt=""
+            width={659}
+            height={723}
+            className="brand-mark w-auto object-contain"
+          />
+          <span className="font-display text-3xl">Muvira</span>
+        </Link>
+        <p className="eyebrow mb-5 mt-12">Store management</p>
+        <AdminNavigation />
+        <Link to="/" className="admin-store-link">
+          Visit storefront <ArrowUpRight className="h-4 w-4" />
+        </Link>
+      </aside>
+      <div className="admin-workspace">
+        <header className="admin-topbar">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open admin navigation"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <span className="text-sm font-semibold">Muvira / Administration</span>
+          </div>
+          <Link
+            to="/profile"
+            className="inline-flex min-h-11 items-center text-sm text-muted hover:text-primary"
+          >
+            {user?.fullName || 'My account'}
+          </Link>
+        </header>
+        <main id="admin-content" tabIndex={-1} className="admin-content">
+          <Outlet />
+        </main>
+      </div>
+      <Modal isOpen={menuOpen} onClose={() => setMenuOpen(false)} title="Store management">
+        <AdminNavigation onNavigate={() => setMenuOpen(false)} />
+        <Link to="/" className="admin-store-link">
+          Visit storefront <ArrowUpRight className="h-4 w-4" />
+        </Link>
+      </Modal>
+    </div>
+  )
+}

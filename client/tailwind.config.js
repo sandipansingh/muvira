@@ -91,8 +91,8 @@ export default {
         'space-24': '6rem',
       },
       maxWidth: {
-        layout: '1600px',
-        editorial: '1600px',
+        layout: '1320px',
+        editorial: '1320px',
       },
       borderRadius: {
         none: '0',

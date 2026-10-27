@@ -1,3 +1,4 @@
+import { MotionConfig } from 'framer-motion'
 import React, { lazy, Suspense, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { ToastProvider } from './context/ToastContext'
@@ -51,13 +52,16 @@ const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen flex-col bg-white font-sans text-foreground selection:bg-primary-soft selection:text-foreground">
+    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground selection:bg-primary-soft selection:text-foreground">
+      <a href="#page-content" className="skip-link button-primary">
+        Skip to content
+      </a>
       <AnnouncementBar />
       <Header onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
       <CartDrawer />
 
-      <div className="flex-1">
+      <div id="page-content" tabIndex={-1} className="flex-1">
         <Outlet />
       </div>
 
@@ -124,17 +128,19 @@ export const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <SiteSettingsProvider>
-            <CartProvider>
-              <AppContent />
-            </CartProvider>
-          </SiteSettingsProvider>
-        </AuthProvider>
-      </ToastProvider>
-    </BrowserRouter>
+    <MotionConfig reducedMotion="user">
+      <BrowserRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <SiteSettingsProvider>
+              <CartProvider>
+                <AppContent />
+              </CartProvider>
+            </SiteSettingsProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </BrowserRouter>
+    </MotionConfig>
   )
 }
 

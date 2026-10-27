@@ -1,126 +1,93 @@
 import React from 'react'
-import { Mail, MapPin, Phone } from 'lucide-react'
+import { ArrowUpRight, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 
 export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { settings, error } = useSiteSettings()
   const { contactInfo, storeDescription } = settings
-  const hasContact = Boolean(contactInfo.phone || contactInfo.email || contactInfo.address)
-
+  const hasContact =
+    !error && Boolean(contactInfo.phone || contactInfo.email || contactInfo.address)
   return (
-    <footer
-      id="contact"
-      className={`relative overflow-hidden border-t border-line bg-surface pb-12 pt-12 font-sans text-ink-soft ${className}`}
-    >
+    <footer id="contact" className={`store-footer ${className}`}>
       <div className="layout-container">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
-          <div className="flex flex-col gap-4">
-            <Link
-              to="/"
-              className="flex min-h-[var(--tap-target)] w-max select-none items-center gap-2.5"
-            >
+        <div className="store-footer__grid">
+          <div>
+            <Link to="/" className="brand-lockup w-fit">
               <img
                 src="/logo.png"
                 alt=""
                 width={659}
                 height={723}
-                className="brand-mark w-auto shrink-0 object-contain"
+                className="brand-mark w-auto object-contain"
               />
-              <span className="translate-y-[2px] font-display text-xl leading-none tracking-wider text-ink uppercase">
-                Muvira
-              </span>
+              <span className="font-display text-3xl">Muvira</span>
             </Link>
             {storeDescription && (
-              <p className="max-w-md text-base leading-relaxed text-ink">{storeDescription}</p>
+              <p className="mt-5 max-w-sm text-sm leading-7 text-ink-soft">{storeDescription}</p>
             )}
           </div>
-
-          <div className="flex flex-col gap-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-ink">Contact</h2>
-            {error && <p className="text-sm text-muted">Contact details are unavailable.</p>}
-            {!error && !hasContact && (
-              <p className="text-sm text-muted">Contact details have not been published.</p>
-            )}
-            {!error && hasContact && (
-              <ul className="flex flex-col gap-2 text-base">
+          <div>
+            <h2 className="footer-heading">Explore</h2>
+            <nav aria-label="Footer catalog" className="footer-links">
+              <Link to="/shop">All products</Link>
+              <Link to="/categories">Collections</Link>
+              <Link to="/shop?sort=newest">New arrivals</Link>
+              <Link to="/shop?sort=featured">Featured pieces</Link>
+            </nav>
+          </div>
+          <div>
+            <h2 className="footer-heading">Your Muvira</h2>
+            <nav aria-label="Footer account" className="footer-links">
+              <Link to="/profile">My account</Link>
+              <Link to="/orders">Orders & tracking</Link>
+              <Link to="/cart">Shopping bag</Link>
+              <Link to="/signin">
+                Sign in <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            </nav>
+          </div>
+          {hasContact && (
+            <div>
+              <h2 className="footer-heading">Here to help</h2>
+              <ul className="footer-links">
+                {contactInfo.email && (
+                  <li>
+                    <a href={`mailto:${contactInfo.email}`}>
+                      <Mail className="h-4 w-4 shrink-0" />
+                      <span className="break-all">{contactInfo.email}</span>
+                    </a>
+                  </li>
+                )}
                 {contactInfo.phone && (
-                  <li className="flex items-center gap-2.5">
-                    <Phone className="h-4 w-4 shrink-0 text-muted" />
-                    <a
-                      href={`tel:${contactInfo.phone.replace(/[^\d+]/g, '')}`}
-                      className="inline-flex min-h-[var(--tap-target)] items-center transition-colors hover:text-primary hover:underline"
-                    >
+                  <li>
+                    <a href={`tel:${contactInfo.phone.replace(/[^\d+]/g, '')}`}>
+                      <Phone className="h-4 w-4 shrink-0" />
                       {contactInfo.phone}
                     </a>
                   </li>
                 )}
-                {contactInfo.email && (
-                  <li className="flex items-center gap-2.5">
-                    <Mail className="h-4 w-4 shrink-0 text-muted" />
-                    <a
-                      href={`mailto:${contactInfo.email}`}
-                      className="inline-flex min-h-[var(--tap-target)] items-center break-all transition-colors hover:text-primary hover:underline"
-                    >
-                      {contactInfo.email}
-                    </a>
-                  </li>
-                )}
                 {contactInfo.address && (
-                  <li className="flex items-start gap-2.5">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
-                    <span>{contactInfo.address}</span>
+                  <li className="mt-2 flex items-start gap-2">
+                    <MapPin className="mt-1 h-4 w-4 shrink-0" />
+                    <address className="text-sm not-italic leading-6">
+                      {contactInfo.address}
+                    </address>
                   </li>
                 )}
               </ul>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-ink">Browse</h2>
-            <nav className="flex flex-col items-start gap-2 text-base" aria-label="Footer">
-              <Link
-                to="/"
-                className="inline-flex min-h-[var(--tap-target)] min-w-[var(--tap-target)] items-center transition-colors hover:text-primary hover:underline"
-              >
-                Home
-              </Link>
-              <Link
-                to="/shop"
-                className="inline-flex min-h-[var(--tap-target)] min-w-[var(--tap-target)] items-center transition-colors hover:text-primary hover:underline"
-              >
-                Shop all
-              </Link>
-              <Link
-                to="/categories"
-                className="inline-flex min-h-[var(--tap-target)] min-w-[var(--tap-target)] items-center transition-colors hover:text-primary hover:underline"
-              >
-                Categories
-              </Link>
-              <Link
-                to="/cart"
-                className="inline-flex min-h-[var(--tap-target)] min-w-[var(--tap-target)] items-center transition-colors hover:text-primary hover:underline"
-              >
-                Cart
-              </Link>
-              <Link
-                to="/orders"
-                className="inline-flex min-h-[var(--tap-target)] min-w-[var(--tap-target)] items-center transition-colors hover:text-primary hover:underline"
-              >
-                Orders
-              </Link>
-            </nav>
-          </div>
+            </div>
+          )}
         </div>
-
-        <div className="mt-12 border-t border-line pt-8">
-          <p className="text-center text-sm text-ink-soft sm:text-left">
-            © {new Date().getFullYear()} Muvira. All rights reserved.
+        <div className="store-footer__bottom">
+          <p>© {new Date().getFullYear()} Muvira. All rights reserved.</p>
+          <p className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4" />
+            Payments through Razorpay
           </p>
         </div>
       </div>
     </footer>
   )
 }
-
 export default Footer

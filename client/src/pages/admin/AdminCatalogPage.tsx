@@ -194,12 +194,12 @@ export const AdminCatalogPage: React.FC = () => {
         ]}
       />
       <div>
-        <h2 className="heading text-2xl">Catalog</h2>
+        <h1 className="admin-page-title">Catalog</h1>
         <p className="mt-2 text-ink">
           Create products and categories, then manage live stock and visibility.
         </p>
       </div>
-      {error && <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       {pendingImages.length > 0 && (
         <section className="panel space-y-3 p-5" aria-label="Preserved image uploads">
           <h3 className="heading text-xl">Image attachments to check</h3>
@@ -336,12 +336,12 @@ export const AdminCatalogPage: React.FC = () => {
         </form>
       </div>
 
-      {loading && <div className="h-48 animate-pulse rounded-3xl bg-surface" />}
+      {loading && <div className="h-48 animate-pulse rounded-card bg-surface" />}
       {!loading && products.length === 0 && (
         <p className="panel p-6 text-sm text-ink">No products found.</p>
       )}
       {!loading && products.length > 0 && (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-paper">
+        <div className="overflow-x-auto rounded-card border border-line bg-paper">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead className="bg-surface text-ink">
               <tr>

@@ -117,10 +117,10 @@ export const AdminSettingsPage: React.FC = () => {
     }
   }
 
-  if (loading) return <div className="h-56 animate-pulse rounded-3xl bg-surface" />
+  if (loading) return <div className="h-56 animate-pulse rounded-card bg-surface" />
   if (!settings)
     return (
-      <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">
+      <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">
         {error ?? 'Settings unavailable.'}
       </p>
     )
@@ -135,12 +135,12 @@ export const AdminSettingsPage: React.FC = () => {
         ]}
       />
       <div>
-        <h2 className="heading text-2xl">Store settings</h2>
+        <h1 className="admin-page-title">Store settings</h1>
         <p className="mt-2 text-ink">
           Storefront, shipping, and fulfillment defaults save as one transaction.
         </p>
       </div>
-      {error && <p className="rounded-2xl bg-danger-soft p-4 text-sm text-danger">{error}</p>}
+      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       <form onSubmit={saveSettings} className="space-y-6">
         <section className="panel grid gap-4 p-5 sm:grid-cols-2">
           <h3 className="heading text-xl sm:col-span-2">Contact</h3>

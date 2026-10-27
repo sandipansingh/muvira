@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import React, { useRef, useState } from 'react'
 import { ChevronDown, LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -60,10 +61,13 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
       />
 
       {/* Drawer Container */}
-      <aside
+      <motion.aside
+        initial={{ x: -40, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.2 }}
         ref={panelRef}
         tabIndex={-1}
-        className="relative flex h-screen w-[min(90vw,24rem)] flex-col justify-between overflow-y-auto border-r border-line bg-paper pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-2xl"
+        className="relative flex h-screen w-[min(90vw,24rem)] flex-col justify-between overflow-y-auto border-r border-line bg-paper pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
       >
         <div className="p-4 sm:p-6">
           {/* Header with Brand Logo & Close X */}
@@ -242,14 +246,14 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               <Link
                 to="/signin"
                 onClick={onClose}
-                className="button-primary w-full py-3.5 text-sm rounded-lg text-center block shadow-xs active:scale-98"
+                className="button-primary w-full py-3.5 text-sm rounded-lg text-center block shadow-none active:scale-98"
               >
                 Sign In
               </Link>
             </div>
           )}
         </div>
-      </aside>
+      </motion.aside>
     </div>
   )
 }

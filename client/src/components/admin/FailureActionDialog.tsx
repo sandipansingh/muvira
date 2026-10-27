@@ -52,7 +52,7 @@ export const FailureActionDialog: React.FC<FailureActionDialogProps> = ({
             maxLength={1000}
             rows={4}
             required
-            autoFocus
+            data-dialog-initial-focus
           />
         </div>
         <div className="flex justify-end gap-2">

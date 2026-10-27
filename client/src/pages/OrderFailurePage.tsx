@@ -13,7 +13,7 @@ export const OrderFailurePage: React.FC = () => {
   const paymentStatus = state?.['paymentStatus'] === 'released' ? 'released' : 'unknown'
 
   return (
-    <main className="editorial-page py-6 sm:py-12">
+    <main className="order-result editorial-page py-10 sm:py-16">
       <div className="editorial-container max-w-xl space-y-6">
         <Breadcrumbs
           items={[
@@ -23,8 +23,8 @@ export const OrderFailurePage: React.FC = () => {
           ]}
         />
 
-        <div className="rounded-3xl border border-danger/30 bg-danger-soft p-6 text-center sm:p-10 shadow-xs space-y-5">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-danger shadow-xs">
+        <div className="rounded-card border border-danger/30 bg-danger-soft p-6 text-center sm:p-10 shadow-none space-y-5">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-card bg-white text-danger shadow-none">
             <AlertCircle className="h-10 w-10 stroke-[2]" />
           </div>
 
@@ -37,7 +37,7 @@ export const OrderFailurePage: React.FC = () => {
             </h1>
           </div>
 
-          <div className="rounded-2xl bg-white p-4 border border-danger/20 text-left space-y-1">
+          <div className="rounded-card bg-white p-4 border border-danger/20 text-left space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-muted)]">
               Reason Details
             </span>

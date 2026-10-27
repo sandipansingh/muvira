@@ -15,7 +15,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
 
   if (variant === 'full') {
     return (
-      <article className="group relative flex flex-col gap-4 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-4 transition-all hover:shadow-xs sm:flex-row sm:items-center sm:gap-5 sm:p-5">
+      <article className="group relative flex flex-col gap-4 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-4 transition-all hover:shadow-none sm:flex-row sm:items-center sm:gap-5 sm:p-5">
         <Link
           to={`/product/${item.productSlug}`}
           className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-28 sm:w-28"

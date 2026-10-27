@@ -76,7 +76,7 @@ export const CouponInput: React.FC = () => {
         size="sm"
         isLoading={isSubmitting}
         disabled={isSubmitting}
-        className="h-full shrink-0 px-4 text-xs font-normal shadow-xs active:scale-98"
+        className="h-full shrink-0 px-4 text-xs font-normal shadow-none active:scale-98"
       >
         Apply
       </Button>

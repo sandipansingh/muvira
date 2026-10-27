@@ -73,7 +73,7 @@ export function SegmentedControl<T extends string = string>({
             onClick={() => onChange(opt.value)}
             className={`relative ${paddingClass} rounded-[var(--radius-control)] transition-colors duration-200 cursor-pointer shrink-0 border select-none ${
               isActive
-                ? 'bg-primary text-white border-primary shadow-xs'
+                ? 'bg-primary text-white border-primary shadow-none'
                 : 'bg-paper text-muted border-line hover:bg-surface hover:text-ink'
             }`}
           >

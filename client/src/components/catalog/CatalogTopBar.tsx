@@ -94,7 +94,7 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
               onClick={() => onViewModeChange('grid-4')}
               className={`p-1.5 rounded transition-colors cursor-pointer ${
                 viewMode === 'grid-4'
-                  ? 'bg-surface text-ink shadow-xs'
+                  ? 'bg-surface text-ink shadow-none'
                   : 'text-muted hover:text-ink'
               }`}
               title="4 Columns Grid"
@@ -108,7 +108,7 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
               onClick={() => onViewModeChange('grid-3')}
               className={`p-1.5 rounded transition-colors cursor-pointer ${
                 viewMode === 'grid-3'
-                  ? 'bg-surface text-ink shadow-xs'
+                  ? 'bg-surface text-ink shadow-none'
                   : 'text-muted hover:text-ink'
               }`}
               title="3 Columns Grid"
@@ -122,7 +122,7 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
               onClick={() => onViewModeChange('grid-2')}
               className={`p-1.5 rounded transition-colors cursor-pointer ${
                 viewMode === 'grid-2'
-                  ? 'bg-surface text-ink shadow-xs'
+                  ? 'bg-surface text-ink shadow-none'
                   : 'text-muted hover:text-ink'
               }`}
               title="2 Columns Grid"
@@ -135,7 +135,9 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
               type="button"
               onClick={() => onViewModeChange('list')}
               className={`p-1.5 rounded transition-colors cursor-pointer ${
-                viewMode === 'list' ? 'bg-surface text-ink shadow-xs' : 'text-muted hover:text-ink'
+                viewMode === 'list'
+                  ? 'bg-surface text-ink shadow-none'
+                  : 'text-muted hover:text-ink'
               }`}
               title="List View"
               aria-label="List View"

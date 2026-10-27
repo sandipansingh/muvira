@@ -46,3 +46,8 @@ supabase/schema.sql
 supabase/.temp/
 supabase/.branches/
 design-references
+
+# Local implementation and visual evidence
+.superpowers/
+dev-scripts/
+responsive-audit/redesign/

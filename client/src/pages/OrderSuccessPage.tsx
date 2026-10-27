@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { ArrowRight, CheckCircle2, PackageCheck, ShieldCheck } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Clock3, PackageCheck, ShieldCheck } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 import { orderApiService } from '../lib/services/order.service'
@@ -14,6 +14,9 @@ export const OrderSuccessPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    setOrder(null)
+    setError(null)
+    setLoading(Boolean(orderId))
     if (!orderId) return
     let active = true
     orderApiService
@@ -21,6 +24,10 @@ export const OrderSuccessPage: React.FC = () => {
       .then((response) => {
         if (!active) return
         if (!response.success) throw new Error(response.error.message)
+        if (response.data.paymentStatus === 'pending') {
+          setOrder(response.data)
+          return
+        }
         if (!isVerifiedPaidOrder(response.data)) {
           throw new Error('This order does not have a verified paid status.')
         }
@@ -48,6 +55,27 @@ export const OrderSuccessPage: React.FC = () => {
     )
   }
 
+  if (order?.paymentStatus === 'pending') {
+    return (
+      <main className="order-result editorial-page py-12 sm:py-16">
+        <section className="mx-auto max-w-xl px-4 text-center">
+          <div className="panel space-y-6 p-6 sm:p-10">
+            <Clock3 className="mx-auto h-12 w-12 text-muted" />
+            <span className="eyebrow block">Payment pending</span>
+            <h1 className="page-title">Payment is being confirmed</h1>
+            <p className="text-base leading-7 text-muted">
+              We are waiting for confirmation for order #{order.orderNumber}. Check its status
+              before attempting another payment.
+            </p>
+            <Link to={`/orders/${encodeURIComponent(order.id)}`} className="button-primary">
+              View order status
+            </Link>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
   const confirmationError = orderConfirmationError(orderId, order, error)
 
   if (confirmationError || !order) {
@@ -65,7 +93,7 @@ export const OrderSuccessPage: React.FC = () => {
   }
 
   return (
-    <main className="editorial-page py-6 sm:py-12">
+    <main className="order-result editorial-page py-10 sm:py-16">
       <div className="editorial-container max-w-3xl space-y-6">
         <Breadcrumbs
           items={[
@@ -75,8 +103,8 @@ export const OrderSuccessPage: React.FC = () => {
           ]}
         />
 
-        <div className="space-y-6 rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-6 text-center shadow-xs sm:p-10">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--color-accent-soft)] text-accent shadow-xs">
+        <div className="space-y-6 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-6 text-center shadow-none sm:p-10">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-card bg-[var(--color-accent-soft)] text-accent shadow-none">
             <CheckCircle2 className="h-10 w-10 stroke-[2]" />
           </div>
 
@@ -95,13 +123,13 @@ export const OrderSuccessPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-left">
-            <p className="text-sm font-medium leading-relaxed text-neutral-900">
+          <div className="rounded-card border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-left">
+            <p className="text-sm font-medium leading-relaxed text-ink">
               Your paid order is recorded and ready for the fulfillment team to process.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)] p-4 text-left">
+          <div className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-4 text-left">
             <div className="flex items-center gap-2 font-bold text-[var(--color-ink)]">
               <ShieldCheck className="h-4 w-4 text-accent" />
               Razorpay verification complete

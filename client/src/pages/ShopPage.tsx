@@ -21,7 +21,7 @@ export const ShopPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<GridViewMode>('grid-3')
+  const [viewMode, setViewMode] = useState<GridViewMode>('grid-4')
 
   // URL state parameters
   const categoryParam = searchParams.get('category') || 'all'
@@ -180,9 +180,13 @@ export const ShopPage: React.FC = () => {
     (inStockParam ? 1 : 0)
 
   return (
-    <main className="min-h-screen pb-16 bg-paper">
+    <main className="catalog-page min-h-screen pb-16 bg-background">
       {/* Top Rounded Hero Banner */}
-      <ShopHero title="Shop Page" breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]} />
+      <ShopHero
+        title="The collection"
+        subtitle="God idols, puja essentials and meaningful pieces for your space."
+        breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Shop' }]}
+      />
 
       {/* Main 2-Column Catalog Container */}
       <div className="layout-container" ref={resultsContainerRef}>
