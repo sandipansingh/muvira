@@ -11,7 +11,7 @@ export const NotFoundPage: React.FC = () => {
         <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: '404 Not Found' }]} />
 
         <div className="h-16 w-16 rounded-full bg-surface border border-line flex items-center justify-center text-muted mb-6 shadow-none">
-          <Compass className="h-8 w-8 text-primary stroke-[1.5]" />
+          <Compass className="h-8 w-8 text-muted stroke-[1.5]" />
         </div>
 
         <span className="text-xs font-bold uppercase tracking-widest text-muted">Error 404</span>

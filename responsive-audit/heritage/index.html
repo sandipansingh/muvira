@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="en-IN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  /><title>Muvira · Immersive heritage review</title>
+  <style>
+    :root {
+      --bg: #faf8f4;
+      --paper: #fff;
+      --ink: #1f2521;
+      --muted: #657168;
+      --line: #e9e3d9;
+      --primary: #334b42;
+      --brass: #98753a;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 40px;
+      color: var(--ink);
+      background: var(--bg);
+      font:
+        16px/1.6 system-ui,
+        sans-serif;
+    }
+    header {
+      max-width: 1300px;
+      margin: 0 auto 32px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 24px;
+    }
+    h1 {
+      font:
+        400 clamp(32px, 5vw, 56px)/1.1 Georgia,
+        serif;
+      margin: 12px 0;
+    }
+    p {
+      color: var(--muted);
+      max-width: 780px;
+    }
+    nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    button {
+      font: inherit;
+      min-height: 44px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      color: var(--ink);
+    }
+    button[aria-pressed='true'] {
+      color: var(--paper);
+      background: var(--primary);
+    }
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 4px;
+    }
+    main {
+      max-width: 1300px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 24px;
+    }
+    .shot {
+      display: block;
+      min-width: 0;
+      text-decoration: none;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--paper);
+    }
+    .preview {
+      height: 350px;
+      overflow: hidden;
+      background: var(--line);
+    }
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .shot[data-viewport='mobile'] img {
+      max-width: 270px;
+      margin: auto;
+    }
+    span {
+      display: block;
+      padding: 16px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    small {
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      text-transform: none;
+    }
+    [hidden] {
+      display: none !important;
+    }
+    footer {
+      max-width: 1300px;
+      margin: 40px auto 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 20px;
+      }
+      .preview {
+        height: 420px;
+      }
+    }
+  </style>
+  <header>
+    <small>MUVIRA / DESIGN REVIEW / 27 OCTOBER 2026</small>
+    <h1>Immersive heritage</h1>
+    <p>
+      All 16 customer pages, payment and tracking states, hero compositions and shared overlays.
+      Images use isolated guest/authenticated visual fixtures and public catalog photography. Open a
+      screenshot to inspect the complete page.
+    </p>
+    <nav aria-label="Screenshot viewport">
+      <button aria-pressed="true" data-filter="all">All views</button
+      ><button aria-pressed="false" data-filter="desktop">Desktop</button
+      ><button aria-pressed="false" data-filter="mobile">Mobile</button
+      ><button aria-pressed="false" data-filter="interactions">Interactions & overlays</button>
+    </nav>
+  </header>
+  <main>
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-home-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-home-desktop.webp" alt="home — desktop" />
+      </div>
+      <span>home<small>desktop · 1440 × 3351</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-home-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-home-mobile.webp" alt="home — mobile" />
+      </div>
+      <span>home<small>mobile · 390 × 4308</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-shop-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-shop-desktop.webp" alt="shop — desktop" />
+      </div>
+      <span>shop<small>desktop · 1440 × 1898</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-shop-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-shop-mobile.webp" alt="shop — mobile" />
+      </div>
+      <span>shop<small>mobile · 390 × 1944</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-categories-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-categories-desktop.webp" alt="categories — desktop" />
+      </div>
+      <span>categories<small>desktop · 1440 × 2208</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-categories-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-categories-mobile.webp" alt="categories — mobile" />
+      </div>
+      <span>categories<small>mobile · 390 × 5125</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-search-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-search-desktop.webp" alt="search — desktop" />
+      </div>
+      <span>search<small>desktop · 1440 × 1846</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-search-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-search-mobile.webp" alt="search — mobile" />
+      </div>
+      <span>search<small>mobile · 390 × 1928</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-product-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-product-desktop.webp" alt="product — desktop" />
+      </div>
+      <span>product<small>desktop · 1440 × 3531</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-product-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-product-mobile.webp" alt="product — mobile" />
+      </div>
+      <span>product<small>mobile · 390 × 4882</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-cart-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-cart-desktop.webp" alt="cart — desktop" />
+      </div>
+      <span>cart<small>desktop · 1440 × 1500</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-cart-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-cart-mobile.webp" alt="cart — mobile" />
+      </div>
+      <span>cart<small>mobile · 390 × 2340</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-checkout-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-checkout-desktop.webp" alt="checkout — desktop" />
+      </div>
+      <span>checkout<small>desktop · 1440 × 1489</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-checkout-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-checkout-mobile.webp" alt="checkout — mobile" />
+      </div>
+      <span>checkout<small>mobile · 390 × 2091</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-payment-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-payment-desktop.webp" alt="payment — desktop" />
+      </div>
+      <span>payment<small>desktop · 1440 × 1726</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-payment-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-payment-mobile.webp" alt="payment — mobile" />
+      </div>
+      <span>payment<small>mobile · 390 × 2512</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-signin-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-signin-desktop.webp" alt="signin — desktop" />
+      </div>
+      <span>signin<small>desktop · 1440 × 1000</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-signin-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-signin-mobile.webp" alt="signin — mobile" />
+      </div>
+      <span>signin<small>mobile · 390 × 844</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-signup-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-signup-desktop.webp" alt="signup — desktop" />
+      </div>
+      <span>signup<small>desktop · 1440 × 1000</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-signup-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-signup-mobile.webp" alt="signup — mobile" />
+      </div>
+      <span>signup<small>mobile · 390 × 844</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-recovery-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-recovery-desktop.webp" alt="recovery — desktop" />
+      </div>
+      <span>recovery<small>desktop · 1440 × 1000</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-recovery-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-recovery-mobile.webp" alt="recovery — mobile" />
+      </div>
+      <span>recovery<small>mobile · 390 × 844</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-profile-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-profile-desktop.webp" alt="profile — desktop" />
+      </div>
+      <span>profile<small>desktop · 1440 × 1779</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-profile-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-profile-mobile.webp" alt="profile — mobile" />
+      </div>
+      <span>profile<small>mobile · 390 × 2457</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-orders-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-orders-desktop.webp" alt="orders — desktop" />
+      </div>
+      <span>orders<small>desktop · 1440 × 1489</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-orders-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-orders-mobile.webp" alt="orders — mobile" />
+      </div>
+      <span>orders<small>mobile · 390 × 1732</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-order-detail-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-detail-desktop.webp" alt="order-detail — desktop" />
+      </div>
+      <span>order detail<small>desktop · 1440 × 1699</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-order-detail-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-detail-mobile.webp" alt="order-detail — mobile" />
+      </div>
+      <span>order detail<small>mobile · 390 × 2524</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-order-invoice-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-invoice-desktop.webp" alt="order-invoice — desktop" />
+      </div>
+      <span>order invoice<small>desktop · 1440 × 1755</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-order-invoice-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-invoice-mobile.webp" alt="order-invoice — mobile" />
+      </div>
+      <span>order invoice<small>mobile · 390 × 2582</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-order-success-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-success-desktop.webp" alt="order-success — desktop" />
+      </div>
+      <span>order success<small>desktop · 1440 × 1489</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-order-success-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-success-mobile.webp" alt="order-success — mobile" />
+      </div>
+      <span>order success<small>mobile · 390 × 1802</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-order-pending-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-pending-desktop.webp" alt="order-pending — desktop" />
+      </div>
+      <span>order pending<small>desktop · 1440 × 1489</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-order-pending-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-pending-mobile.webp" alt="order-pending — mobile" />
+      </div>
+      <span>order pending<small>mobile · 390 × 1716</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-order-failure-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-failure-desktop.webp" alt="order-failure — desktop" />
+      </div>
+      <span>order failure<small>desktop · 1440 × 1489</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-order-failure-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-order-failure-mobile.webp" alt="order-failure — mobile" />
+      </div>
+      <span>order failure<small>mobile · 390 × 1716</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="page"
+      href="page-not-found-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-not-found-desktop.webp" alt="not-found — desktop" />
+      </div>
+      <span>not found<small>desktop · 1440 × 1193</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="page"
+      href="page-not-found-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="page-not-found-mobile.webp" alt="not-found — mobile" />
+      </div>
+      <span>not found<small>mobile · 390 × 1677</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="interaction"
+      href="interaction-hero-2-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="interaction-hero-2-desktop.webp" alt="hero-2 — desktop" />
+      </div>
+      <span>hero 2<small>desktop · 1440 × 3351</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-hero-2-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="interaction-hero-2-mobile.webp" alt="hero-2 — mobile" />
+      </div>
+      <span>hero 2<small>mobile · 390 × 4308</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="interaction"
+      href="interaction-hero-3-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="interaction-hero-3-desktop.webp" alt="hero-3 — desktop" />
+      </div>
+      <span>hero 3<small>desktop · 1440 × 3351</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-hero-3-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="interaction-hero-3-mobile.webp" alt="hero-3 — mobile" />
+      </div>
+      <span>hero 3<small>mobile · 390 × 4308</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="interaction"
+      href="interaction-unknown-hero-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-unknown-hero-desktop.webp"
+          alt="unknown-hero — desktop"
+        />
+      </div>
+      <span>unknown hero<small>desktop · 1440 × 3351</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-unknown-hero-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-unknown-hero-mobile.webp"
+          alt="unknown-hero — mobile"
+        />
+      </div>
+      <span>unknown hero<small>mobile · 390 × 4244</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="interaction"
+      href="interaction-collections-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-collections-desktop.webp"
+          alt="collections — desktop"
+        />
+      </div>
+      <span>collections<small>desktop · 1440 × 3351</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-collections-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="interaction-collections-mobile.webp" alt="collections — mobile" />
+      </div>
+      <span>collections<small>mobile · 390 × 844</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="interaction"
+      href="interaction-lightbox-2x-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-lightbox-2x-desktop.webp"
+          alt="lightbox-2x — desktop"
+        />
+      </div>
+      <span>lightbox 2x<small>desktop · 1440 × 1000</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-lightbox-2x-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="interaction-lightbox-2x-mobile.webp" alt="lightbox-2x — mobile" />
+      </div>
+      <span>lightbox 2x<small>mobile · 390 × 844</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="interaction"
+      href="interaction-catalog-care-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-catalog-care-desktop.webp"
+          alt="catalog-care — desktop"
+        />
+      </div>
+      <span>catalog care<small>desktop · 1440 × 2567</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-catalog-care-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-catalog-care-mobile.webp"
+          alt="catalog-care — mobile"
+        />
+      </div>
+      <span>catalog care<small>mobile · 390 × 3546</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="interaction"
+      href="interaction-tracking-invoice-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-tracking-invoice-desktop.webp"
+          alt="tracking-invoice — desktop"
+        />
+      </div>
+      <span>tracking invoice<small>desktop · 1440 × 1755</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-tracking-invoice-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-tracking-invoice-mobile.webp"
+          alt="tracking-invoice — mobile"
+        />
+      </div>
+      <span>tracking invoice<small>mobile · 390 × 2582</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="interaction"
+      href="interaction-broken-images-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="interaction-broken-images-mobile.webp"
+          alt="broken-images — mobile"
+        />
+      </div>
+      <span>broken images<small>mobile · 390 × 1944</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="overlay"
+      href="overlay-gallery-zoom-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="overlay-gallery-zoom-desktop.webp" alt="gallery-zoom — desktop" />
+      </div>
+      <span>gallery zoom<small>desktop · 1440 × 1000</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="overlay"
+      href="overlay-gallery-zoom-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="overlay-gallery-zoom-mobile.webp" alt="gallery-zoom — mobile" />
+      </div>
+      <span>gallery zoom<small>mobile · 390 × 844</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="desktop"
+      data-group="overlay"
+      href="overlay-address-editor-desktop.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="overlay-address-editor-desktop.webp"
+          alt="address-editor — desktop"
+        />
+      </div>
+      <span>address editor<small>desktop · 1440 × 2293</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="overlay"
+      href="overlay-address-editor-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="overlay-address-editor-mobile.webp"
+          alt="address-editor — mobile"
+        />
+      </div>
+      <span>address editor<small>mobile · 390 × 3211</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="overlay"
+      href="overlay-header-search-open-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="overlay-header-search-open-mobile.webp"
+          alt="header-search-open — mobile"
+        />
+      </div>
+      <span>header search open<small>mobile · 1170 × 2532</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="overlay"
+      href="overlay-filters-open-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img loading="lazy" src="overlay-filters-open-mobile.webp" alt="filters-open — mobile" />
+      </div>
+      <span>filters open<small>mobile · 1170 × 2532</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="overlay"
+      href="overlay-quick-view-open-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="overlay-quick-view-open-mobile.webp"
+          alt="quick-view-open — mobile"
+        />
+      </div>
+      <span>quick view open<small>mobile · 1170 × 2532</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="overlay"
+      href="overlay-forgot-password-open-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="overlay-forgot-password-open-mobile.webp"
+          alt="forgot-password-open — mobile"
+        />
+      </div>
+      <span>forgot password open<small>mobile · 1170 × 2532</small></span></a
+    >
+    <a
+      class="shot"
+      data-viewport="mobile"
+      data-group="overlay"
+      href="overlay-cart-drawer-open-mobile.webp"
+      target="_blank"
+      rel="noopener"
+      ><div class="preview">
+        <img
+          loading="lazy"
+          src="overlay-cart-drawer-open-mobile.webp"
+          alt="cart-drawer-open — mobile"
+        />
+      </div>
+      <span>cart drawer open<small>mobile · 1170 × 2532</small></span></a
+    >
+  </main>
+  <footer>
+    Full-resolution PNGs and the complete tablet/enlarged-text audit remain in ../redesign/.
+    Generated WebP screenshots retain complete page content. Provider operations were blocked or
+    stubbed in fixture pages; the invoice example verifies the download affordance with a fixture
+    PDF.
+  </footer>
+  <script>
+    document.querySelectorAll('[data-filter]').forEach((button) =>
+      button.addEventListener('click', () => {
+        document
+          .querySelectorAll('[data-filter]')
+          .forEach((item) => item.setAttribute('aria-pressed', item === button ? 'true' : 'false'))
+        document.querySelectorAll('.shot').forEach((shot) => {
+          shot.hidden =
+            button.dataset.filter === 'all'
+              ? false
+              : button.dataset.filter === 'interactions'
+                ? shot.dataset.group === 'page'
+                : shot.dataset.viewport !== button.dataset.filter
+        })
+      })
+    )
+  </script>
+</html>

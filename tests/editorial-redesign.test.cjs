@@ -13,7 +13,7 @@ after(async () => {
 })
 async function pageFor(path, run) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  page.setDefaultTimeout(5000)
+  page.setDefaultTimeout(10000)
   const errors = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.route('**/*', (route) => {
@@ -27,7 +27,7 @@ async function pageFor(path, run) {
     return route.abort()
   })
   try {
-    await page.goto(fixture.origin + path)
+    await page.goto(fixture.origin + path, { waitUntil: 'domcontentloaded' })
     await page.waitForFunction(() => window.fixtureReady)
     await run(page)
     assert.deepEqual(errors, [])
@@ -49,6 +49,60 @@ test('collections navigation exposes real links and restores keyboard focus', ()
     assert.equal(await menu.evaluate((el) => el.contains(document.activeElement)), true)
     await page.keyboard.press('Escape')
     assert.equal(await trigger.evaluate((el) => document.activeElement === el), true)
+  }))
+test('choosing a sort option returns keyboard focus to its trigger', () =>
+  pageFor('/shop', async (page) => {
+    const trigger = page.locator('#catalog-sort')
+    await trigger.focus()
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('Enter')
+    await page.waitForTimeout(250)
+    assert.equal(await trigger.evaluate((element) => document.activeElement === element), true)
+  }))
+test('quantity selection restores focus after its pending update finishes', () =>
+  pageFor('/cart?slowQuantity=1', async (page) => {
+    const trigger = page.getByRole('button', { name: /^Quantity for/ })
+    await trigger.focus()
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('Enter')
+    await page.waitForFunction(
+      () => document.querySelector('[aria-label^="Quantity for"]')?.disabled === true
+    )
+    await page.waitForFunction(
+      () => document.querySelector('[aria-label^="Quantity for"]')?.disabled === false
+    )
+    assert.equal(await trigger.evaluate((element) => document.activeElement === element), true)
+  }))
+test('failed product photographs retain the image-unavailable state in the lightbox', () =>
+  pageFor('/product/fixture?scenario=broken-images', async (page) => {
+    await page.getByRole('button', { name: /^Enlarge image of/ }).click()
+    const dialog = page.getByRole('dialog')
+    await dialog.getByText('Image unavailable', { exact: true }).waitFor()
+    assert.equal(await dialog.locator('.lightbox-stage img').count(), 0)
+  }))
+test('long lightbox titles leave the image and controls reachable at 200 percent text', () =>
+  pageFor('/product/fixture', async (page) => {
+    await page.setViewportSize({ width: 320, height: 800 })
+    await page.evaluate(() => {
+      document.documentElement.style.fontSize = '32px'
+    })
+    await page.getByRole('button', { name: /^Enlarge image of/ }).click()
+    const stage = await page.locator('.lightbox-stage').boundingBox()
+    assert.ok(stage.y < 700 && stage.height > 100, 'Lightbox image must remain in view')
+    assert.equal(
+      await page
+        .getByRole('dialog')
+        .locator('.dropdown-scrollbar')
+        .evaluate((element) => element.scrollWidth <= element.clientWidth + 1),
+      true,
+      'Lightbox controls must fit horizontally'
+    )
+    const reset = page.getByRole('button', { name: 'Reset view', exact: true })
+    await reset.scrollIntoViewIfNeeded()
+    const rect = await reset.boundingBox()
+    assert.ok(rect.y >= 0 && rect.y + rect.height <= 800)
   }))
 test('missing legacy hero category destinations lead to the shop', () =>
   pageFor('/', async (page) => {

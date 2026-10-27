@@ -1,0 +1,560 @@
+[
+  {
+    "name": "home",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-home-desktop.webp",
+    "width": 1440,
+    "height": 3351,
+    "source": "responsive-audit/redesign/home-desktop.png"
+  },
+  {
+    "name": "home",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-home-mobile.webp",
+    "width": 390,
+    "height": 4308,
+    "source": "responsive-audit/redesign/home-mobile.png"
+  },
+  {
+    "name": "shop",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-shop-desktop.webp",
+    "width": 1440,
+    "height": 1898,
+    "source": "responsive-audit/redesign/shop-desktop.png"
+  },
+  {
+    "name": "shop",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-shop-mobile.webp",
+    "width": 390,
+    "height": 1944,
+    "source": "responsive-audit/redesign/shop-mobile.png"
+  },
+  {
+    "name": "categories",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-categories-desktop.webp",
+    "width": 1440,
+    "height": 2208,
+    "source": "responsive-audit/redesign/categories-desktop.png"
+  },
+  {
+    "name": "categories",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-categories-mobile.webp",
+    "width": 390,
+    "height": 5125,
+    "source": "responsive-audit/redesign/categories-mobile.png"
+  },
+  {
+    "name": "search",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-search-desktop.webp",
+    "width": 1440,
+    "height": 1846,
+    "source": "responsive-audit/redesign/search-desktop.png"
+  },
+  {
+    "name": "search",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-search-mobile.webp",
+    "width": 390,
+    "height": 1928,
+    "source": "responsive-audit/redesign/search-mobile.png"
+  },
+  {
+    "name": "product",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-product-desktop.webp",
+    "width": 1440,
+    "height": 3531,
+    "source": "responsive-audit/redesign/product-desktop.png"
+  },
+  {
+    "name": "product",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-product-mobile.webp",
+    "width": 390,
+    "height": 4882,
+    "source": "responsive-audit/redesign/product-mobile.png"
+  },
+  {
+    "name": "cart",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-cart-desktop.webp",
+    "width": 1440,
+    "height": 1500,
+    "source": "responsive-audit/redesign/cart-desktop.png"
+  },
+  {
+    "name": "cart",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-cart-mobile.webp",
+    "width": 390,
+    "height": 2340,
+    "source": "responsive-audit/redesign/cart-mobile.png"
+  },
+  {
+    "name": "checkout",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-checkout-desktop.webp",
+    "width": 1440,
+    "height": 1489,
+    "source": "responsive-audit/redesign/checkout-desktop.png"
+  },
+  {
+    "name": "checkout",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-checkout-mobile.webp",
+    "width": 390,
+    "height": 2091,
+    "source": "responsive-audit/redesign/checkout-mobile.png"
+  },
+  {
+    "name": "payment",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-payment-desktop.webp",
+    "width": 1440,
+    "height": 1726,
+    "source": "responsive-audit/redesign/payment-desktop.png"
+  },
+  {
+    "name": "payment",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-payment-mobile.webp",
+    "width": 390,
+    "height": 2512,
+    "source": "responsive-audit/redesign/payment-mobile.png"
+  },
+  {
+    "name": "signin",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-signin-desktop.webp",
+    "width": 1440,
+    "height": 1000,
+    "source": "responsive-audit/redesign/signin-desktop.png"
+  },
+  {
+    "name": "signin",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-signin-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "source": "responsive-audit/redesign/signin-mobile.png"
+  },
+  {
+    "name": "signup",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-signup-desktop.webp",
+    "width": 1440,
+    "height": 1000,
+    "source": "responsive-audit/redesign/signup-desktop.png"
+  },
+  {
+    "name": "signup",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-signup-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "source": "responsive-audit/redesign/signup-mobile.png"
+  },
+  {
+    "name": "recovery",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-recovery-desktop.webp",
+    "width": 1440,
+    "height": 1000,
+    "source": "responsive-audit/redesign/recovery-desktop.png"
+  },
+  {
+    "name": "recovery",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-recovery-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "source": "responsive-audit/redesign/recovery-mobile.png"
+  },
+  {
+    "name": "profile",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-profile-desktop.webp",
+    "width": 1440,
+    "height": 1779,
+    "source": "responsive-audit/redesign/profile-desktop.png"
+  },
+  {
+    "name": "profile",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-profile-mobile.webp",
+    "width": 390,
+    "height": 2457,
+    "source": "responsive-audit/redesign/profile-mobile.png"
+  },
+  {
+    "name": "orders",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-orders-desktop.webp",
+    "width": 1440,
+    "height": 1489,
+    "source": "responsive-audit/redesign/orders-desktop.png"
+  },
+  {
+    "name": "orders",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-orders-mobile.webp",
+    "width": 390,
+    "height": 1732,
+    "source": "responsive-audit/redesign/orders-mobile.png"
+  },
+  {
+    "name": "order-detail",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-order-detail-desktop.webp",
+    "width": 1440,
+    "height": 1699,
+    "source": "responsive-audit/redesign/order-detail-desktop.png"
+  },
+  {
+    "name": "order-detail",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-order-detail-mobile.webp",
+    "width": 390,
+    "height": 2524,
+    "source": "responsive-audit/redesign/order-detail-mobile.png"
+  },
+  {
+    "name": "order-invoice",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-order-invoice-desktop.webp",
+    "width": 1440,
+    "height": 1755,
+    "source": "responsive-audit/redesign/order-invoice-desktop.png"
+  },
+  {
+    "name": "order-invoice",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-order-invoice-mobile.webp",
+    "width": 390,
+    "height": 2582,
+    "source": "responsive-audit/redesign/order-invoice-mobile.png"
+  },
+  {
+    "name": "order-success",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-order-success-desktop.webp",
+    "width": 1440,
+    "height": 1489,
+    "source": "responsive-audit/redesign/order-success-desktop.png"
+  },
+  {
+    "name": "order-success",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-order-success-mobile.webp",
+    "width": 390,
+    "height": 1802,
+    "source": "responsive-audit/redesign/order-success-mobile.png"
+  },
+  {
+    "name": "order-pending",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-order-pending-desktop.webp",
+    "width": 1440,
+    "height": 1489,
+    "source": "responsive-audit/redesign/order-pending-desktop.png"
+  },
+  {
+    "name": "order-pending",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-order-pending-mobile.webp",
+    "width": 390,
+    "height": 1716,
+    "source": "responsive-audit/redesign/order-pending-mobile.png"
+  },
+  {
+    "name": "order-failure",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-order-failure-desktop.webp",
+    "width": 1440,
+    "height": 1489,
+    "source": "responsive-audit/redesign/order-failure-desktop.png"
+  },
+  {
+    "name": "order-failure",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-order-failure-mobile.webp",
+    "width": 390,
+    "height": 1716,
+    "source": "responsive-audit/redesign/order-failure-mobile.png"
+  },
+  {
+    "name": "not-found",
+    "viewport": "desktop",
+    "group": "page",
+    "file": "page-not-found-desktop.webp",
+    "width": 1440,
+    "height": 1193,
+    "source": "responsive-audit/redesign/not-found-desktop.png"
+  },
+  {
+    "name": "not-found",
+    "viewport": "mobile",
+    "group": "page",
+    "file": "page-not-found-mobile.webp",
+    "width": 390,
+    "height": 1677,
+    "source": "responsive-audit/redesign/not-found-mobile.png"
+  },
+  {
+    "name": "hero-2",
+    "viewport": "desktop",
+    "group": "interaction",
+    "file": "interaction-hero-2-desktop.webp",
+    "width": 1440,
+    "height": 3351,
+    "source": "responsive-audit/redesign/heritage-hero-2-desktop.png"
+  },
+  {
+    "name": "hero-2",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-hero-2-mobile.webp",
+    "width": 390,
+    "height": 4308,
+    "source": "responsive-audit/redesign/heritage-hero-2-mobile.png"
+  },
+  {
+    "name": "hero-3",
+    "viewport": "desktop",
+    "group": "interaction",
+    "file": "interaction-hero-3-desktop.webp",
+    "width": 1440,
+    "height": 3351,
+    "source": "responsive-audit/redesign/heritage-hero-3-desktop.png"
+  },
+  {
+    "name": "hero-3",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-hero-3-mobile.webp",
+    "width": 390,
+    "height": 4308,
+    "source": "responsive-audit/redesign/heritage-hero-3-mobile.png"
+  },
+  {
+    "name": "unknown-hero",
+    "viewport": "desktop",
+    "group": "interaction",
+    "file": "interaction-unknown-hero-desktop.webp",
+    "width": 1440,
+    "height": 3351,
+    "source": "responsive-audit/redesign/heritage-unknown-hero-desktop.png"
+  },
+  {
+    "name": "unknown-hero",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-unknown-hero-mobile.webp",
+    "width": 390,
+    "height": 4244,
+    "source": "responsive-audit/redesign/heritage-unknown-hero-mobile.png"
+  },
+  {
+    "name": "collections",
+    "viewport": "desktop",
+    "group": "interaction",
+    "file": "interaction-collections-desktop.webp",
+    "width": 1440,
+    "height": 3351,
+    "source": "responsive-audit/redesign/heritage-collections-desktop.png"
+  },
+  {
+    "name": "collections",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-collections-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "source": "responsive-audit/redesign/heritage-collections-mobile.png"
+  },
+  {
+    "name": "lightbox-2x",
+    "viewport": "desktop",
+    "group": "interaction",
+    "file": "interaction-lightbox-2x-desktop.webp",
+    "width": 1440,
+    "height": 1000,
+    "source": "responsive-audit/redesign/heritage-lightbox-2x-desktop.png"
+  },
+  {
+    "name": "lightbox-2x",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-lightbox-2x-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "source": "responsive-audit/redesign/heritage-lightbox-2x-mobile.png"
+  },
+  {
+    "name": "catalog-care",
+    "viewport": "desktop",
+    "group": "interaction",
+    "file": "interaction-catalog-care-desktop.webp",
+    "width": 1440,
+    "height": 2567,
+    "source": "responsive-audit/redesign/heritage-catalog-care-desktop.png"
+  },
+  {
+    "name": "catalog-care",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-catalog-care-mobile.webp",
+    "width": 390,
+    "height": 3546,
+    "source": "responsive-audit/redesign/heritage-catalog-care-mobile.png"
+  },
+  {
+    "name": "tracking-invoice",
+    "viewport": "desktop",
+    "group": "interaction",
+    "file": "interaction-tracking-invoice-desktop.webp",
+    "width": 1440,
+    "height": 1755,
+    "source": "responsive-audit/redesign/heritage-tracking-invoice-desktop.png"
+  },
+  {
+    "name": "tracking-invoice",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-tracking-invoice-mobile.webp",
+    "width": 390,
+    "height": 2582,
+    "source": "responsive-audit/redesign/heritage-tracking-invoice-mobile.png"
+  },
+  {
+    "name": "broken-images",
+    "viewport": "mobile",
+    "group": "interaction",
+    "file": "interaction-broken-images-mobile.webp",
+    "width": 390,
+    "height": 1944,
+    "source": "responsive-audit/redesign/heritage-broken-images-mobile.png"
+  },
+  {
+    "name": "gallery-zoom",
+    "viewport": "desktop",
+    "group": "overlay",
+    "file": "overlay-gallery-zoom-desktop.webp",
+    "width": 1440,
+    "height": 1000,
+    "source": "responsive-audit/redesign/overlay-gallery-zoom-desktop.png"
+  },
+  {
+    "name": "gallery-zoom",
+    "viewport": "mobile",
+    "group": "overlay",
+    "file": "overlay-gallery-zoom-mobile.webp",
+    "width": 390,
+    "height": 844,
+    "source": "responsive-audit/redesign/overlay-gallery-zoom-mobile.png"
+  },
+  {
+    "name": "address-editor",
+    "viewport": "desktop",
+    "group": "overlay",
+    "file": "overlay-address-editor-desktop.webp",
+    "width": 1440,
+    "height": 2293,
+    "source": "responsive-audit/redesign/overlay-address-editor-desktop.png"
+  },
+  {
+    "name": "address-editor",
+    "viewport": "mobile",
+    "group": "overlay",
+    "file": "overlay-address-editor-mobile.webp",
+    "width": 390,
+    "height": 3211,
+    "source": "responsive-audit/redesign/overlay-address-editor-mobile.png"
+  },
+  {
+    "name": "header-search-open",
+    "viewport": "mobile",
+    "group": "overlay",
+    "file": "overlay-header-search-open-mobile.webp",
+    "width": 1170,
+    "height": 2532,
+    "source": "responsive-audit/after/header-search-open__390x844-phone-dpr3.jpg"
+  },
+  {
+    "name": "filters-open",
+    "viewport": "mobile",
+    "group": "overlay",
+    "file": "overlay-filters-open-mobile.webp",
+    "width": 1170,
+    "height": 2532,
+    "source": "responsive-audit/after/filters-open__390x844-phone-dpr3.jpg"
+  },
+  {
+    "name": "quick-view-open",
+    "viewport": "mobile",
+    "group": "overlay",
+    "file": "overlay-quick-view-open-mobile.webp",
+    "width": 1170,
+    "height": 2532,
+    "source": "responsive-audit/after/quick-view-open__390x844-phone-dpr3.jpg"
+  },
+  {
+    "name": "forgot-password-open",
+    "viewport": "mobile",
+    "group": "overlay",
+    "file": "overlay-forgot-password-open-mobile.webp",
+    "width": 1170,
+    "height": 2532,
+    "source": "responsive-audit/after/forgot-password-open__390x844-phone-dpr3.jpg"
+  },
+  {
+    "name": "cart-drawer-open",
+    "viewport": "mobile",
+    "group": "overlay",
+    "file": "overlay-cart-drawer-open-mobile.webp",
+    "width": 1170,
+    "height": 2532,
+    "source": "responsive-audit/after/cart-drawer-open__390x844-phone-dpr3.jpg"
+  }
+]

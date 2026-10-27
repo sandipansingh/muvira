@@ -61,14 +61,23 @@ export const Modal: React.FC<ModalProps> = ({
         className={`overlay-panel relative z-10 flex max-h-[90dvh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`}
       >
         {title ? (
-          <div className="flex items-center justify-between border-b border-[var(--color-line)] px-6 py-4">
-            <h2 id={titleId} className="font-display text-lg font-bold text-[var(--color-ink)]">
+          <div
+            className={`flex shrink-0 items-center justify-between gap-3 border-b border-line ${maxWidth === 'gallery' ? 'px-3 py-3 sm:px-4' : 'px-6 py-4'}`}
+          >
+            <h2
+              id={titleId}
+              className={
+                maxWidth === 'gallery'
+                  ? 'min-w-0 flex-1 line-clamp-2 font-product text-base font-semibold text-ink'
+                  : 'min-w-0 font-display text-lg text-ink'
+              }
+            >
               {title}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
+              className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
               aria-label="Close dialog"
             >
               <X className="h-4 w-4" />

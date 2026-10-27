@@ -44,7 +44,7 @@ export const CartPage: React.FC = () => {
       <main className="empty-journey layout-container py-12 sm:py-16">
         <div className="empty-journey__copy">
           <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-card bg-[var(--color-surface)] text-[var(--color-muted)] shadow-none">
-            <ShoppingBag className="h-12 w-12 stroke-[1.5] text-[var(--color-primary)]" />
+            <ShoppingBag className="h-12 w-12 stroke-[1.5] text-[var(--color-muted)]" />
           </div>
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-[var(--color-ink)] mt-6">
             Your cart is empty

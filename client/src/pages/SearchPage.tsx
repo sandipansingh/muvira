@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSearchParams, useLocation, Link } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { Search, X, Sparkles } from 'lucide-react'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
@@ -16,7 +16,6 @@ const PAGE_SIZE = 12
 
 export const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const location = useLocation()
   const searchQuery = searchParams.get('q') || ''
   const [localInput, setLocalInput] = useState(searchQuery)
 
@@ -52,7 +51,15 @@ export const SearchPage: React.FC = () => {
   // Keep local search input synced with URL
   useEffect(() => {
     setLocalInput(searchQuery)
-  }, [searchQuery, location])
+  }, [searchQuery])
+
+  useEffect(() => {
+    // Back can restore the same query before a pending clear navigation commits.
+    const restoreQuery = () =>
+      setLocalInput(new URLSearchParams(window.location.search).get('q') || '')
+    window.addEventListener('popstate', restoreQuery)
+    return () => window.removeEventListener('popstate', restoreQuery)
+  }, [])
 
   // Scroll to top of results on page change
   useEffect(() => {
@@ -292,7 +299,7 @@ export const SearchPage: React.FC = () => {
             ) : !loading && products.length === 0 ? (
               <div className="py-16 sm:py-24 px-4 text-center flex flex-col items-center justify-center">
                 <div className="h-12 w-12 rounded-full bg-surface flex items-center justify-center text-muted mb-4">
-                  <Sparkles className="h-6 w-6 text-primary" />
+                  <Sparkles className="h-6 w-6 text-muted" />
                 </div>
                 <h3 className="font-display text-2xl font-semibold text-ink">
                   {searchQuery ? `No results found for “${searchQuery}”` : 'Search our catalog'}

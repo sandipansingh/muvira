@@ -22,6 +22,7 @@ const routes = [
   ['profile', '/profile'],
   ['orders', '/orders'],
   ['order-detail', '/orders/fixture-order'],
+  ['order-invoice', '/orders/fixture-order?shipment=1'],
   ['order-success', '/orders/success?orderId=fixture-order'],
   ['order-pending', '/orders/success?orderId=fixture-order&payment=pending'],
   ['order-failure', '/orders/failure'],
@@ -38,6 +39,8 @@ const routes = [
   ['home-empty', '/?scenario=empty'],
   ['home-unconfigured', '/?scenario=unconfigured'],
   ['home-campaigns', '/?campaigns=1'],
+  ['home-unknown-photo', '/?hero=unknown'],
+  ['home-long-title', '/?hero=long'],
   ['shop-empty', '/shop?scenario=empty'],
   ['shop-error', '/shop?scenario=error'],
   ['shop-missing-images', '/shop?scenario=missing-images'],
@@ -48,6 +51,7 @@ const viewports = [
   { width: 820, height: 1180, label: 'tablet' },
   { width: 1440, height: 1000, label: 'desktop' },
   { width: 320, height: 800, label: 'text-200', textScale: 2 },
+  { width: 1280, height: 900, label: 'desktop-text-200', textScale: 2 },
 ]
 const results = [],
   images = new Map()

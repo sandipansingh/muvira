@@ -948,6 +948,7 @@ button:disabled {
   }
 }
 .store-header {
+  container-type: inline-size;
   position: sticky;
   top: 0;
   z-index: var(--z-header);
@@ -967,6 +968,9 @@ button:disabled {
   align-items: center;
   gap: 0.65rem;
   min-height: var(--tap-target);
+  min-width: var(--tap-target);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .brand-lockup .brand-mark {
   height: 2.75rem;
@@ -1813,4 +1817,23 @@ body {
 }
 .storefront-shell [id] {
   scroll-margin-top: calc(var(--store-header-height) + 1.5rem);
+}
+@container (max-width: 62rem) {
+  .store-header__main > nav {
+    display: none;
+  }
+  .store-header__main button[aria-label='Open navigation menu'] {
+    display: inline-flex;
+  }
+  .store-header__main a:is([aria-label='Sign in'], [aria-label='My account']) {
+    display: none;
+  }
+}
+
+.lightbox-icon-button {
+  width: var(--tap-target);
+  min-width: var(--tap-target);
+  height: var(--tap-target);
+  padding: 0;
+  flex-shrink: 0;
 }

@@ -102,7 +102,7 @@ export const ResetPasswordPage: React.FC = () => {
             />
             <span className="font-display text-2xl">Muvira</span>
           </Link>
-          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-soft text-primary">
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-surface text-ink">
             <LockKeyhole className="h-6 w-6" />
           </div>
           <h1 className="font-display text-3xl leading-tight text-ink">Set a new password</h1>

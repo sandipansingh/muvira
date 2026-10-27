@@ -1,5 +1,6 @@
 import React from 'react'
 import { Breadcrumbs, type BreadcrumbItem } from '../common/Breadcrumbs'
+import { StoreImage } from '../common/StoreImage'
 
 interface ShopHeroProps {
   title: string
@@ -26,7 +27,7 @@ export const ShopHero: React.FC<ShopHeroProps> = ({
           {subtitle && <p className="mt-4 max-w-xl text-base leading-7 text-muted">{subtitle}</p>}
         </div>
         {imageUrl && (
-          <img
+          <StoreImage
             src={imageUrl}
             alt=""
             width={240}

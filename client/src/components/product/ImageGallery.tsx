@@ -228,25 +228,29 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
               dragStart.current = null
             }}
           >
-            <motion.img
+            <motion.div
               key={activeImage}
-              src={activeImage}
-              alt={title}
-              data-lightbox-image
-              data-zoom={zoom}
-              draggable={false}
-              width={1600}
-              height={1600}
-              className="h-full w-full select-none object-contain"
+              className="h-full w-full"
               animate={{ scale: zoom, x: `${pan.x}%`, y: `${pan.y}%` }}
               transition={{ duration: reducedMotion || dragStart.current ? 0 : 0.18 }}
-            />
+            >
+              <StoreImage
+                src={activeImage}
+                alt={title}
+                data-lightbox-image
+                data-zoom={zoom}
+                draggable={false}
+                width={1600}
+                height={1600}
+                className="h-full w-full select-none object-contain"
+              />
+            </motion.div>
           </div>
           <div className="lightbox-controls">
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="button-secondary p-3"
+                className="button-secondary lightbox-icon-button"
                 aria-label="Previous image"
                 disabled={imageUrls.length < 2}
                 onClick={() => selectImage(index - 1)}
@@ -258,7 +262,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
               </span>
               <button
                 type="button"
-                className="button-secondary p-3"
+                className="button-secondary lightbox-icon-button"
                 aria-label="Next image"
                 disabled={imageUrls.length < 2}
                 onClick={() => selectImage(index + 1)}
@@ -281,7 +285,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
               </button>
               <button
                 type="button"
-                className="button-secondary p-3"
+                className="button-secondary lightbox-icon-button"
                 aria-label="Reset view"
                 onClick={resetView}
               >
@@ -303,7 +307,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
                 <button
                   key={control.label}
                   type="button"
-                  className="button-secondary p-3"
+                  className="button-secondary lightbox-icon-button"
                   aria-label={control.label}
                   onClick={() => movePan(control.x, control.y)}
                 >

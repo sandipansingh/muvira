@@ -41,7 +41,9 @@ export const HeroSlider: React.FC = () => {
               <source media="(max-width: 767px)" srcSet={editorialImage(imageSource, 'mobile')} />
             )}
             <img
-              src={imageSource ? editorialImage(imageSource) : '/images/editorial/stone-alcove.png'}
+              src={
+                imageSource ? editorialImage(imageSource) : '/images/editorial/stone-alcove.webp'
+              }
               alt=""
               width={1536}
               height={1024}

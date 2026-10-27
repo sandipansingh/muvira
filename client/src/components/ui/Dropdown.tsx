@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ChevronDown, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -57,11 +57,28 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const [openUpwards, setOpenUpwards] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const restoreSelectionFocus = useRef(false)
+  const keyboardEdge = useRef<'first' | 'last' | null>(null)
   const reducedMotion = useReducedMotion()
 
   const selectedOption = options.find((opt) => opt.value === value)
   const isSlim = variant === 'slim'
   const isNavigation = variant === 'navigation'
+
+  useLayoutEffect(() => {
+    if (!isOpen || !keyboardEdge.current) return
+    const items = dropdownRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')
+    items?.[keyboardEdge.current === 'last' ? items.length - 1 : 0]?.focus()
+    keyboardEdge.current = null
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!restoreSelectionFocus.current || isOpen || disabled) return
+    restoreSelectionFocus.current = false
+    const focused = document.activeElement
+    if (focused === document.body || dropdownRef.current?.contains(focused))
+      triggerRef.current?.focus()
+  }, [disabled, isOpen])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -92,16 +109,18 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   const handleOptionClick = (option: DropdownOption) => {
     if (disabled) return
+    restoreSelectionFocus.current = true
     onChange(option.value)
     if (option.onClick) {
       option.onClick()
     }
     setIsOpen(false)
+    triggerRef.current?.focus()
   }
 
   return (
     <div
-      className={`relative inline-block text-left ${className}`}
+      className={`relative inline-block min-w-0 max-w-full text-left ${className}`}
       ref={dropdownRef}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false)
@@ -115,11 +134,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
         if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
           event.preventDefault()
           if (!isOpen) {
+            keyboardEdge.current = event.key === 'ArrowUp' || event.key === 'End' ? 'last' : 'first'
             handleToggle()
-            requestAnimationFrame(() => {
-              const items = dropdownRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')
-              items?.[event.key === 'ArrowUp' ? items.length - 1 : 0]?.focus()
-            })
           } else {
             const items = Array.from(
               dropdownRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') || []

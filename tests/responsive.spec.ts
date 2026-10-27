@@ -109,8 +109,8 @@ test('authenticated customer and admin pages render across mobile, tablet, deskt
   const report = JSON.parse(
     await readFile('responsive-audit/redesign/authenticated-findings.json', 'utf8')
   )
-  expect(report.routes).toHaveLength(34)
-  expect(report.results).toHaveLength(136)
+  expect(report.routes).toHaveLength(37)
+  expect(report.results).toHaveLength(185)
   for (const result of report.results) {
     expect(result.error, `${result.name} ${result.viewport.label}`).toBeUndefined()
     expect(result.errors).toEqual([])
@@ -132,5 +132,17 @@ test('protected editors and confirmation dialogs reflow and restore keyboard foc
     await readFile('responsive-audit/redesign/protected-overlays.json', 'utf8')
   )
   expect(report.results).toHaveLength(43)
+  expect(report.failures).toEqual([])
+})
+
+test('heritage photography, navigation, gallery and purchase states work across input modes', async () => {
+  await run(process.execPath, ['tests/fixtures/heritage-audit.mjs'], {
+    timeout: 10 * 60 * 1000,
+    maxBuffer: 2 * 1024 * 1024,
+  })
+  const report = JSON.parse(
+    await readFile('responsive-audit/redesign/heritage-findings.json', 'utf8')
+  )
+  expect(report.results).toHaveLength(57)
   expect(report.failures).toEqual([])
 })
