@@ -187,7 +187,10 @@ export function AuthDialog({ mode, onClose, onAuthenticated, restoreFocus }: Aut
               {confirmation === 'signup'
                 ? 'Confirm your email address using the link sent to '
                 : 'Use the password reset link sent to '}
-              {email}. {confirmation === 'signup' && 'Then sign in to continue.'}
+              <span className="email-value" title={email}>
+                {email}
+              </span>
+              {confirmation === 'signup' && 'Then sign in to continue.'}
             </p>
             <Button className="w-full" onClick={() => switchView('signin')}>
               Back to sign in

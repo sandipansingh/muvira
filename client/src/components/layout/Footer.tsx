@@ -74,7 +74,9 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                   <li>
                     <a href={`mailto:${contactInfo.email}`}>
                       <Mail className="h-4 w-4 shrink-0" />
-                      <span className="break-all">{contactInfo.email}</span>
+                      <span className="email-value" title={contactInfo.email}>
+                        {contactInfo.email}
+                      </span>
                     </a>
                   </li>
                 )}

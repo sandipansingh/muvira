@@ -118,7 +118,10 @@ test('sixth category defaults outside navigation and remains editable', () =>
       .locator('form')
       .filter({ has: page.getByRole('heading', { name: 'New category', exact: true }) })
     await form.getByPlaceholder('Category name').fill('Sixth category')
-    await form.getByRole('button', { name: 'Create category', exact: true }).click()
+    await page
+      .getByRole('dialog', { name: 'Add category', exact: true })
+      .getByRole('button', { name: 'Create category', exact: true })
+      .click()
     await page.waitForFunction(() =>
       window.mutations.some((m) => m.path === '/api/admin/categories')
     )
@@ -303,14 +306,20 @@ test('category creation reconciles a lost response before retrying its preserved
       mimeType: 'image/webp',
       buffer: Buffer.from('image fixture'),
     })
-    await form.getByRole('button', { name: 'Create category', exact: true }).click()
+    await page
+      .getByRole('dialog', { name: 'Add category', exact: true })
+      .getByRole('button', { name: 'Create category', exact: true })
+      .click()
     await page
       .getByText(
         'Category response lost Uploaded image preserved; retry checks existing categories first.',
         { exact: true }
       )
       .waitFor()
-    await form.getByRole('button', { name: 'Create category', exact: true }).click()
+    await page
+      .getByRole('dialog', { name: 'Add category', exact: true })
+      .getByRole('button', { name: 'Create category', exact: true })
+      .click()
     await page.waitForFunction(() => window.messages.includes('Category creation verified.'))
     const counts = await page.evaluate(() => ({
       mutations: window.mutations.filter((m) => m.path === '/api/admin/categories').length,

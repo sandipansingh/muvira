@@ -162,7 +162,7 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                   placeholder="Discount code"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
-                  className="h-full w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] pl-9 pr-3 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
+                  className="h-full w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] pl-9 pr-3 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:outline-none"
                 />
               </div>
               <button

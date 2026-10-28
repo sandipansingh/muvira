@@ -152,7 +152,9 @@ function AdminAccount({
         {!collapsed && (
           <span className="admin-account-copy">
             <strong>{name}</strong>
-            <span>{user?.email || 'Store administrator'}</span>
+            <span className="email-value" title={user?.email}>
+              {user?.email || 'Store administrator'}
+            </span>
           </span>
         )}
       </Link>
@@ -262,6 +264,7 @@ export const AdminShell: React.FC = () => {
           </main>
         </div>
         <Modal
+          presentation="drawer"
           isOpen={menuOpen}
           onClose={() => setMenuOpen(false)}
           title="Store management"

@@ -219,7 +219,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             placeholder="Min ₹"
             value={customMin}
             onChange={(e) => setCustomMin(e.target.value)}
-            className="w-full min-w-0 rounded border border-field-border bg-white px-2.5 py-1.5 text-base text-ink placeholder:text-muted focus:border-primary outline-none"
+            className="w-full min-w-0 rounded border border-field-border bg-white px-2.5 py-1.5 text-base text-ink placeholder:text-muted outline-none"
             min="0"
           />
           <span className="text-muted text-xs">-</span>
@@ -229,7 +229,7 @@ export const CatalogSidebar: React.FC<CatalogSidebarProps> = ({
             placeholder="Max ₹"
             value={customMax}
             onChange={(e) => setCustomMax(e.target.value)}
-            className="w-full min-w-0 rounded border border-field-border bg-white px-2.5 py-1.5 text-base text-ink placeholder:text-muted focus:border-primary outline-none"
+            className="w-full min-w-0 rounded border border-field-border bg-white px-2.5 py-1.5 text-base text-ink placeholder:text-muted outline-none"
             min="0"
           />
           <button

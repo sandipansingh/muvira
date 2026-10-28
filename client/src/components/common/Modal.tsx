@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import React, { useId, useRef } from 'react'
 import { X } from 'lucide-react'
 import { useDialogFocus } from '../../lib/hooks/useDialogFocus'
@@ -12,7 +12,8 @@ interface ModalProps {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'gallery'
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>
   restoreFocus?: () => HTMLElement | null
-  presentation?: 'default' | 'auth'
+  presentation?: 'default' | 'auth' | 'drawer'
+  footer?: React.ReactNode
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -25,7 +26,10 @@ export const Modal: React.FC<ModalProps> = ({
   onKeyDown,
   restoreFocus,
   presentation = 'default',
+  footer,
 }) => {
+  const reducedMotion = useReducedMotion()
+  const isDrawer = presentation === 'drawer'
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
   useDialogFocus(isOpen, onClose, panelRef, restoreFocus)
@@ -45,7 +49,11 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] animate-in fade-in duration-200"
+      className={
+        isDrawer
+          ? 'modal-drawer-layer fixed inset-0 z-[var(--z-modal)] flex justify-end'
+          : 'fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]'
+      }
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? titleId : undefined}
@@ -58,20 +66,24 @@ export const Modal: React.FC<ModalProps> = ({
         aria-label="Close dialog"
       />
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.18 }}
+        initial={reducedMotion ? false : isDrawer ? { x: '100%' } : { opacity: 0, y: 8 }}
+        animate={isDrawer ? { x: 0 } : { opacity: 1, y: 0 }}
+        transition={{ duration: reducedMotion ? 0 : 0.18 }}
         ref={panelRef}
         onKeyDown={onKeyDown}
         tabIndex={-1}
-        className={`overlay-panel relative z-10 flex max-h-[90dvh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`}
+        className={
+          isDrawer
+            ? `overlay-panel modal-drawer ${maxWidth === 'lg' || maxWidth === 'xl' ? 'modal-drawer--wide' : ''}`
+            : `overlay-panel relative z-10 flex max-h-[90dvh] w-full ${widthClass} flex-col overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-paper)]`
+        }
       >
         {title ? (
           <div
             className={
               presentation === 'auth'
                 ? 'modal-header modal-header--auth'
-                : `flex shrink-0 items-center justify-between gap-3 border-b border-line ${maxWidth === 'gallery' ? 'px-3 py-3 sm:px-4' : 'px-6 py-4'}`
+                : `modal-header flex shrink-0 items-center justify-between gap-3 border-b border-line ${maxWidth === 'gallery' ? 'px-3 py-3 sm:px-4' : 'px-6 py-4'}`
             }
           >
             <div className={presentation === 'auth' ? 'modal-header__identity' : 'min-w-0 flex-1'}>
@@ -109,10 +121,11 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         )}
         <div
-          className={`overflow-y-auto dropdown-scrollbar ${presentation === 'auth' ? 'p-4 pt-2' : maxWidth === 'gallery' ? 'p-3 sm:p-4' : 'p-6'}`}
+          className={`modal-body min-h-0 overflow-y-auto dropdown-scrollbar ${presentation === 'auth' ? 'p-4 pt-2' : maxWidth === 'gallery' ? 'p-3 sm:p-4' : 'p-6'}`}
         >
           {children}
         </div>
+        {footer && <footer className="modal-footer">{footer}</footer>}
       </motion.div>
     </div>
   )

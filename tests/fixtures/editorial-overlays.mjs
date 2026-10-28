@@ -115,13 +115,23 @@ const cases = [
   },
   {
     name: 'reconcile-confirmation',
-    path: '/admin/failures?fixtureRole=admin&commerce_kind=provider_operation',
+    path: '/admin/failures?fixtureRole=admin&queue=commerce&commerce_kind=provider_operation',
+    prepare: async (page) =>
+      page
+        .getByRole('button', { name: /^View details for / })
+        .first()
+        .click(),
     button: 'Reconcile',
     dialog: 'Reconcile provider operation',
   },
   {
     name: 'release-confirmation',
-    path: '/admin/failures?fixtureRole=admin&commerce_kind=retained_checkout',
+    path: '/admin/failures?fixtureRole=admin&queue=commerce&commerce_kind=retained_checkout',
+    prepare: async (page) =>
+      page
+        .getByRole('button', { name: /^View details for / })
+        .first()
+        .click(),
     button: 'Release inventory',
     dialog: 'Release retained checkout',
   },
@@ -185,6 +195,15 @@ try {
           ? page.getByRole('dialog', typeof item.dialog === 'string' ? { name: item.dialog } : {})
           : page.locator(item.section)
         await surface.waitFor()
+        if (item.path.startsWith('/admin')) {
+          const panel = await surface.locator('.overlay-panel').last().boundingBox()
+          if (
+            !panel ||
+            Math.round(panel.x + panel.width) !== viewport.width ||
+            Math.round(panel.height) !== viewport.height
+          )
+            throw new Error('Admin drawer must fill height and align to the right edge')
+        }
         await page.waitForTimeout(250)
         await page.evaluate(async () => {
           for (const image of document.images) image.loading = 'eager'

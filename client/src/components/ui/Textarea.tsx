@@ -13,8 +13,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         ref={ref}
         disabled={disabled}
+        aria-invalid={isError || undefined}
         className={`w-full rounded-[var(--radius-control)] bg-white border px-3.5 py-2.5 text-base text-ink placeholder:text-muted transition-colors focus:outline-none disabled:cursor-not-allowed disabled:bg-surface disabled:text-disabled ${
-          isError ? 'border-danger focus:border-danger' : 'border-field-border focus:border-primary'
+          isError ? 'border-danger focus:border-danger' : 'border-field-border'
         } ${className}`}
         {...props}
       />

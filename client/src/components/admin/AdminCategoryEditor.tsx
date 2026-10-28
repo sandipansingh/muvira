@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import { uploadImage } from '../../lib/storage'
 import type { Category } from '../../lib/types/category'
 import { Input } from '../ui/Input'
 import { Textarea } from '../ui/Textarea'
 import { useToast } from '../../context/ToastContext'
+import { AdminDialogActions } from './AdminDialog'
 
 export function AdminCategoryEditor({
   category,
@@ -19,6 +20,7 @@ export function AdminCategoryEditor({
   embedded?: boolean
   onBusyChange?: (busy: boolean) => void
 }) {
+  const formId = useId()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [warning, setWarning] = useState<string | null>(null)
@@ -98,7 +100,7 @@ export function AdminCategoryEditor({
           {warning}
         </p>
       )}
-      <form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
+      <form id={formId} onSubmit={save} className="grid gap-4 sm:grid-cols-2">
         <fieldset className="contents" disabled={busy}>
           <label>
             Category name
@@ -165,11 +167,11 @@ export function AdminCategoryEditor({
             Up to five published categories can appear in navigation. Other categories remain
             available in the catalog.
           </p>
-          <div className="sm:col-span-2">
-            <button type="submit" className="button-primary" disabled={busy}>
+          <AdminDialogActions>
+            <button type="submit" form={formId} className="button-primary" disabled={busy}>
               {busy ? 'Saving…' : 'Save category'}
             </button>
-          </div>
+          </AdminDialogActions>
         </fieldset>
       </form>
     </section>

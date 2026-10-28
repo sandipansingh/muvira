@@ -7,6 +7,14 @@ import { useSiteSettings } from '../../context/SiteSettingsContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import { Dropdown } from '../../components/ui/Dropdown'
 import { AdminContentEditor } from '../../components/admin/AdminContentEditor'
+import './AdminSettingsRecovery.css'
+
+const settingsSections = [
+  { id: 'settings-contact', label: 'Contact' },
+  { id: 'settings-announcement', label: 'Announcement' },
+  { id: 'settings-shipping', label: 'Shipping & fulfillment' },
+  { id: 'settings-homepage', label: 'Homepage content' },
+]
 
 export const AdminSettingsPage: React.FC = () => {
   const { showToast } = useToast()
@@ -37,6 +45,23 @@ export const AdminSettingsPage: React.FC = () => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [revision, setRevision] = useState(0)
+  const [activeSection, setActiveSection] = useState('settings-contact')
+
+  useEffect(() => {
+    if (loading) return
+    const followHash = () => {
+      const id = window.location.hash.slice(1)
+      if (!settingsSections.some((section) => section.id === id)) return
+      setActiveSection(id)
+      document.getElementById(id)?.scrollIntoView({ block: 'start' })
+    }
+    const frame = requestAnimationFrame(followHash)
+    window.addEventListener('hashchange', followHash)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('hashchange', followHash)
+    }
+  }, [loading])
 
   useEffect(() => {
     let active = true
@@ -141,184 +166,223 @@ export const AdminSettingsPage: React.FC = () => {
         title="Store settings"
         description="Manage contact details, storefront content and fulfillment defaults."
       />
-      <nav className="admin-settings-nav" aria-label="Settings sections">
-        <a href="#settings-contact">Contact</a>
-        <a href="#settings-announcement">Announcement</a>
-        <a href="#settings-shipping">Shipping &amp; fulfillment</a>
-        <a href="#settings-homepage">Homepage content</a>
-      </nav>
-      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
-      <form onSubmit={saveSettings} className="space-y-6">
-        <section
-          id="settings-contact"
-          className="admin-settings-section panel grid gap-4 p-5 sm:grid-cols-2"
-        >
-          <h3 className="heading text-xl sm:col-span-2">Contact</h3>
-          <label className="text-sm text-ink">
-            Email
-            <input
-              name="email"
-              type="email"
-              required
-              defaultValue={settings.contactInfo.email}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-          <label className="text-sm text-ink">
-            Phone
-            <input
-              name="phone"
-              required
-              defaultValue={settings.contactInfo.phone}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-          <label className="text-sm text-ink sm:col-span-2">
-            Address
-            <textarea
-              name="address"
-              required
-              defaultValue={settings.contactInfo.address}
-              className="mt-1 min-h-24 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-        </section>
-        <section
-          id="settings-announcement"
-          className="admin-settings-section panel grid gap-4 p-5 sm:grid-cols-2"
-        >
-          <h3 className="heading text-xl sm:col-span-2">Announcement</h3>
-          <label className="flex items-center gap-2 text-sm text-ink">
-            <input
-              name="announcementEnabled"
-              type="checkbox"
-              defaultChecked={settings.announcementBar.enabled}
-              className="h-5 w-5 accent-primary"
-            />{' '}
-            Enabled
-          </label>
-          <label className="text-sm text-ink">
-            Badge
-            <input
-              name="announcementBadge"
-              defaultValue={settings.announcementBar.badge}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-          <label className="text-sm text-ink sm:col-span-2">
-            Message
-            <input
-              name="announcementMessage"
-              required
-              defaultValue={settings.announcementBar.message}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-        </section>
-        <section
-          id="settings-shipping"
-          className="admin-settings-section panel grid gap-4 p-5 sm:grid-cols-2"
-        >
-          <h3 className="heading text-xl sm:col-span-2">Free shipping</h3>
-          <p className="text-ink sm:col-span-2">
-            Standard and express shipping are free on every new order, with no minimum spend.
-          </p>
-        </section>
-        <section className="panel grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
-          <h3 className="heading text-xl sm:col-span-2 lg:col-span-5">Shiprocket defaults</h3>
-          <div className="sm:col-span-2 lg:col-span-5">
-            {!settings.configuration.fulfillment_ready && (
-              <p className="mb-3 text-warning">
-                Complete setup by selecting a registered pickup location and saving package
-                defaults.
-              </p>
-            )}
-            <Dropdown
-              label="Registered pickup location"
-              value={pickupLocation}
-              onChange={setPickupLocation}
-              options={pickupOptions}
-              placeholder="Select pickup location"
-            />
-            {pickupError && (
-              <p role="alert" className="mt-2 text-danger">
-                {pickupError}
-              </p>
-            )}
-            <button
-              type="button"
-              className="mt-2 text-primary"
-              onClick={() => void loadPickupLocations()}
+      <div className="admin-settings-layout">
+        <nav className="admin-settings-sections" aria-label="Settings sections">
+          {settingsSections.map((section) => (
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              aria-current={activeSection === section.id ? 'location' : undefined}
+              onClick={() => setActiveSection(section.id)}
             >
-              Refresh pickup locations
-            </button>
-          </div>
-          <label className="text-sm text-ink">
-            Length cm
-            <input
-              name="length"
-              type="number"
-              min="1"
-              required
-              defaultValue={settings.shiprocketSettings.defaultLengthCm}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-          <label className="text-sm text-ink">
-            Breadth cm
-            <input
-              name="breadth"
-              type="number"
-              min="1"
-              required
-              defaultValue={settings.shiprocketSettings.defaultBreadthCm}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-          <label className="text-sm text-ink">
-            Height cm
-            <input
-              name="height"
-              type="number"
-              min="1"
-              required
-              defaultValue={settings.shiprocketSettings.defaultHeightCm}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-          <label className="text-sm text-ink">
-            Weight g
-            <input
-              name="weight"
-              type="number"
-              min="1"
-              required
-              defaultValue={settings.shiprocketSettings.defaultWeightGrams}
-              className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
-            />
-          </label>
-        </section>
-        <div className="admin-save-bar">
-          <p className="text-sm text-muted">
-            Contact, announcement and fulfillment settings save together.
-          </p>
-          <button
-            type="submit"
-            disabled={saving || !pickupOptions.some((option) => option.value === pickupLocation)}
-            className="button-primary"
-          >
-            {saving ? 'Saving…' : 'Save settings'}
-          </button>
+              {section.label}
+            </a>
+          ))}
+        </nav>
+        <div className="admin-settings-body">
+          {error && (
+            <p role="alert" className="rounded-card bg-danger-soft p-4 text-sm text-danger">
+              {error}
+            </p>
+          )}
+          <form onSubmit={saveSettings} className="admin-settings-form">
+            <section id="settings-contact" className="admin-settings-group">
+              <header>
+                <h2>Contact</h2>
+                <p>Help customers reach the store. These details appear on the storefront.</p>
+              </header>
+              <div className="admin-settings-fields">
+                <label className="text-sm text-ink">
+                  Email
+                  <input
+                    name="email"
+                    type="email"
+                    required
+                    defaultValue={settings.contactInfo.email}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+                <label className="text-sm text-ink">
+                  Phone
+                  <input
+                    name="phone"
+                    required
+                    defaultValue={settings.contactInfo.phone}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+                <label className="text-sm text-ink sm:col-span-2">
+                  Address
+                  <textarea
+                    name="address"
+                    required
+                    defaultValue={settings.contactInfo.address}
+                    className="mt-1 min-h-24 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+              </div>
+            </section>
+            <section id="settings-announcement" className="admin-settings-group">
+              <header>
+                <h2>Announcement</h2>
+                <p>Control the message shown above the storefront navigation.</p>
+              </header>
+              <div className="admin-settings-fields">
+                <label className="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+                  <input
+                    name="announcementEnabled"
+                    type="checkbox"
+                    defaultChecked={settings.announcementBar.enabled}
+                    className="h-5 w-5 accent-primary"
+                  />{' '}
+                  Show announcement
+                </label>
+                <label className="text-sm text-ink">
+                  Badge
+                  <input
+                    name="announcementBadge"
+                    defaultValue={settings.announcementBar.badge}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+                <label className="text-sm text-ink sm:col-span-2">
+                  Message
+                  <input
+                    name="announcementMessage"
+                    required
+                    defaultValue={settings.announcementBar.message}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+              </div>
+            </section>
+            <section id="settings-shipping" className="admin-settings-group">
+              <header>
+                <h2>Shipping &amp; fulfillment</h2>
+                <p>
+                  Choose the registered pickup location and default package size for Shiprocket.
+                </p>
+              </header>
+              <div className="admin-settings-fields">
+                <div className="admin-settings-policy sm:col-span-2">
+                  <h3>Free shipping</h3>
+                  <p>
+                    Standard and express shipping are free on every new order, with no minimum
+                    spend.
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <h3 className="mb-3 text-sm font-semibold text-ink">Shiprocket defaults</h3>
+                  {!settings.configuration.fulfillment_ready && (
+                    <p className="mb-3 text-warning">
+                      Complete setup by selecting a registered pickup location and saving package
+                      defaults.
+                    </p>
+                  )}
+                  <Dropdown
+                    label="Registered pickup location"
+                    value={pickupLocation}
+                    onChange={setPickupLocation}
+                    options={pickupOptions}
+                    placeholder="Select pickup location"
+                  />
+                  {pickupError && (
+                    <p role="alert" className="mt-2 text-danger">
+                      {pickupError}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    className="mt-2 text-primary"
+                    onClick={() => void loadPickupLocations()}
+                  >
+                    Refresh pickup locations
+                  </button>
+                </div>
+                <label className="text-sm text-ink">
+                  Length cm
+                  <input
+                    name="length"
+                    type="number"
+                    min="1"
+                    required
+                    defaultValue={settings.shiprocketSettings.defaultLengthCm}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+                <label className="text-sm text-ink">
+                  Breadth cm
+                  <input
+                    name="breadth"
+                    type="number"
+                    min="1"
+                    required
+                    defaultValue={settings.shiprocketSettings.defaultBreadthCm}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+                <label className="text-sm text-ink">
+                  Height cm
+                  <input
+                    name="height"
+                    type="number"
+                    min="1"
+                    required
+                    defaultValue={settings.shiprocketSettings.defaultHeightCm}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+                <label className="text-sm text-ink">
+                  Weight g
+                  <input
+                    name="weight"
+                    type="number"
+                    min="1"
+                    required
+                    defaultValue={settings.shiprocketSettings.defaultWeightGrams}
+                    className="mt-1 w-full rounded-xl border border-line px-4 py-2 text-base"
+                  />
+                </label>
+              </div>
+            </section>
+            <div className="admin-settings-save">
+              <div>
+                <p className="text-sm font-semibold text-ink">Store settings</p>
+                <p className="text-sm text-muted">
+                  Contact, announcement and fulfillment save together.
+                </p>
+              </div>
+              <button
+                type="submit"
+                disabled={
+                  saving || !pickupOptions.some((option) => option.value === pickupLocation)
+                }
+                className="button-primary"
+                aria-busy={saving}
+              >
+                {saving ? 'Saving…' : 'Save settings'}
+              </button>
+            </div>
+          </form>
+          <section id="settings-homepage" className="admin-settings-group admin-settings-homepage">
+            <header>
+              <h2>Homepage content</h2>
+              <p>
+                Manage storefront imagery and copy. Save this content separately from store
+                settings.
+              </p>
+            </header>
+            <div className="min-w-0">
+              <AdminContentEditor
+                settings={settings}
+                onSaved={(updated) => {
+                  setSettings(updated)
+                  applySettings(updated)
+                }}
+              />
+            </div>
+          </section>
         </div>
-      </form>
-      <div id="settings-homepage" className="admin-settings-section">
-        <AdminContentEditor
-          settings={settings}
-          onSaved={(updated) => {
-            setSettings(updated)
-            applySettings(updated)
-          }}
-        />
       </div>
     </div>
   )

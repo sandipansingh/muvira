@@ -249,21 +249,20 @@ export function OrderRefundControls({
           {row.amount_paisa ? ` · ${formatPrice(row.amount_paisa)}` : ''}
         </p>
       ))}
-      <Link className="text-sm text-primary underline" to="/admin/failures">
+      <Link
+        className="text-sm text-primary underline"
+        to="/admin/failures?queue=commerce&commerce_kind=provider_operation"
+      >
         View provider diagnostics
       </Link>
       <Modal
+        presentation="drawer"
         isOpen={confirmation !== null}
-        onClose={() => setConfirmation(null)}
+        onClose={() => {
+          if (!busy) setConfirmation(null)
+        }}
         title={confirmation === 'refund' ? 'Confirm refund' : 'Confirm cancellation'}
-      >
-        <div className="space-y-4 p-6">
-          <p>
-            {confirmation === 'refund'
-              ? `Refund ${formatPrice(Math.round(Number(amount) * 100))}?`
-              : 'Request cancellation and refund the remaining balance after confirmation?'}
-          </p>
-          <p>{reason}</p>
+        footer={
           <button
             type="button"
             className="button-primary"
@@ -272,6 +271,15 @@ export function OrderRefundControls({
           >
             Confirm {confirmation}
           </button>
+        }
+      >
+        <div className="space-y-4">
+          <p>
+            {confirmation === 'refund'
+              ? `Refund ${formatPrice(Math.round(Number(amount) * 100))}?`
+              : 'Request cancellation and refund the remaining balance after confirmation?'}
+          </p>
+          <p>{reason}</p>
         </div>
       </Modal>
     </section>

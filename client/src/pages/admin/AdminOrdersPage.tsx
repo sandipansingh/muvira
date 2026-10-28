@@ -186,7 +186,9 @@ export const AdminOrdersPage: React.FC = () => {
               </td>
               <td>
                 <span className="block font-medium">{order.customerName}</span>
-                <span className="admin-product-meta">{order.customerEmail}</span>
+                <span className="admin-product-meta email-value" title={order.customerEmail}>
+                  {order.customerEmail}
+                </span>
               </td>
               <td>
                 <AdminStatus status={order.status} />

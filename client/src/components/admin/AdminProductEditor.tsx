@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useId, useRef, useState } from 'react'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import {
   attachUploadedProductImage,
@@ -12,6 +12,7 @@ import { Textarea } from '../ui/Textarea'
 import { Dropdown } from '../ui/Dropdown'
 import { useToast } from '../../context/ToastContext'
 import { Modal } from '../common/Modal'
+import { AdminDialogActions } from './AdminDialog'
 
 interface Props {
   product: ProductDetail
@@ -30,6 +31,7 @@ export function AdminProductEditor({
   embedded = false,
   onBusyChange,
 }: Props) {
+  const formId = useId()
   const [product, setProduct] = useState(initial)
   const [categoryId, setCategoryId] = useState(initial.category.id)
   const [busy, setBusy] = useState(false)
@@ -145,7 +147,7 @@ export function AdminProductEditor({
           {warning}
         </p>
       )}
-      <form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
+      <form id={formId} onSubmit={save} className="grid gap-4 sm:grid-cols-2">
         <fieldset disabled={busy} className="contents">
           <fieldset className="admin-editor-group">
             <legend>Product details</legend>{' '}
@@ -287,11 +289,16 @@ export function AdminProductEditor({
               the keywords meta tag for ranking.
             </p>
           </fieldset>
-          <div className="sm:col-span-2">
-            <button type="submit" className="button-primary" disabled={busy || !categoryId}>
+          <AdminDialogActions>
+            <button
+              type="submit"
+              form={formId}
+              className="button-primary"
+              disabled={busy || !categoryId}
+            >
               {busy ? 'Saving…' : 'Save product'}
             </button>
-          </div>
+          </AdminDialogActions>
         </fieldset>
       </form>
       <div className="space-y-4">
@@ -437,44 +444,47 @@ export function AdminProductEditor({
         </form>
       </div>
       <Modal
+        presentation="drawer"
         isOpen={removingImageId !== null}
         onClose={() => {
           if (!busy) setRemovingImageId(null)
         }}
         title="Remove product image"
         restoreFocus={() => removeImageTrigger.current}
+        footer={
+          <div className="admin-dialog-actions">
+            <button
+              type="button"
+              className="button-secondary"
+              disabled={busy}
+              onClick={() => setRemovingImageId(null)}
+            >
+              Keep image
+            </button>
+            <button
+              type="button"
+              className="button-secondary text-danger"
+              disabled={busy}
+              onClick={() =>
+                void run(async () => {
+                  if (!removingImageId) return
+                  const response = await adminApiService.deleteProductImage(
+                    product.id,
+                    removingImageId
+                  )
+                  if (!response.success) throw new Error(response.error.message)
+                  setRemovingImageId(null)
+                }, 'Image removed.')
+              }
+            >
+              Remove image
+            </button>
+          </div>
+        }
       >
         <p className="text-ink">
           Remove this image from {product.name}? The stored file will be preserved.
         </p>
-        <div className="mt-4 flex gap-3">
-          <button
-            type="button"
-            className="button-secondary"
-            disabled={busy}
-            onClick={() => setRemovingImageId(null)}
-          >
-            Keep image
-          </button>
-          <button
-            type="button"
-            className="button-secondary text-danger"
-            disabled={busy}
-            onClick={() =>
-              void run(async () => {
-                if (!removingImageId) return
-                const response = await adminApiService.deleteProductImage(
-                  product.id,
-                  removingImageId
-                )
-                if (!response.success) throw new Error(response.error.message)
-                setRemovingImageId(null)
-              }, 'Image removed.')
-            }
-          >
-            Remove image
-          </button>
-        </div>
       </Modal>
     </section>
   )

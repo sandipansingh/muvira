@@ -233,13 +233,18 @@ export function AdminContentEditor({
           onUploading={setUploading}
           onError={setError}
         />
-        <button
-          type="submit"
-          disabled={busy || uploading || heroSlides.length === 0}
-          className="button-primary"
-        >
-          {busy ? 'Saving…' : 'Save storefront content'}
-        </button>
+        <div className="admin-content-save-bar">
+          <p className="text-sm text-muted">
+            Homepage content saves separately from store settings.
+          </p>
+          <button
+            type="submit"
+            disabled={busy || uploading || heroSlides.length === 0}
+            className="button-primary"
+          >
+            {busy ? 'Saving…' : 'Save storefront content'}
+          </button>
+        </div>
       </form>
     </section>
   )

@@ -6,7 +6,7 @@ import {
   AdminState,
   AdminStatus,
 } from '../../components/admin/AdminWorkspace'
-import { AdminDialog } from '../../components/admin/AdminDialog'
+import { AdminDialog, AdminDialogActions } from '../../components/admin/AdminDialog'
 import { useAdminList } from '../../lib/hooks/useAdminList'
 import { Pagination } from '../../components/common/Pagination'
 import { Dropdown } from '../../components/ui/Dropdown'
@@ -120,7 +120,11 @@ export const AdminCouponsPage: React.FC = () => {
               {error}
             </p>
           )}{' '}
-          <form onSubmit={createCoupon} className="panel grid gap-4 p-5 lg:grid-cols-3">
+          <form
+            id="admin-create-coupon-form"
+            onSubmit={createCoupon}
+            className="grid gap-4 sm:grid-cols-2"
+          >
             <h3 className="heading text-xl lg:col-span-3">New coupon</h3>
             <label className="block space-y-2 text-sm text-ink">
               <span>Coupon code</span>
@@ -185,9 +189,16 @@ export const AdminCouponsPage: React.FC = () => {
                 className="w-full rounded-xl border border-line px-4 py-2 text-base"
               />
             </label>
-            <button type="submit" disabled={busy} className="button-primary lg:col-span-3 lg:w-fit">
-              Create coupon
-            </button>
+            <AdminDialogActions>
+              <button
+                type="submit"
+                form="admin-create-coupon-form"
+                disabled={busy}
+                className="button-primary"
+              >
+                Create coupon
+              </button>
+            </AdminDialogActions>
           </form>
         </AdminDialog>
       )}
@@ -274,7 +285,12 @@ export const AdminCouponsPage: React.FC = () => {
           title={`Edit ${editingCoupon.code}`}
         >
           {editingCoupon && (
-            <form key={editingCoupon.id} onSubmit={saveCoupon} className="space-y-5">
+            <form
+              id="admin-edit-coupon-form"
+              key={editingCoupon.id}
+              onSubmit={saveCoupon}
+              className="space-y-5"
+            >
               <label className="block space-y-2 text-sm">
                 <span>
                   {editingCoupon.discountType === 'fixed'
@@ -313,11 +329,16 @@ export const AdminCouponsPage: React.FC = () => {
                   {editError}
                 </p>
               )}
-              <div className="flex flex-wrap gap-3">
-                <button type="submit" disabled={busy} className="button-primary">
+              <AdminDialogActions>
+                <button
+                  type="submit"
+                  form="admin-edit-coupon-form"
+                  disabled={busy}
+                  className="button-primary"
+                >
                   {busy ? 'Saving…' : 'Save coupon'}
                 </button>
-              </div>
+              </AdminDialogActions>
             </form>
           )}
         </AdminDialog>

@@ -64,6 +64,7 @@ input[type='search']::-webkit-search-results-decoration {
   --color-muted: #657168;
   --color-line: #e9e3d9;
   --color-field-border: #9ba49d;
+  --color-field-focus: color-mix(in srgb, var(--color-paper), var(--color-ink) 4%);
   --color-disabled: #aeb5c3;
   --color-primary: #334b42;
   --color-primary-hover: color-mix(in srgb, var(--color-primary), black 18%);
@@ -655,8 +656,65 @@ h1.product-detail-title {
 }
 
 .input:focus {
-  border-color: var(--color-primary);
+  background: var(--color-field-focus);
   outline: none;
+}
+
+.modal-drawer-layer {
+  height: 100dvh;
+}
+.modal-drawer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 480px;
+  max-width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-paper);
+  border-left: 1px solid var(--color-line);
+}
+.modal-drawer--wide {
+  width: 640px;
+}
+.modal-drawer .modal-header {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+.modal-drawer .modal-body {
+  flex: 1;
+  overscroll-behavior: contain;
+}
+.modal-footer {
+  flex-shrink: 0;
+  max-height: 45dvh;
+  overflow-y: auto;
+  padding: 1rem 1.5rem max(1rem, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-line);
+  background: var(--color-paper);
+}
+.admin-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.admin-dialog-actions[hidden] {
+  display: none;
+}
+@media (max-width: 767px) {
+  .modal-drawer {
+    width: 100%;
+    border-left: 0;
+  }
+}
+.email-value {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .panel {
@@ -1068,7 +1126,7 @@ button:disabled {
   display: block;
   line-height: 1;
   white-space: nowrap;
-  translate: 0 0.08em;
+  translate: 0 0.12em;
 }
 .header-link {
   display: inline-flex;
@@ -1399,6 +1457,9 @@ button:disabled {
   object-fit: contain;
   flex-shrink: 0;
 }
+.admin-brand > span {
+  translate: 0 0.08em;
+}
 .admin-brand__caption {
   display: block;
   margin-top: 0.125rem;
@@ -1483,8 +1544,7 @@ button:disabled {
   color: var(--color-muted);
 }
 .admin-navigation-search:focus-within {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  background: var(--color-field-focus);
 }
 .admin-navigation-search input:focus-visible {
   outline: none !important;
@@ -1534,7 +1594,6 @@ button:disabled {
 .admin-account-copy > span {
   color: var(--color-muted);
   font-size: 0.6875rem;
-  overflow-wrap: anywhere;
 }
 .admin-account-logout {
   display: flex;
@@ -1726,8 +1785,7 @@ button:disabled {
   border-radius: var(--radius-control);
 }
 .admin-search__field:focus-within {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  background: var(--color-field-focus);
 }
 .admin-theme .admin-search__field input {
   width: 100%;
@@ -1959,7 +2017,7 @@ button:disabled {
 }
 .admin-order-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.65fr);
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
   gap: 1.5rem;
   align-items: start;
 }
@@ -2910,8 +2968,7 @@ body {
   padding: 0.25rem;
 }
 .header-search:focus-within {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  background: var(--color-field-focus);
 }
 .header-search input {
   min-width: 0;
@@ -4418,4 +4475,30 @@ body {
 }
 .checkout-heading--compact .mb-8 {
   margin-bottom: 1.5rem;
+}
+
+/* Text entry uses fill feedback; action controls retain keyboard indicators. */
+input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not(
+    [type='button']
+  ):not([type='submit']):not([type='reset']):not([type='color']):focus,
+textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: var(--color-field-focus) !important;
+}
+:is(.admin-navigation-search, .admin-search__field, .header-search) input:focus {
+  background: transparent;
+}
+.admin-theme :is(input, textarea).border-danger,
+:is(input, textarea)[aria-invalid='true'] {
+  border-color: var(--color-danger) !important;
+}
+@media (forced-colors: active) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not(
+      [type='button']
+    ):not([type='submit']):not([type='reset']):not([type='color']):focus,
+  textarea:focus {
+    outline: 1px solid Highlight !important;
+    outline-offset: 1px;
+  }
 }

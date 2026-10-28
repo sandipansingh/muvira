@@ -13,6 +13,7 @@ The approved redesign replaces the previous type and color direction. Runtime CS
 | Stone | `--surface-alt`, `--color-line` | `#E9E3D9` | Footer, borders |
 | Charcoal | `--color-ink` | `#1F2521` | Headings, text |
 | Muted green-grey | `--color-muted` | `#657168` | Secondary copy |
+| Text-entry focus fill | `--color-field-focus` | Paper mixed with 4% ink | Text fields, textareas and search wrappers in both themes |
 | Deep green | `--color-primary` | `#334B42` | Actions, prices, selected controls |
 | Muted brass decoration | `--color-brass` | `#98753A` | Fine rules, restrained heritage details |
 | Image hover | `--duration-image`, `--scale-image-hover` | 350ms, 1.06 | Browsable cards on fine pointers only |
@@ -33,7 +34,7 @@ One shared product gallery pairs a large square main photograph with 64px thumbn
 
 Commerce screens use larger complete item photographs, distinct summary surfaces and a focused checkout/outcome header. Account navigation, photographic order cards, shipment timelines and payment-state compositions share the same tokens and primitives. Short actions stay whole; groups wrap or stack entire controls. Longer labels can wrap in a text column beside a nonshrinking icon. Authentication uses one compact, single-column popup over the current shopping page, with a small unframed logo and heading centered together in a balanced header beside its 44px close control. Sign-in, signup, recovery and email confirmation share that popup. Styling is scoped to storefront/auth surfaces; shared selection and admin behavior remains intact.
 
-DM Serif Display uses no synthesized bold or italic. Manrope supports the rupee sign. Full licensed font files are self-hosted. Admin headings use Manrope. The unframed original Muvira logo remains unchanged. Shared brand labels use a single line with a 0.08em downward optical adjustment to center the visible letters beside the logo.
+DM Serif Display uses no synthesized bold or italic. Manrope supports the rupee sign. Full licensed font files are self-hosted. Admin headings use Manrope. The unframed original Muvira logo remains unchanged. Shared brand labels use a single line with a 0.12em downward optical adjustment to center the visible letters beside the logo; the compact admin identity uses 0.08em.
 
 ## Navigation iconography
 
@@ -65,6 +66,12 @@ The runtime owner remains `client/src/index.css`. The route-level `.admin-theme`
 | Typography | Manrope; page headings 26px/600, sections 18px/600, tables 14px, fields at least 16px |
 | Geometry | Sidebar 240px or 72px collapsed; desktop content gutters 32px/24px vertical; phone gutters 16px; panels/controls 12px/8px |
 
-The unframed original Muvira logo stays intact. Desktop pages have no duplicate top bar or top-right presence identity. Top-level sections omit breadcrumbs; order details retain shared compact hierarchy. The bottom account card exposes genuine identity, profile, Settings and guarded logout. Local sidebar search filters existing sections without network requests or invented destinations. Phones use a compact menu bar and shared Modal navigation. This is a light-only admin system.
+The unframed original Muvira logo stays intact. Desktop pages have no duplicate top bar or top-right presence identity. Top-level sections omit breadcrumbs; order details retain shared compact hierarchy. The bottom account card exposes genuine identity, profile, Settings and guarded logout. Local sidebar search filters existing sections without network requests or invented destinations. Phones use a compact menu bar and shared Modal drawer navigation. This is a light-only admin system.
 
 Overview pairs period-owned performance and revenue with independent live operational queues. The chart uses confirmed local money movements and remains honest about negative/zero/incomplete data. Thin dividers, restrained row hover, textual status badges and right-aligned currency apply throughout. Semantic status colours retain meaning. Tables scroll within named regions; content queries stack columns for narrow or enlarged-text layouts. Product images retain shared contain framing and unavailable-image behaviour.
+
+Admin dialogs use the shared Modal's right-side drawer presentation: 480px standard, 640px wide, full viewport width below 768px. Headers and form-associated actions stay reachable while bodies scroll. Storefront popup composition stays centered. The order work area holds items, fulfillment, addresses, notes and refunds/cancellation; a short sidebar holds customer/status and labeled Documents, including the existing eligible Invoice action.
+
+Settings groups Contact, Announcement, Shipping & fulfillment and Homepage content behind sticky in-page navigation with persistent saves. Issues & recovery uses compact genuine worker/backlog summaries, queue navigation and one visible incident table with drawer details. The grouped [Settings reference](https://dribbble.com/shots/27061991-SaaS-Settings-Dashboard-Design) and [incident table reference](https://dribbble.com/shots/23970269-Incident-Management-Web) inform hierarchy within the monochrome system.
+
+Text-entry focus changes only the subtle semantic fill, without outlines, rings, glows or border accents on fields/search wrappers. Validation borders and button/link indicators remain visible; forced-colors mode uses its system focus indicator. Displayed emails truncate on one line while retaining full text and title for accessibility.

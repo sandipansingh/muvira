@@ -139,8 +139,7 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
       {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
 
       <div className="admin-order-layout">
-        <div className="space-y-6">
-          {' '}
+        <div className="admin-order-main space-y-6">
           <section className="panel space-y-4 p-5">
             <h3 className="heading text-xl">Purchased items and totals</h3>
             {order.items.map((item) => (
@@ -170,6 +169,7 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
             </dl>
             <p className="text-sm">Shipping method: {order.shippingMethod}</p>
           </section>
+          <OrderFulfillmentControls order={order} refresh={loadOrder} />
           <section className="panel grid gap-6 p-5 sm:grid-cols-2">
             {(
               [
@@ -238,9 +238,9 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
               Add note
             </button>
           </section>
+          <OrderRefundControls key={order.id} order={order} refresh={loadOrder} />
         </div>
         <aside className="admin-order-sidebar" aria-label="Order actions">
-          {' '}
           <section className="panel space-y-4 p-5">
             <h3 className="heading text-xl">Status and customer</h3>
             <dl className="space-y-2 text-sm text-ink">
@@ -250,7 +250,9 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
               </div>
               <div>
                 <dt className="text-muted">Email</dt>
-                <dd>{order.customer?.email ?? 'Unavailable'}</dd>
+                <dd className="email-value" title={order.customer?.email}>
+                  {order.customer?.email ?? 'Unavailable'}
+                </dd>
               </div>
               <div>
                 <dt className="text-muted">Payment</dt>
@@ -269,7 +271,7 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
                 <dd>{order.awbCode ?? 'Not assigned'}</dd>
               </div>
             </dl>
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex flex-col gap-3">
               <Dropdown
                 aria-label="Order status override"
                 value={status}
@@ -294,9 +296,9 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
                 Save status
               </button>
             </div>
-          </section>{' '}
-          <div className="space-y-4">
-            <OrderFulfillmentControls order={order} refresh={loadOrder} />
+          </section>
+          <section className="panel space-y-4 p-5" aria-label="Documents">
+            <h3 className="heading text-xl">Documents</h3>
             <button
               type="button"
               disabled={busy || order.paymentStatus !== 'paid' || !order.shiprocketOrderId}
@@ -305,8 +307,7 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
             >
               <Download className="h-4 w-4" /> Invoice
             </button>
-          </div>
-          <OrderRefundControls key={order.id} order={order} refresh={loadOrder} />
+          </section>
         </aside>
       </div>
       <Link to="/admin/orders" className="text-sm text-ink underline hover:text-primary">

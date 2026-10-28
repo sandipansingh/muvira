@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
-import { AdminPageHeader } from '../../components/admin/AdminWorkspace'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import { AdminPageHeader, AdminStatus, AdminTable } from '../../components/admin/AdminWorkspace'
 import { Dropdown } from '../../components/ui/Dropdown'
 import { useToast } from '../../context/ToastContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
@@ -8,14 +8,41 @@ import type {
   CommerceFailureItem,
   CommerceFailureKind,
   DiagnosticSummary,
+  NotificationDeliverySummary,
   RetryJob,
+  WebhookFailureItem,
 } from '../../types/admin'
 import type { ApiPaginatedResponse } from '../../lib/types/common'
 import { Pagination } from '../../components/common/Pagination'
-import { formatDate } from '../../lib/utils/format'
+import { formatDate, formatPrice } from '../../lib/utils/format'
 import { FailureActionDialog } from '../../components/admin/FailureActionDialog'
+import { Modal } from '../../components/common/Modal'
+import './AdminSettingsRecovery.css'
 
 type CommerceAction = 'reconcile' | 'recheck' | 'release'
+type RecoveryQueue = 'retry' | 'webhooks' | 'commerce' | 'email'
+type RecoveryDetail =
+  | { queue: 'retry'; item: RetryJob }
+  | { queue: 'webhooks'; item: WebhookFailureItem }
+  | { queue: 'commerce'; item: CommerceFailureItem }
+  | { queue: 'email'; item: NotificationDeliverySummary }
+
+interface RecoveryRow {
+  detail: RecoveryDetail
+  label: string
+  reference: string
+  status: string
+  attempts?: string
+  timestamp: string
+  error: string | null
+}
+
+const recoveryQueues: Array<{ value: RecoveryQueue; label: string }> = [
+  { value: 'retry', label: 'Retry jobs' },
+  { value: 'webhooks', label: 'Webhook failures' },
+  { value: 'commerce', label: 'Commerce integrity' },
+  { value: 'email', label: 'Email delivery' },
+]
 
 const commerceKinds: Array<{ value: CommerceFailureKind; label: string }> = [
   { value: 'outbox', label: 'Outbox events' },
@@ -35,11 +62,31 @@ function useQueuePage<T>(load: () => Promise<ApiPaginatedResponse<T>>, refresh: 
     error: string | null
     total: number
     totalPages: number
-  }>({ data: [], loading: true, error: null, total: 0, totalPages: 1 })
+    loadedBy: typeof load | null
+    refresh: number
+    revision: number
+  }>({
+    data: [],
+    loading: true,
+    error: null,
+    total: 0,
+    totalPages: 1,
+    loadedBy: null,
+    refresh: -1,
+    revision: -1,
+  })
   const [revision, setRevision] = useState(0)
   useEffect(() => {
     let active = true
-    setState((current) => ({ ...current, data: [], loading: true, error: null }))
+    setState((current) => ({
+      ...current,
+      data: [],
+      loading: true,
+      error: null,
+      loadedBy: load,
+      refresh,
+      revision,
+    }))
     void load()
       .then((response) => {
         if (!active) return
@@ -50,6 +97,9 @@ function useQueuePage<T>(load: () => Promise<ApiPaginatedResponse<T>>, refresh: 
           error: null,
           total: response.pagination.total,
           totalPages: response.pagination.totalPages,
+          loadedBy: load,
+          refresh,
+          revision,
         })
       })
       .catch((reason) => {
@@ -64,13 +114,22 @@ function useQueuePage<T>(load: () => Promise<ApiPaginatedResponse<T>>, refresh: 
       active = false
     }
   }, [load, refresh, revision])
-  return { ...state, reload: () => setRevision((current) => current + 1) }
+  return {
+    ...state,
+    loading:
+      state.loading ||
+      state.loadedBy !== load ||
+      state.refresh !== refresh ||
+      state.revision !== revision,
+    reload: () => setRevision((current) => current + 1),
+  }
 }
 
 function QueueFooter({
   queue,
   page,
   onPageChange,
+  scope,
 }: {
   queue: {
     loading: boolean
@@ -81,6 +140,7 @@ function QueueFooter({
   }
   page: number
   onPageChange: (page: number) => void
+  scope: string
 }) {
   if (queue.loading)
     return (
@@ -100,15 +160,11 @@ function QueueFooter({
       </div>
     )
   return (
-    <div className="space-y-3">
+    <div className="admin-recovery-pagination">
       <p className="text-sm text-ink">
-        {queue.total} records · Page {page} of {Math.max(queue.totalPages, page)}
+        {queue.total.toLocaleString('en-IN')} {scope} · Page {page} of {queue.totalPages}
       </p>
-      <Pagination
-        currentPage={page}
-        totalPages={Math.max(queue.totalPages, page)}
-        onPageChange={onPageChange}
-      />
+      <Pagination currentPage={page} totalPages={queue.totalPages} onPageChange={onPageChange} />
     </div>
   )
 }
@@ -118,9 +174,182 @@ function readPage(params: URLSearchParams, key: string) {
   return Number.isSafeInteger(page) && page >= 1 ? page : 1
 }
 
+function readQueue(params: URLSearchParams, hash: string): RecoveryQueue {
+  const selected = recoveryQueues.find((queue) => queue.value === params.get('queue'))
+  if (selected) return selected.value
+  const legacyQueues: Record<string, RecoveryQueue> = {
+    '#retry-results': 'retry',
+    '#webhook-results': 'webhooks',
+    '#commerce-results': 'commerce',
+    '#notification-results': 'email',
+  }
+  return legacyQueues[hash] ?? (params.has('commerce_kind') ? 'commerce' : 'retry')
+}
+
+function DetailFact({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{children}</dd>
+    </div>
+  )
+}
+
+function CommerceDetails({ failure }: { failure: CommerceFailureItem }) {
+  return (
+    <>
+      <dl className="admin-recovery-facts">
+        <DetailFact label="Kind">{failure.kind.replaceAll('_', ' ')}</DetailFact>
+        <DetailFact label="Reference">{failure.id}</DetailFact>
+        {failure.orderId && <DetailFact label="Order">{failure.orderId}</DetailFact>}
+        {failure.state && (
+          <DetailFact label="State">
+            <AdminStatus status={failure.state} />
+          </DetailFact>
+        )}
+        {failure.amountPaisa != null && (
+          <DetailFact label="Amount">
+            {!failure.currency || failure.currency === 'INR'
+              ? formatPrice(failure.amountPaisa)
+              : `${failure.currency} ${(failure.amountPaisa / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`}
+          </DetailFact>
+        )}
+        <DetailFact label="Updated">{formatDate(failure.updatedAt)}</DetailFact>
+      </dl>
+      {failure.kind === 'provider_operation' && (
+        <section className="admin-recovery-detail-section">
+          <h3>Provider operation</h3>
+          <dl className="admin-recovery-facts">
+            <DetailFact label="Provider">{failure.provider}</DetailFact>
+            <DetailFact label="Operation">{failure.operationType.replaceAll('_', ' ')}</DetailFact>
+            <DetailFact label="Provider status">
+              {failure.providerStatus ?? 'Not available'}
+            </DetailFact>
+            <DetailFact label="Target">
+              {failure.targetType} {failure.target}
+            </DetailFact>
+            <DetailFact label="Business key">{failure.businessKey}</DetailFact>
+            <DetailFact label="Attempts">
+              {failure.dispatchAttempts} dispatch / {failure.reconciliationAttempts} reconcile
+            </DetailFact>
+          </dl>
+          {failure.localCompletionPending && (
+            <p className="text-warning">Local completion pending</p>
+          )}
+        </section>
+      )}
+      {failure.kind === 'retained_checkout' && (
+        <section className="admin-recovery-detail-section">
+          <h3>Retained checkout</h3>
+          <dl className="admin-recovery-facts">
+            <DetailFact label="Deadline">{formatDate(failure.deadlineAt)}</DetailFact>
+            <DetailFact label="Extensions">{failure.extensionCount}/96</DetailFact>
+            <DetailFact label="Escalation">{failure.escalation}</DetailFact>
+            <DetailFact label="Last verified">{formatDate(failure.lastVerifiedAt)}</DetailFact>
+            <DetailFact label="Provider status">{failure.providerStatus}</DetailFact>
+          </dl>
+        </section>
+      )}
+      {failure.kind === 'late_capture_watch' && (
+        <section className="admin-recovery-detail-section">
+          <h3>Late capture schedule</h3>
+          <dl className="admin-recovery-facts">
+            <DetailFact label="Provider target">{failure.target}</DetailFact>
+            <DetailFact label="Next check">
+              {failure.nextCheckAt ? formatDate(failure.nextCheckAt) : 'Not scheduled'}
+            </DetailFact>
+            <DetailFact label="Last check">
+              {failure.lastCheckedAt ? formatDate(failure.lastCheckedAt) : 'Not checked'}
+            </DetailFact>
+          </dl>
+          <p>
+            Checks: {failure.checkAttempts} · Failed checks: {failure.failedChecks}
+          </p>
+          {failure.lastCheckError && <p className="text-danger">{failure.lastCheckError}</p>}
+        </section>
+      )}
+      {failure.kind === 'cancellation_refund' && (
+        <dl className="admin-recovery-facts">
+          <DetailFact label="Retry reference">{failure.referenceId ?? failure.id}</DetailFact>
+          <DetailFact label="Next retry">
+            {failure.nextRetryAt ? formatDate(failure.nextRetryAt) : 'Not scheduled'}
+          </DetailFact>
+        </dl>
+      )}
+    </>
+  )
+}
+
+function RecoveryDetails({ detail }: { detail: RecoveryDetail }) {
+  const item = detail.item
+  return (
+    <div className="admin-recovery-detail">
+      {item.lastError && (
+        <section className="admin-recovery-error">
+          <h3>Last reported issue</h3>
+          <p>{item.lastError}</p>
+        </section>
+      )}
+      {detail.queue === 'commerce' ? (
+        <CommerceDetails failure={detail.item} />
+      ) : (
+        <dl className="admin-recovery-facts">
+          <DetailFact label="Reference">{detail.item.id}</DetailFact>
+          {detail.queue === 'retry' && (
+            <>
+              <DetailFact label="Job reference">
+                {detail.item.referenceId ?? 'Not available'}
+              </DetailFact>
+              <DetailFact label="Status">
+                <AdminStatus status={detail.item.status} />
+              </DetailFact>
+              <DetailFact label="Attempts">
+                {detail.item.retryCount}/{detail.item.maxRetries}
+              </DetailFact>
+              <DetailFact label="Next retry">
+                {detail.item.nextRetryAt ? formatDate(detail.item.nextRetryAt) : 'Not scheduled'}
+              </DetailFact>
+              <DetailFact label="Created">{formatDate(detail.item.createdAt)}</DetailFact>
+            </>
+          )}
+          {detail.queue === 'webhooks' && (
+            <>
+              <DetailFact label="Source">{detail.item.source}</DetailFact>
+              <DetailFact label="Event ID">{detail.item.eventId ?? 'Not available'}</DetailFact>
+              <DetailFact label="Retries">{detail.item.retryCount}</DetailFact>
+              <DetailFact label="Updated">{formatDate(detail.item.updatedAt)}</DetailFact>
+            </>
+          )}
+          {detail.queue === 'email' && (
+            <>
+              <DetailFact label="Order">{detail.item.orderId}</DetailFact>
+              <DetailFact label="Status">
+                <AdminStatus status={detail.item.status} />
+              </DetailFact>
+              <DetailFact label="Attempts">{detail.item.attempts}</DetailFact>
+              <DetailFact label="Provider ID">
+                {detail.item.providerMessageId ?? 'Not available'}
+              </DetailFact>
+              <DetailFact label="Available">
+                {detail.item.availableAt ? formatDate(detail.item.availableAt) : 'Not scheduled'}
+              </DetailFact>
+              <DetailFact label="Sent">
+                {detail.item.sentAt ? formatDate(detail.item.sentAt) : 'Not sent'}
+              </DetailFact>
+              <DetailFact label="Created">{formatDate(detail.item.createdAt)}</DetailFact>
+            </>
+          )}
+        </dl>
+      )}
+    </div>
+  )
+}
+
 export const AdminFailuresPage: React.FC = () => {
   const { showToast } = useToast()
   const [params, setParams] = useSearchParams()
+  const location = useLocation()
+  const activeQueue = readQueue(params, location.hash)
   const retryStatus = ['dead', 'failed', 'pending'].includes(params.get('retry_status') ?? '')
     ? params.get('retry_status')!
     : 'dead'
@@ -134,7 +363,8 @@ export const AdminFailuresPage: React.FC = () => {
   const [refresh, setRefresh] = useState(0)
   const [summary, setSummary] = useState<DiagnosticSummary | null>(null)
   const [summaryError, setSummaryError] = useState<string | null>(null)
-  const scrollTarget = useRef<string | null>(null)
+  const [summaryLoading, setSummaryLoading] = useState(true)
+  const scrollTarget = useRef<RecoveryQueue | null>(null)
   const retryQueue = useQueuePage(
     useCallback(
       () => adminApiService.getRetryJobs(retryPage, retryStatus),
@@ -160,29 +390,64 @@ export const AdminFailuresPage: React.FC = () => {
     ),
     refresh
   )
-  const retryJobs = retryQueue.data
-  const deliveries = notificationQueue.data
-  const commerceFailures = commerceQueue.data
-  const webhookFailures = webhookQueue.data
+  const [selected, setSelected] = useState<RecoveryDetail | null>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [pendingAction, setPendingAction] = useState<{
     failure: CommerceFailureItem
     action: CommerceAction
   } | null>(null)
 
+  const queues = {
+    retry: retryQueue,
+    webhooks: webhookQueue,
+    commerce: commerceQueue,
+    email: notificationQueue,
+  }
+  const pages = {
+    retry: retryPage,
+    webhooks: webhookPage,
+    commerce: commercePage,
+    email: notificationPage,
+  }
+  const pageKeys = {
+    retry: 'retry_page',
+    webhooks: 'webhook_page',
+    commerce: commercePageKey,
+    email: 'notification_page',
+  }
+  const scopes = {
+    retry: `${retryStatus} retry jobs`,
+    webhooks: 'failed webhooks',
+    commerce: (
+      commerceKinds.find((kind) => kind.value === commerceKind)?.label ?? 'Outbox events'
+    ).toLowerCase(),
+    email: 'failed or stuck emails',
+  }
+  const queue = queues[activeQueue]
+  const queueLabel = recoveryQueues.find((entry) => entry.value === activeQueue)!.label
+  const page = pages[activeQueue]
+  const pageKey = pageKeys[activeQueue]
   const loadFailures = () => setRefresh((current) => current + 1)
-  const updateQuery = (changes: Record<string, string>, target: string) => {
-    scrollTarget.current = target
-    setParams((current) => {
-      const next = new URLSearchParams(current)
-      for (const [key, value] of Object.entries(changes)) next.set(key, value)
-      return next
-    })
+  const queryFor = (changes: Record<string, string>) => {
+    const next = new URLSearchParams(params)
+    for (const [key, value] of Object.entries(changes)) next.set(key, value)
+    return next
+  }
+  const updateQuery = (changes: Record<string, string>) => {
+    scrollTarget.current = activeQueue
+    setParams(queryFor({ queue: activeQueue, ...changes }))
   }
 
   useEffect(() => {
+    setSelected(null)
+    setPendingAction(null)
+    setActionError(null)
+  }, [location.key])
+
+  useEffect(() => {
     let active = true
+    setSummaryLoading(true)
     setSummaryError(null)
     void adminApiService
       .getDiagnosticSummary()
@@ -197,37 +462,43 @@ export const AdminFailuresPage: React.FC = () => {
             reason instanceof Error ? reason.message : 'Diagnostic summary unavailable.'
           )
       })
+      .finally(() => {
+        if (active) setSummaryLoading(false)
+      })
     return () => {
       active = false
     }
   }, [refresh])
 
   useEffect(() => {
-    const target = scrollTarget.current
-    const waiting =
-      target === 'retry-results'
-        ? retryQueue.loading
-        : target === 'webhook-results'
-          ? webhookQueue.loading
-          : target === 'notification-results'
-            ? notificationQueue.loading
-            : commerceQueue.loading
-    if (target && !waiting) {
-      document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (queue.loading) return
+    if (scrollTarget.current === activeQueue) {
+      document.getElementById('recovery-results')?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      })
       scrollTarget.current = null
     }
-  }, [retryQueue.loading, webhookQueue.loading, notificationQueue.loading, commerceQueue.loading])
+    if (!queue.error && page > queue.totalPages) {
+      const next = new URLSearchParams(params)
+      next.set(pageKey, String(queue.totalPages))
+      setParams(next, { replace: true })
+    }
+  }, [activeQueue, queue.loading, queue.error, queue.totalPages, page, params, setParams, pageKey])
 
   const retryJob = async (job: RetryJob) => {
+    if (busyId) return
     setBusyId(job.id)
+    setActionError(null)
     try {
       const response = await adminApiService.retryJob(job.id)
       if (!response.success) throw new Error(response.error.message)
       showToast('Retry job requeued.', 'success')
-      await loadFailures()
+      setSelected(null)
+      loadFailures()
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Retry job could not be requeued.'
-      setError(message)
+      setActionError(message)
       showToast(message, 'error')
     } finally {
       setBusyId(null)
@@ -239,7 +510,9 @@ export const AdminFailuresPage: React.FC = () => {
     action: CommerceAction,
     reason: string
   ) => {
+    if (busyId) return
     setBusyId(failure.id)
+    setActionError(null)
     try {
       const response =
         action === 'reconcile'
@@ -252,310 +525,310 @@ export const AdminFailuresPage: React.FC = () => {
       if (!response.success) throw new Error(response.error.message)
       showToast(`Commerce action ${action} completed.`, 'success')
       setPendingAction(null)
-      await loadFailures()
+      setSelected(null)
+      loadFailures()
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Commerce action failed.'
-      setError(message)
+      setActionError(message)
       showToast(message, 'error')
     } finally {
       setBusyId(null)
     }
   }
 
+  const rows: RecoveryRow[] =
+    activeQueue === 'retry'
+      ? retryQueue.data.map((item) => ({
+          detail: { queue: 'retry', item },
+          label: item.jobType,
+          reference: item.referenceId ?? item.id,
+          status: item.status,
+          attempts: `${item.retryCount}/${item.maxRetries}`,
+          timestamp: item.createdAt,
+          error: item.lastError,
+        }))
+      : activeQueue === 'webhooks'
+        ? webhookQueue.data.map((item) => ({
+            detail: { queue: 'webhooks', item },
+            label: item.eventType ?? 'Unknown webhook event',
+            reference: item.eventId ?? item.id,
+            status: item.source,
+            attempts: String(item.retryCount),
+            timestamp: item.updatedAt,
+            error: item.lastError,
+          }))
+        : activeQueue === 'commerce'
+          ? commerceQueue.data.map((item) => ({
+              detail: { queue: 'commerce', item },
+              label: item.label,
+              reference: item.orderId ?? item.id,
+              status: item.state ?? item.kind.replaceAll('_', ' '),
+              timestamp: item.updatedAt,
+              error: item.lastError,
+            }))
+          : notificationQueue.data.map((item) => ({
+              detail: { queue: 'email', item },
+              label: item.eventType,
+              reference: item.orderId,
+              status: item.status,
+              attempts: String(item.attempts),
+              timestamp: item.createdAt,
+              error: item.lastError,
+            }))
+  const detailTitle =
+    selected?.queue === 'retry'
+      ? selected.item.jobType
+      : selected?.queue === 'commerce'
+        ? selected.item.label
+        : selected?.queue === 'webhooks'
+          ? (selected.item.eventType ?? 'Unknown webhook event')
+          : selected?.item.eventType
+  const selectedOrderId =
+    selected?.queue === 'commerce' || selected?.queue === 'email' ? selected.item.orderId : null
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 admin-recovery-page">
       <AdminPageHeader
         title="Issues & recovery"
         description="Review failed work, check uncertain provider outcomes and retry supported operations."
+        actions={
+          <button type="button" className="button-secondary" onClick={loadFailures}>
+            Refresh diagnostics
+          </button>
+        }
       />
-      <nav className="admin-settings-nav" aria-label="Recovery queues">
-        <a href="#retry-results">Retry jobs</a>
-        <a href="#webhook-results">Webhook failures</a>
-        <a href="#commerce-results">Commerce integrity</a>
-        <a href="#notification-results">Email delivery</a>
-      </nav>
-      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
-      <section className="panel space-y-2 p-5" aria-label="Diagnostic summary">
-        <h3 className="heading text-xl">Recovery workers</h3>
-        {summary && (
-          <>
-            <p className="text-ink">Worker state: {summary.workerState}</p>
-            <p className="text-ink">
-              Overdue late capture watches: {summary.overdueLateCaptureWatches}
-            </p>
-            <p className="text-ink">
-              Pending cancellation refunds: {summary.pendingCancellationRefunds}
-            </p>
-          </>
-        )}
+      <section
+        className="admin-recovery-summary"
+        aria-label="Diagnostic summary"
+        aria-busy={summaryLoading}
+      >
+        <dl>
+          <div>
+            <dt>Worker state</dt>
+            <dd>
+              {summaryLoading ? 'Loading…' : summaryError ? 'Unavailable' : summary?.workerState}
+            </dd>
+          </div>
+          <div>
+            <dt>Overdue late capture watches</dt>
+            <dd>
+              {summaryLoading || summaryError
+                ? '—'
+                : summary?.overdueLateCaptureWatches.toLocaleString('en-IN')}
+            </dd>
+          </div>
+          <div>
+            <dt>Pending cancellation refunds</dt>
+            <dd>
+              {summaryLoading || summaryError
+                ? '—'
+                : summary?.pendingCancellationRefunds.toLocaleString('en-IN')}
+            </dd>
+          </div>
+        </dl>
         {summaryError && (
-          <p role="alert" className="text-danger">
-            {summaryError}
+          <p role="alert" className="text-sm text-danger">
+            {summaryError} Use Refresh diagnostics to try again.
           </p>
         )}
-        {!summary && !summaryError && <p role="status">Loading diagnostic summary…</p>}
-        <button type="button" className="button-secondary" onClick={loadFailures}>
-          Refresh diagnostics
-        </button>
       </section>
-      <section id="retry-results" aria-label="Retry jobs" className="space-y-4 scroll-mt-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="heading text-xl">Retry jobs</h3>
-          <Dropdown
-            value={retryStatus}
-            aria-label="Retry job status"
-            onChange={(status) =>
-              updateQuery({ retry_status: status, retry_page: '1' }, 'retry-results')
-            }
-            options={[
-              { value: 'dead', label: 'Dead jobs' },
-              { value: 'failed', label: 'Failed jobs' },
-              { value: 'pending', label: 'Pending jobs' },
-            ]}
-          />
-        </div>
-        {retryQueue.loading || retryQueue.error ? null : retryJobs.length === 0 ? (
-          <p className="panel p-5 text-sm text-ink">No {retryStatus} retry jobs.</p>
-        ) : (
-          <div className="space-y-3">
-            {retryJobs.map((job) => (
-              <article
-                key={job.id}
-                className="panel flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center"
-              >
-                <div>
-                  <p className="font-semibold text-ink">{job.jobType}</p>
-                  <p className="mt-1 text-xs text-muted">
-                    {job.referenceId ?? job.id} · attempt {job.retryCount}/{job.maxRetries}
-                  </p>
-                  {job.lastError && <p className="mt-2 text-sm text-danger">{job.lastError}</p>}
-                </div>
-                {['dead', 'failed'].includes(job.status) && (
-                  <button
-                    type="button"
-                    disabled={busyId === job.id}
-                    onClick={() => void retryJob(job)}
-                    className="button-secondary"
-                  >
-                    Retry
-                  </button>
-                )}
-              </article>
-            ))}
-          </div>
-        )}
-        <QueueFooter
-          queue={retryQueue}
-          page={retryPage}
-          onPageChange={(page) => updateQuery({ retry_page: String(page) }, 'retry-results')}
-        />
-      </section>
-
-      <section id="webhook-results" aria-label="Failed webhooks" className="space-y-4 scroll-mt-6">
-        <h3 className="heading text-xl">Failed webhooks</h3>
-        {webhookQueue.loading || webhookQueue.error ? null : webhookFailures.length === 0 ? (
-          <p className="panel p-5 text-sm text-ink">No failed webhook deliveries.</p>
-        ) : (
-          <div className="space-y-3">
-            {webhookFailures.map((webhook) => (
-              <article key={webhook.id} className="admin-metric panel p-6">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold text-ink">
-                    {webhook.eventType ?? 'Unknown webhook event'}
-                  </p>
-                  <span className="status-badge">{webhook.source}</span>
-                </div>
-                <p className="mt-1 text-xs text-muted">
-                  {webhook.eventId ?? webhook.id} · retries {webhook.retryCount}
-                </p>
-                {webhook.lastError && (
-                  <p className="mt-2 text-sm text-danger">{webhook.lastError}</p>
-                )}
-                <p className="mt-2 text-xs text-muted">Updated {formatDate(webhook.updatedAt)}</p>
-              </article>
-            ))}
-          </div>
-        )}
-        <QueueFooter
-          queue={webhookQueue}
-          page={webhookPage}
-          onPageChange={(page) => updateQuery({ webhook_page: String(page) }, 'webhook-results')}
-        />
-      </section>
-
+      <nav className="admin-recovery-nav" aria-label="Recovery queues">
+        {recoveryQueues.map((entry) => {
+          const state = queues[entry.value]
+          return (
+            <Link
+              key={entry.value}
+              to={`?${queryFor({ queue: entry.value })}`}
+              aria-current={activeQueue === entry.value ? 'page' : undefined}
+              onClick={() => {
+                scrollTarget.current = entry.value
+              }}
+            >
+              <span>{entry.label}</span>
+              <small>
+                {state.loading
+                  ? 'Loading…'
+                  : state.error
+                    ? 'Queue unavailable'
+                    : `${state.total.toLocaleString('en-IN')} ${scopes[entry.value]}`}
+              </small>
+            </Link>
+          )
+        })}
+      </nav>
       <section
-        id="commerce-results"
-        aria-label="Commerce integrity"
-        className="space-y-4 scroll-mt-6"
+        id="recovery-results"
+        data-recovery-results
+        aria-label={queueLabel}
+        className="admin-recovery-results"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="heading text-xl">Commerce integrity</h3>
-          <Dropdown
-            aria-label="Commerce failure kind"
-            value={commerceKind}
-            onChange={(kind) => updateQuery({ commerce_kind: kind }, 'commerce-results')}
-            options={commerceKinds}
-          />
+        <div className="admin-recovery-results-heading">
+          <div>
+            <h2>{queueLabel}</h2>
+            <p>{scopes[activeQueue].charAt(0).toUpperCase() + scopes[activeQueue].slice(1)}</p>
+          </div>
+          {activeQueue === 'retry' && (
+            <Dropdown
+              value={retryStatus}
+              aria-label="Retry job status"
+              onChange={(status) => updateQuery({ retry_status: status, retry_page: '1' })}
+              options={[
+                { value: 'dead', label: 'Dead jobs' },
+                { value: 'failed', label: 'Failed jobs' },
+                { value: 'pending', label: 'Pending jobs' },
+              ]}
+            />
+          )}
+          {activeQueue === 'commerce' && (
+            <Dropdown
+              value={commerceKind}
+              aria-label="Commerce failure kind"
+              onChange={(kind) => updateQuery({ commerce_kind: kind })}
+              options={commerceKinds}
+            />
+          )}
         </div>
-        {commerceQueue.loading || commerceQueue.error ? null : commerceFailures.length === 0 ? (
-          <p className="panel p-5 text-sm text-ink">No unresolved failures in this queue.</p>
-        ) : (
-          <div className="space-y-3">
-            {commerceFailures.map((failure) => (
-              <article key={`${failure.kind}-${failure.id}`} className="admin-metric panel p-6">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold text-ink">{failure.label}</p>
-                  <span className="status-badge">{failure.kind.replaceAll('_', ' ')}</span>
-                </div>
-                {failure.orderId && (
-                  <Link
-                    to={`/admin/orders/${failure.orderId}`}
-                    className="mt-2 block text-sm text-ink underline hover:text-primary"
-                  >
-                    Open order
-                  </Link>
-                )}
-                {failure.lastError && (
-                  <p className="mt-2 text-sm text-danger">{failure.lastError}</p>
-                )}
-                {failure.state && (
-                  <p className="mt-2 text-xs text-muted">
-                    State: {failure.state}
-                    {failure.amountPaisa != null
-                      ? ` · ${failure.currency ?? 'INR'} ${(failure.amountPaisa / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
-                      : ''}
-                  </p>
-                )}
-                {failure.kind === 'provider_operation' && (
-                  <div className="mt-2 space-y-2 text-xs text-muted">
-                    <p>
-                      Target: {failure.targetType} {failure.target} · Business key:{' '}
-                      {failure.businessKey}
-                    </p>
-                    <p>
-                      Attempts: {failure.dispatchAttempts} dispatch /{' '}
-                      {failure.reconciliationAttempts} reconcile
-                      {failure.localCompletionPending ? ' · Local completion pending' : ''}
-                    </p>
+        {!queue.loading &&
+          !queue.error &&
+          (rows.length === 0 ? (
+            <p className="admin-recovery-empty">No {scopes[activeQueue]}.</p>
+          ) : (
+            <AdminTable
+              label={`${queueLabel} records`}
+              headers={[
+                'Issue & reference',
+                activeQueue === 'webhooks' ? 'Source' : 'Status',
+                ...(activeQueue === 'commerce' ? [] : ['Attempts']),
+                activeQueue === 'retry' || activeQueue === 'email' ? 'Created' : 'Updated',
+                'Details',
+              ]}
+            >
+              {rows.map((row) => (
+                <tr key={row.detail.item.id}>
+                  <td>
+                    <p className="admin-recovery-row-title">{row.label}</p>
+                    <p className="admin-recovery-row-reference">{row.reference}</p>
+                    {row.error && <p className="admin-recovery-row-error">{row.error}</p>}
+                  </td>
+                  <td>
+                    <AdminStatus status={row.status} />
+                  </td>
+                  {activeQueue !== 'commerce' && <td>{row.attempts}</td>}
+                  <td className="admin-recovery-timestamp">{formatDate(row.timestamp)}</td>
+                  <td>
                     <button
                       type="button"
-                      disabled={busyId === failure.id}
-                      onClick={() => setPendingAction({ failure, action: 'reconcile' })}
-                      className="button-secondary mt-1"
+                      className="button-secondary"
+                      aria-label={`View details for ${row.label}`}
+                      onClick={() => {
+                        setSelected(row.detail)
+                        setActionError(null)
+                      }}
                     >
-                      Reconcile
+                      View details
                     </button>
-                  </div>
-                )}
-                {failure.kind === 'retained_checkout' && (
-                  <div className="mt-3 space-y-3">
-                    <p className="text-xs text-muted">
-                      Deadline {formatDate(failure.deadlineAt)} · Extension {failure.extensionCount}
-                      /96 · {failure.escalation} · Last verified{' '}
-                      {formatDate(failure.lastVerifiedAt)}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        disabled={busyId === failure.id}
-                        onClick={() => setPendingAction({ failure, action: 'recheck' })}
-                        className="button-secondary"
-                      >
-                        Recheck
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busyId === failure.id}
-                        onClick={() => setPendingAction({ failure, action: 'release' })}
-                        className="button-secondary"
-                      >
-                        Release inventory
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {failure.kind === 'late_capture_watch' && (
-                  <div className="mt-3 space-y-2 text-sm text-ink">
-                    <p>
-                      Next check:{' '}
-                      {failure.nextCheckAt ? formatDate(failure.nextCheckAt) : 'Not scheduled'} ·
-                      Checks: {failure.checkAttempts} · Failed checks: {failure.failedChecks}
-                    </p>
-                    <p>
-                      Last check:{' '}
-                      {failure.lastCheckedAt ? formatDate(failure.lastCheckedAt) : 'Not checked'}
-                    </p>
-                    {failure.lastCheckError && (
-                      <p className="text-danger">{failure.lastCheckError}</p>
-                    )}
-                  </div>
-                )}
-                {failure.kind === 'cancellation_refund' && (
-                  <div className="mt-3 space-y-2 text-sm text-ink">
-                    <p>Reference: {failure.referenceId ?? failure.id}</p>
-                    <p>
-                      Next retry:{' '}
-                      {failure.nextRetryAt ? formatDate(failure.nextRetryAt) : 'Not scheduled'}
-                    </p>
-                  </div>
-                )}
-                <p className="mt-2 text-xs text-muted">Updated {formatDate(failure.updatedAt)}</p>
-              </article>
-            ))}
-          </div>
-        )}
+                  </td>
+                </tr>
+              ))}
+            </AdminTable>
+          ))}
         <QueueFooter
-          queue={commerceQueue}
-          page={commercePage}
-          onPageChange={(page) =>
-            updateQuery({ [commercePageKey]: String(page) }, 'commerce-results')
-          }
+          queue={queue}
+          page={page}
+          scope={scopes[activeQueue]}
+          onPageChange={(next) => updateQuery({ [pageKeys[activeQueue]]: String(next) })}
         />
       </section>
-
-      <section
-        id="notification-results"
-        aria-label="Email delivery"
-        className="space-y-4 scroll-mt-6"
-      >
-        <h3 className="heading text-xl">Email delivery</h3>
-        {notificationQueue.loading || notificationQueue.error ? null : deliveries.length === 0 ? (
-          <p className="panel p-5 text-sm text-ink">
-            No failed or stuck email deliveries on this page.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {deliveries.map((delivery) => (
-              <article key={delivery.id} className="admin-metric panel p-6">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-semibold text-ink">{delivery.eventType}</p>
-                  <span className="status-badge">{delivery.status}</span>
-                </div>
-                <Link
-                  to={`/admin/orders/${delivery.orderId}`}
-                  className="mt-2 block text-sm text-ink underline hover:text-primary"
-                >
+      <Modal
+        isOpen={selected !== null}
+        onClose={() => {
+          if (!busyId && !pendingAction) setSelected(null)
+        }}
+        title={detailTitle}
+        presentation="drawer"
+        maxWidth="lg"
+        footer={
+          selected && (
+            <div className="admin-recovery-drawer-footer">
+              {selectedOrderId && (
+                <Link to={`/admin/orders/${selectedOrderId}`} className="button-secondary">
                   Open order
                 </Link>
-                <p className="mt-2 text-xs text-muted">
-                  Attempts: {delivery.attempts}
-                  {delivery.providerMessageId ? ` · Provider ID ${delivery.providerMessageId}` : ''}
-                </p>
-                {delivery.lastError && (
-                  <p className="mt-2 text-sm text-danger">{delivery.lastError}</p>
+              )}
+              <div className="admin-recovery-drawer-actions">
+                <button
+                  type="button"
+                  className="button-secondary"
+                  disabled={!!busyId}
+                  onClick={() => setSelected(null)}
+                >
+                  Close
+                </button>
+                {selected.queue === 'retry' &&
+                  ['dead', 'failed'].includes(selected.item.status) && (
+                    <button
+                      type="button"
+                      className="button-primary"
+                      disabled={!!busyId}
+                      aria-busy={!!busyId}
+                      onClick={() => {
+                        if (selected.queue === 'retry') void retryJob(selected.item)
+                      }}
+                    >
+                      {busyId ? 'Retrying…' : 'Retry'}
+                    </button>
+                  )}
+                {selected.queue === 'commerce' && selected.item.kind === 'provider_operation' && (
+                  <button
+                    type="button"
+                    className="button-primary"
+                    disabled={!!busyId}
+                    onClick={() => {
+                      if (selected.queue === 'commerce')
+                        setPendingAction({ failure: selected.item, action: 'reconcile' })
+                    }}
+                  >
+                    Reconcile
+                  </button>
                 )}
-              </article>
-            ))}
-          </div>
+                {selected.queue === 'commerce' && selected.item.kind === 'retained_checkout' && (
+                  <>
+                    <button
+                      type="button"
+                      className="button-secondary"
+                      disabled={!!busyId}
+                      onClick={() => {
+                        if (selected.queue === 'commerce')
+                          setPendingAction({ failure: selected.item, action: 'recheck' })
+                      }}
+                    >
+                      Recheck
+                    </button>
+                    <button
+                      type="button"
+                      className="button-secondary"
+                      disabled={!!busyId}
+                      onClick={() => {
+                        if (selected.queue === 'commerce')
+                          setPendingAction({ failure: selected.item, action: 'release' })
+                      }}
+                    >
+                      Release inventory
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )
+        }
+      >
+        {selected && <RecoveryDetails detail={selected} />}
+        {actionError && (
+          <p role="alert" className="mt-4 rounded-control bg-danger-soft p-3 text-sm text-danger">
+            {actionError}
+          </p>
         )}
-        <QueueFooter
-          queue={notificationQueue}
-          page={notificationPage}
-          onPageChange={(page) =>
-            updateQuery({ notification_page: String(page) }, 'notification-results')
-          }
-        />
-      </section>
+      </Modal>
       <FailureActionDialog
         isOpen={pendingAction !== null}
         title={
@@ -566,15 +839,21 @@ export const AdminFailuresPage: React.FC = () => {
               : 'Reconcile provider operation'
         }
         description="This action is audited. Describe why you are performing it."
-        confirmLabel={pendingAction?.action === 'release' ? 'Release' : 'Reconcile'}
+        error={actionError}
+        confirmLabel={
+          pendingAction?.action === 'release'
+            ? 'Release'
+            : pendingAction?.action === 'recheck'
+              ? 'Recheck'
+              : 'Reconcile'
+        }
         isSubmitting={pendingAction ? busyId === pendingAction.failure.id : false}
         onClose={() => {
           if (!busyId) setPendingAction(null)
         }}
         onConfirm={(reason) => {
-          if (pendingAction) {
+          if (pendingAction)
             void runCommerceAction(pendingAction.failure, pendingAction.action, reason)
-          }
         }}
       />
     </div>

@@ -224,7 +224,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-normal text-ink truncate">{user?.fullName}</p>
-                  <p className="text-[11px] text-muted truncate">{user?.email}</p>
+                  <p className="email-value text-[11px] text-muted" title={user?.email}>
+                    {user?.email}
+                  </p>
                 </div>
               </div>
 

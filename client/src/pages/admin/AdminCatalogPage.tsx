@@ -8,7 +8,7 @@ import {
   AdminTable,
   AdminResultCount,
 } from '../../components/admin/AdminWorkspace'
-import { AdminDialog } from '../../components/admin/AdminDialog'
+import { AdminDialog, AdminDialogActions } from '../../components/admin/AdminDialog'
 import { AdminInventoryPanel } from '../../components/admin/AdminInventoryPanel'
 import { useAdminList } from '../../lib/hooks/useAdminList'
 import { StoreImage } from '../../components/common/StoreImage'
@@ -627,7 +627,7 @@ export const AdminCatalogPage: React.FC = () => {
           title={createMode === 'product' ? 'Add product' : 'Add category'}
           onClose={() => setCreateMode(null)}
           busy={busy}
-          wide
+          wide={createMode === 'product'}
         >
           {error && (
             <p role="alert" className="mb-4 text-danger">
@@ -635,7 +635,7 @@ export const AdminCatalogPage: React.FC = () => {
             </p>
           )}
           {createMode === 'product' ? (
-            <form onSubmit={createProduct} className="panel space-y-4 p-5">
+            <form id="admin-create-product-form" onSubmit={createProduct} className="space-y-4">
               <h3 className="heading text-xl">New product</h3>
               <label className="block space-y-2 text-sm text-ink">
                 <span>Product name</span>
@@ -699,12 +699,19 @@ export const AdminCatalogPage: React.FC = () => {
                   className="w-full text-base text-ink"
                 />
               </label>
-              <button type="submit" disabled={busy || !categoryId} className="button-primary">
-                Create product
-              </button>
+              <AdminDialogActions>
+                <button
+                  type="submit"
+                  form="admin-create-product-form"
+                  disabled={busy || !categoryId}
+                  className="button-primary"
+                >
+                  Create product
+                </button>
+              </AdminDialogActions>
             </form>
           ) : (
-            <form onSubmit={createCategory} className="panel space-y-4 p-5">
+            <form id="admin-create-category-form" onSubmit={createCategory} className="space-y-4">
               <h3 className="heading text-xl">New category</h3>
               <label className="block space-y-2 text-sm text-ink">
                 <span>Category name</span>
@@ -724,9 +731,16 @@ export const AdminCatalogPage: React.FC = () => {
                   className="w-full text-base text-ink"
                 />
               </label>
-              <button type="submit" disabled={busy} className="button-primary">
-                Create category
-              </button>
+              <AdminDialogActions>
+                <button
+                  type="submit"
+                  form="admin-create-category-form"
+                  disabled={busy}
+                  className="button-primary"
+                >
+                  Create category
+                </button>
+              </AdminDialogActions>
               <label className="flex items-center gap-2 text-ink">
                 <input type="checkbox" name="navbar" />
                 Show in navigation (maximum five)
