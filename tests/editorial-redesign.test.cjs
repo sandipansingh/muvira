@@ -287,7 +287,7 @@ test('out of stock product cards cannot add merchandise', () =>
   }))
 test('protected pages render for authenticated fixtures and redirect guest access', () =>
   pageFor('/admin?fixtureRole=admin', async (page) => {
-    await page.getByRole('heading', { level: 1, name: 'Operations overview' }).waitFor()
+    await page.getByRole('heading', { level: 1, name: 'Hello, Aarohi!' }).waitFor()
     await page.goto(fixture.origin + '/profile')
     await page.getByRole('heading', { level: 1, name: 'My Profile' }).waitFor()
     await page.goto(fixture.origin + '/admin?fixtureRole=guest')

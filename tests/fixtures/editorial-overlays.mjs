@@ -79,13 +79,14 @@ const cases = [
     name: 'product-editor',
     path: '/admin/catalog?fixtureRole=admin',
     button: /^Edit product /,
-    section: '[aria-label="Product editor"]',
+    dialog: 'Edit product',
   },
   {
     name: 'category-editor',
     path: '/admin/catalog?fixtureRole=admin',
+    prepare: async (page) => page.getByRole('tab', { name: 'Categories', exact: true }).click(),
     button: /^Edit category /,
-    section: 'section:has(button:text-is("Close category editor"))',
+    dialog: 'Edit category',
   },
   {
     name: 'remove-image',

@@ -61,3 +61,8 @@ The administration palette and geometry are documented in `DESIGN.md` and owned 
 `AdminWorkspace` owns repeated page headings, filter search, result counts, semantic tables, loading/error/empty panels and textual status badges. `AdminShell` owns collapsible desktop navigation and the canonical mobile Modal. `AdminDialog` extends the shared Modal with explicit discard confirmation and busy dismissal protection. It keeps form DOM mounted while confirming a discard. Existing fields, native validation, dropdown, pagination, focus and toast primitives remain canonical.
 
 `useAdminList` owns safe page parsing, URL filter updates and reduced-motion-aware scroll-to-results. `useAdminResource` provides independent read/retry state for overview sections. Inventory quantity changes use the existing absolute-stock API and confirmed saves. Product/category/media, fulfillment, refunds and reconciliation remain owned by existing service handlers.
+
+
+`AdminRevenue` owns period controls, the four joined performance cells, SVG revenue rendering, pointer details, the accessible exact-value table, and the reporting-definition disclosure. The period is URL-owned; `useAdminResource` ignores stale completions, and previous-period values are never shown under a newly selected period. SVG colours consume admin tokens and negative data retains a zero baseline. Live order, inventory and recovery state remains independent of the selected reporting period.
+
+Sidebar navigation search clears immediately and restores input focus. Account logout uses the shared auth mutation with synchronous duplicate protection, a busy control, and inline failure feedback. No presence claim is displayed.

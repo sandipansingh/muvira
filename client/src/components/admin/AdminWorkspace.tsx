@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useRef, useState } from 'react'
-import { LoaderCircle, Search, X } from 'lucide-react'
+import { Globe, LoaderCircle, Search, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Breadcrumbs } from '../common/Breadcrumbs'
 import { Badge, type BadgeTone } from '../ui/Badge'
@@ -31,28 +32,48 @@ export function AdminPageHeader({
   section,
 }: {
   title: string
-  description: string
+  description?: string
   actions?: React.ReactNode
   section?: string
 }) {
   return (
     <header className="admin-page-header">
-      <Breadcrumbs
-        className="admin-breadcrumbs"
-        items={[
-          { label: 'Admin', href: '/admin' },
-          ...(section
-            ? [{ label: section, href: section === 'Orders' ? '/admin/orders' : '/admin/catalog' }]
-            : []),
-          { label: title },
-        ]}
-      />
+      {section && (
+        <Breadcrumbs
+          className="admin-breadcrumbs"
+          items={[
+            ...(section
+              ? [
+                  {
+                    label: section,
+                    href: section === 'Orders' ? '/admin/orders' : '/admin/catalog',
+                  },
+                ]
+              : []),
+            { label: title },
+          ]}
+        />
+      )}
       <div className="admin-page-header__row">
         <div className="min-w-0">
           <h1 className="admin-page-title">{title}</h1>
-          <p className="admin-page-description">{description}</p>
+          {description && <p className="admin-page-description">{description}</p>}
         </div>
-        {actions && <div className="admin-page-actions">{actions}</div>}
+        <div className="admin-page-actions">
+          {actions}
+          <Link
+            to="/"
+            className={
+              title.startsWith('Hello,') || title === 'Store overview'
+                ? 'button-primary admin-open-site'
+                : 'button-secondary admin-open-site'
+            }
+            aria-label="Visit storefront"
+          >
+            <Globe className="h-4 w-4" aria-hidden="true" />
+            Open site
+          </Link>
+        </div>
       </div>
     </header>
   )

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import {
   attachUploadedProductImage,
@@ -39,6 +39,7 @@ export function AdminProductEditor({
     pendingProductImages().some((image) => image.productId === initial.id)
   )
   const [removingImageId, setRemovingImageId] = useState<string | null>(null)
+  const removeImageTrigger = useRef<HTMLButtonElement | null>(null)
   const { showToast } = useToast()
   const images = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
   useEffect(() => {
@@ -339,7 +340,10 @@ export function AdminProductEditor({
                   type="button"
                   disabled={busy}
                   className="button-secondary text-danger"
-                  onClick={() => setRemovingImageId(image.id)}
+                  onClick={(event) => {
+                    removeImageTrigger.current = event.currentTarget
+                    setRemovingImageId(image.id)
+                  }}
                 >
                   Remove image {index + 1}
                 </button>
@@ -438,6 +442,7 @@ export function AdminProductEditor({
           if (!busy) setRemovingImageId(null)
         }}
         title="Remove product image"
+        restoreFocus={() => removeImageTrigger.current}
       >
         <p className="text-ink">
           Remove this image from {product.name}? The stored file will be preserved.

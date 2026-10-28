@@ -78,6 +78,10 @@ try {
         const req = route.request(),
           url = new URL(req.url())
         if (url.origin === origin) return route.continue()
+        if (url.origin === 'https://checkout.razorpay.com' && url.pathname === '/v1/razorpay.js') {
+          // Exercise provider-unavailable UI without loading a live payment SDK.
+          return route.fulfill({ contentType: 'application/javascript', body: '' })
+        }
         if (req.resourceType() === 'image' && url.hostname.endsWith('.supabase.co')) {
           if (!images.has(req.url()))
             images.set(

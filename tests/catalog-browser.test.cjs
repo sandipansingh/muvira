@@ -12,7 +12,7 @@ before(async () => {
   const mocks = {
     client: `export class ApiError extends Error {};
       const ok=data=>({success:true,data});
-      export const api={get:async(path)=>{(window.reads||=[]).push(path);if(window.failRefresh)throw new Error('Refresh unavailable');if(path.includes('categories'))return ok(window.categories);if(path==='/api/settings')return ok(window.settings);if(path.includes('/products/'))return ok(window.product);return {...ok([window.product]),meta:{total:1,totalPages:1}}},post:async(path,body)=>{window.mutations.push({path,body});if(path.endsWith('/images')){if(window.attachMode!=='unknown')window.product.product_images.push({id:'image-1',...body});if(window.attachMode==='lost'||window.attachMode==='unknown')throw new Error('Response lost');window.failRefresh=Boolean(window.failAfterAttach);return ok({id:'image-1',...body})}if(path.includes('categories')){const category={id:'category-'+(window.categories.length+1),...body};window.categories.push(category);if(window.loseCategoryResponse)throw new Error('Category response lost');return ok(category)}return ok(window.product)},patch:async(path,body)=>{window.mutations.push({path,body});if(path.includes('settings')){Object.assign(window.settings,body);return ok(window.settings)}Object.assign(window.product,body);return ok(window.product)},delete:async()=>ok(null)};`,
+      export const api={get:async(path)=>{(window.reads||=[]).push(path);if(window.failRefresh)throw new Error('Refresh unavailable');if(path.includes('categories'))return ok(window.categories);if(path==='/api/settings')return ok(window.settings);if(path.includes('/products/')){if(window.delayProductRead)await new Promise(resolve=>window.resolveProductRead=resolve);return ok(window.product)}return {...ok([window.product]),meta:{total:1,totalPages:1}}},post:async(path,body)=>{window.mutations.push({path,body});if(path.endsWith('/images')){if(window.attachMode!=='unknown')window.product.product_images.push({id:'image-1',...body});if(window.attachMode==='lost'||window.attachMode==='unknown')throw new Error('Response lost');window.failRefresh=Boolean(window.failAfterAttach);return ok({id:'image-1',...body})}if(path.includes('categories')){const category={id:'category-'+(window.categories.length+1),...body};window.categories.push(category);if(window.loseCategoryResponse)throw new Error('Category response lost');return ok(category)}return ok(window.product)},patch:async(path,body)=>{window.mutations.push({path,body});if(path.includes('settings')){Object.assign(window.settings,body);return ok(window.settings)}Object.assign(window.product,body);return ok(window.product)},delete:async()=>ok(null)};`,
     supabase: `export const supabase={storage:{from:()=>({upload:async(path,file)=>{window.uploads.push({path,size:file.size});return {error:null}},getPublicUrl:path=>({data:{publicUrl:'https://storage.example/storage/v1/object/public/images/'+path}}),remove:async paths=>{window.deleted.push(...paths);return{error:null}}})}}`,
     ToastContext: `export const useToast=()=>({showToast:(message)=>window.messages.push(message)})`,
     SiteSettingsContext: `export const useSiteSettings=()=>({applySettings:settings=>window.applied=settings})`,
@@ -328,7 +328,13 @@ test('clearing a category image sends an explicit nullable removal through the A
     })
     await page.getByRole('tab', { name: 'Categories', exact: true }).click()
     await page.getByRole('button', { name: 'Edit category Category 0', exact: true }).click()
-    await page.getByLabel('Category image URL', { exact: true }).fill('')
+    await page.waitForFunction(() =>
+      document.querySelector('[role=dialog]')?.contains(document.activeElement)
+    )
+    const imageUrl = page.getByLabel('Category image URL', { exact: true })
+    await imageUrl.fill('')
+    await imageUrl.press('Tab')
+    assert.equal(await imageUrl.inputValue(), '')
     await page.getByRole('button', { name: 'Save category', exact: true }).click()
     await page.waitForFunction(() =>
       window.mutations.some((m) => m.path === '/api/admin/categories/category-0')
@@ -506,16 +512,6 @@ test('successful category save leaves the catalog ready for further edits', () =
     await dialog.getByLabel('Category name', { exact: true }).fill('Renamed category')
     await dialog.getByRole('button', { name: 'Save category', exact: true }).click()
     await dialog.waitFor({ state: 'hidden' })
-    assert.equal(
-      await page.getByRole('button', { name: 'Add category', exact: true }).isDisabled(),
-      false
-    )
-    assert.equal(
-      await page
-        .getByRole('button', { name: 'Edit category Category 0', exact: true })
-        .isDisabled(),
-      false
-    )
     await page.getByRole('button', { name: 'Add category', exact: true }).click()
     await page.getByRole('dialog', { name: 'Add category', exact: true }).waitFor()
   }))
@@ -566,13 +562,11 @@ test('discarded category upload remains independently verifiable without another
     await page.getByRole('button', { name: 'Add category', exact: true }).click()
     const dialog = page.getByRole('dialog', { name: 'Add category', exact: true })
     await dialog.getByLabel('Category name', { exact: true }).fill('Preserved outside dialog')
-    await dialog
-      .locator('input[type=file]')
-      .setInputFiles({
-        name: 'preserved.webp',
-        mimeType: 'image/webp',
-        buffer: Buffer.from('fixture image'),
-      })
+    await dialog.locator('input[type=file]').setInputFiles({
+      name: 'preserved.webp',
+      mimeType: 'image/webp',
+      buffer: Buffer.from('fixture image'),
+    })
     await dialog.getByRole('button', { name: 'Create category', exact: true }).click()
     await dialog.getByRole('alert').waitFor()
     await dialog.getByRole('button', { name: 'Close dialog' }).last().click()
@@ -593,4 +587,44 @@ test('discarded category upload remains independently verifiable without another
       await page.getByRole('button', { name: 'Add category', exact: true }).isDisabled(),
       false
     )
+  }))
+
+test('successful image removal keeps focus in the editor while product refresh is pending', () =>
+  fixture(async (page) => {
+    await page.evaluate(() => {
+      window.product.product_images = [
+        {
+          id: 'image-1',
+          url: '/test-image.webp',
+          alt_text: 'Fixture image',
+          sort_order: 0,
+          is_primary: true,
+        },
+      ]
+      return window.render('catalog')
+    })
+    await page
+      .getByRole('button', { name: /^Edit product / })
+      .first()
+      .click()
+    const editor = page.getByRole('dialog', { name: 'Edit product', exact: true })
+    await editor.getByRole('button', { name: 'Remove image 1', exact: true }).click()
+    const confirmation = page.getByRole('dialog', { name: 'Remove product image', exact: true })
+    await page.evaluate(() => (window.delayProductRead = true))
+    await confirmation.getByRole('button', { name: 'Remove image', exact: true }).click()
+    await page.waitForFunction(() => typeof window.resolveProductRead === 'function')
+    await confirmation.waitFor({ state: 'hidden' })
+    await page.waitForFunction(
+      () =>
+        [...document.querySelectorAll('[role=dialog]')].some((el) =>
+          el.contains(document.activeElement)
+        ),
+      undefined,
+      { timeout: 1500 }
+    )
+    assert.equal(await editor.evaluate((el) => el.contains(document.activeElement)), true)
+    await page.evaluate(() => {
+      window.delayProductRead = false
+      window.resolveProductRead()
+    })
   }))

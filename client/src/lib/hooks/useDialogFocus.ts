@@ -80,7 +80,12 @@ export function useDialogFocus(
         const target = restoreFocusRef.current ? restoreFocusRef.current() : previousFocus
         target?.focus({ preventScroll: true })
       } else if (wasTopDialog) {
-        openDialogs[openDialogs.length - 1].focus()
+        const parentDialog = openDialogs[openDialogs.length - 1]
+        const target = restoreFocusRef.current ? restoreFocusRef.current() : previousFocus
+        if (target?.isConnected && parentDialog.contains(target)) {
+          target.focus({ preventScroll: true })
+        }
+        if (!parentDialog.contains(document.activeElement)) parentDialog.focus()
       }
     }
   }, [dialogRef, isOpen])

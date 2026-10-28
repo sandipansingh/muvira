@@ -51,20 +51,20 @@ The existing commerce regression tests remain authoritative for behavior. The re
 
 ## Admin workspace
 
-The four local `design-references/` images guide the administration system independently from the storefront. The product-management reference supplies table density, thumbnails and focused actions; the two Wink references supply the quiet sidebar and clear hierarchy; the finance reference supplies compact summaries and restrained violet actions. No chart, trend, customer directory, bulk operation or other capability is implied by a reference image.
+The selected monochrome Wink reference (`design-references/fc6eecab29d604da14816f253ffb0aa0.webp`) is the administration system's visual authority, independently from the storefront. It supplies the pale sidebar, bottom account card, compact page heading, joined performance summaries, hatched revenue chart and operational right rail. Reference-only upgrades, visits, conversion rates and social activity have no product counterpart.
 
-The runtime owner remains `client/src/index.css`. The route-level `.admin-theme` wraps both `AdminShell` and shared feedback/overlays in `AppContent`. Existing Tailwind semantic classes consume those scoped variables; do not introduce another palette in components. Customer routes remove this scope during navigation.
+The runtime owner remains `client/src/index.css`. The route-level `.admin-theme` wraps both `AdminShell` and shared feedback/overlays in `AppContent`. Existing Tailwind semantic classes consume those scoped variables. Customer routes remove this scope during navigation.
 
 | Role | Admin runtime value |
 | --- | --- |
-| Canvas / sidebar | `--background: #F6F6F8` / `--admin-sidebar-bg: #F1F1F4` |
+| Canvas / sidebar | `--background: #F7F7F7` / `--admin-sidebar-bg: #F7F7F7` |
 | Work surface | `--color-paper: #FFFFFF` |
-| Main / secondary text | `--color-ink: #202126` / `--color-muted: #636572` |
-| Divider / field border | `--color-line: #E4E4E9` / `--color-field-border: #8A8D98` |
-| Primary / hover / selected tint | `--color-primary: #6D4AFF` / `--color-primary-hover: #5B36DB` / `--color-primary-soft: #EFEBFF` |
-| Typography | Self-hosted Manrope; headings 28px/600, sections 18px/600, tables 14px, fields at least 16px |
-| Geometry | Sidebar 240px or 72px collapsed; header 64px; gutters 24px desktop and 16px phone; panel/control radii 12px/8px |
+| Main / secondary text | `--color-ink: #191919` / `--color-muted: #666666` |
+| Divider / field border | `--color-line: #E8E8E8` / `--color-field-border: #8A8A8A` |
+| Primary / hover / selected tint | `--color-primary: #191919` / `--color-primary-hover: #333333` / `--color-primary-soft: #EEEEEE` |
+| Typography | Manrope; page headings 26px/600, sections 18px/600, tables 14px, fields at least 16px |
+| Geometry | Sidebar 240px or 72px collapsed; desktop content gutters 32px/24px vertical; phone gutters 16px; panels/controls 12px/8px |
 
-The original unframed Muvira logo stays intact. Admin headings use Manrope with no editorial serif treatment. Status colours retain their semantic meaning; violet is reserved for actions, selected controls, links and focus. Tables use thin dividers, modest row hover, explicit actions, right-aligned monetary values and textual status badges. Product images use complete contain framing and the shared unavailable-image treatment.
+The unframed original Muvira logo stays intact. Desktop pages have no duplicate top bar or top-right presence identity. Top-level sections omit breadcrumbs; order details retain shared compact hierarchy. The bottom account card exposes genuine identity, profile, Settings and guarded logout. Local sidebar search filters existing sections without network requests or invented destinations. Phones use a compact menu bar and shared Modal navigation. This is a light-only admin system.
 
-The opening composition prioritizes real pending/confirmed work and low stock, followed by explicitly labelled today/all-time totals, recent orders, inventory and recovery. Long product names are visually clamped while retaining their complete accessible text. Forms and detail pages retain document scrolling; horizontal table overflow stays within its labelled container. The navigation becomes a shared Modal below 1024px. This is a light-only admin system.
+Overview pairs period-owned performance and revenue with independent live operational queues. The chart uses confirmed local money movements and remains honest about negative/zero/incomplete data. Thin dividers, restrained row hover, textual status badges and right-aligned currency apply throughout. Semantic status colours retain meaning. Tables scroll within named regions; content queries stack columns for narrow or enlarged-text layouts. Product images retain shared contain framing and unavailable-image behaviour.
