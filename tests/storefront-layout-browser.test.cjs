@@ -372,3 +372,37 @@ for (const engine of ['chromium', 'webkit']) {
         }
       ))
 }
+
+for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: enlarged auth branding keeps the close target clear with expanded text spacing`, () =>
+    visit(
+      engine,
+      '/not-a-page?fixtureRole=guest',
+      async (page) => {
+        await page.locator('header').getByRole('button', { name: 'Sign in', exact: true }).click()
+        const dialog = page.getByRole('dialog')
+        await dialog.getByRole('heading', { name: 'Welcome back.', exact: true }).waitFor()
+        await page.evaluate(() => {
+          document.documentElement.style.fontSize = '32px'
+          document.querySelector('.modal-header__brand .brand-wordmark').style.letterSpacing =
+            '0.12em'
+        })
+        await page.evaluate(
+          () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+        )
+        const mark = await dialog
+          .locator('.modal-header__brand [aria-label="Muvira"]')
+          .boundingBox()
+        const close = await dialog
+          .locator('.modal-header')
+          .getByRole('button', { name: 'Close dialog' })
+          .boundingBox()
+        assert.ok(
+          mark.x + mark.width + 3 <= close.x,
+          'The enlarged brand must leave the close target clear'
+        )
+        assert.ok(close.width >= 44 && close.height >= 44)
+      },
+      { viewport: { width: 320, height: 950 } }
+    ))
+}
