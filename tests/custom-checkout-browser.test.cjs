@@ -135,7 +135,18 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
         data = prepared ? { ...session(), state: 'pending', can_pay: false } : null
       else if (url.pathname.endsWith('/payment-config'))
         data = { key_id: 'rzp_test_example', currency: 'INR' }
-      else if (url.pathname.endsWith('/quote'))
+      else if (url.pathname.endsWith('/quote')) {
+        if (behavior.shippingOutage)
+          return route.fulfill({
+            status: 503,
+            json: {
+              success: false,
+              error: {
+                code: 'SHIPPING_SERVICEABILITY_UNAVAILABLE',
+                message: 'Delivery availability could not be checked. Please try again shortly.',
+              },
+            },
+          })
         data = {
           items: [],
           subtotal_paisa: 49900,
@@ -146,23 +157,34 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
           coupon: null,
           shipping_method: 'standard',
           shipping_label: 'Standard shipping',
-          shipping_description: '5–7 business days',
+          shipping_description: behavior.unknownEstimate
+            ? 'Delivery estimate unavailable.'
+            : 'Estimated delivery in 5 days.',
+          delivery_available: behavior.unserviceable ? false : !!body.address_id,
+          estimated_delivery_days: behavior.unknownEstimate ? null : 5,
+          is_preview: !body.address_id,
           shipping_methods: {
             standard: {
               enabled: true,
               label: 'Standard shipping',
-              description: '5–7 business days',
+              description: behavior.unknownEstimate
+                ? 'Delivery estimate unavailable.'
+                : 'Estimated delivery in 5 days.',
               amount_paisa: 0,
+              available: behavior.unserviceable ? false : true,
+              estimated_delivery_days: behavior.unknownEstimate ? null : 5,
             },
             express: {
               enabled: false,
               label: 'Express shipping',
               description: 'Unavailable',
               amount_paisa: 0,
+              available: false,
+              estimated_delivery_days: null,
             },
           },
         }
-      else if (url.pathname.endsWith('/create-order')) {
+      } else if (url.pathname.endsWith('/create-order')) {
         prepared = true
         data = session()
       } else if (url.pathname.endsWith('/reconcile')) data = session()
@@ -418,6 +440,50 @@ test('an expired QR disappears and cannot launch another payment until status pe
     state.status = 'payable'
     await page.getByRole('button', { name: 'Check payment status' }).click()
     await expect(page.getByRole('button', { name: /Show QR.*₹599/ })).toBeEnabled()
+  } finally {
+    await page.close()
+  }
+})
+
+test('unserviceable delivery and outages prevent review before any payment preparation', async () => {
+  for (const behavior of [{ unserviceable: true }, { shippingOutage: true }]) {
+    const { page, requests } = await checkoutPage(
+      'chromium',
+      { viewport: { width: 390, height: 844 } },
+      behavior
+    )
+    try {
+      await expect(page.getByRole('button', { name: 'Review payment', exact: true })).toBeDisabled()
+      await expect(
+        page.getByRole('alert').filter({
+          hasText: behavior.shippingOutage
+            ? 'Delivery availability could not be checked'
+            : 'This delivery method is unavailable',
+        })
+      ).toBeVisible()
+      assert.equal(
+        requests.some((request) => request.path.endsWith('/create-order')),
+        false
+      )
+      assert.ok(
+        requests.some(
+          (request) =>
+            request.path.endsWith('/quote') && request.body.address_id === 'fixture-address'
+        )
+      )
+    } finally {
+      await page.close()
+    }
+  }
+})
+
+test('standard shipping with unknown estimate remains available and makes no date promise', async () => {
+  const { page } = await checkoutPage('chromium', {}, { unknownEstimate: true })
+  try {
+    await page.getByRole('button', { name: 'Edit', exact: true }).click()
+    await expect(page.getByText('Delivery estimate unavailable.', { exact: true })).toBeVisible()
+    await expect(page.getByRole('radio', { name: /Standard shipping/ })).toBeEnabled()
+    await expect(page.getByRole('radio', { name: /Express shipping/ })).toBeDisabled()
   } finally {
     await page.close()
   }

@@ -14,7 +14,13 @@ import type { Coupon } from '../../types/coupon'
 import type { AdminOrderSummary, OrderDetail } from '../../types/order'
 import type { DashboardStats, InventoryItem } from '../../types/dashboard'
 import type { ApiResponse, ApiPaginatedResponse } from '../../types/common'
-import type { FulfillOrderInput, FulfillOrderResult, ServiceabilityResult } from '../../types/order'
+import type {
+  FulfillOrderInput,
+  FulfillOrderResult,
+  ServiceabilityResult,
+  OrderCourierAvailability,
+  OrderCourierPackage,
+} from '../../types/order'
 import type {
   AdminCategoryInput,
   AdminCouponInput,
@@ -780,9 +786,14 @@ export const adminApiService = {
   /**
    * Assigns AWB code for order shipment.
    */
-  async assignAwb(id: string, courierId?: number): Promise<ApiResponse<OrderDetail>> {
+  async assignAwb(
+    id: string,
+    courierId?: number,
+    overrideReason?: string
+  ): Promise<ApiResponse<OrderDetail>> {
     const body: AnyRecord = {}
     if (courierId !== undefined) body['courier_id'] = courierId
+    if (overrideReason) body['courier_override_reason'] = overrideReason
     const res = await adminPost<{
       success: boolean
       data?: AnyRecord
@@ -1284,6 +1295,31 @@ export const adminApiService = {
         },
       }
     return { success: true, data: res.data }
+  },
+
+  async getOrderCouriers(
+    id: string,
+    shipmentPackage?: OrderCourierPackage
+  ): Promise<ApiResponse<OrderCourierAvailability>> {
+    const query = new URLSearchParams()
+    if (shipmentPackage)
+      for (const [key, value] of Object.entries(shipmentPackage)) query.set(key, String(value))
+    const response = await adminGet<{
+      success: boolean
+      data?: OrderCourierAvailability
+      error?: { code: string; message: string }
+    }>(
+      `/api/admin/orders/${encodeURIComponent(id)}/couriers${query.size ? `?${query.toString()}` : ''}`
+    )
+    if (!response.success || !response.data)
+      return {
+        success: false,
+        error: response.error ?? {
+          code: 'COURIER_LOOKUP_FAILED',
+          message: 'Order couriers could not be checked.',
+        },
+      }
+    return { success: true, data: response.data }
   },
 
   /**

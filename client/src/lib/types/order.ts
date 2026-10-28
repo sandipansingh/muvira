@@ -33,6 +33,8 @@ export interface FulfillOrderInput {
   breadth_cm: number
   height_cm: number
   courier_id?: number
+  courier_override_reason?: string
+  corrected_attempt_id?: string
 }
 
 export interface OrderListItem {
@@ -236,7 +238,7 @@ export interface CourierOption {
   courier_name: string
   courier_id: number
   rate_paisa: number
-  estimated_delivery_days: number
+  estimated_delivery_days: number | null
   cod: boolean
   is_recommended?: boolean
 }
@@ -245,3 +247,16 @@ export interface ServiceabilityResult {
   available_courier: CourierOption[]
   recommended_courier?: CourierOption
 }
+
+export interface OrderCourierAvailability {
+  available: boolean
+  estimated_delivery_days: number | null
+  recommended_courier: CourierOption | null
+  couriers: CourierOption[]
+  pickup_pincode: string
+}
+
+export type OrderCourierPackage = Pick<
+  FulfillOrderInput,
+  'pickup_location' | 'weight_grams' | 'length_cm' | 'breadth_cm' | 'height_cm'
+>

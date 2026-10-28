@@ -5,6 +5,8 @@ export interface ShippingOption {
   label: string
   description: string
   amountPaisa: number
+  available: boolean | null
+  estimatedDeliveryDays: number | null
 }
 
 export interface CheckoutQuoteItem {
@@ -34,6 +36,9 @@ export interface CheckoutQuote {
   shippingLabel: string
   shippingDescription: string
   shippingMethods: Record<ShippingMethod, ShippingOption>
+  deliveryAvailable: boolean | null
+  estimatedDeliveryDays: number | null
+  isPreview: boolean
 }
 
 export interface BillingAddressInput {

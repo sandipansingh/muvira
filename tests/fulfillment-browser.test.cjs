@@ -9,7 +9,7 @@ before(async () => {
     pathToFileURL(join(__dirname, '../client/node_modules/vite/dist/node/index.js')).href
   )
   const mocks = {
-    'admin.service': `const ok=data=>({success:true,data});export const adminApiService={getOrderById:async id=>{window.reads.push(id);const snapshot=structuredClone(window.orders[id]);if(window.delays[id])await new Promise(resolve=>{window.pending[id]=resolve;window.pendingReads.push({id,resolve})});window.finishedReads.push(id);return ok(snapshot)},getPickupLocations:async()=>ok([{pickup_location:'Warehouse A',city:'Mumbai',pincode:'400001'},{pickup_location:'Warehouse B',city:'Pune',pincode:'411001'}]),checkServiceability:async input=>{window.serviceability.push(input);return ok({available_courier:[{courier_id:17,courier_name:'FastPost',rate_paisa:9900,estimated_delivery_days:3}]})},fulfillOrder:async(id,input)=>{window.fulfillments.push({id,input});const order=window.orders[id];order.shiprocketOrderId='provider-'+id;order.shipmentId='shipment-'+id;order.awbCode='AWB-'+id;order.pickupLocation=input.pickup_location;order.packageWeightGrams=input.weight_grams;order.packageLengthCm=input.length_cm;order.packageBreadthCm=input.breadth_cm;order.packageHeightCm=input.height_cm;const first=window.fulfillments.length===1;order.fulfillmentStep=first?'awb_assigned':'ready_for_pickup';if(!first)order.pickupScheduledDate='2026-10-27';return ok({success:!first,order:structuredClone(order),steps:first?[{step:'create_order',status:'completed'},{step:'assign_awb',status:'completed'},{step:'schedule_pickup',status:'failed'}]:[{step:'create_order',status:'skipped'},{step:'assign_awb',status:'skipped'},{step:'schedule_pickup',status:'completed'}],error:first?'Pickup temporarily unavailable':undefined})},updateOrderStatus:async()=>ok({}),addOrderNote:async()=>ok({}),downloadInvoice:async()=>new Blob(['test invoice'],{type:'application/pdf'})};`,
+    'admin.service': `const ok=data=>({success:true,data});export const adminApiService={getOrderById:async id=>{window.reads.push(id);const snapshot=structuredClone(window.orders[id]);if(window.delays[id])await new Promise(resolve=>{window.pending[id]=resolve;window.pendingReads.push({id,resolve})});window.finishedReads.push(id);return ok(snapshot)},getPickupLocations:async()=>ok([{pickup_location:'Warehouse A',city:'Mumbai',pincode:'400001'},{pickup_location:'Warehouse B',city:'Pune',pincode:'411001'}]),getOrderCouriers:async(id,input)=>{window.serviceability.push({id,input});const couriers=[{courier_id:17,courier_name:'FastPost',rate_paisa:9900,estimated_delivery_days:3},{courier_id:19,courier_name:'Another courier',rate_paisa:10900,estimated_delivery_days:null}];return ok({available:true,estimated_delivery_days:3,couriers,recommended_courier:couriers[0],pickup_pincode:'400001'})},fulfillOrder:async(id,input)=>{window.fulfillments.push({id,input});const order=window.orders[id];order.shiprocketOrderId='provider-'+id;order.shipmentId='shipment-'+id;order.awbCode='AWB-'+id;order.pickupLocation=input.pickup_location;order.packageWeightGrams=input.weight_grams;order.packageLengthCm=input.length_cm;order.packageBreadthCm=input.breadth_cm;order.packageHeightCm=input.height_cm;const first=window.fulfillments.length===1;order.fulfillmentStep=first?'awb_assigned':'ready_for_pickup';if(!first)order.pickupScheduledDate='2026-10-27';return ok({success:!first,order:structuredClone(order),steps:first?[{step:'create_order',status:'completed'},{step:'assign_awb',status:'completed'},{step:'schedule_pickup',status:'failed'}]:[{step:'create_order',status:'skipped'},{step:'assign_awb',status:'skipped'},{step:'schedule_pickup',status:'completed'}],error:first?'Pickup temporarily unavailable':undefined})},updateOrderStatus:async()=>ok({}),addOrderNote:async()=>ok({}),downloadInvoice:async()=>new Blob(['test invoice'],{type:'application/pdf'})};`,
     ToastContext: `export const useToast=()=>({showToast:()=>{}})`,
     AuthContext: `export const useAuth=()=>({user:window.user})`,
     'refundIntent.store': `export const refundIntentStore={load:async()=>null,acknowledge:async()=>{}}`,
@@ -35,7 +35,7 @@ before(async () => {
         load(id) {
           if (id.startsWith('\0mock:')) return mocks[id.slice(6)]
           if (id === '\0fixture')
-            return `import React from'react';import{createRoot}from'react-dom/client';import{BrowserRouter,Routes,Route,Link}from'react-router-dom';import{AdminOrderDetailPage}from'/src/pages/admin/AdminOrderDetailPage.tsx';const address={fullName:'Fixture customer',phone:'9876543210',line1:'Local test address',line2:null,city:'Bengaluru',state:'Karnataka',pincode:'560001',country:'India'};const order=id=>({id,orderNumber:id,status:'confirmed',paymentStatus:'paid',fulfillmentStatus:'unfulfilled',fulfillmentStep:'idle',subtotal:150000,discountAmount:0,shippingAmount:0,totalAmount:150000,shippingMethod:'standard',shippingAddress:address,billingAddress:address,billingGstin:null,billingSameAsShipping:true,refundBalances:{captured_paisa:150000,refunded_paisa:0,reserved_paisa:0,refundable_paisa:150000,requires_review:false},providerOperations:[],shiprocketOrderId:null,shipmentId:null,awbCode:null,pickupScheduledDate:null,pickupLocation:id==='A'?'Warehouse A':'Warehouse B',packageWeightGrams:id==='A'?750:900,packageLengthCm:25,packageBreadthCm:18,packageHeightCm:6,items:[{id:'item-'+id,productId:'product-'+id,productName:'Cotton wrap '+id,quantity:1,unitPrice:150000,totalPrice:150000}],createdAt:'2026-10-26T10:00:00Z',updatedAt:'2026-10-26T10:00:00Z',adminNotes:[]});window.orders={A:order('A'),B:order('B')};window.user={id:'admin-fixture'};window.settings={shiprocketSettings:{pickupLocation:'Warehouse B',defaultWeightGrams:1200,defaultLengthCm:99,defaultBreadthCm:98,defaultHeightCm:97},configuration:{fulfillment_ready:true}};window.reads=[];window.finishedReads=[];window.delays={};window.pending={};window.pendingReads=[];window.serviceability=[];window.fulfillments=[];createRoot(document.getElementById('root')).render(React.createElement(BrowserRouter,{},React.createElement(React.Fragment,{},React.createElement(Link,{to:'/admin/orders/A'},'Navigate to A'),React.createElement(Link,{to:'/admin/orders/B'},'Navigate to B'),React.createElement(Routes,{},React.createElement(Route,{path:'/admin/orders/:id',element:React.createElement(AdminOrderDetailPage)})))));window.ready=true;`
+            return `import React from'react';import{createRoot}from'react-dom/client';import{BrowserRouter,Routes,Route,Link}from'react-router-dom';import{AdminOrderDetailPage}from'/src/pages/admin/AdminOrderDetailPage.tsx';const address={fullName:'Fixture customer',phone:'9876543210',line1:'Local test address',line2:null,city:'Bengaluru',state:'Karnataka',pincode:'560001',country:'India'};const order=id=>({id,orderNumber:id,status:'confirmed',paymentStatus:'paid',fulfillmentStatus:'unfulfilled',fulfillmentStep:'idle',subtotal:150000,discountAmount:0,shippingAmount:0,totalAmount:150000,shippingMethod:'standard',shippingAddress:address,billingAddress:address,billingGstin:null,billingSameAsShipping:true,refundBalances:{captured_paisa:150000,refunded_paisa:0,reserved_paisa:0,refundable_paisa:150000,requires_review:false},providerOperations:[],shiprocketOrderId:null,shipmentId:null,awbCode:null,pickupScheduledDate:null,pickupLocation:id==='A'?'Warehouse A':'Warehouse B',packageWeightGrams:id==='A'?750:900,packageLengthCm:25,packageBreadthCm:18,packageHeightCm:6,items:[{id:'item-'+id,productId:'product-'+id,productName:'Cotton wrap '+id,quantity:1,unitPrice:150000,totalPrice:150000}],createdAt:'2026-10-26T10:00:00Z',updatedAt:'2026-10-26T10:00:00Z',adminNotes:[]});window.orders={A:order('A'),B:order('B')};window.user={id:'admin-fixture'};window.settings={shiprocketSettings:{pickupLocation:'Warehouse B',defaultWeightGrams:1200,defaultLengthCm:99,defaultBreadthCm:98,defaultHeightCm:97},configuration:{fulfillment_ready:true}};if(new URLSearchParams(location.search).has('frozenPackage')){window.orders.A.packageWeightGrams=2000;window.orders.A.items[0].quantity=4;window.orders.A.items[0].unitPrice=37500;window.settings.shiprocketSettings.defaultWeightGrams=500;}window.reads=[];window.finishedReads=[];window.delays={};window.pending={};window.pendingReads=[];window.serviceability=[];window.fulfillments=[];createRoot(document.getElementById('root')).render(React.createElement(BrowserRouter,{},React.createElement(React.Fragment,{},React.createElement(Link,{to:'/admin/orders/A'},'Navigate to A'),React.createElement(Link,{to:'/admin/orders/B'},'Navigate to B'),React.createElement(Routes,{},React.createElement(Route,{path:'/admin/orders/:id',element:React.createElement(AdminOrderDetailPage)})))));window.ready=true;`
         },
         configureServer(server) {
           server.middlewares.use((req, res, next) => {
@@ -55,11 +55,11 @@ after(async () => {
   await browser?.close()
   await vite?.close()
 })
-async function fixture(run) {
+async function fixture(run, query = '') {
   const page = await browser.newPage()
   page.on('pageerror', (error) => console.error(error.message))
   try {
-    await page.goto(origin + '/admin/orders/A')
+    await page.goto(origin + '/admin/orders/A' + query)
     await page.getByRole('heading', { name: 'Order A', exact: true }).waitFor()
     await run(page)
   } finally {
@@ -125,10 +125,14 @@ test('saved package and pickup override changed global settings, grams reach ser
     await page.getByRole('button', { name: 'Courier (store cost)', exact: true }).click()
     await page.getByRole('menuitem', { name: /FastPost/ }).click()
     assert.deepEqual(await page.evaluate(() => window.serviceability[0]), {
-      pickup_pincode: '400001',
-      delivery_pincode: '560001',
-      weight_grams: 750,
-      cod: false,
+      id: 'A',
+      input: {
+        pickup_location: 'Warehouse A',
+        weight_grams: 750,
+        length_cm: 25,
+        breadth_cm: 18,
+        height_cm: 6,
+      },
     })
     const shipping = page
       .locator('dl div')
@@ -205,7 +209,7 @@ test('a slower refresh cannot replace a newer response for the same order', () =
     )
   }))
 
-test('an unresolved cancellation operation blocks fulfillment actions', () =>
+test('an unresolved cancellation or refund operation blocks fulfillment actions', () =>
   fixture(async (page) => {
     await page.evaluate(() => {
       window.orders.A.providerOperations = [
@@ -237,4 +241,87 @@ test('an unresolved cancellation operation blocks fulfillment actions', () =>
       true
     )
     assert.deepEqual(await page.evaluate(() => window.fulfillments), [])
+    await page.evaluate(() => {
+      window.orders.A.providerOperations[0].provider = 'razorpay'
+      window.orders.A.providerOperations[0].operation_type = 'partial_refund'
+    })
+    await page.getByRole('button', { name: 'Refresh', exact: true }).click()
+    await page.getByRole('button', { name: 'Fulfill order', exact: true }).waitFor()
+    assert.equal(
+      await page.getByRole('button', { name: 'Fulfill order', exact: true }).isDisabled(),
+      true
+    )
   }))
+
+test('choosing a nonrecommended order courier requires and records an override reason', () =>
+  fixture(async (page) => {
+    await page.getByRole('button', { name: 'Check couriers', exact: true }).click()
+    await page.getByRole('button', { name: 'Courier (store cost)', exact: true }).click()
+    await page.getByRole('menuitem', { name: /Another courier/ }).click()
+    const reason = page.getByLabel('Reason for choosing another courier')
+    await reason.waitFor()
+    assert.equal(
+      await page.getByRole('button', { name: 'Fulfill order', exact: true }).isDisabled(),
+      true
+    )
+    await reason.fill('Preferred collection window for this order')
+    await page.getByRole('button', { name: 'Fulfill order', exact: true }).click()
+    await page.getByRole('alert').filter({ hasText: 'Pickup temporarily unavailable' }).waitFor()
+    assert.equal(await page.evaluate(() => window.fulfillments[0].input.courier_id), 19)
+    assert.equal(
+      await page.evaluate(() => window.fulfillments[0].input.courier_override_reason),
+      'Preferred collection window for this order'
+    )
+  }))
+
+test('changing any package dimension clears the old recommendation and checks the order again', () =>
+  fixture(async (page) => {
+    await page.getByRole('button', { name: 'Check couriers', exact: true }).click()
+    await page.getByRole('button', { name: 'Courier (store cost)', exact: true }).waitFor()
+    await page.getByLabel('Height cm', { exact: true }).fill('9')
+    await page.waitForFunction(
+      () =>
+        ![...document.querySelectorAll('button')].some(
+          (button) => button.getAttribute('aria-label') === 'Courier (store cost)'
+        )
+    )
+    await page.getByRole('button', { name: 'Check couriers', exact: true }).click()
+    await page.getByRole('button', { name: 'Courier (store cost)', exact: true }).waitFor()
+    assert.equal(await page.evaluate(() => window.serviceability[1].input.height_cm), 9)
+  }))
+
+test('fully persisted successful shipping operations permit the next fulfillment step', () =>
+  fixture(async (page) => {
+    await page.evaluate(() => {
+      window.orders.A.providerOperations = [
+        {
+          id: 'create-A',
+          provider: 'shiprocket',
+          operation_type: 'create_order',
+          state: 'provider_succeeded',
+          local_applied_at: '2026-10-28T10:00:00Z',
+        },
+      ]
+    })
+    await page.getByRole('button', { name: 'Refresh', exact: true }).click()
+    await page.getByRole('button', { name: 'Fulfill order', exact: true }).waitFor()
+    assert.equal(
+      await page.getByRole('button', { name: 'Fulfill order', exact: true }).isEnabled(),
+      true
+    )
+  }))
+
+test('normal admin courier lookup and fulfillment retain the frozen2kg package over newer500g defaults', () =>
+  fixture(async (page) => {
+    assert.equal(await page.getByLabel('Weight g', { exact: true }).inputValue(), '2000')
+    assert.equal(
+      await page.evaluate(() => window.settings.shiprocketSettings.defaultWeightGrams),
+      500
+    )
+    await page.getByRole('button', { name: 'Check couriers', exact: true }).click()
+    await page.getByRole('button', { name: 'Courier (store cost)', exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Fulfill order', exact: true }).click()
+    await page.getByRole('alert').filter({ hasText: 'Pickup temporarily unavailable' }).waitFor()
+    assert.equal(await page.evaluate(() => window.serviceability[0].input.weight_grams), 2000)
+    assert.equal(await page.evaluate(() => window.fulfillments[0].input.weight_grams), 2000)
+  }, '?frozenPackage=1'))

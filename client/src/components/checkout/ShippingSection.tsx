@@ -233,16 +233,17 @@ export function ShippingSection({
           <legend className="sr-only">Delivery method</legend>
           {(['standard', 'express'] as const).map((value) => {
             const option = shippingOptions?.[value]
+            const unavailable = !option?.enabled || option.available === false
             return (
               <label
                 key={value}
-                className={`checkout-delivery ${shippingMethod === value ? 'checkout-delivery--selected' : ''} ${!option?.enabled ? 'opacity-50' : ''}`}
+                className={`checkout-delivery ${shippingMethod === value ? 'checkout-delivery--selected' : ''} ${unavailable ? 'opacity-50' : ''}`}
               >
                 <input
                   type="radio"
                   name="shipping-method"
                   checked={shippingMethod === value}
-                  disabled={!option?.enabled}
+                  disabled={unavailable}
                   onChange={() => onShippingMethodChange(value)}
                   className="h-4 w-4 accent-primary"
                 />
@@ -253,14 +254,14 @@ export function ShippingSection({
                   </span>
                   <span className="mt-1 block text-xs text-muted">
                     {option
-                      ? option.enabled
+                      ? !unavailable
                         ? option.description
                         : 'Currently unavailable'
                       : 'Checking availability…'}
                   </span>
                 </span>
                 <span className="text-sm font-semibold text-primary">
-                  {!option?.enabled
+                  {unavailable
                     ? '—'
                     : option.amountPaisa === 0
                       ? 'Free'

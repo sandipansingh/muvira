@@ -117,6 +117,7 @@ Production startup validates mandatory Supabase, Razorpay, Shiprocket, CORS, and
 
 - Razorpay must use auto-capture. Configure `POST /api/webhooks/razorpay` for `payment.captured` and `payment.failed`, using the value in `RAZORPAY_WEBHOOK_SECRET`.
 - Shiprocket fulfillment remains a manual admin operation. When webhook processing is enabled, configure a webhook URL ending in `/api/webhooks/shipment-status` and send `SHIPROCKET_WEBHOOK_SECRET` in the `x-api-key` header.
+  See [Shiprocket setup, migration and recovery](docs/operations/shiprocket.md) for schema 54–56 deployment, courier selection, durable operations and NDR handling.
 - Resend must authorize the `EMAIL_FROM` domain before production traffic is enabled.
 
 Use Razorpay test mode and recorded Shiprocket payload fixtures in staging before enabling production provider credentials. Configure the protected GitHub `staging` environment secrets and run the manual `Staging provider smoke` workflow to verify API readiness and provider authentication without creating a payment or shipment.

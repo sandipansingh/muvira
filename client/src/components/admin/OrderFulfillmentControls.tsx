@@ -5,6 +5,7 @@ import { adminApiService } from '../../lib/services/admin/admin.service'
 import type { CourierOption, FulfillOrderResult, OrderDetail } from '../../lib/types/order'
 import { formatPrice } from '../../lib/utils/format'
 import { Dropdown } from '../ui/Dropdown'
+import { Textarea } from '../ui/Textarea'
 
 export function OrderFulfillmentControls({
   order,
@@ -25,20 +26,29 @@ export function OrderFulfillmentControls({
   const [height, setHeight] = useState(order.packageHeightCm ?? defaults.defaultHeightCm)
   const [couriers, setCouriers] = useState<CourierOption[]>([])
   const [courier, setCourier] = useState('')
+  const [recommendedCourierId, setRecommendedCourierId] = useState<number | null>(null)
+  const [overrideReason, setOverrideReason] = useState('')
+  const [courierLookupAvailable, setCourierLookupAvailable] = useState<boolean | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<FulfillOrderResult | null>(null)
   const selected = locations.find((location) => location.pickup_location === pickup)
   const blocked =
     order.paymentStatus !== 'paid' ||
-    ['cancelled', 'refunded', 'returned', 'delivered'].includes(order.status) ||
+    ['cancelled', 'refunded', 'returned', 'delivered', 'lost', 'damaged'].includes(order.status) ||
     order.providerOperations?.some(
-      (operation) => operation.provider === 'shiprocket' && operation.state !== 'provider_failed'
+      (operation) =>
+        ['shiprocket', 'razorpay'].includes(operation.provider) &&
+        operation.state !== 'provider_failed' &&
+        !(operation.state === 'provider_succeeded' && operation.local_applied_at)
     )
   const validPackage = [weight, length, breadth, height].every(
     (value) => Number.isInteger(value) && value > 0
   )
   const ready = settings.configuration.fulfillment_ready && selected && validPackage && !blocked
+  const hasOverride =
+    !!courier && recommendedCourierId !== null && Number(courier) !== recommendedCourierId
+  const validOverride = !hasOverride || overrideReason.trim().length >= 3
 
   const loadLocations = async () => {
     setError(null)
@@ -59,7 +69,10 @@ export function OrderFulfillmentControls({
   useEffect(() => {
     setCouriers([])
     setCourier('')
-  }, [pickup, weight])
+    setRecommendedCourierId(null)
+    setOverrideReason('')
+    setCourierLookupAvailable(null)
+  }, [pickup, weight, length, breadth, height])
 
   const action = async (work: () => Promise<void>) => {
     setBusy(true)
@@ -78,14 +91,30 @@ export function OrderFulfillmentControls({
   }
   const checkCouriers = async () => {
     if (!selected) return
-    const response = await adminApiService.checkServiceability({
-      pickup_pincode: selected.pincode,
-      delivery_pincode: order.shippingAddress.pincode,
+    setCouriers([])
+    setCourier('')
+    setRecommendedCourierId(null)
+    setOverrideReason('')
+    setCourierLookupAvailable(false)
+    const response = await adminApiService.getOrderCouriers(order.id, {
+      pickup_location: pickup,
       weight_grams: weight,
-      cod: false,
+      length_cm: length,
+      breadth_cm: breadth,
+      height_cm: height,
     })
     if (!response.success) throw new Error(response.error.message)
-    setCouriers(response.data.available_courier)
+    setCouriers(response.data.available ? response.data.couriers : [])
+    setCourierLookupAvailable(response.data.available)
+    setRecommendedCourierId(response.data.recommended_courier?.courier_id ?? null)
+    setCourier(
+      response.data.recommended_courier ? String(response.data.recommended_courier.courier_id) : ''
+    )
+    setOverrideReason('')
+    if (!response.data.available)
+      throw new Error(
+        'No eligible courier serves this order and package. Review the delivery details or try again later.'
+      )
   }
   const fulfill = async () => {
     const response = await adminApiService.fulfillOrder(order.id, {
@@ -95,6 +124,7 @@ export function OrderFulfillmentControls({
       breadth_cm: breadth,
       height_cm: height,
       ...(courier ? { courier_id: Number(courier) } : {}),
+      ...(hasOverride ? { courier_override_reason: overrideReason.trim() } : {}),
     })
     if (!response.success) throw new Error(response.error.message)
     setResult(response.data)
@@ -184,18 +214,49 @@ export function OrderFulfillmentControls({
         <Dropdown
           label="Courier (store cost)"
           value={courier}
-          onChange={setCourier}
+          onChange={(value) => {
+            setCourier(value)
+            setOverrideReason('')
+          }}
+          disabled={busy}
           options={couriers.map((option) => ({
             value: String(option.courier_id),
-            label: `${option.courier_name} — ${formatPrice(option.rate_paisa)}`,
+            label: `${option.courier_name}${option.courier_id === recommendedCourierId ? ' (recommended)' : ''} — ${formatPrice(option.rate_paisa)} · ${option.estimated_delivery_days === null ? 'Estimate unavailable' : `${option.estimated_delivery_days} days`}`,
           }))}
         />
+      )}
+      {hasOverride && (
+        <div>
+          <label htmlFor="courier-override-reason" className="mb-2 block text-sm font-semibold">
+            Reason for choosing another courier
+          </label>
+          <Textarea
+            id="courier-override-reason"
+            value={overrideReason}
+            onChange={(event) => setOverrideReason(event.target.value)}
+            disabled={busy}
+            minLength={3}
+            maxLength={1000}
+            rows={2}
+            aria-describedby="courier-override-help"
+            className="resize-none"
+          />
+          <p id="courier-override-help" className="mt-1 text-sm text-muted">
+            Record why this courier is appropriate. The reason is saved with the order audit.
+          </p>
+        </div>
       )}
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
           className="button-primary"
-          disabled={busy || !ready || order.fulfillmentStep === 'ready_for_pickup'}
+          disabled={
+            busy ||
+            !ready ||
+            !validOverride ||
+            courierLookupAvailable === false ||
+            order.fulfillmentStep === 'ready_for_pickup'
+          }
           onClick={() => void action(fulfill)}
         >
           {busy ? 'Working…' : order.shiprocketOrderId ? 'Resume fulfillment' : 'Fulfill order'}
@@ -203,12 +264,20 @@ export function OrderFulfillmentControls({
         <button
           type="button"
           className="button-secondary"
-          disabled={busy || !ready || !order.shipmentId || Boolean(order.awbCode)}
+          disabled={
+            busy ||
+            !ready ||
+            !validOverride ||
+            courierLookupAvailable === false ||
+            !order.shipmentId ||
+            Boolean(order.awbCode)
+          }
           onClick={() =>
             void action(async () => {
               const response = await adminApiService.assignAwb(
                 order.id,
-                courier ? Number(courier) : undefined
+                courier ? Number(courier) : undefined,
+                hasOverride ? overrideReason.trim() : undefined
               )
               if (!response.success) throw new Error(response.error.message)
               await refresh()

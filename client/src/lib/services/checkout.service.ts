@@ -116,6 +116,9 @@ interface RawCheckoutQuote {
   shipping_method: ShippingMethod
   shipping_label: string
   shipping_description: string
+  delivery_available: boolean | null
+  estimated_delivery_days: number | null
+  is_preview: boolean
   shipping_methods: Record<
     ShippingMethod,
     {
@@ -123,6 +126,8 @@ interface RawCheckoutQuote {
       label: string
       description: string
       amount_paisa: number
+      available: boolean | null
+      estimated_delivery_days: number | null
     }
   >
 }
@@ -154,6 +159,8 @@ function mapShippingOption(
     label: option.label,
     description: option.description,
     amountPaisa: option.amount_paisa,
+    available: option.available,
+    estimatedDeliveryDays: option.estimated_delivery_days,
   }
 }
 
@@ -169,6 +176,9 @@ function mapQuote(raw: RawCheckoutQuote): CheckoutQuote {
     shippingMethod: raw.shipping_method,
     shippingLabel: raw.shipping_label,
     shippingDescription: raw.shipping_description,
+    deliveryAvailable: raw.delivery_available,
+    estimatedDeliveryDays: raw.estimated_delivery_days,
+    isPreview: raw.is_preview,
     shippingMethods: {
       standard: mapShippingOption(raw.shipping_methods.standard),
       express: mapShippingOption(raw.shipping_methods.express),
@@ -240,12 +250,17 @@ export const checkoutService = {
       true
     )
   },
-  async quote(shippingMethod: ShippingMethod, couponCode?: string): Promise<CheckoutQuote> {
+  async quote(
+    shippingMethod: ShippingMethod,
+    couponCode?: string,
+    addressId?: string
+  ): Promise<CheckoutQuote> {
     const response = await api.post<{ success: true; data: RawCheckoutQuote }>(
       '/api/checkout/quote',
       {
         shipping_method: shippingMethod,
         ...(couponCode ? { coupon_code: couponCode } : {}),
+        ...(addressId ? { address_id: addressId } : {}),
       },
       true
     )

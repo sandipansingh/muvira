@@ -129,7 +129,7 @@ export function CheckoutPage() {
     setQuoteLoading(true)
     setQuoteError(null)
     checkoutService
-      .quote(shippingMethod, coupon?.code)
+      .quote(shippingMethod, coupon?.code, addressId || undefined)
       .then((result) => {
         if (active) setQuote(result)
       })
@@ -147,7 +147,16 @@ export function CheckoutPage() {
     return () => {
       active = false
     }
-  }, [user, items, hasUnmergedItems, session, shippingMethod, coupon?.code, quoteAttempt])
+  }, [
+    user,
+    items,
+    hasUnmergedItems,
+    session,
+    shippingMethod,
+    coupon?.code,
+    addressId,
+    quoteAttempt,
+  ])
   useEffect(() => {
     if (!payment.loading && !payment.error && !session && cartStatus === 'ready' && !items.length)
       navigate('/cart', { replace: true })
@@ -162,6 +171,8 @@ export function CheckoutPage() {
 
   const canReview =
     !!quote &&
+    quote.deliveryAvailable === true &&
+    !quote.isPreview &&
     !quoteLoading &&
     !quoteError &&
     !hasUnmergedItems &&
@@ -214,6 +225,7 @@ export function CheckoutPage() {
     setSaving(true)
     setDeliveryError(null)
     try {
+      let deliveryAddressId = addressId
       if (!addressId) {
         const created = await addressService.createAddress({
           fullName: `${shipping.firstName} ${shipping.lastName}`.trim(),
@@ -230,7 +242,14 @@ export function CheckoutPage() {
         if (!created.success) throw new Error(created.error.message)
         setAddresses((current) => [...current, toAddressData(created.data)])
         setAddressId(created.data.id)
+        deliveryAddressId = created.data.id
       }
+      const checked = await checkoutService.quote(shippingMethod, coupon?.code, deliveryAddressId)
+      setQuote(checked)
+      if (checked.deliveryAvailable !== true)
+        throw new Error(
+          'This delivery method is unavailable for your address. Choose another method or address.'
+        )
       setParams({ step: 'payment' })
       window.scrollTo({ top: 0, behavior: 'instant' })
     } catch (reason) {
@@ -327,6 +346,11 @@ export function CheckoutPage() {
               </Link>
             )}
           </div>
+        )}
+        {!session && quote?.deliveryAvailable === false && (
+          <p className="checkout-notice mb-6" role="alert">
+            This delivery method is unavailable for your address. Choose another method or address.
+          </p>
         )}
         <div className="checkout-workspace">
           <div className="min-w-0 space-y-6">
