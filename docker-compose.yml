@@ -30,6 +30,10 @@ services:
       SHIPROCKET_WEBHOOK_SECRET: ${SHIPROCKET_WEBHOOK_SECRET:?Set SHIPROCKET_WEBHOOK_SECRET}
     expose:
       - '4000'
+    networks:
+      default:
+        aliases:
+          - muvira-catalog-api
     healthcheck:
       test:
         - CMD
@@ -55,7 +59,7 @@ services:
     environment:
       PORT: '80'
       SITE_URL: ${SITE_URL:-https://muvira.in}
-      SEO_API_URL: ${SEO_API_URL:-http://server:4000}
+      SEO_API_URL: ${SEO_API_URL:-http://muvira-catalog-api:4000}
       SEO_INDEXING_ENABLED: ${SEO_INDEXING_ENABLED:-false}
       SEO_INTERNAL_TOKEN: ${SEO_INTERNAL_TOKEN:?Set SEO_INTERNAL_TOKEN}
     depends_on:
