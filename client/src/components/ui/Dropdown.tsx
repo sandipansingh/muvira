@@ -130,7 +130,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     setIsOpen(false)
   }, [location.key, openOnHover])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!openOnHover || !isOpen) return
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return

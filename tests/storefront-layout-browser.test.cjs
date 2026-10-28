@@ -70,6 +70,28 @@ async function assertIconGeometry(controls) {
 }
 
 for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: a newly revealed hover menu immediately accepts Escape`, () =>
+    visit(engine, '/', async (page) => {
+      const search = page.getByRole('searchbox', {
+        name: 'Search products and collections',
+        exact: true,
+      })
+      const trigger = page.getByRole('button', { name: 'Collections', exact: true })
+      await search.focus()
+      await trigger.evaluate((element) => {
+        const observer = new MutationObserver(() => {
+          if (element.getAttribute('aria-expanded') !== 'true') return
+          observer.disconnect()
+          document.activeElement.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+          )
+        })
+        observer.observe(element, { attributes: true, attributeFilter: ['aria-expanded'] })
+      })
+      await trigger.hover()
+      await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+      await expect(search).toBeFocused()
+    }))
   test(`${engine}: Escape dismisses a hovered menu while focus remains in search`, () =>
     visit(engine, '/', async (page) => {
       const search = page.getByRole('searchbox', {
