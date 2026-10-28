@@ -166,8 +166,14 @@ export function AdminProductEditor({
               />
             </label>
             <div>
+              <label htmlFor={`${formId}-category`} className="block">
+                Product category
+              </label>
               <Dropdown
-                label="Product category"
+                id={`${formId}-category`}
+                aria-label="Product category"
+                className="w-full"
+                triggerClassName="!border-field-border !py-2.5 !text-base"
                 value={categoryId}
                 onChange={setCategoryId}
                 options={categories.map((category) => ({
@@ -204,11 +210,7 @@ export function AdminProductEditor({
                 defaultValue={product.salePrice === null ? '' : product.salePrice / 100}
               />
             </label>
-            <p className="text-sm text-ink">
-              Stock at last refresh: {product.stock}. Manage the current quantity in the Inventory
-              tab.
-            </p>
-            <label>
+            <label className="col-span-full">
               Weight grams
               <Input
                 name="weight"
@@ -219,6 +221,9 @@ export function AdminProductEditor({
                 defaultValue={product.weightGrams ?? 0}
               />
             </label>
+            <p className="col-span-full text-sm text-muted">
+              Stock at last refresh: {product.stock}. Manage stock in the Inventory tab.
+            </p>
           </fieldset>
           <fieldset className="admin-editor-group">
             <legend>Description</legend>{' '}
