@@ -17,6 +17,7 @@ const suites = [
   'provider-refunds',
   'provider-cancellations',
   'retained-checkout-integration',
+  'custom-checkout-integration',
   'shipping-integration',
   'cart-transfer-integration',
   'refund-worker-integration',

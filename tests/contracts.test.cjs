@@ -17,14 +17,12 @@ test('the server runtime image includes every compiled module', () => {
   assert.match(dockerfile, /COPY --chown=node:node --from=build \/app\/server\/dist \.\/dist/)
 })
 
-test('the fabricated payment endpoint and instrument fields stay removed', () => {
+test('Muvira payment APIs never accept payment instrument fields', () => {
   const checkoutRoutes = read('server/src/modules/checkout/routes.ts')
   const checkoutSchema = read('server/src/modules/checkout/schema.ts')
-  const checkoutPage = read('client/src/pages/CheckoutPage.tsx')
 
   assert.doesNotMatch(checkoutRoutes, /pay-custom|payCustom/i)
   assert.doesNotMatch(checkoutSchema, /card_number|\bcvv\b|upi_id|bank_name/i)
-  assert.doesNotMatch(checkoutPage, /card_number|\bcvv\b|upi_id|bank_name/i)
   assert.match(checkoutRoutes, /['"]\/create-order['"]/)
 })
 

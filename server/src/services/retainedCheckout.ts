@@ -3,6 +3,7 @@ import { processLateCaptureWatches as processProviderLateCaptureWatches } from '
 
 export type RetainedCheckoutClassification =
   | 'captured'
+  | 'pending'
   | 'terminal_unpaid'
   | 'payable'
   | 'unavailable'
@@ -26,6 +27,7 @@ export async function inspectRetainedCheckoutProvider(input: {
   razorpayOrderId: string
   amountPaisa: number
   currency: string
+  inspectPaymentAttempts?: boolean
 }): Promise<RetainedCheckoutInspection> {
   let providerOrder
   try {
@@ -67,6 +69,33 @@ export async function inspectRetainedCheckoutProvider(input: {
   ) {
     return { classification: 'terminal_unpaid', providerStatus, amountPaidPaisa, currency }
   }
+  if (input.inspectPaymentAttempts && providerStatus !== 'paid') {
+    try {
+      const attempts = await razorpay.orders.fetchPayments(input.razorpayOrderId)
+      if (
+        attempts.items.some(
+          (attempt) =>
+            attempt.order_id !== input.razorpayOrderId ||
+            Number(attempt.amount) !== input.amountPaisa ||
+            attempt.currency !== input.currency ||
+            attempt.status === 'captured' ||
+            attempt.captured === true
+        )
+      ) {
+        return { classification: 'identity_mismatch', providerStatus, amountPaidPaisa, currency }
+      }
+      if (attempts.items.some((attempt) => attempt.status !== 'failed')) {
+        return { classification: 'pending', providerStatus, amountPaidPaisa, currency }
+      }
+    } catch {
+      return {
+        classification: 'unavailable',
+        providerStatus: 'provider_unavailable',
+        amountPaidPaisa,
+        currency,
+      }
+    }
+  }
   if (providerStatus !== 'paid' || amountPaidPaisa !== input.amountPaisa) {
     return { classification: 'payable', providerStatus, amountPaidPaisa, currency }
   }
@@ -82,7 +111,7 @@ export async function inspectRetainedCheckoutProvider(input: {
         payment.currency === input.currency
     )
     if (!captured) {
-      return { classification: 'payable', providerStatus, amountPaidPaisa, currency }
+      return { classification: 'pending', providerStatus, amountPaidPaisa, currency }
     }
     return {
       classification: 'captured',

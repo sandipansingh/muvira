@@ -1,13 +1,26 @@
 import { Router } from 'express'
 import { validate } from '../../middleware/validate'
 import { requireAuth } from '../../middleware/requireAuth'
-import { checkoutLimiter } from '../../middleware/rateLimit'
-import { CancelCheckoutSchema, CheckoutQuoteSchema, CreateCheckoutOrderSchema } from './schema'
+import { checkoutLimiter, checkoutStatusLimiter } from '../../middleware/rateLimit'
+import {
+  CancelCheckoutSchema,
+  CheckoutQuoteSchema,
+  CreateCheckoutOrderSchema,
+  CheckoutSessionParamsSchema,
+} from './schema'
 import * as controller from './controller'
 
 export const checkoutRouter = Router()
 
 checkoutRouter.use(requireAuth)
+checkoutRouter.get('/payment-config', checkoutStatusLimiter, controller.paymentConfig)
+checkoutRouter.get('/active', checkoutStatusLimiter, controller.active)
+checkoutRouter.post(
+  '/:orderId/reconcile',
+  checkoutStatusLimiter,
+  validate({ params: CheckoutSessionParamsSchema }),
+  controller.reconcile
+)
 
 checkoutRouter.post(
   '/quote',

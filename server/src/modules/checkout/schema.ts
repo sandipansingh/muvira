@@ -27,6 +27,7 @@ const BillingAddressSchema = z
   .strict()
 
 export const CreateCheckoutOrderSchema = CheckoutQuoteSchema.extend({
+  checkout_request_id: z.string().uuid().optional(),
   address_id: z.string().uuid(),
   billing_same_as_shipping: z.boolean().default(true),
   billing: BillingAddressSchema.optional(),
@@ -44,6 +45,7 @@ export const CreateCheckoutOrderSchema = CheckoutQuoteSchema.extend({
   })
 
 export const CancelCheckoutSchema = z.object({ order_id: z.string().uuid() }).strict()
+export const CheckoutSessionParamsSchema = z.object({ orderId: z.string().uuid() }).strict()
 
 export type ShippingMethod = z.infer<typeof ShippingMethodSchema>
 export type CheckoutQuoteInput = z.infer<typeof CheckoutQuoteSchema>

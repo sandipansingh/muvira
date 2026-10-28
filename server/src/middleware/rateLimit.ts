@@ -34,6 +34,18 @@ export const paymentVerifyLimiter = rateLimit({
   },
 })
 
+export const checkoutStatusLimiter = rateLimit({
+  windowMs: ONE_MINUTE,
+  max: 30,
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: { code: 'RATE_LIMITED', message: 'Please wait before checking payment status again.' },
+  },
+})
+
 export const generalApiLimiter = rateLimit({
   windowMs: FIFTEEN_MINUTES,
   max: 300,

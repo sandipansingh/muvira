@@ -2,7 +2,10 @@ import { adminSupabase } from '../../lib/supabase/admin'
 import { databaseError } from '../../lib/databaseError'
 import { razorpay } from '../../lib/razorpay/client'
 import { logger } from '../../lib/logger'
-import { inspectRetainedCheckoutProvider } from '../../services/retainedCheckout'
+import {
+  inspectRetainedCheckoutProvider,
+  type RetainedCheckoutInspection,
+} from '../../services/retainedCheckout'
 import { deleteCacheByPattern } from '../../config/cache'
 import { AppError } from '../../types'
 import { validateCoupon } from '../coupons/service'
@@ -385,19 +388,26 @@ async function retainOrReleaseCheckout(
   return 'released'
 }
 
-async function inspectCheckoutProviderState(
+export async function inspectCheckoutProviderState(
   checkout: ExpiredCheckout,
   lease: Parameters<typeof executionLeaseRpcArgs>[0],
-  options: { forceRelease?: boolean; actorId?: string | null; reason?: string } = {}
+  options: {
+    forceRelease?: boolean
+    actorId?: string | null
+    reason?: string
+    inspection?: RetainedCheckoutInspection
+  } = {}
 ): Promise<'retained' | 'released' | 'captured'> {
   const payment = firstPayment(checkout.payments)
   if (!payment?.razorpay_order_id) return 'retained'
 
-  const inspection = await inspectRetainedCheckoutProvider({
-    razorpayOrderId: payment.razorpay_order_id,
-    amountPaisa: payment.amount_paisa,
-    currency: payment.currency,
-  })
+  const inspection =
+    options.inspection ??
+    (await inspectRetainedCheckoutProvider({
+      razorpayOrderId: payment.razorpay_order_id,
+      amountPaisa: payment.amount_paisa,
+      currency: payment.currency,
+    }))
   const { providerStatus, amountPaidPaisa: amountPaid } = inspection
   if (inspection.classification === 'unavailable') {
     return retainOrReleaseCheckout(
@@ -432,6 +442,14 @@ async function inspectCheckoutProviderState(
       p_payment_method: captured.method,
     })
     if (error || !data) {
+      await recordPaymentReconciliation({
+        orderId: checkout.id,
+        razorpayOrderId: payment.razorpay_order_id,
+        razorpayPaymentId: captured.id,
+        providerAmount: captured.amountPaisa,
+        providerCurrency: captured.currency,
+        reason: 'Captured checkout could not be finalized during reconciliation',
+      })
       throw databaseError(
         'checkout.finalize_retained_capture',
         error,

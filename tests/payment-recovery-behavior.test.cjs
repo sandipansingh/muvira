@@ -935,8 +935,10 @@ test('webhook enqueue exhaustion returns 503 and remains visible to admin diagno
     if (name === 'get_runtime_schema_status') {
       return {
         data: {
-          contract_version: 52,
-          migration_version: '052',
+          contract_version: require('./helpers/schema-version.cjs').latestSchemaVersion,
+          migration_version: String(
+            require('./helpers/schema-version.cjs').latestSchemaVersion
+          ).padStart(3, '0'),
           ready: true,
           missing_relations: [],
           missing_columns: [],

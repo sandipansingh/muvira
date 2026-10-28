@@ -258,7 +258,7 @@ export async function verifyPayment(
     razorpay_order_id: input.razorpay_order_id,
   })
 
-  if (!verifyPaymentSignature(input)) {
+  if (!verifyPaymentSignature({ ...input, razorpay_order_id: payment.razorpay_order_id })) {
     await writePaymentLog(payment, 'verify_failure', {
       razorpay_order_id: input.razorpay_order_id,
       reason: 'signature_mismatch',
