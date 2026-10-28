@@ -65,7 +65,8 @@
   "crop_review": {
     "primary_sources": 57,
     "square_override_sources": 1,
-    "originals": "Centered object-contain in the lightbox"
+    "originals": "Centered object-contain in the lightbox",
+    "square_focal_point": "50% 22%"
   },
   "rollback": {
     "previous_deployment": "-s5g_qY5w4W7gAiRL8-0i",

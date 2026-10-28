@@ -61,7 +61,7 @@ for (const engine of ['chromium', 'webkit']) {
         }, source)
         const main = page.locator('.gallery-stage img')
         await expect(main).toHaveAttribute('src', source)
-        await expect(main).toHaveCSS('object-position', '50% 30%')
+        await expect(main).toHaveCSS('object-position', '50% 22%')
         await page.getByRole('button', { name: /^Enlarge image of/ }).click()
         const original = page.locator('[data-lightbox-image]')
         await expect(original).toHaveAttribute('src', source)
