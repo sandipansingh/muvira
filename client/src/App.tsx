@@ -82,8 +82,11 @@ const MainLayout: React.FC = () => {
 }
 
 export const AppContent: React.FC = () => {
+  const { pathname } = useLocation()
   return (
-    <div className="font-sans text-foreground selection:bg-primary-soft selection:text-foreground">
+    <div
+      className={`${pathname === '/admin' || pathname.startsWith('/admin/') ? 'admin-theme' : ''} font-sans text-foreground selection:bg-primary-soft selection:text-foreground`}
+    >
       <ScrollToTop />
       <RouteSeo />
       <ToastContainer />

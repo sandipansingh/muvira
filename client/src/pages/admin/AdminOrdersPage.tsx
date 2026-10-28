@@ -1,56 +1,103 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Breadcrumbs } from '../../components/common/Breadcrumbs'
 import { Pagination } from '../../components/common/Pagination'
 import { Dropdown } from '../../components/ui/Dropdown'
+import {
+  AdminPageHeader,
+  AdminResultCount,
+  AdminSearch,
+  AdminState,
+  AdminStatus,
+  AdminTable,
+  useAdminOrderSearch,
+} from '../../components/admin/AdminWorkspace'
+import { useAdminList } from '../../lib/hooks/useAdminList'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import type { AdminOrderSummary } from '../../lib/types/order'
 import { formatDate, formatPrice } from '../../lib/utils/format'
 
 const statusOptions = [
-  { value: '', label: 'All statuses' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'confirmed', label: 'Confirmed' },
-  { value: 'processing', label: 'Processing' },
-  { value: 'shipped', label: 'Shipped' },
-  { value: 'out_for_delivery', label: 'Out for delivery' },
-  { value: 'delivered', label: 'Delivered' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'rto', label: 'RTO' },
-  { value: 'returned', label: 'Returned' },
-  { value: 'refunded', label: 'Refunded' },
-  { value: 'lost', label: 'Lost' },
-  { value: 'damaged', label: 'Damaged' },
-  { value: 'delivery_failed', label: 'Delivery failed' },
-] as const
+  '',
+  'pending',
+  'confirmed',
+  'processing',
+  'shipped',
+  'out_for_delivery',
+  'delivered',
+  'cancelled',
+  'rto',
+  'returned',
+  'refunded',
+  'lost',
+  'damaged',
+  'delivery_failed',
+].map((value) => ({
+  value,
+  label: value
+    ? value === 'rto'
+      ? 'RTO'
+      : value.replaceAll('_', ' ').replace(/^./, (char) => char.toUpperCase())
+    : 'All order statuses',
+}))
+const paymentOptions = ['', 'pending', 'paid', 'failed', 'refunded'].map((value) => ({
+  value,
+  label: value ? value.replace(/^./, (char) => char.toUpperCase()) : 'All payments',
+}))
+const fulfillmentOptions = ['', 'unfulfilled', 'partial', 'fulfilled', 'exception'].map(
+  (value) => ({
+    value,
+    label: value ? value.replace(/^./, (char) => char.toUpperCase()) : 'All fulfillment',
+  })
+)
 
 export const AdminOrdersPage: React.FC = () => {
+  const { page, params, update, changePage, resultsRef, scrollToResults, revision, reload } =
+    useAdminList()
+  const { query, setQuery } = useAdminOrderSearch()
+  const [search, setSearch] = useState(query)
   const [orders, setOrders] = useState<AdminOrderSummary[]>([])
-  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
-  const [status, setStatus] = useState('')
-  const [search, setSearch] = useState('')
-  const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const resultsContainerRef = useRef<HTMLDivElement>(null)
-  const shouldScrollRef = useRef(false)
-
+  const status = statusOptions.some((option) => option.value === params.get('status'))
+    ? params.get('status') || ''
+    : ''
+  const payment = paymentOptions.some((option) => option.value === params.get('payment_status'))
+    ? params.get('payment_status') || ''
+    : ''
+  const fulfillment = fulfillmentOptions.some(
+    (option) => option.value === params.get('fulfillment_status')
+  )
+    ? params.get('fulfillment_status') || ''
+    : ''
+  useEffect(() => {
+    setSearch(query)
+  }, [query])
   useEffect(() => {
     let active = true
     setLoading(true)
     setError(null)
     void adminApiService
-      .getOrders({ page, limit: 20, status: status || undefined, q: query || undefined })
+      .getOrders({
+        page,
+        limit: 20,
+        status: status || undefined,
+        paymentStatus: payment || undefined,
+        fulfillmentStatus: fulfillment || undefined,
+        q: query || undefined,
+      })
       .then((response) => {
         if (!active) return
         if (!response.success) throw new Error(response.error.message)
-        setOrders(response.data)
-        setTotalPages(response.pagination.totalPages)
-        if (shouldScrollRef.current) {
-          resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          shouldScrollRef.current = false
+        if (page > Math.max(1, response.pagination.totalPages)) {
+          update({ page: Math.max(1, response.pagination.totalPages) }, true)
+          return
         }
+        setOrders(response.data)
+        setTotal(response.pagination.total)
+        setTotalPages(response.pagination.totalPages)
+        scrollToResults()
       })
       .catch((reason) => {
         if (active) setError(reason instanceof Error ? reason.message : 'Orders are unavailable.')
@@ -61,105 +108,108 @@ export const AdminOrdersPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [page, query, status])
-
-  const changePage = (nextPage: number) => {
-    shouldScrollRef.current = true
-    setPage(nextPage)
+  }, [page, status, payment, fulfillment, query, revision, scrollToResults, update])
+  const filter = (key: string, value: string) => update({ [key]: value, page: 1 })
+  const searchOrders = (value: string) => {
+    setSearch(value)
+    setQuery(value.trim())
+    update({ page: 1 })
   }
-
   return (
-    <div ref={resultsContainerRef} className="space-y-6 scroll-mt-6">
-      <Breadcrumbs
-        items={[
-          { label: 'Home', href: '/' },
-          { label: 'Admin', href: '/admin' },
-          { label: 'Orders' },
-        ]}
+    <div ref={resultsRef} className="space-y-6 scroll-mt-6">
+      <AdminPageHeader
+        title="Orders"
+        description="Find an order, check its progress and manage the next step."
       />
-      <div>
-        <h1 className="admin-page-title">Orders</h1>
-        <p className="mt-2 text-ink">Search by order number or customer email.</p>
-      </div>
-      <form
-        className="flex flex-col gap-3 sm:flex-row sm:items-end"
-        onSubmit={(event) => {
-          event.preventDefault()
-          setPage(1)
-          setQuery(search.trim())
-        }}
-      >
-        <label className="block min-w-0 flex-1 space-y-2 text-sm text-ink">
-          <span>Order number or email</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Order number or email"
-            className="w-full min-w-0 rounded-xl border border-line bg-paper px-4 py-2 text-base text-ink"
-          />
-        </label>
+      <div className="admin-filter-toolbar">
+        <AdminSearch
+          label="Order number or email"
+          value={search}
+          onChange={setSearch}
+          onSearch={() => searchOrders(search)}
+          clearLabel="Clear order search"
+          onClear={() => searchOrders('')}
+        />
         <Dropdown
           label="Order status"
-          value={status}
-          options={[...statusOptions]}
-          onChange={(value) => {
-            setPage(1)
-            setStatus(value)
-          }}
           aria-label="Filter orders by status"
+          value={status}
+          options={statusOptions}
+          onChange={(value) => filter('status', value)}
         />
-        <button type="submit" className="button-primary">
-          Search
-        </button>
-      </form>
-
-      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
-      {loading && <div className="h-48 animate-pulse rounded-card bg-surface" />}
-      {!loading && !error && orders.length === 0 && (
-        <p className="panel p-6 text-sm text-ink">No orders match these filters.</p>
+        <Dropdown
+          label="Payment"
+          aria-label="Payment status"
+          value={payment}
+          options={paymentOptions}
+          onChange={(value) => filter('payment_status', value)}
+        />
+        <Dropdown
+          label="Fulfillment"
+          aria-label="Fulfillment status"
+          value={fulfillment}
+          options={fulfillmentOptions}
+          onChange={(value) => filter('fulfillment_status', value)}
+        />
+      </div>
+      {loading ? (
+        <AdminState loading />
+      ) : error ? (
+        <AdminState error={error} onRetry={reload} />
+      ) : orders.length === 0 ? (
+        <AdminState title="No orders match these filters">
+          Try another order number, email or status.
+        </AdminState>
+      ) : (
+        <AdminTable
+          label="Orders"
+          headers={[
+            'Order',
+            'Customer',
+            'Order status',
+            'Payment',
+            'Fulfillment',
+            'Total',
+            'Placed',
+          ]}
+        >
+          {orders.map((order) => (
+            <tr key={order.id}>
+              <td>
+                <Link
+                  to={`/admin/orders/${order.id}`}
+                  className="font-semibold hover:text-primary underline underline-offset-4"
+                >
+                  {order.orderNumber}
+                </Link>
+                {order.awbCode && <span className="admin-product-meta">AWB {order.awbCode}</span>}
+              </td>
+              <td>
+                <span className="block font-medium">{order.customerName}</span>
+                <span className="admin-product-meta">{order.customerEmail}</span>
+              </td>
+              <td>
+                <AdminStatus status={order.status} />
+              </td>
+              <td>
+                <AdminStatus status={order.paymentStatus} />
+              </td>
+              <td>
+                <AdminStatus status={order.fulfillmentStatus} />
+              </td>
+              <td className="admin-number">{formatPrice(order.totalAmount)}</td>
+              <td className="whitespace-nowrap text-muted">{formatDate(order.createdAt)}</td>
+            </tr>
+          ))}
+        </AdminTable>
       )}
-      {!loading && orders.length > 0 && (
-        <div className="overflow-x-auto rounded-card border border-line bg-paper">
-          <table className="w-full min-w-[780px] text-left text-sm">
-            <thead className="bg-surface text-ink">
-              <tr>
-                <th className="px-4 py-3">Order</th>
-                <th className="px-4 py-3">Customer</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Payment</th>
-                <th className="px-4 py-3">Total</th>
-                <th className="px-4 py-3">Placed</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-line">
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-4 py-3">
-                    <Link
-                      to={`/admin/orders/${order.id}`}
-                      className="text-ink underline hover:text-primary"
-                    >
-                      {order.orderNumber}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 text-ink">
-                    <span className="block">{order.customerName}</span>
-                    <span className="block text-xs text-muted">{order.customerEmail}</span>
-                  </td>
-                  <td className="px-4 py-3 text-ink">{order.status.replaceAll('_', ' ')}</td>
-                  <td className="px-4 py-3 text-ink">{order.paymentStatus}</td>
-                  <td className="px-4 py-3 text-ink">{formatPrice(order.totalAmount)}</td>
-                  <td className="px-4 py-3 text-muted">{formatDate(order.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {!loading && !error && (
+        <div className="admin-list-footer">
+          <AdminResultCount page={page} total={total} count={orders.length} noun="orders" />
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={changePage} />
         </div>
       )}
-      <Pagination currentPage={page} totalPages={totalPages} onPageChange={changePage} />
     </div>
   )
 }
-
 export default AdminOrdersPage

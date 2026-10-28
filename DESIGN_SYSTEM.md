@@ -53,3 +53,11 @@ Header collection hover is an opt-in Dropdown behavior; all other selectors reta
 ## Customer navigation icons
 
 Use text-only destination links and labeled actions across customer pages. Order cards include visible View order text. Retain arrows/chevrons for gallery and carousel controls, lightbox pan controls, pagination, breadcrumb separators, dropdowns/disclosures and dedicated back actions. Keep existing admin controls. Remove obsolete icon spacing/selectors while preserving link styling, visible hover/focus, mobile search labels and 44px targets.
+
+## Independent administration system
+
+The administration palette and geometry are documented in `DESIGN.md` and owned by the `.admin-theme` variables in `client/src/index.css`. `AppContent` scopes the theme above the shell, dialogs, dropdowns and toast container, removing it on customer routes. Existing semantic Tailwind utilities continue to consume runtime variables. No storefront token values change.
+
+`AdminWorkspace` owns repeated page headings, filter search, result counts, semantic tables, loading/error/empty panels and textual status badges. `AdminShell` owns collapsible desktop navigation and the canonical mobile Modal. `AdminDialog` extends the shared Modal with explicit discard confirmation and busy dismissal protection. It keeps form DOM mounted while confirming a discard. Existing fields, native validation, dropdown, pagination, focus and toast primitives remain canonical.
+
+`useAdminList` owns safe page parsing, URL filter updates and reduced-motion-aware scroll-to-results. `useAdminResource` provides independent read/retry state for overview sections. Inventory quantity changes use the existing absolute-stock API and confirmed saves. Product/category/media, fulfillment, refunds and reconciliation remain owned by existing service handlers.

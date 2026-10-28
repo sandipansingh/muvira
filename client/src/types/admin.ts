@@ -1,5 +1,14 @@
 export type AdminSection = 'overview' | 'orders' | 'catalog' | 'coupons' | 'settings' | 'failures'
 
+export interface AdminOrderListParams {
+  page?: number
+  limit?: number
+  status?: string
+  paymentStatus?: string
+  fulfillmentStatus?: string
+  q?: string
+}
+
 export interface UploadImageResult {
   url: string
   path: string

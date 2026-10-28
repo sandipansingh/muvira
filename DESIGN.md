@@ -1,6 +1,6 @@
-# Muvira rich shopping identity
+# Muvira design identities
 
-Muvira is an English-language Indian storefront for god idols, puja products and home pieces. Large, faithful product photography and generous space support thoughtful browsing; operational screens use compact, legible controls.
+Muvira is an English-language Indian storefront for god idols, puja products and home pieces. Large, faithful product photography and generous space support thoughtful browsing. The admin workspace has a separate operational visual system described below.
 
 The approved redesign replaces the previous type and color direction. Runtime CSS in `client/src/index.css` is authoritative (ownership model B). `client/tailwind.config.js` adapts those variables; shared components consume the semantic classes. `DESIGN_SYSTEM.md` documents implementation and `UX-CONTRACT.md` records behavior.
 
@@ -48,3 +48,23 @@ Customer destination links use clear text without decorative arrows, including s
 ## Verification
 
 The existing commerce regression tests remain authoritative for behavior. The responsive suite uses isolated authenticated customer and admin fixtures, all route families, protected-route guest checks, keyboard/touch interactions, overlays, reduced motion and enlarged text. Raw captures are development evidence under `responsive-audit/redesign/`; the review gallery and verification report live under `responsive-audit/rich-shopping/`.
+
+## Admin workspace
+
+The four local `design-references/` images guide the administration system independently from the storefront. The product-management reference supplies table density, thumbnails and focused actions; the two Wink references supply the quiet sidebar and clear hierarchy; the finance reference supplies compact summaries and restrained violet actions. No chart, trend, customer directory, bulk operation or other capability is implied by a reference image.
+
+The runtime owner remains `client/src/index.css`. The route-level `.admin-theme` wraps both `AdminShell` and shared feedback/overlays in `AppContent`. Existing Tailwind semantic classes consume those scoped variables; do not introduce another palette in components. Customer routes remove this scope during navigation.
+
+| Role | Admin runtime value |
+| --- | --- |
+| Canvas / sidebar | `--background: #F6F6F8` / `--admin-sidebar-bg: #F1F1F4` |
+| Work surface | `--color-paper: #FFFFFF` |
+| Main / secondary text | `--color-ink: #202126` / `--color-muted: #636572` |
+| Divider / field border | `--color-line: #E4E4E9` / `--color-field-border: #8A8D98` |
+| Primary / hover / selected tint | `--color-primary: #6D4AFF` / `--color-primary-hover: #5B36DB` / `--color-primary-soft: #EFEBFF` |
+| Typography | Self-hosted Manrope; headings 28px/600, sections 18px/600, tables 14px, fields at least 16px |
+| Geometry | Sidebar 240px or 72px collapsed; header 64px; gutters 24px desktop and 16px phone; panel/control radii 12px/8px |
+
+The original unframed Muvira logo stays intact. Admin headings use Manrope with no editorial serif treatment. Status colours retain their semantic meaning; violet is reserved for actions, selected controls, links and focus. Tables use thin dividers, modest row hover, explicit actions, right-aligned monetary values and textual status badges. Product images use complete contain framing and the shared unavailable-image treatment.
+
+The opening composition prioritizes real pending/confirmed work and low stock, followed by explicitly labelled today/all-time totals, recent orders, inventory and recovery. Long product names are visually clamped while retaining their complete accessible text. Forms and detail pages retain document scrolling; horizontal table overflow stays within its labelled container. The navigation becomes a shared Modal below 1024px. This is a light-only admin system.

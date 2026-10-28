@@ -26,6 +26,7 @@ import type {
   AdminCouponInput,
   AdminProductInput,
   AdminProductPatch,
+  AdminOrderListParams,
   CommerceFailureItem,
   CommerceFailureKind,
   DiagnosticSummary,
@@ -79,14 +80,17 @@ export const adminApiService = {
   async getInventory(
     page = 1,
     limit = 50,
-    lowStockOnly = false
+    lowStockOnly = false,
+    category?: string
   ): Promise<ApiPaginatedResponse<InventoryItem>> {
     const res = await adminGet<{
       success: boolean
       data?: AnyRecord[]
       meta?: AnyRecord
       error?: AnyRecord
-    }>(`/api/admin/inventory?page=${page}&limit=${limit}&low_stock_only=${lowStockOnly}`)
+    }>(
+      `/api/admin/inventory?page=${page}&limit=${limit}&low_stock_only=${lowStockOnly}${category ? `&category=${encodeURIComponent(category)}` : ''}`
+    )
     if (!res.success || !res.data)
       return {
         success: false,
@@ -658,12 +662,14 @@ export const adminApiService = {
    * Fetches admin orders list.
    */
   async getOrders(
-    params: { page?: number; limit?: number; status?: string; q?: string } = {}
+    params: AdminOrderListParams = {}
   ): Promise<ApiPaginatedResponse<AdminOrderSummary>> {
     const qs = new URLSearchParams()
     if (params.page) qs.set('page', String(params.page))
     if (params.limit) qs.set('limit', String(params.limit))
     if (params.status) qs.set('status', params.status)
+    if (params.paymentStatus) qs.set('payment_status', params.paymentStatus)
+    if (params.fulfillmentStatus) qs.set('fulfillment_status', params.fulfillmentStatus)
     if (params.q) qs.set('q', params.q)
 
     const res = await adminGet<{
