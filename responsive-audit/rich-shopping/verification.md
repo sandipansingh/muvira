@@ -17,9 +17,9 @@ Verified on 28 October 2026 with isolated customer/admin fixtures and real publi
 | Check | Result |
 | --- | --- |
 | Lint fix, formatting, build and type-check | Passed in the required order |
-| Regression suite | 297 tests: 268 passed, 29 environment-gated skips, zero failures |
+| Regression suite | 299 tests: 270 passed, 29 environment-gated skips, zero failures |
 | Graph update | Completed; optional SQL parser is unavailable, with no SQL changes in this task |
-| Deterministic Chromium/WebKit checks | 64 new cases across 320, 390, 768, 1280 and 1440px, enlarged text and reduced motion |
+| Deterministic Chromium/WebKit checks | 66 new cases across 320, 390, 768, 1280 and 1440px, enlarged text and reduced motion |
 | Public route/viewport/DPR/text matrix | 735 cases passed |
 | Public overlays | 22 cases passed |
 | Authenticated customer/admin layouts | 225 cases passed |
@@ -29,12 +29,12 @@ Verified on 28 October 2026 with isolated customer/admin fixtures and real publi
 | Supplemental empty cart | Mobile, tablet and desktop captures refreshed |
 | Independent review | No remaining Critical, Important or Minor findings |
 
-The responsive sweep verifies the final layout and interactions. The final exact-source crop adjustment was additionally checked in Chromium/WebKit and the complete regression suite. Source/cover comparisons covered the current 57 primary product photographs. One tightly framed 17-inch Ganesha source uses a square-only 50%/30% focal point to preserve its crown; other contexts and the lightbox retain the centered original. Square, portrait and landscape inputs are covered in deterministic fixtures.
+The responsive sweep verifies the layout and interactions. A production smoke follow-up added focused Chromium/WebKit regressions for Escape when hover opens collections while focus remains in another control; outside focus is preserved. The full regression suite was repeated after that fix. The final exact-source crop adjustment was additionally checked in Chromium/WebKit and the complete regression suite. Source/cover comparisons covered the current 57 primary product photographs. One tightly framed 17-inch Ganesha source uses a square-only 50%/30% focal point to preserve its crown; other contexts and the lightbox retain the centered original. Square, portrait and landscape inputs are covered in deterministic fixtures.
 
 The premium static auditor reports 39 existing form/textarea findings. Native validation and resizable textareas are deliberately preserved by [UX-CONTRACT.md](../../UX-CONTRACT.md); removing them without replacement would weaken existing behavior. Unrelated baseline formatting is preserved. Database/provider integration tests remain environment-gated; no live payment, shipping or customer mutation was performed by these checks.
 
 ## Release and rollback
 
-Release uses the existing Dokploy Compose project `Tj28r084_gm_2hVaRHBC5` and its `deploy` branch. Preserve the production indexing value (`false` at inspection); add only the SEO API environment override. Verify unique DNS and repeated catalog requests inside the client, service health, public sitemap GET/HEAD/XML/gzip, www redirection, robots discovery, and desktop/mobile storefront behavior after rollout.
+Release uses the existing Dokploy Compose project `Tj28r084_gm_2hVaRHBC5` and its `deploy` branch. The missing `www.muvira.in` domain binding is configured on the same client service so the existing host can perform its canonical 308 redirect with path/query preservation. Preserve the production indexing value (`false` at inspection); add only the SEO API environment override. Verify unique DNS and repeated catalog requests inside the client, service health, public sitemap GET/HEAD/XML/gzip, www redirection, robots discovery, and desktop/mobile storefront behavior after rollout.
 
 Previous deployment: `-s5g_qY5w4W7gAiRL8-0i`, commit `54b4d9cb75fcc05e072790e775ba99be417c47f5`. Previous frontend image: `sha256:b82b34898748240216aa100900877e4b2ea880948fd147443adbda3310107b5e`; API image: `sha256:826caa7889bfa2f4d51f9fa91bb2b998001d5b370cfa73acf0557f3bccb57627`. A UI rollback should retain the sitemap routing fix (`3339294`) and the unique-host environment setting. A private copy of the original environment and the live release results are retained in git-ignored local release evidence. No database rollback is required.

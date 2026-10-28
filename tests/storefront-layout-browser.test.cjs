@@ -70,6 +70,20 @@ async function assertIconGeometry(controls) {
 }
 
 for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: Escape dismisses a hovered menu while focus remains in search`, () =>
+    visit(engine, '/', async (page) => {
+      const search = page.getByRole('searchbox', {
+        name: 'Search products and collections',
+        exact: true,
+      })
+      const trigger = page.getByRole('button', { name: 'Collections', exact: true })
+      await search.focus()
+      await trigger.hover()
+      await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+      await page.keyboard.press('Escape')
+      await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+      await expect(search).toBeFocused()
+    }))
   test(`${engine}: preparing an invoice preserves its action geometry and busy label`, () =>
     visit(engine, '/orders/fixture-order?shipment=1&gatedInvoice=1', async (page) => {
       const action = page.locator('.customer-heading button')

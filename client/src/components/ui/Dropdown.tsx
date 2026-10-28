@@ -130,6 +130,21 @@ export const Dropdown: React.FC<DropdownProps> = ({
     setIsOpen(false)
   }, [location.key, openOnHover])
 
+  useEffect(() => {
+    if (!openOnHover || !isOpen) return
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      if (hoverCloseTimer.current) clearTimeout(hoverCloseTimer.current)
+      hoverCloseTimer.current = null
+      openedByHover.current = false
+      setIsOpen(false)
+      if (dropdownRef.current?.contains(document.activeElement)) triggerRef.current?.focus()
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen, openOnHover])
+
   useLayoutEffect(() => {
     if (!isOpen || !keyboardEdge.current) return
     const items = dropdownRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')

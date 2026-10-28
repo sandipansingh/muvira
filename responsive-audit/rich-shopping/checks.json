@@ -1,12 +1,12 @@
 {
-  "verified_at": "2026-10-28T07:03:42.765878+00:00",
+  "verified_at": "2026-10-28T07:23:39.740010+00:00",
   "lint": "passed",
   "format": "completed; unrelated baseline formatting preserved",
   "build": "passed",
   "type_check": "passed",
   "regressions": {
-    "total": 297,
-    "passed": 268,
+    "total": 299,
+    "passed": 270,
     "skipped": 29,
     "failed": 0
   },
@@ -57,7 +57,7 @@
   "implementation": "Storefront layout, authentication header, catalog navigation, main-photo gallery, and private sitemap API routing",
   "cross_browser": {
     "engines": ["Chromium", "WebKit"],
-    "new_deterministic_cases": 64,
+    "new_deterministic_cases": 66,
     "widths": [320, 390, 768, 1280, 1440],
     "enlarged_text": true,
     "reduced_motion": true
@@ -72,5 +72,11 @@
     "previous_sha": "54b4d9cb75fcc05e072790e775ba99be417c47f5",
     "routing_fix_sha": "3339294",
     "indexing": "false, preserved"
+  },
+  "production_followup": {
+    "hover_escape_outside_focus": "Chromium/WebKit regressions passed",
+    "www_domain_id": "qva5LXiKN6ZMhqv3NSx7T",
+    "www_service": "client:80",
+    "origin_redirect": "308; complete path and query preserved"
   }
 }
