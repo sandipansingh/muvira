@@ -662,6 +662,7 @@ h1.product-detail-title {
 
 .modal-drawer-layer {
   height: 100dvh;
+  margin: 0 !important;
 }
 .modal-drawer {
   position: relative;

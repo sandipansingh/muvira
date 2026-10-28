@@ -17,8 +17,8 @@ after(async () => {
   await browser?.close()
   await server?.close()
 })
-async function fixture(path, width, run) {
-  const page = await browser.newPage({ viewport: { width, height: 800 }, reducedMotion: 'reduce' })
+async function fixture(path, width, run, height = 800) {
+  const page = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' })
   await page.route('**/*', (route) =>
     new URL(route.request().url()).origin === origin ? route.continue() : route.abort()
   )
@@ -37,10 +37,14 @@ test('admin drawers use full-height right edge geometry and keep form actions re
       const dialog = page.getByRole('dialog', { name: 'Add product', exact: true })
       const panel = dialog.locator('.overlay-panel')
       const box = await panel.boundingBox()
+      assert.equal(Math.round(box.y), 0, 'The drawer must start at the viewport top')
+      assert.equal(Math.round(box.y + box.height), 800, 'The drawer must end inside the viewport')
       assert.equal(Math.round(box.x + box.width), width)
       assert.equal(Math.round(box.height), 800)
       assert.equal(Math.round(box.width), width < 768 ? width : 640)
       const save = dialog.getByRole('button', { name: 'Create product', exact: true })
+      const saveBox = await save.boundingBox()
+      assert.ok(saveBox.y >= 0 && saveBox.y + saveBox.height <= 800, 'Save must be fully visible')
       assert.equal(await save.evaluate((el) => el.closest('footer') !== null), true)
       assert.equal(await save.evaluate((el) => el.form?.contains(el)), false)
       assert.equal(
@@ -74,6 +78,11 @@ test('product drawer save targets product form while image forms remain independ
       .click()
     const dialog = page.getByRole('dialog', { name: 'Edit product', exact: true })
     const save = dialog.getByRole('button', { name: 'Save product', exact: true })
+    const box = await dialog.locator('.overlay-panel').boundingBox()
+    assert.equal(Math.round(box.y), 0)
+    assert.equal(Math.round(box.y + box.height), 800)
+    const saveBox = await save.boundingBox()
+    assert.ok(saveBox.y + saveBox.height <= 800)
     assert.equal(await save.evaluate((el) => el.closest('footer') !== null), true)
     assert.equal(
       await save.evaluate((el) => el.form?.querySelector('[name="name"]') !== null),
@@ -105,13 +114,25 @@ test('product drawer save targets product form while image forms remain independ
     await page.waitForFunction(() => document.activeElement?.textContent?.includes('Remove'))
     assert.equal(await dialog.evaluate((el) => el.contains(document.activeElement)), true)
   }))
-test('order work area contains fulfillment and refunds while documents stay in compact sidebar', () =>
+test('order work area contains fulfillment and refunds while addresses, notes and documents use sidebar', () =>
   fixture('/admin/orders/fixture-order', 1440, async (page) => {
     await page.getByRole('heading', { name: 'Purchased items and totals' }).waitFor()
     const main = page.locator('.admin-order-main')
     assert.equal((await main.getByRole('heading', { name: /Fulfillment/ }).count()) > 0, true)
     assert.equal((await main.getByRole('heading', { name: /Refunds/ }).count()) > 0, true)
     const side = page.getByRole('complementary', { name: 'Order actions' })
+    for (const name of ['Shipping address', 'Billing address', 'Internal note']) {
+      assert.equal(await main.getByRole('heading', { name, exact: true }).count(), 0)
+      await side.getByRole('heading', { name, exact: true }).waitFor()
+    }
+    assert.equal(await side.locator('section.panel:has(address)').count(), 2)
+    await page.evaluate(() => {
+      window.fixture.order.billingGstin = '19ABCDE1234F1Z5'
+      window.fixture.order.deliveryInstructions = 'Use the side entrance'
+    })
+    await page.getByRole('button', { name: 'Refresh', exact: true }).click()
+    await side.getByText('GSTIN: 19ABCDE1234F1Z5', { exact: true }).waitFor()
+    await side.getByText('Delivery instructions: Use the side entrance', { exact: true }).waitFor()
     await side.getByRole('heading', { name: 'Documents', exact: true }).waitFor()
     assert.equal(
       await side.getByRole('button', { name: 'Invoice', exact: true }).isDisabled(),
@@ -223,3 +244,56 @@ test('admin validation borders keep the danger token during text focus', () =>
     await page.getByRole('button', { name: 'Refresh', exact: true }).focus()
     assert.equal(await note.evaluate((el) => getComputedStyle(el).borderTopColor), colors.danger)
   }))
+
+test('short and enlarged viewports keep drawer headers and save buttons visible while content scrolls', async () => {
+  for (const { width, height, enlarged } of [
+    { width: 1440, height: 660, enlarged: false },
+    { width: 390, height: 568, enlarged: true },
+  ]) {
+    await fixture(
+      '/admin/catalog',
+      width,
+      async (page) => {
+        if (enlarged) await page.evaluate(() => (document.documentElement.style.fontSize = '32px'))
+        await page
+          .getByRole('button', { name: /^Edit product / })
+          .first()
+          .click()
+        const dialog = page.getByRole('dialog', { name: 'Edit product', exact: true })
+        const body = dialog.locator('.modal-body')
+        for (const edge of ['top', 'bottom']) {
+          await body.evaluate((el, edge) => {
+            el.scrollTop = edge === 'top' ? 0 : el.scrollHeight
+          }, edge)
+          const bounds = await dialog.evaluate((el) => {
+            const rect = el.querySelector('.overlay-panel').getBoundingClientRect()
+            const header = el.querySelector('.modal-header').getBoundingClientRect()
+            const save = el.querySelector('footer button[type="submit"]')
+            const button = save.getBoundingClientRect()
+            const hit = document.elementFromPoint(
+              button.x + button.width / 2,
+              button.y + button.height / 2
+            )
+            return {
+              top: rect.top,
+              bottom: rect.bottom,
+              headerTop: header.top,
+              saveBottom: button.bottom,
+              saveReachable: save === hit || save.contains(hit),
+            }
+          })
+          assert.equal(Math.round(bounds.top), 0)
+          assert.equal(Math.round(bounds.bottom), height)
+          assert.equal(Math.round(bounds.headerTop), 0)
+          assert.ok(bounds.saveBottom <= height)
+          assert.equal(
+            bounds.saveReachable,
+            true,
+            `${width}px ${edge}: Save product must remain reachable`
+          )
+        }
+      },
+      height
+    )
+  }
+})

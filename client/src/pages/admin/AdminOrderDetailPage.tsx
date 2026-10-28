@@ -170,74 +170,6 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
             <p className="text-sm">Shipping method: {order.shippingMethod}</p>
           </section>
           <OrderFulfillmentControls order={order} refresh={loadOrder} />
-          <section className="panel grid gap-6 p-5 sm:grid-cols-2">
-            {(
-              [
-                ['Shipping address', order.shippingAddress],
-                ['Billing address', order.billingAddress],
-              ] as const
-            ).map(([label, address]) => (
-              <div key={label}>
-                <h3 className="heading text-xl">{label}</h3>
-                <address className="mt-3 text-sm not-italic">
-                  {address.fullName}
-                  <br />
-                  {address.line1}
-                  <br />
-                  {address.line2 && (
-                    <>
-                      {address.line2}
-                      <br />
-                    </>
-                  )}
-                  {address.city}, {address.state} {address.pincode}
-                  <br />
-                  {address.country}
-                  <br />
-                  {address.phone}
-                </address>
-              </div>
-            ))}
-            {order.billingGstin && <p>GSTIN: {order.billingGstin}</p>}
-            {order.deliveryInstructions && (
-              <p className="whitespace-pre-wrap">
-                Delivery instructions: {order.deliveryInstructions}
-              </p>
-            )}
-          </section>
-          <section className="panel space-y-4 p-5">
-            <h3 className="heading text-xl">Internal note</h3>
-            {order.adminNotes?.map((saved) => (
-              <div key={saved.id} className="border-b border-line pb-3">
-                <p className="whitespace-pre-wrap text-sm">{saved.note}</p>
-                <p className="text-xs text-muted">{saved.createdAt}</p>
-              </div>
-            ))}
-            <label htmlFor="admin-order-note" className="block text-sm text-muted">
-              Visible only to administrators
-            </label>
-            <textarea
-              id="admin-order-note"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              maxLength={2000}
-              className="min-h-28 w-full rounded-xl border border-line bg-paper px-4 py-3 text-base text-ink"
-            />
-            <button
-              type="button"
-              disabled={busy || !note.trim()}
-              onClick={() =>
-                void runAction(async () => {
-                  const response = await adminApiService.addOrderNote(id, note.trim())
-                  if (!response.success) throw new Error(response.error.message)
-                  setNote('')
-                }, 'Note added.')
-              }
-              className="button-primary"
-            >
-              Add note
-            </button>
-          </section>
           <OrderRefundControls key={order.id} order={order} refresh={loadOrder} />
         </div>
         <aside className="admin-order-sidebar" aria-label="Order actions">
@@ -306,6 +238,74 @@ const AdminOrderDetail: React.FC<{ id: string | undefined }> = ({ id }) => {
               className="button-secondary"
             >
               <Download className="h-4 w-4" /> Invoice
+            </button>
+          </section>
+          {(
+            [
+              ['Shipping address', order.shippingAddress],
+              ['Billing address', order.billingAddress],
+            ] as const
+          ).map(([label, address]) => (
+            <section key={label} className="panel space-y-4 p-5">
+              <h3 className="heading text-xl">{label}</h3>
+              <address className="text-sm not-italic">
+                {address.fullName}
+                <br />
+                {address.line1}
+                <br />
+                {address.line2 && (
+                  <>
+                    {address.line2}
+                    <br />
+                  </>
+                )}
+                {address.city}, {address.state} {address.pincode}
+                <br />
+                {address.country}
+                <br />
+                {address.phone}
+              </address>
+              {label === 'Billing address' && order.billingGstin && (
+                <p>GSTIN: {order.billingGstin}</p>
+              )}
+              {label === 'Shipping address' && order.deliveryInstructions && (
+                <p className="whitespace-pre-wrap">
+                  Delivery instructions: {order.deliveryInstructions}
+                </p>
+              )}
+            </section>
+          ))}
+          <section className="panel space-y-4 p-5">
+            <h3 className="heading text-xl">Internal note</h3>
+            {order.adminNotes?.map((saved) => (
+              <div key={saved.id} className="border-b border-line pb-3">
+                <p className="whitespace-pre-wrap text-sm">{saved.note}</p>
+                <p className="text-xs text-muted">{saved.createdAt}</p>
+              </div>
+            ))}
+            <label htmlFor="admin-order-note" className="block text-sm text-muted">
+              Visible only to administrators
+            </label>
+            <textarea
+              id="admin-order-note"
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              maxLength={2000}
+              className="min-h-28 w-full rounded-xl border border-line bg-paper px-4 py-3 text-base text-ink"
+            />
+            <button
+              type="button"
+              disabled={busy || !note.trim()}
+              onClick={() =>
+                void runAction(async () => {
+                  const response = await adminApiService.addOrderNote(id, note.trim())
+                  if (!response.success) throw new Error(response.error.message)
+                  setNote('')
+                }, 'Note added.')
+              }
+              className="button-primary"
+            >
+              Add note
             </button>
           </section>
         </aside>

@@ -200,9 +200,20 @@ try {
           if (
             !panel ||
             Math.round(panel.x + panel.width) !== viewport.width ||
-            Math.round(panel.height) !== viewport.height
+            Math.round(panel.y) !== 0 ||
+            Math.round(panel.y + panel.height) !== viewport.height
           )
-            throw new Error('Admin drawer must fill height and align to the right edge')
+            throw new Error('Admin drawer must align to the viewport top, bottom and right edges')
+          const actions = await surface
+            .locator('.overlay-panel')
+            .last()
+            .locator('footer button')
+            .all()
+          for (const action of actions) {
+            const bounds = await action.boundingBox()
+            if (bounds && (bounds.y < 0 || bounds.y + bounds.height > viewport.height))
+              throw new Error('Admin drawer footer action must be fully visible')
+          }
         }
         await page.waitForTimeout(250)
         await page.evaluate(async () => {
