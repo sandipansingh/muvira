@@ -2,7 +2,7 @@ require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const { randomUUID } = require('node:crypto')
 const test = require('node:test')
-const { createClient } = require('../server/node_modules/@supabase/supabase-js')
+const { createClient } = require('./helpers/supabase-client.cjs')
 const {
   createOrderFixture,
   cleanupOrderFixture,

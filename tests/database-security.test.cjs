@@ -2,7 +2,7 @@ require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
 const test = require('node:test')
-const { createClient } = require('../server/node_modules/@supabase/supabase-js')
+const { createClient } = require('./helpers/supabase-client.cjs')
 
 const apiUrl = process.env.SUPABASE_TEST_URL
 const anonKey = process.env.SUPABASE_TEST_ANON_KEY

@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
-const { createClient } = require('../../server/node_modules/@supabase/supabase-js')
+const { createClient } = require('./supabase-client.cjs')
 
 function serviceClient(apiUrl, serviceRoleKey) {
   return createClient(apiUrl, serviceRoleKey, {

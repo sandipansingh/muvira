@@ -3,7 +3,7 @@ const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
 const { once } = require('node:events')
 const test = require('node:test')
-const { createClient } = require('../server/node_modules/@supabase/supabase-js')
+const { createClient } = require('./helpers/supabase-client.cjs')
 
 const supabaseUrl = process.env.SUPABASE_TEST_URL
 const anonKey = process.env.SUPABASE_TEST_ANON_KEY

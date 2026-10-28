@@ -126,6 +126,15 @@ async function main() {
         before,
         `Migration ${version} must preserve existing monetary records and provider identities`
       )
+      if (version === 57) {
+        run(process.execPath, [
+          '--test',
+          '--test-concurrency=1',
+          'tests/admin-analytics-integration.test.cjs',
+          'tests/retained-checkout-integration.test.cjs',
+          'tests/fencing-integration.test.cjs',
+        ])
+      }
     }
     for (const fixture of fixtures) await cleanupOrderFixture(client, fixture)
     fixtures.length = 0

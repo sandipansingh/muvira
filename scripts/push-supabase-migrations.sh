@@ -25,7 +25,7 @@ while (($# > 0)); do
 done
 
 if [[ -z "$requested_ref" || -z "$runtime_url" ]]; then
-  echo 'Usage: pnpm run db:migrate -- --project-ref mmpsquheiibatsjficwm --runtime-url https://mmpsquheiibatsjficwm.supabase.co' >&2
+  echo 'Usage: pnpm run db:migrate --project-ref mmpsquheiibatsjficwm --runtime-url https://mmpsquheiibatsjficwm.supabase.co' >&2
   exit 2
 fi
 

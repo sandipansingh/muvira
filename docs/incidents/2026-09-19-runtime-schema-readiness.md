@@ -37,7 +37,7 @@ All `missing_*` and `invalid_*` lists were empty.
 After confirming the link and runtime URL referred to the same project, the guarded push was run:
 
 ```sh
-pnpm run db:migrate -- \
+pnpm run db:migrate \
   --project-ref mmpsquheiibatsjficwm \
   --runtime-url https://mmpsquheiibatsjficwm.supabase.co
 ```
