@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Breadcrumbs } from '../../components/common/Breadcrumbs'
+import { AdminPageHeader, AdminState } from '../../components/admin/AdminWorkspace'
 import { useToast } from '../../context/ToastContext'
 import { settingsService } from '../../lib/services/settings.service'
 import type { SiteSettings } from '../../lib/types/settings'
@@ -36,9 +36,12 @@ export const AdminSettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [revision, setRevision] = useState(0)
 
   useEffect(() => {
     let active = true
+    setLoading(true)
+    setError(null)
     void settingsService
       .getSettings()
       .then((response) => {
@@ -56,7 +59,7 @@ export const AdminSettingsPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [])
+  }, [revision])
 
   useEffect(() => {
     void loadPickupLocations()
@@ -64,7 +67,7 @@ export const AdminSettingsPage: React.FC = () => {
 
   const saveSettings = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!settings) return
+    if (!settings || saving) return
     const form = new FormData(event.currentTarget)
     setSaving(true)
     setError(null)
@@ -107,7 +110,7 @@ export const AdminSettingsPage: React.FC = () => {
       if (!response.success) throw new Error(response.error.message)
       setSettings(response.data)
       applySettings(response.data)
-      showToast('Settings saved atomically.', 'success')
+      showToast('Settings saved.', 'success')
     } catch (reason) {
       const message = reason instanceof Error ? reason.message : 'Settings could not be saved.'
       setError(message)
@@ -117,32 +120,39 @@ export const AdminSettingsPage: React.FC = () => {
     }
   }
 
-  if (loading) return <div className="h-56 animate-pulse rounded-card bg-surface" />
-  if (!settings)
+  if (loading || !settings)
     return (
-      <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">
-        {error ?? 'Settings unavailable.'}
-      </p>
+      <div className="space-y-6">
+        <AdminPageHeader
+          title="Store settings"
+          description="Manage contact details, storefront content and fulfillment defaults."
+        />
+        <AdminState
+          loading={loading}
+          error={error}
+          onRetry={() => setRevision((value) => value + 1)}
+        />
+      </div>
     )
 
   return (
     <div className="space-y-6">
-      <Breadcrumbs
-        items={[
-          { label: 'Home', href: '/' },
-          { label: 'Admin', href: '/admin' },
-          { label: 'Settings' },
-        ]}
+      <AdminPageHeader
+        title="Store settings"
+        description="Manage contact details, storefront content and fulfillment defaults."
       />
-      <div>
-        <h1 className="admin-page-title">Store settings</h1>
-        <p className="mt-2 text-ink">
-          Storefront, shipping, and fulfillment defaults save as one transaction.
-        </p>
-      </div>
+      <nav className="admin-settings-nav" aria-label="Settings sections">
+        <a href="#settings-contact">Contact</a>
+        <a href="#settings-announcement">Announcement</a>
+        <a href="#settings-shipping">Shipping &amp; fulfillment</a>
+        <a href="#settings-homepage">Homepage content</a>
+      </nav>
       {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       <form onSubmit={saveSettings} className="space-y-6">
-        <section className="panel grid gap-4 p-5 sm:grid-cols-2">
+        <section
+          id="settings-contact"
+          className="admin-settings-section panel grid gap-4 p-5 sm:grid-cols-2"
+        >
           <h3 className="heading text-xl sm:col-span-2">Contact</h3>
           <label className="text-sm text-ink">
             Email
@@ -173,7 +183,10 @@ export const AdminSettingsPage: React.FC = () => {
             />
           </label>
         </section>
-        <section className="panel grid gap-4 p-5 sm:grid-cols-2">
+        <section
+          id="settings-announcement"
+          className="admin-settings-section panel grid gap-4 p-5 sm:grid-cols-2"
+        >
           <h3 className="heading text-xl sm:col-span-2">Announcement</h3>
           <label className="flex items-center gap-2 text-sm text-ink">
             <input
@@ -202,7 +215,10 @@ export const AdminSettingsPage: React.FC = () => {
             />
           </label>
         </section>
-        <section className="panel grid gap-4 p-5 sm:grid-cols-2">
+        <section
+          id="settings-shipping"
+          className="admin-settings-section panel grid gap-4 p-5 sm:grid-cols-2"
+        >
           <h3 className="heading text-xl sm:col-span-2">Free shipping</h3>
           <p className="text-ink sm:col-span-2">
             Standard and express shipping are free on every new order, with no minimum spend.
@@ -282,21 +298,28 @@ export const AdminSettingsPage: React.FC = () => {
             />
           </label>
         </section>
-        <button
-          type="submit"
-          disabled={saving || !pickupOptions.some((option) => option.value === pickupLocation)}
-          className="button-primary"
-        >
-          {saving ? 'Saving…' : 'Save settings'}
-        </button>
+        <div className="admin-save-bar">
+          <p className="text-sm text-muted">
+            Contact, announcement and fulfillment settings save together.
+          </p>
+          <button
+            type="submit"
+            disabled={saving || !pickupOptions.some((option) => option.value === pickupLocation)}
+            className="button-primary"
+          >
+            {saving ? 'Saving…' : 'Save settings'}
+          </button>
+        </div>
       </form>
-      <AdminContentEditor
-        settings={settings}
-        onSaved={(updated) => {
-          setSettings(updated)
-          applySettings(updated)
-        }}
-      />
+      <div id="settings-homepage" className="admin-settings-section">
+        <AdminContentEditor
+          settings={settings}
+          onSaved={(updated) => {
+            setSettings(updated)
+            applySettings(updated)
+          }}
+        />
+      </div>
     </div>
   )
 }

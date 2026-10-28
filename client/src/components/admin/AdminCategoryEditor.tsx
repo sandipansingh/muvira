@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { adminApiService } from '../../lib/services/admin/admin.service'
 import { uploadImage } from '../../lib/storage'
 import type { Category } from '../../lib/types/category'
@@ -10,16 +10,24 @@ export function AdminCategoryEditor({
   category,
   onSaved,
   onClose,
+  embedded = false,
+  onBusyChange,
 }: {
   category: Category
   onSaved: () => Promise<void>
   onClose: () => void
+  embedded?: boolean
+  onBusyChange?: (busy: boolean) => void
 }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [warning, setWarning] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState(category.imageUrl)
   const { showToast } = useToast()
+  useEffect(() => {
+    onBusyChange?.(busy)
+  }, [busy, onBusyChange])
+  useEffect(() => () => onBusyChange?.(false), [onBusyChange])
 
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -71,13 +79,15 @@ export function AdminCategoryEditor({
   }
 
   return (
-    <section className="panel space-y-4 p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="heading text-xl">Edit category</h3>
-        <button type="button" className="button-secondary" disabled={busy} onClick={onClose}>
-          Close category editor
-        </button>
-      </div>
+    <section className={embedded ? 'admin-editor space-y-4' : 'panel space-y-4 p-5'}>
+      {!embedded && (
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="heading text-xl">Edit category</h3>
+          <button type="button" className="button-secondary" disabled={busy} onClick={onClose}>
+            Close category editor
+          </button>
+        </div>
+      )}
       {error && (
         <p role="alert" className="rounded-xl bg-danger-soft p-3 text-danger">
           {error}

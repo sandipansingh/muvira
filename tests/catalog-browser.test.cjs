@@ -12,7 +12,7 @@ before(async () => {
   const mocks = {
     client: `export class ApiError extends Error {};
       const ok=data=>({success:true,data});
-      export const api={get:async(path)=>{if(window.failRefresh)throw new Error('Refresh unavailable');if(path.includes('categories'))return ok(window.categories);if(path==='/api/settings')return ok(window.settings);if(path.includes('/products/'))return ok(window.product);return {...ok([window.product]),meta:{total:1,totalPages:1}}},post:async(path,body)=>{window.mutations.push({path,body});if(path.endsWith('/images')){if(window.attachMode!=='unknown')window.product.product_images.push({id:'image-1',...body});if(window.attachMode==='lost'||window.attachMode==='unknown')throw new Error('Response lost');window.failRefresh=Boolean(window.failAfterAttach);return ok({id:'image-1',...body})}if(path.includes('categories')){const category={id:'category-6',...body};window.categories.push(category);if(window.loseCategoryResponse)throw new Error('Category response lost');return ok(category)}return ok(window.product)},patch:async(path,body)=>{window.mutations.push({path,body});if(path.includes('settings')){Object.assign(window.settings,body);return ok(window.settings)}Object.assign(window.product,body);return ok(window.product)},delete:async()=>ok(null)};`,
+      export const api={get:async(path)=>{(window.reads||=[]).push(path);if(window.failRefresh)throw new Error('Refresh unavailable');if(path.includes('categories'))return ok(window.categories);if(path==='/api/settings')return ok(window.settings);if(path.includes('/products/'))return ok(window.product);return {...ok([window.product]),meta:{total:1,totalPages:1}}},post:async(path,body)=>{window.mutations.push({path,body});if(path.endsWith('/images')){if(window.attachMode!=='unknown')window.product.product_images.push({id:'image-1',...body});if(window.attachMode==='lost'||window.attachMode==='unknown')throw new Error('Response lost');window.failRefresh=Boolean(window.failAfterAttach);return ok({id:'image-1',...body})}if(path.includes('categories')){const category={id:'category-'+(window.categories.length+1),...body};window.categories.push(category);if(window.loseCategoryResponse)throw new Error('Category response lost');return ok(category)}return ok(window.product)},patch:async(path,body)=>{window.mutations.push({path,body});if(path.includes('settings')){Object.assign(window.settings,body);return ok(window.settings)}Object.assign(window.product,body);return ok(window.product)},delete:async()=>ok(null)};`,
     supabase: `export const supabase={storage:{from:()=>({upload:async(path,file)=>{window.uploads.push({path,size:file.size});return {error:null}},getPublicUrl:path=>({data:{publicUrl:'https://storage.example/storage/v1/object/public/images/'+path}}),remove:async paths=>{window.deleted.push(...paths);return{error:null}}})}}`,
     ToastContext: `export const useToast=()=>({showToast:(message)=>window.messages.push(message)})`,
     SiteSettingsContext: `export const useSiteSettings=()=>({applySettings:settings=>window.applied=settings})`,
@@ -112,6 +112,8 @@ test('lost image attachment response reconciles references; unknown outcome rema
 test('sixth category defaults outside navigation and remains editable', () =>
   fixture(async (page) => {
     await page.evaluate(() => window.render('catalog'))
+    await page.getByRole('tab', { name: 'Categories', exact: true }).click()
+    await page.getByRole('button', { name: 'Add category', exact: true }).click()
     const form = page
       .locator('form')
       .filter({ has: page.getByRole('heading', { name: 'New category', exact: true }) })
@@ -290,6 +292,8 @@ test('category creation reconciles a lost response before retrying its preserved
       window.loseCategoryResponse = true
       return window.render('catalog')
     })
+    await page.getByRole('tab', { name: 'Categories', exact: true }).click()
+    await page.getByRole('button', { name: 'Add category', exact: true }).click()
     const form = page
       .locator('form')
       .filter({ has: page.getByRole('heading', { name: 'New category', exact: true }) })
@@ -322,6 +326,7 @@ test('clearing a category image sends an explicit nullable removal through the A
       window.categories[0].image_url = 'https://example.com/category.webp'
       return window.render('catalog')
     })
+    await page.getByRole('tab', { name: 'Categories', exact: true }).click()
     await page.getByRole('button', { name: 'Edit category Category 0', exact: true }).click()
     await page.getByLabel('Category image URL', { exact: true }).fill('')
     await page.getByRole('button', { name: 'Save category', exact: true }).click()
@@ -381,7 +386,10 @@ test('committed product save followed by refresh failure shows a saved warning',
     await page.getByRole('button', { name: 'Save product', exact: true }).click()
     await page.waitForFunction(() => window.messages.includes('Product saved.'))
     assert.equal(await page.getByRole('alert').count(), 0)
-    assert.match(await page.getByRole('status').innerText(), /Product saved.*Refresh unavailable/)
+    assert.match(
+      await page.getByRole('region', { name: 'Product editor' }).getByRole('status').innerText(),
+      /Product saved.*Refresh unavailable/
+    )
   }))
 
 test('actual image form clears its file and retries an ambiguous attachment using the preserved URL', () =>
@@ -464,5 +472,125 @@ test('SEO overrides survive unrelated edits and blank controls restore defaults'
         tags: window.product.tags,
       })),
       { title: '', description: '', tags: [] }
+    )
+  }))
+
+test('admin adapters forward supported order filters and encode inventory category parameters', () =>
+  fixture(async (page) => {
+    const paths = await page.evaluate(async () => {
+      window.reads = []
+      await window.admin.getOrders({
+        page: 2,
+        paymentStatus: 'paid',
+        fulfillmentStatus: 'unfulfilled',
+        q: 'MUV-123',
+      })
+      await window.admin.getInventory(3, 20, true, 'category with spaces')
+      return window.reads
+    })
+    const orders = new URL(paths[0], 'http://fixture.test')
+    assert.equal(orders.searchParams.get('payment_status'), 'paid')
+    assert.equal(orders.searchParams.get('fulfillment_status'), 'unfulfilled')
+    assert.equal(orders.searchParams.get('q'), 'MUV-123')
+    const inventory = new URL(paths[1], 'http://fixture.test')
+    assert.equal(inventory.searchParams.get('category'), 'category with spaces')
+    assert.equal(inventory.searchParams.get('page'), '3')
+  }))
+
+test('successful category save leaves the catalog ready for further edits', () =>
+  fixture(async (page) => {
+    await page.evaluate(() => window.render('catalog'))
+    await page.getByRole('tab', { name: 'Categories', exact: true }).click()
+    await page.getByRole('button', { name: 'Edit category Category 0', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Edit category', exact: true })
+    await dialog.getByLabel('Category name', { exact: true }).fill('Renamed category')
+    await dialog.getByRole('button', { name: 'Save category', exact: true }).click()
+    await dialog.waitFor({ state: 'hidden' })
+    assert.equal(
+      await page.getByRole('button', { name: 'Add category', exact: true }).isDisabled(),
+      false
+    )
+    assert.equal(
+      await page
+        .getByRole('button', { name: 'Edit category Category 0', exact: true })
+        .isDisabled(),
+      false
+    )
+    await page.getByRole('button', { name: 'Add category', exact: true }).click()
+    await page.getByRole('dialog', { name: 'Add category', exact: true }).waitFor()
+  }))
+
+test('discarding an ambiguous category attempt cannot swallow a different creation', () =>
+  fixture(async (page) => {
+    await page.evaluate(() => {
+      window.loseCategoryResponse = true
+      return window.render('catalog')
+    })
+    await page.getByRole('tab', { name: 'Categories', exact: true }).click()
+    await page.getByRole('button', { name: 'Add category', exact: true }).click()
+    let dialog = page.getByRole('dialog', { name: 'Add category', exact: true })
+    await dialog.getByLabel('Category name', { exact: true }).fill('Earlier category')
+    await dialog.getByRole('button', { name: 'Create category', exact: true }).click()
+    await dialog.getByRole('alert').waitFor()
+    await dialog.getByRole('button', { name: 'Close dialog' }).last().click()
+    await page.getByRole('button', { name: 'Discard changes' }).click()
+    await page.getByRole('button', { name: 'Try again', exact: true }).click()
+    await page.evaluate(() => (window.loseCategoryResponse = false))
+    await page.getByRole('button', { name: 'Add category', exact: true }).click()
+    dialog = page.getByRole('dialog', { name: 'Add category', exact: true })
+    await dialog.getByLabel('Category name', { exact: true }).fill('Later category')
+    await dialog.getByRole('button', { name: 'Create category', exact: true }).click()
+    await dialog.waitFor({ state: 'hidden' })
+    assert.equal(
+      await page.evaluate(() =>
+        window.categories.some((category) => category.name === 'Later category')
+      ),
+      true
+    )
+    assert.equal(
+      await page.evaluate(
+        () =>
+          window.mutations.filter((mutation) => mutation.path === '/api/admin/categories').length
+      ),
+      2
+    )
+  }))
+
+test('discarded category upload remains independently verifiable without another upload or create', () =>
+  fixture(async (page) => {
+    await page.evaluate(() => {
+      window.loseCategoryResponse = true
+      return window.render('catalog')
+    })
+    await page.getByRole('tab', { name: 'Categories', exact: true }).click()
+    await page.getByRole('button', { name: 'Add category', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Add category', exact: true })
+    await dialog.getByLabel('Category name', { exact: true }).fill('Preserved outside dialog')
+    await dialog
+      .locator('input[type=file]')
+      .setInputFiles({
+        name: 'preserved.webp',
+        mimeType: 'image/webp',
+        buffer: Buffer.from('fixture image'),
+      })
+    await dialog.getByRole('button', { name: 'Create category', exact: true }).click()
+    await dialog.getByRole('alert').waitFor()
+    await dialog.getByRole('button', { name: 'Close dialog' }).last().click()
+    await page.getByRole('button', { name: 'Discard changes' }).click()
+    const recovery = page.getByRole('region', { name: 'Category creation to check', exact: true })
+    await recovery.getByRole('link', { name: 'View preserved category image' }).waitFor()
+    await recovery.getByRole('button', { name: 'Check and retry category creation' }).click()
+    await recovery.waitFor({ state: 'hidden' })
+    assert.equal(await page.evaluate(() => window.uploads.length), 1)
+    assert.equal(
+      await page.evaluate(
+        () =>
+          window.mutations.filter((mutation) => mutation.path === '/api/admin/categories').length
+      ),
+      1
+    )
+    assert.equal(
+      await page.getByRole('button', { name: 'Add category', exact: true }).isDisabled(),
+      false
     )
   }))

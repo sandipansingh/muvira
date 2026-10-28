@@ -18,9 +18,18 @@ interface Props {
   categories: Category[]
   onSaved: () => Promise<void>
   onClose: () => void
+  embedded?: boolean
+  onBusyChange?: (busy: boolean) => void
 }
 
-export function AdminProductEditor({ product: initial, categories, onSaved, onClose }: Props) {
+export function AdminProductEditor({
+  product: initial,
+  categories,
+  onSaved,
+  onClose,
+  embedded = false,
+  onBusyChange,
+}: Props) {
   const [product, setProduct] = useState(initial)
   const [categoryId, setCategoryId] = useState(initial.category.id)
   const [busy, setBusy] = useState(false)
@@ -32,6 +41,10 @@ export function AdminProductEditor({ product: initial, categories, onSaved, onCl
   const [removingImageId, setRemovingImageId] = useState<string | null>(null)
   const { showToast } = useToast()
   const images = [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
+  useEffect(() => {
+    onBusyChange?.(busy)
+  }, [busy, onBusyChange])
+  useEffect(() => () => onBusyChange?.(false), [onBusyChange])
 
   useEffect(() => {
     const update = () =>
@@ -109,13 +122,18 @@ export function AdminProductEditor({ product: initial, categories, onSaved, onCl
   }
 
   return (
-    <section className="panel space-y-5 p-5" aria-label="Product editor">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="heading text-xl">Edit product</h3>
-        <button type="button" disabled={busy} className="button-secondary" onClick={onClose}>
-          Close editor
-        </button>
-      </div>
+    <section
+      className={embedded ? 'admin-editor space-y-5' : 'panel space-y-5 p-5'}
+      aria-label="Product editor"
+    >
+      {!embedded && (
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="heading text-xl">Edit product</h3>
+          <button type="button" disabled={busy} className="button-secondary" onClick={onClose}>
+            Close editor
+          </button>
+        </div>
+      )}
       {error && (
         <p role="alert" className="rounded-xl bg-danger-soft p-3 text-danger">
           {error}
@@ -128,88 +146,108 @@ export function AdminProductEditor({ product: initial, categories, onSaved, onCl
       )}
       <form onSubmit={save} className="grid gap-4 sm:grid-cols-2">
         <fieldset disabled={busy} className="contents">
-          <label>
-            Product name
-            <Input name="name" required defaultValue={product.name} maxLength={500} />
-          </label>
-          <label>
-            Product slug
-            <Input
-              name="slug"
-              required
-              defaultValue={product.slug}
-              pattern={'[a-z0-9\\-]+'}
-              maxLength={300}
-            />
-          </label>
-          <div>
-            <Dropdown
-              label="Product category"
-              value={categoryId}
-              onChange={setCategoryId}
-              options={categories.map((category) => ({ value: category.id, label: category.name }))}
-            />
-          </div>
-          <label>
-            SKU
-            <Input name="sku" defaultValue={product.sku} maxLength={100} />
-          </label>
-          <label>
-            Price ₹
-            <Input
-              name="price"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-              defaultValue={product.price / 100}
-            />
-          </label>
-          <label>
-            Compare at price ₹
-            <Input
-              name="compareAtPrice"
-              type="number"
-              min="0"
-              step="0.01"
-              defaultValue={product.salePrice === null ? '' : product.salePrice / 100}
-            />
-          </label>
-          <p className="text-sm text-ink">
-            Stock at last refresh: {product.stock}. Manage stock in the catalog table below.
-          </p>
-          <label>
-            Weight grams
-            <Input
-              name="weight"
-              type="number"
-              min="0"
-              step="1"
-              required
-              defaultValue={product.weightGrams ?? 0}
-            />
-          </label>
-          <label className="sm:col-span-2">
-            Short description
-            <Textarea
-              name="shortDescription"
-              defaultValue={product.shortDescription}
-              maxLength={500}
-            />
-          </label>
-          <label className="sm:col-span-2">
-            Description
-            <Textarea
-              name="description"
-              defaultValue={product.description}
-              maxLength={10000}
-              rows={8}
-            />
-          </label>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" name="active" defaultChecked={product.isActive} />
-            Published
-          </label>
+          <fieldset className="admin-editor-group">
+            <legend>Product details</legend>{' '}
+            <label>
+              Product name
+              <Input name="name" required defaultValue={product.name} maxLength={500} />
+            </label>
+            <label>
+              Product slug
+              <Input
+                name="slug"
+                required
+                defaultValue={product.slug}
+                pattern={'[a-z0-9\\-]+'}
+                maxLength={300}
+              />
+            </label>
+            <div>
+              <Dropdown
+                label="Product category"
+                value={categoryId}
+                onChange={setCategoryId}
+                options={categories.map((category) => ({
+                  value: category.id,
+                  label: category.name,
+                }))}
+              />
+            </div>
+            <label>
+              SKU
+              <Input name="sku" defaultValue={product.sku} maxLength={100} />
+            </label>
+          </fieldset>
+          <fieldset className="admin-editor-group">
+            <legend>Pricing &amp; shipping</legend>{' '}
+            <label>
+              Price ₹
+              <Input
+                name="price"
+                type="number"
+                min="0"
+                step="0.01"
+                required
+                defaultValue={product.price / 100}
+              />
+            </label>
+            <label>
+              Compare at price ₹
+              <Input
+                name="compareAtPrice"
+                type="number"
+                min="0"
+                step="0.01"
+                defaultValue={product.salePrice === null ? '' : product.salePrice / 100}
+              />
+            </label>
+            <p className="text-sm text-ink">
+              Stock at last refresh: {product.stock}. Manage the current quantity in the Inventory
+              tab.
+            </p>
+            <label>
+              Weight grams
+              <Input
+                name="weight"
+                type="number"
+                min="0"
+                step="1"
+                required
+                defaultValue={product.weightGrams ?? 0}
+              />
+            </label>
+          </fieldset>
+          <fieldset className="admin-editor-group">
+            <legend>Description</legend>{' '}
+            <label className="sm:col-span-2">
+              Short description
+              <Textarea
+                name="shortDescription"
+                defaultValue={product.shortDescription}
+                maxLength={500}
+              />
+            </label>
+            <label className="sm:col-span-2">
+              Description
+              <Textarea
+                name="description"
+                defaultValue={product.description}
+                maxLength={10000}
+                rows={8}
+              />
+            </label>
+          </fieldset>
+          <fieldset className="admin-editor-group">
+            <legend>Visibility</legend>{' '}
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="active" defaultChecked={product.isActive} />
+              Published
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="featured" defaultChecked={product.isFeatured} />
+              Featured
+            </label>
+          </fieldset>
           <fieldset className="sm:col-span-2 grid gap-4 rounded-xl border border-line p-4">
             <legend className="px-1 font-sans">Search engine appearance</legend>
             <p id="seo-defaults-help" className="text-sm text-muted">
@@ -248,10 +286,6 @@ export function AdminProductEditor({ product: initial, categories, onSaved, onCl
               the keywords meta tag for ranking.
             </p>
           </fieldset>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" name="featured" defaultChecked={product.isFeatured} />
-            Featured
-          </label>
           <div className="sm:col-span-2">
             <button type="submit" className="button-primary" disabled={busy || !categoryId}>
               {busy ? 'Saving…' : 'Save product'}

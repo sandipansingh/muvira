@@ -268,13 +268,16 @@ test('coupon editor uses a labeled dialog and preserves values when saving fails
     await dialog.getByRole('alert').waitFor()
     assert.equal(await dialog.getByLabel('Discount percentage').inputValue(), '15')
     await page.keyboard.press('Escape')
-    assert.equal(await trigger.evaluate((el) => document.activeElement === el), true)
+    await page.getByRole('button', { name: 'Keep editing' }).waitFor()
+    await page.getByRole('button', { name: 'Discard changes' }).click()
+    await page.getByRole('dialog').waitFor({ state: 'hidden' })
+    await expect(trigger).toBeFocused()
   }))
 test('admin catalog shows the selling price instead of the comparison price', () =>
   pageFor('/admin/catalog?fixtureRole=admin', async (page) => {
     const firstProduct = page.locator('tbody tr').first()
     await firstProduct.waitFor()
-    assert.equal(await firstProduct.locator('td').nth(1).innerText(), '₹499')
+    assert.equal(await firstProduct.locator('td.admin-number').innerText(), '₹499')
   }))
 test('out of stock product cards cannot add merchandise', () =>
   pageFor('/shop?stock=0', async (page) => {

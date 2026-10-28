@@ -1,7 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Breadcrumbs } from '../../components/common/Breadcrumbs'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Plus } from 'lucide-react'
+import {
+  AdminPageHeader,
+  AdminResultCount,
+  AdminState,
+  AdminStatus,
+} from '../../components/admin/AdminWorkspace'
+import { AdminDialog } from '../../components/admin/AdminDialog'
+import { useAdminList } from '../../lib/hooks/useAdminList'
 import { Pagination } from '../../components/common/Pagination'
-import { Modal } from '../../components/common/Modal'
 import { Dropdown } from '../../components/ui/Dropdown'
 import { useToast } from '../../context/ToastContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
@@ -12,42 +19,51 @@ export const AdminCouponsPage: React.FC = () => {
   const { showToast } = useToast()
   const [coupons, setCoupons] = useState<Coupon[]>([])
   const [discountType, setDiscountType] = useState('percentage')
-  const [page, setPage] = useState(1)
+  const { page, update, changePage, resultsRef, scrollToResults } = useAdminList()
+  const [creating, setCreating] = useState(false)
+  const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null)
   const [editError, setEditError] = useState<string | null>(null)
-  const resultsContainerRef = useRef<HTMLDivElement>(null)
-  const shouldScrollRef = useRef(false)
+  const requestId = useRef(0)
 
-  const loadCoupons = async () => {
+  const loadCoupons = useCallback(async () => {
+    const request = ++requestId.current
     setLoading(true)
     setError(null)
     try {
       const response = await adminApiService.getCoupons({ page, limit: 20 })
+      if (request !== requestId.current) return
       if (!response.success) throw new Error(response.error.message)
+      if (page > Math.max(1, response.pagination.totalPages)) {
+        update({ page: Math.max(1, response.pagination.totalPages) }, true)
+        return
+      }
+      setTotal(response.pagination.total)
       setCoupons(response.data)
       setTotalPages(response.pagination.totalPages)
-      if (shouldScrollRef.current) {
-        resultsContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        shouldScrollRef.current = false
-      }
+      scrollToResults()
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Coupons are unavailable.')
+      if (request === requestId.current)
+        setError(reason instanceof Error ? reason.message : 'Coupons are unavailable.')
     } finally {
-      setLoading(false)
+      if (request === requestId.current) setLoading(false)
     }
-  }
+  }, [page, update, scrollToResults])
 
   useEffect(() => {
     void loadCoupons()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page])
+    return () => {
+      requestId.current += 1
+    }
+  }, [loadCoupons])
 
   const createCoupon = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (busy) return
     const formElement = event.currentTarget
     const form = new FormData(formElement)
     const normalizedDiscountType = discountType === 'fixed' ? 'fixed' : 'percentage'
@@ -67,6 +83,7 @@ export const AdminCouponsPage: React.FC = () => {
       })
       if (!response.success) throw new Error(response.error.message)
       formElement.reset()
+      setCreating(false)
       showToast('Coupon created.', 'success')
       await loadCoupons()
     } catch (reason) {
@@ -79,96 +96,107 @@ export const AdminCouponsPage: React.FC = () => {
   }
 
   return (
-    <div ref={resultsContainerRef} className="space-y-8 scroll-mt-6">
-      <Breadcrumbs
-        items={[
-          { label: 'Home', href: '/' },
-          { label: 'Admin', href: '/admin' },
-          { label: 'Coupons' },
-        ]}
+    <div ref={resultsRef} className="space-y-8 scroll-mt-6">
+      <AdminPageHeader
+        title="Coupons"
+        description="Manage discounts, usage limits and active promotions."
+        actions={
+          <button
+            type="button"
+            className="button-primary"
+            onClick={() => setCreating(true)}
+            disabled={loading || busy}
+          >
+            <Plus className="h-4 w-4" />
+            Add coupon
+          </button>
+        }
       />
-      <div>
-        <h1 className="admin-page-title">Coupons</h1>
-        <p className="mt-2 text-ink">
-          Create real discount rules and deactivate promotions immediately.
-        </p>
-      </div>
-      {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
-      <form onSubmit={createCoupon} className="panel grid gap-4 p-5 lg:grid-cols-3">
-        <h3 className="heading text-xl lg:col-span-3">New coupon</h3>
-        <label className="block space-y-2 text-sm text-ink">
-          <span>Coupon code</span>
-          <input
-            name="code"
-            required
-            minLength={3}
-            placeholder="Coupon code"
-            className="w-full rounded-xl border border-line px-4 py-2 text-base uppercase"
-          />
-        </label>
-        <label className="block space-y-2 text-sm text-ink">
-          <span>Description</span>
-          <input
-            name="description"
-            placeholder="Description"
-            className="w-full rounded-xl border border-line px-4 py-2 text-base"
-          />
-        </label>
-        <Dropdown
-          label="Discount type"
-          value={discountType}
-          onChange={setDiscountType}
-          options={[
-            { value: 'percentage', label: 'Percentage' },
-            { value: 'fixed', label: 'Fixed rupees' },
-          ]}
-        />
-        <label className="block space-y-2 text-sm text-ink">
-          <span>{discountType === 'fixed' ? 'Discount amount ₹' : 'Discount percentage'}</span>
-          <input
-            name="value"
-            type="number"
-            min="0.01"
-            step="0.01"
-            required
-            placeholder={discountType === 'fixed' ? 'Discount ₹' : 'Discount %'}
-            className="w-full rounded-xl border border-line px-4 py-2 text-base"
-          />
-        </label>
-        <label className="block space-y-2 text-sm text-ink">
-          <span>Minimum order amount ₹</span>
-          <input
-            name="minimum"
-            type="number"
-            min="0"
-            step="0.01"
-            defaultValue="0"
-            required
-            placeholder="Minimum order ₹"
-            className="w-full rounded-xl border border-line px-4 py-2 text-base"
-          />
-        </label>
-        <label className="block space-y-2 text-sm text-ink">
-          <span>Usage limit (optional)</span>
-          <input
-            name="usageLimit"
-            type="number"
-            min="1"
-            step="1"
-            placeholder="Usage limit (optional)"
-            className="w-full rounded-xl border border-line px-4 py-2 text-base"
-          />
-        </label>
-        <button type="submit" disabled={busy} className="button-primary lg:col-span-3 lg:w-fit">
-          Create coupon
-        </button>
-      </form>
-
-      {loading && <div className="h-40 animate-pulse rounded-card bg-surface" />}
-      {!loading && coupons.length === 0 && (
-        <p className="panel p-6 text-sm text-ink">No coupons found.</p>
+      {error && <AdminState error={error} onRetry={() => void loadCoupons()} />}
+      {creating && (
+        <AdminDialog title="Add coupon" onClose={() => setCreating(false)} busy={busy} wide>
+          {error && (
+            <p role="alert" className="mb-4 text-danger">
+              {error}
+            </p>
+          )}{' '}
+          <form onSubmit={createCoupon} className="panel grid gap-4 p-5 lg:grid-cols-3">
+            <h3 className="heading text-xl lg:col-span-3">New coupon</h3>
+            <label className="block space-y-2 text-sm text-ink">
+              <span>Coupon code</span>
+              <input
+                name="code"
+                required
+                minLength={3}
+                placeholder="Coupon code"
+                className="w-full rounded-xl border border-line px-4 py-2 text-base uppercase"
+              />
+            </label>
+            <label className="block space-y-2 text-sm text-ink">
+              <span>Description</span>
+              <input
+                name="description"
+                placeholder="Description"
+                className="w-full rounded-xl border border-line px-4 py-2 text-base"
+              />
+            </label>
+            <Dropdown
+              label="Discount type"
+              value={discountType}
+              onChange={setDiscountType}
+              options={[
+                { value: 'percentage', label: 'Percentage' },
+                { value: 'fixed', label: 'Fixed rupees' },
+              ]}
+            />
+            <label className="block space-y-2 text-sm text-ink">
+              <span>{discountType === 'fixed' ? 'Discount amount ₹' : 'Discount percentage'}</span>
+              <input
+                name="value"
+                type="number"
+                min="0.01"
+                step="0.01"
+                required
+                placeholder={discountType === 'fixed' ? 'Discount ₹' : 'Discount %'}
+                className="w-full rounded-xl border border-line px-4 py-2 text-base"
+              />
+            </label>
+            <label className="block space-y-2 text-sm text-ink">
+              <span>Minimum order amount ₹</span>
+              <input
+                name="minimum"
+                type="number"
+                min="0"
+                step="0.01"
+                defaultValue="0"
+                required
+                placeholder="Minimum order ₹"
+                className="w-full rounded-xl border border-line px-4 py-2 text-base"
+              />
+            </label>
+            <label className="block space-y-2 text-sm text-ink">
+              <span>Usage limit (optional)</span>
+              <input
+                name="usageLimit"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Usage limit (optional)"
+                className="w-full rounded-xl border border-line px-4 py-2 text-base"
+              />
+            </label>
+            <button type="submit" disabled={busy} className="button-primary lg:col-span-3 lg:w-fit">
+              Create coupon
+            </button>
+          </form>
+        </AdminDialog>
       )}
-      {!loading && coupons.length > 0 && (
+
+      {loading && <AdminState loading />}
+      {!loading && !error && coupons.length === 0 && (
+        <AdminState title="No coupons yet">Add a coupon to create your first promotion.</AdminState>
+      )}
+      {!loading && !error && coupons.length > 0 && (
         <div className="overflow-x-auto rounded-card border border-line bg-paper">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="bg-surface text-ink">
@@ -177,6 +205,7 @@ export const AdminCouponsPage: React.FC = () => {
                 <th className="px-4 py-3">Discount</th>
                 <th className="px-4 py-3">Minimum</th>
                 <th className="px-4 py-3">Valid until</th>
+                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Actions</th>
               </tr>
             </thead>
@@ -198,6 +227,9 @@ export const AdminCouponsPage: React.FC = () => {
                   <td className="px-4 py-3 text-ink">{formatPrice(coupon.minOrderAmount)}</td>
                   <td className="px-4 py-3 text-muted">
                     {coupon.validUntil ? formatDate(coupon.validUntil) : 'No expiry'}
+                  </td>
+                  <td>
+                    <AdminStatus status={coupon.isActive ? 'Active' : 'Inactive'} />
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
@@ -228,77 +260,68 @@ export const AdminCouponsPage: React.FC = () => {
           </table>
         </div>
       )}
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={(nextPage) => {
-          shouldScrollRef.current = true
-          setPage(nextPage)
-        }}
-      />
-      <Modal
-        isOpen={editingCoupon !== null}
-        onClose={() => {
-          if (!busy) setEditingCoupon(null)
-        }}
-        title={editingCoupon ? `Edit ${editingCoupon.code}` : 'Edit coupon'}
-      >
-        {editingCoupon && (
-          <form key={editingCoupon.id} onSubmit={saveCoupon} className="space-y-5">
-            <label className="block space-y-2 text-sm">
-              <span>
-                {editingCoupon.discountType === 'fixed'
-                  ? 'Discount amount ₹'
-                  : 'Discount percentage'}
-              </span>
-              <input
-                data-dialog-initial-focus
-                name="discount"
-                type="number"
-                min="0.01"
-                step="0.01"
-                required
-                defaultValue={
-                  editingCoupon.discountType === 'fixed'
-                    ? editingCoupon.discountValue / 100
-                    : editingCoupon.discountValue
-                }
-                className="w-full rounded-control border border-line bg-paper p-3 text-base"
-              />
-            </label>
-            <label className="block space-y-2 text-sm">
-              <span>Minimum order amount ₹</span>
-              <input
-                name="minimum"
-                type="number"
-                min="0"
-                step="0.01"
-                required
-                defaultValue={editingCoupon.minOrderAmount / 100}
-                className="w-full rounded-control border border-line bg-paper p-3 text-base"
-              />
-            </label>
-            {editError && (
-              <p role="alert" className="text-sm text-danger">
-                {editError}
-              </p>
-            )}
-            <div className="flex flex-wrap gap-3">
-              <button type="submit" disabled={busy} className="button-primary">
-                {busy ? 'Saving…' : 'Save coupon'}
-              </button>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setEditingCoupon(null)}
-                className="button-secondary"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-      </Modal>
+      {!loading && !error && (
+        <div className="admin-list-footer">
+          <AdminResultCount page={page} total={total} count={coupons.length} noun="coupons" />
+          <Pagination currentPage={page} totalPages={totalPages} onPageChange={changePage} />
+        </div>
+      )}
+      {editingCoupon && (
+        <AdminDialog
+          cancelLabel="Cancel"
+          busy={busy}
+          onClose={() => setEditingCoupon(null)}
+          title={`Edit ${editingCoupon.code}`}
+        >
+          {editingCoupon && (
+            <form key={editingCoupon.id} onSubmit={saveCoupon} className="space-y-5">
+              <label className="block space-y-2 text-sm">
+                <span>
+                  {editingCoupon.discountType === 'fixed'
+                    ? 'Discount amount ₹'
+                    : 'Discount percentage'}
+                </span>
+                <input
+                  data-dialog-initial-focus
+                  name="discount"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  defaultValue={
+                    editingCoupon.discountType === 'fixed'
+                      ? editingCoupon.discountValue / 100
+                      : editingCoupon.discountValue
+                  }
+                  className="w-full rounded-control border border-line bg-paper p-3 text-base"
+                />
+              </label>
+              <label className="block space-y-2 text-sm">
+                <span>Minimum order amount ₹</span>
+                <input
+                  name="minimum"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  required
+                  defaultValue={editingCoupon.minOrderAmount / 100}
+                  className="w-full rounded-control border border-line bg-paper p-3 text-base"
+                />
+              </label>
+              {editError && (
+                <p role="alert" className="text-sm text-danger">
+                  {editError}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-3">
+                <button type="submit" disabled={busy} className="button-primary">
+                  {busy ? 'Saving…' : 'Save coupon'}
+                </button>
+              </div>
+            </form>
+          )}
+        </AdminDialog>
+      )}
     </div>
   )
 

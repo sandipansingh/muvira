@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Breadcrumbs } from '../../components/common/Breadcrumbs'
+import { AdminPageHeader } from '../../components/admin/AdminWorkspace'
 import { Dropdown } from '../../components/ui/Dropdown'
 import { useToast } from '../../context/ToastContext'
 import { adminApiService } from '../../lib/services/admin/admin.service'
@@ -264,19 +264,16 @@ export const AdminFailuresPage: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <Breadcrumbs
-        items={[
-          { label: 'Home', href: '/' },
-          { label: 'Admin', href: '/admin' },
-          { label: 'Failures' },
-        ]}
+      <AdminPageHeader
+        title="Issues & recovery"
+        description="Review failed work, check uncertain provider outcomes and retry supported operations."
       />
-      <div>
-        <h1 className="admin-page-title">Failure queues</h1>
-        <p className="mt-2 text-ink">
-          Actionable retry, payment, invoice, outbox, and email delivery failures.
-        </p>
-      </div>
+      <nav className="admin-settings-nav" aria-label="Recovery queues">
+        <a href="#retry-results">Retry jobs</a>
+        <a href="#webhook-results">Webhook failures</a>
+        <a href="#commerce-results">Commerce integrity</a>
+        <a href="#notification-results">Email delivery</a>
+      </nav>
       {error && <p className="rounded-card bg-danger-soft p-4 text-sm text-danger">{error}</p>}
       <section className="panel space-y-2 p-5" aria-label="Diagnostic summary">
         <h3 className="heading text-xl">Recovery workers</h3>
