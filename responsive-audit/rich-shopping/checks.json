@@ -1,12 +1,12 @@
 {
-  "verified_at": "2026-10-28T05:25:57.647507+00:00",
+  "verified_at": "2026-10-28T07:03:42.765878+00:00",
   "lint": "passed",
   "format": "completed; unrelated baseline formatting preserved",
   "build": "passed",
   "type_check": "passed",
   "regressions": {
-    "total": 233,
-    "passed": 204,
+    "total": 297,
+    "passed": 268,
     "skipped": 29,
     "failed": 0
   },
@@ -20,7 +20,7 @@
     "canonical_total": 1117,
     "supplemental_empty_cart": 3,
     "failures": 0,
-    "route_recheck": "735 cases passed after positively asserting actual auth popup presence on all 315 legacy/protected guest cases"
+    "route_recheck": "Complete five-check responsive suite passed: 1,117 cases; final source-specific crop has Chromium/WebKit regressions and visual review."
   },
   "gallery": {
     "images": 122,
@@ -35,17 +35,8 @@
   "review": {
     "critical_remaining": 0,
     "important_remaining": 0,
-    "findings_fixed": [
-      "StrictMode auth navigation replay",
-      "recovery completion focus restoration",
-      "returned sign-out error recovery",
-      "Buy now authentication during pending cart addition"
-    ],
-    "audit_fixes": [
-      "auth popup headings at 200% text",
-      "native collection hash/back navigation closes auth",
-      "legacy route audit recognizes expected modal coverage"
-    ]
+    "minor_remaining": 0,
+    "assessment": "Independent whole-change and final-delta reviews found no blockers."
   },
   "graph": {
     "command": "graphify update .",
@@ -60,9 +51,26 @@
   },
   "limits": [
     "29 database/integration/provider tests environment-gated",
-    "Chromium emulation only; physical mobile keyboards, Safari/Firefox and assistive technology not exercised",
+    "Chromium and WebKit automation; physical mobile devices and assistive technology not exercised",
     "No live provider or production commerce mutations"
   ],
-  "implementation": "Authentication popup and customer arrow-cleanup milestones; see the containing commit.",
-  "authentication_commit": "d31d7f2"
+  "implementation": "Storefront layout, authentication header, catalog navigation, main-photo gallery, and private sitemap API routing",
+  "cross_browser": {
+    "engines": ["Chromium", "WebKit"],
+    "new_deterministic_cases": 64,
+    "widths": [320, 390, 768, 1280, 1440],
+    "enlarged_text": true,
+    "reduced_motion": true
+  },
+  "crop_review": {
+    "primary_sources": 57,
+    "square_override_sources": 1,
+    "originals": "Centered object-contain in the lightbox"
+  },
+  "rollback": {
+    "previous_deployment": "-s5g_qY5w4W7gAiRL8-0i",
+    "previous_sha": "54b4d9cb75fcc05e072790e775ba99be417c47f5",
+    "routing_fix_sha": "3339294",
+    "indexing": "false, preserved"
+  }
 }

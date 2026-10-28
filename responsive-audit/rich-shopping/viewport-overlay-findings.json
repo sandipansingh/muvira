@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://127.0.0.1:62920",
+  "baseUrl": "http://127.0.0.1:54653",
   "routes": [
     {
       "name": "home",
@@ -301,12 +301,6 @@
             "rendered": "288x216"
           },
           {
-            "selector": "img.h-full.w-full",
-            "text": "",
-            "source": "1280x853",
-            "rendered": "288x360"
-          },
-          {
             "selector": "img.collection-image",
             "text": "",
             "source": "320x213",
@@ -409,12 +403,6 @@
             "text": "",
             "source": "320x213",
             "rendered": "288x216"
-          },
-          {
-            "selector": "img.h-full.w-full",
-            "text": "",
-            "source": "1280x853",
-            "rendered": "288x360"
           },
           {
             "selector": "img.collection-image",
@@ -594,7 +582,7 @@
             },
             "second": {
               "selector": "div.fixed.inset-0",
-              "text": "Reset passwordReset passwordMuviraWe’ll email you a link to reset your"
+              "text": "MuviraReset passwordWe’ll email you a link to reset your password.Emai"
             },
             "width": 320,
             "height": 131
@@ -1138,7 +1126,7 @@
             },
             "second": {
               "selector": "div.fixed.inset-0",
-              "text": "Reset passwordReset passwordMuviraWe’ll email you a link to reset your"
+              "text": "MuviraReset passwordWe’ll email you a link to reset your password.Emai"
             },
             "width": 390,
             "height": 131
@@ -1475,7 +1463,7 @@
             },
             "second": {
               "selector": "div.fixed.inset-0",
-              "text": "Reset passwordReset passwordMuviraWe’ll email you a link to reset your"
+              "text": "MuviraReset passwordWe’ll email you a link to reset your password.Emai"
             },
             "width": 1280,
             "height": 134
@@ -1552,7 +1540,7 @@
               "text": "Main menu"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           }
         ],
         "imageRisks": [],
@@ -1614,7 +1602,7 @@
               "text": "Your shopping bag1Handcrafted Blue Krishna Idol with Flute – Premium R"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           },
           {
             "first": {
@@ -1626,7 +1614,7 @@
               "text": "Close cart drawer"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           },
           {
             "first": {
@@ -1638,7 +1626,7 @@
               "text": "Shopping cart"
             },
             "width": 512,
-            "height": 131
+            "height": 133
           },
           {
             "first": {
@@ -1712,7 +1700,7 @@
               "text": "Find something meaningfulSearch the collectionSearchExplore a collecti"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           },
           {
             "first": {
@@ -1724,7 +1712,7 @@
               "text": "Close dialog"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           }
         ],
         "imageRisks": [],
@@ -1786,7 +1774,7 @@
               "text": "Product filters"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           }
         ],
         "imageRisks": [],
@@ -1835,7 +1823,7 @@
               "text": "A closer look-67%God IdolsHandcrafted Blue Krishna Idol with Flute – P"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           },
           {
             "first": {
@@ -1847,7 +1835,7 @@
               "text": "Close dialog"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           }
         ],
         "imageRisks": [],
@@ -1893,10 +1881,10 @@
             },
             "second": {
               "selector": "div.fixed.inset-0",
-              "text": "Reset passwordReset passwordMuviraWe’ll email you a link to reset your"
+              "text": "MuviraReset passwordWe’ll email you a link to reset your password.Emai"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           },
           {
             "first": {
@@ -1908,7 +1896,7 @@
               "text": "Close dialog"
             },
             "width": 960,
-            "height": 131
+            "height": 133
           }
         ],
         "imageRisks": [],

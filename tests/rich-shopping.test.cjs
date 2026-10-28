@@ -77,21 +77,19 @@ test('description specifications are recognized without changing original copy',
       /Package Includes: 1 × Handcrafted Krishna Idol/
     )
   }))
-test('desktop gallery shows four source photos and opens the corresponding lightbox image', () =>
+test('desktop gallery selects a thumbnail and opens its original photograph', () =>
   pageFor('/product/fixture', async (page) => {
-    const photos = page.locator('.gallery-desktop button[data-gallery-index]')
+    const photos = page.locator('.gallery-thumbnail')
     await photos.first().waitFor()
-    assert.equal(await photos.count(), 4)
+    assert.equal(await photos.count(), 7)
     const source = await photos.nth(2).locator('img').getAttribute('src')
     await photos.nth(2).click()
+    const main = page.getByRole('button', { name: /^Enlarge image of/ })
+    await main.click()
     const dialog = page.getByRole('dialog')
     assert.equal(await dialog.locator('[data-lightbox-image]').getAttribute('src'), source)
     await page.keyboard.press('Escape')
-    assert.equal(await photos.nth(2).evaluate((el) => document.activeElement === el), true)
-    assert.equal(
-      await page.getByRole('button', { name: 'View all 7 photos', exact: true }).count(),
-      1
-    )
+    assert.equal(await main.evaluate((el) => document.activeElement === el), true)
   }))
 test('mobile header keeps search visible and gallery shows its position', () =>
   pageFor(
@@ -107,7 +105,7 @@ test('mobile header keeps search visible and gallery shows its position', () =>
         true
       )
       await page
-        .locator('.gallery-mobile')
+        .locator('.product-gallery')
         .getByRole('button', { name: 'Next image', exact: true })
         .click()
       assert.equal(await page.locator('.gallery-position').innerText(), '2 / 7')
@@ -121,24 +119,27 @@ test('mobile header keeps search visible and gallery shows its position', () =>
 for (const count of [1, 2, 4, 10])
   test(`gallery preserves ${count} source photographs and opens the last one`, () =>
     pageFor(`/product/fixture?photos=${count}`, async (page) => {
-      const photos = page.locator('.gallery-desktop button[data-gallery-index]')
-      await photos.first().waitFor()
-      assert.equal(await photos.count(), Math.min(count, 4))
+      const photos = page.locator('.gallery-thumbnail')
+      await page.locator('.gallery-stage img').waitFor()
+      assert.equal(await photos.count(), count > 1 ? count : 0)
       await page
         .getByRole('button', {
-          name: `View all ${count} ${count === 1 ? 'photo' : 'photos'}`,
-          exact: true,
+          name: /^Enlarge image of/,
         })
         .click()
       const dialog = page.getByRole('dialog')
       await dialog.locator('[data-lightbox-image]').waitFor()
       for (let i = 1; i < count; i++)
         await dialog.getByRole('button', { name: 'Next image', exact: true }).click()
-      assert.equal(await dialog.locator('[aria-live="polite"]').innerText(), `${count} / ${count}`)
-      if (count === 1)
+      if (count > 1)
         assert.equal(
-          await dialog.getByRole('button', { name: 'Next image', exact: true }).isDisabled(),
-          true
+          await dialog.locator('[aria-live="polite"]').innerText(),
+          `${count} / ${count}`
+        )
+      else
+        assert.equal(
+          await dialog.getByRole('button', { name: 'Next image', exact: true }).count(),
+          0
         )
     }))
 test('tall purchase panels remain in document flow and fitting panels respect the header', () =>
@@ -157,7 +158,11 @@ test('tall purchase panels remain in document flow and fitting panels respect th
     await page.evaluate(() => new Promise(requestAnimationFrame))
     const p = await panel.boundingBox(),
       h = await page.locator('.store-header').boundingBox()
-    assert.ok(p.y >= h.y + h.height)
+    const section = await page.locator('.product-detail-layout').boundingBox()
+    assert.ok(
+      p.y >= h.y + h.height || Math.abs(p.y + p.height - section.y - section.height) < 2,
+      'The purchase panel clears the header until the product section ends'
+    )
   }))
 test('card actions stay below filled photographs on touch layouts', () =>
   pageFor(

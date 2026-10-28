@@ -184,6 +184,7 @@ export const ProductDetailPage: React.FC = () => {
         <div className="product-detail-layout pt-6">
           <div>
             <ImageGallery
+              key={product.id}
               images={product.images}
               title={product.name}
               isNew={product.isFeatured}

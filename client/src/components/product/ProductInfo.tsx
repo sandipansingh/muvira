@@ -127,28 +127,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
         )}
       </div>
 
-      {/* Short Editorial Lead Description */}
-      {(product.shortDescription || product.description) && (
-        <p className="product-lead text-base leading-relaxed text-ink-soft/90">
-          {product.shortDescription || product.description}
-        </p>
-      )}
-
-      <div className="border-y border-line py-4 text-sm">
-        <p className={product.inStock ? 'text-ink' : 'text-danger'}>
-          {product.inStock ? 'In stock' : 'Currently unavailable'}
-        </p>
-        {productHighlights(product).length > 0 && (
-          <dl className="product-highlights">
-            {productHighlights(product).map(({ label, value }) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-      </div>
+      <p className={`text-sm ${product.inStock ? 'text-ink' : 'text-danger'}`}>
+        {product.inStock ? 'In stock' : 'Currently unavailable'}
+      </p>
 
       <div className="space-y-3 pt-2">
         {/* Row 1: Stepper and Add to Cart */}
@@ -204,6 +185,21 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
           {product.inStock ? 'Buy Now' : 'Unavailable'}
         </Button>
       </div>
+      {(product.shortDescription || product.description) && (
+        <p className="product-lead border-t border-line pt-5 text-base leading-relaxed text-ink-soft/90">
+          {product.shortDescription || product.description}
+        </p>
+      )}
+      {productHighlights(product).length > 0 && (
+        <dl className="product-highlights border-t border-line pt-5">
+          {productHighlights(product).map(({ label, value }) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
       {!isFooterVisible &&
         !isEditing &&
         createPortal(

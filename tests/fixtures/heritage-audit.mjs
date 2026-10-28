@@ -263,17 +263,26 @@ try {
       '/product/fixture',
       viewport,
       async (page) => {
-        const stage = page.locator('.gallery-desktop')
-        const image = stage.locator('img').first()
+        const stage = page.locator('.product-gallery')
+        const image = stage.locator('.gallery-stage img')
         await image.hover()
         assert.equal(
           await image.evaluate((element) => getComputedStyle(element).objectFit),
+          'cover'
+        )
+        assert.equal(await stage.locator('.gallery-stage img').count(), 1)
+        assert.equal(await stage.locator('.gallery-thumbnail').count(), 7)
+        const first = await stage.locator('.gallery-thumbnail').nth(0).boundingBox()
+        const second = await stage.locator('.gallery-thumbnail').nth(1).boundingBox()
+        assert.ok(second.y > first.y, 'Desktop thumbnails form one vertical column')
+        await stage.getByRole('button', { name: /^Enlarge image of/ }).click()
+        assert.equal(
+          await page
+            .locator('[data-lightbox-image]')
+            .evaluate((el) => getComputedStyle(el).objectFit),
           'contain'
         )
-        assert.equal(await stage.locator('[data-gallery-index]').count(), 4)
-        const first = await stage.locator('button').nth(0).boundingBox()
-        const second = await stage.locator('button').nth(1).boundingBox()
-        assert.ok(Math.abs(first.y - second.y) < 1, 'First two photographs share a row')
+        await page.keyboard.press('Escape')
         const purchase = await page.locator('.product-purchase').boundingBox(),
           gallery = await stage.boundingBox()
         assert.ok(gallery.x + gallery.width <= purchase.x, 'Gallery covers purchase controls')

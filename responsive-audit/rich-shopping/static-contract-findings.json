@@ -21,7 +21,7 @@
     {
       "category": "violation",
       "file": "client/src/components/admin/AdminProductEditor.tsx",
-      "line": 123,
+      "line": 129,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -30,7 +30,7 @@
     {
       "category": "violation",
       "file": "client/src/components/admin/AdminProductEditor.tsx",
-      "line": 235,
+      "line": 279,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -39,7 +39,7 @@
     {
       "category": "violation",
       "file": "client/src/components/admin/AdminProductEditor.tsx",
-      "line": 309,
+      "line": 353,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -56,8 +56,8 @@
     },
     {
       "category": "violation",
-      "file": "client/src/components/auth/ForgotPasswordModal.tsx",
-      "line": 97,
+      "file": "client/src/components/auth/AuthDialog.tsx",
+      "line": 199,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -102,7 +102,7 @@
     {
       "category": "violation",
       "file": "client/src/components/layout/Header.tsx",
-      "line": 94,
+      "line": 88,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -111,7 +111,7 @@
     {
       "category": "violation",
       "file": "client/src/components/layout/Header.tsx",
-      "line": 224,
+      "line": 233,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -120,7 +120,7 @@
     {
       "category": "violation",
       "file": "client/src/components/layout/MobileMenu.tsx",
-      "line": 113,
+      "line": 124,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -138,7 +138,7 @@
     {
       "category": "violation",
       "file": "client/src/pages/CheckoutPage.tsx",
-      "line": 408,
+      "line": 402,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -147,7 +147,7 @@
     {
       "category": "violation",
       "file": "client/src/pages/ProfilePage.tsx",
-      "line": 262,
+      "line": 257,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -156,7 +156,7 @@
     {
       "category": "violation",
       "file": "client/src/pages/ProfilePage.tsx",
-      "line": 375,
+      "line": 370,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -165,7 +165,7 @@
     {
       "category": "violation",
       "file": "client/src/pages/ResetPasswordPage.tsx",
-      "line": 120,
+      "line": 130,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -174,25 +174,7 @@
     {
       "category": "violation",
       "file": "client/src/pages/SearchPage.tsx",
-      "line": 212,
-      "message": "Application-owned form does not declare its validation owner.",
-      "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
-      "ruleId": "form.novalidate-missing",
-      "severity": "error"
-    },
-    {
-      "category": "violation",
-      "file": "client/src/pages/SignInPage.tsx",
-      "line": 67,
-      "message": "Application-owned form does not declare its validation owner.",
-      "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
-      "ruleId": "form.novalidate-missing",
-      "severity": "error"
-    },
-    {
-      "category": "violation",
-      "file": "client/src/pages/SignUpPage.tsx",
-      "line": 69,
+      "line": 211,
       "message": "Application-owned form does not declare its validation owner.",
       "remediation": "Add noValidate/novalidate and implement the canonical validation contract.",
       "ruleId": "form.novalidate-missing",
@@ -282,7 +264,7 @@
     {
       "category": "violation",
       "file": "client/src/components/admin/AdminProductEditor.tsx",
-      "line": 188,
+      "line": 194,
       "message": "Literal product textarea does not show evidence of the canonical resize-none rule.",
       "remediation": "Use the shared Textarea owner or apply resize-none/resize: none with adequate height or auto-grow behavior.",
       "ruleId": "form.textarea-resize-missing",
@@ -291,7 +273,16 @@
     {
       "category": "violation",
       "file": "client/src/components/admin/AdminProductEditor.tsx",
-      "line": 196,
+      "line": 202,
+      "message": "Literal product textarea does not show evidence of the canonical resize-none rule.",
+      "remediation": "Use the shared Textarea owner or apply resize-none/resize: none with adequate height or auto-grow behavior.",
+      "ruleId": "form.textarea-resize-missing",
+      "severity": "error"
+    },
+    {
+      "category": "violation",
+      "file": "client/src/components/admin/AdminProductEditor.tsx",
+      "line": 230,
       "message": "Literal product textarea does not show evidence of the canonical resize-none rule.",
       "remediation": "Use the shared Textarea owner or apply resize-none/resize: none with adequate height or auto-grow behavior.",
       "ruleId": "form.textarea-resize-missing",
@@ -362,13 +353,13 @@
     }
   ],
   "mode": "strict",
-  "projectRoot": "/Users/sandipansingh/.codex/worktrees/0bbc/muvira",
+  "projectRoot": "/Users/sandipansingh/Projects/muvira",
   "schemaVersion": 1,
   "summary": {
-    "errors": 40,
-    "total": 40,
+    "errors": 39,
+    "total": 39,
     "unresolved": 0,
-    "violations": 40,
+    "violations": 39,
     "warnings": 0
   }
 }
