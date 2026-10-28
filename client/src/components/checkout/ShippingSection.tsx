@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Check, Plus, Truck } from 'lucide-react'
 import { INDIAN_STATES } from '../../lib/constants/states.constants'
-import { Check, Truck, Zap } from 'lucide-react'
+import { formatPrice } from '../../lib/utils/format'
+import { Input } from '../ui/Input'
+import { Button } from '../ui/Button'
+import { Dropdown } from '../ui/Dropdown'
+import { Textarea } from '../ui/Textarea'
 import type { AddressData } from './AddressSelector'
 import type { ShippingMethod, ShippingOption } from '../../types/checkout'
-import { formatPrice } from '../../lib/utils/format'
 
 export interface ShippingFormData {
   firstName: string
@@ -15,7 +19,6 @@ export interface ShippingFormData {
   pincode: string
   description: string
 }
-
 export interface ShippingSectionProps {
   shippingData: ShippingFormData
   onShippingDataChange: (data: ShippingFormData) => void
@@ -24,389 +27,250 @@ export interface ShippingSectionProps {
   shippingOptions?: Record<ShippingMethod, ShippingOption>
   savedAddresses?: AddressData[]
   selectedAddressId?: string
-  onSelectSavedAddress?: (addressId: string) => void
+  onSelectSavedAddress?: (id: string) => void
+  errors?: Record<string, string>
 }
 
-export const ShippingSection: React.FC<ShippingSectionProps> = ({
+export function ShippingSection({
   shippingData,
   onShippingDataChange,
   shippingMethod,
   onShippingMethodChange,
+  shippingOptions,
   savedAddresses = [],
   selectedAddressId = '',
   onSelectSavedAddress,
-  shippingOptions,
-}) => {
-  const [useManualForm, setUseManualForm] = useState(savedAddresses.length === 0)
-
-  const onShippingDataChangeRef = useRef(onShippingDataChange)
-  onShippingDataChangeRef.current = onShippingDataChange
-
-  const emailRef = useRef(shippingData.email)
-  emailRef.current = shippingData.email
-
-  // When saved address selection changes, populate shippingData fields
+  errors = {},
+}: ShippingSectionProps) {
+  const [manual, setManual] = useState(!selectedAddressId)
+  const onChange = useRef(onShippingDataChange)
+  onChange.current = onShippingDataChange
+  const email = useRef(shippingData.email)
+  email.current = shippingData.email
   useEffect(() => {
-    if (selectedAddressId && savedAddresses.length > 0) {
-      const matched = savedAddresses.find((a) => a.id === selectedAddressId)
-      if (matched) {
-        const names = (matched.fullName || '').split(' ')
-        const firstName = names[0] || ''
-        const lastName = names.slice(1).join(' ') || ''
-        onShippingDataChangeRef.current({
-          firstName,
-          lastName,
-          email: emailRef.current,
-          phone: matched.phone || '',
-          city: matched.city || '',
-          state: matched.state || 'West Bengal',
-          pincode: matched.pincode || '',
-          description: matched.streetAddress + (matched.apartment ? `, ${matched.apartment}` : ''),
-        })
-      }
-    }
-  }, [selectedAddressId, savedAddresses])
-
-  useEffect(() => {
-    if (selectedAddressId && savedAddresses.length > 0) setUseManualForm(false)
-  }, [savedAddresses.length, selectedAddressId])
-
-  const toggleAddressMode = () => {
-    const nextManualState = !useManualForm
-    setUseManualForm(nextManualState)
-    if (nextManualState) onSelectSavedAddress?.('')
-  }
-
-  const handleFieldChange = (field: keyof ShippingFormData, value: string) => {
-    onShippingDataChange({
-      ...shippingData,
-      [field]: value,
+    const address = savedAddresses.find((item) => item.id === selectedAddressId)
+    if (!address) return
+    const [firstName = '', ...rest] = address.fullName.split(' ')
+    setManual(false)
+    onChange.current({
+      firstName,
+      lastName: rest.join(' '),
+      email: email.current,
+      phone: address.phone,
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+      description: [address.streetAddress, address.apartment].filter(Boolean).join(', '),
     })
-  }
-
+  }, [selectedAddressId, savedAddresses])
+  const field = (name: keyof ShippingFormData, value: string) =>
+    onShippingDataChange({ ...shippingData, [name]: value })
   return (
-    <div className="space-y-8">
-      {/* Shipping Address Header & Form */}
-      <section className="space-y-5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-none">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-line)] pb-4">
-          <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
-            Shipping Address
-          </h2>
-
+    <div className="space-y-6">
+      <section className="checkout-section" aria-labelledby="delivery-heading">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <span className="checkout-eyebrow">A place to call home</span>
+            <h2 id="delivery-heading" className="font-display text-2xl font-normal">
+              Delivery address
+            </h2>
+          </div>
           {savedAddresses.length > 0 && (
-            <button
-              type="button"
-              onClick={toggleAddressMode}
-              className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold text-[var(--color-primary)] hover:underline"
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setManual(!manual)
+                if (!manual) onSelectSavedAddress?.('')
+              }}
+              leftIcon={manual ? undefined : <Plus className="h-4 w-4" aria-hidden="true" />}
             >
-              {useManualForm ? 'Select Saved Address' : '+ Enter Custom Address'}
-            </button>
+              {manual ? 'Select saved address' : 'Add new address'}
+            </Button>
           )}
         </div>
-
-        {/* Saved Addresses List (if available and not using manual override) */}
-        {!useManualForm && savedAddresses.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-xs text-[var(--color-muted)] font-medium">
-              Select a delivery destination:
-            </p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {savedAddresses.map((addr) => (
-                <button
-                  key={addr.id}
-                  type="button"
-                  onClick={() => onSelectSavedAddress?.(addr.id)}
-                  aria-pressed={selectedAddressId === addr.id}
-                  className={`w-full cursor-pointer rounded-card border p-4 text-left transition-all ${
-                    selectedAddressId === addr.id
-                      ? 'border-[var(--color-primary)] bg-[var(--color-primary-soft)] ring-1 ring-[var(--color-primary)] shadow-none'
-                      : 'border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-field-border)] hover:bg-[var(--color-surface)]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-[var(--color-ink)]">
-                      {addr.fullName}
-                    </span>
-                    {selectedAddressId === addr.id && (
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-primary)] text-white">
-                        <Check className="h-3 w-3 stroke-[3]" />
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-xs text-[var(--color-ink-soft)] line-clamp-2">
-                    {addr.streetAddress}
-                    {addr.apartment ? `, ${addr.apartment}` : ''}
-                  </p>
-                  <p className="mt-1 text-[11px] text-[var(--color-muted)]">
-                    {addr.city}, {addr.state} {addr.pincode} &bull; {addr.phone}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {(useManualForm || savedAddresses.length === 0) && (
-          <div className="space-y-4">
-            {/* Row 1: First Name & Last Name (2 cols) */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="shipping-first-name"
-                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
-                >
-                  First Name*
-                </label>
+        {!manual && savedAddresses.length > 0 ? (
+          <fieldset className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <legend className="sr-only">Select a delivery address</legend>
+            {savedAddresses.map((address) => (
+              <label
+                key={address.id}
+                className={`checkout-address ${selectedAddressId === address.id ? 'checkout-address--selected' : ''}`}
+              >
                 <input
-                  id="shipping-first-name"
-                  type="text"
-                  autoComplete="given-name"
-                  required
-                  placeholder="First name"
-                  value={shippingData.firstName}
-                  onChange={(e) => handleFieldChange('firstName', e.target.value)}
-                  className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
+                  type="radio"
+                  name="delivery-address"
+                  className="sr-only"
+                  checked={selectedAddressId === address.id}
+                  onChange={() => onSelectSavedAddress?.(address.id)}
+                  aria-label={`${address.fullName}, ${address.streetAddress}`}
                 />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="shipping-last-name"
-                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
-                >
-                  Last Name*
-                </label>
-                <input
-                  id="shipping-last-name"
-                  type="text"
-                  autoComplete="family-name"
-                  required
-                  placeholder="Last name"
-                  value={shippingData.lastName}
-                  onChange={(e) => handleFieldChange('lastName', e.target.value)}
-                  className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Row 2: Email & Phone number with IND selector (2 cols) */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="shipping-email"
-                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
-                >
-                  Email*
-                </label>
-                <input
-                  id="shipping-email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="name@example.com"
-                  value={shippingData.email}
-                  onChange={(e) => handleFieldChange('email', e.target.value)}
-                  className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="shipping-phone"
-                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
-                >
-                  Phone number*
-                </label>
-                <div className="flex rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] focus-within:border-[var(--color-primary)] focus-within:bg-[var(--color-paper)]">
-                  <span className="border-r border-[var(--color-line)] px-3 py-2.5 text-base font-semibold">
-                    +91
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="text-xs uppercase tracking-wider text-muted">
+                    {address.label || 'Delivery address'}
                   </span>
-                  <input
-                    id="shipping-phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel-national"
-                    required
-                    placeholder="9876543210"
-                    value={shippingData.phone}
-                    onChange={(e) =>
-                      handleFieldChange('phone', e.target.value.replace(/\D/g, '').slice(0, 10))
-                    }
-                    className="min-w-0 w-full rounded-r-xl bg-transparent px-3 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:outline-none"
-                  />
+                  {selectedAddressId === address.id && (
+                    <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                  )}
                 </div>
-              </div>
-            </div>
-
-            {/* Row 3: City, State, Zip Code (3 cols) */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <div>
+                <p className="text-sm font-semibold">{address.fullName}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {address.streetAddress}
+                  {address.apartment && `, ${address.apartment}`}
+                  <br />
+                  {address.city}, {address.state} {address.pincode}
+                </p>
+                <p className="mt-3 text-sm">{address.phone}</p>
+              </label>
+            ))}
+          </fieldset>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {(
+              [
+                { key: 'firstName', label: 'First name', complete: 'given-name' },
+                { key: 'lastName', label: 'Last name (optional)', complete: 'family-name' },
+                { key: 'email', label: 'Contact email', complete: 'email' },
+                { key: 'phone', label: 'Phone number', complete: 'tel-national' },
+                { key: 'city', label: 'City', complete: 'address-level2' },
+                { key: 'pincode', label: 'PIN code', complete: 'postal-code' },
+              ] as const
+            ).map((item) => (
+              <div key={item.key}>
                 <label
-                  htmlFor="shipping-city"
-                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                  htmlFor={`shipping-${item.key}`}
+                  className="mb-2 block text-sm font-semibold"
                 >
-                  City*
+                  {item.label}
                 </label>
-                <input
-                  id="shipping-city"
-                  type="text"
-                  autoComplete="address-level2"
-                  required
-                  placeholder="Kolkata / City"
-                  value={shippingData.city}
-                  onChange={(e) => handleFieldChange('city', e.target.value)}
-                  className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="shipping-state"
-                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
-                >
-                  State*
-                </label>
-                <select
-                  id="shipping-state"
-                  autoComplete="address-level1"
-                  value={shippingData.state}
-                  onChange={(e) => handleFieldChange('state', e.target.value)}
-                  className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
-                >
-                  {INDIAN_STATES.map((s) => (
-                    <option key={s.value} value={s.value}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="shipping-pincode"
-                  className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
-                >
-                  Pincode*
-                </label>
-                <input
-                  id="shipping-pincode"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="postal-code"
-                  required
-                  placeholder="700001"
-                  maxLength={6}
-                  value={shippingData.pincode}
-                  onChange={(e) =>
-                    handleFieldChange('pincode', e.target.value.replace(/\D/g, '').slice(0, 6))
+                <Input
+                  id={`shipping-${item.key}`}
+                  value={shippingData[item.key]}
+                  autoComplete={item.complete}
+                  readOnly={item.key === 'email'}
+                  inputMode={
+                    item.key === 'phone' || item.key === 'pincode'
+                      ? 'numeric'
+                      : item.key === 'email'
+                        ? 'email'
+                        : 'text'
                   }
-                  className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-3.5 py-2.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
+                  type={item.key === 'phone' ? 'tel' : item.key === 'email' ? 'email' : 'text'}
+                  maxLength={item.key === 'phone' ? 10 : item.key === 'pincode' ? 6 : 200}
+                  onChange={(event) =>
+                    field(
+                      item.key,
+                      item.key === 'phone' || item.key === 'pincode'
+                        ? event.target.value.replace(/\D/g, '')
+                        : event.target.value
+                    )
+                  }
+                  hasError={!!errors[item.key]}
+                  aria-invalid={!!errors[item.key]}
+                  aria-describedby={errors[item.key] ? `shipping-${item.key}-error` : undefined}
                 />
+                {errors[item.key] && (
+                  <p id={`shipping-${item.key}-error`} className="mt-1 text-sm text-danger">
+                    {errors[item.key]}
+                  </p>
+                )}
               </div>
-            </div>
+            ))}
             <div>
               <label
-                htmlFor="shipping-street"
-                className="mb-1 block text-sm font-semibold text-[var(--color-ink)]"
+                id="shipping-state-label"
+                htmlFor="shipping-state"
+                className="mb-2 block text-sm font-semibold"
               >
-                Description* / Street Address
+                State
               </label>
-              <textarea
-                id="shipping-street"
+              <Dropdown
+                value={shippingData.state}
+                options={INDIAN_STATES}
+                onChange={(value) => field('state', value)}
+                id="shipping-state"
+                aria-label="State"
+                className="w-full"
+                triggerClassName="min-h-12 !text-base"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="shipping-description" className="mb-2 block text-sm font-semibold">
+                Street address
+              </label>
+              <Textarea
+                id="shipping-description"
                 autoComplete="street-address"
                 rows={3}
-                required
-                placeholder="Enter street address, building, landmark..."
                 value={shippingData.description}
-                onChange={(e) => handleFieldChange('description', e.target.value)}
-                className="w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-3.5 text-base text-[var(--color-ink)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:bg-[var(--color-paper)] focus:outline-none"
+                onChange={(event) => field('description', event.target.value)}
+                hasError={!!errors.description}
+                aria-invalid={!!errors.description}
+                aria-describedby={errors.description ? 'shipping-description-error' : undefined}
+                className="resize-none"
               />
+              {errors.description && (
+                <p id="shipping-description-error" className="mt-1 text-sm text-danger">
+                  {errors.description}
+                </p>
+              )}
             </div>
           </div>
         )}
+        {!manual && (
+          <p className="mt-5 border-t border-line pt-4 text-sm text-muted">
+            Order updates will be sent to <span className="text-ink">{shippingData.email}</span>.
+          </p>
+        )}
       </section>
-      <section className="space-y-4 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-none">
-        <h2 className="font-display text-lg sm:text-xl font-bold text-[var(--color-ink)] flex items-center gap-2">
-          <Truck className="h-5 w-5 text-[var(--color-primary)] shrink-0" />
-          Shipping Method
-        </h2>
-
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-          {/* Standard shipping option */}
-          <label
-            onClick={() => onShippingMethodChange('standard')}
-            className={`flex cursor-pointer items-center justify-between rounded-card border p-4 transition-all ${
-              shippingMethod === 'standard'
-                ? 'border-[var(--color-ink)] bg-[var(--color-surface)] shadow-none'
-                : 'border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-field-border)]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="shipping-method"
-                checked={shippingMethod === 'standard'}
-                onChange={() => onShippingMethodChange('standard')}
-                className="h-4 w-4 accent-[var(--color-ink)]"
-              />
-              <div className="space-y-0.5">
-                <span className="text-xs sm:text-sm font-bold text-[var(--color-ink)]">
-                  {shippingOptions?.standard.label ?? 'Standard Shipping'}
-                </span>
-                <p className="text-[11px] text-[var(--color-muted)]">
-                  {shippingOptions?.standard.description ?? 'Calculating delivery estimate…'}
-                </p>
-              </div>
-            </div>
-
-            <span className="font-sans text-xs sm:text-sm font-bold text-accent">
-              {shippingOptions
-                ? shippingOptions.standard.amountPaisa === 0
-                  ? 'FREE'
-                  : formatPrice(shippingOptions.standard.amountPaisa)
-                : '—'}
-            </span>
-          </label>
-
-          {/* Express Shipping Radio Card */}
-          <label
-            onClick={() => onShippingMethodChange('express')}
-            className={`flex cursor-pointer items-center justify-between rounded-card border p-4 transition-all ${
-              shippingMethod === 'express'
-                ? 'border-[var(--color-ink)] bg-[var(--color-surface)] shadow-none'
-                : 'border-[var(--color-line)] bg-[var(--color-paper)] hover:border-[var(--color-field-border)]'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="shipping-method"
-                checked={shippingMethod === 'express'}
-                onChange={() => onShippingMethodChange('express')}
-                className="h-4 w-4 accent-[var(--color-ink)]"
-              />
-              <div className="space-y-0.5">
-                <span className="text-xs sm:text-sm font-bold text-[var(--color-ink)] flex items-center gap-1">
-                  <Zap className="h-3.5 w-3.5 text-warning shrink-0" />
-                  {shippingOptions?.express.label ?? 'Express Shipping'}
-                </span>
-                <p className="text-[11px] text-[var(--color-muted)]">
-                  {shippingOptions?.express.description ?? 'Calculating delivery estimate…'}
-                </p>
-              </div>
-            </div>
-
-            <span className="font-sans text-xs sm:text-sm font-bold text-[var(--color-primary)]">
-              {shippingOptions
-                ? shippingOptions.express.amountPaisa === 0
-                  ? 'FREE'
-                  : formatPrice(shippingOptions.express.amountPaisa)
-                : '—'}
-            </span>
-          </label>
+      <section className="checkout-section" aria-labelledby="shipping-heading">
+        <div className="mb-5 flex items-center gap-3">
+          <Truck className="h-5 w-5 text-muted" aria-hidden="true" />
+          <h2 id="shipping-heading" className="font-display text-2xl font-normal">
+            Delivery method
+          </h2>
         </div>
+        <fieldset className="grid gap-3 sm:grid-cols-2">
+          <legend className="sr-only">Delivery method</legend>
+          {(['standard', 'express'] as const).map((value) => {
+            const option = shippingOptions?.[value]
+            return (
+              <label
+                key={value}
+                className={`checkout-delivery ${shippingMethod === value ? 'checkout-delivery--selected' : ''} ${!option?.enabled ? 'opacity-50' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="shipping-method"
+                  checked={shippingMethod === value}
+                  disabled={!option?.enabled}
+                  onChange={() => onShippingMethodChange(value)}
+                  className="h-4 w-4 accent-primary"
+                />
+                <span className="flex-1">
+                  <span className="block text-sm font-semibold">
+                    {option?.label ??
+                      (value === 'standard' ? 'Standard shipping' : 'Express shipping')}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted">
+                    {option
+                      ? option.enabled
+                        ? option.description
+                        : 'Currently unavailable'
+                      : 'Checking availability…'}
+                  </span>
+                </span>
+                <span className="text-sm font-semibold text-primary">
+                  {!option?.enabled
+                    ? '—'
+                    : option.amountPaisa === 0
+                      ? 'Free'
+                      : formatPrice(option.amountPaisa)}
+                </span>
+              </label>
+            )
+          })}
+        </fieldset>
       </section>
     </div>
   )
 }
-
-export default ShippingSection

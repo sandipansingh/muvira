@@ -48,6 +48,7 @@ export interface BillingAddressInput {
 }
 
 export interface CreateCheckoutOrderInput {
+  checkoutRequestId?: string
   addressId: string
   couponCode?: string
   shippingMethod: ShippingMethod
@@ -72,4 +73,45 @@ export interface VerifyPaymentResult {
   status: string
   paymentStatus: string
   alreadyCaptured: boolean
+}
+
+export interface CheckoutPaymentSession {
+  checkoutRequestId: string | null
+  orderId: string
+  orderNumber: string
+  razorpayOrderId: string | null
+  razorpayKeyId: string
+  amountPaisa: number
+  currency: 'INR'
+  expiresAt: string | null
+  retentionDeadlineAt: string | null
+  serverTime: string
+  state: 'preparing' | 'payable' | 'pending' | 'paid' | 'released' | 'review'
+  canPay: boolean
+  snapshot: {
+    items: Array<{
+      productId: string
+      productName: string
+      productImage: string | null
+      quantity: number
+      unitPricePaisa: number
+      totalPricePaisa: number
+    }>
+    subtotalPaisa: number
+    discountAmountPaisa: number
+    shippingAmountPaisa: number
+    taxAmountPaisa: number
+    couponCode: string | null
+    shippingMethod: string
+    contactEmail: string
+    shipping: {
+      fullName: string
+      phone: string
+      line1: string
+      line2: string | null
+      city: string
+      state: string
+      pincode: string
+    }
+  }
 }

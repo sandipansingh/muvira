@@ -52,7 +52,7 @@ before(async () => {
     ToastContext: 'const showToast=()=>{};export const useToast=()=>({showToast})',
     'cart.service':
       'export const cartApiService=new Proxy({}, {get:(_,key)=>(...args)=>window.api[key](...args)})',
-    'checkout.service': `export const checkoutService={quote:async()=>({subtotalPaisa:100,discountAmountPaisa:0,shippingAmountPaisa:0,totalAmountPaisa:100,items:[]})}`,
+    'checkout.service': `export const checkoutService={active:async()=>null,quote:async()=>({subtotalPaisa:100,discountAmountPaisa:0,shippingAmountPaisa:0,totalAmountPaisa:100,items:[]})}`,
     'product.service':
       'export const productService=new Proxy({}, {get:(_,key)=>(...args)=>window.products[key](...args)})',
     'review.service':

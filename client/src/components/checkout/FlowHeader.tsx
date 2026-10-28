@@ -7,9 +7,10 @@ import { CheckoutSteps } from './CheckoutSteps'
 export interface FlowHeaderProps {
   currentStep: 'cart' | 'shipping' | 'payment'
   onBack?: () => void
+  compact?: boolean
 }
 
-export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) => {
+export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack, compact = false }) => {
   const navigate = useNavigate()
   const titles = {
     cart: 'Your shopping bag',
@@ -28,7 +29,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) =
       )
   }
   return (
-    <header className="checkout-heading">
+    <header className={`checkout-heading ${compact ? 'checkout-heading--compact' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <Breadcrumbs
           items={[
@@ -37,12 +38,14 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) =
             ...(currentStep !== 'cart' ? [{ label: 'Checkout' }] : []),
           ]}
         />
-        <Link
-          to="/shop"
-          className="inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-primary"
-        >
-          Continue shopping
-        </Link>
+        {!compact && (
+          <Link
+            to="/shop"
+            className="inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-primary"
+          >
+            Continue shopping
+          </Link>
+        )}
       </div>
       <div className="mb-8 mt-5 flex items-start gap-4">
         <button
@@ -54,7 +57,9 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack }) =
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="page-title">{titles[currentStep]}</h1>
+          <h1 className="page-title">
+            {compact && currentStep === 'payment' ? 'Complete your order' : titles[currentStep]}
+          </h1>
           <p className="mt-3 flex items-center gap-2 text-sm text-muted">
             <LockKeyhole className="h-4 w-4" />
             {currentStep === 'cart'

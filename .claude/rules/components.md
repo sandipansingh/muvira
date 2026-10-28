@@ -37,6 +37,6 @@ Components rendered from a collection should be declared at module scope and key
 
 - Totals displayed during checkout come from `POST /api/checkout/quote`.
 - The checkout page may pass shipping, address, billing, coupon, and notes; it never passes an authoritative amount.
-- Payment-instrument collection belongs exclusively to Razorpay Checkout.
+- Razorpay Custom Checkout card fields are browser-only and send details directly to Razorpay's SDK. Payment credentials must never enter Muvira APIs, storage, URLs, logs, or telemetry. UPI uses intent/QR; bank and wallet authentication stays with the provider.
 - Order success pages fetch the owned order and verify its paid state.
 - Wishlist, newsletter, returns, SMS, push, and Apple OAuth affordances stay absent until their backend/provider scope is approved.

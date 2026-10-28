@@ -37,6 +37,8 @@ DM Serif Display uses no synthesized bold or italic. Manrope supports the rupee 
 
 ## Navigation iconography
 
+Checkout uses a consistent delivery/payment workspace beside a photographic order summary. The delivery step includes billing, then payment presents enabled methods in a quiet selector. Review payment prepares the immutable order before a separate Pay action. Mobile keeps one primary action and total above the safe area; inline UPI QR uses the original provider payload on a plain high-contrast surface. Card fields are transient and never enter Muvira services.
+
 Customer destination links use clear text without decorative arrows, including section links, collection cards, discovery paths, hero actions, search submission, empty states, checkout/recovery actions, quick-view details and labeled outcomes. Order cards display “View order”. Keep arrows and chevrons when they operate navigation: galleries/carousels, lightbox panning, pagination, breadcrumb separators, dropdowns/disclosures and dedicated back actions. Admin controls retain their established iconography. Link hover/focus states, spacing and touch targets remain visible without extra ornaments.
 
 ## Evidence and imagery

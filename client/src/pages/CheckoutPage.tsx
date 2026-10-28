@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import type { Address } from '../lib/types/cart'
-import { addressService } from '../lib/services/address.service'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Check, MapPin } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
-import { useToast } from '../context/ToastContext'
-import { FlowHeader } from '../components/checkout/FlowHeader'
-import { FlowItemCard } from '../components/checkout/FlowItemCard'
-import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
-import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
-import { RazorpayPayment } from '../components/checkout/RazorpayPayment'
-import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
-import type { AddressData } from '../components/checkout/AddressSelector'
-import { formatPrice } from '../lib/utils/format'
+import { addressService } from '../lib/services/address.service'
 import { checkoutService } from '../lib/services/checkout.service'
-import type { CheckoutQuote, ShippingMethod } from '../types/checkout'
-import { checkoutTotals } from '../lib/utils/checkoutState'
-import { Tag, CheckCircle, X, HelpCircle, ChevronDown } from 'lucide-react'
+import { useCheckoutSession } from '../lib/hooks/useCheckoutSession'
+import { validateCheckoutAddress } from '../lib/validators/checkout.validator'
+import { FlowHeader } from '../components/checkout/FlowHeader'
+import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
+import {
+  BillingDetails,
+  EMPTY_BILLING_ADDRESS,
+  billingErrors,
+} from '../components/checkout/BillingDetails'
+import { CheckoutSummary } from '../components/checkout/CheckoutSummary'
+import { RazorpayPayment } from '../components/checkout/RazorpayPayment'
+import { Button } from '../components/ui/Button'
+import type { AddressData } from '../components/checkout/AddressSelector'
+import type { Address } from '../lib/types/cart'
+import type { BillingAddressInput, CheckoutQuote, ShippingMethod } from '../types/checkout'
 
 function toAddressData(address: Address): AddressData {
   return {
@@ -33,462 +36,420 @@ function toAddressData(address: Address): AddressData {
   }
 }
 
-export const CheckoutPage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const stepParam = searchParams.get('step')
-  const currentStep: 'shipping' | 'payment' = stepParam === 'payment' ? 'payment' : 'shipping'
-
+export function CheckoutPage() {
+  const [params, setParams] = useSearchParams()
   const { user, loading: authLoading } = useAuth()
   const {
     items,
-    itemCount,
     coupon,
-    applyCoupon,
-    removeCoupon,
     hasUnmergedItems,
     status: cartStatus,
     error: cartError,
     retry: retryCart,
+    resetAfterOrder,
   } = useCart()
-  const { showToast } = useToast()
+  const payment = useCheckoutSession(user?.id)
+  const { session } = payment
+  const step = session ? 'payment' : params.get('step') === 'payment' ? 'payment' : 'shipping'
   const navigate = useNavigate()
-
-  // Addresses
-  const [savedAddresses, setSavedAddresses] = useState<AddressData[]>([])
-  const [selectedAddressId, setSelectedAddressId] = useState('')
-
-  // Shipping Form State
-  const [shippingData, setShippingData] = useState<ShippingFormData>({
-    firstName: user?.fullName ? user.fullName.split(' ')[0] || '' : '',
-    lastName: user?.fullName ? user.fullName.split(' ').slice(1).join(' ') || '' : '',
-    email: user?.email || '',
-    phone: user?.phone || '',
+  const completed = useRef<string | null>(null)
+  const [addresses, setAddresses] = useState<AddressData[]>([])
+  const [addressId, setAddressId] = useState('')
+  const [addressLoading, setAddressLoading] = useState(true)
+  const [addressError, setAddressError] = useState<string | null>(null)
+  const [addressAttempt, setAddressAttempt] = useState(0)
+  const [shipping, setShipping] = useState<ShippingFormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
     city: '',
     state: 'West Bengal',
     pincode: '',
     description: '',
   })
-
-  // Shipping Method ('standard' | 'express')
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('standard')
+  const [sameBilling, setSameBilling] = useState(true)
+  const [billing, setBilling] = useState<BillingAddressInput>(EMPTY_BILLING_ADDRESS)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [billingFieldErrors, setBillingFieldErrors] = useState<Record<string, string>>({})
   const [quote, setQuote] = useState<CheckoutQuote | null>(null)
-  const [quoteLoading, setQuoteLoading] = useState(false)
+  const [quoteLoading, setQuoteLoading] = useState(true)
   const [quoteError, setQuoteError] = useState<string | null>(null)
-
-  // Discount code in Order Summary left panel
-  const [promoCode, setPromoCode] = useState('')
-  const [isApplyingPromo, setIsApplyingPromo] = useState(false)
+  const [quoteAttempt, setQuoteAttempt] = useState(0)
+  const [saving, setSaving] = useState(false)
+  const [deliveryError, setDeliveryError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (user) {
-      setShippingData((prev) => {
-        const names = (user.fullName || '').split(' ')
-        return {
-          ...prev,
-          email: prev.email || user.email || '',
-          firstName: prev.firstName || names[0] || '',
-          lastName: prev.lastName || names.slice(1).join(' ') || '',
-          phone: prev.phone || user.phone || '',
-        }
-      })
-    }
+    if (!user) return
+    const [firstName = '', ...rest] = (user.fullName || '').split(' ')
+    setShipping((current) => ({
+      ...current,
+      firstName: current.firstName || firstName,
+      lastName: current.lastName || rest.join(' '),
+      email: user.email || '',
+      phone: current.phone || user.phone || '',
+    }))
   }, [user])
-
-  // Load user saved addresses
   useEffect(() => {
     if (!user) return
     let active = true
-    const loadAddresses = async () => {
-      try {
-        const response = await addressService.getAddresses()
-        if (response.success && active) {
-          const mapped = response.data.map(toAddressData)
-          setSavedAddresses(mapped)
-          const defaultAddr = mapped.find((a) => a.isDefault) || mapped[0]
-          if (defaultAddr) {
-            setSelectedAddressId(defaultAddr.id)
-          }
-        }
-      } catch (reason) {
-        if (active) {
-          showToast(
-            reason instanceof Error ? reason.message : 'Unable to load saved addresses.',
-            'error'
+    setAddressLoading(true)
+    setAddressError(null)
+    addressService
+      .getAddresses()
+      .then((result) => {
+        if (!active) return
+        if (!result.success) throw new Error(result.error.message)
+        const next = result.data.map(toAddressData)
+        setAddresses(next)
+        setAddressId(
+          (current) => current || next.find((address) => address.isDefault)?.id || next[0]?.id || ''
+        )
+      })
+      .catch((reason: unknown) => {
+        if (active)
+          setAddressError(
+            reason instanceof Error ? reason.message : 'Unable to load your delivery addresses.'
           )
-        }
-      }
-    }
-    void loadAddresses()
+      })
+      .finally(() => {
+        if (active) setAddressLoading(false)
+      })
     return () => {
       active = false
     }
-  }, [showToast, user])
-
+  }, [user, addressAttempt])
   useEffect(() => {
-    if (!user || items.length === 0 || hasUnmergedItems) {
-      setQuote(null)
+    if (!user || !items.length || hasUnmergedItems || session) {
+      setQuoteLoading(false)
       return
     }
-
     let active = true
     setQuoteLoading(true)
     setQuoteError(null)
     checkoutService
       .quote(shippingMethod, coupon?.code)
-      .then((nextQuote) => {
-        if (active) setQuote(nextQuote)
+      .then((result) => {
+        if (active) setQuote(result)
       })
       .catch((reason: unknown) => {
-        if (!active) return
-        setQuote(null)
-        setQuoteError(reason instanceof Error ? reason.message : 'Unable to calculate totals.')
+        if (active) {
+          setQuote(null)
+          setQuoteError(
+            reason instanceof Error ? reason.message : 'Unable to calculate your total.'
+          )
+        }
       })
       .finally(() => {
         if (active) setQuoteLoading(false)
       })
-
     return () => {
       active = false
     }
-  }, [coupon?.code, hasUnmergedItems, items, shippingMethod, user])
-
-  // Redirect if cart is empty
+  }, [user, items, hasUnmergedItems, session, shippingMethod, coupon?.code, quoteAttempt])
   useEffect(() => {
-    if (!authLoading && cartStatus === 'ready' && items.length === 0) {
-      // Cart is empty, navigate to cart
+    if (!payment.loading && !payment.error && !session && cartStatus === 'ready' && !items.length)
       navigate('/cart', { replace: true })
+  }, [payment.loading, payment.error, session, cartStatus, items.length, navigate])
+  useEffect(() => {
+    if (session?.state === 'paid' && completed.current !== session.orderId) {
+      completed.current = session.orderId
+      resetAfterOrder()
+      navigate(`/orders/success?orderId=${encodeURIComponent(session.orderId)}`, { replace: true })
     }
-  }, [items.length, authLoading, cartStatus, navigate])
+  }, [session, resetAfterOrder, navigate])
 
-  const handleApplyPromoCode = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const trimmed = promoCode.trim().toUpperCase()
-    if (!trimmed || isApplyingPromo) return
-
-    setIsApplyingPromo(true)
-    try {
-      const ok = await applyCoupon(trimmed)
-      if (ok) setPromoCode('')
-    } finally {
-      setIsApplyingPromo(false)
-    }
-  }
-
-  // Validate shipping step before continuing to payment
-  const handleProceedToPayment = async () => {
-    if (items.length === 0) {
-      showToast('Your cart is empty.', 'error')
-      return
-    }
-
-    if (hasUnmergedItems) {
-      showToast('Resolve the guest cart items before continuing.', 'error')
-      return
-    }
-
-    if (!quote || quoteLoading || quoteError) {
-      showToast(quoteError ?? 'Please wait while totals are verified.', 'error')
-      return
-    }
-
-    let addressId = selectedAddressId
-    if (!addressId) {
-      // Validate manual fields
-      if (
-        !shippingData.firstName.trim() ||
-        !shippingData.lastName.trim() ||
-        !shippingData.email.trim() ||
-        !shippingData.phone.trim() ||
-        !shippingData.city.trim() ||
-        !shippingData.pincode.trim() ||
-        !shippingData.description.trim()
-      ) {
-        showToast('Please fill in all required shipping address fields (*)', 'error')
-        return
-      }
-
-      try {
-        const created = await addressService.createAddress({
-          fullName: `${shippingData.firstName} ${shippingData.lastName}`.trim(),
-          label: 'Delivery Address',
-          phone: shippingData.phone,
-          line1: shippingData.description,
-          line2: null,
-          city: shippingData.city,
-          state: shippingData.state,
-          pincode: shippingData.pincode,
-          country: 'India',
-          isDefault: savedAddresses.length === 0,
-        })
-
-        if (!created.success) {
-          showToast(created.error.message, 'error')
-          return
-        }
-        addressId = created.data.id
-        setSelectedAddressId(addressId)
-        setSavedAddresses((prev) => [...prev, toAddressData(created.data)])
-      } catch (reason) {
-        showToast(
-          reason instanceof Error ? reason.message : 'Unable to save this address.',
-          'error'
-        )
-        return
+  const canReview =
+    !!quote &&
+    !quoteLoading &&
+    !quoteError &&
+    !hasUnmergedItems &&
+    !payment.loading &&
+    !payment.error &&
+    !addressLoading &&
+    !addressError &&
+    !!addressId
+  const validateDelivery = () => {
+    if (sameBilling) setBillingFieldErrors({})
+    else {
+      const errors = billingErrors(billing)
+      setBillingFieldErrors(errors)
+      const first = Object.keys(errors)[0]
+      if (first) {
+        document.getElementById(`billing-${first}`)?.focus()
+        return false
       }
     }
-
-    setSearchParams({ step: 'payment' })
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const {
-    subtotalPaisa: effectiveSubtotalPaisa,
-    discountPaisa: effectiveDiscountPaisa,
-    shippingPaisa: effectiveShippingPaisa,
-    totalPaisa: effectiveTotalPaisa,
-  } = checkoutTotals(quote)
-
-  if (authLoading) {
-    return (
-      <main className="min-h-screen bg-[var(--color-paper)] px-4 py-12">
-        <div className="mx-auto max-w-6xl animate-pulse space-y-6">
-          <div className="h-10 w-48 rounded-xl bg-[var(--color-surface)]" />
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-            <div className="h-96 rounded-card bg-[var(--color-surface)] lg:col-span-7" />
-            <div className="h-96 rounded-card bg-[var(--color-surface)] lg:col-span-5" />
-          </div>
-        </div>
-      </main>
+    if (addressId) return true
+    const result = validateCheckoutAddress({
+      fullName: `${shipping.firstName} ${shipping.lastName}`.trim(),
+      phone: shipping.phone,
+      line1: shipping.description,
+      city: shipping.city,
+      state: shipping.state,
+      pincode: shipping.pincode,
+    })
+    const names: Record<string, string> = { fullName: 'firstName', line1: 'description' }
+    const errors = Object.fromEntries(
+      Object.entries(result.errors).map(([key, value]) => [names[key] || key, value])
     )
+    setFieldErrors(errors)
+    const first = Object.keys(errors)[0]
+    if (first) document.getElementById(`shipping-${first}`)?.focus()
+    return result.isValid
   }
 
-  if (cartStatus !== 'ready')
+  const continueToPayment = async () => {
+    if (
+      saving ||
+      !quote ||
+      quoteLoading ||
+      quoteError ||
+      payment.error ||
+      hasUnmergedItems ||
+      !validateDelivery()
+    )
+      return
+    setSaving(true)
+    setDeliveryError(null)
+    try {
+      if (!addressId) {
+        const created = await addressService.createAddress({
+          fullName: `${shipping.firstName} ${shipping.lastName}`.trim(),
+          phone: shipping.phone,
+          line1: shipping.description,
+          line2: null,
+          city: shipping.city,
+          state: shipping.state,
+          pincode: shipping.pincode,
+          country: 'India',
+          label: 'Delivery address',
+          isDefault: !addresses.length,
+        })
+        if (!created.success) throw new Error(created.error.message)
+        setAddresses((current) => [...current, toAddressData(created.data)])
+        setAddressId(created.data.id)
+      }
+      setParams({ step: 'payment' })
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    } catch (reason) {
+      setDeliveryError(
+        reason instanceof Error ? reason.message : 'Unable to save delivery details.'
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const prepare = async () => {
+    if (!canReview || !validateDelivery())
+      throw new Error('Review delivery details and your total before continuing.')
+    await payment.prepare({
+      addressId,
+      shippingMethod,
+      couponCode: coupon?.code,
+      billingSameAsShipping: sameBilling,
+      ...(!sameBilling ? { billing } : {}),
+    })
+  }
+
+  const selected = addresses.find((address) => address.id === addressId)
+  const shippingSnapshot = session?.snapshot.shipping
+  const restart = () => {
+    payment.clearReleased()
+    setParams({ step: 'shipping' })
+    setQuoteAttempt((value) => value + 1)
+  }
+
+  if (authLoading || (payment.loading && !session))
     return (
       <main className="editorial-page py-16">
         <div className="editorial-container" role="status">
-          <p>{cartStatus === 'error' ? cartError : 'Loading your cart…'}</p>
+          Preparing your checkout…
+        </div>
+      </main>
+    )
+  if (cartStatus !== 'ready' && !session)
+    return (
+      <main className="editorial-page py-16">
+        <div className="editorial-container" role="status">
+          <p>{cartStatus === 'error' ? cartError : 'Loading your bag…'}</p>
           {cartStatus === 'error' && (
-            <button type="button" className="button-primary mt-4" onClick={retryCart}>
+            <Button onClick={retryCart} className="mt-4">
               Retry loading cart
-            </button>
+            </Button>
           )}
         </div>
       </main>
     )
 
   return (
-    <main className="checkout-page journey-checkout min-h-screen bg-background pb-16">
+    <main className="checkout-page journey-checkout checkout-custom bg-background pb-28 lg:pb-20">
       <div className="layout-container">
-        {/* Top Navigation Flow Header */}
         <FlowHeader
-          currentStep={currentStep}
+          compact
+          currentStep={step}
           onBack={() => {
-            if (currentStep === 'payment') {
-              setSearchParams({ step: 'shipping' })
-            } else {
-              navigate('/cart')
-            }
+            if (session) navigate('/orders')
+            else if (step === 'payment') setParams({ step: 'shipping' })
+            else navigate('/cart')
           }}
         />
-
-        {(quoteError || hasUnmergedItems) && (
-          <div className="mt-4 rounded-xl border border-warning/30 bg-warning-soft p-4 text-sm font-medium text-warning">
-            {hasUnmergedItems
-              ? 'Some guest cart items could not be merged. Return to the cart and resolve them before checkout.'
-              : quoteError}
-          </div>
-        )}
-        {currentStep === 'shipping' && (
-          <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
-            {/* Left Column: Shipping Address & Method */}
-            <div className="lg:col-span-7 xl:col-span-8">
-              <ShippingSection
-                shippingData={shippingData}
-                onShippingDataChange={setShippingData}
-                shippingMethod={shippingMethod}
-                onShippingMethodChange={setShippingMethod}
-                savedAddresses={savedAddresses}
-                selectedAddressId={selectedAddressId}
-                onSelectSavedAddress={setSelectedAddressId}
-                shippingOptions={quote?.shippingMethods}
-              />
-            </div>
-
-            {/* Right Column: Your Cart Summary */}
-            <div className="commerce-summary-column lg:col-span-5 xl:col-span-4">
-              <FlowCartSidebar
-                items={items}
-                subtotalPaisa={effectiveSubtotalPaisa}
-                discountPaisa={effectiveDiscountPaisa}
-                shippingPaisa={effectiveShippingPaisa}
-                totalPaisa={effectiveTotalPaisa}
-                onProceed={handleProceedToPayment}
-                buttonLabel="Continue to Payment"
-                isProcessing={quoteLoading}
-                disabled={Boolean(quoteError || !quote || hasUnmergedItems)}
-                collapsibleOnMobile
-              />
-            </div>
-          </div>
-        )}
-        {currentStep === 'payment' && (
-          <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
-            <div className="space-y-6 lg:col-span-7 xl:col-span-7">
-              <details
-                open
-                className="group rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-5 sm:p-7 shadow-none space-y-6"
+        {(payment.error || quoteError || hasUnmergedItems) && (
+          <div className="checkout-notice mb-6" role="alert">
+            <p>
+              {payment.error ||
+                quoteError ||
+                'Some bag items need attention. Return to your bag before continuing.'}
+            </p>
+            {payment.error ? (
+              <Button
+                variant="secondary"
+                className="mt-3"
+                onClick={() => {
+                  void payment.refresh()
+                }}
               >
-                {/* Header with Items pill badge */}
-                <summary className="flex min-h-[var(--tap-target)] cursor-pointer items-center justify-between gap-3 border-b border-[var(--color-line)] pb-4 list-none [&::-webkit-details-marker]:hidden">
-                  <h2 className="font-display text-xl sm:text-2xl font-bold text-[var(--color-ink)]">
-                    Order Summary
-                  </h2>
-                  <span className="flex shrink-0 items-center gap-2">
-                    <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-sm font-semibold text-[var(--color-ink)]">
-                      {itemCount} {itemCount === 1 ? 'item' : 'items'}
-                    </span>
-                    <ChevronDown className="h-4 w-4 text-muted transition-transform group-open:rotate-180" />
-                  </span>
-                </summary>
-
-                {/* Items List */}
-                <div className="space-y-3.5">
-                  {items.map((item) => (
-                    <FlowItemCard key={item.id} item={item} />
-                  ))}
-                </div>
-
-                {/* Discount Code Voucher Card */}
-                <div className="rounded-card border border-[var(--color-line)] bg-[var(--color-surface)]/60 p-4 transition-all hover:border-[var(--color-field-border)]">
-                  {coupon ? (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent">
-                          <CheckCircle className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-[var(--color-ink)]">
-                            Discount code applied
-                          </p>
-                          <p className="text-[11px] text-accent font-semibold">
-                            {coupon.code} &bull; Save {formatPrice(coupon.discountAmount)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={removeCoupon}
-                        aria-label="Remove discount code"
-                        className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-[var(--color-muted)] hover:bg-danger-soft hover:text-danger transition-colors"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary-soft)] text-[var(--color-primary)]">
-                          <Tag className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-[var(--color-ink)]">Discount code</p>
-                          <p className="text-[11px] text-[var(--color-muted)]">
-                            Have a promo coupon? Save on your order
-                          </p>
-                        </div>
-                      </div>
-
-                      <form
-                        onSubmit={handleApplyPromoCode}
-                        className="flex flex-wrap items-center gap-2"
-                      >
-                        <input
-                          type="text"
-                          placeholder="Coupon code"
-                          value={promoCode}
-                          onChange={(e) => setPromoCode(e.target.value)}
-                          className="h-11 w-full min-w-0 rounded-control border border-[var(--color-line)] bg-[var(--color-paper)] px-3 text-xs uppercase text-[var(--color-ink)] focus:border-[var(--color-primary)] focus:outline-none"
-                        />
-                        <button
-                          type="submit"
-                          disabled={isApplyingPromo || !promoCode.trim()}
-                          className="flex min-h-11 cursor-pointer items-center gap-1 rounded-control bg-[var(--color-ink)] px-3 text-xs font-bold text-white transition-colors hover:bg-[var(--color-primary)] disabled:opacity-40"
-                        >
-                          <Tag className="h-3 w-3" />
-                          <span>{isApplyingPromo ? '...' : 'Add code'}</span>
-                        </button>
-                      </form>
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-2.5 border-t border-[var(--color-line)] pt-4 text-xs text-[var(--color-muted)]">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span className="font-product font-semibold text-[var(--color-ink)]">
-                      {formatPrice(effectiveSubtotalPaisa)}
-                    </span>
-                  </div>
-
-                  {effectiveDiscountPaisa > 0 && (
-                    <div className="flex justify-between font-semibold text-accent">
-                      <span>Coupon Discount</span>
-                      <span className="font-product">-{formatPrice(effectiveDiscountPaisa)}</span>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span className="font-product font-semibold text-[var(--color-ink)]">
-                      {effectiveShippingPaisa === 0 ? (
-                        <span className="text-accent font-bold">Free</span>
-                      ) : (
-                        formatPrice(effectiveShippingPaisa)
-                      )}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-1">
-                      Tax
-                      <HelpCircle className="h-3 w-3 text-[var(--color-muted)]" />
-                    </span>
-                    <span className="font-product font-semibold text-[var(--color-ink)]">
-                      ₹0.00 (Included)
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between border-t border-[var(--color-line)] pt-3 text-base font-bold text-[var(--color-ink)]">
-                    <span>Total</span>
-                    <span className="font-product text-xl font-bold text-[var(--color-ink)]">
-                      {formatPrice(effectiveTotalPaisa)}
-                    </span>
-                  </div>
-                </div>
-              </details>
-              <RecommendedUpsell />
-            </div>
-
-            {/* Right Column: Razorpay hosted payment */}
-            <div className="lg:col-span-5 xl:col-span-5">
-              {quote && selectedAddressId ? (
-                <RazorpayPayment
-                  addressId={selectedAddressId}
-                  quote={quote}
-                  couponCode={coupon?.code}
-                  customerName={user?.fullName ?? ''}
-                  customerEmail={user?.email ?? ''}
-                  customerPhone={user?.phone ?? ''}
-                  shippingMethod={shippingMethod}
-                />
-              ) : (
-                <section className="rounded-card border border-warning/30 bg-warning-soft p-6 text-sm text-warning">
-                  {quoteError ?? 'Return to shipping and select a valid address before payment.'}
-                </section>
-              )}
-            </div>
+                Check current payment
+              </Button>
+            ) : quoteError ? (
+              <Button
+                variant="secondary"
+                className="mt-3"
+                onClick={() => setQuoteAttempt((value) => value + 1)}
+              >
+                Retry calculating total
+              </Button>
+            ) : (
+              <Link to="/cart" className="mt-3 inline-flex min-h-11 items-center text-primary">
+                Return to bag
+              </Link>
+            )}
           </div>
         )}
+        <div className="checkout-workspace">
+          <div className="min-w-0 space-y-6">
+            {step === 'shipping' ? (
+              <>
+                {addressLoading ? (
+                  <div className="checkout-section" role="status">
+                    Loading delivery addresses…
+                  </div>
+                ) : addressError ? (
+                  <div className="checkout-notice" role="alert">
+                    {addressError}
+                    <Button
+                      variant="secondary"
+                      className="mt-3"
+                      onClick={() => setAddressAttempt((value) => value + 1)}
+                    >
+                      Retry addresses
+                    </Button>
+                  </div>
+                ) : (
+                  <ShippingSection
+                    shippingData={shipping}
+                    onShippingDataChange={setShipping}
+                    shippingMethod={shippingMethod}
+                    onShippingMethodChange={setShippingMethod}
+                    shippingOptions={quote?.shippingMethods}
+                    savedAddresses={addresses}
+                    selectedAddressId={addressId}
+                    onSelectSavedAddress={setAddressId}
+                    errors={fieldErrors}
+                  />
+                )}
+                <BillingDetails
+                  sameAsShipping={sameBilling}
+                  onSameChange={setSameBilling}
+                  value={billing}
+                  onChange={setBilling}
+                  errors={billingFieldErrors}
+                />
+                {deliveryError && (
+                  <p role="alert" className="checkout-notice">
+                    {deliveryError}
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <section className="checkout-delivery-recap" aria-label="Delivery details">
+                  <MapPin className="mt-1 h-5 w-5 text-muted" aria-hidden="true" />
+                  <div className="min-w-0 flex-1">
+                    <span className="checkout-eyebrow">Delivering to</span>
+                    <p className="text-sm font-semibold">
+                      {shippingSnapshot?.fullName ??
+                        selected?.fullName ??
+                        'Choose a delivery address'}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted">
+                      {shippingSnapshot
+                        ? `${shippingSnapshot.line1}, ${shippingSnapshot.city} ${shippingSnapshot.pincode}`
+                        : selected
+                          ? `${selected.streetAddress}, ${selected.city} ${selected.pincode}`
+                          : 'Return to delivery to complete your details.'}
+                    </p>
+                  </div>
+                  {!session ? (
+                    <Button variant="ghost" onClick={() => setParams({ step: 'shipping' })}>
+                      Edit
+                    </Button>
+                  ) : (
+                    <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+                  )}
+                </section>
+                <RazorpayPayment
+                  session={session}
+                  onSession={payment.setSession}
+                  onPrepare={prepare}
+                  canReview={canReview}
+                  setupError={payment.error}
+                  onRestart={restart}
+                  previewTotalPaisa={quote?.totalAmountPaisa}
+                />
+                {session && (
+                  <p className="px-2 text-xs leading-relaxed text-muted">
+                    Your delivery details and total are fixed for this payment. If you need changes,
+                    request cancellation and wait for confirmation before starting again.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+          <div className="min-w-0">
+            <CheckoutSummary
+              items={items}
+              quote={quote}
+              session={session}
+              loading={quoteLoading}
+              action={
+                step === 'shipping' ? (
+                  <Button
+                    size="xl"
+                    onClick={() => {
+                      void continueToPayment()
+                    }}
+                    isLoading={saving}
+                    disabled={
+                      !quote ||
+                      quoteLoading ||
+                      !!quoteError ||
+                      !!payment.error ||
+                      addressLoading ||
+                      !!addressError ||
+                      hasUnmergedItems
+                    }
+                    className="w-full"
+                  >
+                    Continue to payment
+                  </Button>
+                ) : undefined
+              }
+            />
+          </div>
+        </div>
       </div>
     </main>
   )

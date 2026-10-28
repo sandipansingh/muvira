@@ -52,8 +52,8 @@ const cases = [
   {
     name: 'checkout-address',
     path: '/checkout',
-    button: '+ Enter Custom Address',
-    section: '.checkout-page section:has(input#shipping-first-name)',
+    button: 'Add new address',
+    section: '.checkout-page section:has(input#shipping-firstName)',
   },
   {
     name: 'photographic-collections',

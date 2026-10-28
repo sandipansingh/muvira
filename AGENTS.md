@@ -56,7 +56,7 @@ All money is integer paisa at API and database boundaries. UI conversion to rupe
 - Treat RLS as a public security boundary because the anonymous Supabase key is present in the browser.
 - Use service-role access only inside the API and workers. Never log or return secrets.
 - Payment and webhook changes require signature, amount, currency, state, ownership, idempotency, and replay tests.
-- Do not collect card, CVV, UPI, wallet, or bank credentials in Muvira forms or send them to the API.
+- The dedicated Razorpay Custom Checkout may collect card details transiently in the browser and submit them directly to Razorpay's SDK. Never send payment credentials to the Muvira API or put them in storage, URLs, logs, or telemetry. Clear sensitive inputs after submission, method changes, navigation, and outcomes. UPI uses intent/QR; bank and wallet selection must not collect provider credentials.
 - Provider success followed by local persistence failure must create a visible reconciliation or retry record.
 
 ## Code and UI conventions

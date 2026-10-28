@@ -12,14 +12,20 @@ export class ApiError extends Error {
   readonly code: string
   readonly fieldErrors?: Record<string, string[]>
   readonly details?: unknown
+  readonly retryAfterMs?: number
 
-  constructor(status: number, error: ApiErrorDetails, options?: { cause?: unknown }) {
+  constructor(
+    status: number,
+    error: ApiErrorDetails,
+    options?: { cause?: unknown; retryAfterMs?: number }
+  ) {
     super(error.message, options)
     this.name = 'ApiError'
     this.status = status
     this.code = error.code
     this.fieldErrors = error.fieldErrors
     this.details = error.details
+    this.retryAfterMs = options?.retryAfterMs
   }
 }
 
@@ -114,7 +120,17 @@ class ApiClient {
         await this.signOutRequestSession(authHeaders.Authorization)
       }
 
-      throw new ApiError(response.status, { ...error, details: envelope?.data ?? error.details })
+      const retryAfter = response.headers.get('Retry-After')
+      const retryAfterMs = retryAfter
+        ? /^\d+$/.test(retryAfter)
+          ? Number(retryAfter) * 1000
+          : Math.max(0, Date.parse(retryAfter) - Date.now())
+        : undefined
+      throw new ApiError(
+        response.status,
+        { ...error, details: envelope?.data ?? error.details },
+        { retryAfterMs }
+      )
     }
 
     return body as T

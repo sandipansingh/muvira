@@ -36,6 +36,81 @@ function deferred() {
   return { promise, resolve }
 }
 
+test('custom card validation rejects invalid numbers, expired dates and incomplete security codes', async () => {
+  const { validateCardDetails } = await loadClientModule('lib/validators/payment.validator.ts')
+  const now = new Date('2026-10-28T12:00:00Z')
+  assert.deepEqual(
+    validateCardDetails(
+      { name: 'Aarohi Sen', number: '4100 2800 0000 1007', expiry: '10/27', securityCode: '123' },
+      now
+    ),
+    {}
+  )
+  assert.equal(
+    Object.keys(
+      validateCardDetails(
+        { name: '', number: '1234567890123', expiry: '09/26', securityCode: '12' },
+        now
+      )
+    ).length,
+    4
+  )
+  assert.ok(
+    validateCardDetails(
+      { name: 'A', number: '4100280000001007', expiry: '13/28', securityCode: '123' },
+      now
+    ).expiry
+  )
+})
+
+test('custom card inputs accept numeric mobile entry and full-year browser autofill', async () => {
+  const { formatCardInput } = await loadClientModule('lib/validators/payment.validator.ts')
+  assert.equal(formatCardInput('expiry', '1030'), '10/30')
+  assert.equal(formatCardInput('expiry', '10/2030'), '10/30')
+  assert.equal(formatCardInput('number', '4100280000001007'), '4100 2800 0000 1007')
+  assert.equal(formatCardInput('securityCode', '12a34'), '1234')
+})
+
+test('custom methods expose only supported methods enabled by Razorpay', async () => {
+  const { availablePaymentMethods, normalizeUpiApps } =
+    await loadClientModule('lib/utils/razorpay.ts')
+  assert.deepEqual(
+    availablePaymentMethods({
+      card: false,
+      upi: true,
+      netbanking: { HDFC: 'HDFC Bank' },
+      wallet: { payzapp: false },
+    }),
+    ['upi', 'netbanking']
+  )
+  assert.deepEqual(availablePaymentMethods({ emi: true, paylater: ['provider'] }), [])
+  assert.deepEqual(normalizeUpiApps(['phonepe', 'gpay', 'unknown-app']), [
+    { code: 'phonepe', name: 'PhonePe' },
+    { code: 'gpay', name: 'Google Pay' },
+  ])
+})
+
+test('custom payment diagnostics discard descriptions and unexpected error data', async () => {
+  const { paymentErrorMetadata } = await loadClientModule('lib/utils/razorpay.ts')
+  assert.deepEqual(
+    paymentErrorMetadata({
+      code: 'GATEWAY_ERROR',
+      source: 'bank',
+      step: 'payment_authentication',
+      reason: '4100280000001007',
+      description: '4111111111111111',
+      metadata: { order_id: 'order_valid', payment_id: 'pay_valid', card: '4111111111111111' },
+    }),
+    {
+      code: 'GATEWAY_ERROR',
+      source: 'bank',
+      step: 'payment_authentication',
+      orderId: 'order_valid',
+      paymentId: 'pay_valid',
+    }
+  )
+})
+
 test('a rejected guest cart addition preserves the existing cart', async () => {
   const { addGuestCartItem } = await loadClientModule('lib/utils/cartState.ts')
   const existing = [
