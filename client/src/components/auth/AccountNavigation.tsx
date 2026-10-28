@@ -22,7 +22,7 @@ export function AccountNavigation({
         }
       >
         <User className="h-4 w-4 shrink-0" />
-        Personal info
+        <span>Personal info</span>
       </NavLink>
       <NavLink
         to="/orders"
@@ -31,11 +31,11 @@ export function AccountNavigation({
         }
       >
         <Package className="h-4 w-4 shrink-0" />
-        My orders
+        <span>My orders</span>
       </NavLink>
       <Link to="/profile#addresses" className="account-navigation__link">
         <MapPin className="h-4 w-4 shrink-0" />
-        Saved addresses{addressCount !== undefined ? ` (${addressCount})` : ''}
+        <span>Saved addresses{addressCount !== undefined ? ` (${addressCount})` : ''}</span>
       </Link>
       {sidebar && (
         <Link to="/shop" className="account-browse">

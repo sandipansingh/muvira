@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict')
 const { before, after, test } = require('node:test')
-const { chromium } = require('playwright')
+const { chromium, expect } = require('playwright/test')
 let browser, fixture
 before(async () => {
   const { startEditorialServer } = await import('./fixtures/editorial-server.mjs')
@@ -58,7 +58,7 @@ test('choosing a sort option returns keyboard focus to its trigger', () =>
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
     await page.waitForTimeout(250)
-    assert.equal(await trigger.evaluate((element) => document.activeElement === element), true)
+    await expect(trigger).toBeFocused()
   }))
 test('quantity selection restores focus after its pending update finishes', () =>
   pageFor('/cart?slowQuantity=1', async (page) => {
@@ -73,7 +73,7 @@ test('quantity selection restores focus after its pending update finishes', () =
     await page.waitForFunction(
       () => document.querySelector('[aria-label^="Quantity for"]')?.disabled === false
     )
-    assert.equal(await trigger.evaluate((element) => document.activeElement === element), true)
+    await expect(trigger).toBeFocused()
   }))
 test('failed product photographs retain the image-unavailable state in the lightbox', () =>
   pageFor('/product/fixture?scenario=broken-images', async (page) => {
@@ -114,13 +114,14 @@ test('missing legacy hero category destinations lead to the shop', () =>
       '/shop'
     )
   }))
-test('search filter removal and browser history restore labeled price fields and query', () =>
+test('search Reset and browser history restore labeled price fields and query', () =>
   pageFor(
     '/search?q=Krishna&category=god-idols&minPrice=1000&inStock=true&sort=price_asc&page=2',
     async (page) => {
       const input = page.getByRole('searchbox', { name: 'Search the collection', exact: true })
       assert.equal(await input.inputValue(), 'Krishna')
-      await page.getByRole('button', { name: 'Remove From ₹1,000 filter', exact: true }).click()
+      assert.equal(await page.locator('[aria-label="Active filters"]').count(), 0)
+      await page.getByRole('button', { name: 'Reset', exact: true }).click()
       assert.equal(new URL(page.url()).searchParams.has('page'), false)
       await page.waitForFunction(
         () => document.querySelector('[aria-label="Minimum price"]')?.value === ''

@@ -183,6 +183,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
               <Dropdown
                 variant="navigation"
                 navigationLayout="collections"
+                openOnHover
                 value=""
                 onChange={() => {}}
                 placeholder="All collections"

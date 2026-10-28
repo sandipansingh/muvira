@@ -7,6 +7,7 @@ interface ModalProps {
   isOpen: boolean
   onClose: () => void
   title?: string
+  headerBrand?: React.ReactNode
   children: React.ReactNode
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'gallery'
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>
@@ -18,6 +19,7 @@ export const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   title,
+  headerBrand,
   children,
   maxWidth = 'md',
   onKeyDown,
@@ -66,20 +68,27 @@ export const Modal: React.FC<ModalProps> = ({
       >
         {title ? (
           <div
-            className={`flex shrink-0 items-center justify-between gap-3 ${presentation === 'auth' ? 'justify-end px-4 pt-3' : `border-b border-line ${maxWidth === 'gallery' ? 'px-3 py-3 sm:px-4' : 'px-6 py-4'}`}`}
+            className={
+              presentation === 'auth'
+                ? 'modal-header modal-header--auth'
+                : `flex shrink-0 items-center justify-between gap-3 border-b border-line ${maxWidth === 'gallery' ? 'px-3 py-3 sm:px-4' : 'px-6 py-4'}`
+            }
           >
-            <h2
-              id={presentation === 'auth' ? undefined : titleId}
-              className={
-                presentation === 'auth'
-                  ? 'hidden'
-                  : maxWidth === 'gallery'
-                    ? 'min-w-0 flex-1 line-clamp-2 font-product text-base font-semibold text-ink'
-                    : 'min-w-0 font-display text-lg text-ink'
-              }
-            >
-              {title}
-            </h2>
+            <div className={presentation === 'auth' ? 'modal-header__identity' : 'min-w-0 flex-1'}>
+              {headerBrand && <div className="modal-header__brand">{headerBrand}</div>}
+              <h2
+                id={titleId}
+                className={
+                  presentation === 'auth'
+                    ? 'font-display text-xl text-center text-ink'
+                    : maxWidth === 'gallery'
+                      ? 'min-w-0 flex-1 line-clamp-2 font-product text-base font-semibold text-ink'
+                      : 'min-w-0 font-display text-lg text-ink'
+                }
+              >
+                {title}
+              </h2>
+            </div>
             <button
               type="button"
               onClick={onClose}
@@ -102,11 +111,6 @@ export const Modal: React.FC<ModalProps> = ({
         <div
           className={`overflow-y-auto dropdown-scrollbar ${presentation === 'auth' ? 'p-4 pt-2' : maxWidth === 'gallery' ? 'p-3 sm:p-4' : 'p-6'}`}
         >
-          {presentation === 'auth' && (
-            <h2 id={titleId} className="mb-4 font-display text-xl text-ink">
-              {title}
-            </h2>
-          )}
           {children}
         </div>
       </motion.div>

@@ -19,7 +19,7 @@ Runtime CSS variables in `client/src/index.css` are the source of truth. `client
 | Actions and fields | `components/ui/Button`, `Input`, `Textarea`, `Select` |
 | Authored selections and navigation disclosure | `components/ui/Dropdown` (`navigation` renders real links) |
 | Store photography and failures | `components/common/StoreImage` |
-| Removable catalog selections | `components/catalog/ActiveFilters` |
+| Catalog reset and collection shortcuts | `components/catalog/CatalogSidebar`, `CollectionShortcuts` |
 | Product gallery and lightbox | `components/product/ImageGallery` |
 | Breadcrumbs and pagination | `components/common/Breadcrumbs`, `Pagination` |
 | Dialog and focus restoration | `components/common/Modal`, `lib/hooks/useDialogFocus` |
@@ -46,7 +46,9 @@ The approved composition is maintained in `DESIGN.md`. Runtime colors, typograph
 
 ## Authentication popup
 
-Customer sign-in and signup use the shared compact AuthDialog over the current page. Reuse Modal, Input and Button with the unframed logo and existing tokens. Recovery and email-confirmation messages replace the form inside that dialog. Fields remain at least 16px and controls at least 44px. Passwords clear when switching or closing. Profile loading gates completion; profile errors provide retry and sign-out. Legacy auth routes are compatibility entries, and /reset-password remains the emailed recovery route.
+Customer sign-in and signup use the shared compact AuthDialog over the current page. Modal's optional `headerBrand` slot groups the unframed logo and title in a centered header with balanced 44px side columns for the close control. Recovery and email-confirmation messages replace the form inside that dialog. Fields remain at least 16px and controls at least 44px. Passwords clear when switching or closing. Profile loading gates completion; profile errors provide retry and sign-out. Legacy auth routes are compatibility entries, and /reset-password remains the emailed recovery route. Shared Button labels retain their dimensions and accessible names under the centered busy indicator; leading icons occupy a separate, nonshrinking column.
+
+Header collection hover is an opt-in Dropdown behavior; all other selectors retain click/keyboard behavior. CollectionShortcuts owns the single scrolling row and reveals the active category using only horizontal container scrolling. CatalogSidebar owns Reset; result cards have no duplicate chips or clear-filter toolbar.
 
 ## Customer navigation icons
 

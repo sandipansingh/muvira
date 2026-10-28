@@ -549,6 +549,99 @@ h1.product-detail-title {
   background: var(--color-surface);
 }
 
+.ui-button {
+  position: relative;
+  height: auto;
+  min-height: var(--tap-target);
+  padding-block: 0.625rem;
+}
+.ui-button__content,
+.ui-button__label {
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: inherit;
+  min-width: 0;
+  max-width: 100%;
+  line-height: 1.5;
+  overflow-wrap: normal;
+}
+.ui-button__content > span:has(> svg),
+.ui-button__label > svg {
+  flex-shrink: 0;
+  margin-top: 0.2em;
+}
+.ui-button__spinner {
+  position: absolute;
+  left: calc(50% - 0.5rem);
+  top: calc(50% - 0.5rem);
+}
+.storefront-shell :is(button, a) > svg,
+.auth-page :is(button, a) > svg {
+  flex-shrink: 0;
+}
+.storefront-shell :is(.button-primary, .button-secondary, .account-navigation__link),
+.auth-page :is(.button-primary, .button-secondary) {
+  overflow-wrap: normal;
+  line-height: 1.5;
+}
+.storefront-shell :is(.button-primary, .button-secondary, .account-navigation__link):has(> span) {
+  align-items: flex-start;
+}
+.storefront-shell
+  :is(.button-primary, .button-secondary, .account-navigation__link):has(> span)
+  > svg {
+  margin-top: 0.2em;
+}
+.not-found-actions a {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.icon-label {
+  align-items: flex-start;
+  line-height: 1.5;
+  overflow-wrap: normal;
+}
+.icon-label > svg {
+  flex-shrink: 0;
+  margin-top: 0.2em;
+}
+.modal-header--auth {
+  display: grid;
+  grid-template-columns: var(--tap-target) minmax(0, 1fr) var(--tap-target);
+  align-items: start;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 1rem 1rem 0.75rem;
+}
+.modal-header__identity {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.modal-header__brand {
+  max-width: 100%;
+}
+.modal-header__brand > div {
+  gap: 8px;
+}
+.modal-header__brand .brand-wordmark {
+  font-size: 20px;
+  line-height: 1.2;
+}
+.modal-header__identity h2 {
+  width: 100%;
+  overflow-wrap: normal;
+}
+.modal-header--auth > button {
+  grid-column: 3;
+  grid-row: 1;
+}
+
 .input {
   background: var(--color-paper);
   border: 1px solid var(--color-field-border);
@@ -1566,25 +1659,6 @@ body {
   font-size: 1rem;
   padding-block: 0.75rem;
 }
-.active-filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-block: 0 1.5rem;
-}
-.filter-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: var(--tap-target);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-pill);
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-}
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .group:hover .browse-image,
   .group:focus-within .browse-image {
@@ -2406,7 +2480,9 @@ body {
 .catalog-siblings {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-padding-inline: var(--page-gutter, 1rem);
   padding-block: 1.5rem;
 }
 .catalog-siblings a {
@@ -2419,6 +2495,8 @@ body {
   border-radius: var(--radius-control);
   padding: 0.35rem 0.75rem 0.35rem 0.35rem;
   background: var(--color-paper);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .catalog-siblings a[aria-current] {
   border-color: var(--color-primary);
@@ -2429,6 +2507,7 @@ body {
   height: 2.25rem;
   object-fit: cover;
   border-radius: var(--radius-control);
+  flex-shrink: 0;
 }
 .catalog-heading__layout {
   display: grid;
@@ -2650,6 +2729,19 @@ body {
   .header-cart-count {
     font-size: 0.6875rem;
     min-width: 1.2rem;
+  }
+  .store-header .header-action[data-auth-focus='bag'] {
+    position: relative;
+    width: var(--tap-target);
+  }
+  .store-header .header-cart-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.625rem;
+    min-width: 1em;
+    padding: 0.15em 0.3em;
+    line-height: 1;
   }
   .store-header .header-search button {
     width: auto;

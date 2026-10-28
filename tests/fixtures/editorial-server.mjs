@@ -17,7 +17,7 @@ const mocks = {
   'address.service': `${helper} export const addressService=service({getAddresses:async()=>ok(await read([f().address]))});`,
   'notification.service': `${helper} export const notificationService=service({getPreferences:async()=>ok({emailEnabled:true})});`,
   'checkout.service': `${helper} export const checkoutService=service({quote:async()=>read(f().quote)});`,
-  'order.service': `${helper} export const orderApiService=service({getOrders:async()=>page(await read([f().order])),getOrderById:async()=>ok(await read(f().order)),getOrderTracking:async()=>ok(f().tracking||{awb_code:null,tracking_url:null,courier_name:null,shiprocket_status:null,shipment_events:[]}),downloadInvoice:async()=>new Blob(['%PDF-1.4 visual fixture only'],{type:'application/pdf'})});`,
+  'order.service': `${helper} export const orderApiService=service({getOrders:async()=>page(await read([f().order])),getOrderById:async()=>ok(await read(f().order)),getOrderTracking:async()=>ok(f().tracking||{awb_code:null,tracking_url:null,courier_name:null,shiprocket_status:null,shipment_events:[]}),downloadInvoice:async()=>{if(new URLSearchParams(location.search).has('gatedInvoice'))await new Promise(resolve=>window.fixture.resolveInvoice=resolve);return new Blob(['%PDF-1.4 visual fixture only'],{type:'application/pdf'})}});`,
   'review.service': `${helper} export const reviewService=service({getProductReviews:async()=>({...page([]),summary:{avgRating:null,totalReviews:0}})});`,
   'admin.service': `${helper} export const adminApiService=service({getDashboardStats:async()=>ok(await read(f().stats)),getProducts:async()=>page(await read(f().details)),getProduct:async()=>ok(f().product),getCategoriesList:async()=>page(await read(f().categories)),getCoupons:async()=>page(await read([f().coupon])),getOrders:async()=>page(await read([f().adminOrder])),getOrderById:async()=>ok(await read(f().order)),getPickupLocations:async()=>ok([]),getDiagnosticSummary:async()=>ok({workerState:'running',overdueLateCaptureWatches:0,pendingCancellationRefunds:0}),getRetryJobs:async()=>page([f().retry]),getWebhookFailures:async()=>page([]),getNotificationDeliveries:async()=>page([]),getCommerceFailures:async(_page,kind)=>page(['provider_operation','retained_checkout'].includes(kind)?[{id:'fixture-failure',kind,label:'Fixture provider outcome to review',orderId:'fixture-order',lastError:'Provider response not yet reconciled',state:'unknown',amountPaisa:10000,currency:'INR',targetType:'order',target:'fixture-order',businessKey:'fixture-operation',dispatchAttempts:1,reconciliationAttempts:2,localCompletionPending:false,deadlineAt:'2026-10-27T00:00:00Z',lastVerifiedAt:'2026-10-26T00:00:00Z',extensionCount:1,escalation:'watching',updatedAt:'2026-10-27T10:00:00Z'}]:[])});`,
   client: `export class ApiError extends Error{};export const api=new Proxy({},{get:()=>async()=>{throw new Error('Unhandled API call blocked in visual fixtures')}});`,
@@ -87,7 +87,7 @@ export async function startEditorialServer({
     },
     root: join(root, 'client'),
     configFile: false,
-    cacheDir: join(root, 'client/node_modules/.vite-editorial-fixtures'),
+    cacheDir: join(root, 'client/node_modules/.vite-editorial-fixtures', String(process.pid)),
     logLevel: 'error',
     server: { host: '127.0.0.1', port: 0 },
     plugins: [

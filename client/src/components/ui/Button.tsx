@@ -51,16 +51,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         disabled={disabled || isLoading}
-        className={`inline-flex items-center justify-center font-bold font-sans transition-colors cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+        aria-busy={isLoading || undefined}
+        className={`ui-button inline-flex items-center justify-center font-bold font-sans transition-colors cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
         {...props}
       >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-        ) : (
-          leftIcon && <span className="shrink-0 leading-none">{leftIcon}</span>
+        <span className={`ui-button__content ${isLoading ? 'opacity-0' : ''}`}>
+          {leftIcon && <span className="shrink-0 leading-none">{leftIcon}</span>}
+          {children && <span className="ui-button__label">{children}</span>}
+          {rightIcon && <span className="shrink-0 leading-none">{rightIcon}</span>}
+        </span>
+        {isLoading && (
+          <Loader2 aria-hidden="true" className="ui-button__spinner h-4 w-4 animate-spin" />
         )}
-        {children && <span className="leading-none">{children}</span>}
-        {!isLoading && rightIcon && <span className="shrink-0 leading-none">{rightIcon}</span>}
       </button>
     )
   }

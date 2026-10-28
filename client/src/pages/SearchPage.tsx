@@ -6,7 +6,6 @@ import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
 import type { ProductListItem } from '../lib/types/product'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
-import { ActiveFilters } from '../components/catalog/ActiveFilters'
 import { CatalogSidebar } from '../components/catalog/CatalogSidebar'
 import { CatalogTopBar, type GridViewMode } from '../components/catalog/CatalogTopBar'
 import { ProductGrid } from '../components/catalog/ProductGrid'
@@ -273,14 +272,6 @@ export const SearchPage: React.FC = () => {
               onViewModeChange={setViewMode}
               onOpenMobileFilters={() => setIsMobileFiltersOpen(true)}
               activeFiltersCount={activeFiltersCount}
-            />
-
-            <ActiveFilters
-              params={searchParams}
-              categories={categories}
-              onChange={updateParams}
-              onClear={handleClearFilters}
-              includeQuery={false}
             />
 
             {error ? (

@@ -134,9 +134,8 @@ export function AuthDialog({ mode, onClose, onAuthenticated, restoreFocus }: Aut
       maxWidth="sm"
       restoreFocus={restoreFocus}
       presentation="auth"
-    >
-      <div ref={formRef} data-auth-dialog className="space-y-4">
-        <div className="inline-flex max-w-full flex-wrap items-center gap-2" aria-label="Muvira">
+      headerBrand={
+        <div className="inline-flex items-center justify-center gap-2" aria-label="Muvira">
           <img
             src="/logo.png"
             alt=""
@@ -146,6 +145,9 @@ export function AuthDialog({ mode, onClose, onAuthenticated, restoreFocus }: Aut
           />
           <span className="brand-wordmark font-display text-xl text-ink">Muvira</span>
         </div>
+      }
+    >
+      <div ref={formRef} data-auth-dialog className="space-y-4">
         {error && (
           <p role="alert" className="rounded-control bg-danger-soft p-3 text-sm text-danger">
             {error}

@@ -21,25 +21,25 @@ export const NotFoundPage: React.FC = () => {
           unavailable.
         </p>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <div className="not-found-actions mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
           <Link
             to="/shop"
             className="inline-flex min-h-[var(--tap-target)] items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary-hover text-white px-5 py-2.5 text-sm font-normal transition-colors"
           >
-            <ShoppingBag className="h-4 w-4" />
-            <span>Explore Shop</span>
+            <ShoppingBag className="h-4 w-4 shrink-0" />
+            <span>Shop</span>
           </Link>
           <Link
             to="/categories"
             className="inline-flex min-h-[var(--tap-target)] items-center justify-center gap-2 rounded-lg border border-line bg-white hover:bg-surface text-ink px-5 py-2.5 text-sm font-normal transition-colors"
           >
-            <span>Browse Categories</span>
+            <span>Collections</span>
           </Link>
           <Link
             to="/"
             className="inline-flex min-h-[var(--tap-target)] items-center justify-center gap-1.5 rounded-lg border border-transparent hover:bg-surface text-muted hover:text-ink px-4 py-2.5 text-sm font-normal transition-colors"
           >
-            <Home className="h-4 w-4" />
+            <Home className="h-4 w-4 shrink-0" />
             <span>Home</span>
           </Link>
         </div>

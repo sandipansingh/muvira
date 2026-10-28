@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ChevronDown, type LucideIcon } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { StoreImage } from '../common/StoreImage'
 
 export interface DropdownBadge {
@@ -35,6 +35,7 @@ export interface DropdownProps {
   className?: string
   variant?: 'default' | 'slim' | 'navigation'
   navigationLayout?: 'list' | 'collections'
+  openOnHover?: boolean
   label?: string
   id?: string
   disabled?: boolean
@@ -53,6 +54,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   className = 'w-full sm:w-auto',
   variant = 'default',
   navigationLayout = 'list',
+  openOnHover = false,
   label,
   id,
   disabled = false,
@@ -64,6 +66,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const triggerRef = useRef<HTMLButtonElement>(null)
   const restoreSelectionFocus = useRef(false)
   const keyboardEdge = useRef<'first' | 'last' | null>(null)
+  const hoverCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pointerWithin = useRef(false)
+  const openedByHover = useRef(false)
+  const keyboardWithin = useRef(false)
+  const location = useLocation()
   const reducedMotion = useReducedMotion()
   const menuId = useId()
 
@@ -71,6 +78,57 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const isSlim = variant === 'slim'
   const isNavigation = variant === 'navigation'
   const isCollectionPanel = isNavigation && navigationLayout === 'collections'
+
+  const clearHoverClose = () => {
+    if (hoverCloseTimer.current) clearTimeout(hoverCloseTimer.current)
+    hoverCloseTimer.current = null
+  }
+  const closeMenu = () => {
+    clearHoverClose()
+    openedByHover.current = false
+    setIsOpen(false)
+  }
+  const handlePointerEnter = (event: React.PointerEvent) => {
+    if (
+      !openOnHover ||
+      disabled ||
+      event.pointerType !== 'mouse' ||
+      !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    )
+      return
+    pointerWithin.current = true
+    clearHoverClose()
+    if (!isOpen) openedByHover.current = true
+    setIsOpen(true)
+  }
+  const handlePointerLeave = () => {
+    pointerWithin.current = false
+    if (!openOnHover) return
+    clearHoverClose()
+    hoverCloseTimer.current = setTimeout(() => {
+      hoverCloseTimer.current = null
+      if (keyboardWithin.current && dropdownRef.current?.contains(document.activeElement)) return
+      openedByHover.current = false
+      setIsOpen(false)
+    }, 150)
+  }
+
+  useEffect(
+    () => () => {
+      if (hoverCloseTimer.current) clearTimeout(hoverCloseTimer.current)
+    },
+    []
+  )
+
+  useEffect(() => {
+    if (!openOnHover) return
+    if (hoverCloseTimer.current) clearTimeout(hoverCloseTimer.current)
+    hoverCloseTimer.current = null
+    openedByHover.current = false
+    pointerWithin.current = false
+    keyboardWithin.current = false
+    setIsOpen(false)
+  }, [location.key, openOnHover])
 
   useLayoutEffect(() => {
     if (!isOpen || !keyboardEdge.current) return
@@ -90,6 +148,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        if (hoverCloseTimer.current) clearTimeout(hoverCloseTimer.current)
+        openedByHover.current = false
         setIsOpen(false)
       }
     }
@@ -100,8 +160,15 @@ export const Dropdown: React.FC<DropdownProps> = ({
     }
   }, [])
 
-  const handleToggle = () => {
+  const handleToggle = (event?: React.MouseEvent) => {
     if (disabled) return
+    clearHoverClose()
+    if (openOnHover && openedByHover.current && event && event.detail > 0) {
+      openedByHover.current = false
+      setIsOpen(true)
+      return
+    }
+    openedByHover.current = false
     if (!isOpen && dropdownRef.current) {
       const rect = dropdownRef.current.getBoundingClientRect()
       const viewportHeight = window.innerHeight
@@ -131,12 +198,24 @@ export const Dropdown: React.FC<DropdownProps> = ({
     <div
       className={`${isCollectionPanel ? 'collection-disclosure' : 'relative inline-block'} min-w-0 max-w-full text-left ${className}`}
       ref={dropdownRef}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onPointerDown={() => {
+        keyboardWithin.current = false
+      }}
+      onFocus={(event) => {
+        if (event.target.matches(':focus-visible')) keyboardWithin.current = true
+      }}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setIsOpen(false)
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          keyboardWithin.current = false
+          if (!openOnHover || !pointerWithin.current) closeMenu()
+        }
       }}
       onKeyDown={(event) => {
+        keyboardWithin.current = true
         if (event.key === 'Escape' && isOpen) {
-          setIsOpen(false)
+          closeMenu()
           triggerRef.current?.focus()
           event.stopPropagation()
         }
@@ -274,7 +353,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                         to={option.href}
                         role="menuitem"
                         onClick={() => {
-                          setIsOpen(false)
+                          closeMenu()
                           option.onClick?.()
                         }}
                         className={

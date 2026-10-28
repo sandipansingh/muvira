@@ -9,6 +9,7 @@ import { orderApiService } from '../lib/services/order.service'
 import type { OrderDetail, OrderTrackingData } from '../lib/types/order'
 import { formatDate, formatPrice } from '../lib/utils/format'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { Button } from '../components/ui/Button'
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -121,15 +122,16 @@ export const OrderDetailPage: React.FC = () => {
             {order.status.replaceAll('_', ' ')}
           </span>
           {order.paymentStatus === 'paid' && order.shiprocketOrderId && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => void downloadInvoice()}
-              disabled={downloadingInvoice}
-              className="button-secondary self-start text-sm sm:self-auto"
+              isLoading={downloadingInvoice}
+              leftIcon={<Download className="h-4 w-4" />}
+              className="self-start text-sm sm:self-auto"
             >
-              <Download className="h-4 w-4" />
-              {downloadingInvoice ? 'Preparing invoice…' : 'Download invoice'}
-            </button>
+              Download invoice
+            </Button>
           )}
           {order.paymentStatus === 'paid' && !order.shiprocketOrderId && (
             <p className="text-xs text-muted">Invoice available after fulfillment begins.</p>

@@ -1,7 +1,6 @@
-import { CollectionImage } from '../components/catalog/CollectionImage'
-import { collectionHref } from '../lib/utils/collectionPresentation'
+import { CollectionShortcuts } from '../components/catalog/CollectionShortcuts'
 import React, { useEffect, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
@@ -11,7 +10,6 @@ import { CatalogSidebar } from '../components/catalog/CatalogSidebar'
 import { CatalogTopBar, type GridViewMode } from '../components/catalog/CatalogTopBar'
 import { ProductGrid } from '../components/catalog/ProductGrid'
 import { Pagination } from '../components/common/Pagination'
-import { ActiveFilters } from '../components/catalog/ActiveFilters'
 
 const PAGE_SIZE = 12
 
@@ -205,18 +203,7 @@ export const ShopPage: React.FC = () => {
       />
 
       {categories.length > 0 && (
-        <nav className="layout-container catalog-siblings" aria-label="Browse sibling collections">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              to={collectionHref(category)}
-              aria-current={category.slug === categoryParam ? 'page' : undefined}
-            >
-              <CollectionImage category={category} />
-              {category.name}
-            </Link>
-          ))}
-        </nav>
+        <CollectionShortcuts categories={categories} activeSlug={categoryParam} />
       )}
       {/* Main 2-Column Catalog Container */}
       <div id="catalog-results" className="layout-container" ref={resultsContainerRef}>
@@ -253,13 +240,6 @@ export const ShopPage: React.FC = () => {
               onViewModeChange={setViewMode}
               onOpenMobileFilters={() => setIsMobileFiltersOpen(true)}
               activeFiltersCount={activeFiltersCount}
-            />
-
-            <ActiveFilters
-              params={searchParams}
-              categories={categories}
-              onChange={updateParams}
-              onClear={handleClearFilters}
             />
 
             {error ? (
