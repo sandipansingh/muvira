@@ -10,7 +10,7 @@ const snapshot = JSON.parse(
 const helper = `const f=()=>window.fixture; const ok=data=>({success:true,data}); const page=data=>({...ok(data),pagination:{page:1,limit:20,total:data.length,totalPages:1}}); const blocked=async()=>{throw new Error('Mutations are blocked in visual fixtures')}; const service=methods=>new Proxy(methods,{get:(target,key)=>key in target?target[key]:blocked}); const read=async data=>{if(f().scenario==='loading')await new Promise(()=>{});if(f().scenario==='error')throw new Error('Fixture service unavailable');return data};`
 const mocks = {
   AuthContext: `import React from 'react'; export const AuthProvider=({children})=>children; export const useAuth=()=>window.fixture.auth;`,
-  CartContext: `import React,{createContext,useContext,useState}from'react';const Context=createContext(null);export const useCart=()=>useContext(Context);export function CartProvider({children}){const[isDrawerOpen,setIsDrawerOpen]=useState(false);const[items,setItems]=useState(window.fixture.cart);const[loading,setLoading]=useState(false);const total=items.reduce((n,i)=>n+i.lineTotal,0);return React.createElement(Context.Provider,{value:{items,isDrawerOpen,setIsDrawerOpen,openCartDrawer:()=>setIsDrawerOpen(true),closeCartDrawer:()=>setIsDrawerOpen(false),itemCount:items.reduce((n,i)=>n+i.quantity,0),subtotalPaisa:total,totalPaisa:total,discountPaisa:0,shippingPaisa:0,freeShippingThresholdPaisa:0,amountForFreeShippingPaisa:0,loading,status:'ready',error:null,hasUnmergedItems:false,coupon:null,retry:()=>{},addToCart:async(product)=>{const query=new URLSearchParams(location.search);if(query.has('slowAdd'))await new Promise(done=>setTimeout(done,600));if(query.has('addFailure'))throw new Error('Cart update was not confirmed');if(!product.inStock)throw new Error('Out of stock');setItems(window.fixture.cart);setIsDrawerOpen(true)},removeFromCart:async id=>setItems(items.filter(i=>i.id!==id)),updateQuantity:async()=>{if(new URLSearchParams(location.search).has('slowQuantity')){setLoading(true);await new Promise(done=>setTimeout(done,500));setLoading(false)}},clearCart:async()=>setItems([]),applyCoupon:async()=>false,removeCoupon:()=>{}}},children)}`,
+  CartContext: `import React,{createContext,useContext,useState}from'react';const Context=createContext(null);export const useCart=()=>useContext(Context);export function CartProvider({children}){const[isDrawerOpen,setIsDrawerOpen]=useState(false);const[items,setItems]=useState(window.fixture.cart);const[loading,setLoading]=useState(false);const total=items.reduce((n,i)=>n+i.lineTotal,0);return React.createElement(Context.Provider,{value:{items,isDrawerOpen,setIsDrawerOpen,openCartDrawer:()=>setIsDrawerOpen(true),closeCartDrawer:()=>setIsDrawerOpen(false),itemCount:items.reduce((n,i)=>n+i.quantity,0),subtotalPaisa:total,totalPaisa:total,discountPaisa:0,shippingPaisa:0,freeShippingThresholdPaisa:0,amountForFreeShippingPaisa:0,loading,status:'ready',error:null,hasUnmergedItems:false,coupon:null,retry:()=>{},addToCart:async(product,quantity=1)=>{const query=new URLSearchParams(location.search);if(query.has('gatedAdd'))await new Promise(done=>window.fixture.resolveCartAdd=done);if(query.has('slowAdd'))await new Promise(done=>setTimeout(done,600));if(query.has('addFailure'))throw new Error('Cart update was not confirmed');if(!product.inStock)throw new Error('Out of stock');if(window.authFixture){(window.fixture.cartAdds ||= []).push(quantity);setItems(current=>current.map(item=>item.productId===product.id?{...item,quantity:item.quantity+quantity,lineTotal:(item.quantity+quantity)*item.unitPrice}:item))}else setItems(window.fixture.cart);setIsDrawerOpen(true)},removeFromCart:async id=>setItems(items.filter(i=>i.id!==id)),updateQuantity:async()=>{if(new URLSearchParams(location.search).has('slowQuantity')){setLoading(true);await new Promise(done=>setTimeout(done,500));setLoading(false)}},clearCart:async()=>setItems([]),applyCoupon:async()=>false,removeCoupon:()=>{}}},children)}`,
   'product.service': `${helper} export const productService=service({getProducts:async()=>page(await read(f().scenario==='empty'?[]:f().products)),getProductBySlug:async()=>ok(await read(f().product)),getRelatedProducts:async()=>ok(await read(f().products.slice(1,5)))});`,
   'category.service': `${helper} export const categoryService=service({getCategories:async()=>ok(await read(f().scenario==='empty'?[]:f().categories))});`,
   'settings.service': `${helper} export const settingsService=service({getSettings:async()=>ok(await read(f().settings))});`,
@@ -57,6 +57,7 @@ createRoot(document.getElementById('root')).render(React.createElement(App));win
 export async function startEditorialServer({
   defaultRole = 'customer',
   publicCatalog = false,
+  realAuth = false,
 } = {}) {
   const fixtureEntry = entry.replace(
     "query.get('fixtureRole')||'customer'",
@@ -69,6 +70,7 @@ export async function startEditorialServer({
   const tailwindConfig = (await import(pathToFileURL(join(root, 'client/tailwind.config.js')).href))
     .default
   const server = await createServer({
+    define: realAuth ? { 'import.meta.env.VITE_AUTH_REDIRECT_URL': JSON.stringify('') } : {},
     css: {
       postcss: {
         plugins: [
@@ -96,10 +98,19 @@ export async function startEditorialServer({
           if (source === 'react-dom/client') return
           if (source === '/editorial-fixture.js') return '\0editorial-fixture'
           const key = source.replace(/.*\//, '').replace(/\.(tsx?|jsx?)$/, '')
+          if (realAuth && key === 'AuthContext') return
+          if (realAuth && authBrowserMocks[key]) return '\0auth-browser-mock:' + key
           if (mocks[key]) return '\0editorial-mock:' + key
         },
         load(id) {
-          if (id === '\0editorial-fixture') return fixtureEntry
+          if (id.startsWith('\0auth-browser-mock:')) return authBrowserMocks[id.slice(19)]
+          if (id === '\0editorial-fixture')
+            return realAuth
+              ? fixtureEntry.replace(
+                  'React.createElement(App)',
+                  'React.createElement(React.StrictMode,null,React.createElement(App))'
+                )
+              : fixtureEntry
           if (id.startsWith('\0editorial-mock:')) return mocks[id.slice(16)]
         },
         configureServer(vite) {
@@ -137,3 +148,4 @@ export async function startEditorialServer({
   await server.listen()
   return { server, origin: `http://127.0.0.1:${server.httpServer.address().port}` }
 }
+import { authBrowserMocks } from './auth-browser-mocks.mjs'

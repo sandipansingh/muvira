@@ -59,3 +59,9 @@ pnpm exec playwright test tests/responsive.spec.ts --grep 'authenticated custome
 ```
 
 The customer/admin overlay and photography checks passed in the full `pnpm run test:responsive` run. The targeted reruns complete that run's remaining failed checks after fixes; no failing check is omitted.
+
+## Authentication popup milestone — 28 October 2026
+
+Sign-in/signup and recovery screenshots now show the compact popup. Deterministic browser fixtures run the real AuthContext in React StrictMode and cover credentials, confirmation, delayed/failing profiles, profile retry/sign-out failure/retry, recovery completion, stale dismissal/reopening, validated return destinations, header/mobile/footer/cart/Buy now entry points, quantity preservation, focus and enlarged text. Independent review findings for StrictMode history replay, recovery focus restoration and returned sign-out errors were reproduced and fixed.
+
+Required checks passed in order: lint:fix, format, build, type-check, test (190 passed, 29 environment-gated skips, zero failures), graphify update. Graphify refreshed the code graph; its optional SQL parser is not installed. Unrelated baseline formatting was preserved.

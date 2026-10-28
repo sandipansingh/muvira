@@ -31,8 +31,9 @@ export function safeReturnPath(
     if (decoded.includes('\\') || hasControlCharacter) return fallback
 
     const origin = typeof window === 'undefined' ? 'http://localhost' : window.location.origin
-    const parsed = new URL(decoded, origin)
+    const parsed = new URL(candidate, origin)
     if (parsed.origin !== origin) return fallback
+    if (/^\/(signin|signup|login)\/?$/i.test(decodeURIComponent(parsed.pathname))) return fallback
     return `${parsed.pathname}${parsed.search}${parsed.hash}`
   } catch {
     return fallback

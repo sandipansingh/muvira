@@ -3,6 +3,8 @@ import React, { useRef } from 'react'
 import { ArrowRight, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/AuthContext'
+import { useAuthDialog } from '../../context/AuthDialogContext'
 import { formatPrice } from '../../lib/utils/format'
 import { CartItemRow } from './CartItemRow'
 import { CouponInput } from './CouponInput'
@@ -24,6 +26,8 @@ export const CartDrawer: React.FC = () => {
     retry,
   } = useCart()
   const reducedMotion = useReducedMotion()
+  const { isAuthenticated } = useAuth()
+  const { openAuth } = useAuthDialog()
   const navigate = useNavigate()
   const panelRef = useRef<HTMLElement>(null)
   useDialogFocus(isDrawerOpen, closeCartDrawer, panelRef)
@@ -31,7 +35,8 @@ export const CartDrawer: React.FC = () => {
 
   const openCheckout = () => {
     closeCartDrawer()
-    navigate('/checkout')
+    if (isAuthenticated) navigate('/checkout')
+    else openAuth({ mode: 'signin', returnTo: '/checkout', fallbackFocus: 'bag' })
   }
 
   const totalItemCount = items.reduce((total, item) => total + item.quantity, 0)

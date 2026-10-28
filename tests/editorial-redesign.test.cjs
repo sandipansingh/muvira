@@ -163,17 +163,22 @@ test('password recovery opens with the entered email and restores focus after Es
     await page.getByLabel('Email address', { exact: true }).fill('aarohi@example.test')
     const trigger = page.getByRole('button', { name: /forgot password/i })
     await trigger.click()
-    const dialog = page.getByRole('dialog', { name: 'Reset Password', exact: true })
+    const dialog = page.getByRole('dialog', { name: 'Reset password', exact: true })
     await dialog.waitFor()
     await page.waitForFunction(
-      () => document.getElementById('reset-email')?.value === 'aarohi@example.test'
+      () => document.getElementById('auth-email')?.value === 'aarohi@example.test'
     )
     assert.equal(
       await dialog.getByLabel('Email address', { exact: true }).inputValue(),
       'aarohi@example.test'
     )
     await page.keyboard.press('Escape')
-    assert.equal(await trigger.evaluate((el) => document.activeElement === el), true)
+    assert.equal(
+      await page
+        .locator('header [data-auth-focus="account"]')
+        .evaluate((el) => document.activeElement === el),
+      true
+    )
   }))
 test('account navigation brings the saved-address section into view', () =>
   pageFor('/orders', async (page) => {
@@ -282,8 +287,8 @@ test('protected pages render for authenticated fixtures and redirect guest acces
     await page.goto(fixture.origin + '/profile')
     await page.getByRole('heading', { level: 1, name: 'My Profile' }).waitFor()
     await page.goto(fixture.origin + '/admin?fixtureRole=guest')
-    await page.getByRole('heading', { level: 1, name: 'Welcome back.' }).waitFor()
-    assert.equal(new URL(page.url()).pathname, '/signin')
+    await page.getByRole('dialog', { name: 'Welcome back.' }).waitFor()
+    assert.equal(new URL(page.url()).pathname, '/')
   }))
 test('pending payments get a distinct recovery screen without claiming payment success', () =>
   pageFor('/orders/success?orderId=fixture-order&payment=pending', async (page) => {

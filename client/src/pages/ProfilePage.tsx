@@ -1,7 +1,7 @@
 import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { AccountNavigation } from '../components/auth/AccountNavigation'
 import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { Bell, LogOut, Pencil, Trash2 } from 'lucide-react'
 import type { Address } from '../lib/types/cart'
 import { addressService } from '../lib/services/address.service'
@@ -50,7 +50,6 @@ function addressValues(address: Address): AddressFormValues {
 export const ProfilePage: React.FC = () => {
   const { user, loading: authLoading, isAdmin, logout, updateProfile } = useAuth()
   const { showToast } = useToast()
-  const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
@@ -63,10 +62,6 @@ export const ProfilePage: React.FC = () => {
   const [loadingPreferences, setLoadingPreferences] = useState(true)
   const [savingPreferences, setSavingPreferences] = useState(false)
   const [preferencesError, setPreferencesError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!authLoading && !user) navigate('/signin?returnTo=/profile', { replace: true })
-  }, [authLoading, navigate, user])
 
   useEffect(() => {
     if (user) {

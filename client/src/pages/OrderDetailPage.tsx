@@ -3,7 +3,7 @@ import { AccountNavigation } from '../components/auth/AccountNavigation'
 import { StoreImage } from '../components/common/StoreImage'
 import React, { useEffect, useState } from 'react'
 import { Download, MapPin, Package, ShieldCheck, Truck } from 'lucide-react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderDetail, OrderTrackingData } from '../lib/types/order'
@@ -13,7 +13,6 @@ import { Breadcrumbs } from '../components/common/Breadcrumbs'
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { user, loading: authLoading } = useAuth()
-  const navigate = useNavigate()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [tracking, setTracking] = useState<OrderTrackingData | null>(null)
   const [trackingError, setTrackingError] = useState<string | null>(null)
@@ -21,10 +20,6 @@ export const OrderDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [downloadingInvoice, setDownloadingInvoice] = useState(false)
   const [invoiceError, setInvoiceError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!authLoading && !user) navigate(`/signin?returnTo=/orders/${id ?? ''}`, { replace: true })
-  }, [authLoading, id, navigate, user])
 
   useEffect(() => {
     if (!user || !id) return

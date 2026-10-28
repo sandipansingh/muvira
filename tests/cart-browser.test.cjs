@@ -46,6 +46,8 @@ before(async () => {
     supabase:
       'export const supabase={auth:{getSession:()=>window.getSession(),signOut:async()=>{window.signOuts=(window.signOuts??0)+1}}}',
     AuthContext: 'export const useAuth=()=>window.auth',
+    AuthDialogContext:
+      'export const useAuthDialog=()=>({openAuth:options=>{window.authRequest=options},closeAuth:()=>{}})',
     SiteSettingsContext: `export const useSiteSettings=()=>({settings:{shippingMethods:{standard:{charge_paisa:0}},configuration:{shipping_ready:true}},error:null})`,
     ToastContext: 'const showToast=()=>{};export const useToast=()=>({showToast})',
     'cart.service':

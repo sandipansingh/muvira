@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { LogOut, Package, Search, ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useAuthDialog } from '../../context/AuthDialogContext'
 import { useCart } from '../../context/CartContext'
 import { Dropdown } from '../ui/Dropdown'
 import { categoryService } from '../../lib/services/category.service'
@@ -16,6 +17,16 @@ interface MobileMenuProps {
 
 export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { isAuthenticated, user, logout } = useAuth()
+  const { openAuth } = useAuthDialog()
+  const requestAuth = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (isAuthenticated) {
+      onClose()
+      return
+    }
+    event.preventDefault()
+    onClose()
+    openAuth({ mode: 'signin', fallbackFocus: 'menu' })
+  }
   const { itemCount, openCartDrawer } = useCart()
   const [searchQuery, setSearchQuery] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
@@ -179,7 +190,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <span className="eyebrow mt-5 border-t border-line pt-5">Your Muvira</span>
             <Link
               to={isAuthenticated ? '/profile' : '/signin'}
-              onClick={onClose}
+              onClick={requestAuth}
               className="header-link text-lg"
             >
               {isAuthenticated ? 'My account' : 'Sign in'}
@@ -243,7 +254,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
             <div className="pt-2">
               <Link
                 to="/signin"
-                onClick={onClose}
+                onClick={requestAuth}
                 className="button-primary w-full py-3.5 text-sm rounded-lg text-center block shadow-none active:scale-98"
               >
                 Sign In

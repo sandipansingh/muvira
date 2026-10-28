@@ -5,6 +5,8 @@ import { ShoppingBag } from 'lucide-react'
 import type { ProductDetail } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/AuthContext'
+import { useAuthDialog } from '../../context/AuthDialogContext'
 import { RatingStars } from '../common/RatingStars'
 import { productHighlights } from '../../lib/utils/productPresentation'
 import { Button } from '../ui/Button'
@@ -15,7 +17,9 @@ interface ProductInfoProps {
 }
 
 export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick }) => {
-  const { addToCart } = useCart()
+  const { addToCart, closeCartDrawer } = useCart()
+  const { isAuthenticated } = useAuth()
+  const { openAuth } = useAuthDialog()
   const navigate = useNavigate()
   const [quantity, setQuantity] = useState(1)
   const [isAdding, setIsAdding] = useState(false)
@@ -66,11 +70,14 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, onReviewClick
     }
   }
 
-  const handleBuyNow = async () => {
+  const handleBuyNow = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const trigger = event.currentTarget
     setIsBuyingNow(true)
     try {
       await addToCart(product, quantity)
-      navigate('/checkout')
+      closeCartDrawer()
+      if (isAuthenticated) navigate('/checkout')
+      else openAuth({ mode: 'signin', returnTo: '/checkout', trigger, fallbackFocus: 'bag' })
     } catch {
       // Cart context presents the server error and checkout remains closed.
     } finally {

@@ -43,3 +43,7 @@ Lightbox icon actions keep 44px targets when text enlarges; the control groups s
 ## Rich shopping storefront
 
 The approved composition is maintained in `DESIGN.md`. Runtime colors, typography, geometry and responsive rules remain in `client/src/index.css`; Tailwind maps those tokens without duplicating their values. Customer selectors use `storefront-shell` or `auth-page`. The header, collection directory, photographic Dropdown variant, filled product-card frames, viewport-fit sticky panels and account/commerce surfaces share this system. Product galleries and quick view preserve complete photographs. The shared `brand-wordmark` class owns the single-line logo-label alignment and its font-relative optical adjustment. `collectionImage.ts` owns exact-source substitutions and `productPresentation.ts` owns conservative description facts.
+
+## Authentication popup
+
+Customer sign-in and signup use the shared compact AuthDialog over the current page. Reuse Modal, Input and Button with the unframed logo and existing tokens. Recovery and email-confirmation messages replace the form inside that dialog. Fields remain at least 16px and controls at least 44px. Passwords clear when switching or closing. Profile loading gates completion; profile errors provide retry and sign-out. Legacy auth routes are compatibility entries, and /reset-password remains the emailed recovery route.

@@ -152,7 +152,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false
       }
 
-      showToast('Welcome back to Muvira!', 'success')
       return true
     } catch {
       showToast('An unexpected login error occurred', 'error')
@@ -178,12 +177,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false
       }
 
-      showToast(
-        data.session
-          ? 'Account created successfully!'
-          : 'Please check your email to confirm registration',
-        data.session ? 'success' : 'info'
-      )
       return data.session ? 'authenticated' : 'confirmation'
     } catch {
       showToast('Signup error occurred', 'error')
@@ -195,7 +188,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await createGuardedLogout({
       attempts: sessionAttempts.current,
       isMounted: () => mounted.current,
-      signOut: () => supabase.auth.signOut(),
+      signOut: async () => {
+        const { error } = await supabase.auth.signOut()
+        if (error) throw error
+      },
       clearState: () => {
         setUser(null)
         setToken(null)

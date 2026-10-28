@@ -2,6 +2,8 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/AuthContext'
+import { useAuthDialog } from '../context/AuthDialogContext'
 import { FlowHeader } from '../components/checkout/FlowHeader'
 import { FlowItemCard } from '../components/checkout/FlowItemCard'
 import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
@@ -24,6 +26,8 @@ export const CartPage: React.FC = () => {
     clearCart,
   } = useCart()
   const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+  const { openAuth } = useAuthDialog()
 
   if (status === 'loading' || status === 'merging' || status === 'error') {
     return (
@@ -131,7 +135,11 @@ export const CartPage: React.FC = () => {
               discountPaisa={discountPaisa}
               shippingPaisa={shippingPaisa}
               totalPaisa={totalPaisa}
-              onProceed={() => navigate('/checkout?step=shipping')}
+              onProceed={() =>
+                isAuthenticated
+                  ? navigate('/checkout?step=shipping')
+                  : openAuth({ mode: 'signin', returnTo: '/checkout?step=shipping' })
+              }
               buttonLabel="Proceed to Checkout"
               disabled={loading || hasUnmergedItems || Boolean(error)}
             />

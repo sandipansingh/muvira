@@ -6,10 +6,13 @@ let previousBodyOverflow = ''
 export function useDialogFocus(
   isOpen: boolean,
   onClose: () => void,
-  dialogRef: RefObject<HTMLElement | null>
+  dialogRef: RefObject<HTMLElement | null>,
+  restoreFocus?: () => HTMLElement | null
 ) {
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
+  const restoreFocusRef = useRef(restoreFocus)
+  restoreFocusRef.current = restoreFocus
 
   useEffect(() => {
     if (!isOpen || !dialogRef.current) return
@@ -34,7 +37,7 @@ export function useDialogFocus(
         dialog.querySelector<HTMLElement>('[data-dialog-initial-focus]') ??
         focusable()[0] ??
         dialog
-      ).focus()
+      ).focus({ preventScroll: true })
     )
     const handleKeyDown = (event: KeyboardEvent) => {
       if (openDialogs[openDialogs.length - 1] !== dialog) return
@@ -74,7 +77,8 @@ export function useDialogFocus(
       if (index >= 0) openDialogs.splice(index, 1)
       if (openDialogs.length === 0) {
         document.body.style.overflow = previousBodyOverflow
-        previousFocus?.focus()
+        const target = restoreFocusRef.current ? restoreFocusRef.current() : previousFocus
+        target?.focus({ preventScroll: true })
       } else if (wasTopDialog) {
         openDialogs[openDialogs.length - 1].focus()
       }

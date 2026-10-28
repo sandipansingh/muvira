@@ -80,12 +80,6 @@ export const CheckoutPage: React.FC = () => {
   const [isApplyingPromo, setIsApplyingPromo] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/signin?returnTo=/checkout', { replace: true })
-    }
-  }, [authLoading, navigate, user])
-
-  useEffect(() => {
     if (user) {
       setShippingData((prev) => {
         const names = (user.fullName || '').split(' ')

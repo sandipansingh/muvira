@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
+import { useAuthDialog } from '../../context/AuthDialogContext'
 import { useStoreCollections } from '../../context/StoreCollectionsContext'
 import { collectionCaption, collectionHref } from '../../lib/utils/collectionPresentation'
 import { collectionImage } from '../../lib/utils/collectionImage'
@@ -28,6 +29,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = false }) => {
   const { itemCount, openCartDrawer } = useCart()
   const { isAuthenticated } = useAuth()
+  const { openAuth } = useAuthDialog()
   const { categories } = useStoreCollections()
   const navigate = useNavigate()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -74,6 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
                 size="icon"
                 onClick={onOpenMobileMenu}
                 aria-label="Open navigation menu"
+                data-auth-focus="menu"
                 className="store-menu-toggle"
               >
                 <Menu className="h-5 w-5" />
@@ -148,19 +151,34 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
             </div>
           ) : (
             <div className="store-header__actions">
-              <Link
-                to={isAuthenticated ? '/profile' : '/signin'}
-                aria-label={isAuthenticated ? 'My account' : 'Sign in'}
-                className="header-action"
-              >
-                <User className="h-5 w-5" />
-                <span>{isAuthenticated ? 'Account' : 'Sign in'}</span>
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  to="/profile"
+                  data-auth-focus="account"
+                  aria-label="My account"
+                  className="header-action"
+                >
+                  <User className="h-5 w-5" />
+                  <span>Account</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => openAuth({ mode: 'signin' })}
+                  data-auth-focus="account"
+                  aria-label="Sign in"
+                  className="header-action"
+                >
+                  <User className="h-5 w-5" />
+                  <span>Sign in</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={openCartDrawer}
                 className="header-action"
                 aria-label="Shopping cart"
+                data-auth-focus="bag"
               >
                 <ShoppingBag className="h-5 w-5" />
                 <span>Bag</span>

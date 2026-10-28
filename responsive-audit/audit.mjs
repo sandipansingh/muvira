@@ -389,7 +389,7 @@ async function auditRoute(browser, viewport, route) {
         .click()
     }
     if (route.action === 'forgot-password')
-      await page.getByRole('button', { name: 'Forgot Password?' }).click()
+      await page.getByRole('button', { name: 'Forgot password?' }).click()
     if (route.action) await page.waitForTimeout(300)
   } catch (error) {
     navigationError = error instanceof Error ? error.message : String(error)
@@ -397,11 +397,13 @@ async function auditRoute(browser, viewport, route) {
 
   let findings = null
   let screenshot = null
+  let authDialogOpen = false
   if (!navigationError) {
     const suffix = `${viewport.width}x${viewport.height}-${viewport.label}-dpr${viewport.dpr}${viewport.textScale ? '-text200' : ''}`
     screenshot = `${route.name}__${suffix}.jpg`
     try {
       findings = await page.evaluate(inspectPage, { touch: viewport.touch, dpr: viewport.dpr })
+      authDialogOpen = (await page.locator('[role="dialog"] [data-auth-dialog]').count()) > 0
       await page.screenshot({
         path: resolve(output, screenshot),
         type: 'jpeg',
@@ -418,6 +420,7 @@ async function auditRoute(browser, viewport, route) {
     route: route.name,
     path: route.path,
     actualPath: new URL(page.url()).pathname,
+    authDialogOpen,
     viewport,
     screenshot,
     navigationError,

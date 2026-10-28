@@ -23,6 +23,7 @@ interface AuditResult {
   navigationError: string | null
   consoleMessages: { type: string; text: string }[]
   findings: Finding | null
+  authDialogOpen: boolean
 }
 
 interface Audit {
@@ -41,6 +42,17 @@ async function audit(args: string[], filename: string): Promise<Audit> {
 
 function violations(results: AuditResult[], overlay: boolean): string[] {
   const problems: string[] = []
+  const authRoutes = new Set([
+    'signin',
+    'signup',
+    'login-redirect',
+    'checkout-guest',
+    'orders-guest',
+    'order-detail-guest',
+    'order-success-guest',
+    'order-failure-guest',
+    'profile-guest',
+  ])
   for (const result of results) {
     const label = `${result.route} ${result.viewport.width}x${result.viewport.height} ${result.viewport.label} DPR${result.viewport.dpr}`
     if (result.navigationError || !result.findings || !result.screenshot) {
@@ -60,7 +72,10 @@ function violations(results: AuditResult[], overlay: boolean): string[] {
       if (findings[key].length)
         problems.push(`${label}: ${key} ${JSON.stringify(findings[key].slice(0, 2))}`)
     }
-    if (!overlay && findings.floatingOverlaps.length) {
+    if (!overlay && authRoutes.has(result.route) && !result.authDialogOpen) {
+      problems.push(`${label}: expected authentication popup`)
+    }
+    if (!overlay && !result.authDialogOpen && findings.floatingOverlaps.length) {
       problems.push(
         `${label}: fixed/sticky overlap ${JSON.stringify(findings.floatingOverlaps.slice(0, 2))}`
       )

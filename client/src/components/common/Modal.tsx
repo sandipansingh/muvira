@@ -10,6 +10,8 @@ interface ModalProps {
   children: React.ReactNode
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'gallery'
   onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>
+  restoreFocus?: () => HTMLElement | null
+  presentation?: 'default' | 'auth'
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -19,10 +21,12 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   maxWidth = 'md',
   onKeyDown,
+  restoreFocus,
+  presentation = 'default',
 }) => {
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
-  useDialogFocus(isOpen, onClose, panelRef)
+  useDialogFocus(isOpen, onClose, panelRef, restoreFocus)
 
   if (!isOpen) return null
 
@@ -62,14 +66,16 @@ export const Modal: React.FC<ModalProps> = ({
       >
         {title ? (
           <div
-            className={`flex shrink-0 items-center justify-between gap-3 border-b border-line ${maxWidth === 'gallery' ? 'px-3 py-3 sm:px-4' : 'px-6 py-4'}`}
+            className={`flex shrink-0 items-center justify-between gap-3 ${presentation === 'auth' ? 'justify-end px-4 pt-3' : `border-b border-line ${maxWidth === 'gallery' ? 'px-3 py-3 sm:px-4' : 'px-6 py-4'}`}`}
           >
             <h2
-              id={titleId}
+              id={presentation === 'auth' ? undefined : titleId}
               className={
-                maxWidth === 'gallery'
-                  ? 'min-w-0 flex-1 line-clamp-2 font-product text-base font-semibold text-ink'
-                  : 'min-w-0 font-display text-lg text-ink'
+                presentation === 'auth'
+                  ? 'hidden'
+                  : maxWidth === 'gallery'
+                    ? 'min-w-0 flex-1 line-clamp-2 font-product text-base font-semibold text-ink'
+                    : 'min-w-0 font-display text-lg text-ink'
               }
             >
               {title}
@@ -77,7 +83,7 @@ export const Modal: React.FC<ModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
+              className="ml-auto flex h-[var(--tap-target)] w-[var(--tap-target)] shrink-0 cursor-pointer items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
               aria-label="Close dialog"
             >
               <X className="h-4 w-4" />
@@ -94,8 +100,13 @@ export const Modal: React.FC<ModalProps> = ({
           </button>
         )}
         <div
-          className={`overflow-y-auto dropdown-scrollbar ${maxWidth === 'gallery' ? 'p-3 sm:p-4' : 'p-6'}`}
+          className={`overflow-y-auto dropdown-scrollbar ${presentation === 'auth' ? 'p-4 pt-2' : maxWidth === 'gallery' ? 'p-3 sm:p-4' : 'p-6'}`}
         >
+          {presentation === 'auth' && (
+            <h2 id={titleId} className="mb-4 font-display text-xl text-ink">
+              {title}
+            </h2>
+          )}
           {children}
         </div>
       </motion.div>

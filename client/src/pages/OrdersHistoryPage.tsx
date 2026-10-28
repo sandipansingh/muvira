@@ -3,7 +3,7 @@ import { AccountNavigation } from '../components/auth/AccountNavigation'
 import { StoreImage } from '../components/common/StoreImage'
 import React, { useEffect, useRef, useState } from 'react'
 import { ChevronRight, Clock, Package } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderListItem } from '../lib/types/order'
@@ -13,7 +13,6 @@ import { Pagination } from '../components/common/Pagination'
 
 export const OrdersHistoryPage: React.FC = () => {
   const { user, loading: authLoading } = useAuth()
-  const navigate = useNavigate()
   const [orders, setOrders] = useState<OrderListItem[]>([])
   const [page, setPage] = useState(1)
   const [refreshToken, setRefreshToken] = useState(0)
@@ -34,10 +33,6 @@ export const OrdersHistoryPage: React.FC = () => {
     shouldScrollRef.current = true
     setPage(newPage)
   }
-
-  useEffect(() => {
-    if (!authLoading && !user) navigate('/signin?returnTo=/orders', { replace: true })
-  }, [authLoading, navigate, user])
 
   useEffect(() => {
     if (!user) return

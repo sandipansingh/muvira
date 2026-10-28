@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { LockKeyhole } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { useAuthDialog } from '../context/AuthDialogContext'
 import { AuthHeroCard } from '../components/auth/AuthHeroCard'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
@@ -17,7 +18,7 @@ export const ResetPasswordPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { showToast } = useToast()
-  const navigate = useNavigate()
+  const { openAuth } = useAuthDialog()
 
   useEffect(() => {
     let active = true
@@ -78,9 +79,13 @@ export const ResetPasswordPage: React.FC = () => {
 
       sessionStorage.removeItem(PASSWORD_RECOVERY_SESSION_KEY)
       window.history.replaceState({}, document.title, '/reset-password')
-      await supabase.auth.signOut()
+      const { error: signOutError } = await supabase.auth.signOut()
+      if (signOutError) throw signOutError
       showToast('Password updated. Sign in with your new password.', 'success')
-      navigate('/signin', { replace: true })
+      setPassword('')
+      setConfirmation('')
+      setValidRecovery(false)
+      openAuth({ mode: 'signin' })
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Password could not be updated.')
     } finally {
@@ -112,9 +117,14 @@ export const ResetPasswordPage: React.FC = () => {
           ) : !validRecovery ? (
             <div className="mt-5 space-y-5">
               <p className="text-sm text-danger">{error}</p>
-              <Link to="/signin" className="button-primary w-full justify-center">
+              <button
+                type="button"
+                data-auth-focus="account"
+                onClick={() => openAuth({ mode: 'signin' })}
+                className="button-primary w-full justify-center"
+              >
                 Return to sign in
-              </Link>
+              </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="mt-6 space-y-5">

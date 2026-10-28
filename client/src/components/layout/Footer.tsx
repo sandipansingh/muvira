@@ -4,10 +4,19 @@ import { Link } from 'react-router-dom'
 import { useStoreCollections } from '../../context/StoreCollectionsContext'
 import { collectionHref } from '../../lib/utils/collectionPresentation'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
+import { useAuth } from '../../context/AuthContext'
+import { useAuthDialog } from '../../context/AuthDialogContext'
 
 export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { settings, error } = useSiteSettings()
   const { categories } = useStoreCollections()
+  const { isAuthenticated } = useAuth()
+  const { openAuth } = useAuthDialog()
+  const requestAccount = (event: React.MouseEvent<HTMLAnchorElement>, returnTo?: string) => {
+    if (isAuthenticated && returnTo) return
+    event.preventDefault()
+    openAuth({ mode: 'signin', returnTo })
+  }
   const { contactInfo, storeDescription } = settings
   const hasContact =
     !error && Boolean(contactInfo.phone || contactInfo.email || contactInfo.address)
@@ -42,10 +51,17 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
           <div>
             <h2 className="footer-heading">Your Muvira</h2>
             <nav aria-label="Footer account" className="footer-links">
-              <Link to="/profile">My account</Link>
-              <Link to="/orders">Orders & tracking</Link>
+              <Link to="/profile" onClick={(event) => requestAccount(event, '/profile')}>
+                My account
+              </Link>
+              <Link to="/orders" onClick={(event) => requestAccount(event, '/orders')}>
+                Orders & tracking
+              </Link>
               <Link to="/cart">Shopping bag</Link>
-              <Link to="/signin">
+              <Link
+                to={isAuthenticated ? '/profile' : '/signin'}
+                onClick={(event) => requestAccount(event, isAuthenticated ? '/profile' : undefined)}
+              >
                 Sign in <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </nav>

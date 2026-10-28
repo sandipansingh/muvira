@@ -122,6 +122,15 @@ test('post-auth return paths remain normalized and same-origin', async () => {
   const { safeReturnPath } = await loadClientModule('lib/authRedirect.ts')
 
   assert.equal(safeReturnPath('/orders?page=2'), '/orders?page=2')
+  assert.equal(safeReturnPath('/search?q=brass%26wood#results'), '/search?q=brass%26wood#results')
+  for (const route of [
+    '/signin',
+    '/signup?returnTo=/orders',
+    '/login#form',
+    '/shop/../signin',
+    '/%73ignin',
+  ])
+    assert.equal(safeReturnPath(route), '/profile')
   assert.equal(safeReturnPath('https://evil.example/steal'), '/profile')
   assert.equal(safeReturnPath('//evil.example/steal'), '/profile')
   assert.equal(safeReturnPath('%2F%2Fevil.example%2Fsteal'), '/profile')

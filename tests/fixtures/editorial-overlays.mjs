@@ -47,7 +47,7 @@ const cases = [
     name: 'password-recovery',
     path: '/signin?fixtureRole=guest',
     button: /forgot password/i,
-    dialog: 'Reset Password',
+    dialog: 'Reset password',
   },
   {
     name: 'checkout-address',
@@ -223,7 +223,11 @@ try {
           }
           await page.keyboard.press('Escape')
           await surface.waitFor({ state: 'hidden' })
-          focusRestored = await trigger.evaluate((el) => document.activeElement === el)
+          focusRestored = await (
+            item.name === 'password-recovery'
+              ? page.locator('header [data-auth-focus="account"]')
+              : trigger
+          ).evaluate((el) => document.activeElement === el)
         }
         results.push({
           name: item.name,

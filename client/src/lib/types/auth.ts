@@ -16,3 +16,16 @@ export interface AuthState {
   isAuthenticated: boolean
   isAdmin: boolean
 }
+
+export type AuthMode = 'signin' | 'signup'
+
+export interface AuthDialogOptions {
+  mode: AuthMode
+  returnTo?: string
+  trigger?: HTMLElement | null
+  fallbackFocus?: 'account' | 'bag' | 'menu'
+}
+
+export interface AuthNavigationState {
+  authDialog: { mode: AuthMode; returnTo?: string }
+}

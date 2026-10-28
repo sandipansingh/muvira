@@ -3,6 +3,8 @@ import React, { lazy, Suspense, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { ToastProvider } from './context/ToastContext'
 import { AuthProvider } from './context/AuthContext'
+import { AuthDialogProvider } from './context/AuthDialogContext'
+import { AuthEntry } from './components/auth/AuthEntry'
 import { CartProvider } from './context/CartContext'
 import { SiteSettingsProvider } from './context/SiteSettingsContext'
 import { StoreCollectionsProvider } from './context/StoreCollectionsContext'
@@ -35,8 +37,6 @@ const OrderFailurePage = lazy(() => import('./pages/OrderFailurePage'))
 const OrdersHistoryPage = lazy(() => import('./pages/OrdersHistoryPage'))
 const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
-const SignInPage = lazy(() => import('./pages/SignInPage'))
-const SignUpPage = lazy(() => import('./pages/SignUpPage'))
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'))
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'))
@@ -96,10 +96,10 @@ export const AppContent: React.FC = () => {
         }
       >
         <Routes>
-          <Route path="/signin" element={<SignInPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/signin" element={<AuthEntry mode="signin" />} />
+          <Route path="/signup" element={<AuthEntry mode="signup" />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/login" element={<Navigate to="/signin" replace />} />
+          <Route path="/login" element={<AuthEntry mode="signin" />} />
 
           <Route element={<AdminGuard />}>
             <Route path="/admin" element={<AdminShell />}>
@@ -147,7 +147,9 @@ export const App: React.FC = () => {
             <SiteSettingsProvider>
               <CartProvider>
                 <StoreCollectionsProvider>
-                  <AppContent />
+                  <AuthDialogProvider>
+                    <AppContent />
+                  </AuthDialogProvider>
                 </StoreCollectionsProvider>
               </CartProvider>
             </SiteSettingsProvider>
