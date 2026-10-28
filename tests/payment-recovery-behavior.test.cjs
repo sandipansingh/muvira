@@ -727,10 +727,12 @@ test('expired payable checkout retains reservations and a later capture commits 
     throw new Error(`Unexpected relation: ${relation}`)
   }
 
-  adminSupabase.rpc = async (name, args) => {
+  adminSupabase.rpc = (name, args) => {
     const leaseResult = executionLeaseRpc(name, args)
     if (leaseResult) return leaseResult
-    if (name === 'expire_abandoned_checkouts') return { data: 0, error: null }
+    if (name === 'expire_abandoned_checkouts') {
+      return { abortSignal: async () => ({ data: 0, error: null }) }
+    }
     if (name === 'retain_payable_checkout_fenced') {
       assert.equal(args.p_provider_status, 'attempted')
       assert.equal(args.p_provider_amount_paid, 0)

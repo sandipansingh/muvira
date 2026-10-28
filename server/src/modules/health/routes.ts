@@ -4,6 +4,7 @@ import { getMetricsSnapshot } from '../../services/metricsCollector'
 import {
   getRuntimeSchemaStatus,
   RUNTIME_SCHEMA_CONTRACT_VERSION,
+  SUPPORTED_RUNTIME_SCHEMA_VERSIONS,
 } from '../../services/runtimeSchema'
 import { getSettings } from '../settings/service'
 import { getWorkerStartupStatus } from '../../services/workerStartup'
@@ -50,6 +51,7 @@ async function sendReadiness(res: Response, includeMetrics: boolean) {
       database_contract: {
         status: schema.ready ? 'compatible' : 'incompatible',
         expected_version: RUNTIME_SCHEMA_CONTRACT_VERSION,
+        supported_versions: SUPPORTED_RUNTIME_SCHEMA_VERSIONS,
         reported_version: schema.contract?.contract_version ?? null,
       },
       ...(metrics && {

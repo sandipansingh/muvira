@@ -59,15 +59,26 @@ export function startPollingScheduler(): void {
     })
     scheduledJobs.push(retryWorker)
 
+    let checkoutExpiryRunning = false
     const checkoutExpiryWorker = cron.schedule('* * * * *', async () => {
+      if (checkoutExpiryRunning) return
+      checkoutExpiryRunning = true
       try {
-        const result = await expireAbandonedCheckouts(100)
-        await processLateCaptureWatches(20)
-        if (result.released > 0 || result.retained > 0) {
-          logger.info(result, 'PollingScheduler: inspected expired checkouts')
+        try {
+          const result = await expireAbandonedCheckouts(100)
+          if (result.released > 0 || result.retained > 0) {
+            logger.info(result, 'PollingScheduler: inspected expired checkouts')
+          }
+        } catch (error) {
+          logger.error({ error }, 'PollingScheduler: checkout expiry failed')
         }
-      } catch (error) {
-        logger.error({ error }, 'PollingScheduler: checkout expiry failed')
+        try {
+          await processLateCaptureWatches(20)
+        } catch (error) {
+          logger.error({ error }, 'PollingScheduler: late capture watch processing failed')
+        }
+      } finally {
+        checkoutExpiryRunning = false
       }
     })
     scheduledJobs.push(checkoutExpiryWorker)

@@ -361,23 +361,28 @@ async function releaseRetainedCheckout(
   actorId: string | null,
   lease: Parameters<typeof executionLeaseRpcArgs>[0]
 ): Promise<void> {
-  const { data, error } = await adminSupabase.rpc('release_retained_checkout_fenced', {
-    ...executionLeaseRpcArgs(lease),
-    p_order_id: checkout.id,
-    p_provider_status: providerStatus,
-    p_provider_amount_paid: providerAmountPaid,
-    p_provider_currency: firstPayment(checkout.payments)?.currency ?? 'INR',
-    p_resolution_type: resolutionType,
-    p_reason: reason,
-    p_actor_id: actorId,
-  })
-  if (error || !data) {
-    throw databaseError(
-      'checkout.release_retained',
-      error,
-      'Retained checkout could not be released safely',
-      { statusCode: 409, code: 'RETAINED_CHECKOUT_RELEASE_FAILED' }
-    )
+  try {
+    const { data, error } = await adminSupabase.rpc('release_retained_checkout_fenced', {
+      ...executionLeaseRpcArgs(lease),
+      p_order_id: checkout.id,
+      p_provider_status: providerStatus,
+      p_provider_amount_paid: providerAmountPaid,
+      p_provider_currency: firstPayment(checkout.payments)?.currency ?? 'INR',
+      p_resolution_type: resolutionType,
+      p_reason: reason,
+      p_actor_id: actorId,
+    })
+    if (error || !data) {
+      throw databaseError(
+        'checkout.release_retained',
+        error,
+        'Retained checkout could not be released safely',
+        { statusCode: 409, code: 'RETAINED_CHECKOUT_RELEASE_FAILED' }
+      )
+    }
+  } finally {
+    // The release can commit before its response is lost.
+    deleteCacheByPattern('GET:/api/products')
   }
 }
 
@@ -486,15 +491,19 @@ export async function inspectCheckoutProviderState(
   }
 
   if (inspection.classification === 'terminal_unpaid') {
-    const { data, error } = await adminSupabase.rpc('fail_checkout_fenced', {
-      ...executionLeaseRpcArgs(lease),
-      p_order_id: checkout.id,
-      p_reason: `Checkout expired after provider became ${providerStatus}`,
-    })
-    if (error || data !== true) {
-      throw new AppError(409, 'EXECUTION_FENCED_OUT', 'Expired checkout was not released')
+    try {
+      const { data, error } = await adminSupabase.rpc('fail_checkout_fenced', {
+        ...executionLeaseRpcArgs(lease),
+        p_order_id: checkout.id,
+        p_reason: `Checkout expired after provider became ${providerStatus}`,
+      })
+      if (error || data !== true) {
+        throw new AppError(409, 'EXECUTION_FENCED_OUT', 'Expired checkout was not released')
+      }
+      return 'released'
+    } finally {
+      deleteCacheByPattern('GET:/api/products')
     }
-    return 'released'
   }
 
   return retainOrReleaseCheckout(
@@ -507,18 +516,108 @@ export async function inspectCheckoutProviderState(
   )
 }
 
+const EXPIRY_TRANSPORT_CODES = new Set([
+  'ABORT_ERR',
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'ETIMEDOUT',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'EPIPE',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_HEADERS_TIMEOUT',
+  'UND_ERR_SOCKET',
+])
+
+function isTransientExpiryFailure(error: unknown, status?: number, depth = 0): boolean {
+  if (!error || typeof error !== 'object') return false
+  if (status !== undefined && status >= 200 && status < 300) return false
+  const candidate = error as Record<string, unknown>
+  const code = candidate['code']
+  if (typeof code === 'string' && EXPIRY_TRANSPORT_CODES.has(code)) return true
+  if (typeof code === 'string' && /^(?:[0-9A-Z]{5}|PGRST\d+)$/.test(code)) return false
+
+  const responseStatus = status ?? candidate['status'] ?? candidate['statusCode']
+  if (
+    responseStatus === 0 ||
+    [502, 503, 504, 520, 521, 522, 523, 524].includes(Number(responseStatus))
+  ) {
+    return true
+  }
+  if (candidate['name'] === 'AbortError' || candidate['name'] === 'TimeoutError') return true
+  const message = typeof candidate['message'] === 'string' ? candidate['message'] : ''
+  if (
+    /\b(?:fetch failed|network request failed|socket hang up|other side closed|AbortError:|TimeoutError:|FetchError:)/i.test(
+      message
+    )
+  ) {
+    return true
+  }
+  if (depth < 2 && Array.isArray(candidate['errors']) && candidate['errors'].length > 0) {
+    return candidate['errors'].every((cause) =>
+      isTransientExpiryFailure(cause, undefined, depth + 1)
+    )
+  }
+  return depth < 2 && isTransientExpiryFailure(candidate['cause'], undefined, depth + 1)
+}
+
+async function expireUnattachedCheckouts(limit: number): Promise<number> {
+  let inventoryMayHaveChanged = false
+  try {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      let failure: unknown
+      let transient = false
+      try {
+        const { data, error, status } = await adminSupabase
+          .rpc('expire_abandoned_checkouts', { p_limit: limit })
+          .abortSignal(AbortSignal.timeout(5000))
+        if (!error) {
+          if (typeof data !== 'number' || !Number.isSafeInteger(data) || data < 0) {
+            inventoryMayHaveChanged = true
+            throw databaseError(
+              'checkout.expire_unattached',
+              {
+                code: 'INVALID_EXPIRY_RESULT',
+                message: 'Checkout expiry returned an invalid count',
+              },
+              'Checkout expiry failed'
+            )
+          }
+          inventoryMayHaveChanged ||= data > 0
+          return data
+        }
+        inventoryMayHaveChanged ||= status >= 200 && status < 300
+        failure = error
+        transient = isTransientExpiryFailure(error, status)
+      } catch (error) {
+        failure = error
+        transient = isTransientExpiryFailure(error)
+      }
+
+      inventoryMayHaveChanged ||= transient
+      if (!transient || attempt === 2) {
+        throw databaseError('checkout.expire_unattached', failure, 'Checkout expiry failed')
+      }
+      const delayMs = 250 * (attempt + 1)
+      logger.warn(
+        { attempt: attempt + 1, maxAttempts: 3, delayMs },
+        'Checkout expiry retry scheduled'
+      )
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs))
+    }
+    throw new Error('Checkout expiry attempts exhausted')
+  } finally {
+    // A lost response can hide a committed release, even if a retry reports zero.
+    if (inventoryMayHaveChanged) deleteCacheByPattern('GET:/api/products')
+  }
+}
+
 export async function expireAbandonedCheckouts(limit = 100): Promise<{
   released: number
   retained: number
 }> {
   const boundedLimit = Math.max(1, Math.min(limit, 1000))
-  const { data: releasedData, error: releaseError } = await adminSupabase.rpc(
-    'expire_abandoned_checkouts',
-    { p_limit: boundedLimit }
-  )
-  if (releaseError) {
-    throw databaseError('checkout.expire_unattached', releaseError, 'Checkout expiry failed')
-  }
+  let released = await expireUnattachedCheckouts(boundedLimit)
 
   const { data, error } = await adminSupabase
     .from('orders')
@@ -530,7 +629,6 @@ export async function expireAbandonedCheckouts(limit = 100): Promise<{
   if (error) throw databaseError('checkout.load_expired', error, 'Checkout expiry failed')
 
   let retained = 0
-  let released = typeof releasedData === 'number' ? releasedData : 0
   for (const checkout of (data ?? []) as unknown as ExpiredCheckout[]) {
     const payment = firstPayment(checkout.payments)
     if (!payment?.razorpay_order_id) continue
