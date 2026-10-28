@@ -35,6 +35,10 @@ Commerce screens use larger complete item photographs, distinct summary surfaces
 
 DM Serif Display uses no synthesized bold or italic. Manrope supports the rupee sign. Full licensed font files are self-hosted. Admin headings use Manrope. The unframed original Muvira logo remains unchanged. Shared brand labels use a single line with a 0.08em downward optical adjustment to center the visible letters beside the logo.
 
+## Navigation iconography
+
+Customer destination links use clear text without decorative arrows, including section links, collection cards, discovery paths, hero actions, search submission, empty states, checkout/recovery actions, quick-view details and labeled outcomes. Order cards display “View order”. Keep arrows and chevrons when they operate navigation: galleries/carousels, lightbox panning, pagination, breadcrumb separators, dropdowns/disclosures and dedicated back actions. Admin controls retain their established iconography. Link hover/focus states, spacing and touch targets remain visible without extra ornaments.
+
 ## Evidence and imagery
 
 `client/public/images/editorial/README.md` records the configured hero scenes. `client/public/images/collections/README.md` records three new category scenes, exact source matches, complete prompts, responsive optimization and side-by-side fidelity comparisons. A reviewed composite is selected only when its exact source photograph remains configured. New or changed content uses its own image. Unconfigured content uses an empty atmospheric setting and the approved generic hero; it never introduces products, prices or sales claims.

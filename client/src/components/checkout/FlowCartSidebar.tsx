@@ -1,7 +1,7 @@
 import { StoreImage } from '../common/StoreImage'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Tag, HelpCircle, ArrowRight, CheckCircle, X, ChevronDown } from 'lucide-react'
+import { Tag, HelpCircle, CheckCircle, X, ChevronDown } from 'lucide-react'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -232,7 +232,6 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
         className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--color-ink)] py-3.5 text-sm font-semibold text-white shadow-none transition-all hover:bg-[var(--color-primary)] hover:shadow-sm disabled:opacity-50"
       >
         <span>{isProcessing ? 'Processing...' : buttonLabel}</span>
-        {!isProcessing && <ArrowRight className="h-4 w-4 shrink-0" />}
       </button>
     </aside>
   )

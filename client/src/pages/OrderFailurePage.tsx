@@ -1,5 +1,5 @@
 import React from 'react'
-import { AlertCircle, ArrowRight, ListChecks } from 'lucide-react'
+import { AlertCircle, ListChecks } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 
@@ -63,7 +63,6 @@ export const OrderFailurePage: React.FC = () => {
             )}
             <Link to="/cart" className="button-secondary py-3.5 px-6 text-sm font-semibold gap-2">
               <span>Return to Cart</span>
-              <ArrowRight className="h-4 w-4 shrink-0" />
             </Link>
           </div>
         </div>

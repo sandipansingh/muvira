@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowUpRight, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
+import { Mail, MapPin, Phone, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useStoreCollections } from '../../context/StoreCollectionsContext'
 import { collectionHref } from '../../lib/utils/collectionPresentation'
@@ -62,7 +62,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
                 to={isAuthenticated ? '/profile' : '/signin'}
                 onClick={(event) => requestAccount(event, isAuthenticated ? '/profile' : undefined)}
               >
-                Sign in <ArrowUpRight className="h-3.5 w-3.5" />
+                Sign in
               </Link>
             </nav>
           </div>

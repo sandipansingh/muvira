@@ -1,6 +1,6 @@
 import { StoreImage } from '../common/StoreImage'
 import React, { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Check, ShoppingBag } from 'lucide-react'
+import { Check, ShoppingBag } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { ProductDetail, ProductListItem } from '../../lib/types/product'
 import { formatPrice } from '../../lib/utils/format'
@@ -253,7 +253,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 className="button-secondary min-h-[var(--tap-target)] justify-center gap-1.5 px-4 text-center text-sm"
               >
                 <span className="leading-none">View Full Details</span>
-                <ArrowRight className="h-4 w-4 shrink-0" />
               </Link>
             </div>
           </div>

@@ -835,10 +835,6 @@ h1.product-detail-title {
   object-fit: cover;
 }
 .campaign-card__copy {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
   padding-block: 1.5rem;
   border-bottom: 1px solid var(--color-line);
 }
@@ -1137,7 +1133,6 @@ button:disabled {
 .collection-link {
   display: inline-flex;
   align-items: center;
-  gap: 1rem;
   min-height: var(--tap-target);
   border-bottom: 1px solid var(--color-ink);
   font-size: 0.875rem;
@@ -2130,10 +2125,6 @@ body {
 }
 .stage-tile__copy {
   position: relative;
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 0.75rem;
   margin-top: auto;
   padding: 3rem 1.5rem 1.25rem;
   background: linear-gradient(transparent, var(--color-paper) 72%);
@@ -2175,10 +2166,6 @@ body {
   min-height: 24rem;
 }
 .mosaic-tile__copy {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
   padding-top: 1rem;
 }
 .mosaic-tile h3 {
@@ -2244,8 +2231,6 @@ body {
 .discovery-links a {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
   min-height: var(--tap-target);
   border: 1px solid var(--color-field-border);
   border-radius: var(--radius-control);
@@ -2402,10 +2387,6 @@ body {
   aspect-ratio: 8 / 3;
 }
 .directory-collection__copy {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
   padding-block: 1rem;
   border-bottom: 1px solid var(--color-line);
 }
@@ -2675,9 +2656,6 @@ body {
     height: auto;
     min-width: var(--tap-target);
   }
-  .header-search__submit span {
-    display: none;
-  }
   .header-search__submit {
     padding-inline: 0.75rem;
   }
@@ -2748,9 +2726,6 @@ body {
   }
   .stage-tile h2 {
     font-size: 1.35rem;
-  }
-  .stage-tile__copy > svg {
-    display: none;
   }
   .category-mosaic {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2841,9 +2816,6 @@ body {
   }
   .directory-collection p {
     font-size: 0.875rem;
-  }
-  .directory-collection__copy > svg {
-    display: none;
   }
   .catalog-heading__layout {
     grid-template-columns: minmax(0, 1fr);

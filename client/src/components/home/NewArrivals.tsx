@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+
 import { productService } from '../../lib/services/product.service'
 import type { ProductListItem } from '../../lib/types/product'
 import { ProductCard } from '../catalog/ProductCard'
@@ -38,7 +38,7 @@ export const NewArrivals: React.FC = () => {
           </h2>
         </div>
         <Link to="/shop?sort=newest" className="collection-link">
-          View new arrivals <ArrowRight className="h-4 w-4" />
+          View new arrivals
         </Link>
       </div>
       {loading && (

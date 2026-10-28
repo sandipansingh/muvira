@@ -65,3 +65,15 @@ The customer/admin overlay and photography checks passed in the full `pnpm run t
 Sign-in/signup and recovery screenshots now show the compact popup. Deterministic browser fixtures run the real AuthContext in React StrictMode and cover credentials, confirmation, delayed/failing profiles, profile retry/sign-out failure/retry, recovery completion, stale dismissal/reopening, validated return destinations, header/mobile/footer/cart/Buy now entry points, quantity preservation, focus and enlarged text. Independent review findings for StrictMode history replay, recovery focus restoration and returned sign-out errors were reproduced and fixed.
 
 Required checks passed in order: lint:fix, format, build, type-check, test (190 passed, 29 environment-gated skips, zero failures), graphify update. Graphify refreshed the code graph; its optional SQL parser is not installed. Unrelated baseline formatting was preserved.
+
+## Authentication popups and text-only links — release candidate
+
+Both logical milestones retain existing backend, Supabase, payment and cart contracts. Customer navigation links no longer use decorative arrows; order cards explicitly say View order. Functional carousel/gallery/lightbox, pagination, breadcrumb, dropdown/disclosure and back controls remain. The gallery's customer captures are refreshed for these conventions.
+
+The final required checks passed in order: lint:fix, format, build, type-check, test (204 passed, 29 environment-gated skips, zero failures), then graphify update. The code graph refreshed successfully; the optional SQL parser remains unavailable. Unrelated baseline formatting is preserved.
+
+All five canonical responsive checks have passing results: 735 route/viewport/DPR/text cases, 22 overlays, 225 authenticated layouts, 78 protected overlays and 57 photography/navigation cases (1,117 total), plus three refreshed empty-cart captures. The first route sweep reported 315 intentional popup/header overlaps because it still assumed standalone authentication screens. The fixture now records the actual popup state, requires it on all nine legacy/protected guest entries, and treats modal coverage as intentional; the complete 735-case rerun passed. Other overflow, target, field, clipping and image checks remained enabled and passed.
+
+Independent review findings were fixed with failing-then-passing browser regressions: StrictMode navigation replay, recovery focus restoration, returned sign-out errors, and authentication completing during a pending Buy now addition. A final regression covers browser Back after a native collection hash jump; the controller observes the complete location as well as its history key. Full regression checks and overlay/navigation checks were repeated after that behavior fix. No additional visual or commercial behavior changed.
+
+Production release uses the existing Dokploy deploy-branch push process. The delivery message records live deployment verification.

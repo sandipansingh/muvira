@@ -1,13 +1,12 @@
 {
-  "verified_at": "2026-10-27T18:36:46.249614+00:00",
-  "implementation_commit": "880e5ed",
+  "verified_at": "2026-10-28T05:25:57.647507+00:00",
   "lint": "passed",
   "format": "completed; unrelated baseline formatting preserved",
   "build": "passed",
   "type_check": "passed",
   "regressions": {
-    "total": 170,
-    "passed": 141,
+    "total": 233,
+    "passed": 204,
     "skipped": 29,
     "failed": 0
   },
@@ -20,7 +19,8 @@
     "photography_input_cases": 57,
     "canonical_total": 1117,
     "supplemental_empty_cart": 3,
-    "failures": 0
+    "failures": 0,
+    "route_recheck": "735 cases passed after positively asserting actual auth popup presence on all 315 legacy/protected guest cases"
   },
   "gallery": {
     "images": 122,
@@ -35,8 +35,17 @@
   "review": {
     "critical_remaining": 0,
     "important_remaining": 0,
-    "findings_fixed": ["empty modal search focus", "pagination/header offsets"],
-    "audit_fixes": ["44px short navigation targets", "readable drawer prices and search prompt"]
+    "findings_fixed": [
+      "StrictMode auth navigation replay",
+      "recovery completion focus restoration",
+      "returned sign-out error recovery",
+      "Buy now authentication during pending cart addition"
+    ],
+    "audit_fixes": [
+      "auth popup headings at 200% text",
+      "native collection hash/back navigation closes auth",
+      "legacy route audit recognizes expected modal coverage"
+    ]
   },
   "graph": {
     "command": "graphify update .",
@@ -53,5 +62,7 @@
     "29 database/integration/provider tests environment-gated",
     "Chromium emulation only; physical mobile keyboards, Safari/Firefox and assistive technology not exercised",
     "No live provider or production commerce mutations"
-  ]
+  ],
+  "implementation": "Authentication popup and customer arrow-cleanup milestones; see the containing commit.",
+  "authentication_commit": "d31d7f2"
 }

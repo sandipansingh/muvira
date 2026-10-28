@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowUpRight } from 'lucide-react'
+
 import { Link } from 'react-router-dom'
 import { useStoreCollections } from '../../context/StoreCollectionsContext'
 import { collectionCaption, collectionHref } from '../../lib/utils/collectionPresentation'
@@ -15,7 +15,7 @@ export const CategoryGrid: React.FC = () => {
           <h2 className="mt-3 text-h2">Explore the collections</h2>
         </div>
         <Link to="/categories" className="collection-link">
-          View all categories <ArrowUpRight className="h-4 w-4" />
+          View all categories
         </Link>
       </div>
       {loading && (
@@ -50,7 +50,6 @@ export const CategoryGrid: React.FC = () => {
                 <h3>{category.name}</h3>
                 <p>{collectionCaption(category)}</p>
               </div>
-              <ArrowUpRight className="h-5 w-5 shrink-0" />
             </div>
           </Link>
         ))}

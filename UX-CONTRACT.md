@@ -28,6 +28,8 @@ The generic premium static auditor recommends disabling native validation. That 
 
 ## Shopping and image interaction
 
+Customer destination actions rely on visible text, including “View order” on each order card. Decorative arrows are absent from labeled links and actions. Retain functional gallery/carousel/lightbox controls, pagination, breadcrumb separators, dropdown/disclosure chevrons and dedicated back navigation. Search submission keeps a visible text label on phones. Removing an icon must preserve semantic links/buttons, hover and keyboard focus states and 44px targets. Admin controls are unchanged.
+
 Collection images and vertical product-card photographs fill their frames; product cards use centered crops, with 1.06× / 350ms zoom restricted to fine pointers and no reduced-motion preference. Actions remain visible for touch and keyboard. StoreImage owns image failures and exact-source reviewed focal points; it does not create substitute merchandise. Main gallery, quick-view and horizontal product-card images remain complete at rest. Lightbox image navigation resets zoom/pan, supports 1×/2×, reset, labeled pan buttons, pointer dragging and arrow keys, and restores the opener on Escape.
 
 CustomerPageHeading and AccountNavigation own repeated account headings and navigation. Saved-address links resolve their hash after route content mounts. Order confirmation displays only owned order items after the existing paid-state check; pending and unknown outcomes keep their existing distinct recovery actions. Care information appears only when the current product metadata supplies it.

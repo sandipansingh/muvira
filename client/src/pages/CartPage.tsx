@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react'
+import { ShoppingBag, ArrowLeft } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { useAuthDialog } from '../context/AuthDialogContext'
@@ -61,7 +61,6 @@ export const CartPage: React.FC = () => {
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-6 py-3.5 text-sm font-semibold text-white shadow-none transition-all hover:bg-[var(--color-primary-hover)]"
           >
             <span>Explore Collections</span>
-            <ArrowRight className="h-4 w-4 shrink-0" />
           </Link>
         </div>
         <div className="empty-journey__image">

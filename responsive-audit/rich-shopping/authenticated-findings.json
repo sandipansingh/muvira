@@ -1,185 +1,50 @@
 {
   "routes": [
-    [
-      "home",
-      "/"
-    ],
-    [
-      "shop",
-      "/shop"
-    ],
-    [
-      "categories",
-      "/categories"
-    ],
-    [
-      "search",
-      "/search?q=Krishna"
-    ],
-    [
-      "product",
-      "/product/fixture"
-    ],
-    [
-      "cart",
-      "/cart"
-    ],
-    [
-      "checkout",
-      "/checkout"
-    ],
-    [
-      "payment",
-      "/checkout?step=payment"
-    ],
-    [
-      "signin",
-      "/signin?fixtureRole=guest"
-    ],
-    [
-      "signup",
-      "/signup?fixtureRole=guest"
-    ],
-    [
-      "recovery",
-      "/reset-password"
-    ],
-    [
-      "profile",
-      "/profile"
-    ],
-    [
-      "orders",
-      "/orders"
-    ],
-    [
-      "order-detail",
-      "/orders/fixture-order"
-    ],
-    [
-      "order-invoice",
-      "/orders/fixture-order?shipment=1"
-    ],
-    [
-      "order-success",
-      "/orders/success?orderId=fixture-order"
-    ],
-    [
-      "order-pending",
-      "/orders/success?orderId=fixture-order&payment=pending"
-    ],
-    [
-      "order-failure",
-      "/orders/failure"
-    ],
-    [
-      "not-found",
-      "/missing"
-    ],
-    [
-      "admin-dashboard",
-      "/admin?fixtureRole=admin"
-    ],
-    [
-      "admin-orders",
-      "/admin/orders?fixtureRole=admin"
-    ],
-    [
-      "admin-order-detail",
-      "/admin/orders/fixture-order?fixtureRole=admin"
-    ],
-    [
-      "admin-catalog",
-      "/admin/catalog?fixtureRole=admin"
-    ],
-    [
-      "admin-coupons",
-      "/admin/coupons?fixtureRole=admin"
-    ],
-    [
-      "admin-settings",
-      "/admin/settings?fixtureRole=admin"
-    ],
-    [
-      "admin-failures",
-      "/admin/failures?fixtureRole=admin"
-    ],
-    [
-      "product-one-photo",
-      "/product/fixture?photos=1"
-    ],
-    [
-      "product-two-photos",
-      "/product/fixture?photos=2"
-    ],
-    [
-      "product-four-photos",
-      "/product/fixture?photos=4"
-    ],
-    [
-      "product-many-photos",
-      "/product/fixture?photos=10"
-    ],
-    [
-      "categories-empty",
-      "/categories?scenario=empty"
-    ],
-    [
-      "categories-error",
-      "/categories?scenario=error"
-    ],
-    [
-      "home-sparse",
-      "/?scenario=sparse"
-    ],
-    [
-      "home-unknown-collections",
-      "/?scenario=unknown-collections"
-    ],
-    [
-      "home-loading",
-      "/?scenario=loading"
-    ],
-    [
-      "home-error",
-      "/?scenario=error"
-    ],
-    [
-      "home-empty",
-      "/?scenario=empty"
-    ],
-    [
-      "home-unconfigured",
-      "/?scenario=unconfigured"
-    ],
-    [
-      "home-campaigns",
-      "/?campaigns=1"
-    ],
-    [
-      "home-unknown-photo",
-      "/?hero=unknown"
-    ],
-    [
-      "home-long-title",
-      "/?hero=long"
-    ],
-    [
-      "shop-empty",
-      "/shop?scenario=empty"
-    ],
-    [
-      "shop-error",
-      "/shop?scenario=error"
-    ],
-    [
-      "shop-missing-images",
-      "/shop?scenario=missing-images"
-    ],
-    [
-      "shop-long-name",
-      "/shop?scenario=long-name"
-    ]
+    ["home", "/"],
+    ["shop", "/shop"],
+    ["categories", "/categories"],
+    ["search", "/search?q=Krishna"],
+    ["product", "/product/fixture"],
+    ["cart", "/cart"],
+    ["checkout", "/checkout"],
+    ["payment", "/checkout?step=payment"],
+    ["signin", "/signin?fixtureRole=guest"],
+    ["signup", "/signup?fixtureRole=guest"],
+    ["recovery", "/reset-password"],
+    ["profile", "/profile"],
+    ["orders", "/orders"],
+    ["order-detail", "/orders/fixture-order"],
+    ["order-invoice", "/orders/fixture-order?shipment=1"],
+    ["order-success", "/orders/success?orderId=fixture-order"],
+    ["order-pending", "/orders/success?orderId=fixture-order&payment=pending"],
+    ["order-failure", "/orders/failure"],
+    ["not-found", "/missing"],
+    ["admin-dashboard", "/admin?fixtureRole=admin"],
+    ["admin-orders", "/admin/orders?fixtureRole=admin"],
+    ["admin-order-detail", "/admin/orders/fixture-order?fixtureRole=admin"],
+    ["admin-catalog", "/admin/catalog?fixtureRole=admin"],
+    ["admin-coupons", "/admin/coupons?fixtureRole=admin"],
+    ["admin-settings", "/admin/settings?fixtureRole=admin"],
+    ["admin-failures", "/admin/failures?fixtureRole=admin"],
+    ["product-one-photo", "/product/fixture?photos=1"],
+    ["product-two-photos", "/product/fixture?photos=2"],
+    ["product-four-photos", "/product/fixture?photos=4"],
+    ["product-many-photos", "/product/fixture?photos=10"],
+    ["categories-empty", "/categories?scenario=empty"],
+    ["categories-error", "/categories?scenario=error"],
+    ["home-sparse", "/?scenario=sparse"],
+    ["home-unknown-collections", "/?scenario=unknown-collections"],
+    ["home-loading", "/?scenario=loading"],
+    ["home-error", "/?scenario=error"],
+    ["home-empty", "/?scenario=empty"],
+    ["home-unconfigured", "/?scenario=unconfigured"],
+    ["home-campaigns", "/?campaigns=1"],
+    ["home-unknown-photo", "/?hero=unknown"],
+    ["home-long-title", "/?hero=long"],
+    ["shop-empty", "/shop?scenario=empty"],
+    ["shop-error", "/shop?scenario=error"],
+    ["shop-missing-images", "/shop?scenario=missing-images"],
+    ["shop-long-name", "/shop?scenario=long-name"]
   ],
   "viewports": [
     {
@@ -376,7 +241,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Welcome back.",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -395,7 +260,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Create an Account",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -1231,7 +1096,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Welcome back.",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -1250,7 +1115,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Create an Account",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -2086,7 +1951,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Welcome back.",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -2105,7 +1970,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Create an Account",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -2950,7 +2815,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Welcome back.",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -2970,7 +2835,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Create an Account",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -3850,7 +3715,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Welcome back.",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],
@@ -3870,7 +3735,7 @@
         "horizontalOverflow": false,
         "headings": 1,
         "smallFields": [],
-        "heading": "Create an Account",
+        "heading": "Ganesha Idols",
         "bodyFont": "Manrope, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", Helvetica, Arial, sans-serif"
       },
       "errors": [],

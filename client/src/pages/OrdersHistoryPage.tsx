@@ -2,7 +2,7 @@ import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { AccountNavigation } from '../components/auth/AccountNavigation'
 import { StoreImage } from '../components/common/StoreImage'
 import React, { useEffect, useRef, useState } from 'react'
-import { ChevronRight, Clock, Package } from 'lucide-react'
+import { Clock, Package } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
@@ -114,7 +114,7 @@ export const OrdersHistoryPage: React.FC = () => {
               <Link
                 key={order.id}
                 to={`/orders/${order.id}`}
-                className="order-history-card flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
+                className="order-history-card group flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
               >
                 <div className="flex min-w-0 flex-1 flex-wrap items-start gap-4">
                   {order.firstItemImage ? (
@@ -146,14 +146,16 @@ export const OrdersHistoryPage: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center justify-between gap-4 border-t border-line pt-3 sm:border-t-0 sm:pt-0">
+                <div className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-line pt-3 sm:border-t-0 sm:pt-0">
                   <div className="text-right">
                     <span className="font-product block whitespace-nowrap text-base font-normal text-ink">
                       {formatPrice(order.totalAmount)}
                     </span>
                     <span className="text-[11px] text-muted">{order.itemCount} item(s)</span>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted" />
+                  <span className="text-sm font-semibold text-ink group-hover:text-primary">
+                    View order
+                  </span>
                 </div>
               </Link>
             ))}

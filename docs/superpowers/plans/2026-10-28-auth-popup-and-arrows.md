@@ -42,11 +42,13 @@
 
 **Files:** Customer home/discovery/collection links, Header/Footer, empty/outcome/checkout buttons, QuickViewModal, order cards and obsolete index.css icon selectors. Keep admin and functional navigation controls.
 
-- [ ] Add browser assertions for text-only links, visible View order and retained gallery/carousel/disclosure/back controls.
-- [ ] Remove decorative arrow markup/imports, simplify obsolete spacing/CSS and retain search's visible label on mobile.
-- [ ] Update design and interaction conventions and visually review customer surfaces.
-- [ ] Run lint:fix, format, build, type-check, test, graphify update in order, then responsive suite; commit style(storefront): remove decorative navigation arrows.
-- [ ] Obtain independent code review and deploy using the repository's normal client process, verifying the deployed revision and guest popup behavior.
+- [x] Add browser assertions for text-only links, visible View order and retained gallery/carousel/disclosure/back controls.
+- [x] Remove decorative arrow markup/imports, simplify obsolete spacing/CSS and retain search's visible label on mobile.
+- [x] Update design and interaction conventions and visually review customer surfaces.
+- [x] Run lint:fix, format, build, type-check, test, graphify update in order, then responsive suite; commit style(storefront): remove decorative navigation arrows.
+- [x] Obtain independent code review and fix Important findings with browser regressions.
+
+Release procedure: Push the verified revision to the existing deploy branch for Dokploy. Verify container health, revision and live guest popup behavior; production evidence is reported in the delivery message.
 
 ## Execution record
 

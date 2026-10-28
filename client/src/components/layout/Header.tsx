@@ -1,15 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import {
-  ArrowLeft,
-  ArrowRight,
-  Menu,
-  Search,
-  ShieldCheck,
-  ShoppingBag,
-  User,
-  X,
-} from 'lucide-react'
+import { ArrowLeft, Menu, Search, ShieldCheck, ShoppingBag, User, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 import { useAuthDialog } from '../../context/AuthDialogContext'
@@ -134,7 +125,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
                 aria-label="Submit product search"
               >
                 <span>Search</span>
-                <ArrowRight className="h-4 w-4" />
               </button>
             </form>
           )}
@@ -268,7 +258,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
               </button>
             )}
           </div>
-          <Button type="submit" size="lg" rightIcon={<ArrowRight className="h-4 w-4" />}>
+          <Button type="submit" size="lg">
             Search
           </Button>
         </form>

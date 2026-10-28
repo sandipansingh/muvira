@@ -47,3 +47,7 @@ The approved composition is maintained in `DESIGN.md`. Runtime colors, typograph
 ## Authentication popup
 
 Customer sign-in and signup use the shared compact AuthDialog over the current page. Reuse Modal, Input and Button with the unframed logo and existing tokens. Recovery and email-confirmation messages replace the form inside that dialog. Fields remain at least 16px and controls at least 44px. Passwords clear when switching or closing. Profile loading gates completion; profile errors provide retry and sign-out. Legacy auth routes are compatibility entries, and /reset-password remains the emailed recovery route.
+
+## Customer navigation icons
+
+Use text-only destination links and labeled actions across customer pages. Order cards include visible View order text. Retain arrows/chevrons for gallery and carousel controls, lightbox pan controls, pagination, breadcrumb separators, dropdowns/disclosures and dedicated back actions. Keep existing admin controls. Remove obsolete icon spacing/selectors while preserving link styling, visible hover/focus, mobile search labels and 44px targets.

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSiteSettings } from '../../context/SiteSettingsContext'
 import { editorialImage, heroDestination } from '../../lib/utils/editorialImage'
@@ -71,9 +71,9 @@ export const HeroSlider: React.FC = () => {
           </AnimatePresence>
           <Link
             to={heroDestination(slide?.link, categorySlugs)}
-            className="button-primary w-fit gap-6 px-6 py-4"
+            className="button-primary w-fit px-6 py-4"
           >
-            Explore the collection <ArrowRight className="h-4 w-4" />
+            Explore the collection
           </Link>
           {error && (
             <div role="status" className="text-sm text-muted">

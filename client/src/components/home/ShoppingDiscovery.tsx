@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+
 import { Link } from 'react-router-dom'
 import { useStoreCollections } from '../../context/StoreCollectionsContext'
 import { collectionCaption, collectionHref } from '../../lib/utils/collectionPresentation'
@@ -29,7 +29,6 @@ export function ShoppingStage({ children }: { children: React.ReactNode }) {
                   <span className="eyebrow">{category.name}</span>
                   <h2>{collectionCaption(category)}</h2>
                 </div>
-                <ArrowUpRight className="h-5 w-5 shrink-0" />
               </div>
             </Link>
           ))}
@@ -61,7 +60,6 @@ export function DiscoveryPaths() {
               {['Ganesha', 'Krishna', 'Shiva', 'Durga', 'Jagannath', 'Balaji'].map((name) => (
                 <Link key={name} to={`/search?q=${encodeURIComponent(name)}`}>
                   {name}
-                  <ArrowUpRight className="h-4 w-4" />
                 </Link>
               ))}
             </div>
@@ -76,7 +74,6 @@ export function DiscoveryPaths() {
               ].map(([label, href]) => (
                 <Link key={href} to={href}>
                   {label}
-                  <ArrowRight className="h-4 w-4" />
                 </Link>
               ))}
             </div>
@@ -106,9 +103,7 @@ export function CollectionSpotlight() {
               ? category.description
               : `Take a closer look at our ${category.name.toLowerCase().trim()} collection and find a place for something meaningful.`}
           </p>
-          <span className="collection-link">
-            Explore {category.name.trim()} <ArrowRight className="h-4 w-4" />
-          </span>
+          <span className="collection-link">Explore {category.name.trim()}</span>
         </div>
       </Link>
     </section>

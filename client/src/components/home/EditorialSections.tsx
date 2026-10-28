@@ -1,6 +1,6 @@
 import React from 'react'
 import { StoreImage } from '../common/StoreImage'
-import { ArrowUpRight } from 'lucide-react'
+
 import { Link } from 'react-router-dom'
 import { CollectionSpotlight } from './ShoppingDiscovery'
 import { useStoreCollections } from '../../context/StoreCollectionsContext'
@@ -32,7 +32,6 @@ export const EditorialCampaigns: React.FC = () => {
                 <h2 className="text-h2">{banner.title}</h2>
                 {banner.subtitle && <p className="mt-2 text-muted">{banner.subtitle}</p>}
               </div>
-              <ArrowUpRight className="h-6 w-6 shrink-0" />
             </div>
           </Link>
         ))}
@@ -66,9 +65,9 @@ export const StoreIntroduction: React.FC = () => {
           <p className="text-lg leading-relaxed text-ink-soft">{settings.storeDescription}</p>
           <Link
             to="/shop"
-            className="mt-6 inline-flex min-h-11 items-center gap-4 border-b border-ink text-sm hover:text-primary"
+            className="mt-6 inline-flex min-h-11 items-center border-b border-ink text-sm hover:text-primary"
           >
-            Find your piece <ArrowUpRight className="h-4 w-4" />
+            Find your piece
           </Link>
         </div>
       </div>

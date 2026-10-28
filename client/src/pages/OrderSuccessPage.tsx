@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { StoreImage } from '../components/common/StoreImage'
 import { formatPrice } from '../lib/utils/format'
-import { ArrowRight, CheckCircle2, Clock3, PackageCheck, ShieldCheck } from 'lucide-react'
+import { CheckCircle2, Clock3, PackageCheck, ShieldCheck } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
 import { orderApiService } from '../lib/services/order.service'
@@ -168,7 +168,6 @@ export const OrderSuccessPage: React.FC = () => {
             </Link>
             <Link to="/shop" className="button-secondary gap-2 px-6 py-3.5 text-sm font-semibold">
               <span>Continue shopping</span>
-              <ArrowRight className="h-4 w-4 shrink-0" />
             </Link>
           </div>
         </div>

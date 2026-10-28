@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import React, { useRef } from 'react'
-import { ArrowRight, ShoppingBag, X } from 'lucide-react'
+import { ShoppingBag, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
@@ -110,7 +110,6 @@ export const CartDrawer: React.FC = () => {
                 className="button-primary mt-5 px-4 py-2 text-xs"
               >
                 <span className="leading-none">Shop the collection</span>
-                <ArrowRight className="h-3.5 w-3.5 shrink-0" />
               </button>
             </div>
           ) : (

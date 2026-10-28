@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
+
 import { useStoreCollections } from '../context/StoreCollectionsContext'
 import { collectionCaption, collectionHref } from '../lib/utils/collectionPresentation'
 import { CollectionImage } from '../components/catalog/CollectionImage'
@@ -48,7 +48,7 @@ export const CategoriesPage: React.FC = () => {
           <div className="panel p-8">
             <h2 className="text-h2">No categories available</h2>
             <Link to="/shop" className="collection-link mt-4">
-              Browse all products <ArrowRight className="h-4 w-4" />
+              Browse all products
             </Link>
           </div>
         )}
@@ -70,8 +70,8 @@ export const CategoriesPage: React.FC = () => {
                 <h2>{lead.name}</h2>
                 <p>{collectionCaption(lead)}</p>
                 <p className="mt-4 text-ink-soft">{lead.description}</p>
-                <Link to={collectionHref(lead)} className="button-primary mt-6 gap-4">
-                  Explore {lead.name} <ArrowRight className="h-4 w-4" />
+                <Link to={collectionHref(lead)} className="button-primary mt-6">
+                  Explore {lead.name}
                 </Link>
               </div>
             </section>
@@ -91,7 +91,6 @@ export const CategoriesPage: React.FC = () => {
                         <h2>{category.name}</h2>
                         <p>{collectionCaption(category)}</p>
                       </div>
-                      <ArrowUpRight className="h-5 w-5 shrink-0" />
                     </div>
                   </Link>
                 </section>
