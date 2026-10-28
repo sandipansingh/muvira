@@ -659,9 +659,9 @@ function cancellationFailureIsDefinitive(error: unknown): boolean {
   return shiprocketError.type === 'BAD_REQUEST'
 }
 
-function isCancelledStatus(value: unknown): boolean {
+export function isCancelledStatus(value: unknown): boolean {
   const status = typeof value === 'string' ? value.toLowerCase() : ''
-  return status.includes('cancel')
+  return ['cancelled', 'canceled', 'cancelled before shipping'].includes(status.trim())
 }
 
 export const shiprocketCancellationAdapter: ProviderMutationAdapter<ShiprocketCancellationObservation> =
@@ -783,42 +783,45 @@ export async function cancelOrderWithProviderSafety(
   cause: string,
   adapter: ProviderMutationAdapter<ShiprocketCancellationObservation> = shiprocketCancellationAdapter
 ): Promise<{ cancellation: ProviderOperation; refund: ProviderOperation | null }> {
-  const prepared = await withExecutionLease('fulfillment_order', orderId, ({ lease }) =>
-    prepareShiprocketCancellation(orderId, cause, lease)
-  )
-  const cancellation = await withExecutionLease(
-    'provider_operation',
-    prepared.id,
-    async ({ lease }) => {
-      const current = await loadOperation(prepared.id)
-      if (current.local_applied_at) return current
-      if (current.state === 'prepared') {
-        return dispatchShiprocketCancellation(current, lease, adapter)
-      }
-      if (current.state === 'provider_succeeded') return finalizeOperation(current, lease)
-      if (current.state === 'dispatching' || current.state === 'outcome_unknown') {
-        return reconcileShiprocketCancellation(current, lease, adapter)
-      }
-      return current
-    }
-  )
-
-  let refund: ProviderOperation | null = null
-  if (cancellation.local_applied_at) {
-    try {
-      if (await hasSchemaCapability(51)) {
-        refund = (await processCancellationRefund(cancellation.id)).operation
-      } else {
-        refund = await prepareFullRefund(orderId, `Refund after Shiprocket cancellation: ${cause}`)
-        if (refund && !refund.local_applied_at && refund.state !== 'provider_failed') {
-          refund = await dispatchRazorpayRefund(refund.id)
+  return withExecutionLease('fulfillment_order', orderId, async ({ lease: fulfillmentLease }) => {
+    const prepared = await prepareShiprocketCancellation(orderId, cause, fulfillmentLease)
+    const cancellation = await withExecutionLease(
+      'provider_operation',
+      prepared.id,
+      async ({ lease }) => {
+        const current = await loadOperation(prepared.id)
+        if (current.local_applied_at) return current
+        if (current.state === 'prepared') {
+          return dispatchShiprocketCancellation(current, lease, adapter)
         }
+        if (current.state === 'provider_succeeded') return finalizeOperation(current, lease)
+        if (current.state === 'dispatching' || current.state === 'outcome_unknown') {
+          return reconcileShiprocketCancellation(current, lease, adapter)
+        }
+        return current
       }
-    } catch (error) {
-      if (!(error instanceof AppError) || error.code !== 'PAYMENT_NOT_REFUNDABLE') throw error
+    )
+
+    let refund: ProviderOperation | null = null
+    if (cancellation.local_applied_at) {
+      try {
+        if (await hasSchemaCapability(51)) {
+          refund = (await processCancellationRefund(cancellation.id)).operation
+        } else {
+          refund = await prepareFullRefund(
+            orderId,
+            `Refund after Shiprocket cancellation: ${cause}`
+          )
+          if (refund && !refund.local_applied_at && refund.state !== 'provider_failed') {
+            refund = await dispatchRazorpayRefund(refund.id)
+          }
+        }
+      } catch (error) {
+        if (!(error instanceof AppError) || error.code !== 'PAYMENT_NOT_REFUNDABLE') throw error
+      }
     }
-  }
-  return { cancellation, refund }
+    return { cancellation, refund }
+  })
 }
 
 export async function reconcileProviderOperation(
@@ -828,6 +831,24 @@ export async function reconcileProviderOperation(
     refundAdapter?: ProviderMutationAdapter<RefundRecord>
     cancellationAdapter?: ProviderMutationAdapter<ShiprocketCancellationObservation>
   } = {}
+): Promise<ProviderOperation> {
+  const candidate = await loadOperation(operationId)
+  const { isShippingOperation, dispatchShippingOperation } = await import('./shippingOperations')
+  if (isShippingOperation(candidate)) return dispatchShippingOperation(operationId)
+  if (candidate.provider === 'shiprocket')
+    return withExecutionLease('fulfillment_order', candidate.order_id, () =>
+      reconcileCancellationOperation(operationId, options)
+    )
+  return reconcileCancellationOperation(operationId, options)
+}
+
+async function reconcileCancellationOperation(
+  operationId: string,
+  options: {
+    allowRefundReplay?: boolean
+    refundAdapter?: ProviderMutationAdapter<RefundRecord>
+    cancellationAdapter?: ProviderMutationAdapter<ShiprocketCancellationObservation>
+  }
 ): Promise<ProviderOperation> {
   return withExecutionLease('provider_operation', operationId, async ({ lease }) => {
     const operation = await loadOperation(operationId)
@@ -862,6 +883,7 @@ export async function reconcileActionableProviderOperations(limit = 20): Promise
     .from('provider_operations')
     .select('id, provider, state')
     .is('local_applied_at', null)
+    .or('operation_type.neq.ndr_action,state.neq.provider_pending')
     .in('state', [
       'prepared',
       'dispatching',
@@ -1017,8 +1039,8 @@ export async function assertFulfillmentMutationAllowed(
   if (error) {
     throw new AppError(
       409,
-      'CANCELLATION_IN_PROGRESS',
-      'Fulfillment is frozen while cancellation is unresolved'
+      'FULFILLMENT_NOT_ALLOWED',
+      'Fulfillment requires a captured paid order awaiting dispatch with no conflicting provider operation'
     )
   }
 }

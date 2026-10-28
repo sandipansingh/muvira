@@ -14,6 +14,8 @@ import { env } from '../../config/env'
 import { recordPaymentReconciliation } from '../payments/service'
 import { executionLeaseRpcArgs, withExecutionLease } from '../../services/executionLease'
 import { ShippingMethodsSchema } from '../settings/schema'
+import { verifyCheckoutShipping } from './shipping'
+import { rankServiceableCouriers } from '../../services/shippingServiceability'
 
 interface CartProduct {
   id: string
@@ -113,19 +115,32 @@ export async function quoteCheckout(userId: string, input: CheckoutQuoteInput) {
   }
   const shippingMethods = await getShippingMethods()
   const shippingConfig = shippingMethods[input.shipping_method]
-  if (!shippingConfig.enabled) {
-    throw new AppError(400, 'SHIPPING_METHOD_UNAVAILABLE', 'Shipping method is unavailable')
-  }
 
-  const quoteShipping = (config: ShippingMethodConfig) => ({
-    enabled: config.enabled,
-    label: config.label,
-    description: config.description,
-    amount_paisa: 0,
-  })
+  const verified = input.address_id
+    ? await verifyCheckoutShipping(userId, { ...input, address_id: input.address_id }, false)
+    : null
+  const quoteShipping = (config: ShippingMethodConfig, method: ShippingMethod) => {
+    const courier = verified
+      ? (rankServiceableCouriers(verified.availability.couriers, method)[0] ?? null)
+      : null
+    return {
+      enabled: config.enabled,
+      label: config.label,
+      description: !verified
+        ? 'Select an address to check delivery availability.'
+        : !courier
+          ? 'Unavailable for this address.'
+          : courier.estimated_delivery_days === null
+            ? 'Delivery estimate unavailable.'
+            : `Estimated delivery in ${courier.estimated_delivery_days} days.`,
+      amount_paisa: 0,
+      available: verified ? config.enabled && courier !== null : null,
+      estimated_delivery_days: courier?.estimated_delivery_days ?? null,
+    }
+  }
   const availableShippingMethods = {
-    standard: quoteShipping(shippingMethods.standard),
-    express: quoteShipping(shippingMethods.express),
+    standard: quoteShipping(shippingMethods.standard, 'standard'),
+    express: quoteShipping(shippingMethods.express, 'express'),
   }
   const shippingAmountPaisa = availableShippingMethods[input.shipping_method].amount_paisa
 
@@ -145,8 +160,12 @@ export async function quoteCheckout(userId: string, input: CheckoutQuoteInput) {
     coupon,
     shipping_method: input.shipping_method,
     shipping_label: shippingConfig.label,
-    shipping_description: shippingConfig.description,
+    shipping_description: availableShippingMethods[input.shipping_method].description,
     shipping_methods: availableShippingMethods,
+    delivery_available: availableShippingMethods[input.shipping_method].available,
+    estimated_delivery_days:
+      availableShippingMethods[input.shipping_method].estimated_delivery_days,
+    is_preview: !verified,
   }
 }
 
@@ -166,8 +185,9 @@ async function releaseFailedCheckout(orderId: string, reason: string): Promise<b
 }
 
 export async function createCheckoutOrder(userId: string, input: CreateCheckoutOrderInput) {
+  const shippingVerification = await verifyCheckoutShipping(userId, input)
   const { data: initializedData, error: initializeError } = await adminSupabase.rpc(
-    'initialize_checkout',
+    'initialize_checkout_shipping',
     {
       p_user_id: userId,
       p_address_id: input.address_id,
@@ -177,12 +197,17 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
       p_billing: input.billing ?? null,
       p_notes: input.notes ?? null,
       p_order_prefix: env.ORDER_PREFIX,
+      p_shipping_verification: shippingVerification,
     }
   )
 
   if (initializeError || !initializedData) {
     const message = initializeError?.message ?? 'Unable to initialize checkout'
-    throw new AppError(400, 'CHECKOUT_INVALID', message)
+    throw new AppError(
+      initializeError?.code === '40001' ? 409 : 400,
+      initializeError?.code === '40001' ? 'SHIPPING_CONTEXT_CHANGED' : 'CHECKOUT_INVALID',
+      message
+    )
   }
 
   const initialized = initializedData as unknown as InitializedCheckout

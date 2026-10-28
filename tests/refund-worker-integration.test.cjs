@@ -26,16 +26,14 @@ test(
     t.after(() => cleanupOrderFixture(client, fixture))
     assert.ifError(
       (
-        await client
-          .from('late_capture_watches')
-          .insert({
-            order_id: fixture.orderId,
-            payment_id: payment.paymentId,
-            razorpay_order_id: payment.razorpayOrderId,
-            expected_amount_paisa: fixture.amountPaisa,
-            currency: 'INR',
-            reason: 'Slow provider fixture',
-          })
+        await client.from('late_capture_watches').insert({
+          order_id: fixture.orderId,
+          payment_id: payment.paymentId,
+          razorpay_order_id: payment.razorpayOrderId,
+          expected_amount_paisa: fixture.amountPaisa,
+          currency: 'INR',
+          reason: 'Slow provider fixture',
+        })
       ).error
     )
     const { razorpay } = require('../server/dist/lib/razorpay/client.js')
@@ -703,6 +701,13 @@ test(
     })
     assert.ifError(prepared.error)
     assert.equal(prepared.data.state, 'prepared')
+    // A crashed process must lose its order lease before another worker dispatches.
+    await client.rpc('release_operation_lease', {
+      p_scope: 'fulfillment_order',
+      p_resource_id: fixture.orderId,
+      p_owner_token: preparation.p_execution_owner_token,
+      p_fencing_token: preparation.p_execution_fencing_token,
+    })
     const service = require('../server/dist/services/providerOperations.js'),
       adapter = service.shiprocketCancellationAdapter
     const original = adapter.mutate

@@ -1,9 +1,7 @@
 import { adminSupabase } from '../lib/supabase/admin'
 import { logger } from '../lib/logger'
 import { trackSingle, generateLabel } from './shiprocket'
-import { isValidTransition, shiprocketStatusToOrderStatus } from '../modules/orders/stateMachine'
 import { transitionOrderStatus } from '../modules/orders/service'
-import { writeTrackingSnapshot } from './trackingAnalytics'
 import {
   executionLeaseRpcArgs,
   withExecutionLease,
@@ -61,72 +59,26 @@ const handlers: Record<string, JobHandler> = {
     await processStoredRazorpayWebhook(webhookId)
   },
 
-  tracking_sync: async (payload, _referenceId, executionLease) => {
-    const awb = payload['awbCode'] as string | undefined
-    if (!awb) throw new Error('Missing awbCode in tracking_sync payload')
-
-    const trackResult = await trackSingle(awb)
-    const shipmentTrack = trackResult.tracking_data?.shipment_track?.[0]
-    if (!shipmentTrack) return
-
-    const srStatus = shipmentTrack.current_status
-    const newStatus = shiprocketStatusToOrderStatus(srStatus)
-    if (!newStatus) return
-
-    // Get order for state machine validation
-    const { data: order } = await adminSupabase
-      .from('orders')
-      .select('id, user_id, status, order_number, shipment_id')
-      .eq('awb_code', awb)
-      .maybeSingle()
-
-    if (!order) return
-    if (order.status === newStatus) return
-
-    if (!isValidTransition(order.status, newStatus)) {
-      logger.warn(
-        { orderId: order.id, awb, from: order.status, to: newStatus },
-        'Tracking retry retained an out-of-sequence provider status'
-      )
-      return
-    }
-
-    const oldStatus = order.status
-    await transitionOrderStatus(order, newStatus, 'polling_sync', { awbCode: awb }, executionLease)
-
-    // Write tracking snapshot
-    writeTrackingSnapshot(
-      {
-        orderId: order.id,
-        awbCode: awb,
-        shipmentId: ((order as Record<string, unknown>)['shipment_id'] as string | null) ?? null,
-        courierName: shipmentTrack.courier_name ?? null,
-        currentStatus: shipmentTrack.current_status,
-        origin: shipmentTrack.origin ?? null,
-        destination: shipmentTrack.destination ?? null,
-        edd: shipmentTrack.edd ?? null,
-        pickupDate: shipmentTrack.pickup_date ?? null,
-        deliveredDate: shipmentTrack.delivered_date ?? null,
-        trackingRaw: shipmentTrack as unknown as Record<string, unknown>,
-        syncSource: 'cron_poll',
-      },
-      executionLease
-    ).catch(() => {})
-
-    logger.info({ orderId: order.id, oldStatus, newStatus }, 'Tracking retry updated order')
+  shiprocket_webhook: async (payload, referenceId, lease) => {
+    const receiptId = String(payload['webhookId'] ?? referenceId ?? '')
+    if (!receiptId) throw new Error('Missing shipping receipt ID')
+    const { processStoredShiprocketWebhook } = await import('../modules/shiprocket/service')
+    await processStoredShiprocketWebhook(receiptId, lease)
   },
-
-  webhook_process: async (payload, _referenceId, executionLease) => {
-    const rawPayload = payload['rawPayload'] as Record<string, unknown> | undefined
-    if (!rawPayload) throw new Error('Missing rawPayload in webhook_process payload')
-
-    // Re-use the shiprocket webhook service to process the payload
+  tracking_sync: async (payload, _referenceId, lease) => {
+    const awb = String(payload['awbCode'] ?? '')
+    if (!awb) throw new Error('Missing tracking AWB')
+    const result = await trackSingle(awb)
+    const { processTrackingResult } = await import('../modules/shiprocket/service')
+    await processTrackingResult(awb, result.tracking_data, 'cron_poll', lease)
+  },
+  webhook_process: async (payload, _referenceId, lease) => {
     const { processShiprocketWebhook } = await import('../modules/shiprocket/service')
-    const result = await processShiprocketWebhook(rawPayload, executionLease)
-
-    if (result.status === 'ignored') {
-      logger.warn({ payload }, 'retryWorker/webhook_process: no matching order found')
-    }
+    const result = await processShiprocketWebhook(
+      payload['rawPayload'] as Record<string, unknown>,
+      lease
+    )
+    if (result.status === 'ignored') throw new Error('No matching shipment generation')
   },
 
   label_generate: async (payload, _referenceId, executionLease) => {

@@ -3,11 +3,7 @@ import { getWorkerStartupStatus } from '../../../services/workerStartup'
 import { CommerceKinds, type CommerceKind } from './schema'
 import { adminSupabase } from '../../../lib/supabase/admin'
 import { databaseError } from '../../../lib/databaseError'
-import { logger } from '../../../lib/logger'
 import { trackSingle } from '../../../services/shiprocket'
-import { shiprocketStatusToOrderStatus, isValidTransition } from '../../orders/stateMachine'
-import { writeTrackingSnapshot } from '../../../services/trackingAnalytics'
-import { transitionOrderStatus } from '../../orders/service'
 import { resolveRetainedCheckout } from '../../checkout/service'
 import {
   auditProviderAction,
@@ -600,63 +596,27 @@ export async function resolveRetainedCheckoutAsAdmin(input: {
 export async function refreshSingleShipment(
   orderId: string
 ): Promise<{ updated: boolean; oldStatus: string; newStatus: string | null }> {
-  const { data: order } = await adminSupabase
+  const { data: order, error } = await adminSupabase
     .from('orders')
-    .select('id, awb_code, status, user_id, order_number, shipment_id')
+    .select('id,awb_code,status')
     .eq('id', orderId)
     .maybeSingle()
-
-  if (!order || !order.awb_code) {
+  if (error) throw databaseError('shipping.load_refresh', error, 'Shipment could not be loaded')
+  if (!order?.awb_code)
     throw Object.assign(new Error('Order not found or no AWB code'), { statusCode: 404 })
-  }
-
-  const trackResult = await trackSingle(order.awb_code)
-  const shipmentTrack = trackResult.tracking_data?.shipment_track?.[0]
-  if (!shipmentTrack) {
-    return { updated: false, oldStatus: order.status, newStatus: null }
-  }
-
-  const srStatus = shipmentTrack.current_status
-  const newStatus = shiprocketStatusToOrderStatus(srStatus)
-  if (!newStatus || newStatus === order.status) {
-    return { updated: false, oldStatus: order.status, newStatus }
-  }
-
-  if (!isValidTransition(order.status, newStatus)) {
-    logger.warn(
-      { orderId, from: order.status, to: newStatus },
-      'Emergency refresh: blocked invalid transition'
+  const tracking = await trackSingle(order.awb_code)
+  const { processTrackingResult } = await import('../../shiprocket/service')
+  const result = await processTrackingResult(order.awb_code, tracking.tracking_data, 'manual')
+  const current = await adminSupabase.from('orders').select('status').eq('id', orderId).single()
+  if (current.error)
+    throw databaseError(
+      'shipping.read_refresh',
+      current.error,
+      'Shipment refresh result unavailable'
     )
-    return { updated: false, oldStatus: order.status, newStatus }
+  return {
+    updated: result.applied ?? false,
+    oldStatus: order.status,
+    newStatus: current.data.status as string,
   }
-
-  const oldStatus = order.status
-
-  await transitionOrderStatus(order, newStatus, 'admin_manual', {
-    awbCode: order.awb_code,
-    courierName: shipmentTrack.courier_name ?? null,
-  })
-
-  // Write tracking snapshot
-  writeTrackingSnapshot({
-    orderId,
-    awbCode: order.awb_code,
-    shipmentId: ((order as Record<string, unknown>)['shipment_id'] as string | null) ?? null,
-    courierName: shipmentTrack.courier_name ?? null,
-    currentStatus: shipmentTrack.current_status,
-    origin: shipmentTrack.origin ?? null,
-    destination: shipmentTrack.destination ?? null,
-    edd: shipmentTrack.edd ?? null,
-    pickupDate: shipmentTrack.pickup_date ?? null,
-    deliveredDate: shipmentTrack.delivered_date ?? null,
-    trackingRaw: shipmentTrack as unknown as Record<string, unknown>,
-    syncSource: 'manual',
-  }).catch(() => {})
-
-  logger.info(
-    { orderId, awb: order.awb_code, oldStatus, newStatus },
-    'Emergency shipment refresh completed'
-  )
-
-  return { updated: true, oldStatus, newStatus }
 }

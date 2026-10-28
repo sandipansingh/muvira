@@ -20,7 +20,12 @@ const migrations = readdirSync(source)
   .filter((name) => /^\d{3}_.*\.sql$/.test(name))
   .sort()
 mkdirSync(join(directory, 'supabase', 'migrations'), { recursive: true })
-copyFileSync(resolve('supabase/config.toml'), join(directory, 'supabase', 'config.toml'))
+copyFileSync(
+  process.env.SUPABASE_TEST_WORKDIR
+    ? resolve(process.env.SUPABASE_TEST_WORKDIR, 'supabase/config.toml')
+    : resolve('supabase/config.toml'),
+  join(directory, 'supabase', 'config.toml')
+)
 for (const name of migrations.filter((name) => Number(name.slice(0, 3)) <= 48))
   copyFileSync(join(source, name), join(directory, 'supabase', 'migrations', name))
 function run(command, args, env = {}) {
@@ -103,12 +108,12 @@ async function main() {
       return results.map((result) => result.data)
     }
     const before = await snapshot()
-    for (const version of [49, 50, 51, 52]) {
+    for (const version of [49, 50, 51, 52, 53, 54, 55, 56]) {
       const name = migrations.find((name) => Number(name.slice(0, 3)) === version)
       copyFileSync(join(source, name), join(directory, 'supabase', 'migrations', name))
       cli(['migration', 'up', '--local'])
       readiness(version, 'compatibility', true)
-      readiness(version, 'final', version === 52)
+      readiness(version, 'final', version === 56)
       assert.deepEqual(
         await snapshot(),
         before,
@@ -129,7 +134,7 @@ async function main() {
       { SCHEMA_RELEASE_MODE: 'compatibility' }
     )
     console.log(
-      'Upgrade 048–052, intermediate contracts, monetary preservation, and compatibility rollback API passed.'
+      'Upgrade 048–056, intermediate contracts, monetary preservation, and compatibility rollback API passed.'
     )
   } finally {
     for (const fixture of fixtures) await cleanupOrderFixture(client, fixture)

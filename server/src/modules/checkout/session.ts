@@ -11,6 +11,7 @@ import { recordPaymentReconciliation } from '../payments/service'
 import { deleteCacheByPattern } from '../../config/cache'
 import { logger } from '../../lib/logger'
 import type { CreateCheckoutOrderInput } from './schema'
+import { verifyCheckoutShipping } from './shipping'
 import type {
   CheckoutPaymentSession,
   CheckoutPreparation,
@@ -177,14 +178,30 @@ export async function prepareCheckoutPayment(
   const fingerprint = createHash('sha256')
     .update(JSON.stringify(stableValue(checkout)))
     .digest('hex')
-  const { data, error } = await adminSupabase.rpc('prepare_checkout_session', {
+  const request = {
     p_user_id: userId,
     p_request_id: requestId,
     p_request_fingerprint: fingerprint,
-    p_checkout: checkout,
-    p_order_prefix: env.ORDER_PREFIX,
-  })
-  if (error || !data) throw databaseError('checkout.prepare', error, 'Unable to prepare checkout')
+  }
+  const existing = await adminSupabase.rpc('lookup_checkout_preparation', request)
+  if (existing.error)
+    throw databaseError('checkout.lookup_preparation', existing.error, 'Unable to recover checkout')
+  let data = existing.data
+  if (!data) {
+    const shippingVerification = await verifyCheckoutShipping(userId, checkout)
+    const prepared = await adminSupabase.rpc('prepare_checkout_session_shipping', {
+      ...request,
+      p_checkout: checkout,
+      p_order_prefix: env.ORDER_PREFIX,
+      p_shipping_verification: shippingVerification,
+    })
+    if (prepared.error || !prepared.data)
+      throw databaseError('checkout.prepare', prepared.error, 'Unable to prepare checkout', {
+        statusCode: prepared.error?.code === '40001' ? 409 : 400,
+        code: prepared.error?.code === '40001' ? 'SHIPPING_CONTEXT_CHANGED' : 'CHECKOUT_INVALID',
+      })
+    data = prepared.data
+  }
   if (data.conflict)
     throw new AppError(
       409,

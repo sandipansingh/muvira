@@ -91,6 +91,8 @@ export const AdminListOrdersQuerySchema = z.object({
 
 export const AssignAwbSchema = z
   .object({
+    courier_override_reason: z.string().trim().min(3).max(1000).optional(),
+    corrected_attempt_id: z.string().uuid().optional(),
     courier_id: z.number().int().optional(),
   })
   .strict()
@@ -144,6 +146,8 @@ export const CreateShipmentSchema = z
 
 export const FulfillOrderSchema = z
   .object({
+    courier_override_reason: z.string().trim().min(3).max(1000).optional(),
+    corrected_attempt_id: z.string().uuid().optional(),
     pickup_location: z.string().min(1, 'Pickup location is required'),
     weight_grams: z.number().int().min(1, 'Weight must be at least 1g'),
     length_cm: z.number().int().min(1, 'Length must be at least 1cm'),
@@ -161,3 +165,40 @@ export type AddOrderNoteInput = z.infer<typeof AddOrderNoteSchema>
 export type AssignAwbInput = z.infer<typeof AssignAwbSchema>
 export type PackageDimensionsInput = z.infer<typeof PackageDimensionsSchema>
 export type FulfillOrderInput = z.infer<typeof FulfillOrderSchema>
+
+export const NdrActionSchema = z
+  .object({
+    action: z.enum(['re-attempt', 'return']),
+    comments: z.string().trim().min(3).max(1000),
+    request_id: z.string().uuid(),
+    episode_id: z.string().min(1).max(200),
+    reattempt_date: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .refine((value) => {
+        const parsed = new Date(`${value}T00:00:00Z`)
+        const today = new Date(Date.now() + 330 * 60 * 1000).toISOString().slice(0, 10)
+        return (
+          !Number.isNaN(parsed.getTime()) &&
+          parsed.toISOString().slice(0, 10) === value &&
+          value >= today
+        )
+      }, 'Reattempt date must be a valid non-past date')
+      .optional(),
+  })
+  .strict()
+  .refine(
+    (value) => value.action === 're-attempt' || !value.reattempt_date,
+    'Return actions do not accept a reattempt date'
+  )
+export type NdrActionInput = z.infer<typeof NdrActionSchema>
+
+export const OrderCourierQuerySchema = z
+  .object({
+    pickup_location: z.string().trim().min(1).max(100).optional(),
+    weight_grams: z.coerce.number().int().min(1).max(1000000).optional(),
+    length_cm: z.coerce.number().int().min(1).max(1000).optional(),
+    breadth_cm: z.coerce.number().int().min(1).max(1000).optional(),
+    height_cm: z.coerce.number().int().min(1).max(1000).optional(),
+  })
+  .strict()

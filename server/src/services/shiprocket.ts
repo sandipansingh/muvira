@@ -26,26 +26,22 @@ interface TokenBucket {
 
 const tokenBucket: TokenBucket = { tokens: MAX_REQUESTS_PER_SEC, lastRefill: Date.now() }
 
-function acquireToken(): void {
-  const now = Date.now()
-  const elapsed = (now - tokenBucket.lastRefill) / 1000
-  tokenBucket.tokens = Math.min(
-    MAX_REQUESTS_PER_SEC,
-    tokenBucket.tokens + elapsed * MAX_REQUESTS_PER_SEC
-  )
-  tokenBucket.lastRefill = now
-
-  if (tokenBucket.tokens < 1) {
-    const waitMs = Math.ceil(((1 - tokenBucket.tokens) / MAX_REQUESTS_PER_SEC) * 1000)
-    logger.warn({ waitMs }, 'Shiprocket rate limit: token bucket empty, delaying')
-    const waitStart = Date.now()
-    while (Date.now() - waitStart < waitMs) {
-      /* busy-wait for simplicity; at this scale it's fine */
+async function acquireToken(): Promise<void> {
+  while (true) {
+    const now = Date.now()
+    tokenBucket.tokens = Math.min(
+      MAX_REQUESTS_PER_SEC,
+      tokenBucket.tokens + ((now - tokenBucket.lastRefill) / 1000) * MAX_REQUESTS_PER_SEC
+    )
+    tokenBucket.lastRefill = now
+    if (tokenBucket.tokens >= 1) {
+      tokenBucket.tokens -= 1
+      return
     }
-    tokenBucket.tokens = 1
-    tokenBucket.lastRefill = Date.now()
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.ceil(((1 - tokenBucket.tokens) / MAX_REQUESTS_PER_SEC) * 1000))
+    )
   }
-  tokenBucket.tokens -= 1
 }
 
 // --- Error Classification ---
@@ -98,7 +94,7 @@ function classifyError(
     err.type = 'RATE_LIMITED'
     err.retryable = true
     err.retryAfterMs = 60_000
-    err.message = `Shiprocket rate limited (429): ${body}`
+    err.message = 'Shiprocket rate limited (429)'
     return err
   }
 
@@ -106,7 +102,7 @@ function classifyError(
     err.type = 'SERVER_ERROR'
     err.retryable = true
     err.retryAfterMs = 5000
-    err.message = `Shiprocket server error (${status}): ${body}`
+    err.message = `Shiprocket server error (${status})`
     return err
   }
 
@@ -114,7 +110,7 @@ function classifyError(
     err.type = 'AUTH_EXPIRED'
     err.retryable = true
     err.shouldRefreshToken = true
-    err.message = `Shiprocket auth expired (401): ${body}`
+    err.message = 'Shiprocket auth expired (401)'
     return err
   }
 
@@ -124,25 +120,25 @@ function classifyError(
   ) {
     err.type = 'ALREADY_DONE'
     err.retryable = false
-    err.message = `Shiprocket already done (400): ${body}`
+    err.message = 'Shiprocket operation already exists (400)'
     return err
   }
 
-  if (status === 400) {
+  if (status === 400 || status === 422) {
     err.type = 'BAD_REQUEST'
     err.retryable = false
-    err.message = `Shiprocket bad request (400): ${body}`
+    err.message = `Shiprocket rejected request (${status})`
     return err
   }
 
   if (status === 404) {
     err.type = 'BAD_REQUEST'
     err.retryable = false
-    err.message = `Shiprocket not found (404): ${body}`
+    err.message = 'Shiprocket not found (404)'
     return err
   }
 
-  err.message = `Shiprocket API error (${status}): ${body}`
+  err.message = `Shiprocket API error (${status})`
   return err
 }
 
@@ -150,8 +146,18 @@ function classifyError(
 
 let cachedToken: string | null = null
 let tokenExpiresAt: number = 0
+let refreshingToken: Promise<string> | null = null
 
 async function getToken(): Promise<string> {
+  if (cachedToken && Date.now() < tokenExpiresAt) return cachedToken
+  if (refreshingToken) return refreshingToken
+  refreshingToken = refreshToken().finally(() => {
+    refreshingToken = null
+  })
+  return refreshingToken
+}
+
+async function refreshToken(): Promise<string> {
   const now = Date.now()
 
   if (cachedToken && now < tokenExpiresAt) {
@@ -171,8 +177,7 @@ async function getToken(): Promise<string> {
   })
 
   if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`Shiprocket auth failed (${res.status}): ${text}`)
+    throw new Error(`Shiprocket auth failed (${res.status})`)
   }
 
   const data = (await res.json()) as { token?: string }
@@ -200,11 +205,15 @@ async function apiFetch<T>(
     timeout?: number
     maxRetries?: number
     policy?: 'retry_safe_read' | 'at_most_once_mutation'
+    expectedStatus?: number
   } = {}
 ): Promise<T> {
-  const maxRetries =
-    options.policy === 'at_most_once_mutation' ? 0 : (options.maxRetries ?? DEFAULT_MAX_RETRIES)
+  const safeRead =
+    options.policy === 'retry_safe_read' ||
+    (!options.policy && (!options.method || options.method === 'GET'))
+  const maxRetries = safeRead ? (options.maxRetries ?? DEFAULT_MAX_RETRIES) : 0
   const timeout = options.timeout ?? DEFAULT_TIMEOUT_MS
+  const deadline = Date.now() + Math.min(55_000, timeout * (maxRetries + 1))
   let lastError: ShiprocketError | null = null
   const callStart = Date.now()
 
@@ -220,7 +229,7 @@ async function apiFetch<T>(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       // Rate limit gate
-      acquireToken()
+      await acquireToken()
 
       const token = await getToken()
       const url = `${SHIPROCKET_BASE}${path}`
@@ -236,19 +245,32 @@ async function apiFetch<T>(
         method: options.method ?? 'GET',
         headers,
         body: options.body ? JSON.stringify(options.body) : undefined,
-        signal: AbortSignal.timeout(timeout),
+        signal: AbortSignal.timeout(Math.max(1, Math.min(timeout, deadline - Date.now()))),
       })
 
       // 401: token may have expired before our TTL. Invalidate and retry once.
+      if (res.status === 401) {
+        if (cachedToken === token) invalidateToken()
+      }
       if (res.status === 401 && attempt < maxRetries) {
-        invalidateToken()
         lastError = classifyError(401, '', false, false)
         continue
       }
 
       if (!res.ok) {
         const text = await res.text().catch(() => '')
-        throw classifyError(res.status, text, false, false)
+        const error = classifyError(res.status, text, false, false)
+        const retryAfter = res.headers.get('retry-after')
+        if (retryAfter) {
+          const seconds = Number(retryAfter)
+          error.retryAfterMs = Number.isFinite(seconds)
+            ? Math.max(0, seconds * 1000)
+            : Math.max(0, Date.parse(retryAfter) - Date.now())
+        }
+        throw error
+      }
+      if (options.expectedStatus !== undefined && res.status !== options.expectedStatus) {
+        throw new Error('Shiprocket returned an unconfirmed mutation response')
       }
 
       const contentType = res.headers.get('content-type') ?? ''
@@ -263,9 +285,13 @@ async function apiFetch<T>(
 
       recordShiprocketCall(Date.now() - callStart)
       reportShiprocketSuccess()
-      return res.json() as Promise<T>
+      const body = await res.text()
+      return (body.trim() ? JSON.parse(body) : {}) as T
     } catch (err) {
-      if (err instanceof DOMException && err.name === 'AbortError') {
+      if (
+        err instanceof DOMException &&
+        (err.name === 'AbortError' || err.name === 'TimeoutError')
+      ) {
         lastError = classifyError(0, '', true, false)
         recordShiprocketCallTimedOut()
       } else if (
@@ -289,6 +315,7 @@ async function apiFetch<T>(
 
       recordShiprocketCallRetried()
       const delay = lastError.retryAfterMs ?? 1000 * 2 ** attempt
+      if (!Number.isFinite(delay) || Date.now() + delay >= deadline) break
       logger.warn(
         { path, attempt: attempt + 1, maxRetries, delay, type: lastError.type },
         `Shiprocket: retrying after ${delay}ms`
@@ -447,6 +474,10 @@ export interface ShiprocketServiceabilityInput {
   delivery_pincode: string
   weight_grams: number
   cod: boolean
+  length_cm?: number
+  breadth_cm?: number
+  height_cm?: number
+  declared_value_paisa?: number
 }
 
 export interface ShiprocketServiceabilityResponse {
@@ -455,14 +486,14 @@ export interface ShiprocketServiceabilityResponse {
       courier_name: string
       courier_id: number
       rate_paisa: number
-      estimated_delivery_days: number
+      estimated_delivery_days: number | null
       cod: boolean
     }>
     recommended_courier?: {
       courier_name: string
       courier_id: number
       rate_paisa: number
-      estimated_delivery_days: number
+      estimated_delivery_days: number | null
     }
   }
   status: string
@@ -480,6 +511,9 @@ export interface ShiprocketPickupLocation {
 }
 
 export interface ShiprocketGetOrderResponse {
+  currency: string
+  merchant_order_id: string
+  total_paisa: number | null
   order_id: number
   shipment_id: number
   awb_code: string
@@ -607,17 +641,27 @@ export async function checkServiceability(
     weight: String(input.weight_grams / 1000),
     cod: input.cod ? '1' : '0',
   })
+  for (const [key, value] of Object.entries({
+    length: input.length_cm,
+    breadth: input.breadth_cm,
+    height: input.height_cm,
+    declared_value:
+      input.declared_value_paisa === undefined ? undefined : input.declared_value_paisa / 100,
+  })) {
+    if (value !== undefined) params.set(key, String(value))
+  }
   const result = await apiFetch<Record<string, unknown>>(
     `/courier/serviceability/?${params.toString()}`
   )
   const raw = result as Record<string, unknown>
-  logger.info(
-    { serviceabilityRaw: JSON.stringify(raw).slice(0, 500) },
-    'Shiprocket serviceability raw response'
-  )
-
   const str = (v: unknown, fallback = ''): string => (typeof v === 'string' ? v : fallback)
-  const num = (v: unknown, fallback = 0): number => (typeof v === 'number' ? v : fallback)
+  const num = (v: unknown, fallback = 0): number =>
+    Number.isFinite(Number(v)) ? Number(v) : fallback
+  const estimate = (v: unknown): number | null => {
+    if (v === null || v === undefined || v === '') return null
+    const days = Number(v)
+    return Number.isFinite(days) && days > 0 ? days : null
+  }
   const bol = (v: unknown): boolean => v === true || v === 1 || v === '1'
 
   function mapCourierList(
@@ -627,7 +671,7 @@ export async function checkServiceability(
       courier_name: str(c['courier_name']) || str(c['name']),
       courier_id: num(c['courier_company_id']) || num(c['courier_id']) || num(c['id']),
       rate_paisa: courierRatePaisa(c['rate'] ?? c['freight_charge']),
-      estimated_delivery_days: num(c['estimated_delivery_days']) || num(c['edd']),
+      estimated_delivery_days: estimate(c['estimated_delivery_days'] ?? c['edd']),
       cod: bol(c['cod']) || bol(c['is_cod_available']),
     }))
   }
@@ -665,7 +709,7 @@ export async function checkServiceability(
       courier_name: str(raw['recommended_courier_company_name']),
       courier_id: num(raw['recommended_courier_company_id']),
       rate_paisa: courierRatePaisa(raw['recommended_rate']),
-      estimated_delivery_days: num(raw['recommended_edd']),
+      estimated_delivery_days: estimate(raw['recommended_edd']),
       cod: false,
     }
     return { available_courier: [rec], recommended_courier: rec }
@@ -673,7 +717,7 @@ export async function checkServiceability(
   if (Array.isArray(raw['data'])) {
     return { available_courier: mapCourierList(raw['data'] as Array<Record<string, unknown>>) }
   }
-  return { available_courier: [] }
+  throw new Error('Shiprocket serviceability response is invalid')
 }
 
 //
@@ -695,7 +739,7 @@ export async function createOrder(
     orderId <= 0 ||
     !Number.isSafeInteger(shipmentId) ||
     shipmentId <= 0 ||
-    response['status_code'] !== 1 ||
+    Number(response['status_code']) !== 1 ||
     String(response['status']).toUpperCase() !== 'NEW'
   ) {
     throw new Error(
@@ -737,11 +781,11 @@ export async function assignAwb(
   const raw = result as unknown as Record<string, unknown>
   if (raw['data'] && raw['data'] !== null && typeof raw['data'] === 'object' && !raw['response']) {
     const normalized = raw['data'] as unknown as ShiprocketAssignAwbResponse
-    if (normalized.awb_assign_status !== 1)
+    if (Number(normalized.awb_assign_status) !== 1)
       throw new Error('Shiprocket did not confirm AWB assignment')
     return normalized
   }
-  if ((result as ShiprocketAssignAwbResponse).awb_assign_status !== 1)
+  if (Number((result as ShiprocketAssignAwbResponse).awb_assign_status) !== 1)
     throw new Error('Shiprocket did not confirm AWB assignment')
   return result as ShiprocketAssignAwbResponse
 }
@@ -760,7 +804,7 @@ export async function schedulePickup(
   const raw = Array.isArray(result['response']) ? result['response'][0] : result['response']
   const confirmed = raw as Record<string, unknown> | undefined
   if (
-    result['pickup_status'] !== 1 ||
+    Number(result['pickup_status']) !== 1 ||
     Number(confirmed?.['status']) !== 3 ||
     typeof confirmed?.['pickup_scheduled_date'] !== 'string' ||
     !confirmed['pickup_scheduled_date'].trim()
@@ -837,7 +881,47 @@ export async function generateManifest(
 //
 
 export async function getOrderDetails(orderId: number): Promise<ShiprocketGetOrderResponse> {
-  return apiFetch<ShiprocketGetOrderResponse>(`/orders/show/${orderId}`)
+  const raw = await apiFetch<unknown>(`/orders/show/${orderId}`)
+  return normalizeOrderDetails(raw)
+}
+
+export function normalizeOrderDetails(value: unknown): ShiprocketGetOrderResponse {
+  if (!value || typeof value !== 'object') throw new Error('Shiprocket order details are invalid')
+  const wrapper = value as Record<string, unknown>
+  const order = (wrapper['data'] ?? wrapper) as Record<string, unknown>
+  const shipments = order['shipments']
+  const shipment = (Array.isArray(shipments) ? shipments[0] : shipments) as
+    | Record<string, unknown>
+    | undefined
+  const orderId = Number(order['id'] ?? order['order_id'])
+  if (!Number.isSafeInteger(orderId) || orderId <= 0)
+    throw new Error('Shiprocket order identity is invalid')
+  return {
+    ...order,
+    order_id: orderId,
+    merchant_order_id: String(order['channel_order_id'] ?? order['merchant_order_id'] ?? ''),
+    currency: String(order['currency'] ?? ''),
+    total_paisa: order['total'] === undefined ? null : courierRatePaisa(order['total']),
+    shipment_id: Number(shipment?.['id'] ?? order['shipment_id']),
+    awb_code: String(shipment?.['awb'] ?? order['awb_code'] ?? ''),
+    courier_name: String(shipment?.['courier'] ?? order['courier_name'] ?? ''),
+    pickup_scheduled_date:
+      shipment?.['pickup_scheduled_date'] ?? order['pickup_scheduled_date'] ?? null,
+    status: String(order['status'] ?? ''),
+    shipment_status: String(shipment?.['status'] ?? order['shipment_status'] ?? ''),
+  } as ShiprocketGetOrderResponse
+}
+
+export async function findOrdersByMerchantReference(
+  reference: string
+): Promise<ShiprocketGetOrderResponse[]> {
+  const result = await apiFetch<{ data?: unknown[] }>(
+    `/orders?search=${encodeURIComponent(reference)}&per_page=100`
+  )
+  if (!Array.isArray(result.data)) throw new Error('Shiprocket order search is invalid')
+  return result.data
+    .map(normalizeOrderDetails)
+    .filter((order) => order.merchant_order_id === reference)
 }
 
 //
@@ -857,11 +941,19 @@ export async function trackSingle(awb: string): Promise<{ tracking_data: Shiproc
 export async function trackBulk(
   awbs: string[]
 ): Promise<Record<string, { tracking_data: ShiprocketTrackData }>> {
-  if (awbs.length === 0) return {}
-  return apiFetch<Record<string, { tracking_data: ShiprocketTrackData }>>('/courier/track/awbs', {
-    method: 'POST',
-    body: { awbs },
-  })
+  const result: Record<string, { tracking_data: ShiprocketTrackData }> = {}
+  const unique = [...new Set(awbs)]
+  for (let index = 0; index < unique.length; index += 50) {
+    Object.assign(
+      result,
+      await apiFetch('/courier/track/awbs', {
+        method: 'POST',
+        body: { awbs: unique.slice(index, index + 50) },
+        policy: 'retry_safe_read',
+      })
+    )
+  }
+  return result
 }
 
 //
@@ -1008,4 +1100,55 @@ export async function createReturnOrder(
     method: 'POST',
     body: input,
   })
+}
+
+export interface ShiprocketNdrEpisode {
+  shipment_id: string
+  awb_code: string
+  episode_id: string
+  reason: string
+  attempts: number
+  raised_at: string
+}
+
+export async function getNdrDetails(awb: string): Promise<ShiprocketNdrEpisode[]> {
+  const result = await apiFetch<{ data?: Array<Record<string, unknown>> }>(
+    `/ndr/${encodeURIComponent(awb)}`
+  )
+  if (!Array.isArray(result.data)) throw new Error('Shiprocket NDR response is invalid')
+  return result.data
+    .filter((row) => String(row['awb_code']) === awb)
+    .map((row) => {
+      const raisedAt = String(row['ndr_raised_at'] ?? '')
+      const attempts = Number(row['attempts'])
+      if (!raisedAt || !Number.isSafeInteger(attempts) || attempts < 1 || !row['shipment_id'])
+        throw new Error('Shiprocket NDR episode is invalid')
+      return {
+        shipment_id: String(row['shipment_id']),
+        awb_code: awb,
+        episode_id: `${row['id']}:${attempts}:${raisedAt}`,
+        reason: String(row['reason'] ?? ''),
+        attempts,
+        raised_at: raisedAt,
+      }
+    })
+}
+
+export async function submitNdrAction(
+  awb: string,
+  input: { action: 're-attempt' | 'return'; comments: string; deferred_date?: string }
+): Promise<{ accepted: true }> {
+  const result = await apiFetch<{ status?: string }>(`/ndr/${encodeURIComponent(awb)}/action`, {
+    method: 'POST',
+    body: input,
+    policy: 'at_most_once_mutation',
+    expectedStatus: 202,
+  })
+  if (
+    !['data updated sucessfully', 'data updated successfully'].includes(
+      result.status?.trim().toLowerCase() ?? ''
+    )
+  )
+    throw new Error('Shiprocket did not confirm NDR request acceptance')
+  return { accepted: true }
 }

@@ -1,252 +1,274 @@
 import { createHash } from 'crypto'
+import { invalidateOn } from '../../services/cacheInvalidation'
+import { emitStatusChangeEvents } from '../../services/eventBus'
 import { adminSupabase } from '../../lib/supabase/admin'
-import { logger } from '../../lib/logger'
-import { writeTrackingSnapshot } from '../../services/trackingAnalytics'
-import { mapShiprocketStatusToOrderStatus, transitionOrderStatus } from '../orders/service'
-import { isValidTransition } from '../orders/stateMachine'
-import { executionLeaseRpcArgs, type ExecutionLease } from '../../services/executionLease'
+import { databaseError } from '../../lib/databaseError'
+import { shiprocketStatusToOrderStatus } from '../orders/stateMachine'
+import {
+  executionLeaseRpcArgs,
+  withExecutionLease,
+  type ExecutionLease,
+} from '../../services/executionLease'
+import type { ShiprocketTrackData } from '../../services/shiprocket'
 
 export interface ProcessWebhookResult {
   status: 'processed' | 'ignored'
   orderId?: string
+  applied?: boolean
 }
-
-interface ShiprocketScan {
-  date?: string
-  activity?: string
-  location?: string
-}
-
-interface ParsedWebhook {
-  awbCode: string | null
-  courierName: string | null
-  currentStatus: string
-  eventTime: string
-  location: string | null
-  remarks: string | null
-  shipmentId: string | null
-  shiprocketOrderId: string | null
-  merchantOrderId: string | null
-  trackingUrl: string | null
-  vendorEventId: string
-}
-
 function optionalString(value: unknown): string | null {
-  if (typeof value !== 'string' && typeof value !== 'number') return null
-  const normalized = String(value).trim()
-  return normalized.length > 0 ? normalized : null
+  return typeof value === 'string' || typeof value === 'number'
+    ? String(value).trim() || null
+    : null
 }
 
-function parseVendorTimestamp(value: unknown): string {
+export function parseVendorTimestamp(value: unknown): string | null {
   const raw = optionalString(value)
-  if (!raw) return new Date().toISOString()
-
+  if (!raw) return null
+  const isoDate = raw.match(/^(\d{4}-\d{2}-\d{2})(?:$|[ T])/)
+  if (isoDate) {
+    const calendar = new Date(`${isoDate[1]}T00:00:00Z`)
+    if (Number.isNaN(calendar.getTime()) || calendar.toISOString().slice(0, 10) !== isoDate[1])
+      return null
+  }
   const dayFirst = raw.match(/^(\d{2})\s+(\d{2})\s+(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/)
+  if (!dayFirst && !isoDate) return null
+  let normalized = raw
   if (dayFirst) {
     const [, day, month, year, hour, minute, second] = dayFirst
-    return new Date(`${year}-${month}-${day}T${hour}:${minute}:${second}+05:30`).toISOString()
-  }
-
-  const parsed = new Date(raw)
-  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+    normalized = `${year}-${month}-${day}T${hour}:${minute}:${second}+05:30`
+    const check = new Date(normalized)
+    if (
+      Number.isNaN(check.getTime()) ||
+      new Date(check.getTime() + 330 * 60000).toISOString().slice(0, 19) !==
+        `${year}-${month}-${day}T${hour}:${minute}:${second}`
+    )
+      return null
+  } else if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}$/.test(raw))
+    normalized = raw.replace(' ', 'T') + '+05:30'
+  const parsed = new Date(normalized)
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString()
 }
 
-export function parseShiprocketWebhookPayload(payload: Record<string, unknown>): ParsedWebhook {
+export function parseShiprocketWebhookPayload(payload: Record<string, unknown>) {
   const currentStatus = optionalString(payload['current_status'])
   if (!currentStatus) throw new Error('Shiprocket webhook is missing current_status')
-
-  const scans = Array.isArray(payload['scans']) ? (payload['scans'] as ShiprocketScan[]) : []
-  const latestScan = scans.at(-1)
-  const eventTime = parseVendorTimestamp(payload['current_timestamp'] ?? latestScan?.date)
+  const scans = Array.isArray(payload['scans'])
+    ? payload['scans'].filter(
+        (row): row is Record<string, unknown> => !!row && typeof row === 'object'
+      )
+    : []
+  const latest = [...scans].sort((a, b) =>
+    (parseVendorTimestamp(b['date']) ?? '').localeCompare(parseVendorTimestamp(a['date']) ?? '')
+  )[0]
+  const eventTime = parseVendorTimestamp(payload['current_timestamp'] ?? latest?.['date'])
   const awbCode = optionalString(payload['awb'])
+  const shipmentId = optionalString(payload['shipment_id'])
   const shiprocketOrderId = optionalString(payload['sr_order_id'])
   const merchantOrderId = optionalString(payload['order_id'])
   const identity = [
-    awbCode ?? 'no-awb',
-    currentStatus.toLowerCase(),
-    eventTime,
-    shiprocketOrderId ?? merchantOrderId ?? 'no-order',
-  ].join('|')
-
-  return {
     awbCode,
-    courierName: optionalString(payload['courier_name']),
-    currentStatus,
-    eventTime,
-    location: optionalString(payload['location']) ?? optionalString(latestScan?.location),
-    remarks: optionalString(payload['remarks']) ?? optionalString(latestScan?.activity),
-    shipmentId: optionalString(payload['shipment_id']),
+    shipmentId,
     shiprocketOrderId,
     merchantOrderId,
-    trackingUrl: optionalString(payload['track_url']),
+    currentStatus.toLowerCase(),
+    eventTime,
+  ].join('|')
+  const trackingUrl = optionalString(payload['track_url'])
+  return {
+    awbCode,
+    shipmentId,
+    shiprocketOrderId,
+    merchantOrderId,
+    currentStatus,
+    eventTime,
+    courierName: optionalString(payload['courier_name']),
+    location: optionalString(payload['location']) ?? optionalString(latest?.['location']),
+    remarks: optionalString(payload['remarks']) ?? optionalString(latest?.['activity']),
+    origin: optionalString(payload['origin']),
+    destination: optionalString(payload['destination']),
+    estimatedDeliveryDate: parseVendorTimestamp(payload['etd'])?.slice(0, 10) ?? null,
+    pickupDate: parseVendorTimestamp(payload['pickup_date']),
+    deliveredDate: parseVendorTimestamp(payload['delivered_date']),
+    trackingUrl: trackingUrl?.startsWith('https://') ? trackingUrl : null,
     vendorEventId: createHash('sha256').update(identity).digest('hex'),
-  }
-}
-
-async function findOrder(event: ParsedWebhook): Promise<{
-  id: string
-  status: string
-  user_id: string
-} | null> {
-  const lookups: Array<{ column: string; value: string | null }> = [
-    { column: 'awb_code', value: event.awbCode },
-    { column: 'shipment_id', value: event.shipmentId },
-    { column: 'shiprocket_order_id', value: event.shiprocketOrderId },
-    { column: 'order_number', value: event.merchantOrderId },
-  ]
-
-  for (const lookup of lookups) {
-    if (!lookup.value) continue
-    const { data, error } = await adminSupabase
-      .from('orders')
-      .select('id, status, user_id')
-      .eq(lookup.column, lookup.value)
-      .maybeSingle()
-
-    if (error) throw new Error(`Failed to match Shiprocket order: ${error.message}`)
-    if (data) return data
-  }
-
-  return null
-}
-
-async function persistShipmentIdentity(
-  orderId: string,
-  event: ParsedWebhook,
-  executionLease?: ExecutionLease
-): Promise<void> {
-  const update: Record<string, unknown> = { shiprocket_status: event.currentStatus }
-  if (event.awbCode) update['awb_code'] = event.awbCode
-  if (event.shipmentId) update['shipment_id'] = event.shipmentId
-  if (event.shiprocketOrderId) update['shiprocket_order_id'] = event.shiprocketOrderId
-  if (event.courierName) update['courier_name'] = event.courierName
-  if (event.trackingUrl) update['tracking_url'] = event.trackingUrl
-
-  const result = executionLease
-    ? await adminSupabase.rpc('apply_shiprocket_persistence_fenced', {
-        ...executionLeaseRpcArgs(executionLease),
-        p_order_id: orderId,
-        p_persistence: update,
-      })
-    : await adminSupabase.from('orders').update(update).eq('id', orderId).select('id').single()
-  const { data, error } = result
-
-  if (error || !data) {
-    throw new Error(`Failed to persist Shiprocket identifiers: ${error?.message ?? 'missing row'}`)
-  }
-}
-
-async function persistShipmentEvent(
-  orderId: string,
-  event: ParsedWebhook,
-  payload: Record<string, unknown>,
-  executionLease?: ExecutionLease
-): Promise<void> {
-  const payloadHash = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
-  const { error } = executionLease
-    ? await adminSupabase.rpc('persist_shipment_event_fenced', {
-        ...executionLeaseRpcArgs(executionLease),
-        p_order_id: orderId,
-        p_shipment_id: event.shipmentId,
-        p_status: event.currentStatus,
-        p_location: event.location,
-        p_remarks: event.remarks,
-        p_event_time: event.eventTime,
-        p_raw_payload: payload,
-        p_payload_hash: payloadHash,
-        p_vendor_event_id: event.vendorEventId,
-      })
-    : await adminSupabase.from('shipment_events').insert({
-        order_id: orderId,
-        shipment_id: event.shipmentId,
-        status: event.currentStatus,
-        location: event.location,
-        remarks: event.remarks,
-        event_time: event.eventTime,
-        raw_payload: payload,
-        payload_hash: payloadHash,
-        vendor_event_id: event.vendorEventId,
-      })
-
-  if (error && error.code !== '23505') {
-    throw new Error(`Failed to persist shipment event: ${error.message}`)
+    events: scans.map((scan) => ({
+      currentStatus:
+        optionalString(scan['sr-status-label']) ?? optionalString(scan['activity']) ?? 'Scan',
+      eventTime: parseVendorTimestamp(scan['date']),
+      location: optionalString(scan['location']),
+      remarks: optionalString(scan['activity']),
+      vendorEventId: createHash('sha256').update(JSON.stringify(scan)).digest('hex'),
+    })),
   }
 }
 
 export async function processShiprocketWebhook(
   payload: Record<string, unknown>,
-  executionLease?: ExecutionLease
+  executionLease?: ExecutionLease,
+  source: 'webhook' | 'cron_poll' | 'manual' = 'webhook'
 ): Promise<ProcessWebhookResult> {
   const event = parseShiprocketWebhookPayload(payload)
-  const order = await findOrder(event)
-
-  if (!order) {
-    logger.warn(
-      {
-        awb: event.awbCode,
-        shipmentId: event.shipmentId,
-        shiprocketOrderId: event.shiprocketOrderId,
-        merchantOrderId: event.merchantOrderId,
-      },
-      'Shiprocket webhook has no matching order'
-    )
-    return { status: 'ignored' }
+  const matches = new Set<string>()
+  for (const [column, value] of Object.entries({
+    awb_code: event.awbCode,
+    shipment_id: event.shipmentId,
+    shiprocket_order_id: event.shiprocketOrderId,
+    order_number: event.merchantOrderId,
+  })) {
+    if (!value) continue
+    const { data, error } = await adminSupabase
+      .from('orders')
+      .select('id')
+      .eq(column, value)
+      .maybeSingle()
+    if (error)
+      throw databaseError('shipping.match_observation', error, 'Shipment matching unavailable')
+    if (data) matches.add(data.id as string)
   }
-
-  await persistShipmentIdentity(order.id, event, executionLease)
-  await persistShipmentEvent(order.id, event, payload, executionLease)
-
-  const targetStatus = mapShiprocketStatusToOrderStatus(event.currentStatus)
-  if (
-    targetStatus &&
-    targetStatus !== order.status &&
-    isValidTransition(order.status, targetStatus)
-  ) {
-    await transitionOrderStatus(
-      order,
-      targetStatus,
-      'webhook',
-      {
+  if (!matches.size) return { status: 'ignored' }
+  if (matches.size > 1) throw new Error('Shiprocket observation identifiers match different orders')
+  const orderId = [...matches][0]!
+  if (!executionLease)
+    return withExecutionLease('shipping_observation', orderId, ({ lease }) =>
+      processShiprocketWebhook(payload, lease, source)
+    )
+  const { data, error } = await adminSupabase.rpc('apply_shipping_observation', {
+    ...executionLeaseRpcArgs(executionLease),
+    p_order_id: orderId,
+    p_observation: event,
+    p_target_status: shiprocketStatusToOrderStatus(event.currentStatus),
+    p_source: source,
+  })
+  if (error || !data)
+    throw databaseError(
+      'shipping.apply_observation',
+      error,
+      'Shipment observation could not be applied'
+    )
+  const result = data as {
+    applied: boolean
+    oldStatus: string
+    newStatus: string
+    userId: string
+    orderNumber: string
+  }
+  if (result.applied) {
+    invalidateOn('ORDER_UPDATED', { id: orderId, userId: result.userId })
+    if (result.newStatus !== result.oldStatus)
+      emitStatusChangeEvents({
+        orderId,
+        userId: result.userId,
+        orderNumber: result.orderNumber,
+        oldStatus: result.oldStatus,
+        newStatus: result.newStatus,
+        source: source === 'webhook' ? 'webhook' : 'polling_sync',
         awbCode: event.awbCode,
         courierName: event.courierName,
-        vendorEventId: event.vendorEventId,
-      },
-      executionLease
-    )
-  } else if (targetStatus && targetStatus !== order.status) {
-    logger.warn(
-      { orderId: order.id, currentStatus: order.status, targetStatus },
-      'Shiprocket webhook retained an out-of-sequence status'
-    )
-  } else if (!targetStatus) {
-    logger.warn(
-      { orderId: order.id, shiprocketStatus: event.currentStatus },
-      'Shiprocket webhook status is not mapped; raw event retained'
-    )
+      })
   }
+  return { status: 'processed', orderId, applied: result.applied }
+}
 
-  await writeTrackingSnapshot(
+export async function processTrackingResult(
+  awb: string,
+  tracking: ShiprocketTrackData,
+  source: 'cron_poll' | 'manual',
+  lease?: ExecutionLease
+) {
+  const track = tracking.shipment_track?.[0]
+  if (!track?.current_status || track.awb_code !== awb)
+    throw new Error('Shiprocket tracking identity or status is missing')
+  const dates =
+    tracking.shipment_track_activities
+      ?.map((row) => parseVendorTimestamp(row.date))
+      .filter((date): date is string => !!date) ?? []
+  if (shiprocketStatusToOrderStatus(track.current_status) === 'delivered') {
+    const delivered = parseVendorTimestamp(track.delivered_date)
+    if (delivered) dates.push(delivered)
+  }
+  dates.sort()
+  return processShiprocketWebhook(
     {
-      orderId: order.id,
-      awbCode: event.awbCode,
-      shipmentId: event.shipmentId,
-      currentStatus: event.currentStatus,
-      location: event.location,
-      courierName: event.courierName,
-      origin: null,
-      destination: null,
-      edd: optionalString(payload['etd']),
-      pickupDate: optionalString(payload['pickup_scheduled_date']),
-      deliveredDate: targetStatus === 'delivered' ? event.eventTime : null,
-      trackingRaw: payload,
-      syncSource: 'webhook',
+      awb: track.awb_code,
+      shipment_id: track.shipment_id ?? track.id,
+      sr_order_id: track.order_id,
+      current_status: track.current_status,
+      current_timestamp: dates.at(-1),
+      courier_name: track.courier_name,
+      origin: track.origin,
+      destination: track.destination,
+      etd: track.edd ?? tracking.etd,
+      pickup_date: track.pickup_date,
+      delivered_date: track.delivered_date,
+      track_url: tracking.track_url,
+      scans: tracking.shipment_track_activities ?? [],
     },
-    executionLease
+    lease,
+    source
   )
+}
 
-  logger.info(
-    { orderId: order.id, currentStatus: event.currentStatus },
-    'Shiprocket webhook processed'
-  )
-  return { status: 'processed', orderId: order.id }
+export async function processStoredShiprocketWebhook(
+  receiptId: string,
+  lease: ExecutionLease
+): Promise<void> {
+  const { data, error } = await adminSupabase
+    .from('webhook_events')
+    .select('raw_payload,processing_status,shipping_match_attempts')
+    .eq('id', receiptId)
+    .eq('source', 'shiprocket')
+    .single()
+  if (error || !data)
+    throw databaseError('shipping.load_receipt', error, 'Shipment receipt unavailable')
+  if (data.processing_status === 'processed') return
+  if (data.shipping_match_attempts >= 10)
+    throw new Error('Shipment receipt requires manual review after bounded rematching')
+  let matched = false
+  let processingError: unknown
+  try {
+    const result = await processShiprocketWebhook(
+      data.raw_payload as Record<string, unknown>,
+      lease
+    )
+    matched = result.status === 'processed'
+  } catch (error) {
+    processingError = error
+  }
+  {
+    const finished = await adminSupabase.rpc('finish_shipping_receipt', {
+      ...executionLeaseRpcArgs(lease),
+      p_receipt_id: receiptId,
+      p_matched: matched,
+    })
+    if (finished.error)
+      throw databaseError(
+        'shipping.finish_receipt',
+        finished.error,
+        'Receipt completion was fenced out'
+      )
+  }
+  if (processingError) throw processingError
+  if (!matched) throw new Error('No matching shipment generation; rematching required')
+}
+
+export async function recoverShippingReceipts(limit = 50): Promise<void> {
+  const { data, error } = await adminSupabase
+    .from('webhook_events')
+    .select('payload_hash,raw_payload')
+    .eq('source', 'shiprocket')
+    .neq('processing_status', 'processed')
+    .lt('shipping_match_attempts', 10)
+    .order('created_at')
+    .limit(limit)
+  if (error)
+    throw databaseError('shipping.recover_receipts', error, 'Unfinished receipts unavailable')
+  for (const row of data ?? []) {
+    const recovered = await adminSupabase.rpc('accept_shipping_webhook', {
+      p_payload_hash: row.payload_hash,
+      p_payload: row.raw_payload,
+    })
+    if (recovered.error)
+      throw databaseError('shipping.requeue_receipt', recovered.error, 'Receipt recovery failed')
+  }
 }

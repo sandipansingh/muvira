@@ -61,6 +61,22 @@ export function isValidTransition(from: string, to: string): boolean {
   return validTargets.has(to as OrderStatus)
 }
 
+export function isValidProviderTransition(from: string, to: string): boolean {
+  if (
+    ['pending', 'cancelled', 'refunded', 'delivered', 'returned', 'lost', 'damaged'].includes(
+      from
+    ) ||
+    from === to
+  )
+    return false
+  if (from === 'rto') return to === 'returned'
+  if (['rto', 'returned', 'lost', 'damaged'].includes(to)) return true
+  if (from === 'delivery_failed') return ['shipped', 'out_for_delivery', 'delivered'].includes(to)
+  if (to === 'delivery_failed') return ['processing', 'shipped', 'out_for_delivery'].includes(from)
+  const states = ['confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered']
+  return states.includes(from) && states.includes(to) && states.indexOf(to) > states.indexOf(from)
+}
+
 /**
  * Whether a status is terminal (cannot transition further).
  */

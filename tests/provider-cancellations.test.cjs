@@ -5,6 +5,7 @@ const {
   claimLease,
   cleanupOrderFixture,
   createOrderFixture,
+  createPaymentFixture,
   serviceClient,
 } = require('./helpers/provider-db-fixture.cjs')
 
@@ -22,6 +23,7 @@ test(
       shipmentId: '8001001',
       awbCode: 'AWB9001001',
     })
+    await createPaymentFixture(first, order)
     context.after(() => cleanupOrderFixture(first, order))
 
     const preparationLease = await claimLease(first, 'fulfillment_order', order.orderId)

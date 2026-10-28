@@ -32,6 +32,10 @@ Object.assign(process.env, {
 
 const { createApp } = require('../server/dist/app.js')
 const { razorpay } = require('../server/dist/lib/razorpay/client.js')
+const {
+  configureShippingFixture,
+  mockShippingProvider,
+} = require('./helpers/shipping-db-fixture.cjs')
 
 function serviceClient() {
   return createClient(supabaseUrl, serviceRoleKey, {
@@ -100,6 +104,8 @@ test(
   { skip: !shouldRun },
   async (context) => {
     const service = serviceClient()
+    const restoreShipping = await configureShippingFixture(service)
+    mockShippingProvider(context)
     const customer = await createIdentity(service, 'checkout-customer')
     const otherCustomer = await createIdentity(service, 'other-customer')
     const admin = await createIdentity(service, 'operations-admin')
@@ -122,6 +128,7 @@ test(
     let couponId
 
     context.after(async () => {
+      await restoreShipping()
       razorpay.orders.create = originalOrderCreate
       razorpay.orders.fetch = originalOrderFetch
       razorpay.payments.fetch = originalPaymentFetch

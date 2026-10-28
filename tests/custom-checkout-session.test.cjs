@@ -30,7 +30,7 @@ test('checkout configuration exposes only public payment configuration', async (
 
 test('preparation rejects a changed request before dispatching a provider order', async (t) => {
   t.mock.method(adminSupabase, 'rpc', async (name) => {
-    assert.equal(name, 'prepare_checkout_session')
+    assert.equal(name, 'lookup_checkout_preparation')
     return { data: { conflict: 'CHECKOUT_REQUEST_CONFLICT' }, error: null }
   })
   t.mock.method(razorpay.orders, 'create', async () => {

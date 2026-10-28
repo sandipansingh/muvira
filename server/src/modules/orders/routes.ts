@@ -13,6 +13,8 @@ import {
   FulfillOrderSchema,
   ProviderActionReasonSchema,
   RefundOrderSchema,
+  NdrActionSchema,
+  OrderCourierQuerySchema,
 } from './schema'
 import * as controller from './controller'
 
@@ -39,6 +41,17 @@ adminOrdersRouter.get(
   controller.adminListOrders
 )
 adminOrdersRouter.post('/sync-tracking', controller.adminSyncTracking)
+adminOrdersRouter.get(
+  '/:id/couriers',
+  validate({ params: OrderIdParamsSchema, query: OrderCourierQuerySchema }),
+  controller.adminOrderCouriers
+)
+adminOrdersRouter.get('/:id/ndr', validate({ params: OrderIdParamsSchema }), controller.adminGetNdr)
+adminOrdersRouter.post(
+  '/:id/ndr/actions',
+  validate({ params: OrderIdParamsSchema, body: NdrActionSchema }),
+  controller.adminNdrAction
+)
 adminOrdersRouter.get('/:id', validate({ params: OrderIdParamsSchema }), controller.adminGetOrder)
 adminOrdersRouter.patch(
   '/:id/status',

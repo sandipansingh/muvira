@@ -392,7 +392,12 @@ test('reconciliation and webhook enqueue retry transient persistence failures', 
   }
 })
 
-test('an inconsistent provider order preserves its early ID when reconciliation storage fails', async () => {
+test('an inconsistent provider order preserves its early ID when reconciliation storage fails', async (t) => {
+  t.mock.method(
+    require('../server/dist/modules/checkout/shipping.js'),
+    'verifyCheckoutShipping',
+    async () => ({})
+  )
   const originalRpc = adminSupabase.rpc
   const originalOrderCreate = razorpay.orders.create
   const reconciliationInputs = []
@@ -402,7 +407,7 @@ test('an inconsistent provider order preserves its early ID when reconciliation 
     const leaseResult = executionLeaseRpc(name, args)
     if (leaseResult) return leaseResult
     if (name === 'expire_abandoned_checkouts') return { data: 0, error: null }
-    if (name === 'initialize_checkout') {
+    if (name === 'initialize_checkout_shipping') {
       return {
         data: {
           order: {

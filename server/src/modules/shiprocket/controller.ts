@@ -1,158 +1,61 @@
 import type { Request, Response, NextFunction } from 'express'
-import * as service from './service'
 import { getPickupLocations, checkServiceability } from '../../services/shiprocket'
 import { getSettings, updateSettings } from '../settings/service'
-import {
-  computePayloadHash,
-  verifyWebhookAuth,
-  checkWebhookDuplicate,
-  recordWebhookEvent,
-  updateWebhookEventStatus,
-} from './webhookSecurity'
-import {
-  recordWebhookReceived,
-  recordWebhookProcessed,
-  recordWebhookFailed,
-  recordWebhookDuplicate,
-} from '../../services/metricsCollector'
+import { computePayloadHash, verifyWebhookAuth } from './webhookSecurity'
+import { adminSupabase } from '../../lib/supabase/admin'
 import { logger } from '../../lib/logger'
-import { sanitizePostgrestError } from '../../lib/databaseError'
+import { parseShiprocketWebhookPayload } from './service'
 
-/**
- * POST /api/webhooks/shipment-status
- *
- * Webhook endpoint for Shiprocket tracking updates.
- *
- * Security:
- * - Raw body is preserved by app.ts middleware
- * - Shared-secret verification through the vendor x-api-key header
- * - Payload SHA-256 hash used for idempotency (duplicates return 200 without reprocessing)
- *
- * HTTP semantics:
- * - 200: processed successfully (including duplicates)
- * - 401: signature verification failed (Shiprocket won't retry)
- * - 422: malformed payload (Shiprocket won't retry)
- * - 500: processing failure (Shiprocket WILL retry)
- */
 export async function handleWebhook(
   req: Request,
   res: Response,
   _next: NextFunction
 ): Promise<void> {
+  if (
+    !verifyWebhookAuth(
+      typeof req.headers['x-api-key'] === 'string' ? req.headers['x-api-key'] : undefined
+    )
+  ) {
+    res
+      .status(401)
+      .json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Invalid webhook secret' } })
+    return
+  }
+  let payload: Record<string, unknown>
   try {
-    const rawBody = req.rawBody
-    if (!rawBody || rawBody.length === 0) {
-      res
-        .status(422)
-        .json({ success: false, error: { code: 'EMPTY_BODY', message: 'Empty request body' } })
-      return
-    }
-
-    const payloadHash = computePayloadHash(rawBody)
-    const correlationId = req.requestId ?? payloadHash
-    logger.info({ correlationId }, 'Shiprocket webhook: processing started')
-
-    const parsedBody = JSON.parse(rawBody.toString('utf8')) as Record<string, unknown>
-
-    // 1. Auth check
-    const apiKey = req.headers['x-api-key'] as string | undefined
-
-    if (!verifyWebhookAuth(apiKey)) {
-      recordWebhookFailed()
-      res.status(401).json({
-        success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Invalid webhook secret' },
-      })
-      return
-    }
-
-    // 2. Idempotency check. Carrier event timestamps are not delivery timestamps,
-    // so replay protection is based on the authenticated payload hash instead.
-    const existing = await checkWebhookDuplicate(payloadHash)
-    if (existing && existing.processing_status !== 'failed') {
-      logger.info(
-        { payloadHash, existingStatus: existing.processing_status },
-        'Duplicate Shiprocket webhook'
-      )
-      recordWebhookDuplicate()
-      res.json({ success: true, data: { status: 'duplicate' } })
-      return
-    }
-
-    // 3. Record receipt or reopen a previously failed attempt.
-    recordWebhookReceived()
-    const eventId = existing
-      ? existing.id
-      : await recordWebhookEvent({
-          source: 'shiprocket',
-          eventType:
-            (parsedBody['current_status'] as string) ?? (parsedBody['event'] as string) ?? null,
-          payloadHash,
-          rawPayload: parsedBody,
-          processingStatus: 'verified',
-        })
-
-    if (existing) {
-      await updateWebhookEventStatus(eventId, 'verified')
-    }
-
-    // 4. Process
-    try {
-      const result = await service.processShiprocketWebhook(parsedBody)
-
-      recordWebhookProcessed()
-      await updateWebhookEventStatus(eventId, 'processed')
-
-      res.json({ success: true, data: { status: result.status, orderId: result.orderId } })
-    } catch (processingErr) {
-      recordWebhookFailed()
-      const postgrest = sanitizePostgrestError(processingErr)
-      const errorMsg =
-        processingErr instanceof Error ? processingErr.message : String(processingErr)
-
-      await updateWebhookEventStatus(eventId, 'failed', errorMsg)
-
-      // Return 500 so Shiprocket retries
-      logger.error(
-        {
-          requestId: req.requestId,
-          operation: 'shiprocket.process_webhook',
-          postgrestCode: postgrest?.code ?? null,
-          postgrestMessage: postgrest?.message ?? null,
-          postgrestDetails: postgrest?.details ?? null,
-          statusCode: 500,
-          errorCode: 'PROCESSING_FAILED',
-        },
-        'Request failed'
-      )
-      res.status(500).json({
-        success: false,
-        error: { code: 'PROCESSING_FAILED', message: 'Shipment update could not be processed' },
-      })
-    }
-  } catch (err) {
-    const malformed = err instanceof SyntaxError
-    if (!malformed) {
-      const postgrest = sanitizePostgrestError(err)
-      logger.error(
-        {
-          requestId: req.requestId,
-          operation: 'shiprocket.audit_webhook',
-          postgrestCode: postgrest?.code ?? null,
-          postgrestMessage: postgrest?.message ?? null,
-          postgrestDetails: postgrest?.details ?? null,
-          statusCode: 500,
-          errorCode: 'WEBHOOK_AUDIT_FAILED',
-        },
-        'Request failed'
-      )
-    }
-    res.status(malformed ? 422 : 500).json({
+    if (!req.rawBody?.length) throw new Error('Empty body')
+    const parsed: unknown = JSON.parse(req.rawBody.toString('utf8'))
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+      throw new Error('Invalid payload')
+    payload = parsed as Record<string, unknown>
+    parseShiprocketWebhookPayload(payload)
+  } catch {
+    res.status(422).json({
       success: false,
-      error: {
-        code: malformed ? 'MALFORMED_WEBHOOK' : 'WEBHOOK_AUDIT_FAILED',
-        message: malformed ? 'Invalid webhook payload' : 'Webhook could not be recorded safely',
+      error: { code: 'MALFORMED_WEBHOOK', message: 'Invalid webhook payload' },
+    })
+    return
+  }
+  try {
+    const { data, error } = await adminSupabase.rpc('accept_shipping_webhook', {
+      p_payload_hash: computePayloadHash(req.rawBody!),
+      p_payload: payload,
+    })
+    if (error || !data) throw new Error('Receipt transaction failed')
+    res.status(200).json({
+      success: true,
+      data: {
+        status:
+          (data as { processing_status: string }).processing_status === 'processed'
+            ? 'duplicate'
+            : 'accepted',
       },
+    })
+  } catch {
+    logger.error({ requestId: req.requestId }, 'Shiprocket receipt could not be persisted')
+    res.status(503).json({
+      success: false,
+      error: { code: 'WEBHOOK_AUDIT_FAILED', message: 'Webhook could not be recorded safely' },
     })
   }
 }

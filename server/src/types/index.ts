@@ -180,6 +180,7 @@ export interface Coupon {
 }
 
 export interface Order {
+  order_items?: OrderItem[]
   id: string
   order_number: string
   user_id: string
@@ -391,8 +392,12 @@ export type ProviderOperationType =
   | 'partial_refund'
   | 'cancel_order'
   | 'cancel_shipment'
+  | 'create_order'
+  | 'assign_awb'
+  | 'schedule_pickup'
+  | 'ndr_action'
 
-export type ProviderTargetType = 'payment' | 'order' | 'awb'
+export type ProviderTargetType = 'payment' | 'order' | 'awb' | 'merchant_order' | 'shipment'
 
 export type ProviderOperationState =
   | 'prepared'

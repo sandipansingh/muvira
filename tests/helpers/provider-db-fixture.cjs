@@ -103,6 +103,8 @@ async function cleanupOrderFixture(client, fixture) {
   await client.from('outbox_events').delete().eq('aggregate_id', fixture.orderId)
   await client.from('payment_logs').delete().eq('order_id', fixture.orderId)
   await client.from('order_status_history').delete().eq('order_id', fixture.orderId)
+  await client.from('shipment_events').delete().eq('order_id', fixture.orderId)
+  await client.from('tracking_snapshots').delete().eq('order_id', fixture.orderId)
   await client.from('provider_operations').delete().eq('order_id', fixture.orderId)
   await client.from('payments').delete().eq('order_id', fixture.orderId)
   await client.from('orders').delete().eq('id', fixture.orderId)

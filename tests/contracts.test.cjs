@@ -192,8 +192,8 @@ test('Shiprocket raw statuses and production webhook readiness use one contract'
     env,
     /NODE_ENV === ['"]production['"][\s\S]+SHIPROCKET_WEBHOOK_ENABLED !== ['"]true['"]/
   )
-  assert.match(service, /shiprocket_status: event\.currentStatus/)
-  assert.match(service, /mapShiprocketStatusToOrderStatus\(event\.currentStatus\)/)
+  assert.match(service, /apply_shipping_observation/)
+  assert.match(service, /shiprocketStatusToOrderStatus\(event\.currentStatus\)/)
 })
 
 test('authenticated routes require an API profile and safe return path', () => {

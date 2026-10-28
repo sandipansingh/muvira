@@ -72,7 +72,8 @@ SELECT ok(
       has_function_privilege('authenticated', procedure.oid, 'EXECUTE')
       = (procedure.proname = 'is_admin')
     )
-    AND has_function_privilege('service_role', procedure.oid, 'EXECUTE'),
+    AND has_function_privilege('service_role', procedure.oid, 'EXECUTE') =
+      (procedure.proname NOT IN ('apply_shiprocket_persistence_fenced_v53','claim_provider_operation_dispatch_v53','finalize_provider_operation_v53','initialize_checkout_v53')),
   FORMAT('%I exposes only its intended execution roles', procedure.proname)
 )
 FROM pg_proc AS procedure

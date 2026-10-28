@@ -4,6 +4,7 @@ export const ShippingMethodSchema = z.enum(['standard', 'express'])
 
 export const CheckoutQuoteSchema = z
   .object({
+    address_id: z.string().uuid().optional(),
     coupon_code: z.string().trim().min(1).max(50).toUpperCase().optional(),
     shipping_method: ShippingMethodSchema.default('standard'),
   })

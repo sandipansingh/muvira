@@ -5,21 +5,19 @@ import type { AdminOrderSummary, Order } from '../../types'
 import { invalidateOn } from '../../services/cacheInvalidation'
 import { executionLeaseRpcArgs, type ExecutionLease } from '../../services/executionLease'
 import {
-  trackBulk,
-  createOrder as shiprocketCreateOrder,
-  assignAwb as shiprocketAssignAwb,
-  schedulePickup as shiprocketSchedulePickup,
   generateLabel as shiprocketGenerateLabel,
   generateManifest as shiprocketGenerateManifest,
   getPickupLocations as shiprocketGetPickupLocations,
   getShipmentDetails as shiprocketGetShipmentDetails,
   generateInvoice as shiprocketGenerateInvoice,
+  getNdrDetails,
 } from '../../services/shiprocket'
 import {
   cancelOrderWithProviderSafety,
   dispatchRazorpayRefund,
   prepareRefund,
   withFulfillmentMutationLease,
+  auditProviderAction,
 } from '../../services/providerOperations'
 import { logger } from '../../lib/logger'
 import { emitStatusChangeEvents } from '../../services/eventBus'
@@ -36,6 +34,10 @@ import type {
 } from './schema'
 import { ShiprocketSettingsSchema } from '../settings/schema'
 import { refundBalances } from './refundBalances'
+import { runShippingOperation, shippingOperationDto } from '../../services/shippingOperations'
+import { checkShippingServiceability } from '../../services/shippingServiceability'
+import { withExecutionLease } from '../../services/executionLease'
+import type { NdrActionInput } from './schema'
 
 //
 // User-facing: only see own orders
@@ -174,6 +176,53 @@ export async function adminGetOrder(orderId: string): Promise<Order> {
     throw databaseError('orders.admin_get', error, 'Failed to fetch order')
   if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
+  const packageFields = {
+    package_weight_grams: 'weight_grams',
+    package_length_cm: 'length_cm',
+    package_breadth_cm: 'breadth_cm',
+    package_height_cm: 'height_cm',
+  } as const
+  if (
+    data.pickup_location == null ||
+    Object.keys(packageFields).some((field) => data[field] == null)
+  ) {
+    const { data: snapshot, error: snapshotError } = await adminSupabase
+      .from('order_shipping_snapshots')
+      .select(
+        'package:verification->package,pickup_location:context->shiprocket_settings->pickup_location'
+      )
+      .eq('order_id', orderId)
+      .maybeSingle()
+    if (snapshotError)
+      throw databaseError(
+        'orders.admin_shipping_package',
+        snapshotError,
+        'Purchased shipping configuration unavailable'
+      )
+    const savedPackage =
+      snapshot?.package && typeof snapshot.package === 'object' && !Array.isArray(snapshot.package)
+        ? (snapshot.package as Record<string, unknown>)
+        : {}
+    for (const [field, source] of Object.entries(packageFields)) {
+      const value = savedPackage[source]
+      if (
+        data[field] == null &&
+        typeof value === 'number' &&
+        Number.isSafeInteger(value) &&
+        value > 0
+      )
+        data[field] = value
+    }
+    const savedPickup = snapshot?.pickup_location
+    if (
+      data.pickup_location == null &&
+      typeof savedPickup === 'string' &&
+      savedPickup.trim() &&
+      savedPickup.length <= 200
+    )
+      data.pickup_location = savedPickup.trim()
+  }
+
   // Return from DB only — tracking is synced by webhooks + cron polling
   const payments = data.payments as unknown as Array<{
     amount_paisa: number
@@ -253,21 +302,21 @@ export async function adminUpdateOrderStatus(
 
 async function adminUpdateFulfillmentInternal(
   orderId: string,
-  input: UpdateFulfillmentInput
+  input: UpdateFulfillmentInput,
+  lease: ExecutionLease
 ): Promise<Order> {
   // An AWB confirms allocation, not carrier handoff.
   const fulfillment_status =
     input.awb_code != null && input.awb_code.trim() !== '' ? 'partial' : 'unfulfilled'
 
-  const { data, error } = await adminSupabase
-    .from('orders')
-    .update({
+  const { data, error } = await adminSupabase.rpc('apply_shiprocket_persistence_fenced', {
+    ...executionLeaseRpcArgs(lease),
+    p_order_id: orderId,
+    p_persistence: {
       awb_code: input.awb_code ?? null,
       fulfillment_status,
-    })
-    .eq('id', orderId)
-    .select()
-    .single()
+    },
+  })
 
   if (error && !isPostgrestNoRows(error))
     throw databaseError('orders.update_fulfillment', error, 'Failed to update fulfillment')
@@ -279,7 +328,9 @@ export async function adminUpdateFulfillment(
   orderId: string,
   input: UpdateFulfillmentInput
 ): Promise<Order> {
-  return withFulfillmentMutationLease(orderId, () => adminUpdateFulfillmentInternal(orderId, input))
+  return withFulfillmentMutationLease(orderId, (lease) =>
+    adminUpdateFulfillmentInternal(orderId, input, lease)
+  )
 }
 
 export async function adminAddOrderNote(orderId: string, input: AddOrderNoteInput): Promise<Order> {
@@ -393,50 +444,8 @@ export async function adminSyncTrackingOrders(): Promise<{
   totalChecked: number
   totalUpdated: number
 }> {
-  const { data: orders, error } = await adminSupabase
-    .from('orders')
-    .select('id, awb_code, status')
-    .not('awb_code', 'is', null)
-    .not('status', 'in', '("delivered","cancelled","returned","refunded","lost","damaged")')
-
-  if (error || !orders || orders.length === 0) {
-    return { totalChecked: 0, totalUpdated: 0 }
-  }
-
-  const awbs = orders
-    .map((o) => o.awb_code)
-    .filter((awb): awb is string => typeof awb === 'string' && awb.trim() !== '')
-
-  if (awbs.length === 0) {
-    return { totalChecked: 0, totalUpdated: 0 }
-  }
-
-  const trackingData = await trackBulk(awbs)
-
-  let totalUpdated = 0
-
-  for (const order of orders) {
-    const awb = order.awb_code
-    if (!awb) continue
-
-    const item = trackingData[awb]
-    const trackingInfo = item?.tracking_data?.shipment_track?.[0]
-    if (trackingInfo) {
-      const srStatus = trackingInfo.current_status
-      const targetStatus = shiprocketStatusToOrderStatus(srStatus)
-      if (targetStatus && targetStatus !== order.status) {
-        const updated = await updateOrderStatusByAwb(awb, targetStatus, 'polling_sync')
-        if (updated) {
-          totalUpdated++
-        }
-      }
-    }
-  }
-
-  return {
-    totalChecked: orders.length,
-    totalUpdated,
-  }
+  const { synchronizeActiveShipments } = await import('../../services/shipmentSync')
+  return synchronizeActiveShipments(undefined, 'manual')
 }
 
 //
@@ -607,139 +616,74 @@ export async function createShiprocketOrder(
   orderId: string,
   pickupLocationOverride?: string
 ): Promise<{ shiprocket_order_id: number; shipment_id: number }> {
-  return withFulfillmentMutationLease(orderId, () =>
-    createShiprocketOrderInternal(orderId, { pickupLocation: pickupLocationOverride })
+  return withFulfillmentMutationLease(orderId, (lease) =>
+    createShiprocketOrderInternal(orderId, lease, { pickupLocation: pickupLocationOverride })
+  )
+}
+
+async function buildStoredShippingPayload(order: Order, overrides: ShiprocketOrderOverrides) {
+  const { data, error } = await adminSupabase
+    .from('order_shipping_snapshots')
+    .select('verification,context')
+    .eq('order_id', order.id)
+    .maybeSingle()
+  if (error)
+    throw databaseError(
+      'shipping.load_snapshot',
+      error,
+      'Purchased shipping configuration unavailable'
+    )
+  const snapshot = data?.verification as
+    | {
+        package?: { weight_grams: number; length_cm: number; breadth_cm: number; height_cm: number }
+      }
+    | undefined
+  const context = data?.context as { shiprocket_settings?: { pickup_location: string } } | undefined
+  const saved = snapshot?.package
+  return buildShiprocketOrderPayload(
+    order as unknown as Record<string, unknown>,
+    order.order_items ?? [],
+    {
+      pickupLocation:
+        overrides.pickupLocation ??
+        order.pickup_location ??
+        context?.shiprocket_settings?.pickup_location,
+      weightGrams: overrides.weightGrams ?? order.package_weight_grams ?? saved?.weight_grams,
+      lengthCm: overrides.lengthCm ?? order.package_length_cm ?? saved?.length_cm,
+      breadthCm: overrides.breadthCm ?? order.package_breadth_cm ?? saved?.breadth_cm,
+      heightCm: overrides.heightCm ?? order.package_height_cm ?? saved?.height_cm,
+    }
   )
 }
 
 async function createShiprocketOrderInternal(
   orderId: string,
-  overrides: ShiprocketOrderOverrides = {}
+  lease: ExecutionLease,
+  overrides: ShiprocketOrderOverrides = {},
+  correctedAttempt?: string
 ): Promise<{ shiprocket_order_id: number; shipment_id: number }> {
-  const { data: order, error } = await adminSupabase
-    .from('orders')
-    .select('*, order_items(*)')
-    .eq('id', orderId)
-    .single()
-
-  if (error || !order) {
-    throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
-  }
-
-  if (order.shiprocket_order_id && order.shipment_id) {
-    logger.info(
-      { orderId, shiprocketOrderId: order.shiprocket_order_id },
-      'Shiprocket order already exists - reusing'
-    )
-    const existingResult = {
+  const order = await adminGetOrder(orderId)
+  if (order.shiprocket_order_id && order.shipment_id)
+    return {
       shiprocket_order_id: Number(order.shiprocket_order_id),
       shipment_id: Number(order.shipment_id),
     }
-    if (order.status === 'confirmed') {
-      await transitionOrderStatus(order, 'processing', 'system', existingResult)
-    }
-    return existingResult
-  }
-
-  const orderItems = order.order_items as Array<{
-    product_id: string
-    product_name: string
-    product_sku: string | null
-    quantity: number
-    unit_price_paisa: number
-  }>
-
-  const payload = await buildShiprocketOrderPayload(order, orderItems, overrides)
+  const payload = await buildStoredShippingPayload(order, overrides)
   await assertPickupLocationConfigured(payload.pickup_location)
-  const { error: pendingError } = await adminSupabase
-    .from('orders')
-    .update({ shiprocket_status: 'pending', shiprocket_error: null })
-    .eq('id', orderId)
-  if (pendingError)
-    throw databaseError(
-      'orders.prepare_shiprocket_order',
-      pendingError,
-      'Failed to prepare Shiprocket order'
-    )
-
-  let result: Awaited<ReturnType<typeof shiprocketCreateOrder>>
-  try {
-    result = await shiprocketCreateOrder(payload)
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : String(err)
-    logger.error({ err, orderId }, 'Failed to create Shiprocket order')
-    const { error: failurePersistError } = await adminSupabase
-      .from('orders')
-      .update({ shiprocket_status: 'failed', shiprocket_error: errorMessage })
-      .eq('id', orderId)
-    if (failurePersistError) {
-      logger.error({ orderId, error: failurePersistError }, 'Failed to persist Shiprocket failure')
-    }
-    throw new AppError(502, 'SHIPROCKET_FAILED', 'Shiprocket order creation failed')
+  if (correctedAttempt) payload.order_id += `-${correctedAttempt}`
+  await runShippingOperation(
+    orderId,
+    'create_order',
+    { wire: payload },
+    lease,
+    'Admin shipment creation',
+    correctedAttempt
+  )
+  const saved = await adminGetOrder(orderId)
+  return {
+    shiprocket_order_id: Number(saved.shiprocket_order_id),
+    shipment_id: Number(saved.shipment_id),
   }
-
-  const rawResult = result as unknown as Record<string, unknown>
-  const responseData = rawResult['data'] as Record<string, unknown> | undefined
-  const resolved = responseData ?? rawResult
-  const shiprocketOrderId = Number(resolved['shiprocket_order_id'] ?? resolved['order_id'])
-  const shipmentId = Number(resolved['shipment_id'])
-
-  if (
-    !Number.isSafeInteger(shiprocketOrderId) ||
-    shiprocketOrderId <= 0 ||
-    !Number.isSafeInteger(shipmentId) ||
-    shipmentId <= 0
-  ) {
-    throw new AppError(
-      502,
-      'SHIPROCKET_INVALID_RESPONSE',
-      'Shiprocket returned invalid identifiers'
-    )
-  }
-
-  const persistence = {
-    shiprocket_order_id: String(shiprocketOrderId),
-    shipment_id: String(shipmentId),
-    shiprocket_status: 'created',
-    shiprocket_error: null,
-    pickup_location: payload.pickup_location,
-    package_weight_grams: payload.package_weight_grams,
-    package_length_cm: payload.package_length_cm,
-    package_breadth_cm: payload.package_breadth_cm,
-    package_height_cm: payload.package_height_cm,
-    fulfillment_status: 'partial',
-    fulfillment_step: 'order_created',
-  }
-  const { data: persisted, error: persistenceError } = await adminSupabase
-    .from('orders')
-    .update(persistence)
-    .eq('id', orderId)
-    .select('id')
-    .single()
-
-  if (persistenceError || !persisted) {
-    const { error: retryError } = await adminSupabase.rpc('enqueue_retry_job', {
-      p_job_type: 'shiprocket_persist',
-      p_reference_id: orderId,
-      p_payload: { orderId, persistence },
-      p_max_retries: 10,
-    })
-    if (retryError) {
-      logger.error({ orderId, retryError }, 'Failed to enqueue Shiprocket persistence repair')
-    }
-    throw new AppError(
-      500,
-      'SHIPROCKET_PERSISTENCE_FAILED',
-      'Shiprocket accepted the order, but local persistence failed; reconciliation is queued'
-    )
-  }
-
-  if (order.status === 'confirmed') {
-    await transitionOrderStatus(order, 'processing', 'system', { shiprocketOrderId, shipmentId })
-  }
-
-  logger.info({ orderId, shiprocketOrderId, shipmentId }, 'Shiprocket order created successfully')
-  return { shiprocket_order_id: shiprocketOrderId, shipment_id: shipmentId }
 }
 
 //
@@ -789,9 +733,9 @@ async function assertPickupLocationConfigured(pickupLocation: string): Promise<v
 }
 
 export async function adminCreateShipment(orderId: string, pickupLocation: string): Promise<Order> {
-  return withFulfillmentMutationLease(orderId, async () => {
+  return withFulfillmentMutationLease(orderId, async (lease) => {
     await assertPickupLocationConfigured(pickupLocation)
-    await createShiprocketOrderInternal(orderId, { pickupLocation })
+    await createShiprocketOrderInternal(orderId, lease, { pickupLocation })
     return adminGetOrder(orderId)
   })
 }
@@ -876,97 +820,177 @@ async function getOrderShipmentId(
   return { shipmentId: Number(order.shipment_id), awbCode: order.awb_code }
 }
 
-async function adminAssignAwbInternal(orderId: string, input: AssignAwbInput): Promise<Order> {
-  const { shipmentId } = await getOrderShipmentId(orderId)
-
-  const result = await shiprocketAssignAwb({
-    shipment_id: shipmentId,
-    courier_id: input.courier_id,
-    is_return: 0,
+export async function adminOrderCouriers(
+  orderId: string,
+  overrides: ShiprocketOrderOverrides = {}
+) {
+  const order = await adminGetOrder(orderId)
+  const payload = await buildStoredShippingPayload(order, overrides)
+  return checkShippingServiceability({
+    pickup_location: payload.pickup_location,
+    delivery_pincode: payload.shipping_pincode,
+    weight_grams: payload.package_weight_grams,
+    length_cm: payload.length,
+    breadth_cm: payload.breadth,
+    height_cm: payload.height,
+    declared_value_paisa: order.total_amount_paisa,
+    shipping_method: order.shipping_method === 'express' ? 'express' : 'standard',
   })
+}
 
-  const awbData = result.response?.data
-  if (!awbData?.awb_code) {
-    throw new AppError(502, 'AWB_FAILED', 'Shiprocket AWB assignment returned no AWB code')
+async function adminAssignAwbInternal(
+  orderId: string,
+  input: AssignAwbInput,
+  lease: ExecutionLease,
+  actorId?: string,
+  overrides: ShiprocketOrderOverrides = {}
+): Promise<Order> {
+  const order = await adminGetOrder(orderId)
+  if (order.awb_code) return order
+  const { shipmentId } = await getOrderShipmentId(orderId)
+  const availability = await adminOrderCouriers(orderId, overrides)
+  const courierId = input.courier_id ?? availability.recommended_courier?.courier_id
+  if (!availability.available || !availability.couriers.some((c) => c.courier_id === courierId))
+    throw new AppError(
+      409,
+      'COURIER_UNAVAILABLE',
+      'The selected courier does not serve this shipment'
+    )
+  if (courierId !== availability.recommended_courier?.courier_id) {
+    if (!input.courier_override_reason || !actorId)
+      throw new AppError(409, 'COURIER_OVERRIDE_REASON_REQUIRED', 'Explain the courier override')
+    await auditProviderAction({
+      orderId,
+      actorId,
+      action: 'courier_override',
+      reason: input.courier_override_reason,
+      outcome: 'success',
+      details: { courier_id: courierId },
+    })
   }
-
-  await persistFulfillmentState(
+  await runShippingOperation(
     orderId,
-    {
-      awb_code: awbData.awb_code,
-      courier_name: awbData.courier_name ?? null,
-      fulfillment_status: 'partial',
-      fulfillment_step: 'awb_assigned',
-    },
-    'AWB was assigned but could not be persisted'
+    'assign_awb',
+    { wire: { shipment_id: shipmentId, courier_id: courierId, is_return: 0 } },
+    lease,
+    input.courier_override_reason ?? 'Recommended courier assignment',
+    input.corrected_attempt_id
   )
-
-  invalidateOn('ORDER_UPDATED', { id: orderId, userId: '' })
-
-  logger.info({ orderId, awb: awbData.awb_code, courier: awbData.courier_name }, 'AWB assigned')
+  invalidateOn('ORDER_UPDATED', { id: orderId, userId: order.user_id })
   return adminGetOrder(orderId)
 }
 
-export async function adminAssignAwb(orderId: string, input: AssignAwbInput): Promise<Order> {
-  return withFulfillmentMutationLease(orderId, () => adminAssignAwbInternal(orderId, input))
+export async function adminAssignAwb(
+  orderId: string,
+  input: AssignAwbInput,
+  actorId?: string
+): Promise<Order> {
+  return withFulfillmentMutationLease(orderId, (lease) =>
+    adminAssignAwbInternal(orderId, input, lease, actorId)
+  )
 }
 
-async function adminSchedulePickupInternal(orderId: string): Promise<{ status: string }> {
-  const { shipmentId } = await getOrderShipmentId(orderId)
-
-  const result = await shiprocketSchedulePickup({
-    shipment_id: [shipmentId],
-  })
-
-  const pickupInfo = result.response
-  if (!pickupInfo?.status) {
-    throw new AppError(502, 'PICKUP_FAILED', 'Shiprocket did not confirm pickup scheduling')
-  }
-  const pickupStatus = pickupInfo.status
-  const pickupDate = pickupInfo.pickup_scheduled_date ?? null
-  const pickupToken = pickupInfo.pickup_token_number ?? null
-  await persistFulfillmentState(
+async function adminSchedulePickupInternal(
+  orderId: string,
+  lease: ExecutionLease
+): Promise<{ status: string }> {
+  const order = await adminGetOrder(orderId)
+  if (order.pickup_scheduled_date) return { status: 'scheduled' }
+  const { shipmentId, awbCode } = await getOrderShipmentId(orderId)
+  if (!awbCode) throw new AppError(409, 'NO_AWB', 'Assign an AWB before scheduling pickup')
+  await runShippingOperation(
     orderId,
-    {
-      pickup_scheduled_date: pickupDate,
-      pickup_token_number: pickupToken ? String(pickupToken) : null,
-      fulfillment_status: 'partial',
-      fulfillment_step: 'pickup_scheduled',
-    },
-    'Pickup was scheduled but could not be persisted'
+    'schedule_pickup',
+    { wire: { shipment_id: [shipmentId] } },
+    lease,
+    'Admin pickup scheduling'
   )
-  logger.info({ orderId, shipmentId, pickupStatus }, 'Pickup scheduled')
-  return { status: pickupStatus }
+  return { status: 'scheduled' }
 }
 
 export async function adminSchedulePickup(orderId: string): Promise<{ status: string }> {
-  return withFulfillmentMutationLease(orderId, () => adminSchedulePickupInternal(orderId))
+  return withFulfillmentMutationLease(orderId, (lease) =>
+    adminSchedulePickupInternal(orderId, lease)
+  )
+}
+
+export async function adminGetNdr(orderId: string) {
+  const order = await adminGetOrder(orderId)
+  if (!order.awb_code) throw new AppError(409, 'NO_AWB', 'No AWB assigned')
+  return (await getNdrDetails(order.awb_code)).filter(
+    (episode) => episode.shipment_id === order.shipment_id
+  )
+}
+
+export async function adminNdrAction(orderId: string, input: NdrActionInput, actorId: string) {
+  return withExecutionLease('fulfillment_order', orderId, async ({ lease }) => {
+    const order = await adminGetOrder(orderId)
+    const episodes = await adminGetNdr(orderId)
+    const latest = [...episodes].sort((a, b) => b.attempts - a.attempts)[0]
+    if (
+      !latest ||
+      latest.episode_id !== input.episode_id ||
+      !order.awb_code ||
+      order.status !== 'delivery_failed'
+    )
+      throw new AppError(
+        409,
+        'NDR_EPISODE_CHANGED',
+        'Refresh the current NDR episode before submitting'
+      )
+    const operation = await runShippingOperation(
+      orderId,
+      'ndr_action',
+      {
+        wire: {
+          action: input.action,
+          comments: input.comments,
+          ...(input.reattempt_date ? { deferred_date: input.reattempt_date } : {}),
+        },
+        episode_id: input.episode_id,
+        request_id: input.request_id,
+        actor_id: actorId,
+      },
+      lease,
+      'Admin NDR action'
+    )
+    return {
+      ...shippingOperationDto(operation),
+      outcome: operation.state === 'provider_pending' ? 'request accepted' : operation.state,
+    }
+  })
 }
 
 export async function adminGenerateLabel(orderId: string): Promise<Buffer> {
-  return withFulfillmentMutationLease(orderId, () => adminGenerateDocument(orderId, 'label'))
+  return withFulfillmentMutationLease(orderId, (lease) =>
+    adminGenerateDocument(orderId, 'label', lease)
+  )
 }
 
 export async function adminGenerateManifest(orderId: string): Promise<Buffer> {
-  return withFulfillmentMutationLease(orderId, () => adminGenerateDocument(orderId, 'manifest'))
+  return withFulfillmentMutationLease(orderId, (lease) =>
+    adminGenerateDocument(orderId, 'manifest', lease)
+  )
 }
 
 async function adminGenerateDocument(
   orderId: string,
-  docType: 'label' | 'manifest'
+  docType: 'label' | 'manifest',
+  lease: ExecutionLease
 ): Promise<Buffer> {
   const { shipmentId } = await getOrderShipmentId(orderId)
   const name = docType === 'label' ? 'Label' : 'Manifest'
 
-  let docUrl: string | null = null
+  const existing = await shiprocketGetShipmentDetails(shipmentId)
+  let docUrl: string | null = docType === 'label' ? existing.label_url : existing.manifest_url
 
-  if (docType === 'label') {
+  if (!docUrl && docType === 'label') {
     docUrl = await tryGenerateOrFetchDocument({
       name,
       generate: () => shiprocketGenerateLabel(shipmentId),
       extractUrl: (resp) => (resp as { label_url: string }).label_url,
     })
-  } else {
+  } else if (!docUrl) {
     docUrl = await tryGenerateOrFetchDocument({
       name,
       generate: () => shiprocketGenerateManifest(shipmentId),
@@ -991,16 +1015,17 @@ async function adminGenerateDocument(
   if (documentUrl.protocol !== 'https:' || documentUrl.username || documentUrl.password)
     throw new Error('Shiprocket document URL is invalid')
 
-  const pdfRes = await fetch(docUrl)
+  const pdfRes = await fetch(docUrl, { signal: AbortSignal.timeout(15_000), redirect: 'error' })
   if (!pdfRes.ok) {
     throw new Error(`Failed to download ${name.toLowerCase()} PDF: ${pdfRes.status}`)
   }
   await persistFulfillmentState(
     orderId,
     docType === 'label' ? { label_generated: true } : { manifest_generated: true },
-    `${name} generated but confirmation could not be persisted`
+    `${name} generated but confirmation could not be persisted`,
+    lease
   )
-  return Buffer.from(await pdfRes.arrayBuffer())
+  return readValidatedPdf(pdfRes)
 }
 
 interface DocumentGenerator {
@@ -1014,7 +1039,7 @@ async function tryGenerateOrFetchDocument(params: DocumentGenerator): Promise<st
     const resp = await params.generate()
     const url = params.extractUrl(resp)
     if (url && url.length > 0) {
-      logger.info({ url }, `${params.name} generated`)
+      logger.info(`${params.name} generated`)
       return url
     }
     throw new Error(`${params.name} URL is empty`)
@@ -1141,7 +1166,11 @@ async function generateInvoice(
     const invoiceResponse = await shiprocketGenerateInvoice([Number(providerReference)])
     if (!invoiceResponse.invoice_url) throw new Error('Shiprocket did not return an invoice URL')
 
+    const invoiceUrl = new URL(invoiceResponse.invoice_url)
+    if (invoiceUrl.protocol !== 'https:' || invoiceUrl.username || invoiceUrl.password)
+      throw new Error('Invoice URL is invalid')
     const response = await fetch(invoiceResponse.invoice_url, {
+      redirect: 'error',
       signal: AbortSignal.timeout(15_000),
     })
     const pdf = await readValidatedPdf(response)
@@ -1262,32 +1291,23 @@ export interface FulfillOrderResult {
 async function persistFulfillmentState(
   orderId: string,
   update: Record<string, unknown>,
-  failureMessage: string
+  failureMessage: string,
+  lease: ExecutionLease
 ): Promise<void> {
-  const { data, error } = await adminSupabase
-    .from('orders')
-    .update(update)
-    .eq('id', orderId)
-    .select('id')
-    .single()
-
-  if (error || !data) {
-    const { error: retryError } = await adminSupabase.rpc('enqueue_retry_job', {
-      p_job_type: 'shiprocket_persist',
-      p_reference_id: orderId,
-      p_payload: { orderId, persistence: update },
-      p_max_retries: 10,
-    })
-    if (retryError) {
-      logger.error({ orderId, retryError }, 'Failed to enqueue fulfillment persistence repair')
-    }
-    throw new Error(`${failureMessage}: ${error?.message ?? 'missing order'}`)
-  }
+  const { data, error } = await adminSupabase.rpc('apply_shiprocket_persistence_fenced', {
+    ...executionLeaseRpcArgs(lease),
+    p_order_id: orderId,
+    p_persistence: update,
+  })
+  if (error || !data)
+    throw databaseError('shipping.persist_progress', error, failureMessage, { statusCode: 503 })
 }
 
 async function adminFulfillOrderInternal(
   orderId: string,
-  input: FulfillOrderInput
+  input: FulfillOrderInput,
+  lease: ExecutionLease,
+  actorId?: string
 ): Promise<FulfillOrderResult> {
   const steps: FulfillmentStepResult[] = []
   let savedShiprocketOrderId: number | null = null
@@ -1343,13 +1363,18 @@ async function adminFulfillOrderInternal(
   // Step 1: Create Shiprocket Order
   if (shouldRunStep('order_created')) {
     try {
-      const result = await createShiprocketOrderInternal(orderId, {
-        pickupLocation: input.pickup_location,
-        weightGrams: input.weight_grams,
-        lengthCm: input.length_cm,
-        breadthCm: input.breadth_cm,
-        heightCm: input.height_cm,
-      })
+      const result = await createShiprocketOrderInternal(
+        orderId,
+        lease,
+        {
+          pickupLocation: input.pickup_location,
+          weightGrams: input.weight_grams,
+          lengthCm: input.length_cm,
+          breadthCm: input.breadth_cm,
+          heightCm: input.height_cm,
+        },
+        input.corrected_attempt_id
+      )
       savedShiprocketOrderId = result.shiprocket_order_id
       savedShipmentId = result.shipment_id
       steps.push({
@@ -1384,63 +1409,9 @@ async function adminFulfillOrderInternal(
   // Step 2: Assign Courier / Generate AWB
   if (shouldRunStep('awb_assigned')) {
     try {
-      const assignResult = await shiprocketAssignAwb({
-        shipment_id: shipmentId,
-        courier_id: input.courier_id,
-        is_return: 0,
-      })
-      // Shiprocket AWB response: { awb_assign_status, response: { data: { awb_code, courier_name, ... } } }
-      const rawAssign = assignResult as unknown as Record<string, unknown>
-      const respObj = rawAssign['response'] as Record<string, unknown> | undefined
-      const respData = respObj?.['data'] as Record<string, unknown> | undefined
-
-      let awbData: { awb_code?: string; courier_name?: string } | undefined = (
-        respData?.awb_code ? respData : undefined
-      ) as { awb_code?: string; courier_name?: string } | undefined
-
-      // Fallback: response might be wrapped in a top-level 'data' key
-      if (!awbData?.awb_code) {
-        const topData = rawAssign['data'] as Record<string, unknown> | undefined
-        if (topData) {
-          const innerResp = topData['response'] as Record<string, unknown> | undefined
-          const innerData = innerResp?.['data'] as Record<string, unknown> | undefined
-          if (innerData?.awb_code)
-            awbData = innerData as { awb_code?: string; courier_name?: string }
-        }
-      }
-
-      // Final fallback: check if awb_code is directly on respData or resp array
-      if (!awbData?.awb_code) {
-        const respArr = respObj
-          ? ([respObj] as Record<string, unknown>[])
-          : (rawAssign['response'] as Record<string, unknown>[] | undefined)
-        if (respArr && respArr.length > 0) {
-          awbData = respArr[0] as { awb_code?: string; courier_name?: string }
-        }
-      }
-
-      logger.info(
-        { orderId, shipmentId, assignResp: JSON.stringify(rawAssign) },
-        'AWB assignment response'
-      )
-
-      if (!awbData?.awb_code) {
-        throw new Error(
-          'Shiprocket AWB assignment returned no AWB code. The order may need manual processing in the Shiprocket dashboard.'
-        )
-      }
-      savedAwbCode = awbData.awb_code
-      savedCourierName = awbData.courier_name ?? null
-      await persistFulfillmentState(
-        orderId,
-        {
-          awb_code: savedAwbCode,
-          courier_name: savedCourierName,
-          fulfillment_status: 'partial',
-          fulfillment_step: 'awb_assigned',
-        },
-        'AWB was assigned but could not be persisted'
-      )
+      const assigned = await adminAssignAwbInternal(orderId, input, lease, actorId)
+      savedAwbCode = assigned.awb_code ?? null
+      savedCourierName = assigned.courier_name ?? null
       steps.push({
         step: 'awb_assigned',
         status: 'completed',
@@ -1461,25 +1432,10 @@ async function adminFulfillOrderInternal(
   // Step 3: Schedule Pickup
   if (shouldRunStep('pickup_scheduled')) {
     try {
-      const pickupResult = await shiprocketSchedulePickup({
-        shipment_id: [shipmentId],
-      })
-      const pickupInfo = pickupResult.response
-      if (!pickupInfo?.status) {
-        throw new Error('Shiprocket did not confirm pickup scheduling')
-      }
-      savedPickupDate = pickupInfo?.pickup_scheduled_date ?? null
-      const tokenNumber = pickupInfo?.pickup_token_number ?? null
-      await persistFulfillmentState(
-        orderId,
-        {
-          pickup_scheduled_date: savedPickupDate,
-          pickup_token_number: tokenNumber ? String(tokenNumber) : null,
-          fulfillment_status: 'partial',
-          fulfillment_step: 'pickup_scheduled',
-        },
-        'Pickup was scheduled but could not be persisted'
-      )
+      await adminSchedulePickupInternal(orderId, lease)
+      const picked = await adminGetOrder(orderId)
+      savedPickupDate = picked.pickup_scheduled_date ?? null
+      const tokenNumber = picked.pickup_token_number ?? null
       steps.push({
         step: 'pickup_scheduled',
         status: 'completed',
@@ -1499,12 +1455,16 @@ async function adminFulfillOrderInternal(
   // Step 4: Generate Label
   if (shouldRunStep('label_generated')) {
     try {
-      const labelResp = await shiprocketGenerateLabel(shipmentId)
+      const shipment = await shiprocketGetShipmentDetails(shipmentId)
+      const labelResp = shipment.label_url
+        ? { label_url: shipment.label_url }
+        : await shiprocketGenerateLabel(shipmentId)
       savedLabelGenerated = true
       await persistFulfillmentState(
         orderId,
         { label_generated: true, fulfillment_step: 'label_generated' },
-        'Label generation could not be persisted'
+        'Label generation could not be persisted',
+        lease
       )
       steps.push({
         step: 'label_generated',
@@ -1525,12 +1485,16 @@ async function adminFulfillOrderInternal(
   // Step 5: Generate Manifest
   if (shouldRunStep('manifest_generated')) {
     try {
-      const manifestResp = await shiprocketGenerateManifest(shipmentId)
+      const shipment = await shiprocketGetShipmentDetails(shipmentId)
+      const manifestResp = shipment.manifest_url
+        ? { manifest_url: shipment.manifest_url }
+        : await shiprocketGenerateManifest(shipmentId)
       savedManifestGenerated = true
       await persistFulfillmentState(
         orderId,
         { manifest_generated: true, fulfillment_step: 'manifest_generated' },
-        'Manifest generation could not be persisted'
+        'Manifest generation could not be persisted',
+        lease
       )
       steps.push({
         step: 'manifest_generated',
@@ -1557,7 +1521,8 @@ async function adminFulfillOrderInternal(
       shiprocket_status: 'created',
       shiprocket_error: null,
     },
-    'Ready-for-pickup state could not be persisted'
+    'Ready-for-pickup state could not be persisted',
+    lease
   )
 
   steps.push({ step: 'ready_for_pickup', status: 'completed' })
@@ -1582,7 +1547,10 @@ async function adminFulfillOrderInternal(
 
 export async function adminFulfillOrder(
   orderId: string,
-  input: FulfillOrderInput
+  input: FulfillOrderInput,
+  actorId?: string
 ): Promise<FulfillOrderResult> {
-  return withFulfillmentMutationLease(orderId, () => adminFulfillOrderInternal(orderId, input))
+  return withFulfillmentMutationLease(orderId, (lease) =>
+    adminFulfillOrderInternal(orderId, input, lease, actorId)
+  )
 }

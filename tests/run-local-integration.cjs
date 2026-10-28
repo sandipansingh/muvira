@@ -19,6 +19,7 @@ const suites = [
   'retained-checkout-integration',
   'custom-checkout-integration',
   'shipping-integration',
+  'durable-shipping-integration',
   'cart-transfer-integration',
   'refund-worker-integration',
   'reporting-integration',

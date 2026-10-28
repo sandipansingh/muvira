@@ -167,7 +167,7 @@ export async function adminAssignAwb(
   next: NextFunction
 ): Promise<void> {
   try {
-    const order = await service.adminAssignAwb(req.params['id'] as string, req.body)
+    const order = await service.adminAssignAwb(req.params['id'] as string, req.body, req.user!.id)
     invalidateOn('ORDER_UPDATED', { id: order.id, userId: order.user_id })
     res.json({ success: true, data: order })
   } catch (err) {
@@ -352,7 +352,7 @@ export async function adminFulfillOrder(
 ): Promise<void> {
   try {
     const orderId = req.params['id'] as string
-    const result = await service.adminFulfillOrder(orderId, req.body)
+    const result = await service.adminFulfillOrder(orderId, req.body, req.user!.id)
     if (result.success) {
       res.json({ success: true, data: result })
     } else {
@@ -376,5 +376,45 @@ export async function adminFulfillOrder(
     }
   } catch (err) {
     next(err)
+  }
+}
+
+export async function adminOrderCouriers(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    res.json({
+      success: true,
+      data: await service.adminOrderCouriers(req.params['id'] as string, {
+        pickupLocation: req.query['pickup_location'] as string | undefined,
+        weightGrams: req.query['weight_grams'] as unknown as number | undefined,
+        lengthCm: req.query['length_cm'] as unknown as number | undefined,
+        breadthCm: req.query['breadth_cm'] as unknown as number | undefined,
+        heightCm: req.query['height_cm'] as unknown as number | undefined,
+      }),
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+export async function adminGetNdr(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    res.json({ success: true, data: await service.adminGetNdr(req.params['id'] as string) })
+  } catch (error) {
+    next(error)
+  }
+}
+export async function adminNdrAction(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const data = await service.adminNdrAction(req.params['id'] as string, req.body, req.user!.id)
+    res.status(data.state === 'provider_pending' ? 202 : 200).json({ success: true, data })
+  } catch (error) {
+    next(error)
   }
 }
