@@ -23,6 +23,7 @@ const suites = [
   'cart-transfer-integration',
   'refund-worker-integration',
   'reporting-integration',
+  'admin-analytics-integration',
   'catalog-media-integration',
 ]
 const result = spawnSync(

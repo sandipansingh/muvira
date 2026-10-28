@@ -90,6 +90,7 @@ const privilegedRpcNames = [
   'generate_order_number',
   'get_product_review_summaries',
   'get_runtime_schema_status',
+  'get_dashboard_analytics',
   'increment_coupon_usage',
   'initialize_checkout',
   'initialize_checkout_shipping',

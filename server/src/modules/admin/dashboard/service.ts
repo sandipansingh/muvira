@@ -1,6 +1,7 @@
 import { adminSupabase } from '../../../lib/supabase/admin'
 import { hasSchemaCapability } from '../../../services/runtimeSchema'
 import { AppError } from '../../../types'
+import type { AnalyticsPeriod, DashboardAnalytics } from '../../../types/adminAnalytics'
 
 interface DashboardStats {
   total_orders: number
@@ -38,4 +39,19 @@ export async function getDashboardStats(params: {
       'Dashboard metrics are temporarily unavailable'
     )
   return data as DashboardStats
+}
+
+export async function getDashboardAnalytics(period: AnalyticsPeriod): Promise<DashboardAnalytics> {
+  if (!(await hasSchemaCapability(57))) {
+    throw new AppError(
+      503,
+      'SCHEMA_UPGRADE_REQUIRED',
+      'Revenue reporting requires database migration 057'
+    )
+  }
+  const { data, error } = await adminSupabase.rpc('get_dashboard_analytics', { p_period: period })
+  if (error || !data) {
+    throw new AppError(503, 'DASHBOARD_UNAVAILABLE', 'Revenue reporting is temporarily unavailable')
+  }
+  return data as DashboardAnalytics
 }

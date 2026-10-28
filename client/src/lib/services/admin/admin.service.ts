@@ -13,6 +13,7 @@ import type { Category } from '../../types/category'
 import type { Coupon } from '../../types/coupon'
 import type { AdminOrderSummary, OrderDetail } from '../../types/order'
 import type { DashboardStats, InventoryItem } from '../../types/dashboard'
+import type { AnalyticsPeriod, DashboardAnalytics } from '../../types/adminAnalytics'
 import type { ApiResponse, ApiPaginatedResponse } from '../../types/common'
 import type {
   FulfillOrderInput,
@@ -54,6 +55,11 @@ async function adminDelete<T>(path: string) {
  * Complete Admin Operations API Service.
  */
 export const adminApiService = {
+  async getDashboardAnalytics(period: AnalyticsPeriod): Promise<ApiResponse<DashboardAnalytics>> {
+    return adminGet<ApiResponse<DashboardAnalytics>>(
+      `/api/admin/dashboard/analytics?period=${period}`
+    )
+  },
   /**
    * Fetches dashboard metric aggregates (orders, revenue, products, categories, coupons, low stock count).
    */

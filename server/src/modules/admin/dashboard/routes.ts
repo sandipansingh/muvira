@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { validate } from '../../../middleware/validate'
-import { DashboardStatsQuerySchema } from './schema'
+import { DashboardStatsQuerySchema, DashboardAnalyticsQuerySchema } from './schema'
 import * as controller from './controller'
 
 export const adminDashboardRouter = Router()
@@ -9,4 +9,10 @@ adminDashboardRouter.get(
   '/stats',
   validate({ query: DashboardStatsQuerySchema }),
   controller.getDashboardStats
+)
+
+adminDashboardRouter.get(
+  '/analytics',
+  validate({ query: DashboardAnalyticsQuerySchema }),
+  controller.getDashboardAnalytics
 )

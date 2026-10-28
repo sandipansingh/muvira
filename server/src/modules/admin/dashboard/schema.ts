@@ -14,3 +14,9 @@ export const DashboardStatsQuerySchema = z
   )
 
 export type DashboardStatsQuery = z.infer<typeof DashboardStatsQuerySchema>
+
+export const DashboardAnalyticsQuerySchema = z.object({
+  period: z.enum(['day', 'week', 'month', 'year']).default('week'),
+})
+
+export type DashboardAnalyticsQuery = z.infer<typeof DashboardAnalyticsQuerySchema>

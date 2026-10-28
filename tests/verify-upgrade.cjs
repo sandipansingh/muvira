@@ -108,12 +108,19 @@ async function main() {
       return results.map((result) => result.data)
     }
     const before = await snapshot()
-    for (const version of [49, 50, 51, 52, 53, 54, 55, 56]) {
+    for (const version of [49, 50, 51, 52, 53, 54, 55, 56, 57]) {
       const name = migrations.find((name) => Number(name.slice(0, 3)) === version)
       copyFileSync(join(source, name), join(directory, 'supabase', 'migrations', name))
       cli(['migration', 'up', '--local'])
       readiness(version, 'compatibility', true)
-      readiness(version, 'final', version === 56)
+      readiness(version, 'final', version >= 56)
+      if (version >= 56) {
+        run(process.execPath, [
+          '--test',
+          '--test-name-pattern=HTTP endpoint',
+          'tests/admin-analytics-integration.test.cjs',
+        ])
+      }
       assert.deepEqual(
         await snapshot(),
         before,
@@ -134,7 +141,7 @@ async function main() {
       { SCHEMA_RELEASE_MODE: 'compatibility' }
     )
     console.log(
-      'Upgrade 048–056, intermediate contracts, monetary preservation, and compatibility rollback API passed.'
+      'Upgrade 048–057, intermediate contracts, monetary preservation, and compatibility rollback API passed.'
     )
   } finally {
     for (const fixture of fixtures) await cleanupOrderFixture(client, fixture)
