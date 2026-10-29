@@ -2750,6 +2750,9 @@ body {
   justify-content: space-between;
   gap: 1rem 2rem;
 }
+.account-page {
+  overflow-anchor: none;
+}
 .account-shell {
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr);

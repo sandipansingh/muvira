@@ -59,6 +59,10 @@ function AccountWorkspace({ user }: { user: Profile }) {
   const { hash } = useLocation()
   const view =
     hash === '#addresses' ? 'addresses' : hash === '#personal-info' ? 'personal' : 'orders'
+  const [ordersVisited, setOrdersVisited] = useState(view === 'orders')
+  useEffect(() => {
+    if (view === 'orders') setOrdersVisited(true)
+  }, [view])
   const mounted = useRef(true)
   const profilePending = useRef(false)
   const preferencePending = useRef(false)
@@ -284,7 +288,11 @@ function AccountWorkspace({ user }: { user: Profile }) {
 
   return (
     <AccountShell addressCount={loadingAddresses || addressError ? undefined : addresses.length}>
-      {view === 'orders' && <OrderListPanel userId={user.id} />}
+      {(ordersVisited || view === 'orders') && (
+        <div hidden={view !== 'orders'}>
+          <OrderListPanel userId={user.id} visible={view === 'orders'} />
+        </div>
+      )}
       <div className="account-workspace" hidden={view === 'orders'}>
         <div>
           <div hidden={view !== 'personal'} className="account-personal account-card">

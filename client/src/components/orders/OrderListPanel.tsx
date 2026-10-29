@@ -100,7 +100,7 @@ function OrderHistoryCard({ order }: { order: OrderListItem }) {
   )
 }
 
-export function OrderListPanel({ userId }: { userId: string }) {
+export function OrderListPanel({ userId, visible = true }: { userId: string; visible?: boolean }) {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const { pathname, search, hash } = useLocation()
@@ -128,6 +128,7 @@ export function OrderListPanel({ userId }: { userId: string }) {
   }
 
   useEffect(() => {
+    if (!visible) return
     if (previousPage.current.page !== page && previousPage.current.view === view) {
       resultsRef.current?.scrollIntoView({
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -137,9 +138,10 @@ export function OrderListPanel({ userId }: { userId: string }) {
       })
     }
     previousPage.current = { page, view }
-  }, [page, view])
+  }, [page, view, visible])
 
   useEffect(() => {
+    if (!visible) return
     let active = true
     const load = async () => {
       try {
@@ -168,17 +170,17 @@ export function OrderListPanel({ userId }: { userId: string }) {
     return () => {
       active = false
     }
-  }, [page, view, requestKey])
+  }, [page, view, requestKey, visible])
 
   useEffect(() => {
-    if (loading || !result || result.error) return
+    if (!visible || loading || !result || result.error) return
     const lastPage = Math.max(1, result.totalPages)
     if (page > lastPage) {
       const next = new URLSearchParams(search)
       next.set('page', String(lastPage))
       navigate({ pathname, search: `?${next}`, hash }, { replace: true, preventScrollReset: true })
     }
-  }, [loading, result, page, pathname, search, hash, navigate])
+  }, [visible, loading, result, page, pathname, search, hash, navigate])
 
   return (
     <section ref={resultsRef} className="account-results" aria-label="My orders">

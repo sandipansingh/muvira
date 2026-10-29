@@ -66,6 +66,25 @@ async function visit(engine, path, run, width = 1280, account = false) {
     await page.close()
   }
 }
+test('visited orders stay available when returning from account forms', () =>
+  visit(
+    'chromium',
+    '/profile',
+    async (page) => {
+      await expect(page.locator('.order-history-card')).toHaveCount(1)
+      const nav = page.getByRole('navigation', { name: 'Your account', exact: true })
+      await nav.getByRole('link', { name: /Saved addresses/ }).click()
+      await expect(nav.locator('[aria-current="page"]')).toHaveText(/Saved addresses/)
+      await page.evaluate(() => {
+        window.fixture.scenario = 'loading'
+      })
+      await nav.getByRole('link', { name: 'My orders', exact: true }).click()
+      await expect(page.locator('.order-history-card')).toBeVisible()
+      await expect(page.getByText('Loading your orders…', { exact: true })).toHaveCount(0)
+    },
+    390
+  ))
+
 for (const engine of ['chromium', 'webkit']) {
   for (const width of [390, 1280]) {
     test(`${engine} ${width}px: changing order views keeps the viewport steady`, () =>
@@ -152,7 +171,11 @@ for (const engine of ['chromium', 'webkit']) {
                   new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
               )
               assert.deepEqual(await page.evaluate(() => window.accountScrollCalls), [])
-              assert.equal(await page.evaluate(() => scrollY), top, `${label}`)
+              const after = await page.evaluate(() => ({
+                y: scrollY,
+                height: document.documentElement.scrollHeight,
+              }))
+              assert.equal(after.y, top, `${label}: ${JSON.stringify(after)}`)
             }
             await page.goBack()
             await expect(nav.locator('[aria-current="page"]')).toHaveText('Personal info')
