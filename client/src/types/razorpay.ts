@@ -12,16 +12,16 @@ export interface RazorpaySuccessResponse {
   razorpay_signature: string
 }
 
-export interface RazorpayFailureResponse {
-  error?: {
-    code?: string
-    description?: string
-    source?: string
-    step?: string
-    reason?: string
-    metadata?: { order_id?: string; payment_id?: string }
-  }
+export interface RazorpayPaymentError {
+  code?: string
+  description?: string
+  source?: string
+  step?: string
+  reason?: string
+  metadata?: { order_id?: string; payment_id?: string }
 }
+
+export type RazorpayFailureResponse = RazorpayPaymentError | { error?: RazorpayPaymentError }
 
 export interface RazorpayMethods {
   card?: boolean
@@ -61,6 +61,7 @@ export interface RazorpayInstance {
   on(event: 'payment.error', callback: (response: RazorpayFailureResponse) => void): void
   on(event: 'payment.upi.qr', callback: (response: RazorpayQrResponse) => void): void
   createPayment(data: RazorpayPaymentData, options?: { app?: string; flow?: 'qr' }): void
+  emit(event: 'payment.cancel'): void
   getSupportedUpiIntentApps?(): Promise<unknown>
 }
 

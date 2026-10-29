@@ -15,6 +15,7 @@ import {
   availablePaymentMethods,
   paymentErrorMetadata,
   paymentErrorCopy,
+  normalizePaymentError,
 } from '../../lib/utils/razorpay'
 import { validateCardDetails, type CardDetails } from '../../lib/validators/payment.validator'
 import { formatPrice } from '../../lib/utils/format'
@@ -22,7 +23,6 @@ import { ApiError } from '../../lib/api/client'
 import type { CheckoutPaymentSession } from '../../types/checkout'
 import type {
   PaymentMethod,
-  RazorpayFailureResponse,
   RazorpayPaymentData,
   RazorpayQrResponse,
   RazorpaySuccessResponse,
@@ -80,7 +80,6 @@ export function RazorpayPayment({
   const awaitingSdk = useRef(false)
   const dispatchStarted = useRef(false)
   const activeMethod = useRef(method)
-  activeMethod.current = method
   const successSeen = useRef(false)
   const statusGeneration = useRef(0)
   const currentSession = useRef(session)
@@ -89,6 +88,7 @@ export function RazorpayPayment({
   const pendingSince = useRef(Date.now())
   const checkAfter = useRef(0)
   const checking = useRef(false)
+  const cancelling = useRef(false)
   const sdkError = useRef<string | null>(null)
   const serverOffset = session ? new Date(session.serverTime).getTime() - Date.now() : 0
   const offsetRef = useRef(serverOffset)
@@ -110,7 +110,13 @@ export function RazorpayPayment({
 
   const checkStatus = async () => {
     const current = currentSession.current
-    if (!current || submitting.current || checking.current || Date.now() < checkAfter.current)
+    if (
+      !current ||
+      submitting.current ||
+      cancelling.current ||
+      checking.current ||
+      Date.now() < checkAfter.current
+    )
       return
     checking.current = true
     const generation = statusGeneration.current
@@ -136,8 +142,7 @@ export function RazorpayPayment({
             : updated
         )
         setError(sdkError.current)
-        if (!awaitingSdk.current && !successSeen.current && (!qr || qr.expires_on <= Date.now()))
-          setPhase('idle')
+        if (!awaitingSdk.current && !successSeen.current) setPhase('idle')
         else setPhase('waiting')
       }
     } catch (reason) {
@@ -180,9 +185,9 @@ export function RazorpayPayment({
     if (mounted.current) await checkStatus()
   }
 
-  const onError = (response: RazorpayFailureResponse) => {
+  const onError = (response: unknown) => {
     if (!dispatchStarted.current) return
-    const failure = response.error
+    const failure = normalizePaymentError(response)
     if (
       failure?.metadata?.order_id &&
       failure.metadata.order_id !== currentSession.current?.razorpayOrderId
@@ -199,7 +204,7 @@ export function RazorpayPayment({
       setQrFallback(true)
     setQr(null)
     submitting.current = false
-    setPhase('idle')
+    if (!cancelling.current) setPhase('idle')
     sdkError.current = paymentErrorCopy(failure)
     setError(sdkError.current)
     const current = currentSession.current
@@ -224,7 +229,7 @@ export function RazorpayPayment({
           accountId
         )
         .catch(() => undefined)
-    void checkStatus()
+    if (!cancelling.current) void checkStatus()
   }
 
   const onQr = (response: RazorpayQrResponse) => {
@@ -271,7 +276,7 @@ export function RazorpayPayment({
     if (!available.includes(method) && available[0]) setMethod(available[0])
   }, [methodsKey, method]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (!app && sdk.apps[0]) setApp(sdk.apps[0].code)
+    if (!sdk.apps.some((item) => item.code === app)) setApp(sdk.apps[0]?.code ?? '')
   }, [app, sdk.apps])
   useEffect(() => {
     mounted.current = true
@@ -397,6 +402,7 @@ export function RazorpayPayment({
     const current = currentSession.current
     if (
       successSeen.current ||
+      cancelling.current ||
       submitting.current ||
       !current?.canPay ||
       !current.razorpayOrderId ||
@@ -432,6 +438,7 @@ export function RazorpayPayment({
     setError(null)
     setPhase('waiting')
     pendingSince.current = Date.now()
+    activeMethod.current = method
     dispatchStarted.current = true
     awaitingSdk.current = true
     onSession({ ...current, canPay: false, state: 'pending' })
@@ -444,11 +451,9 @@ export function RazorpayPayment({
             : { app: 'any', flow: 'qr' }
           : undefined
       )
-    } catch {
-      awaitingSdk.current = false
-      setError('Secure payment could not start. Check its status before retrying.')
-      setPhase('idle')
-      void checkStatus()
+    } catch (reason: unknown) {
+      submitting.current = false
+      onError(reason)
     } finally {
       clearCard()
       submitting.current = false
@@ -470,6 +475,45 @@ export function RazorpayPayment({
     available.length > 0 &&
     (session ? session.canPay && !expired : canReview)
   const amount = session ? formatPrice(session.amountPaisa) : ''
+  const inlineQr = sdk.config?.upi?.embedded_qr === true && !qrFallback
+
+  const cancel = async () => {
+    const current = currentSession.current
+    if (!current || cancelling.current || submitting.current) return
+    cancelling.current = true
+    statusGeneration.current += 1
+    setPhase('checking')
+    onSession({ ...current, canPay: false, state: 'pending' })
+    try {
+      if (
+        awaitingSdk.current &&
+        dispatchStarted.current &&
+        activeMethod.current === 'upi' &&
+        !successSeen.current
+      ) {
+        try {
+          sdk.instance.current?.emit('payment.cancel')
+          awaitingSdk.current = false
+        } catch {
+          sdkError.current =
+            'The UPI app may still complete payment. Check its status before trying again.'
+        }
+      }
+      await orderApiService.cancelCheckout(current.orderId, accountId)
+    } catch (reason: unknown) {
+      sdkError.current =
+        reason instanceof Error
+          ? reason.message
+          : 'Payment may still complete. Check its status before starting again.'
+    } finally {
+      cancelling.current = false
+      if (mounted.current) {
+        setError(sdkError.current)
+        setPhase('idle')
+        void checkStatus()
+      }
+    }
+  }
 
   const methodContent = (
     <AnimatePresence mode="wait" initial={false}>
@@ -539,8 +583,12 @@ export function RazorpayPayment({
                   <QrCode className="h-6 w-6 text-primary" strokeWidth={1.25} aria-hidden="true" />
                   <p className="mx-auto mt-2 max-w-sm text-sm leading-5 text-muted">
                     {session
-                      ? 'Your QR code appears when you choose Show QR below.'
-                      : 'Review your order, then generate a secure QR code to scan with any UPI app.'}
+                      ? inlineQr
+                        ? 'Choose Show QR below to display a QR code here. Scan it with any UPI app.'
+                        : 'Choose Open QR payment below. Razorpay’s secure page will display a QR code to scan with any UPI app.'
+                      : inlineQr
+                        ? 'Review your order, then display a secure QR code here to scan with any UPI app.'
+                        : 'Review your order, then open Razorpay’s secure page to scan a QR code with any UPI app.'}
                   </p>
                 </>
               )}
@@ -675,7 +723,7 @@ export function RazorpayPayment({
           >
             {session
               ? method === 'upi' && !sdk.isMobile
-                ? `${qrFallback ? 'Open QR payment' : 'Show QR'} · ${amount}`
+                ? `${inlineQr ? 'Show QR' : 'Open QR payment'} · ${amount}`
                 : `Pay ${amount}`
               : 'Review payment'}
           </Button>
@@ -710,19 +758,9 @@ export function RazorpayPayment({
         <Button
           variant="ghost"
           className="mt-1 w-full text-muted"
+          disabled={phase === 'checking' || phase === 'preparing'}
           onClick={() => {
-            void orderApiService
-              .cancelCheckout(session.orderId, accountId)
-              .then(() => {
-                if (mounted.current) return checkStatus()
-              })
-              .catch((reason: unknown) =>
-                setError(
-                  reason instanceof Error
-                    ? reason.message
-                    : 'Payment may still complete. Check its status before starting again.'
-                )
-              )
+            void cancel()
           }}
         >
           Request cancellation
@@ -753,10 +791,36 @@ export function RazorpayPayment({
             bank or wallet to test payment.
           </p>
         )}
+        {sdk.appStatus === 'loading' && (
+          <p className="mb-4 text-sm text-muted" role="status">
+            Checking supported UPI apps…
+          </p>
+        )}
+        {sdk.appStatus === 'unavailable' && (
+          <div className="checkout-notice" role="status">
+            <p>
+              UPI apps couldn’t be confirmed on this browser. Choose another payment method or
+              retry.
+            </p>
+            <Button
+              variant="secondary"
+              onClick={sdk.retry}
+              disabled={isBusy || session?.state === 'pending'}
+              className="mt-3"
+            >
+              Retry UPI apps
+            </Button>
+          </div>
+        )}
         {sdk.error ? (
           <div className="checkout-notice" role="alert">
             <p>{sdk.error}</p>
-            <Button variant="secondary" onClick={sdk.retry} className="mt-3">
+            <Button
+              variant="secondary"
+              onClick={sdk.retry}
+              disabled={isBusy || session?.state === 'pending'}
+              className="mt-3"
+            >
               Retry payment methods
             </Button>
           </div>

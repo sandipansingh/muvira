@@ -24,6 +24,7 @@ export function useRazorpayMethods(
   const [methods, setMethods] = useState<RazorpayMethods | null>(null)
   const [config, setConfig] = useState<PaymentConfiguration | null>(null)
   const [apps, setApps] = useState<Array<{ code: string; name: string }>>([])
+  const [appStatus, setAppStatus] = useState<'idle' | 'loading' | 'ready' | 'unavailable'>('idle')
   const [error, setError] = useState<string | null>(null)
   const [attempt, setAttempt] = useState(0)
   const isMobile =
@@ -33,11 +34,14 @@ export function useRazorpayMethods(
   useEffect(() => {
     let active = true
     let timer: ReturnType<typeof setTimeout> | undefined
+    let appTimer: ReturnType<typeof setTimeout> | undefined
+    let appsSettled = false
     instance.current = null
     setMethods(null)
     setConfig(null)
     setError(null)
     setApps([])
+    setAppStatus('idle')
     Promise.all([checkoutService.paymentConfig(expectedUserId), loadRazorpaySdk()])
       .then(([config, Razorpay]) => {
         if (!active) return
@@ -73,22 +77,22 @@ export function useRazorpayMethods(
               (isMobile ? config.upi?.intent === true : config.upi?.qr === true),
           })
           setError(null)
+          if (enabled.upi === true && config.mode === 'live' && config.upi?.intent && isMobile) {
+            setAppStatus('loading')
+            const finishApps = (response: unknown) => {
+              if (!active || appsSettled) return
+              appsSettled = true
+              clearTimeout(appTimer)
+              const confirmed = normalizeUpiApps(response)
+              setApps(confirmed)
+              setAppStatus(confirmed.length ? 'ready' : 'unavailable')
+            }
+            appTimer = setTimeout(() => finishApps([]), 5000)
+            void Promise.resolve()
+              .then(() => sdk.getSupportedUpiIntentApps?.())
+              .then(finishApps, () => finishApps([]))
+          }
         })
-        if (
-          config.mode === 'live' &&
-          config.upi?.intent &&
-          isMobile &&
-          sdk.getSupportedUpiIntentApps
-        ) {
-          void sdk
-            .getSupportedUpiIntentApps()
-            .then((response) => {
-              if (active) setApps(normalizeUpiApps(response))
-            })
-            .catch(() => {
-              if (active) setApps([])
-            })
-        }
       })
       .catch((reason: unknown) => {
         if (active)
@@ -101,15 +105,19 @@ export function useRazorpayMethods(
     return () => {
       active = false
       clearTimeout(timer)
+      clearTimeout(appTimer)
       instance.current = null
     }
   }, [attempt, isMobile, expectedUserId])
 
   return {
     instance,
-    methods,
+    methods: methods
+      ? { ...methods, upi: methods.upi === true && (!isMobile || apps.length > 0) }
+      : null,
     config,
     apps,
+    appStatus,
     isMobile,
     error,
     retry: () => setAttempt((value) => value + 1),

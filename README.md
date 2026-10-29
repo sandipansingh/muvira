@@ -66,6 +66,8 @@ pnpm run dev:production
 
 The client keeps hot reload, uses the local `/api` proxy and returns authentication redirects to the local browser origin. Other settings come from the production environment files, including live provider credentials. The API runs with production validation and logging. Stop an existing `pnpm run dev` process before switching modes, and restart after editing environment files.
 
+For live UPI, set `RAZORPAY_MODE=live`, `RAZORPAY_UPI_INTENT_ENABLED=true` and `RAZORPAY_UPI_QR_ENABLED=true` in the ignored `server/.env.production` and root `.env.production` (for Compose), retaining the existing live credentials. Mobile intent also requires Razorpay to report UPI available and return supported apps; failed or slow discovery leaves other methods available with a retry. Desktop QR opens Razorpay’s secure payment page by default. Keep `RAZORPAY_UPI_EMBEDDED_QR_APPROVED=false` unless Razorpay explicitly approves embedded desktop QR. These flags enable eligible UI; account/domain restrictions still apply. UPI Collect/UPI ID entry is absent. See the [Custom Checkout payment methods](https://razorpay.com/docs/payments/payment-gateway/web-integration/custom/payment-methods/) and [mobile intent/cancellation guide](https://razorpay.com/docs/payments/payment-gateway/web-integration/custom/payment-methods/upi-intent-mweb/).
+
 ## Quality commands
 
 ```bash

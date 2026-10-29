@@ -39,7 +39,7 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
   page.setDefaultTimeout(7000)
   const requests = []
   await page.addInitScript((settings) => {
-    window.paymentFixture = { calls: [], ready: !settings.notReady, paid: false }
+    window.paymentFixture = { calls: [], events: [], ready: !settings.notReady, paid: false }
     window.Razorpay = class {
       constructor() {
         this.events = {}
@@ -64,12 +64,23 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
         this.events[event] = callback
       }
       async getSupportedUpiIntentApps() {
+        if (settings.appsFailure) throw new Error('Discovery unavailable')
+        if (settings.appsDelayed)
+          return new Promise((resolve) => {
+            window.paymentFixture.resolveApps = resolve
+          })
         return settings.apps || ['phonepe', 'gpay']
+      }
+      emit(event) {
+        window.paymentFixture.events.push(event)
+        if (settings.cancelThrows) throw new Error('SDK cancellation failed')
+        this.events['payment.error']?.({ error: { reason: 'payment_cancelled' } })
       }
       createPayment(data, options) {
         window.paymentFixture.calls.push({
           method: data.method,
           amount: data.amount,
+          currency: data.currency,
           orderId: data.order_id,
           synchronous: window.event?.isTrusted === true,
           cardMatches: data['card[number]'] === '4100280000001007',
@@ -77,6 +88,8 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
           wallet: data.wallet,
           app: options?.app,
           qrFallback: data.upi?.qr,
+          qrTimeout: data.upi?.timeout,
+          flow: options?.flow,
         })
         if (options?.flow === 'qr')
           this.events['payment.upi.qr']({
@@ -146,7 +159,11 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
           key_id: 'rzp_test_example',
           currency: 'INR',
           mode: behavior.paymentMode ?? 'live',
-          upi: { intent: true, qr: true, embedded_qr: behavior.embeddedQr ?? true },
+          upi: {
+            intent: behavior.intentEnabled ?? true,
+            qr: behavior.qrEnabled ?? true,
+            embedded_qr: behavior.embeddedQr ?? true,
+          },
         }
       else if (url.pathname.endsWith('/quote')) {
         if (behavior.shippingOutage)
@@ -220,8 +237,10 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
         }
         data = session()
       } else if (url.pathname.endsWith('/cancel')) {
+        state.sdkEventsAtCancel = await page.evaluate(() => [...window.paymentFixture.events])
+        if (behavior.gatedCancel) await new Promise((resolve) => (state.releaseCancel = resolve))
         if (behavior.cancelUncertain) {
-          state.status = 'pending'
+          if (state.status !== 'paid') state.status = 'pending'
           return route.fulfill({
             status: 503,
             json: {
@@ -235,8 +254,20 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
         }
         state.status = 'released'
         data = null
-      } else if (url.pathname.endsWith('/reconcile')) data = session()
-      else if (url.pathname.endsWith('/verify')) {
+      } else if (url.pathname.endsWith('/reconcile')) {
+        if (behavior.reconcileFailure)
+          return route.fulfill({
+            status: 503,
+            json: {
+              success: false,
+              error: {
+                code: 'STATUS_UNAVAILABLE',
+                message: 'Payment status unavailable. Please check again.',
+              },
+            },
+          })
+        data = session()
+      } else if (url.pathname.endsWith('/verify')) {
         state.status = 'paid'
         data = { order_id: 'fixture-order', payment_status: 'paid' }
       } else
@@ -326,15 +357,267 @@ test('eligible desktop checkout redirects to QR unless embedded QR is approved',
   const { page } = await checkoutPage('chromium', {}, { embeddedQr: false })
   try {
     await page.getByRole('button', { name: 'Review payment', exact: true }).click()
-    await page.getByRole('button', { name: /Show QR.*₹599/ }).click()
+    await expect(page.getByText(/Razorpay’s secure page/)).toBeVisible()
+    await page.getByRole('button', { name: /Open QR payment.*₹599/ }).click()
     const calls = await page.evaluate(() => window.paymentFixture.calls)
     assert.equal(calls.length, 1)
     assert.equal(calls[0].qrFallback, true)
+    assert.equal(calls[0].orderId, 'order_custom')
+    assert.equal(calls[0].amount, 59900)
+    assert.equal(calls[0].currency, 'INR')
+    assert.equal(calls[0].qrTimeout, 10)
+    assert.equal(calls[0].flow, undefined)
     await expect(page.getByRole('img', { name: /Scan.*UPI/i })).toHaveCount(0)
   } finally {
     await page.close()
   }
 })
+
+const phoneOptions = {
+  viewport: { width: 390, height: 844 },
+  userAgent: 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130.0 Mobile Safari/537.36',
+}
+
+test('mobile UPI remains unavailable until supported apps are confirmed', async () => {
+  const { page } = await checkoutPage('chromium', phoneOptions, { appsDelayed: true })
+  try {
+    await expect(page.getByRole('radio', { name: /Credit or debit card/ })).toBeVisible()
+    await expect(page.getByRole('radio', { name: 'UPI', exact: true })).toHaveCount(0)
+    await expect(page.getByText('Checking supported UPI apps…')).toBeVisible()
+    await page.evaluate(() => window.paymentFixture.resolveApps(['gpay']))
+    await page.getByRole('radio', { name: 'UPI', exact: true }).check()
+    await expect(page.getByRole('radio', { name: 'Google Pay', exact: true })).toBeChecked()
+    await expect(page.getByRole('radio', { name: 'PhonePe', exact: true })).toHaveCount(0)
+  } finally {
+    await page.close()
+  }
+})
+
+for (const behavior of [{ appsFailure: true }, { apps: [] }, { appsDelayed: true }]) {
+  test(`mobile discovery failure keeps other methods usable: ${JSON.stringify(behavior)}`, async () => {
+    const { page } = await checkoutPage('webkit', phoneOptions, behavior)
+    try {
+      await expect(page.getByText(/UPI apps couldn’t be confirmed/)).toBeVisible({ timeout: 8000 })
+      await expect(page.getByRole('radio', { name: 'UPI', exact: true })).toHaveCount(0)
+      await expect(page.getByRole('button', { name: 'Review payment', exact: true })).toBeEnabled()
+      await expect(page.getByRole('button', { name: 'Retry UPI apps', exact: true })).toBeEnabled()
+      if (behavior.appsDelayed) {
+        await page.evaluate(() => window.paymentFixture.resolveApps(['phonepe']))
+        await expect(page.getByRole('radio', { name: 'UPI', exact: true })).toHaveCount(0)
+      }
+    } finally {
+      await page.close()
+    }
+  })
+}
+
+for (const [options, behavior] of [
+  [phoneOptions, { intentEnabled: false }],
+  [phoneOptions, { methods: { card: true, upi: false } }],
+  [{}, { qrEnabled: false }],
+  [{}, { methods: { card: true, upi: false } }],
+  [phoneOptions, { paymentMode: 'test' }],
+]) {
+  test(`UPI requires live mode, capability and provider availability: ${JSON.stringify(behavior)}`, async () => {
+    const { page } = await checkoutPage('chromium', options, behavior)
+    try {
+      await expect(page.getByRole('radio', { name: /Credit or debit card/ })).toBeVisible()
+      await expect(page.getByRole('radio', { name: 'UPI', exact: true })).toHaveCount(0)
+    } finally {
+      await page.close()
+    }
+  })
+}
+
+for (const cancelThrows of [false, true]) {
+  test(`UPI SDK cancellation precedes backend cancellation and locks retries (SDK throws: ${cancelThrows})`, async () => {
+    const { page, requests, state } = await checkoutPage('chromium', phoneOptions, {
+      cancelThrows,
+      cancelUncertain: true,
+      gatedCancel: true,
+    })
+    try {
+      await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+      const pay = page.getByRole('button', { name: /Pay ₹599/ })
+      await pay.click()
+      await page.getByRole('button', { name: 'Request cancellation', exact: true }).click()
+      await expect.poll(() => !!state.releaseCancel).toBe(true)
+      assert.deepEqual(state.sdkEventsAtCancel, ['payment.cancel'])
+      await expect(pay).toBeDisabled()
+      await expect(
+        page.getByRole('button', { name: 'Request cancellation', exact: true })
+      ).toBeDisabled()
+      assert.equal(requests.filter((r) => r.path.endsWith('/reconcile')).length, 0)
+      state.releaseCancel()
+      await expect(page.getByRole('alert')).toContainText('Payment may still complete')
+      await expect(pay).toBeDisabled()
+      assert.equal((await page.evaluate(() => window.paymentFixture.calls)).length, 1)
+    } finally {
+      state.releaseCancel?.()
+      await page.close()
+    }
+  })
+}
+
+test('cancellation stops the dispatched UPI attempt after a failed status check and method change', async () => {
+  const { page, state } = await checkoutPage('chromium', phoneOptions, { reconcileFailure: true })
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await page.getByRole('button', { name: /Pay ₹599/ }).click()
+    await page.getByRole('button', { name: 'Check payment status', exact: true }).click()
+    await expect(page.getByRole('alert')).toContainText('Payment status unavailable')
+    await page.getByRole('radio', { name: /Credit or debit card/ }).check()
+    await page.getByRole('button', { name: 'Request cancellation', exact: true }).click()
+    await expect.poll(() => state.sdkEventsAtCancel).toEqual(['payment.cancel'])
+    await expect(page.getByRole('button', { name: /Pay ₹599/ })).toBeDisabled()
+  } finally {
+    await page.close()
+  }
+})
+
+test('success arriving during cancellation verifies once and cannot reopen payment', async () => {
+  const { page, requests, state } = await checkoutPage('chromium', phoneOptions, {
+    cancelUncertain: true,
+    gatedCancel: true,
+  })
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    const pay = page.getByRole('button', { name: /Pay ₹599/ })
+    await pay.click()
+    await page.getByRole('button', { name: 'Request cancellation', exact: true }).click()
+    await expect.poll(() => !!state.releaseCancel).toBe(true)
+    await page.evaluate(() => {
+      const response = {
+        razorpay_order_id: 'order_custom',
+        razorpay_payment_id: 'pay_duringCancel',
+        razorpay_signature: 'fixture',
+      }
+      window.paymentFixture.sdk.events['payment.success'](response)
+      window.paymentFixture.sdk.events['payment.success'](response)
+    })
+    await expect.poll(() => state.status).toBe('paid')
+    await expect(pay).toBeDisabled()
+    assert.equal(requests.filter((r) => r.path.endsWith('/verify')).length, 1)
+    state.releaseCancel()
+    await expect(page).toHaveURL(/\/orders\/success\?orderId=fixture-order/)
+    assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 1)
+    assert.equal((await page.evaluate(() => window.paymentFixture.calls)).length, 1)
+  } finally {
+    state.releaseCancel?.()
+    await page.close()
+  }
+})
+
+test('flat SDK errors preserve order identity and activate redirect QR recovery', async () => {
+  const { page, requests } = await checkoutPage('chromium')
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await page.getByRole('button', { name: /Show QR.*₹599/ }).click()
+    await page.evaluate(() =>
+      window.paymentFixture.sdk.events['payment.error']({
+        code: 'BAD_REQUEST_ERROR',
+        reason: 'Feature not enabled',
+        description: 'UPI QR non-redirection flow not supported',
+        metadata: { order_id: 'order_other' },
+      })
+    )
+    await expect(page.getByRole('img', { name: /Scan.*UPI/i })).toBeVisible()
+    assert.equal(requests.filter((r) => r.path.endsWith('/payment-error')).length, 0)
+    await page.evaluate(() =>
+      window.paymentFixture.sdk.events['payment.error']({
+        code: 'BAD_REQUEST_ERROR',
+        reason: 'Feature not enabled',
+        description: 'UPI QR non-redirection flow not supported',
+        metadata: { order_id: 'order_custom' },
+      })
+    )
+    const retry = page.getByRole('button', { name: /Open QR payment.*₹599/ })
+    await expect(retry).toBeEnabled()
+    await retry.click()
+    const calls = await page.evaluate(() => window.paymentFixture.calls)
+    assert.equal(calls.length, 2)
+    assert.equal(calls[1].orderId, 'order_custom')
+    assert.equal(calls[1].qrFallback, true)
+    assert.equal(calls[1].flow, undefined)
+  } finally {
+    await page.close()
+  }
+})
+
+test('mobile app failure reconciles before retry and ignores callbacks from the previous SDK', async () => {
+  const { page, requests } = await checkoutPage('chromium', phoneOptions)
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    const pay = page.getByRole('button', { name: /Pay ₹599/ })
+    await pay.click()
+    await page.evaluate(() => {
+      window.previousSdk = window.paymentFixture.sdk
+      window.previousSdk.events['payment.error']({
+        reason: 'intent_no_apps_error',
+        code: 'BAD_REQUEST_ERROR',
+      })
+    })
+    await expect(page.getByRole('alert')).toContainText('could not open')
+    await expect(pay).toBeEnabled()
+    await page.getByRole('radio', { name: 'Google Pay', exact: true }).check()
+    await page.evaluate(() =>
+      window.previousSdk.events['payment.success']({
+        razorpay_order_id: 'order_custom',
+        razorpay_payment_id: 'pay_stale',
+        razorpay_signature: 'stale',
+      })
+    )
+    assert.equal(requests.filter((r) => r.path.endsWith('/verify')).length, 0)
+    await pay.click()
+    const calls = await page.evaluate(() => window.paymentFixture.calls)
+    assert.equal(calls.length, 2)
+    assert.equal(calls[1].app, 'gpay')
+    assert.equal(calls[1].currency, 'INR')
+    assert.equal(calls[1].orderId, 'order_custom')
+    assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 1)
+    const diagnostic = requests.find((r) => r.path.endsWith('/payment-error'))
+    assert.equal(diagnostic.body.reason, 'intent_no_apps_error')
+    assert.equal(diagnostic.body.flow, 'intent')
+  } finally {
+    await page.close()
+  }
+})
+
+test('returning from a UPI app reconciles payment without another SDK dispatch', async () => {
+  const { page, requests, state } = await checkoutPage('webkit', phoneOptions)
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await page.getByRole('button', { name: /Pay ₹599/ }).click()
+    state.status = 'paid'
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+    await expect(page).toHaveURL(/\/orders\/success\?orderId=fixture-order/)
+    assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 1)
+    assert.equal((await page.evaluate(() => window.paymentFixture.calls)).length, 1)
+  } finally {
+    await page.close()
+  }
+})
+
+for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: wallet submission retains the authoritative order and uses the selected provider`, async () => {
+    const { page } = await checkoutPage(engine)
+    try {
+      await page.getByRole('radio', { name: 'Wallet', exact: true }).check()
+      await page.getByRole('button', { name: 'Choose your wallet', exact: true }).click()
+      await page.getByRole('menuitem', { name: 'PayZapp', exact: true }).click()
+      await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+      await page.getByRole('button', { name: /Pay ₹599/ }).click()
+      const [call] = await page.evaluate(() => window.paymentFixture.calls)
+      assert.equal(call.method, 'wallet')
+      assert.equal(call.wallet, 'payzapp')
+      assert.equal(call.amount, 59900)
+      assert.equal(call.currency, 'INR')
+      assert.equal(call.orderId, 'order_custom')
+    } finally {
+      await page.close()
+    }
+  })
+}
 
 test('desktop UPI renders a live inline QR only after the final user action', async () => {
   const { page } = await checkoutPage('chromium')

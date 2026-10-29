@@ -63,6 +63,46 @@ test('preparation rejects a changed request before dispatching a provider order'
   assert.equal(failure?.code, 'CHECKOUT_REQUEST_CONFLICT')
 })
 
+test('payment configuration gates UPI by live mode, enabled flags and embedded approval', () => {
+  const { env } = require('../server/dist/config/env.js')
+  const keys = [
+    'RAZORPAY_MODE',
+    'RAZORPAY_UPI_INTENT_ENABLED',
+    'RAZORPAY_UPI_QR_ENABLED',
+    'RAZORPAY_UPI_EMBEDDED_QR_APPROVED',
+  ]
+  const previous = Object.fromEntries(keys.map((key) => [key, env[key]]))
+  try {
+    for (const [mode, intent, qr, approved, expected] of [
+      ['test', 'true', 'true', 'true', { intent: false, qr: false, embedded_qr: false }],
+      ['live', 'false', 'false', 'true', { intent: false, qr: false, embedded_qr: false }],
+      ['live', 'true', 'false', 'true', { intent: true, qr: false, embedded_qr: false }],
+      ['live', 'false', 'true', 'false', { intent: false, qr: true, embedded_qr: false }],
+      ['live', 'true', 'true', 'false', { intent: true, qr: true, embedded_qr: false }],
+      ['live', 'true', 'true', 'true', { intent: true, qr: true, embedded_qr: true }],
+    ]) {
+      Object.assign(
+        env,
+        Object.fromEntries(keys.map((key, i) => [key, [mode, intent, qr, approved][i]]))
+      )
+      let response
+      controller.paymentConfig(
+        {},
+        {
+          setHeader() {},
+          json(value) {
+            response = value
+          },
+        }
+      )
+      assert.deepEqual(response.data.upi, expected)
+      assert.deepEqual(Object.keys(response.data).sort(), ['currency', 'key_id', 'mode', 'upi'])
+    }
+  } finally {
+    Object.assign(env, previous)
+  }
+})
+
 test('reconciliation checks ownership before contacting Razorpay', async (t) => {
   const query = {
     select() {

@@ -90,6 +90,33 @@ test('custom methods expose only supported methods enabled by Razorpay', async (
   ])
 })
 
+test('UPI discovery rejects unconfirmed app map entries', async () => {
+  const { normalizeUpiApps } = await loadClientModule('lib/utils/razorpay.ts')
+  assert.deepEqual(
+    normalizeUpiApps({ phonepe: false, gpay: 'unavailable', any: {}, paytm: true }),
+    [{ code: 'paytm', name: 'Paytm' }]
+  )
+})
+
+test('wrapped and flat SDK errors retain safe recovery metadata', async () => {
+  const { paymentErrorCopy, paymentErrorMetadata } = await loadClientModule('lib/utils/razorpay.ts')
+  const error = {
+    code: 'BAD_REQUEST_ERROR',
+    reason: 'intent_no_apps_error',
+    metadata: { order_id: 'order_valid', payment_id: 'pay_valid' },
+  }
+  const expected = {
+    code: 'BAD_REQUEST_ERROR',
+    reason: 'intent_no_apps_error',
+    orderId: 'order_valid',
+    paymentId: 'pay_valid',
+  }
+  assert.deepEqual(paymentErrorMetadata(error), expected)
+  assert.deepEqual(paymentErrorMetadata({ error }), expected)
+  assert.match(paymentErrorCopy({ error }), /could not open/)
+  assert.match(paymentErrorCopy({ error: { reason: 'payment_cancelled' } }), /cancelled/)
+})
+
 test('custom payment diagnostics discard descriptions and unexpected error data', async () => {
   const { paymentErrorMetadata } = await loadClientModule('lib/utils/razorpay.ts')
   assert.deepEqual(

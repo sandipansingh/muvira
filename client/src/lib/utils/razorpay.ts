@@ -1,4 +1,25 @@
-import type { PaymentMethod, RazorpayMethods } from '../../types/razorpay'
+import type { PaymentMethod, RazorpayMethods, RazorpayPaymentError } from '../../types/razorpay'
+
+export function normalizePaymentError(response: unknown): RazorpayPaymentError {
+  if (!response || typeof response !== 'object') return {}
+  const wrapped = response as Record<string, unknown>
+  const input =
+    wrapped.error && typeof wrapped.error === 'object'
+      ? (wrapped.error as Record<string, unknown>)
+      : wrapped
+  const output: RazorpayPaymentError = {}
+  for (const key of ['code', 'description', 'source', 'step', 'reason'] as const) {
+    if (typeof input[key] === 'string') output[key] = input[key]
+  }
+  if (input.metadata && typeof input.metadata === 'object') {
+    const metadata = input.metadata as Record<string, unknown>
+    output.metadata = {}
+    for (const key of ['order_id', 'payment_id'] as const) {
+      if (typeof metadata[key] === 'string') output.metadata[key] = metadata[key]
+    }
+  }
+  return output
+}
 
 export function paymentErrorCopy(error: unknown): string {
   const metadata = paymentErrorMetadata(error)
@@ -15,9 +36,9 @@ export function paymentErrorCopy(error: unknown): string {
 
 export function paymentErrorMetadata(error: unknown): Record<string, string> {
   if (!error || typeof error !== 'object') return {}
-  const input = error as Record<string, unknown>
+  const input = normalizePaymentError(error)
   const output: Record<string, string> = {}
-  for (const key of ['code', 'source', 'step', 'reason']) {
+  for (const key of ['code', 'source', 'step', 'reason'] as const) {
     const value = input[key]
     if (typeof value === 'string' && /^[A-Za-z][A-Za-z0-9_:-]{0,79}$/.test(value))
       output[key] = value
@@ -72,7 +93,7 @@ export function normalizeUpiApps(response: unknown): Array<{ code: string; name:
     : response && typeof response === 'object'
       ? 'apps' in response && Array.isArray(response.apps)
         ? response.apps
-        : Object.keys(response).filter((key) => !!(response as Record<string, unknown>)[key])
+        : Object.keys(response).filter((key) => (response as Record<string, unknown>)[key] === true)
       : []
   const codes = list.map((item: unknown) =>
     typeof item === 'string'
