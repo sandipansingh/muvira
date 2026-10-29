@@ -76,6 +76,27 @@ async function assertIconGeometry(controls) {
 }
 
 for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: footer labels follow authentication and omit payment-provider branding`, () =>
+    visit(engine, '/shop?fixtureRole=guest', async (page) => {
+      const account = page.getByRole('navigation', { name: 'Footer account' })
+      await expect(account.getByRole('link', { name: 'Sign in', exact: true })).toHaveAttribute(
+        'href',
+        '/signin'
+      )
+      await expect(account.getByRole('link', { name: 'Account details', exact: true })).toHaveCount(
+        0
+      )
+      await account.getByRole('link', { name: 'Sign in', exact: true }).click()
+      await expect(page.getByRole('dialog', { name: 'Welcome back.' })).toBeVisible()
+      await expect(page).toHaveURL(fixture.origin + '/shop?fixtureRole=guest')
+      await page.keyboard.press('Escape')
+      await page.goto(fixture.origin + '/shop')
+      await expect(
+        account.getByRole('link', { name: 'Account details', exact: true })
+      ).toHaveAttribute('href', '/profile')
+      await expect(account.getByRole('link', { name: 'Sign in', exact: true })).toHaveCount(0)
+      await expect(page.locator('.store-footer')).not.toContainText('Razorpay')
+    }))
   test(`${engine}: modal Tab treats native price radios as one stop and skips negative tabindex`, () =>
     visit(
       engine,
@@ -338,16 +359,15 @@ for (const engine of ['chromium', 'webkit']) {
             await page.getByRole('button', { name: 'Next slide', exact: true }).click()
           }
           const footer = page.locator('.store-footer')
-          assert.ok(await footer.locator('.store-footer__brand').count())
+          assert.equal(await footer.locator('.store-footer__grid > div').count(), 4)
+          assert.equal(await footer.locator('.store-footer__navigation').count(), 0)
           assert.equal(await footer.getByText('Payments through Razorpay').count(), 0)
           assert.equal(
-            await footer
-              .locator('.store-footer__navigation')
-              .evaluate((el) => getComputedStyle(el).backgroundColor),
+            await footer.evaluate((el) => getComputedStyle(el).backgroundColor),
             await page
               .locator('body')
               .evaluate(() =>
-                getComputedStyle(document.documentElement).getPropertyValue('--color-ink').trim()
+                getComputedStyle(document.documentElement).getPropertyValue('--surface-alt').trim()
               )
               .then((value) =>
                 page.evaluate((value) => {

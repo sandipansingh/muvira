@@ -10,7 +10,7 @@ The approved redesign replaces the previous type and color direction. Runtime CS
 | --- | --- | --- | --- |
 | Warm white canvas | `--background` | `#FAF8F4` | Page shells |
 | White surface | `--color-paper` | `#FFFFFF` | Controls, panels |
-| Stone | `--surface-alt`, `--color-line` | `#E9E3D9` | Borders, secondary surfaces |
+| Stone | `--surface-alt`, `--color-line` | `#E9E3D9` | Footer, borders |
 | Charcoal | `--color-ink` | `#1F2521` | Headings, text |
 | Muted green-grey | `--color-muted` | `#657168` | Secondary copy |
 | Text-entry focus fill | `--color-field-focus` | Paper mixed with 4% ink | Text fields, textareas and search wrappers in both themes |
@@ -44,7 +44,7 @@ Customer destination links use clear text without decorative arrows, including s
 
 The hero copy is vertically centered in the left-hand image space, independently of the slide controls. A 12px eyebrow, responsive 40–56px regular display heading balanced near 10ch, 16px description and collection action form the compact hierarchy. Phones place naturally growing copy above the photograph and separate manual controls.
 
-The footer pairs an ivory brand row and original unframed logo with a charcoal navigation section. Explore, Your Muvira and configured contacts precede genuine collection links and a quiet copyright row. Warm white links retain contrasting focus and underlined hover treatments. There is no payment-provider tagline.
+The footer keeps its stone background and grouped brand, Explore, Your Muvira and configured contact columns, followed by genuine collection links and a quiet copyright row. The original logo stays unframed. Account links show Sign in for guests and Account details for signed-in customers. Payment-provider branding is absent.
 
 The shopping bag is a 480px desktop drawer and full-width phone surface in ivory. Larger cover photographs, complete product names, prices and centered quantity controls precede an explicit summary surface. Its header and checkout area remain reachable while items scroll independently; unusually tall enlarged-text summaries also scroll within their bounded area. Checkout is a full-width green action above the secondary View shopping bag link. Coupon entry, server-derived totals, mutation failures, pending/unresolved items and guest sign-in keep their existing behavior.
 

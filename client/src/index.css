@@ -1149,31 +1149,14 @@ button:disabled {
   padding-inline: 1.5rem;
 }
 .store-footer {
+  padding-block: 4.5rem 1.5rem;
+  background: var(--surface-alt);
   color: var(--color-ink);
-}
-.store-footer__brand {
-  background: var(--background);
-  padding-block: 3rem;
-}
-.store-footer__brand-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-}
-.store-footer__navigation {
-  background: var(--color-ink);
-  color: var(--background);
-  padding-block: 3.5rem 1.5rem;
 }
 .store-footer__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.4fr;
-  gap: 3rem;
-}
-.store-footer__grid > div {
-  min-width: 0;
+  grid-template-columns: 1.7fr 0.8fr 0.8fr 1.2fr;
+  gap: 2.5rem;
 }
 .footer-heading {
   font-family: var(--font-sans);
@@ -1194,27 +1177,21 @@ button:disabled {
   gap: 0.5rem;
   min-height: var(--tap-target);
 }
-.store-footer__navigation a:hover {
-  color: var(--background);
+.footer-links a:hover {
+  color: var(--color-primary);
   text-decoration: underline;
   text-underline-offset: 4px;
-}
-.store-footer__navigation a:focus-visible {
-  outline-color: var(--background);
-}
-.store-footer__navigation .eyebrow {
-  color: inherit;
 }
 .store-footer__bottom {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 1.5rem;
-  border-top: 1px solid color-mix(in srgb, var(--background) 25%, transparent);
+  border-top: 1px solid var(--color-field-border);
   padding-top: 1.5rem;
-  margin-top: 2rem;
+  margin-top: 3.5rem;
   font-size: 0.875rem;
-  color: inherit;
+  color: var(--color-ink-soft);
 }
 .catalog-heading {
   background: var(--background);
@@ -1259,6 +1236,9 @@ button:disabled {
   .store-header__main {
     min-height: var(--store-header-height);
   }
+  .store-footer__grid {
+    grid-template-columns: 1.5fr 1fr;
+  }
 }
 @media (max-width: 639px) {
   .store-header__main {
@@ -1274,9 +1254,16 @@ button:disabled {
   .brand-lockup span {
     font-size: 1.5rem;
   }
+  .store-footer {
+    padding-top: 3rem;
+  }
   .store-footer__grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1rem;
+  }
+  .store-footer__grid > :first-child,
+  .store-footer__grid > :last-child {
+    grid-column: 1 / -1;
   }
   .catalog-heading {
     padding-bottom: 2rem;
@@ -4194,7 +4181,7 @@ body {
 }
 .footer-collection-nav {
   padding-block: 2rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--background) 25%, transparent);
+  border-top: 1px solid var(--color-field-border);
   margin-top: 2.5rem;
 }
 .footer-collection-nav > div {
@@ -4208,6 +4195,10 @@ body {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap-target);
+}
+.footer-collection-nav a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 .catalog-topbar__title {
   overflow-wrap: anywhere;
