@@ -420,7 +420,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (
       !sessionReady ||
       status !== 'ready' ||
-      !user ||
+      !userId ||
       items.length === 0 ||
       items.some(isGuestItem)
     ) {
@@ -430,7 +430,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     let active = true
     checkoutService
-      .quote('standard', coupon?.code, undefined, user.id)
+      .quote('standard', coupon?.code, undefined, userId)
       .then((quote) => {
         if (active) setCheckoutQuote(quote)
       })
@@ -443,7 +443,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       active = false
     }
-  }, [coupon?.code, items, user, sessionReady, status])
+  }, [coupon?.code, items, userId, sessionReady, status])
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items])
   const localSubtotalPaisa = useMemo(

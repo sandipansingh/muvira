@@ -58,6 +58,14 @@ pnpm run dev
 
 Stop the local Supabase stack with `pnpm run db:stop`.
 
+To run the development servers with `client/.env.production` and `server/.env.production`:
+
+```bash
+pnpm run dev:production
+```
+
+The client keeps hot reload, uses the local `/api` proxy and returns authentication redirects to the local browser origin. Other settings come from the production environment files, including live provider credentials. The API runs with production validation and logging. Stop an existing `pnpm run dev` process before switching modes, and restart after editing environment files.
+
 ## Quality commands
 
 ```bash

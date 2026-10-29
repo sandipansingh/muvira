@@ -9,6 +9,7 @@ export function useCheckoutSession(userId?: string) {
   const [error, setError] = useState<string | null>(null)
   const requestId = useRef<string | null>(null)
   const generation = useRef(0)
+  const refreshingGeneration = useRef<number | null>(null)
   const preparing = useRef(false)
   const hasLoaded = useRef(false)
   const latestSession = useRef(session)
@@ -17,6 +18,8 @@ export function useCheckoutSession(userId?: string) {
   const refresh = useCallback(async () => {
     if (!userId) return
     const version = generation.current
+    if (refreshingGeneration.current === version || preparing.current) return
+    refreshingGeneration.current = version
     const current = latestSession.current
     if (!hasLoaded.current) setLoading(true)
     setError(null)
@@ -40,6 +43,7 @@ export function useCheckoutSession(userId?: string) {
             : 'Unable to check your current payment. Retry before continuing.'
         )
     } finally {
+      if (refreshingGeneration.current === version) refreshingGeneration.current = null
       if (version === generation.current) {
         hasLoaded.current = true
         setLoading(false)

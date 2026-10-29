@@ -10,12 +10,12 @@ export const authApiService = {
   /**
    * Fetches the current user's profile from the backend API.
    */
-  async getProfile(): Promise<ApiResponse<Profile>> {
+  async getProfile(expectedUserId?: string): Promise<ApiResponse<Profile>> {
     const res = await api.get<{
       success: boolean
       data?: Record<string, unknown>
       error?: { code: string; message: string }
-    }>('/api/profile', true)
+    }>('/api/profile', true, expectedUserId)
 
     if (!res.success || !res.data) {
       return {

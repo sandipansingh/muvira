@@ -35,6 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [profileError, setProfileError] = useState<string | null>(null)
+  const currentUser = useRef(user)
+  currentUser.current = user
   const sessionAttempts = useRef(createLatestAttemptGuard())
   const mounted = useRef(true)
   const { showToast } = useToast()
@@ -44,16 +46,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const attempt = existingAttempt ?? sessionAttempts.current.begin()
       if (!sessionAttempts.current.isCurrent(attempt)) return false
 
-      setLoading(true)
-      setUser(null)
-      setToken(null)
+      const sameAccount = currentUser.current?.id === session.user?.id && !!currentUser.current
+      if (sameAccount) {
+        setToken(session.access_token)
+      } else {
+        setLoading(true)
+        currentUser.current = null
+        setUser(null)
+        setToken(null)
+      }
       setProfileError(null)
       try {
-        const profileResponse = await authApiService.getProfile()
+        const profileResponse = await authApiService.getProfile(session.user?.id)
         if (!profileResponse.success) throw new Error(profileResponse.error.message)
         if (!sessionAttempts.current.isCurrent(attempt)) return false
 
-        setToken(session.access_token)
+        if (!sameAccount) setToken(session.access_token)
+        currentUser.current = profileResponse.data
         setUser(profileResponse.data)
         return true
       } catch (error) {
@@ -116,6 +125,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return
+      if (
+        session &&
+        currentUser.current?.id === session.user?.id &&
+        currentUser.current &&
+        (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')
+      ) {
+        setToken(session.access_token)
+        return
+      }
       const attempt = attempts.begin()
       if (event === 'PASSWORD_RECOVERY' && session) {
         sessionStorage.setItem(PASSWORD_RECOVERY_SESSION_KEY, session.access_token)
@@ -125,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session) {
         void restoreSession(session, attempt)
       } else {
+        currentUser.current = null
         setToken(null)
         setUser(null)
         setProfileError(null)
@@ -193,6 +212,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) throw error
       },
       clearState: () => {
+        currentUser.current = null
         setUser(null)
         setToken(null)
         setProfileError(null)

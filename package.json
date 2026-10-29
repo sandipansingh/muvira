@@ -22,6 +22,7 @@
     "db:stop": "pnpm --filter server exec supabase stop --workdir .. --no-backup",
     "db:migrate": "bash scripts/push-supabase-migrations.sh",
     "dev": "pnpm -r --parallel run dev",
+    "dev:production": "pnpm -r --parallel run dev:production",
     "dev:client": "pnpm --filter client dev",
     "dev:server": "pnpm --filter server dev",
     "build": "pnpm -r run build",
