@@ -35,6 +35,7 @@ const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'))
 const OrderFailurePage = lazy(() => import('./pages/OrderFailurePage'))
 const OrdersHistoryPage = lazy(() => import('./pages/OrdersHistoryPage'))
+const OrderTrackingPage = lazy(() => import('./pages/OrderTrackingPage'))
 const OrderDetailPage = lazy(() => import('./pages/OrderDetailPage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
@@ -130,6 +131,7 @@ export const AppContent: React.FC = () => {
               <Route path="/orders" element={<OrdersHistoryPage />} />
               <Route path="/orders/success" element={<OrderSuccessPage />} />
               <Route path="/orders/failure" element={<OrderFailurePage />} />
+              <Route path="/orders/:id/tracking" element={<OrderTrackingPage />} />
               <Route path="/orders/:id" element={<OrderDetailPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             </Route>

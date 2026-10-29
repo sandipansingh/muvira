@@ -38,11 +38,13 @@ export function CardPaymentFields({
   disabled: boolean
 }) {
   return (
-    <div ref={containerRef} className="grid grid-cols-2 gap-4">
+    <div ref={containerRef} className="checkout-card-fields">
       {FIELDS.map((field) => (
         <div
           key={field.name}
-          className={field.name === 'name' || field.name === 'number' ? 'col-span-2' : ''}
+          className={
+            field.name === 'name' || field.name === 'number' ? 'checkout-card-field--wide' : ''
+          }
         >
           <label htmlFor={`payment-${field.name}`} className="mb-2 block text-sm font-semibold">
             {field.label}
@@ -70,7 +72,7 @@ export function CardPaymentFields({
           )}
         </div>
       ))}
-      <p className="col-span-2 flex items-start gap-2 text-xs leading-relaxed text-muted">
+      <p className="checkout-card-field--wide flex items-start gap-2 text-xs leading-relaxed text-muted">
         <LockKeyhole className="mt-0.5 h-4 w-4" aria-hidden="true" />
         Card details are sent directly to Razorpay and aren’t saved by Muvira.
       </p>

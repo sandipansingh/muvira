@@ -1,6 +1,5 @@
 import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
-import { AccountNavigation } from '../components/auth/AccountNavigation'
-import { AccountUtilities } from '../components/auth/AccountUtilities'
+import { AccountShell } from '../components/auth/AccountShell'
 import { AccountOverview } from '../components/auth/AccountOverview'
 import type { Profile } from '../lib/types/auth'
 import React, { useEffect, useRef, useState } from 'react'
@@ -285,394 +284,362 @@ function AccountWorkspace({ user }: { user: Profile }) {
   }
 
   return (
-    <main className="account-page editorial-page py-10 sm:py-14">
-      <div className="editorial-container max-w-6xl">
-        {view === 'overview' ? (
-          <>
-            <div className="account-welcome">
-              <span className="account-initials" aria-hidden="true">
-                {user.fullName
-                  .trim()
-                  .split(/\s+/)
-                  .filter(Boolean)
-                  .slice(0, 2)
-                  .map((part) => part[0])
-                  .join('')
-                  .toLocaleUpperCase('en-IN') || user.email?.[0]?.toLocaleUpperCase('en-IN')}
-              </span>
-              <div className="min-w-0">
-                <CustomerPageHeading title="Your account" />
-                <p className="account-greeting">
-                  Welcome back
-                  {user.fullName.trim() ? `, ${user.fullName.trim().split(/\s+/)[0]}` : ''}.
-                </p>
-                <p className="account-email">{user.email}</p>
-              </div>
-            </div>
-            <AccountOverview
-              addresses={addresses}
-              loadingAddresses={loadingAddresses}
-              addressError={addressError}
-              retryAddresses={() => setAddressRetry((value) => value + 1)}
-            />
-          </>
-        ) : (
-          <>
-            <CustomerPageHeading title="Your account" />
-            <AccountNavigation
-              addressCount={loadingAddresses || addressError ? undefined : addresses.length}
-            />
-          </>
-        )}
-
-        <div className="account-workspace" hidden={view === 'overview'}>
-          <div>
-            <div hidden={view !== 'personal'} className="account-personal account-card">
-              <section
-                id="personal-info"
-                className="account-section space-y-5"
-                aria-labelledby="personal-details-title"
-              >
-                <h2
-                  id="personal-details-title"
-                  className="font-display text-2xl font-normal text-ink"
-                >
-                  Personal details
-                </h2>
-                <form
-                  onSubmit={handleProfileUpdate}
-                  className="grid grid-cols-1 gap-5 sm:grid-cols-2"
-                >
-                  <div className="sm:col-span-2">
-                    <label
-                      htmlFor="profile-email"
-                      className="mb-1.5 block text-xs font-normal text-ink"
-                    >
-                      Email
-                    </label>
-                    <input
-                      id="profile-email"
-                      name="email"
-                      type="email"
-                      disabled
-                      value={user.email}
-                      className="input cursor-not-allowed bg-surface text-muted"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="profile-full-name"
-                      className="mb-1.5 block text-xs font-normal text-ink"
-                    >
-                      Full name
-                    </label>
-                    <input
-                      id="profile-full-name"
-                      name="fullName"
-                      type="text"
-                      autoComplete="name"
-                      required
-                      value={fullName}
-                      onChange={(event) => setFullName(event.target.value)}
-                      className="input"
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="profile-phone"
-                      className="mb-1.5 block text-xs font-normal text-ink"
-                    >
-                      Phone number
-                    </label>
-                    <input
-                      id="profile-phone"
-                      name="phone"
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel-national"
-                      required
-                      value={phone}
-                      onChange={(event) => setPhone(event.target.value)}
-                      className="input"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    isLoading={savingProfile}
-                    className="justify-self-start sm:col-span-2"
-                  >
-                    Save changes
-                  </Button>
-                </form>
-              </section>
-
-              <section
-                className="account-section space-y-4"
-                aria-labelledby="notification-preferences-title"
-              >
-                <h2
-                  id="notification-preferences-title"
-                  className="font-display text-2xl font-normal text-ink"
-                >
-                  Notification preferences
-                </h2>
-                {loadingPreferences ? (
-                  <p role="status" className="py-4 text-sm text-muted">
-                    Loading notification preferences…
-                  </p>
-                ) : (
-                  <label className="flex min-h-[var(--tap-target)] items-center justify-between gap-4 py-2">
-                    <span>
-                      <span className="block text-sm font-bold text-ink">Order update emails</span>
-                      <span className="mt-1 block text-sm text-ink-soft">
-                        Receive payment and fulfillment updates by email.
-                      </span>
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={emailNotificationsEnabled}
-                      disabled={savingPreferences || !preferencesLoaded}
-                      aria-busy={savingPreferences}
-                      onChange={(event) => void updateEmailPreference(event.target.checked)}
-                      className="h-5 w-5 shrink-0 accent-primary"
-                      aria-label="Receive order update emails"
-                    />
-                  </label>
-                )}
-                {preferencesError && (
-                  <p role="alert" className="text-sm text-danger">
-                    {preferencesError}
-                    {!preferencesLoaded && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="ml-3"
-                        onClick={() => setPreferencesRetry((value) => value + 1)}
-                      >
-                        Try again
-                      </Button>
-                    )}
-                  </p>
-                )}
-              </section>
-            </div>
+    <AccountShell addressCount={loadingAddresses || addressError ? undefined : addresses.length}>
+      <CustomerPageHeading
+        title="Your account"
+        description={
+          view === 'overview'
+            ? `Welcome back${user.fullName.trim() ? `, ${user.fullName.trim().split(/\s+/)[0]}` : ''}.`
+            : undefined
+        }
+      />
+      {view === 'overview' && (
+        <AccountOverview
+          addresses={addresses}
+          loadingAddresses={loadingAddresses}
+          addressError={addressError}
+          retryAddresses={() => setAddressRetry((value) => value + 1)}
+        />
+      )}
+      <div className="account-workspace" hidden={view === 'overview'}>
+        <div>
+          <div hidden={view !== 'personal'} className="account-personal account-card">
             <section
-              hidden={view !== 'addresses'}
-              id="addresses"
-              className="account-section account-card space-y-4"
-              aria-labelledby="saved-addresses-title"
+              id="personal-info"
+              className="account-section space-y-5"
+              aria-labelledby="personal-details-title"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2
-                  id="saved-addresses-title"
-                  className="font-display text-2xl font-normal text-ink"
-                >
-                  Saved addresses
-                </h2>
+              <h2
+                id="personal-details-title"
+                className="font-display text-2xl font-normal text-ink"
+              >
+                Personal details
+              </h2>
+              <form
+                onSubmit={handleProfileUpdate}
+                className="grid grid-cols-1 gap-5 sm:grid-cols-2"
+              >
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="profile-email"
+                    className="mb-1.5 block text-xs font-normal text-ink"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="profile-email"
+                    name="email"
+                    type="email"
+                    disabled
+                    value={user.email}
+                    className="input cursor-not-allowed bg-surface text-muted"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="profile-full-name"
+                    className="mb-1.5 block text-xs font-normal text-ink"
+                  >
+                    Full name
+                  </label>
+                  <input
+                    id="profile-full-name"
+                    name="fullName"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="profile-phone"
+                    className="mb-1.5 block text-xs font-normal text-ink"
+                  >
+                    Phone number
+                  </label>
+                  <input
+                    id="profile-phone"
+                    name="phone"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel-national"
+                    required
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    className="input"
+                  />
+                </div>
                 <Button
-                  type="button"
-                  onClick={openNewAddressForm}
-                  variant="secondary"
-                  disabled={savingAddress || Boolean(pendingAddressId)}
+                  type="submit"
+                  isLoading={savingProfile}
+                  className="justify-self-start sm:col-span-2"
                 >
-                  Add address
+                  Save changes
                 </Button>
-              </div>
+              </form>
+            </section>
 
-              {addressFormOpen && (
-                <form onSubmit={handleAddressSave} className="border-y border-line py-6 space-y-4">
-                  <h3 className="font-sans text-base font-semibold text-ink">
-                    {editingAddressId ? 'Edit address' : 'Add address'}
-                  </h3>
-                  <fieldset disabled={savingAddress} className="space-y-4">
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                      {(
-                        [
-                          ['fullName', 'Full name'],
-                          ['phone', 'Phone number'],
-                          ['line1', 'Address line 1'],
-                          ['line2', 'Address line 2 (optional)'],
-                          ['city', 'City'],
-                          ['pincode', 'Pincode'],
-                        ] as const
-                      ).map(([field, label]) => (
-                        <label
-                          key={field}
-                          htmlFor={`address-${field}`}
-                          className="flex flex-col gap-1 text-sm text-ink"
-                        >
-                          <span>{label}</span>
-                          <input
-                            id={`address-${field}`}
-                            name={field}
-                            type={field === 'phone' ? 'tel' : 'text'}
-                            inputMode={
-                              field === 'pincode'
-                                ? 'numeric'
-                                : field === 'phone'
-                                  ? 'tel'
-                                  : undefined
-                            }
-                            autoComplete={
-                              field === 'fullName'
-                                ? 'name'
-                                : field === 'phone'
-                                  ? 'tel-national'
-                                  : field === 'line1'
-                                    ? 'address-line1'
-                                    : field === 'line2'
-                                      ? 'address-line2'
-                                      : field === 'city'
-                                        ? 'address-level2'
-                                        : 'postal-code'
-                            }
-                            required={!['line2'].includes(field)}
-                            placeholder={label}
-                            value={addressForm[field]}
-                            onChange={(event) =>
-                              setAddressForm((previous) => ({
-                                ...previous,
-                                [field]: event.target.value,
-                              }))
-                            }
-                            className="input"
-                          />
-                        </label>
-                      ))}
-                      <div className="flex flex-col gap-1">
-                        <label htmlFor="address-state" className="text-sm text-ink">
-                          State
-                        </label>
-                        <Select
-                          id="address-state"
-                          name="state"
-                          value={addressForm.state}
+            <section
+              className="account-section space-y-4"
+              aria-labelledby="notification-preferences-title"
+            >
+              <h2
+                id="notification-preferences-title"
+                className="font-display text-2xl font-normal text-ink"
+              >
+                Notification preferences
+              </h2>
+              {loadingPreferences ? (
+                <p role="status" className="py-4 text-sm text-muted">
+                  Loading notification preferences…
+                </p>
+              ) : (
+                <label className="flex min-h-[var(--tap-target)] items-center justify-between gap-4 py-2">
+                  <span>
+                    <span className="block text-sm font-bold text-ink">Order update emails</span>
+                    <span className="mt-1 block text-sm text-ink-soft">
+                      Receive payment and fulfillment updates by email.
+                    </span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={emailNotificationsEnabled}
+                    disabled={savingPreferences || !preferencesLoaded}
+                    aria-busy={savingPreferences}
+                    onChange={(event) => void updateEmailPreference(event.target.checked)}
+                    className="h-5 w-5 shrink-0 accent-primary"
+                    aria-label="Receive order update emails"
+                  />
+                </label>
+              )}
+              {preferencesError && (
+                <p role="alert" className="text-sm text-danger">
+                  {preferencesError}
+                  {!preferencesLoaded && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="ml-3"
+                      onClick={() => setPreferencesRetry((value) => value + 1)}
+                    >
+                      Try again
+                    </Button>
+                  )}
+                </p>
+              )}
+            </section>
+          </div>
+          <section
+            hidden={view !== 'addresses'}
+            id="addresses"
+            className="account-section account-card space-y-4"
+            aria-labelledby="saved-addresses-title"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 id="saved-addresses-title" className="font-display text-2xl font-normal text-ink">
+                Saved addresses
+              </h2>
+              <Button
+                type="button"
+                onClick={openNewAddressForm}
+                variant="secondary"
+                disabled={savingAddress || Boolean(pendingAddressId)}
+              >
+                Add address
+              </Button>
+            </div>
+
+            {addressFormOpen && (
+              <form onSubmit={handleAddressSave} className="border-y border-line py-6 space-y-4">
+                <h3 className="font-sans text-base font-semibold text-ink">
+                  {editingAddressId ? 'Edit address' : 'Add address'}
+                </h3>
+                <fieldset disabled={savingAddress} className="space-y-4">
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    {(
+                      [
+                        ['fullName', 'Full name'],
+                        ['phone', 'Phone number'],
+                        ['line1', 'Address line 1'],
+                        ['line2', 'Address line 2 (optional)'],
+                        ['city', 'City'],
+                        ['pincode', 'Pincode'],
+                      ] as const
+                    ).map(([field, label]) => (
+                      <label
+                        key={field}
+                        htmlFor={`address-${field}`}
+                        className="flex flex-col gap-1 text-sm text-ink"
+                      >
+                        <span>{label}</span>
+                        <input
+                          id={`address-${field}`}
+                          name={field}
+                          type={field === 'phone' ? 'tel' : 'text'}
+                          inputMode={
+                            field === 'pincode' ? 'numeric' : field === 'phone' ? 'tel' : undefined
+                          }
+                          autoComplete={
+                            field === 'fullName'
+                              ? 'name'
+                              : field === 'phone'
+                                ? 'tel-national'
+                                : field === 'line1'
+                                  ? 'address-line1'
+                                  : field === 'line2'
+                                    ? 'address-line2'
+                                    : field === 'city'
+                                      ? 'address-level2'
+                                      : 'postal-code'
+                          }
+                          required={!['line2'].includes(field)}
+                          placeholder={label}
+                          value={addressForm[field]}
                           onChange={(event) =>
                             setAddressForm((previous) => ({
                               ...previous,
-                              state: event.target.value,
+                              [field]: event.target.value,
                             }))
                           }
-                          options={INDIAN_STATES}
+                          className="input"
                         />
-                      </div>
-                    </div>
-                    <label className="flex min-h-[var(--tap-target)] items-center gap-2 text-base font-normal text-ink-soft">
-                      <input
-                        type="checkbox"
-                        checked={addressForm.isDefault}
+                      </label>
+                    ))}
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="address-state" className="text-sm text-ink">
+                        State
+                      </label>
+                      <Select
+                        id="address-state"
+                        name="state"
+                        value={addressForm.state}
                         onChange={(event) =>
                           setAddressForm((previous) => ({
                             ...previous,
-                            isDefault: event.target.checked,
+                            state: event.target.value,
                           }))
                         }
-                        className="rounded accent-ink"
+                        options={INDIAN_STATES}
                       />
-                      Use as default address
-                    </label>
-                    <div className="flex gap-2 pt-2">
-                      <Button type="submit" isLoading={savingAddress}>
-                        Save address
-                      </Button>
-                      <Button
-                        type="button"
-                        onClick={() => setAddressFormOpen(false)}
-                        variant="secondary"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </fieldset>
-                </form>
-              )}
-
-              {loadingAddresses && (
-                <p role="status" className="py-6 text-sm text-ink-soft">
-                  Loading your addresses…
-                </p>
-              )}
-              {!loadingAddresses && addressError && (
-                <div>
-                  <p role="alert" className="text-sm text-danger">
-                    {addressError}
-                  </p>
-                  <Button
-                    variant="secondary"
-                    className="mt-4"
-                    onClick={() => setAddressRetry((value) => value + 1)}
-                  >
-                    Try again
-                  </Button>
-                </div>
-              )}
-              {!loadingAddresses && !addressError && addresses.length === 0 && (
-                <p className="border-y border-line py-5 text-sm text-muted">
-                  No saved addresses yet.
-                </p>
-              )}
-              {!loadingAddresses &&
-                !addressError &&
-                addresses.map((address) => (
-                  <div
-                    key={address.id}
-                    className="account-address flex flex-col gap-4 border-t border-line py-5 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"
-                  >
-                    <div className="min-w-0 space-y-1 text-base text-muted">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <strong className="text-sm text-ink">{address.fullName}</strong>
-                        {address.isDefault && <span className="status-badge">Default</span>}
-                      </div>
-                      <p className="text-ink-soft font-normal">
-                        {address.line1}
-                        {address.line2 ? `, ${address.line2}` : ''}
-                      </p>
-                      <p>
-                        {address.city}, {address.state} {address.pincode}
-                      </p>
-                      <p>{address.phone}</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {!address.isDefault && (
-                        <Button
-                          onClick={() => setDefaultAddress(address.id)}
-                          variant="ghost"
-                          size="sm"
-                          disabled={savingAddress || Boolean(pendingAddressId)}
-                          isLoading={pendingAddressId === address.id}
-                        >
-                          Set default
-                        </Button>
-                      )}
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        onClick={() => openEditAddressForm(address)}
-                        aria-label="Edit address"
-                        disabled={savingAddress || Boolean(pendingAddressId)}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        onClick={() => deleteAddress(address.id)}
-                        aria-label="Delete address"
-                        disabled={savingAddress || Boolean(pendingAddressId)}
-                        isLoading={pendingAddressId === address.id}
-                        className="hover:bg-danger-soft hover:text-danger"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
                     </div>
                   </div>
-                ))}
-            </section>
-          </div>
+                  <label className="flex min-h-[var(--tap-target)] items-center gap-2 text-base font-normal text-ink-soft">
+                    <input
+                      type="checkbox"
+                      checked={addressForm.isDefault}
+                      onChange={(event) =>
+                        setAddressForm((previous) => ({
+                          ...previous,
+                          isDefault: event.target.checked,
+                        }))
+                      }
+                      className="rounded accent-ink"
+                    />
+                    Use as default address
+                  </label>
+                  <div className="flex gap-2 pt-2">
+                    <Button type="submit" isLoading={savingAddress}>
+                      Save address
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => setAddressFormOpen(false)}
+                      variant="secondary"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </fieldset>
+              </form>
+            )}
+
+            {loadingAddresses && (
+              <p role="status" className="py-6 text-sm text-ink-soft">
+                Loading your addresses…
+              </p>
+            )}
+            {!loadingAddresses && addressError && (
+              <div>
+                <p role="alert" className="text-sm text-danger">
+                  {addressError}
+                </p>
+                <Button
+                  variant="secondary"
+                  className="mt-4"
+                  onClick={() => setAddressRetry((value) => value + 1)}
+                >
+                  Try again
+                </Button>
+              </div>
+            )}
+            {!loadingAddresses && !addressError && addresses.length === 0 && (
+              <p className="border-y border-line py-5 text-sm text-muted">
+                No saved addresses yet.
+              </p>
+            )}
+            {!loadingAddresses &&
+              !addressError &&
+              addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className="account-address flex flex-col gap-4 border-t border-line py-5 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"
+                >
+                  <div className="min-w-0 space-y-1 text-base text-muted">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <strong className="text-sm text-ink">{address.fullName}</strong>
+                      {address.isDefault && <span className="status-badge">Default</span>}
+                    </div>
+                    <p className="text-ink-soft font-normal">
+                      {address.line1}
+                      {address.line2 ? `, ${address.line2}` : ''}
+                    </p>
+                    <p>
+                      {address.city}, {address.state} {address.pincode}
+                    </p>
+                    <p>{address.phone}</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {!address.isDefault && (
+                      <Button
+                        onClick={() => setDefaultAddress(address.id)}
+                        variant="ghost"
+                        size="sm"
+                        disabled={savingAddress || Boolean(pendingAddressId)}
+                        isLoading={pendingAddressId === address.id}
+                      >
+                        Set default
+                      </Button>
+                    )}
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => openEditAddressForm(address)}
+                      aria-label="Edit address"
+                      disabled={savingAddress || Boolean(pendingAddressId)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={() => deleteAddress(address.id)}
+                      aria-label="Delete address"
+                      disabled={savingAddress || Boolean(pendingAddressId)}
+                      isLoading={pendingAddressId === address.id}
+                      className="hover:bg-danger-soft hover:text-danger"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+          </section>
         </div>
-        <AccountUtilities />
       </div>
-    </main>
+    </AccountShell>
   )
 }
 

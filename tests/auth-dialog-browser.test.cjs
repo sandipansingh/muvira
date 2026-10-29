@@ -228,6 +228,7 @@ for (const path of ['/signin', '/login', '/signup'])
     }))
 for (const destination of [
   '/orders?status=paid#recent',
+  '/orders/fixture-order/tracking',
   '/profile#saved-addresses',
   '/admin/orders?status=pending#latest',
 ])

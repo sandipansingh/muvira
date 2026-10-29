@@ -71,7 +71,7 @@ export const CartPage: React.FC = () => {
   }
 
   return (
-    <main className="checkout-page min-h-screen bg-background pb-16">
+    <main className="checkout-page cart-page bg-background pb-16">
       <div className="layout-container">
         {/* Top Flow Header */}
         <FlowHeader currentStep="cart" onBack={() => navigate('/shop')} />
@@ -86,9 +86,9 @@ export const CartPage: React.FC = () => {
           </div>
         )}
 
-        <div className="mt-6 sm:mt-8 grid grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:gap-10">
+        <div className="checkout-workspace mt-8">
           {/* Main Left Column: Order Summary with Item Cards & Recommended Upsell */}
-          <div className="space-y-6 lg:col-span-7 xl:col-span-8">
+          <div className="min-w-0 space-y-6">
             <section className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-7 shadow-none space-y-6">
               {/* Header with Clear Cart */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-line)] pb-4">
@@ -108,7 +108,7 @@ export const CartPage: React.FC = () => {
                   Clear Cart
                 </button>
               </div>
-              <div className="space-y-3.5">
+              <div className="cart-product-list">
                 {items.map((item) => (
                   <FlowItemCard key={item.id} item={item} />
                 ))}
@@ -127,7 +127,7 @@ export const CartPage: React.FC = () => {
             </section>
             <RecommendedUpsell />
           </div>
-          <div className="commerce-summary-column lg:col-span-5 xl:col-span-4">
+          <div className="commerce-summary-column min-w-0">
             <FlowCartSidebar
               items={items}
               subtotalPaisa={subtotalPaisa}

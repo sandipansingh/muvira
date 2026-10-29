@@ -27,9 +27,9 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
   }
 
   return (
-    <article className="commerce-item relative flex flex-wrap items-start gap-3.5 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(0.875rem,3vw)] sm:gap-4 sm:p-4 shadow-none transition-all hover:border-[var(--color-field-border)]">
+    <article className="commerce-item cart-product-row">
       {/* Product image */}
-      <div className="commerce-item__image relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-32 sm:w-32">
+      <div className="commerce-item__image cart-product-image relative shrink-0 overflow-hidden rounded-image bg-surface">
         {item.productImage ? (
           <StoreImage
             src={item.productImage}
@@ -57,7 +57,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
             to={`/product/${item.productSlug}`}
             className="block min-h-[var(--tap-target)] break-words pr-10 font-product leading-[1.15] tracking-tight text-base font-semibold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
           >
-            <span className="xs:line-clamp-2">{item.productName}</span>
+            <span>{item.productName}</span>
           </Link>
           <p className="mt-0.5 text-sm text-[var(--color-muted)]">
             {item.inStock ? `${item.availableStock} available` : 'Currently unavailable'}
@@ -88,6 +88,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
             />
           )}
         </div>
+        <p className="mt-2 text-sm text-ink-soft">{formatPrice(item.unitPrice)} each</p>
         <span className="mt-2 block font-product text-base font-bold text-[var(--color-ink)]">
           {formatPrice(item.lineTotal)}
         </span>
@@ -99,7 +100,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
         onClick={() => void removeFromCart(item.id).catch(() => undefined)}
         disabled={loading}
         aria-label={`Remove ${item.productName}`}
-        className="absolute right-3 top-3 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-[var(--color-surface)] text-[var(--color-muted)] transition-all hover:bg-danger-soft hover:text-danger disabled:opacity-50"
+        className="cart-product-remove absolute right-0 top-4 flex h-11 w-11 cursor-pointer items-center justify-center rounded-control text-muted hover:bg-danger-soft hover:text-danger disabled:opacity-50"
       >
         <X className="h-3.5 w-3.5 stroke-[2.5]" />
       </button>

@@ -8,6 +8,11 @@ const browsers = {}
 async function screenshot(page, name) {
   if (!process.env.MUVIRA_CHECKOUT_SCREENSHOTS_DIR) return
   await mkdir(process.env.MUVIRA_CHECKOUT_SCREENSHOTS_DIR, { recursive: true })
+  await page.evaluate(() => {
+    document.activeElement?.blur()
+    scrollTo(0, 0)
+  })
+  await page.evaluate(() => new Promise(requestAnimationFrame))
   await page.screenshot({
     path: join(process.env.MUVIRA_CHECKOUT_SCREENSHOTS_DIR, `${name}.png`),
     fullPage: true,
@@ -206,7 +211,9 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
       ? route.fulfill({ path: 'client/public/images/editorial/stone-alcove.png' })
       : route.abort()
   })
-  await page.goto(fixture.origin + '/checkout?step=payment')
+  await page.goto(
+    fixture.origin + '/checkout?step=payment' + (behavior.cartCoupon ? '&cartCoupon=1' : '')
+  )
   await page.getByRole('heading', { level: 1 }).waitFor()
   return { page, requests, state, rawSession: session }
 }
@@ -535,6 +542,109 @@ test('a stale payable poll cannot reopen Pay while success verification is pendi
       await verifyRoute
         .fulfill({ json: { success: true, data: { payment_status: 'paid' } } })
         .catch(() => {})
+    await page.close()
+  }
+})
+
+for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: expanded payment panels keep bank choices reachable and clear abandoned card inputs`, async () => {
+    for (const [width, scale] of [
+      [1280, 1],
+      [320, 2],
+    ]) {
+      const { page } = await checkoutPage(
+        engine,
+        { viewport: { width, height: 950 } },
+        {
+          methods: {
+            card: true,
+            wallet: { payzapp: true },
+            netbanking: Object.fromEntries(
+              Array.from({ length: 12 }, (_, i) => [`BANK${i}`, `Bank ${i}`])
+            ),
+          },
+        }
+      )
+      await page.evaluate(
+        (scale) => (document.documentElement.style.fontSize = `${16 * scale}px`),
+        scale
+      )
+      try {
+        await page.getByRole('radio', { name: /Credit or debit card/ }).check()
+        await page.getByLabel('Card number', { exact: true }).fill('4100 2800 0000 1007')
+        await page.getByRole('radio', { name: /Netbanking/ }).check()
+        await page.getByRole('button', { name: 'Choose your bank', exact: true }).click()
+        const menu = await page.getByRole('menu').boundingBox()
+        assert.ok(menu.x >= 0 && menu.x + menu.width <= width, `Bank choices must fit ${width}px`)
+        await page.getByRole('menuitem', { name: 'Bank 11', exact: true }).click()
+        await expect(
+          page.getByRole('button', { name: 'Choose your bank', exact: true })
+        ).toContainText('Bank 11')
+        await page.getByRole('radio', { name: /Wallet/ }).check()
+        await page.getByRole('button', { name: 'Choose your wallet', exact: true }).click()
+        const walletMenu = await page.getByRole('menu').boundingBox()
+        assert.ok(
+          walletMenu.x >= 0 && walletMenu.x + walletMenu.width <= width,
+          `Wallet choices must fit ${width}px`
+        )
+        await page.getByRole('menuitem', { name: 'PayZapp', exact: true }).click()
+        await page.getByRole('radio', { name: /Credit or debit card/ }).check()
+        await expect(page.getByLabel('Card number', { exact: true })).toHaveValue('')
+      } finally {
+        await page.close()
+      }
+    }
+  })
+  test(`${engine}: payment panels and actions reflow at every review width and enlarged text`, async () => {
+    for (const width of [320, 390, 768, 1280, 1440]) {
+      const { page } = await checkoutPage(engine, { viewport: { width, height: 950 } })
+      try {
+        await page.getByRole('radio', { name: /Credit or debit card/ }).check()
+        await page.getByLabel('Card number', { exact: true }).waitFor()
+        for (const scale of [1, 2]) {
+          await page.evaluate(
+            (scale) => (document.documentElement.style.fontSize = `${16 * scale}px`),
+            scale
+          )
+          if (scale === 2) {
+            await page.getByLabel('Expiry', { exact: true }).fill('12/30')
+            assert.equal(
+              await page.getByLabel('Expiry', { exact: true }).evaluate((input) => {
+                const style = getComputedStyle(input),
+                  canvas = document.createElement('canvas'),
+                  context = canvas.getContext('2d')
+                context.font = [style.fontWeight, style.fontSize, style.fontFamily].join(' ')
+                return (
+                  input.clientWidth >=
+                  context.measureText(input.value).width +
+                    parseFloat(style.paddingLeft) +
+                    parseFloat(style.paddingRight)
+                )
+              }),
+              true,
+              `Expiry must remain readable at ${width}px enlarged text`
+            )
+          }
+          assert.equal(
+            await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+            true,
+            `${engine} ${width}px scale${scale}`
+          )
+          await screenshot(page, `${engine}-${width}-card-text${scale}`)
+        }
+      } finally {
+        await page.close()
+      }
+    }
+  })
+}
+
+test('restored payment never presents a later bag coupon as part of its frozen order', async () => {
+  const { page } = await checkoutPage('chromium', {}, { restored: true, cartCoupon: true })
+  try {
+    await expect(page.getByText('Prepared order item', { exact: true })).toBeVisible()
+    await expect(page.getByText('LATER-CODE applied', { exact: true })).toHaveCount(0)
+  } finally {
     await page.close()
   }
 })

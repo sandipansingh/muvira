@@ -32,8 +32,12 @@ async function visit(engine, path, run, width = 1280, account = false) {
       sessionStorage.setItem('auth-fixture-session', '1')
       window.accountFixture = {
         calls: [],
-        delay: { addressLoad: location.search.includes('holdAddresses') },
+        delay: {
+          addressLoad: location.search.includes('holdAddresses'),
+          trackingLoad: location.search.includes('holdTracking'),
+        },
         failure: {
+          trackingLoad: location.search.includes('trackingFailure') ? 'Carrier unavailable' : null,
           preferencesLoad: location.search.includes('preferencesLoadFailure')
             ? 'Preferences temporarily unavailable'
             : null,
@@ -238,7 +242,7 @@ for (const engine of ['chromium', 'webkit']) {
             email: 'meera@example.test',
           })
         })
-        await expect(page.locator('.account-greeting')).toContainText('Meera')
+        await expect(page.getByText('Welcome back, Meera.', { exact: true })).toContainText('Meera')
         await expect(
           page.getByRole('region', { name: 'Recent order', exact: true }).getByRole('status')
         ).toBeVisible()
@@ -323,14 +327,12 @@ for (const engine of ['chromium', 'webkit']) {
           await page.keyboard.press(engine === 'webkit' ? 'Alt+Tab' : 'Tab')
           await expect(row.getByRole('link').nth(1)).toBeFocused()
           await page.goto(fixture.origin + '/profile')
-          const shortcuts = page.getByRole('navigation', { name: 'Account shortcuts', exact: true })
-          await expect(shortcuts.getByRole('link')).toHaveCount(3)
-          const cards = await shortcuts.getByRole('link').all()
-          const boxes = await Promise.all(cards.map((card) => card.boundingBox()))
-          if (width >= 768) {
-            assert.ok(boxes.every((box) => Math.abs(box.y - boxes[0].y) < 1))
-            assert.ok(boxes.every((box) => Math.abs(box.width - boxes[0].width) < 1))
-          } else assert.ok(boxes[1].y >= boxes[0].y + boxes[0].height)
+          const accountNav = page.getByRole('navigation', { name: 'Your account', exact: true })
+          await expect(accountNav.getByRole('link')).toHaveCount(4)
+          const sidebar = await page.locator('.account-sidebar').boundingBox()
+          const content = await page.locator('.account-main').boundingBox()
+          if (width >= 1024) assert.ok(sidebar.x + sidebar.width < content.x)
+          else assert.ok(sidebar.y + sidebar.height <= content.y)
           await expect(
             page.getByRole('region', { name: 'Recent order', exact: true })
           ).toBeVisible()
@@ -338,7 +340,7 @@ for (const engine of ['chromium', 'webkit']) {
             document.documentElement.style.fontSize = '32px'
             document.querySelector('.account-email').textContent =
               'a-very-long-email-address-for-an-account@example.test'
-            document.querySelector('.account-shortcut__title').textContent +=
+            document.querySelector('.account-navigation__link span').textContent +=
               ' and delivery updates for your recent purchases'
           })
           assert.ok(
@@ -639,6 +641,143 @@ for (const engine of ['chromium', 'webkit']) {
         await options.click()
         await expect(page.getByRole('dialog', { name: 'Welcome back.' })).toBeVisible()
         assert.equal(await page.evaluate(() => window.authFixture.calls.signout), 2)
+      },
+      390,
+      true
+    ))
+}
+
+for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: tracking keeps owned order visible when carrier data fails and retries`, () =>
+    visit(
+      engine,
+      '/orders/fixture-order/tracking?shipment&trackingFailure',
+      async (page) => {
+        await expect(
+          page.getByRole('heading', { name: 'Track your order', exact: true })
+        ).toBeVisible()
+        await expect(page.getByText('#MUV-2026-1042', { exact: true })).toBeVisible()
+        await expect(page.getByRole('alert')).toContainText('Carrier unavailable')
+        await expect(page.getByRole('region', { name: 'Order items', exact: true })).toContainText(
+          'Krishna'
+        )
+        await page.evaluate(() => (window.accountFixture.failure.trackingLoad = null))
+        await page.getByRole('button', { name: 'Retry tracking', exact: true }).click()
+        await expect(page.getByText('FIXTURE12345', { exact: true })).toBeVisible()
+        await expect(page.getByText('Picked up', { exact: true })).toBeVisible()
+        await expect(
+          page
+            .getByRole('navigation', { name: 'Your account', exact: true })
+            .getByRole('link', { name: 'My orders' })
+        ).toHaveAttribute('aria-current', 'page')
+        await page.getByRole('link', { name: 'View order details', exact: true }).click()
+        await expect(page).toHaveURL(/\/orders\/fixture-order$/)
+        await page.goBack()
+        await expect(
+          page.getByRole('heading', { name: 'Track your order', exact: true })
+        ).toBeVisible()
+      },
+      1280,
+      true
+    ))
+
+  test(`${engine}: tracking suppresses obsolete responses and exceptional states never claim delivery`, () =>
+    visit(
+      engine,
+      '/orders/fixture-order/tracking?shipment&holdTracking',
+      async (page) => {
+        await expect(
+          page.getByRole('heading', { name: 'Track your order', exact: true })
+        ).toBeVisible()
+        await expect(
+          page
+            .getByRole('region', { name: 'Tracking information', exact: true })
+            .getByRole('status')
+        ).toContainText('Loading shipment')
+        await page.evaluate(() => {
+          window.fixture.order = {
+            ...window.fixture.order,
+            orderNumber: 'MUV-SECOND',
+            status: 'delivery_failed',
+            awbCode: null,
+            courierName: null,
+            trackingUrl: null,
+            shiprocketStatus: null,
+          }
+          window.fixture.tracking = {
+            shipment_events: [],
+            awb_code: null,
+            courier_name: null,
+            tracking_url: null,
+            shiprocket_status: null,
+          }
+          window.accountFixture.delay.trackingLoad = false
+          history.pushState({}, '', '/orders/second-order/tracking')
+          dispatchEvent(new PopStateEvent('popstate'))
+        })
+        await expect(page.getByText('#MUV-SECOND', { exact: true })).toBeVisible()
+        await page.evaluate(() => window.accountFixture.release('trackingLoad'))
+        await expect(
+          page.getByRole('region', { name: 'Delivery progress', exact: true })
+        ).toHaveCount(0)
+        await expect(page.getByRole('alert')).toContainText('Delivery failed')
+        await expect(page.getByText('FIXTURE12345', { exact: true })).toHaveCount(0)
+        await expect(page.getByText('Picked up', { exact: true })).toHaveCount(0)
+      },
+      390,
+      true
+    ))
+}
+
+for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: tracking progress follows every real order status and hides unavailable owned data`, () =>
+    visit(
+      engine,
+      '/orders/fixture-order/tracking',
+      async (page) => {
+        for (const [status, current] of [
+          ['pending', 'Placed'],
+          ['confirmed', 'Placed'],
+          ['processing', 'Preparing'],
+          ['shipped', 'Shipped'],
+          ['out_for_delivery', 'Out for delivery'],
+          ['delivered', 'Delivered'],
+          ['cancelled', null],
+          ['rto', null],
+          ['returned', null],
+          ['refunded', null],
+          ['lost', null],
+          ['damaged', null],
+          ['delivery_failed', null],
+        ]) {
+          await page.evaluate((status) => {
+            window.fixture.order = { ...window.fixture.order, status }
+            history.pushState({}, '', `/orders/status-${status}/tracking`)
+            dispatchEvent(new PopStateEvent('popstate'))
+          }, status)
+          if (current)
+            await expect(
+              page
+                .getByRole('region', { name: 'Delivery progress', exact: true })
+                .locator('[aria-current="step"]')
+            ).toContainText(current)
+          else {
+            await expect(
+              page.getByRole('region', { name: 'Delivery progress', exact: true })
+            ).toHaveCount(0)
+            await expect(page.getByRole('alert')).toBeVisible()
+          }
+        }
+        await page.evaluate(() => {
+          window.accountFixture.failure.orderDetail = 'Order unavailable'
+          history.pushState({}, '', '/orders/not-owned/tracking')
+          dispatchEvent(new PopStateEvent('popstate'))
+        })
+        await expect(page.getByRole('alert')).toHaveText('Order unavailable')
+        await expect(page.getByRole('region', { name: 'Order items', exact: true })).toHaveCount(0)
+        await page.evaluate(() => (window.accountFixture.failure.orderDetail = null))
+        await page.getByRole('button', { name: 'Try again', exact: true }).click()
+        await expect(page.getByRole('region', { name: 'Order items', exact: true })).toBeVisible()
       },
       390,
       true

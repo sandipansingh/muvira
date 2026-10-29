@@ -124,8 +124,8 @@ test('authenticated customer and admin pages render across mobile, tablet, deskt
   const report = JSON.parse(
     await readFile('responsive-audit/redesign/authenticated-findings.json', 'utf8')
   )
-  expect(report.routes).toHaveLength(47)
-  expect(report.results).toHaveLength(235)
+  expect(report.routes).toHaveLength(48)
+  expect(report.results).toHaveLength(240)
   for (const result of report.results) {
     expect(result.error, `${result.name} ${result.viewport.label}`).toBeUndefined()
     expect(result.errors).toEqual([])
@@ -160,4 +160,27 @@ test('heritage photography, navigation, gallery and purchase states work across 
   )
   expect(report.results).toHaveLength(57)
   expect(report.failures).toEqual([])
+})
+
+test('account and purchase redesign reflows in Chromium and WebKit with long content and unavailable images', async () => {
+  await run(process.execPath, ['tests/fixtures/journey-audit.mjs'], {
+    timeout: 12 * 60 * 1000,
+    maxBuffer: 2 * 1024 * 1024,
+  })
+  const report = JSON.parse(
+    await readFile('responsive-audit/redesign/journey/findings.json', 'utf8')
+  )
+  expect(report.results).toHaveLength(240)
+  for (const result of report.results) {
+    expect(
+      result.error,
+      `${result.engine} ${result.name} ${result.width} text${result.scale}`
+    ).toBeUndefined()
+    expect(result.errors).toEqual([])
+    expect(result.findings.overflow).toBe(false)
+    expect(result.findings.headings).toBe(1)
+    expect(result.findings.fields).toEqual([])
+    expect(result.findings.outside).toEqual([])
+    expect(result.keyboard).not.toBe(false)
+  }
 })

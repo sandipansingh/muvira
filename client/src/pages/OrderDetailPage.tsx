@@ -1,304 +1,102 @@
-import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
-import { AccountNavigation } from '../components/auth/AccountNavigation'
-import { StoreImage } from '../components/common/StoreImage'
-import React, { useEffect, useState } from 'react'
-import { Download, MapPin, Package, ShieldCheck, Truck } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { orderApiService } from '../lib/services/order.service'
-import type { OrderDetail, OrderTrackingData } from '../lib/types/order'
-import { formatDate, formatPrice } from '../lib/utils/format'
+import { AccountShell } from '../components/auth/AccountShell'
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
+import {
+  OrderItems,
+  OrderTotals,
+  OrderAddressCard,
+  OrderPaymentCard,
+  InvoiceButton,
+} from '../components/orders/OrderCards'
+import { useCustomerOrder } from '../lib/hooks/useCustomerOrder'
 import { Button } from '../components/ui/Button'
+import { formatDate } from '../lib/utils/format'
 
-export const OrderDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const { user, loading: authLoading } = useAuth()
-  const [order, setOrder] = useState<OrderDetail | null>(null)
-  const [tracking, setTracking] = useState<OrderTrackingData | null>(null)
-  const [trackingError, setTrackingError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [downloadingInvoice, setDownloadingInvoice] = useState(false)
-  const [invoiceError, setInvoiceError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!user || !id) return
-    let active = true
-    const loadOrder = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const response = await orderApiService.getOrderById(id)
-        if (!response.success) throw new Error(response.error.message)
-        if (active) setOrder(response.data)
-      } catch (reason) {
-        if (active) {
-          setError(reason instanceof Error ? reason.message : 'Unable to load this order.')
-          setOrder(null)
-          setLoading(false)
-        }
-        return
-      }
-      try {
-        const response = await orderApiService.getOrderTracking(id)
-        if (!response.success) throw new Error(response.error.message)
-        if (active) {
-          setTracking(response.data)
-          setTrackingError(null)
-        }
-      } catch (reason) {
-        if (active) {
-          setTracking(null)
-          setTrackingError(
-            reason instanceof Error
-              ? reason.message
-              : 'Shipment tracking is temporarily unavailable.'
-          )
-        }
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-    void loadOrder()
-    return () => {
-      active = false
-    }
-  }, [id, user])
-
-  if (authLoading || !user || loading) return <main className="editorial-page" />
-  if (error || !order)
-    return (
-      <main className="editorial-page px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-xl rounded-card border border-line bg-surface p-6 text-center shadow-premium">
+function OrderWorkspace({ id, userId }: { id: string; userId: string }) {
+  const { order, loading, error, retry, tracking, trackingLoading, trackingError } =
+    useCustomerOrder(id, userId)
+  return (
+    <AccountShell>
+      {loading ? (
+        <>
+          <CustomerPageHeading title="Your order" />
+          <p role="status" className="journey-card">
+            Loading your order…
+          </p>
+        </>
+      ) : error || !order ? (
+        <div className="journey-card">
           <CustomerPageHeading title="Order unavailable" />
-          <p className="mt-2 text-sm text-muted">{error ?? 'We could not find this order.'}</p>
-          <Link to="/orders" className="button-primary mt-6">
+          <p role="alert">{error || 'We could not find this order.'}</p>
+          <Button onClick={retry} className="mt-4">
+            Try again
+          </Button>
+          <Link to="/orders" className="account-text-link ml-4">
             Back to Orders
           </Link>
         </div>
-      </main>
-    )
-
-  const trackingEvents = tracking?.shipment_events ?? []
-  const trackingUrl = tracking?.tracking_url ?? order.trackingUrl
-
-  const downloadInvoice = async () => {
-    if (!id) return
-    setDownloadingInvoice(true)
-    setInvoiceError(null)
-    try {
-      const blob = await orderApiService.downloadInvoice(id)
-      const url = URL.createObjectURL(blob)
-      const anchor = document.createElement('a')
-      anchor.href = url
-      anchor.download = `invoice-${order.orderNumber}.pdf`
-      anchor.click()
-      URL.revokeObjectURL(url)
-    } catch (reason) {
-      setInvoiceError(reason instanceof Error ? reason.message : 'Invoice could not be downloaded.')
-    } finally {
-      setDownloadingInvoice(false)
-    }
-  }
-
-  return (
-    <main className="account-page editorial-page py-10 sm:py-14">
-      <div className="editorial-container max-w-6xl space-y-8">
-        <CustomerPageHeading
-          breadcrumbs={[
-            { label: 'Home', href: '/' },
-            { label: 'Account', href: '/profile' },
-            { label: 'Orders', href: '/orders' },
-            { label: `#${order.orderNumber}` },
-          ]}
-          title={`#${order.orderNumber}`}
-          description={`Placed on ${formatDate(order.createdAt)}`}
-        >
-          <span className="status-badge self-start sm:self-auto">
-            {order.status.replaceAll('_', ' ')}
-          </span>
-          {order.paymentStatus === 'paid' && order.shiprocketOrderId && (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => void downloadInvoice()}
-              isLoading={downloadingInvoice}
-              leftIcon={<Download className="h-4 w-4" />}
-              className="self-start text-sm sm:self-auto"
-            >
-              Download invoice
-            </Button>
-          )}
-          {order.paymentStatus === 'paid' && !order.shiprocketOrderId && (
-            <p className="text-xs text-muted">Invoice available after fulfillment begins.</p>
-          )}
-        </CustomerPageHeading>
-        <AccountNavigation />
-        {invoiceError && (
-          <p className="rounded-card border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
-            {invoiceError}
-          </p>
-        )}
-
-        <section className="panel space-y-4 p-5 sm:p-6">
-          <div className="flex items-center gap-2">
-            <Truck className="h-5 w-5 text-ink" />
-            <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">
-              Shipment Tracking
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
-            <div className="border-t border-[var(--color-line)] pt-3">
-              <span className="block text-muted">AWB tracking number</span>
-              <strong className="mt-1 block text-sm text-ink">
-                {tracking?.awb_code ?? order.awbCode ?? 'Not assigned yet'}
-              </strong>
-            </div>
-            <div className="border-t border-[var(--color-line)] pt-3">
-              <span className="block text-muted">Courier partner</span>
-              <strong className="mt-1 block text-sm text-ink">
-                {tracking?.courier_name ?? order.courierName ?? 'Not assigned yet'}
-              </strong>
-            </div>
-            <div className="border-t border-[var(--color-line)] pt-3">
-              <span className="block text-muted">Shipment status</span>
-              <strong className="mt-1 block text-sm text-ink">
-                {tracking?.shiprocket_status ??
-                  order.shiprocketStatus ??
-                  order.status.replaceAll('_', ' ')}
-              </strong>
-            </div>
-          </div>
-          {trackingUrl && (
-            <a
-              href={trackingUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-[var(--tap-target)] items-center text-sm text-ink underline underline-offset-2 hover:underline"
-            >
-              Open carrier tracking
-            </a>
-          )}
-          {trackingError && (
-            <p className="rounded-card border border-line bg-surface-subtle p-4 text-sm text-ink">
-              Tracking could not be loaded: {trackingError}
-            </p>
-          )}
-          {trackingEvents.length > 0 && (
-            <div className="shipment-timeline space-y-4 border-t border-[var(--color-line)] pt-5">
-              {trackingEvents.map((event) => (
-                <div key={event.id} className="flex gap-3 text-base">
-                  <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-ink" />
-                  <div>
-                    <p className="font-normal text-ink">{event.status}</p>
-                    <p className="text-muted">
-                      {formatDate(event.event_time)}
-                      {event.location ? ` · ${event.location}` : ''}
-                    </p>
-                    {event.remarks && <p className="mt-1 text-muted">{event.remarks}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {!trackingError && trackingEvents.length === 0 && (
-            <p className="border-t border-[var(--color-line)] pt-5 text-sm text-muted">
-              Carrier tracking events will appear here after the shipment is picked up.
-            </p>
-          )}
-        </section>
-
-        <section>
-          <h2 className="heading mb-4 text-xl">Ordered Items</h2>
-          <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
-            {order.items.map((item) => (
-              <div key={item.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
-                <div className="flex min-w-0 items-center gap-4">
-                  {item.productImage ? (
-                    <StoreImage
-                      framing="square"
-                      src={item.productImage}
-                      alt={item.productName}
-                      width={64}
-                      height={64}
-                      className="h-32 w-32 rounded-image shrink-0 object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-card bg-surface">
-                      <Package className="h-6 w-6 text-disabled" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <h3 className="font-product leading-[1.15] tracking-tight text-base font-semibold text-ink">
-                      {item.productName}
-                    </h3>
-                    <p className="text-xs font-normal text-muted">Qty: {item.quantity}</p>
-                  </div>
-                </div>
-                <span className="font-product shrink-0 text-base font-normal text-ink">
-                  {formatPrice(item.totalPrice)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <div className="grid grid-cols-1 gap-6 border-t border-line pt-6 sm:grid-cols-2">
-          <div className="panel space-y-2 p-5 text-base">
-            <h2 className="mb-3 flex items-center gap-1.5 font-sans text-sm font-bold leading-tight text-ink">
-              <MapPin className="h-4 w-4 shrink-0 text-ink" />
-              <span className="leading-none">Shipping Address</span>
-            </h2>
-            <p className="font-normal text-ink">{order.shippingAddress.fullName}</p>
-            <p className="text-ink-soft">
-              {order.shippingAddress.line1}
-              {order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ''}
-            </p>
-            <p className="text-ink-soft">
-              {order.shippingAddress.city}, {order.shippingAddress.state}{' '}
-              {order.shippingAddress.pincode} · {order.shippingAddress.phone}
-            </p>
-          </div>
-          <div className="panel space-y-2 p-5 text-base">
-            <h2 className="mb-3 flex items-center gap-1.5 font-sans text-sm font-bold leading-tight text-ink">
-              <ShieldCheck className="h-4 w-4 shrink-0 text-ink" />
-              <span className="leading-none">Payment Details</span>
-            </h2>
-            <p className="font-normal text-ink">
-              {order.paymentMethod
-                ? `Razorpay ${order.paymentMethod}`
-                : 'Online payment method not recorded'}
-            </p>
-            <p className="font-normal text-accent">Status: {order.paymentStatus}</p>
-            <div className="space-y-1.5 border-t border-line pt-3 text-ink-soft">
-              <p className="flex justify-between">
-                <span>Subtotal</span>
-                <span className="font-product font-normal text-ink">
-                  {formatPrice(order.subtotal)}
-                </span>
-              </p>
-              {order.discountAmount > 0 && (
-                <p className="flex justify-between text-accent font-normal">
-                  <span>Discount</span>
-                  <span className="font-product">-{formatPrice(order.discountAmount)}</span>
+      ) : (
+        <>
+          <CustomerPageHeading
+            title={`#${order.orderNumber}`}
+            description={`Placed on ${formatDate(order.createdAt)}`}
+            breadcrumbs={[
+              { label: 'Home', href: '/' },
+              { label: 'Account', href: '/profile' },
+              { label: 'Orders', href: '/orders' },
+              { label: `#${order.orderNumber}` },
+            ]}
+          >
+            <span className="neutral-badge">{order.status.replaceAll('_', ' ')}</span>
+          </CustomerPageHeading>
+          <div className="journey-stack">
+            <section className="journey-card order-shipment-recap" aria-label="Shipment tracking">
+              <div>
+                <h2 className="journey-section-title">Shipment tracking</h2>
+                <p className="mt-3 text-sm text-ink-soft">
+                  {trackingLoading
+                    ? 'Loading shipment updates…'
+                    : trackingError
+                      ? 'Shipment updates are temporarily unavailable.'
+                      : tracking?.shiprocket_status ||
+                        order.shiprocketStatus ||
+                        'Carrier tracking events will appear here after the shipment is picked up.'}
                 </p>
-              )}
-              <p className="flex justify-between">
-                <span>Shipping</span>
-                <span className="font-product font-normal text-ink">
-                  {order.shippingAmount ? formatPrice(order.shippingAmount) : 'FREE'}
-                </span>
-              </p>
-              <p className="flex justify-between border-t border-line pt-2 font-normal text-ink text-sm">
-                <span>Total</span>
-                <span className="font-product">{formatPrice(order.totalAmount)}</span>
-              </p>
+                {!trackingLoading && !trackingError && (
+                  <p className="mt-2 text-sm text-ink-soft">
+                    {tracking?.courier_name || order.courierName || 'Courier not assigned yet'}
+                    {(tracking?.awb_code || order.awbCode) &&
+                      ` · ${tracking?.awb_code || order.awbCode}`}
+                  </p>
+                )}
+              </div>
+              <Link
+                to={`/orders/${encodeURIComponent(order.id)}/tracking`}
+                className="button-primary"
+              >
+                Track order
+              </Link>
+            </section>
+            <OrderItems order={order} />
+            <div className="journey-two-cards">
+              <OrderAddressCard address={order.shippingAddress} />
+              <OrderPaymentCard order={order} />
             </div>
+            {!order.billingSameAsShipping && (
+              <OrderAddressCard address={order.billingAddress} title="Billing address" />
+            )}
+            <OrderTotals order={order} />
+            <InvoiceButton order={order} />
           </div>
-        </div>
-      </div>
-    </main>
+        </>
+      )}
+    </AccountShell>
   )
 }
-
-export default OrderDetailPage
+export default function OrderDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const { user, loading } = useAuth()
+  if (loading || !user || !id) return <main className="editorial-page" />
+  return <OrderWorkspace key={`${user.id}:${id}`} id={id} userId={user.id} />
+}

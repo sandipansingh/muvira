@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { StoreImage } from '../components/common/StoreImage'
-import { formatPrice } from '../lib/utils/format'
-import { CheckCircle2, Clock3, PackageCheck, ShieldCheck } from 'lucide-react'
+import { formatDate } from '../lib/utils/format'
+import { OrderItems, OrderTotals, OrderAddressCard } from '../components/orders/OrderCards'
+import { CheckCircle2, Clock3 } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderDetail } from '../lib/types/order'
 import { isVerifiedPaidOrder, orderConfirmationError } from '../lib/utils/orderConfirmation'
 
-export const OrderSuccessPage: React.FC = () => {
-  const [searchParams] = useSearchParams()
-  const orderId = searchParams.get('orderId')
+function ConfirmationWorkspace({ orderId }: { orderId: string | null }) {
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(Boolean(orderId))
   const [error, setError] = useState<string | null>(null)
@@ -95,8 +94,8 @@ export const OrderSuccessPage: React.FC = () => {
   }
 
   return (
-    <main className="order-result order-result--success editorial-page py-10 sm:py-16">
-      <div className="editorial-container max-w-3xl space-y-6">
+    <main className="order-result order-result--success editorial-page py-10 sm:py-14">
+      <div className="editorial-container">
         <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -104,77 +103,71 @@ export const OrderSuccessPage: React.FC = () => {
             { label: 'Confirmation' },
           ]}
         />
-
-        <div className="result-panel space-y-6 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-6 text-center shadow-none sm:p-10">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-card bg-[var(--color-accent-soft)] text-accent shadow-none">
-            <CheckCircle2 className="h-10 w-10 stroke-[2]" />
-          </div>
-
-          <div className="space-y-2">
-            <span className="inline-block rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent">
-              Payment verified
-            </span>
-            <h1 className="heading page-title text-2xl font-bold sm:text-3xl">
-              Thank you for your order
-            </h1>
-            <p className="text-sm text-[var(--color-ink)]">
-              Order reference:{' '}
-              <strong className="font-bold text-[var(--color-primary)]">
-                #{order.orderNumber}
-              </strong>
-            </p>
-          </div>
-
-          <div className="result-order-items text-left">
-            {order.items.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 border-t border-line py-4">
-                <StoreImage
-                  framing="square"
-                  src={item.productImage || undefined}
-                  alt={item.productName}
-                  width={256}
-                  height={256}
-                  className="h-32 w-32 shrink-0 rounded-image object-cover"
-                />
-                <div className="min-w-0">
-                  <p className="font-product text-sm font-semibold text-ink">{item.productName}</p>
-                  <p className="mt-2 text-sm text-muted">
-                    Qty {item.quantity} · {formatPrice(item.totalPrice)}
-                  </p>
+        <div className="confirmation-layout mt-8">
+          <div className="journey-stack">
+            <header className="confirmation-welcome">
+              <CheckCircle2 className="h-10 w-10 text-accent" aria-hidden="true" />
+              <p className="mt-4 text-sm font-semibold text-ink">Payment verified</p>
+              <h1 className="page-title mt-3">Thank you for your order</h1>
+              <p className="mt-4 text-sm text-ink-soft">
+                Order reference: <strong className="text-ink">#{order.orderNumber}</strong>
+              </p>
+              <p className="mt-3 text-base leading-relaxed text-ink-soft">
+                Your order is confirmed and ready for our fulfillment team.
+              </p>
+            </header>
+            <section className="journey-card">
+              <h2 className="journey-section-title mb-5">Order information</h2>
+              <dl className="shipment-facts">
+                <div>
+                  <dt>Order date</dt>
+                  <dd>{formatDate(order.createdAt)}</dd>
                 </div>
-              </div>
-            ))}
+                <div>
+                  <dt>Order status</dt>
+                  <dd className="capitalize">{order.status.replaceAll('_', ' ')}</dd>
+                </div>
+                <div>
+                  <dt>Payment status</dt>
+                  <dd className="capitalize">{order.paymentStatus}</dd>
+                </div>
+                <div>
+                  <dt>Payment method</dt>
+                  <dd>
+                    {order.paymentMethod === 'razorpay'
+                      ? 'Razorpay'
+                      : order.paymentMethod || 'Online payment'}
+                  </dd>
+                </div>
+              </dl>
+            </section>
+            <OrderAddressCard address={order.shippingAddress} />
           </div>
-
-          <div className="rounded-card border border-[var(--color-line)] bg-[var(--color-surface)] p-4 text-left">
-            <p className="text-sm font-medium leading-relaxed text-ink">
-              Your paid order is recorded and ready for the fulfillment team to process.
-            </p>
+          <div className="journey-stack">
+            <OrderItems order={order} />
+            <OrderTotals order={order} />
           </div>
-
-          <div className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-4 text-left">
-            <div className="flex items-center gap-2 font-bold text-[var(--color-ink)]">
-              <ShieldCheck className="h-4 w-4 text-accent" />
-              Razorpay verification complete
-            </div>
-          </div>
-
-          <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
-            <Link
-              to={`/orders/${encodeURIComponent(order.id)}`}
-              className="button-primary gap-2 px-6 py-3.5 text-sm font-semibold"
-            >
-              <PackageCheck className="h-4 w-4 shrink-0" />
-              <span>View order details</span>
-            </Link>
-            <Link to="/shop" className="button-secondary gap-2 px-6 py-3.5 text-sm font-semibold">
-              <span>Continue shopping</span>
-            </Link>
-          </div>
+        </div>
+        <div className="confirmation-actions">
+          <Link to={`/orders/${encodeURIComponent(order.id)}/tracking`} className="button-primary">
+            Track order
+          </Link>
+          <Link to={`/orders/${encodeURIComponent(order.id)}`} className="button-secondary">
+            View order details
+          </Link>
+          <Link to="/shop" className="account-text-link">
+            Continue shopping
+          </Link>
         </div>
       </div>
     </main>
   )
 }
-
+export const OrderSuccessPage: React.FC = () => {
+  const { user, loading } = useAuth()
+  const [params] = useSearchParams()
+  const orderId = params.get('orderId')
+  if (loading || !user) return <main className="editorial-page" />
+  return <ConfirmationWorkspace key={`${user.id}:${orderId || ''}`} orderId={orderId} />
+}
 export default OrderSuccessPage

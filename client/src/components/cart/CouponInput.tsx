@@ -1,87 +1,84 @@
-import React, { useState } from 'react'
-import { CheckCircle, Tag, X } from 'lucide-react'
+import { useId, useRef, useState } from 'react'
+import { Check, X } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { formatPrice } from '../../lib/utils/format'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 
-export const CouponInput: React.FC = () => {
+export function CouponInput() {
   const { coupon, applyCoupon, removeCoupon } = useCart()
+  const id = useId()
   const [code, setCode] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    const trimmedCode = code.trim().toUpperCase()
-    if (!trimmedCode || isSubmitting) return
-
-    setIsSubmitting(true)
-    try {
-      const success = await applyCoupon(trimmedCode)
-      if (success) setCode('')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  if (coupon) {
-    return (
-      <div className="flex items-center justify-between rounded-lg border border-accent/30 bg-accent-soft px-3 py-2 text-xs text-accent transition-all">
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/20 text-accent">
-            <CheckCircle className="h-3 w-3" />
-          </div>
-          <div className="flex flex-wrap items-center gap-1.5 text-xs font-normal">
-            <span className="font-normal tracking-wider text-ink uppercase">{coupon.code}</span>
-            <span className="text-accent">(-{formatPrice(coupon.discountAmount)} off)</span>
-          </div>
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onClick={removeCoupon}
-          className="h-6 w-6 text-accent hover:bg-accent/10"
-          aria-label="Remove coupon"
-          title="Remove coupon"
-        >
-          <X className="h-3.5 w-3.5" />
-        </Button>
-      </div>
-    )
-  }
-
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const pending = useRef(false)
   return (
-    <form noValidate onSubmit={handleSubmit} className="flex flex-wrap items-stretch gap-2">
-      <div className="relative min-w-0 flex-[1_1_9rem]">
-        <label htmlFor="coupon-code" className="sr-only">
-          Promo code
-        </label>
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted z-10">
-          <Tag className="h-3.5 w-3.5" />
+    <div>
+      {coupon ? (
+        <div className="coupon-applied">
+          <Check className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <div className="min-w-0">
+            <p className="font-semibold break-words">{coupon.code}</p>
+            <p className="mt-1 text-sm">−{formatPrice(coupon.discountAmount)} applied</p>
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={removeCoupon}
+            aria-label="Remove coupon"
+            className="ml-auto shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
-        <Input
-          id="coupon-code"
-          name="coupon"
-          type="text"
-          placeholder="Enter promo code"
-          value={code}
-          onChange={(event) => setCode(event.target.value)}
-          className="h-full pl-10 pr-2.5 font-normal uppercase placeholder:normal-case"
-        />
-      </div>
-      <Button
-        type="submit"
-        variant="primary"
-        size="sm"
-        isLoading={isSubmitting}
-        disabled={isSubmitting}
-        className="h-full shrink-0 px-4 text-xs font-normal shadow-none active:scale-98"
-      >
-        Apply
-      </Button>
-    </form>
+      ) : (
+        <form
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (!code.trim() || pending.current) return
+            pending.current = true
+            setBusy(true)
+            setError(null)
+            void applyCoupon(code.trim().toUpperCase())
+              .then((ok) => {
+                if (ok) setCode('')
+                else setError('This code could not be applied. Check it and try again.')
+              })
+              .catch((reason: unknown) =>
+                setError(reason instanceof Error ? reason.message : 'Could not apply this code.')
+              )
+              .finally(() => {
+                pending.current = false
+                setBusy(false)
+              })
+          }}
+        >
+          <label htmlFor={id} className="mb-3 block text-sm font-semibold">
+            Promo code
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <Input
+              id={id}
+              name="coupon"
+              placeholder="Enter promo code"
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              className="min-w-0 flex-[1_1_8rem] uppercase placeholder:normal-case"
+            />
+            <Button type="submit" variant="secondary" disabled={!code.trim()} isLoading={busy}>
+              Apply
+            </Button>
+          </div>
+        </form>
+      )}
+      {error && (
+        <p role="alert" className="mt-3 text-sm text-danger">
+          {error}
+        </p>
+      )}
+    </div>
   )
 }
-
 export default CouponInput

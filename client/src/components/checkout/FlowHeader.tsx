@@ -14,8 +14,8 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack, com
   const navigate = useNavigate()
   const titles = {
     cart: 'Your shopping bag',
-    shipping: 'Where shall we send it?',
-    payment: 'The final details',
+    shipping: 'Shipping details',
+    payment: 'Payment',
   }
   const handleBack = () => {
     if (onBack) onBack()
@@ -57,9 +57,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ currentStep, onBack, com
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="page-title">
-            {compact && currentStep === 'payment' ? 'Complete your order' : titles[currentStep]}
-          </h1>
+          <h1 className="page-title">{titles[currentStep]}</h1>
           <p className="mt-3 flex items-center gap-2 text-sm text-muted">
             <LockKeyhole className="h-4 w-4" />
             {currentStep === 'cart'

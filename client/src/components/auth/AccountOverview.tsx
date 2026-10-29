@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MapPin, Package, User } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
 import { Link } from 'react-router-dom'
 import type { Address } from '../../lib/types/cart'
 import type { OrderListItem } from '../../lib/types/order'
@@ -21,6 +21,7 @@ export function AccountOverview({
   addressError,
   retryAddresses,
 }: AccountOverviewProps) {
+  const { user } = useAuth()
   const [order, setOrder] = useState<OrderListItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -51,34 +52,6 @@ export function AccountOverview({
 
   return (
     <>
-      <nav className="account-shortcuts" aria-label="Account shortcuts">
-        {[
-          {
-            href: '/orders',
-            title: 'My orders',
-            description: 'Track deliveries and view your order history.',
-            icon: Package,
-          },
-          {
-            href: '/profile#personal-info',
-            title: 'Personal info',
-            description: 'Update your details and email preferences.',
-            icon: User,
-          },
-          {
-            href: '/profile#addresses',
-            title: 'Saved addresses',
-            description: 'Manage the places your pieces call home.',
-            icon: MapPin,
-          },
-        ].map(({ href, title, description, icon: Icon }) => (
-          <Link key={href} to={href} aria-label={title} className="account-card account-shortcut">
-            <Icon className="h-6 w-6" aria-hidden="true" />
-            <span className="account-shortcut__title">{title}</span>
-            <span className="text-sm text-ink-soft">{description}</span>
-          </Link>
-        ))}
-      </nav>
       <div className="account-previews">
         <section className="account-card account-preview" aria-labelledby="recent-order-title">
           <div className="account-card__heading">
@@ -129,9 +102,14 @@ export function AccountOverview({
                     {formatPrice(order.totalAmount)}
                   </span>
                 </div>
-                <Link to={`/orders/${order.id}`} className="account-text-link justify-self-start">
-                  View order
-                </Link>
+                <div className="flex flex-wrap gap-x-5">
+                  <Link to={`/orders/${order.id}`} className="account-text-link">
+                    View order
+                  </Link>
+                  <Link to={`/orders/${order.id}/tracking`} className="account-text-link">
+                    Track order
+                  </Link>
+                </div>
               </div>
             </div>
           ) : (
@@ -187,6 +165,20 @@ export function AccountOverview({
           )}
         </section>
       </div>
+      <section className="account-card account-personal-preview" aria-label="Personal information">
+        <div>
+          <h2 className="journey-section-title">Personal info</h2>
+          <p className="mt-3 text-sm text-ink-soft">
+            {user?.fullName || 'Add your name'} · {user?.email}
+          </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            {user?.phone || 'Add a phone number in your personal details.'}
+          </p>
+        </div>
+        <Link to="/profile#personal-info" className="button-secondary">
+          Edit details
+        </Link>
+      </section>
     </>
   )
 }

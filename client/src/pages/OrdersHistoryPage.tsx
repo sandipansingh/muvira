@@ -1,8 +1,8 @@
 import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
-import { AccountNavigation } from '../components/auth/AccountNavigation'
+import { AccountShell } from '../components/auth/AccountShell'
 import { StoreImage } from '../components/common/StoreImage'
 import React, { useEffect, useRef, useState } from 'react'
-import { Clock, Package } from 'lucide-react'
+import { Package } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
@@ -10,8 +10,7 @@ import type { OrderListItem } from '../lib/types/order'
 import { formatDate, formatPrice } from '../lib/utils/format'
 import { Pagination } from '../components/common/Pagination'
 
-export const OrdersHistoryPage: React.FC = () => {
-  const { user, loading: authLoading } = useAuth()
+function OrdersWorkspace({ userId }: { userId: string }) {
   const [orders, setOrders] = useState<OrderListItem[]>([])
   const [page, setPage] = useState(1)
   const [refreshToken, setRefreshToken] = useState(0)
@@ -34,7 +33,6 @@ export const OrdersHistoryPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (!user) return
     let active = true
     const loadOrders = async () => {
       setLoading(true)
@@ -56,28 +54,24 @@ export const OrdersHistoryPage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [page, refreshToken, user])
-
-  if (authLoading || !user) return <main className="editorial-page" />
+  }, [page, refreshToken, userId])
 
   return (
-    <main className="account-page editorial-page py-10 sm:py-14">
-      <div className="editorial-container max-w-6xl" ref={resultsContainerRef}>
-        <CustomerPageHeading title="My orders" />
-        <AccountNavigation />
-        {loading && (
-          <div className="space-y-4">
-            {[1, 2].map((item) => (
-              <div
-                key={item}
-                className="h-28 animate-pulse rounded-[var(--radius-card)] bg-[var(--color-surface)]"
-              />
-            ))}
-          </div>
-        )}
-        {!loading && error && (
-          <div className="border-y border-warning bg-warning-soft py-6 text-center">
-            <p className="text-sm font-normal text-warning">{error}</p>
+    <AccountShell>
+      <div ref={resultsContainerRef} className="account-results">
+        <CustomerPageHeading
+          title="My orders"
+          description="Your purchases, delivery updates and order details."
+        />
+        {loading ? (
+          <p role="status" className="journey-card">
+            Loading your orders…
+          </p>
+        ) : error ? (
+          <div className="journey-card">
+            <p role="alert" className="text-danger">
+              {error}
+            </p>
             <button
               type="button"
               onClick={() => setRefreshToken((current) => current + 1)}
@@ -86,72 +80,61 @@ export const OrdersHistoryPage: React.FC = () => {
               Try again
             </button>
           </div>
-        )}
-        {!loading && !error && orders.length === 0 && (
-          <div className="border-y border-[var(--color-line)] py-8 text-center">
-            <Package className="mx-auto h-10 w-10 text-disabled" />
-            <p className="mt-3 text-sm text-muted">You have not placed any orders yet.</p>
+        ) : orders.length === 0 ? (
+          <div className="journey-card py-10 text-center">
+            <Package className="mx-auto h-10 w-10 text-muted" />
+            <p className="mt-4">You have not placed any orders yet.</p>
             <Link to="/shop" className="button-primary mt-5">
               Explore Shop
             </Link>
           </div>
-        )}
-        {!loading && !error && orders.length > 0 && (
-          <div className="divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
+        ) : (
+          <div className="journey-stack">
             {orders.map((order) => (
-              <Link
-                key={order.id}
-                to={`/orders/${order.id}`}
-                className="order-history-card group flex flex-col gap-5 py-6 transition-colors hover:bg-[var(--color-surface)] sm:flex-row sm:items-center sm:justify-between sm:px-3"
-              >
-                <div className="flex min-w-0 flex-1 flex-wrap items-start gap-4">
-                  {order.firstItemImage ? (
-                    <StoreImage
-                      framing="square"
-                      src={order.firstItemImage}
-                      alt={order.firstItemName ?? 'Ordered product'}
-                      width={256}
-                      height={256}
-                      className="h-32 w-32 shrink-0 rounded-image object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-surface">
-                      <Package className="h-6 w-6 text-disabled" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="font-sans text-base font-bold text-ink">
-                        #{order.orderNumber}
-                      </span>
-                      <span className="status-badge">{order.status.replaceAll('_', ' ')}</span>
-                    </div>
-                    <p className="font-product mt-1 text-base font-normal text-ink">
-                      {order.firstItemName ?? `${order.itemCount} item(s)`}
-                    </p>
-                    <p className="mt-1 flex items-center gap-1 text-sm text-muted">
-                      <Clock className="h-3 w-3 shrink-0" />
-                      <span className="leading-none">Placed on {formatDate(order.createdAt)}</span>
+              <article key={order.id} className="order-history-card journey-card">
+                <div className="order-history-heading">
+                  <div>
+                    <h2 className="font-sans text-base font-semibold">#{order.orderNumber}</h2>
+                    <p className="mt-2 text-sm text-ink-soft">
+                      Placed on {formatDate(order.createdAt)}
                     </p>
                   </div>
+                  <span className="neutral-badge">{order.status.replaceAll('_', ' ')}</span>
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-line pt-3 sm:border-t-0 sm:pt-0">
-                  <div className="text-right">
-                    <span className="font-product block whitespace-nowrap text-base font-normal text-ink">
-                      {formatPrice(order.totalAmount)}
-                    </span>
-                    <span className="text-[11px] text-muted">{order.itemCount} item(s)</span>
+                <div className="order-history-product">
+                  <StoreImage
+                    framing="square"
+                    src={order.firstItemImage}
+                    alt={order.firstItemName || 'Ordered product'}
+                    width={192}
+                    height={192}
+                    className="order-item-image"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-product text-base">
+                      {order.firstItemName || 'Your ordered items'}
+                    </p>
+                    <p className="mt-2 text-sm text-ink-soft">
+                      {order.itemCount} {order.itemCount === 1 ? 'item' : 'items'} · Payment{' '}
+                      {order.paymentStatus}
+                    </p>
                   </div>
-                  <span className="text-sm font-semibold text-ink group-hover:text-primary">
+                  <p className="font-product text-primary">{formatPrice(order.totalAmount)}</p>
+                </div>
+                <div className="order-history-actions">
+                  <Link to={`/orders/${order.id}`} className="button-secondary">
                     View order
-                  </span>
+                  </Link>
+                  <Link to={`/orders/${order.id}/tracking`} className="account-text-link">
+                    Track order
+                  </Link>
                 </div>
-              </Link>
+              </article>
             ))}
           </div>
         )}
         {!loading && !error && totalPages > 1 && (
-          <div className="mt-10">
+          <div className="mt-8">
             <Pagination
               currentPage={page}
               totalPages={totalPages}
@@ -160,8 +143,13 @@ export const OrdersHistoryPage: React.FC = () => {
           </div>
         )}
       </div>
-    </main>
+    </AccountShell>
   )
 }
 
+export const OrdersHistoryPage: React.FC = () => {
+  const { user, loading } = useAuth()
+  if (loading || !user) return <main className="editorial-page" />
+  return <OrdersWorkspace key={user.id} userId={user.id} />
+}
 export default OrdersHistoryPage

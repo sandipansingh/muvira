@@ -394,6 +394,154 @@ export function RazorpayPayment({
     (session ? session.canPay && !expired : canReview)
   const amount = session ? formatPrice(session.amountPaisa) : ''
 
+  const methodContent = (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={method}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
+      >
+        {method === 'card' && (
+          <CardPaymentFields containerRef={cardContainer} errors={cardErrors} disabled={isBusy} />
+        )}
+        {method === 'upi' &&
+          (sdk.isMobile ? (
+            <div>
+              <h3 className="font-sans text-base font-semibold">Choose a UPI app</h3>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {sdk.apps.map((item) => (
+                  <label
+                    key={item.code}
+                    className={`checkout-app ${app === item.code ? 'checkout-app--selected' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="upi-app"
+                      checked={app === item.code}
+                      onChange={() => setApp(item.code)}
+                      disabled={isBusy}
+                    />
+                    <span>{item.name}</span>
+                  </label>
+                ))}
+              </div>
+              {!sdk.apps.length && (
+                <p className="mt-3 text-sm text-muted">
+                  UPI apps couldn’t be confirmed on this browser. Choose another payment method.
+                </p>
+              )}
+              <p className="mt-4 text-sm text-muted">
+                Approve the payment in your UPI app. Return here to confirm your order.
+              </p>
+            </div>
+          ) : (
+            <div className="checkout-qr-panel">
+              {qrActive && qr?.qr_url ? (
+                <>
+                  <QRCodeSVG
+                    value={qr.qr_url}
+                    size={200}
+                    marginSize={4}
+                    fgColor="var(--color-ink)"
+                    bgColor="var(--color-paper)"
+                    role="img"
+                    title="Scan to pay with any UPI app"
+                    aria-label="Scan to pay with any UPI app"
+                  />
+                  <p className="mt-4 text-sm font-semibold">Scan with any UPI app</p>
+                  <p className="mt-1 text-xs text-muted" role="status">
+                    Waiting for payment ·{' '}
+                    {Math.max(0, Math.ceil((qr.expires_on - now) / 1000 / 60))} min remaining
+                  </p>
+                </>
+              ) : (
+                <>
+                  <QrCode
+                    className="h-12 w-12 text-primary"
+                    strokeWidth={1.25}
+                    aria-hidden="true"
+                  />
+                  <h3 className="mt-4 font-display text-2xl font-normal">
+                    Scan. Pay. Make it yours.
+                  </h3>
+                  <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-muted">
+                    {session
+                      ? 'Your QR code appears when you choose Show QR below.'
+                      : 'Review your order, then generate a secure QR code to scan with any UPI app.'}
+                  </p>
+                </>
+              )}
+            </div>
+          ))}
+        {method === 'netbanking' && (
+          <div>
+            <label
+              className="mb-2 block text-sm font-semibold"
+              id="payment-bank-label"
+              htmlFor="payment-bank"
+            >
+              Choose your bank
+            </label>
+            <Dropdown
+              value={bank}
+              onChange={setBank}
+              id="payment-bank"
+              menuClassName="w-full"
+              aria-label="Choose your bank"
+              disabled={isBusy}
+              options={[
+                { value: '', label: 'Select a bank' },
+                ...Object.entries(sdk.methods?.netbanking ?? {}).map(([value, label]) => ({
+                  value,
+                  label,
+                })),
+              ]}
+              className="w-full"
+              triggerClassName="min-h-12 !text-base"
+            />
+            <p className="mt-4 text-sm leading-relaxed text-muted">
+              Your bank’s secure page will open so you can authorise the payment.
+            </p>
+          </div>
+        )}
+        {method === 'wallet' && (
+          <div>
+            <label
+              className="mb-2 block text-sm font-semibold"
+              id="payment-wallet-label"
+              htmlFor="payment-wallet"
+            >
+              Choose your wallet
+            </label>
+            <Dropdown
+              value={wallet}
+              onChange={setWallet}
+              id="payment-wallet"
+              menuClassName="w-full"
+              aria-label="Choose your wallet"
+              disabled={isBusy}
+              options={[
+                { value: '', label: 'Select a wallet' },
+                ...Object.entries(sdk.methods?.wallet ?? {})
+                  .filter(([, enabled]) => enabled === true)
+                  .map(([value]) => ({
+                    value,
+                    label: value === 'payzapp' ? 'PayZapp' : value,
+                  })),
+              ]}
+              className="w-full"
+              triggerClassName="min-h-12 !text-base"
+            />
+            <p className="mt-4 text-sm leading-relaxed text-muted">
+              You’ll authorise the payment securely with your wallet provider.
+            </p>
+          </div>
+        )}
+      </motion.div>
+    </AnimatePresence>
+  )
   return (
     <section className="checkout-payment" aria-labelledby="payment-heading">
       <form
@@ -405,7 +553,6 @@ export function RazorpayPayment({
         }}
       >
         <div className="checkout-section-heading">
-          <span className="checkout-eyebrow">A thoughtful finish</span>
           <h2 id="payment-heading" className="font-display text-2xl font-normal sm:text-3xl">
             Choose how you pay
           </h2>
@@ -436,180 +583,44 @@ export function RazorpayPayment({
               {available.map((value) => {
                 const Icon = METHODS[value].icon
                 return (
-                  <label
+                  <div
                     key={value}
-                    className={`checkout-method ${method === value ? 'checkout-method--selected' : ''}`}
+                    className={`checkout-method-panel${method === value ? ' is-selected' : ''}`}
                   >
-                    <input
-                      type="radio"
-                      name="payment-method"
-                      value={value}
-                      checked={method === value}
-                      onChange={() => changeMethod(value)}
-                    />
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                    <span>
-                      <span className="block text-sm font-semibold">{METHODS[value].title}</span>
-                      <span className="mt-1 hidden text-xs text-muted sm:block">
-                        {value === 'card' ? 'Enter your card details' : METHODS[value].description}
+                    <label
+                      className={`checkout-method ${method === value ? 'checkout-method--selected' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        value={value}
+                        checked={method === value}
+                        onChange={() => changeMethod(value)}
+                      />
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                      <span>
+                        <span className="block text-sm font-semibold">{METHODS[value].title}</span>
+                        <span className="mt-1 hidden text-xs text-muted sm:block">
+                          {value === 'card'
+                            ? 'Enter your card details'
+                            : METHODS[value].description}
+                        </span>
                       </span>
-                    </span>
-                    {method === value && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}
-                  </label>
+                      {method === value && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}
+                    </label>
+                    {method === value && (
+                      <div
+                        className="checkout-method-content"
+                        role="group"
+                        aria-label={`${METHODS[value].title} details`}
+                      >
+                        {methodContent}
+                      </div>
+                    )}
+                  </div>
                 )
               })}
             </fieldset>
-            <div className="checkout-method-content">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={method}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  {method === 'card' && (
-                    <CardPaymentFields
-                      containerRef={cardContainer}
-                      errors={cardErrors}
-                      disabled={isBusy}
-                    />
-                  )}
-                  {method === 'upi' &&
-                    (sdk.isMobile ? (
-                      <div>
-                        <h3 className="font-sans text-base font-semibold">Choose a UPI app</h3>
-                        <div className="mt-4 grid grid-cols-2 gap-3">
-                          {sdk.apps.map((item) => (
-                            <label
-                              key={item.code}
-                              className={`checkout-app ${app === item.code ? 'checkout-app--selected' : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name="upi-app"
-                                checked={app === item.code}
-                                onChange={() => setApp(item.code)}
-                                disabled={isBusy}
-                              />
-                              <span>{item.name}</span>
-                            </label>
-                          ))}
-                        </div>
-                        {!sdk.apps.length && (
-                          <p className="mt-3 text-sm text-muted">
-                            UPI apps couldn’t be confirmed on this browser. Choose another payment
-                            method.
-                          </p>
-                        )}
-                        <p className="mt-4 text-sm text-muted">
-                          Approve the payment in your UPI app. Return here to confirm your order.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="checkout-qr-panel">
-                        {qrActive && qr?.qr_url ? (
-                          <>
-                            <QRCodeSVG
-                              value={qr.qr_url}
-                              size={200}
-                              marginSize={4}
-                              fgColor="var(--color-ink)"
-                              bgColor="var(--color-paper)"
-                              role="img"
-                              title="Scan to pay with any UPI app"
-                              aria-label="Scan to pay with any UPI app"
-                            />
-                            <p className="mt-4 text-sm font-semibold">Scan with any UPI app</p>
-                            <p className="mt-1 text-xs text-muted" role="status">
-                              Waiting for payment ·{' '}
-                              {Math.max(0, Math.ceil((qr.expires_on - now) / 1000 / 60))} min
-                              remaining
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <QrCode
-                              className="h-12 w-12 text-primary"
-                              strokeWidth={1.25}
-                              aria-hidden="true"
-                            />
-                            <h3 className="mt-4 font-display text-2xl font-normal">
-                              Scan. Pay. Make it yours.
-                            </h3>
-                            <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-muted">
-                              {session
-                                ? 'Your QR code appears when you choose Show QR below.'
-                                : 'Review your order, then generate a secure QR code to scan with any UPI app.'}
-                            </p>
-                          </>
-                        )}
-                      </div>
-                    ))}
-                  {method === 'netbanking' && (
-                    <div>
-                      <label
-                        className="mb-2 block text-sm font-semibold"
-                        id="payment-bank-label"
-                        htmlFor="payment-bank"
-                      >
-                        Choose your bank
-                      </label>
-                      <Dropdown
-                        value={bank}
-                        onChange={setBank}
-                        id="payment-bank"
-                        aria-label="Choose your bank"
-                        disabled={isBusy}
-                        options={[
-                          { value: '', label: 'Select a bank' },
-                          ...Object.entries(sdk.methods?.netbanking ?? {}).map(
-                            ([value, label]) => ({ value, label })
-                          ),
-                        ]}
-                        className="w-full"
-                        triggerClassName="min-h-12 !text-base"
-                      />
-                      <p className="mt-4 text-sm leading-relaxed text-muted">
-                        Your bank’s secure page will open so you can authorise the payment.
-                      </p>
-                    </div>
-                  )}
-                  {method === 'wallet' && (
-                    <div>
-                      <label
-                        className="mb-2 block text-sm font-semibold"
-                        id="payment-wallet-label"
-                        htmlFor="payment-wallet"
-                      >
-                        Choose your wallet
-                      </label>
-                      <Dropdown
-                        value={wallet}
-                        onChange={setWallet}
-                        id="payment-wallet"
-                        aria-label="Choose your wallet"
-                        disabled={isBusy}
-                        options={[
-                          { value: '', label: 'Select a wallet' },
-                          ...Object.entries(sdk.methods?.wallet ?? {})
-                            .filter(([, enabled]) => enabled === true)
-                            .map(([value]) => ({
-                              value,
-                              label: value === 'payzapp' ? 'PayZapp' : value,
-                            })),
-                        ]}
-                        className="w-full"
-                        triggerClassName="min-h-12 !text-base"
-                      />
-                      <p className="mt-4 text-sm leading-relaxed text-muted">
-                        You’ll authorise the payment securely with your wallet provider.
-                      </p>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
           </>
         )}
         <div className="checkout-payment-footer">

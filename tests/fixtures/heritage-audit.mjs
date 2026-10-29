@@ -205,7 +205,7 @@ try {
     })
     await runCase(
       'tracking-invoice',
-      '/orders/fixture-order?shipment=1',
+      '/orders/fixture-order/tracking?shipment=1',
       viewport,
       async (page) => {
         await page.getByText('Picked up', { exact: true }).waitFor()

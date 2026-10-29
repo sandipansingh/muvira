@@ -24,6 +24,7 @@ const routes = [
   ['profile-addresses', '/profile#addresses'],
   ['orders', '/orders'],
   ['order-detail', '/orders/fixture-order'],
+  ['order-tracking', '/orders/fixture-order/tracking?shipment=1'],
   ['order-invoice', '/orders/fixture-order?shipment=1'],
   ['order-success', '/orders/success?orderId=fixture-order'],
   ['order-pending', '/orders/success?orderId=fixture-order&payment=pending'],

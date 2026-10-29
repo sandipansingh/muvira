@@ -463,7 +463,7 @@ for (const engine of ['chromium', 'webkit']) {
     }))
   test(`${engine}: preparing an invoice preserves its action geometry and busy label`, () =>
     visit(engine, '/orders/fixture-order?shipment=1&gatedInvoice=1', async (page) => {
-      const action = page.locator('.customer-heading button')
+      const action = page.getByRole('button', { name: 'Download invoice', exact: true })
       await expect(action).toBeVisible()
       const before = await action.boundingBox()
       await action.click()
