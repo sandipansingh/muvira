@@ -46,7 +46,6 @@ function violations(results: AuditResult[], overlay: boolean): string[] {
     'signin',
     'signup',
     'login-redirect',
-    'checkout-guest',
     'orders-guest',
     'order-detail-guest',
     'order-success-guest',
@@ -112,7 +111,7 @@ test('storefront routes reflow across the full viewport, DPR, and text-size matr
 
 test('mobile and desktop overlays remain reachable without layout failures', async () => {
   const result = await audit(['--overlays'], 'overlay-findings.json')
-  expect(result.results.length).toBe(22)
+  expect(result.results.length).toBe(18)
   expect(violations(result.results, true).slice(0, 30)).toEqual([])
 })
 
@@ -146,7 +145,7 @@ test('protected editors and confirmation dialogs reflow and restore keyboard foc
   const report = JSON.parse(
     await readFile('responsive-audit/redesign/protected-overlays.json', 'utf8')
   )
-  expect(report.results).toHaveLength(78)
+  expect(report.results).toHaveLength(70)
   expect(report.failures).toEqual([])
 })
 

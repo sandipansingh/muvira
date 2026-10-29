@@ -22,10 +22,6 @@ import { useToast } from './ToastContext'
 
 interface CartContextType {
   items: CartItem[]
-  isDrawerOpen: boolean
-  setIsDrawerOpen: (open: boolean) => void
-  openCartDrawer: () => void
-  closeCartDrawer: () => void
   addToCart: (product: ProductDetail | ProductListItem, quantity?: number) => Promise<void>
   removeFromCart: (itemId: string) => Promise<void>
   updateQuantity: (itemId: string, delta: number) => Promise<void>
@@ -60,7 +56,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [items, setItems] = useState<CartItem[]>([])
   const [coupon, setCoupon] = useState<CouponPreview | null>(null)
   const [checkoutQuote, setCheckoutQuote] = useState<CheckoutQuote | null>(null)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const [status, setStatus] = useState<'loading' | 'merging' | 'ready' | 'error'>('loading')
   const [retryCount, setRetryCount] = useState(0)
@@ -184,13 +179,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  const openCartDrawer = () => setIsDrawerOpen(true)
-  const closeCartDrawer = () => setIsDrawerOpen(false)
-
   const addToCart = async (product: ProductDetail | ProductListItem, quantity = 1) => {
     const requestedQuantity = Math.min(Math.max(1, quantity), MAX_CART_ITEM_QTY)
     if (status !== 'ready' || !sessionReady)
       throw new Error('Wait for your cart to load, or retry loading it.')
+    const mutationEpoch = epochRef.current
     setError(null)
 
     if (!user) {
@@ -206,27 +199,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (next.error) throw new Error(next.error)
         return next.items
       })
+      if (mutationEpoch !== epochRef.current)
+        throw new Error('Your account changed. Add the item again.')
       setCoupon(null)
       setCheckoutQuote(null)
-      showToast(product.name, 'success', 'Added to Cart')
-      openCartDrawer()
+      showToast(product.name, 'success', 'Added to bag')
       return
     }
 
-    const mutationEpoch = epochRef.current
     setLoading(true)
     try {
       const response = await cartApiService.addToCart(product.id, requestedQuantity, user!.id)
-      if (mutationEpoch !== epochRef.current) return
+      if (mutationEpoch !== epochRef.current)
+        throw new Error('Your account changed. Add the item again.')
       if (!response.success) throw new Error(response.error.message)
       await refreshServerCart(user!.id)
-      if (mutationEpoch !== epochRef.current) return
+      if (mutationEpoch !== epochRef.current)
+        throw new Error('Your account changed. Add the item again.')
       setCoupon(null)
       setCheckoutQuote(null)
-      showToast(product.name, 'success', 'Added to Cart')
-      openCartDrawer()
+      showToast(product.name, 'success', 'Added to bag')
     } catch (reason) {
-      if (mutationEpoch !== epochRef.current) return
+      if (mutationEpoch !== epochRef.current)
+        throw new Error('Your account changed. Add the item again.')
       const message = reason instanceof Error ? reason.message : 'Unable to add this item to cart.'
       setError(message)
       showToast(message, 'error')
@@ -391,7 +386,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const mutationEpoch = epochRef.current
     setLoading(true)
     try {
-      const quote = await checkoutService.quote('standard', code)
+      const quote = await checkoutService.quote('standard', code, undefined, user.id)
       if (mutationEpoch !== epochRef.current) return false
       if (!quote.coupon) throw new Error('Coupon could not be applied.')
       setCheckoutQuote(quote)
@@ -435,7 +430,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     let active = true
     checkoutService
-      .quote('standard', coupon?.code)
+      .quote('standard', coupon?.code, undefined, user.id)
       .then((quote) => {
         if (active) setCheckoutQuote(quote)
       })
@@ -478,10 +473,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <CartContext.Provider
       value={{
         items: sessionReady ? items : [],
-        isDrawerOpen,
-        setIsDrawerOpen,
-        openCartDrawer,
-        closeCartDrawer,
         addToCart,
         removeFromCart,
         updateQuantity,

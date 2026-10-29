@@ -27,7 +27,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
     onClose()
     openAuth({ mode: 'signin', fallbackFocus: 'menu' })
   }
-  const { itemCount, openCartDrawer } = useCart()
+  const { itemCount } = useCart()
   const [searchQuery, setSearchQuery] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   useEffect(() => {
@@ -60,11 +60,6 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
     navigate(`/search?q=${encodeURIComponent(query)}`)
     setSearchQuery('')
     onClose()
-  }
-
-  const handleOpenCart = () => {
-    onClose()
-    openCartDrawer()
   }
 
   return (
@@ -201,9 +196,9 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
         {/* Bottom actions */}
         <div className="border-t border-line p-4 space-y-4 sm:p-6">
           {/* Cart Row with Bag Icon & Counter */}
-          <button
-            type="button"
-            onClick={handleOpenCart}
+          <Link
+            to="/checkout"
+            onClick={onClose}
             className="flex items-center justify-between w-full py-1 text-sm font-normal text-ink hover:underline transition-colors cursor-pointer"
           >
             <span>Cart</span>
@@ -213,7 +208,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 {itemCount}
               </span>
             </div>
-          </button>
+          </Link>
 
           {/* Sign In CTA or Authenticated User Details */}
           {isAuthenticated ? (

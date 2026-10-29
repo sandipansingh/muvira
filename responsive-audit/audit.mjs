@@ -1,4 +1,5 @@
 import { chromium } from 'playwright'
+import { expect } from 'playwright/test'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { startEditorialServer } from '../tests/fixtures/editorial-server.mjs'
@@ -350,7 +351,9 @@ async function auditRoute(browser, viewport, route) {
       })
       await page.locator('main h1').first().waitFor({ state: 'visible', timeout: 10000 })
       await page.getByRole('button', { name: 'Add to Cart', exact: true }).first().click()
-      await page.getByRole('dialog', { name: 'Shopping cart', exact: true }).waitFor()
+      await expect(
+        page.getByRole('button', { name: 'Add to Cart', exact: true }).first()
+      ).toBeEnabled()
     }
     await page.goto(new URL(route.path, baseUrl).href, {
       waitUntil: 'domcontentloaded',
@@ -376,8 +379,6 @@ async function auditRoute(browser, viewport, route) {
     )
     if (route.action === 'menu')
       await page.getByRole('button', { name: 'Open navigation menu' }).click()
-    if (route.action === 'cart-drawer')
-      await page.getByRole('button', { name: 'Shopping cart' }).click()
     if (route.action === 'header-search')
       await page.getByRole('button', { name: 'Search products' }).click()
     if (route.action === 'filters') await page.getByRole('button', { name: 'Filter' }).click()
@@ -476,7 +477,6 @@ if (overlays) {
   )
   const scenarios = [
     { name: 'menu-open', path: '/', action: 'menu', maxWidth: 1023 },
-    { name: 'cart-drawer-open', path: '/', action: 'cart-drawer' },
     { name: 'header-search-open', path: '/', action: 'header-search' },
     { name: 'filters-open', path: '/shop', action: 'filters', maxWidth: 1023 },
     { name: 'quick-view-open', path: '/shop', action: 'quick-view' },

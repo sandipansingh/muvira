@@ -9,11 +9,14 @@ import type {
   RazorpaySuccessResponse,
 } from '../../types/razorpay'
 
-export function useRazorpayMethods(handlers: {
-  success: (response: RazorpaySuccessResponse) => void
-  error: (response: RazorpayFailureResponse) => void
-  qr: (response: RazorpayQrResponse) => void
-}) {
+export function useRazorpayMethods(
+  handlers: {
+    success: (response: RazorpaySuccessResponse) => void
+    error: (response: RazorpayFailureResponse) => void
+    qr: (response: RazorpayQrResponse) => void
+  },
+  expectedUserId?: string
+) {
   const latest = useRef(handlers)
   latest.current = handlers
   const instance = useRef<RazorpayInstance | null>(null)
@@ -32,7 +35,7 @@ export function useRazorpayMethods(handlers: {
     setMethods(null)
     setError(null)
     setApps([])
-    Promise.all([checkoutService.paymentConfig(), loadRazorpaySdk()])
+    Promise.all([checkoutService.paymentConfig(expectedUserId), loadRazorpaySdk()])
       .then(([config, Razorpay]) => {
         if (!active) return
         const sdk = new Razorpay({ key: config.keyId })
@@ -85,7 +88,7 @@ export function useRazorpayMethods(handlers: {
       clearTimeout(timer)
       instance.current = null
     }
-  }, [attempt, isMobile])
+  }, [attempt, isMobile, expectedUserId])
 
   return { instance, methods, apps, isMobile, error, retry: () => setAttempt((value) => value + 1) }
 }

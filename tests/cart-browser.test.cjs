@@ -24,17 +24,18 @@ import {MemoryRouter,useLocation,useNavigate,Routes,Route} from 'react-router-do
 import {CartProvider,useCart} from '/src/context/CartContext.tsx';
 import {CheckoutPage} from '/src/pages/CheckoutPage.tsx';
 import {ProductDetailPage} from '/src/pages/ProductDetailPage.tsx';
-import {CartDrawer} from '/src/components/cart/CartDrawer.tsx';
-import {CartPage} from '/src/pages/CartPage.tsx';
 import {api} from '/src/lib/api/client.ts';
 window.realApi=api;
+import {checkoutService as ownedCheckout} from '/src/lib/services/checkout.service.ts?ownership';
+import {addressService as ownedAddresses} from '/src/lib/services/address.service.ts?ownership';
+window.ownedCheckout=ownedCheckout;window.ownedAddresses=ownedAddresses;
 import {guestCartStore} from '/src/lib/services/guestCart.store.ts';
 window.auth??={user:null,loading:false};
 window.api??={getCart:async()=>({success:true,data:{items:[]}}),mergeGuestItem:async()=>({success:true,data:{status:'applied'}})};
 window.store=guestCartStore;
 function Probe(){ window.navigate=useNavigate(); window.cart=useCart(); const location=useLocation(); window.locationPath=location.pathname; return React.createElement('pre',{id:'state'}, JSON.stringify({items:window.cart.items,status:window.cart.status,error:window.cart.error})); }
 const root=createRoot(document.getElementById('root'));
-window.render=()=>root.render(React.createElement(MemoryRouter,{initialEntries:[window.startPath??'/checkout']},React.createElement(CartProvider,{},React.createElement(Probe),React.createElement(CartDrawer),window.productMode?React.createElement(Routes,{},React.createElement(Route,{path:'/products/:slug',element:React.createElement(ProductDetailPage)})):window.checkout?React.createElement(CheckoutPage):React.createElement(CartPage))));
+window.render=()=>root.render(React.createElement(MemoryRouter,{initialEntries:[window.startPath??'/checkout']},React.createElement(CartProvider,{},React.createElement(Probe),window.productMode?React.createElement(Routes,{},React.createElement(Route,{path:'/products/:slug',element:React.createElement(ProductDetailPage)})):window.checkout?React.createElement(CheckoutPage):React.createElement(CheckoutPage))));
 window.render();
 `
 
@@ -52,7 +53,7 @@ before(async () => {
     ToastContext: 'const showToast=()=>{};export const useToast=()=>({showToast})',
     'cart.service':
       'export const cartApiService=new Proxy({}, {get:(_,key)=>(...args)=>window.api[key](...args)})',
-    'checkout.service': `export const checkoutService={active:async()=>null,quote:async()=>({subtotalPaisa:100,discountAmountPaisa:0,shippingAmountPaisa:0,totalAmountPaisa:100,items:[]})}`,
+    'checkout.service': `export const checkoutService={paymentConfig:async()=>({keyId:'fixture-key'}),active:async()=>null,quote:async()=>({subtotalPaisa:100,discountAmountPaisa:0,shippingAmountPaisa:0,totalAmountPaisa:100,items:[]})}`,
     'product.service':
       'export const productService=new Proxy({}, {get:(_,key)=>(...args)=>window.products[key](...args)})',
     'review.service':
@@ -496,23 +497,23 @@ test('malformed merge responses keep the original operation pending and frozen',
   }
 })
 
-test('drawer hydration and loading errors never claim the cart is empty', async () => {
+test('bag hydration and loading errors never claim the bag is empty', async () => {
   const { context, page } = await setup()
   try {
     await page.evaluate(() => {
-      window.cart.openCartDrawer()
+      window.checkout = true
       window.api.getCart = () => new Promise((resolve, reject) => (window.rejectCart = reject))
       window.auth = { user: { id: 'account-a' }, loading: false }
       window.render()
     })
     await page.waitForFunction(() => !!window.rejectCart)
-    const drawer = page.getByRole('dialog', { name: 'Shopping cart' })
-    assert.equal(await drawer.getByText('Loading your cart…', { exact: true }).count(), 1)
-    assert.equal(await drawer.getByText('Your cart is empty', { exact: true }).count(), 0)
+    const drawer = page.getByRole('region', { name: 'Order summary' })
+    assert.equal(await drawer.getByText(/Loading your bag|Synchronising your bag/).count(), 1)
+    assert.equal(await drawer.getByText('Your bag is empty', { exact: true }).count(), 0)
     await page.evaluate(() => window.rejectCart(new Error('Offline drawer')))
     await drawer.getByRole('button', { name: 'Retry loading cart' }).waitFor()
     assert.equal(await drawer.getByText('Offline drawer', { exact: true }).count(), 1)
-    assert.equal(await drawer.getByText('Your cart is empty', { exact: true }).count(), 0)
+    assert.equal(await drawer.getByText('Your bag is empty', { exact: true }).count(), 0)
   } finally {
     await context.close()
   }
@@ -606,6 +607,90 @@ test('clear detects another tab pending transfer before mutating the server', as
       await page.evaluate(async () => (await window.store.read()).operations[0].status),
       'pending'
     )
+  } finally {
+    await context.close()
+  }
+})
+
+test('protected checkout and address requests verify the expected account before sending', async () => {
+  const { context, page } = await setup()
+  try {
+    const codes = await page.evaluate(async () => {
+      window.getSession = async () => ({
+        data: { session: { user: { id: 'new-account' }, access_token: 'fixture-token' } },
+      })
+      window.fetch = async () => {
+        throw new Error('Unexpected cross-account fetch')
+      }
+      const requests = [
+        () => window.ownedCheckout.paymentConfig('old-account'),
+        () => window.ownedCheckout.active('old-account'),
+        () => window.ownedCheckout.quote('standard', undefined, undefined, 'old-account'),
+        () =>
+          window.ownedCheckout.prepare(
+            {
+              checkoutRequestId: 'request',
+              addressId: 'address',
+              shippingMethod: 'standard',
+              billingSameAsShipping: true,
+            },
+            'old-account'
+          ),
+        () => window.ownedCheckout.reconcile('order', 'old-account'),
+        () => window.ownedCheckout.verify({}, 'old-account'),
+        () => window.ownedAddresses.getAddresses('old-account'),
+        () => window.ownedAddresses.createAddress({}, 'old-account'),
+      ]
+      return Promise.all(
+        requests.map(async (request) => {
+          try {
+            await request()
+            return 'UNSAFE'
+          } catch (error) {
+            return error.code
+          }
+        })
+      )
+    })
+    assert.deepEqual(codes, Array(8).fill('SESSION_CHANGED'))
+  } finally {
+    await context.close()
+  }
+})
+
+test('an authenticated addition rejects when the account changes before confirmation', async () => {
+  const { context, page } = await setup()
+  try {
+    await page.evaluate(() => {
+      window.api.addToCart = () => new Promise((resolve) => (window.resolveAddition = resolve))
+      window.auth = { user: { id: 'old-account' }, loading: false }
+      window.render()
+    })
+    await page.waitForFunction(() => window.cart.status === 'ready')
+    await page.evaluate(() => {
+      window.cart
+        .addToCart({
+          id: 'product',
+          name: 'Product',
+          price: 100,
+          stock: 20,
+          inStock: true,
+          images: [],
+        })
+        .then(
+          () => (window.addResult = 'UNSAFE'),
+          (error) => (window.addResult = error.message)
+        )
+    })
+    await page.waitForFunction(() => !!window.resolveAddition)
+    await page.evaluate(() => {
+      window.auth = { user: { id: 'new-account' }, loading: false }
+      window.render()
+    })
+    await page.waitForFunction(() => window.cart.status === 'ready')
+    await page.evaluate(() => window.resolveAddition({ success: true, data: {} }))
+    await page.waitForFunction(() => !!window.addResult)
+    assert.match(await page.evaluate(() => window.addResult), /account changed/i)
   } finally {
     await context.close()
   }

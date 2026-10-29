@@ -14,13 +14,6 @@ const cases = [
     button: 'Search products',
     dialog: 'Find something meaningful',
   },
-  { name: 'shopping-bag', path: '/', button: 'Shopping cart', dialog: 'Shopping cart' },
-  {
-    name: 'empty-shopping-bag',
-    path: '/?scenario=empty-cart',
-    button: 'Shopping cart',
-    dialog: 'Shopping cart',
-  },
   { name: 'quick-view', path: '/shop', button: /^Quick view /, dialog: 'A closer look' },
   {
     name: 'mobile-menu',

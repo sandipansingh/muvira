@@ -191,6 +191,7 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
           },
         }
       } else if (url.pathname.endsWith('/create-order')) {
+        if (behavior.gatedPrepare) await new Promise((resolve) => (state.releasePrepare = resolve))
         prepared = true
         data = session()
       } else if (url.pathname.endsWith('/cancel')) {
@@ -229,9 +230,14 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
       : route.abort()
   })
   await page.goto(
-    fixture.origin + '/checkout?step=payment' + (behavior.cartCoupon ? '&cartCoupon=1' : '')
+    fixture.origin +
+      '/checkout?step=payment' +
+      (behavior.cartCoupon ? '&cartCoupon=1' : '') +
+      (behavior.emptyBag ? '&scenario=empty-cart' : '')
   )
   await page.getByRole('heading', { level: 1 }).waitFor()
+  if (behavior.restored)
+    await page.getByRole('button', { name: 'Resume earlier payment', exact: true }).click()
   return { page, requests, state, rawSession: session }
 }
 
@@ -375,6 +381,7 @@ test('mobile UPI launches the selected app and the action fits the viewport', as
     const pay = page.getByRole('button', { name: /Pay ₹599/ })
     await expect(pay).toBeEnabled()
     await screenshot(page, 'payment-mobile')
+    await pay.scrollIntoViewIfNeeded()
     const box = await pay.boundingBox()
     assert.ok(box.x >= 0 && box.x + box.width <= 390 && box.y + box.height <= 844)
     await pay.click()
@@ -395,11 +402,10 @@ test('delivery and billing remain editable until Review payment, with accessible
     viewport: { width: 390, height: 844 },
   })
   try {
-    await page.getByRole('button', { name: 'Edit', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Delivery address' })).toBeVisible()
-    await expect(page.getByRole('radio', { name: /Express shipping/ })).toBeDisabled()
+    await expect(page.getByRole('radio', { name: /Express shipping/ })).toHaveCount(0)
     await page.getByRole('checkbox', { name: 'Same as delivery address' }).uncheck()
-    await page.getByRole('button', { name: 'Continue to payment', exact: true }).click()
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
     await expect(page.getByLabel('Billing name')).toBeFocused()
     await expect(page.getByLabel('Billing name')).toHaveAttribute('aria-invalid', 'true')
     await page.getByLabel('Billing name').fill('Aarohi Sen')
@@ -411,8 +417,7 @@ test('delivery and billing remain editable until Review payment, with accessible
       await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
       false
     )
-    await page.getByRole('button', { name: 'Continue to payment', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Select a payment method' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Payment method' })).toBeVisible()
     assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 0)
     await page.getByRole('button', { name: 'Review payment', exact: true }).click()
     const request = requests.find((r) => r.path.endsWith('/create-order'))
@@ -504,10 +509,9 @@ test('unserviceable delivery and outages prevent review before any payment prepa
 test('standard shipping with unknown estimate remains available and makes no date promise', async () => {
   const { page } = await checkoutPage('chromium', {}, { unknownEstimate: true })
   try {
-    await page.getByRole('button', { name: 'Edit', exact: true }).click()
     await expect(page.getByText('Delivery estimate unavailable.', { exact: true })).toBeVisible()
     await expect(page.getByRole('radio', { name: /Standard shipping/ })).toBeEnabled()
-    await expect(page.getByRole('radio', { name: /Express shipping/ })).toBeDisabled()
+    await expect(page.getByRole('radio', { name: /Express shipping/ })).toHaveCount(0)
   } finally {
     await page.close()
   }
@@ -629,18 +633,15 @@ for (const engine of ['chromium', 'webkit']) {
           if (scale === 2) {
             await page.evaluate(() => document.fonts.ready)
             await page.getByLabel('Expiry', { exact: true }).fill('12/30')
-            await expect(page.locator('.checkout-summary-items p').first()).toHaveCSS(
+            await expect(page.locator('.checkout-bag-item__title').first()).toHaveCSS(
               'font-size',
               '28px'
             )
             const readable = await page.evaluate(() => {
-              const selectors = [
-                '.checkout-summary-items > div > div:last-child',
-                '.checkout-delivery-recap > div',
-              ]
+              const selectors = ['.checkout-bag-item__details', '.checkout-shipping']
               return selectors.map((selector) => {
                 const element = document.querySelector(selector)
-                const text = element.querySelector('p')
+                const text = element.querySelector('.checkout-bag-item__title, p')
                 const style = getComputedStyle(text)
                 const context = document.createElement('canvas').getContext('2d')
                 context.font = [style.fontWeight, style.fontSize, style.fontFamily].join(' ')
@@ -754,15 +755,13 @@ test('cancellation only offers a fresh checkout after confirmed release; uncerta
       await page.getByRole('button', { name: 'Request cancellation', exact: true }).click()
       if (uncertain) {
         await expect(page.getByRole('alert')).toContainText('Payment may still complete')
-        await expect(
-          page.getByRole('button', { name: 'Return to delivery', exact: true })
-        ).toHaveCount(0)
+        await expect(page.getByRole('button', { name: 'Edit checkout', exact: true })).toHaveCount(
+          0
+        )
         await page.getByRole('button', { name: 'Check payment status', exact: true }).click()
         await expect(page.getByRole('button', { name: /Show QR/ })).toBeDisabled()
       } else {
-        await expect(
-          page.getByRole('button', { name: 'Return to delivery', exact: true })
-        ).toBeEnabled()
+        await expect(page.getByRole('button', { name: 'Edit checkout', exact: true })).toBeEnabled()
       }
       assert.equal(requests.filter((request) => request.path.endsWith('/cancel')).length, 1)
       assert.equal(requests.filter((request) => request.path.endsWith('/create-order')).length, 0)
@@ -770,5 +769,55 @@ test('cancellation only offers a fresh checkout after confirmed release; uncerta
     } finally {
       await page.close()
     }
+  }
+})
+
+test('preparation immediately locks bag, address and coupon edits while preserving the payment form', async () => {
+  const { page, requests, state } = await checkoutPage('chromium', {}, { gatedPrepare: true })
+  try {
+    const formId = await page.locator('.checkout-payment form').getAttribute('id')
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await expect.poll(() => requests.filter((r) => r.path.endsWith('/create-order')).length).toBe(1)
+    await expect(page.getByRole('button', { name: 'Increase quantity' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Add new address' })).toBeDisabled()
+    await expect(page.getByRole('textbox', { name: 'Promo code', exact: true })).toBeDisabled()
+    state.releasePrepare()
+    const pay = page.getByRole('button', { name: /Show QR.*₹599/ })
+    await expect(pay).toBeEnabled()
+    assert.equal(await pay.getAttribute('form'), formId)
+    assert.equal(await page.locator('.checkout-payment form').getAttribute('id'), formId)
+    await expect(page.getByRole('button', { name: 'Increase quantity' })).toHaveCount(0)
+  } finally {
+    await page.close()
+  }
+})
+
+test('an existing session recovers with an empty live bag using its frozen items', async () => {
+  const { page, requests } = await checkoutPage('chromium', {}, { restored: true, emptyBag: true })
+  try {
+    await expect(page.getByText('Prepared order item', { exact: true })).toBeVisible()
+    await expect(page.locator('.checkout-bag a[href="/product/test-product"]')).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Your bag is empty' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Show QR.*₹599/ })).toBeEnabled()
+    assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 0)
+  } finally {
+    await page.close()
+  }
+})
+
+test('confirmed cancellation clears a live QR and immediately permits a new review', async () => {
+  const { page, requests } = await checkoutPage('chromium')
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await page.getByRole('button', { name: /Show QR.*₹599/ }).click()
+    await expect(page.getByRole('img', { name: /Scan.*UPI/i })).toBeVisible()
+    await page.getByRole('button', { name: 'Request cancellation', exact: true }).click()
+    await page.getByRole('button', { name: 'Edit checkout', exact: true }).click()
+    await expect(page.getByRole('img', { name: /Scan.*UPI/i })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Review payment', exact: true })).toBeEnabled()
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await expect.poll(() => requests.filter((r) => r.path.endsWith('/create-order')).length).toBe(2)
+  } finally {
+    await page.close()
   }
 })

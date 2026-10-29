@@ -18,7 +18,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = false }) => {
-  const { itemCount, openCartDrawer } = useCart()
+  const { itemCount } = useCart()
   const { isAuthenticated } = useAuth()
   const { openAuth } = useAuthDialog()
   const { categories } = useStoreCollections()
@@ -134,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
                 <ShieldCheck className="h-4 w-4" />
                 Your Muvira order
               </span>
-              <Link to="/cart">
+              <Link to="/checkout">
                 <ArrowLeft className="h-4 w-4" />
                 Back to bag
               </Link>
@@ -163,9 +163,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
                   <span>Sign in</span>
                 </button>
               )}
-              <button
-                type="button"
-                onClick={openCartDrawer}
+              <Link
+                to="/checkout"
                 className="header-action"
                 aria-label="Shopping cart"
                 data-auth-focus="bag"
@@ -173,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
                 <ShoppingBag className="h-5 w-5" />
                 <span>Bag</span>
                 <span className="header-cart-count">{itemCount}</span>
-              </button>
+              </Link>
             </div>
           )}
         </div>

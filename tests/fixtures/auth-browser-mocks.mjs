@@ -13,7 +13,7 @@ export async function gate(name) {
   control.calls[name] = (control.calls[name] || 0) + 1;
   if (control.delay[name]) await new Promise(done => (control.pending[name] ||= []).push(done));
 }
-function signedIn() { session = {access_token:'fixture-only'}; sessionStorage.setItem('auth-fixture-session','1'); listeners.forEach(fn => fn('SIGNED_IN',session)); return session; }
+function signedIn() { control.epoch=(control.epoch||0)+1; session = {access_token:'fixture-only'}; sessionStorage.setItem('auth-fixture-session','1'); listeners.forEach(fn => fn('SIGNED_IN',session)); return session; }
 export const supabase = {auth:{
   getSession: async () => ({data:{session}}),
   updateUser: async () => ({error:null}),

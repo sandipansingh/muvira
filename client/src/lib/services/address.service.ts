@@ -10,12 +10,12 @@ export const addressService = {
   /**
    * Fetches saved shipping addresses for authenticated user.
    */
-  async getAddresses(): Promise<ApiResponse<Address[]>> {
+  async getAddresses(expectedUserId?: string): Promise<ApiResponse<Address[]>> {
     const res = await api.get<{
       success: boolean
       data?: Record<string, unknown>[]
       error?: { code: string; message: string }
-    }>('/api/addresses', true)
+    }>('/api/addresses', true, expectedUserId)
 
     if (!res.success || !res.data) {
       return {
@@ -33,7 +33,10 @@ export const addressService = {
   /**
    * Creates a new shipping address in user's address book.
    */
-  async createAddress(addressData: Omit<Address, 'id'>): Promise<ApiResponse<Address>> {
+  async createAddress(
+    addressData: Omit<Address, 'id'>,
+    expectedUserId?: string
+  ): Promise<ApiResponse<Address>> {
     const body = {
       full_name: addressData.fullName,
       phone: addressData.phone,
@@ -50,7 +53,7 @@ export const addressService = {
       success: boolean
       data?: Record<string, unknown>
       error?: { code: string; message: string }
-    }>('/api/addresses', body, true)
+    }>('/api/addresses', body, true, expectedUserId)
 
     if (!res.success || !res.data) {
       return {

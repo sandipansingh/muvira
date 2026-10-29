@@ -1,20 +1,22 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Check, MapPin } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useAuthDialog } from '../context/AuthDialogContext'
 import { useCart } from '../context/CartContext'
 import { addressService } from '../lib/services/address.service'
 import { checkoutService } from '../lib/services/checkout.service'
+import { orderApiService } from '../lib/services/order.service'
 import { useCheckoutSession } from '../lib/hooks/useCheckoutSession'
 import { validateCheckoutAddress } from '../lib/validators/checkout.validator'
-import { FlowHeader } from '../components/checkout/FlowHeader'
 import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
 import {
   BillingDetails,
   EMPTY_BILLING_ADDRESS,
   billingErrors,
 } from '../components/checkout/BillingDetails'
-import { CheckoutSummary } from '../components/checkout/CheckoutSummary'
+import { CheckoutBag, CheckoutTotals } from '../components/checkout/CheckoutSummary'
+import { CouponInput } from '../components/cart/CouponInput'
 import { RazorpayPayment } from '../components/checkout/RazorpayPayment'
 import { Button } from '../components/ui/Button'
 import type { AddressData } from '../components/checkout/AddressSelector'
@@ -36,75 +38,166 @@ function toAddressData(address: Address): AddressData {
   }
 }
 
-export function CheckoutPage() {
-  const [params, setParams] = useSearchParams()
-  const { user, loading: authLoading } = useAuth()
+function AccountCard({ children }: { children?: ReactNode }) {
+  const { user } = useAuth()
+  const { openAuth } = useAuthDialog()
+  return (
+    <section className="checkout-section checkout-account" aria-labelledby="account-heading">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 id="account-heading" className="journey-section-title">
+          {user ? 'Your account' : 'Sign in to checkout'}
+        </h2>
+        {user ? (
+          <Check className="h-4 w-4 text-primary" aria-hidden="true" />
+        ) : (
+          <Button
+            variant="secondary"
+            data-auth-focus="account"
+            onClick={(event) => openAuth({ mode: 'signin', trigger: event.currentTarget })}
+          >
+            Sign in
+          </Button>
+        )}
+      </div>
+      <p className="mt-2 break-words text-sm text-muted">
+        {user
+          ? user.email
+          : 'View and edit your bag here. Sign in to arrange delivery and payment.'}
+      </p>
+      {children}
+    </section>
+  )
+}
+
+function CheckoutLayout({ left, right }: { left: ReactNode; right: ReactNode }) {
+  return (
+    <main className="checkout-page checkout-custom unified-checkout">
+      <h1 className="checkout-page-title">Checkout</h1>
+      <div className="checkout-workspace">
+        <div className="checkout-left">{left}</div>
+        <div className="checkout-right">{right}</div>
+      </div>
+    </main>
+  )
+}
+
+function SignedOutCheckout() {
+  return (
+    <CheckoutLayout
+      left={
+        <>
+          <AccountCard />
+          <section className="checkout-section checkout-shipping">
+            <h2 className="journey-section-title">Shipping information</h2>
+            <p className="mt-3 text-sm text-muted">Sign in to choose or save a delivery address.</p>
+          </section>
+          <section className="checkout-section checkout-payment">
+            <h2 className="journey-section-title">Payment method</h2>
+            <p className="mt-3 text-sm text-muted">
+              Secure payment options are available after sign in.
+            </p>
+          </section>
+          <section className="checkout-section checkout-promo">
+            <h2 className="journey-section-title">Promo code</h2>
+            <p className="mt-3 text-sm text-muted">Sign in to apply a promo code.</p>
+          </section>
+        </>
+      }
+      right={
+        <>
+          <CheckoutBag quote={null} session={null} disabled={false} authenticated={false} />
+          <CheckoutTotals quote={null} session={null} loading={false}>
+            <Button disabled className="w-full">
+              Review payment
+            </Button>
+          </CheckoutTotals>
+        </>
+      }
+    />
+  )
+}
+
+function AuthenticatedCheckout({ accountId }: { accountId: string }) {
+  const { user } = useAuth()
+  const cart = useCart()
   const {
     items,
     coupon,
     hasUnmergedItems,
     status: cartStatus,
-    error: cartError,
-    retry: retryCart,
+    loading: cartBusy,
     resetAfterOrder,
-  } = useCart()
-  const payment = useCheckoutSession(user?.id)
-  const { session } = payment
-  const step = session ? 'payment' : params.get('step') === 'payment' ? 'payment' : 'shipping'
+  } = cart
+  const payment = useCheckoutSession(accountId)
+  const { session, previousSession } = payment
+  const [viewingPrevious, setViewingPrevious] = useState(false)
+  const [cancellingPrevious, setCancellingPrevious] = useState(false)
+  const cancellingPreviousRef = useRef(false)
+  const [previousError, setPreviousError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const mounted = useRef(true)
   const completed = useRef<string | null>(null)
+  const preparing = useRef(false)
+  const [preparingPayment, setPreparingPayment] = useState(false)
+  const [footerOutlet, setFooterOutlet] = useState<HTMLDivElement | null>(null)
   const [addresses, setAddresses] = useState<AddressData[]>([])
   const [addressId, setAddressId] = useState('')
   const [addressLoading, setAddressLoading] = useState(true)
   const [addressError, setAddressError] = useState<string | null>(null)
   const [addressAttempt, setAddressAttempt] = useState(0)
-  const [shipping, setShipping] = useState<ShippingFormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    city: '',
-    state: 'West Bengal',
-    pincode: '',
-    description: '',
+  const [shipping, setShipping] = useState<ShippingFormData>(() => {
+    const [firstName = '', ...rest] = (user?.fullName || '').split(' ')
+    return {
+      firstName,
+      lastName: rest.join(' '),
+      email: user?.email || '',
+      phone: user?.phone || '',
+      city: '',
+      state: 'West Bengal',
+      pincode: '',
+      description: '',
+    }
   })
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>('standard')
   const [sameBilling, setSameBilling] = useState(true)
   const [billing, setBilling] = useState<BillingAddressInput>(EMPTY_BILLING_ADDRESS)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [billingFieldErrors, setBillingFieldErrors] = useState<Record<string, string>>({})
-  const [quote, setQuote] = useState<CheckoutQuote | null>(null)
-  const [quoteLoading, setQuoteLoading] = useState(true)
+  const [quoteResult, setQuoteResult] = useState<{ key: string; value: CheckoutQuote } | null>(null)
+  const [quotePending, setQuotePending] = useState(true)
   const [quoteError, setQuoteError] = useState<string | null>(null)
   const [quoteAttempt, setQuoteAttempt] = useState(0)
   const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
   const [deliveryError, setDeliveryError] = useState<string | null>(null)
+  const quoteKey = JSON.stringify([items, coupon?.code, shippingMethod, addressId, quoteAttempt])
+  const quote = quoteResult?.key === quoteKey && !cartBusy ? quoteResult.value : null
+  const quoteLoading = !session && (quotePending || (!!items.length && !quote && !quoteError))
+  const locked =
+    !!session || preparingPayment || (!!payment.error && !previousSession) || payment.loading
+  const editsDisabled = locked || cartBusy || cartStatus !== 'ready' || saving
 
   useEffect(() => {
-    if (!user) return
-    const [firstName = '', ...rest] = (user.fullName || '').split(' ')
-    setShipping((current) => ({
-      ...current,
-      firstName: current.firstName || firstName,
-      lastName: current.lastName || rest.join(' '),
-      email: user.email || '',
-      phone: current.phone || user.phone || '',
-    }))
-  }, [user])
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
   useEffect(() => {
-    if (!user) return
     let active = true
     setAddressLoading(true)
     setAddressError(null)
     addressService
-      .getAddresses()
+      .getAddresses(accountId)
       .then((result) => {
         if (!active) return
         if (!result.success) throw new Error(result.error.message)
         const next = result.data.map(toAddressData)
         setAddresses(next)
-        setAddressId(
-          (current) => current || next.find((address) => address.isDefault)?.id || next[0]?.id || ''
+        setAddressId((current) =>
+          next.some((address) => address.id === current)
+            ? current
+            : next.find((address) => address.isDefault)?.id || next[0]?.id || ''
         )
       })
       .catch((reason: unknown) => {
@@ -119,80 +212,85 @@ export function CheckoutPage() {
     return () => {
       active = false
     }
-  }, [user, addressAttempt])
+  }, [accountId, addressAttempt])
   useEffect(() => {
-    if (!user || !items.length || hasUnmergedItems || session) {
-      setQuoteLoading(false)
+    setQuoteError(null)
+    if (
+      !items.length ||
+      hasUnmergedItems ||
+      session ||
+      cartBusy ||
+      cartStatus !== 'ready' ||
+      addressLoading ||
+      saving
+    ) {
+      setQuotePending(false)
       return
     }
     let active = true
-    setQuoteLoading(true)
-    setQuoteError(null)
+    setQuotePending(true)
     checkoutService
-      .quote(shippingMethod, coupon?.code, addressId || undefined)
+      .quote(shippingMethod, coupon?.code, addressId || undefined, accountId)
       .then((result) => {
-        if (active) setQuote(result)
+        if (active) setQuoteResult({ key: quoteKey, value: result })
       })
       .catch((reason: unknown) => {
         if (active) {
-          setQuote(null)
+          setQuoteResult(null)
           setQuoteError(
             reason instanceof Error ? reason.message : 'Unable to calculate your total.'
           )
         }
       })
       .finally(() => {
-        if (active) setQuoteLoading(false)
+        if (active) setQuotePending(false)
       })
     return () => {
       active = false
     }
   }, [
-    user,
-    items,
+    accountId,
+    quoteKey,
+    items.length,
     hasUnmergedItems,
     session,
+    cartBusy,
+    cartStatus,
+    addressLoading,
+    saving,
     shippingMethod,
     coupon?.code,
     addressId,
-    quoteAttempt,
   ])
-  useEffect(() => {
-    if (!payment.loading && !payment.error && !session && cartStatus === 'ready' && !items.length)
-      navigate('/cart', { replace: true })
-  }, [payment.loading, payment.error, session, cartStatus, items.length, navigate])
   useEffect(() => {
     if (session?.state === 'paid' && completed.current !== session.orderId) {
       completed.current = session.orderId
-      resetAfterOrder()
+      if (viewingPrevious) cart.retry()
+      else resetAfterOrder()
       navigate(`/orders/success?orderId=${encodeURIComponent(session.orderId)}`, { replace: true })
     }
-  }, [session, resetAfterOrder, navigate])
+  }, [session, resetAfterOrder, navigate, viewingPrevious, cart])
 
   const canReview =
+    !previousSession &&
+    !payment.error &&
     !!quote &&
     quote.deliveryAvailable === true &&
     !quote.isPreview &&
     !quoteLoading &&
     !quoteError &&
     !hasUnmergedItems &&
-    !payment.loading &&
-    !payment.error &&
+    !locked &&
+    !cartBusy &&
+    cartStatus === 'ready' &&
     !addressLoading &&
     !addressError &&
-    !!addressId
-  const validateDelivery = () => {
-    if (sameBilling) setBillingFieldErrors({})
-    else {
-      const errors = billingErrors(billing)
-      setBillingFieldErrors(errors)
-      const first = Object.keys(errors)[0]
-      if (first) {
-        document.getElementById(`billing-${first}`)?.focus()
-        return false
-      }
-    }
-    if (addressId) return true
+    !!addressId &&
+    !saving &&
+    items.length > 0 &&
+    items.every((item) => item.inStock && item.quantity <= item.availableStock)
+  const saveAddress = async () => {
+    if (savingRef.current || preparing.current || locked || cartBusy) return
     const result = validateCheckoutAddress({
       fullName: `${shipping.firstName} ${shipping.lastName}`.trim(),
       phone: shipping.phone,
@@ -207,27 +305,16 @@ export function CheckoutPage() {
     )
     setFieldErrors(errors)
     const first = Object.keys(errors)[0]
-    if (first) document.getElementById(`shipping-${first}`)?.focus()
-    return result.isValid
-  }
-
-  const continueToPayment = async () => {
-    if (
-      saving ||
-      !quote ||
-      quoteLoading ||
-      quoteError ||
-      payment.error ||
-      hasUnmergedItems ||
-      !validateDelivery()
-    )
+    if (first) {
+      document.getElementById(`shipping-${first}`)?.focus()
       return
+    }
+    savingRef.current = true
     setSaving(true)
     setDeliveryError(null)
     try {
-      let deliveryAddressId = addressId
-      if (!addressId) {
-        const created = await addressService.createAddress({
+      const created = await addressService.createAddress(
+        {
           fullName: `${shipping.firstName} ${shipping.lastName}`.trim(),
           phone: shipping.phone,
           line1: shipping.description,
@@ -238,140 +325,201 @@ export function CheckoutPage() {
           country: 'India',
           label: 'Delivery address',
           isDefault: !addresses.length,
-        })
-        if (!created.success) throw new Error(created.error.message)
-        setAddresses((current) => [...current, toAddressData(created.data)])
-        setAddressId(created.data.id)
-        deliveryAddressId = created.data.id
-      }
-      const checked = await checkoutService.quote(shippingMethod, coupon?.code, deliveryAddressId)
-      setQuote(checked)
-      if (checked.deliveryAvailable !== true)
-        throw new Error(
-          'This delivery method is unavailable for your address. Choose another method or address.'
-        )
-      setParams({ step: 'payment' })
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    } catch (reason) {
-      setDeliveryError(
-        reason instanceof Error ? reason.message : 'Unable to save delivery details.'
+        },
+        accountId
       )
+      if (!mounted.current) return
+      if (!created.success) throw new Error(created.error.message)
+      setAddresses((current) => [
+        ...current.map((address) =>
+          created.data.isDefault ? { ...address, isDefault: false } : address
+        ),
+        toAddressData(created.data),
+      ])
+      setAddressId(created.data.id)
+      setQuoteAttempt((value) => value + 1)
+    } catch (reason) {
+      if (mounted.current)
+        setDeliveryError(
+          reason instanceof Error
+            ? reason.message
+            : 'Unable to save your address. Try saving again.'
+        )
     } finally {
-      setSaving(false)
+      savingRef.current = false
+      if (mounted.current) setSaving(false)
+    }
+  }
+  const prepare = async () => {
+    if (!canReview || preparing.current || savingRef.current)
+      throw new Error('Review delivery details and your total before continuing.')
+    const errors = sameBilling ? {} : billingErrors(billing)
+    setBillingFieldErrors(errors)
+    const first = Object.keys(errors)[0]
+    if (first) {
+      document.getElementById(`billing-${first}`)?.focus()
+      throw new Error('Complete your billing details.')
+    }
+    preparing.current = true
+    setPreparingPayment(true)
+    try {
+      await payment.prepare({
+        addressId,
+        shippingMethod,
+        couponCode: coupon?.code,
+        billingSameAsShipping: sameBilling,
+        ...(!sameBilling ? { billing } : {}),
+      })
+    } finally {
+      preparing.current = false
+      if (mounted.current) setPreparingPayment(false)
+    }
+  }
+  const cancelPrevious = async () => {
+    if (!previousSession || cancellingPreviousRef.current) return
+    cancellingPreviousRef.current = true
+    setCancellingPrevious(true)
+    setPreviousError(null)
+    try {
+      await orderApiService.cancelCheckout(previousSession.orderId, accountId)
+      const confirmed = await checkoutService.reconcile(previousSession.orderId, accountId)
+      if (!mounted.current) return
+      if (!['released', 'paid'].includes(confirmed.state))
+        throw new Error(
+          'The earlier payment is still being confirmed. Check its status before starting a new payment.'
+        )
+      payment.clearReleased()
+      cart.retry()
+      setQuoteAttempt((value) => value + 1)
+    } catch (reason) {
+      if (mounted.current)
+        setPreviousError(
+          reason instanceof Error
+            ? reason.message
+            : 'Unable to cancel the earlier payment. Please retry.'
+        )
+    } finally {
+      cancellingPreviousRef.current = false
+      if (mounted.current) setCancellingPrevious(false)
     }
   }
 
-  const prepare = async () => {
-    if (!canReview || !validateDelivery())
-      throw new Error('Review delivery details and your total before continuing.')
-    await payment.prepare({
-      addressId,
-      shippingMethod,
-      couponCode: coupon?.code,
-      billingSameAsShipping: sameBilling,
-      ...(!sameBilling ? { billing } : {}),
-    })
-  }
-
-  const selected = addresses.find((address) => address.id === addressId)
-  const shippingSnapshot = session?.snapshot.shipping
   const restart = () => {
+    if (session?.state !== 'released') return
     payment.clearReleased()
-    setParams({ step: 'shipping' })
+    setViewingPrevious(false)
     setQuoteAttempt((value) => value + 1)
   }
-
-  if (authLoading || (payment.loading && !session))
-    return (
-      <main className="editorial-page py-16">
-        <div className="editorial-container" role="status">
-          Preparing your checkout…
-        </div>
-      </main>
-    )
-  if (cartStatus !== 'ready' && !session)
-    return (
-      <main className="editorial-page py-16">
-        <div className="editorial-container" role="status">
-          <p>{cartStatus === 'error' ? cartError : 'Loading your bag…'}</p>
-          {cartStatus === 'error' && (
-            <Button onClick={retryCart} className="mt-4">
-              Retry loading cart
-            </Button>
-          )}
-        </div>
-      </main>
-    )
-
   return (
-    <main className="checkout-page journey-checkout checkout-custom bg-background pb-28 lg:pb-20">
-      <div className="layout-container">
-        <FlowHeader
-          compact
-          currentStep={step}
-          onBack={() => {
-            if (session) navigate('/orders')
-            else if (step === 'payment') setParams({ step: 'shipping' })
-            else navigate('/cart')
-          }}
-        />
-        {(payment.error || quoteError || hasUnmergedItems) && (
-          <div className="checkout-notice mb-6" role="alert">
-            <p>
-              {payment.error ||
-                quoteError ||
-                'Some bag items need attention. Return to your bag before continuing.'}
-            </p>
-            {payment.error ? (
+    <CheckoutLayout
+      left={
+        <>
+          <AccountCard>
+            {previousSession && (
+              <div className="mt-4 border-t border-line pt-4 text-sm">
+                <p className="text-muted">
+                  An earlier payment is unfinished. This page shows your current bag. Cancel that
+                  payment before paying for this bag, or choose to resume it.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Button
+                    variant="secondary"
+                    disabled={cancellingPrevious}
+                    onClick={() => {
+                      setViewingPrevious(true)
+                      payment.resumePrevious()
+                    }}
+                  >
+                    Resume earlier payment
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    isLoading={cancellingPrevious}
+                    onClick={() => void cancelPrevious()}
+                  >
+                    Cancel earlier payment
+                  </Button>
+                  <Link
+                    to={`/orders/${encodeURIComponent(previousSession.orderId)}`}
+                    className="inline-flex min-h-11 items-center px-2 text-primary"
+                  >
+                    View earlier order
+                  </Link>
+                </div>
+                {previousError && (
+                  <p className="mt-3 text-danger" role="alert">
+                    {previousError}
+                  </p>
+                )}
+              </div>
+            )}
+            {viewingPrevious && session && (
               <Button
                 variant="secondary"
                 className="mt-3"
                 onClick={() => {
-                  void payment.refresh()
+                  payment.returnToBag()
+                  setViewingPrevious(false)
                 }}
               >
-                Check current payment
+                Back to current bag
               </Button>
-            ) : quoteError ? (
-              <Button
-                variant="secondary"
-                className="mt-3"
-                onClick={() => setQuoteAttempt((value) => value + 1)}
-              >
-                Retry calculating total
-              </Button>
-            ) : (
-              <Link to="/cart" className="mt-3 inline-flex min-h-11 items-center text-primary">
-                Return to bag
-              </Link>
             )}
-          </div>
-        )}
-        {!session && quote?.deliveryAvailable === false && (
-          <p className="checkout-notice mb-6" role="alert">
-            This delivery method is unavailable for your address. Choose another method or address.
-          </p>
-        )}
-        <div className="checkout-workspace">
-          <div className="min-w-0 space-y-6">
-            {step === 'shipping' ? (
-              <>
-                {addressLoading ? (
-                  <div className="checkout-section" role="status">
-                    Loading delivery addresses…
-                  </div>
-                ) : addressError ? (
-                  <div className="checkout-notice" role="alert">
-                    {addressError}
-                    <Button
-                      variant="secondary"
-                      className="mt-3"
-                      onClick={() => setAddressAttempt((value) => value + 1)}
-                    >
-                      Retry addresses
-                    </Button>
-                  </div>
-                ) : (
+          </AccountCard>
+          <section
+            className="checkout-section checkout-shipping"
+            aria-labelledby="shipping-info-heading"
+          >
+            <h2 id="shipping-info-heading" className="journey-section-title">
+              Shipping information
+            </h2>
+            {session ? (
+              <div className="mt-4 flex gap-3 text-sm">
+                <MapPin className="h-5 w-5 shrink-0 text-muted" aria-hidden="true" />
+                <div>
+                  <p className="font-semibold">{session.snapshot.shipping.fullName}</p>
+                  <p className="mt-1 text-muted">
+                    {[
+                      session.snapshot.shipping.line1,
+                      session.snapshot.shipping.line2,
+                      session.snapshot.shipping.city,
+                      session.snapshot.shipping.state,
+                      session.snapshot.shipping.pincode,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </p>
+                  <p className="mt-1 text-muted">{session.snapshot.shipping.phone}</p>
+                  <p className="mt-3 text-xs text-muted">
+                    Delivery details are fixed for this payment.
+                  </p>
+                </div>
+              </div>
+            ) : addressLoading ? (
+              <p className="mt-4 text-sm text-muted" role="status">
+                Loading delivery addresses…
+              </p>
+            ) : addressError ? (
+              <div role="alert" className="mt-4 text-sm text-danger">
+                <p>{addressError}</p>
+                <Button
+                  variant="secondary"
+                  className="mt-3"
+                  onClick={() => setAddressAttempt((value) => value + 1)}
+                >
+                  Retry addresses
+                </Button>
+              </div>
+            ) : (
+              <fieldset disabled={editsDisabled} className="min-w-0">
+                <legend className="sr-only">Delivery and billing details</legend>
+                <form
+                  noValidate
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    void saveAddress()
+                  }}
+                >
                   <ShippingSection
                     shippingData={shipping}
                     onShippingDataChange={setShipping}
@@ -382,7 +530,13 @@ export function CheckoutPage() {
                     selectedAddressId={addressId}
                     onSelectSavedAddress={setAddressId}
                     errors={fieldErrors}
+                    saving={saving}
                   />
+                </form>
+                {deliveryError && (
+                  <p role="alert" className="mb-4 text-sm text-danger">
+                    {deliveryError} Try Save address again.
+                  </p>
                 )}
                 <BillingDetails
                   sameAsShipping={sameBilling}
@@ -391,92 +545,85 @@ export function CheckoutPage() {
                   onChange={setBilling}
                   errors={billingFieldErrors}
                 />
-                {deliveryError && (
-                  <p role="alert" className="checkout-notice">
-                    {deliveryError}
-                  </p>
-                )}
-              </>
-            ) : (
-              <>
-                <section className="checkout-delivery-recap" aria-label="Delivery details">
-                  <MapPin className="mt-1 h-5 w-5 text-muted" aria-hidden="true" />
-                  <div className="min-w-0 flex-1">
-                    <span className="checkout-eyebrow">Delivering to</span>
-                    <p className="text-sm font-semibold">
-                      {shippingSnapshot?.fullName ??
-                        selected?.fullName ??
-                        'Choose a delivery address'}
-                    </p>
-                    <p className="mt-1 text-sm leading-relaxed text-muted">
-                      {shippingSnapshot
-                        ? `${shippingSnapshot.line1}, ${shippingSnapshot.city} ${shippingSnapshot.pincode}`
-                        : selected
-                          ? `${selected.streetAddress}, ${selected.city} ${selected.pincode}`
-                          : 'Return to delivery to complete your details.'}
-                    </p>
-                  </div>
-                  {!session ? (
-                    <Button variant="ghost" onClick={() => setParams({ step: 'shipping' })}>
-                      Edit
-                    </Button>
-                  ) : (
-                    <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                  )}
-                </section>
-                <RazorpayPayment
-                  session={session}
-                  onSession={payment.setSession}
-                  onPrepare={prepare}
-                  canReview={canReview}
-                  setupError={payment.error}
-                  onRestart={restart}
-                  previewTotalPaisa={quote?.totalAmountPaisa}
-                />
-                {session && (
-                  <p className="px-2 text-xs leading-relaxed text-muted">
-                    Your delivery details and total are fixed for this payment. If you need changes,
-                    request cancellation and wait for confirmation before starting again.
-                  </p>
-                )}
-              </>
+              </fieldset>
             )}
-          </div>
-          <div className="min-w-0">
-            <CheckoutSummary
-              items={items}
-              quote={quote}
-              session={session}
-              loading={quoteLoading}
-              action={
-                step === 'shipping' ? (
-                  <Button
-                    size="xl"
-                    onClick={() => {
-                      void continueToPayment()
-                    }}
-                    isLoading={saving}
-                    disabled={
-                      !quote ||
-                      quoteLoading ||
-                      !!quoteError ||
-                      !!payment.error ||
-                      addressLoading ||
-                      !!addressError ||
-                      hasUnmergedItems
-                    }
-                    className="w-full"
-                  >
-                    Continue to payment
-                  </Button>
-                ) : undefined
-              }
-            />
-          </div>
-        </div>
-      </div>
-    </main>
+            {!session && quote?.deliveryAvailable === false && (
+              <p className="mt-4 text-sm text-danger" role="alert">
+                This delivery method is unavailable for your address. Choose another method or
+                address.
+              </p>
+            )}
+          </section>
+          <RazorpayPayment
+            accountId={accountId}
+            isResuming={viewingPrevious}
+            session={session}
+            onSession={payment.setSession}
+            onPrepare={prepare}
+            canReview={canReview}
+            setupError={payment.error}
+            onRestart={restart}
+            previewTotalPaisa={quote?.totalAmountPaisa}
+            actionOutlet={footerOutlet}
+          />
+          <section className="checkout-section checkout-promo" aria-labelledby="promo-heading">
+            <h2 id="promo-heading" className="journey-section-title mb-4">
+              Promo code
+            </h2>
+            {session ? (
+              <p className="text-sm text-muted">
+                {session.snapshot.couponCode
+                  ? `${session.snapshot.couponCode} applied`
+                  : 'No promo code on this order.'}
+              </p>
+            ) : (
+              <fieldset
+                className="min-w-0"
+                disabled={editsDisabled || hasUnmergedItems || !items.length}
+              >
+                <legend className="sr-only">Apply a promo code</legend>
+                <CouponInput disabled={editsDisabled || hasUnmergedItems || !items.length} />
+              </fieldset>
+            )}
+          </section>
+        </>
+      }
+      right={
+        <>
+          <CheckoutBag quote={quote} session={session} disabled={editsDisabled} authenticated />
+          <CheckoutTotals
+            quote={quote}
+            session={session}
+            loading={quoteLoading}
+            error={session ? null : quoteError}
+            onRetry={() => setQuoteAttempt((value) => value + 1)}
+          >
+            {payment.loading && (
+              <p role="status" className="text-sm text-muted">
+                Checking your current payment…
+              </p>
+            )}
+            {payment.error && (
+              <Button variant="secondary" onClick={() => void payment.refresh()}>
+                Check current payment
+              </Button>
+            )}
+            <div ref={setFooterOutlet} className="checkout-payment-outlet" />
+          </CheckoutTotals>
+        </>
+      }
+    />
   )
 }
 
+export function CheckoutPage() {
+  const { user, loading } = useAuth()
+  if (loading)
+    return (
+      <main className="unified-checkout p-6" role="status">
+        Loading your checkout…
+      </main>
+    )
+  return user ? <AuthenticatedCheckout key={user.id} accountId={user.id} /> : <SignedOutCheckout />
+}
 export default CheckoutPage

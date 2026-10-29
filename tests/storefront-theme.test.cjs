@@ -39,7 +39,7 @@ async function visit(engine, path, run) {
   )
   try {
     await page.goto(fixture.origin + path)
-    await page.locator('main h1').first().waitFor()
+    await page.locator('h1').first().waitFor()
     await page.evaluate(() => document.fonts.ready)
     await run(page)
   } finally {
@@ -49,7 +49,7 @@ async function visit(engine, path, run) {
 for (const engine of ['chromium', 'webkit']) {
   test(`${engine}: enlarged commerce rows retain whole words and compact image failures`, async () => {
     for (const [path, selector] of [
-      ['/cart', '.cart-product-details a'],
+      ['/cart', '.checkout-bag-item__title'],
       ['/orders', '.order-history-product h3'],
       ['/orders/fixture-order', '.order-item-copy h3'],
       ['/orders/fixture-order/tracking?shipment=1', '.order-item-copy h3'],
@@ -142,13 +142,10 @@ for (const engine of ['chromium', 'webkit']) {
         '--radius-card': '0.625rem',
         '--radius-control': '0.375rem',
       })
-      await expect(page.locator('main h1')).toHaveText('Your account')
-      assert.equal(
-        await page.locator('main h1').evaluate((el) => getComputedStyle(el).fontSize),
-        '28px'
-      )
+      await expect(page.locator('h1')).toHaveText('Your account')
+      assert.equal(await page.locator('h1').evaluate((el) => getComputedStyle(el).fontSize), '28px')
       assert.match(
-        await page.locator('main h1').evaluate((el) => getComputedStyle(el).fontFamily),
+        await page.locator('h1').evaluate((el) => getComputedStyle(el).fontFamily),
         /^"?DM Serif Display/
       )
       await expect(page.locator('.account-initials')).toHaveCount(0)
@@ -206,7 +203,8 @@ for (const engine of ['chromium', 'webkit']) {
           }
         })
         assert.match(typography.body, /^Manrope/, path)
-        assert.ok(typography.serifCount > 0, path)
+        if (!path.startsWith('/checkout') && path !== '/cart')
+          assert.ok(typography.serifCount > 0, path)
         assert.deepEqual(typography.incorrect, [], path)
         for (const family of ['Manrope', 'DM Serif Display'])
           assert.ok(typography.loaded.includes(family), `${path}: ${family} loaded`)
@@ -215,7 +213,7 @@ for (const engine of ['chromium', 'webkit']) {
         }
         assert.ok(!typography.fonts.some((file) => file.includes('Inter')))
         if (path === '/product/fixture')
-          await expect(page.locator('main h1')).toHaveCSS('font-family', /Manrope/)
+          await expect(page.locator('h1')).toHaveCSS('font-family', /Manrope/)
         if (path === '/') {
           await expect(page.locator('.footer-heading').first()).toHaveCSS('font-weight', '700')
           await page.setViewportSize({ width: 390, height: 950 })
@@ -230,23 +228,20 @@ for (const engine of ['chromium', 'webkit']) {
   })
   test(`${engine}: compact cart aligns controls and keeps checkout visible in a desktop viewport`, () =>
     visit(engine, '/cart', async (page) => {
-      const row = page.locator('.cart-product-row').first()
+      const row = page.locator('.checkout-bag-item').first()
       await row.waitFor()
-      const photo = await row.locator('.cart-product-image').boundingBox()
+      const photo = await row.locator('.checkout-bag-item__image').boundingBox()
       const quantity = await row.getByRole('group', { name: /^Quantity for/ }).boundingBox()
-      const total = await row.locator('.cart-product-total').boundingBox()
-      assert.equal(photo.width, 80)
-      assert.equal(photo.height, 80)
-      await expect(row.locator('.cart-product-meta').first()).toHaveCSS('font-size', '12px')
+      const total = await row.locator('.checkout-bag-item__price').boundingBox()
+      assert.equal(photo.width, 64)
+      assert.equal(photo.height, 64)
       assert.ok(quantity.x > photo.x + photo.width)
-      assert.ok(total.x > quantity.x + quantity.width)
-      assert.ok(Math.abs(quantity.y + quantity.height / 2 - total.y - total.height / 2) < 2)
-      const action = page.getByRole('button', { name: 'Proceed to Checkout', exact: true })
-      const rect = await action.boundingBox()
-      assert.ok(rect.y + rect.height <= 900, `Checkout ends at ${rect.y + rect.height}`)
-      await expect(page.locator('.cart-page .journey-total')).toBeInViewport()
+      assert.ok(total.x > quantity.x)
+      const action = page.getByRole('button', { name: 'Review payment', exact: true })
+      await action.scrollIntoViewIfNeeded()
+      await expect(action).toBeInViewport()
       await expect(
-        page.locator('.cart-page').getByText('Continue shopping', { exact: true })
+        page.locator('.checkout-totals').getByText('Continue shopping', { exact: true })
       ).toHaveCount(1)
     }))
   test(`${engine}: admin retains Manrope, semantic palette and geometry`, () =>

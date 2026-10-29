@@ -40,9 +40,9 @@ export function BillingDetails({
   return (
     <section className="checkout-section" aria-labelledby="billing-heading">
       <div className="mb-5">
-        <h2 id="billing-heading" className="journey-section-title">
+        <h3 id="billing-heading" className="journey-section-title">
           Billing details
-        </h2>
+        </h3>
       </div>
       <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
         <input
@@ -118,6 +118,7 @@ export function BillingDetails({
               id="billing-state"
               aria-label="Billing state"
               className="w-full"
+              menuClassName="w-full"
               triggerClassName="min-h-12 !text-base"
             />
           </div>

@@ -187,22 +187,25 @@ function mapQuote(raw: RawCheckoutQuote): CheckoutQuote {
 }
 
 export const checkoutService = {
-  async paymentConfig(): Promise<{ keyId: string }> {
+  async paymentConfig(expectedUserId?: string): Promise<{ keyId: string }> {
     const response = await api.get<{ success: true; data: { key_id: string } }>(
       '/api/checkout/payment-config',
-      true
+      true,
+      expectedUserId
     )
     return { keyId: response.data.key_id }
   },
-  async active(): Promise<CheckoutPaymentSession | null> {
+  async active(expectedUserId?: string): Promise<CheckoutPaymentSession | null> {
     const response = await api.get<{ success: true; data: RawPaymentSession | null }>(
       '/api/checkout/active',
-      true
+      true,
+      expectedUserId
     )
     return response.data ? mapPaymentSession(response.data) : null
   },
   async prepare(
-    input: CreateCheckoutOrderInput & { checkoutRequestId: string }
+    input: CreateCheckoutOrderInput & { checkoutRequestId: string },
+    expectedUserId?: string
   ): Promise<CheckoutPaymentSession> {
     const response = await api.post<{ success: true; data: RawPaymentSession }>(
       '/api/checkout/create-order',
@@ -227,19 +230,21 @@ export const checkoutService = {
             }
           : {}),
       },
-      true
+      true,
+      expectedUserId
     )
     return mapPaymentSession(response.data)
   },
-  async reconcile(orderId: string): Promise<CheckoutPaymentSession> {
+  async reconcile(orderId: string, expectedUserId?: string): Promise<CheckoutPaymentSession> {
     const response = await api.post<{ success: true; data: RawPaymentSession }>(
       `/api/checkout/${encodeURIComponent(orderId)}/reconcile`,
       {},
-      true
+      true,
+      expectedUserId
     )
     return mapPaymentSession(response.data)
   },
-  async verify(response: RazorpaySuccessResponse): Promise<void> {
+  async verify(response: RazorpaySuccessResponse, expectedUserId?: string): Promise<void> {
     await api.post(
       '/api/payments/verify',
       {
@@ -247,13 +252,15 @@ export const checkoutService = {
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_signature: response.razorpay_signature,
       },
-      true
+      true,
+      expectedUserId
     )
   },
   async quote(
     shippingMethod: ShippingMethod,
     couponCode?: string,
-    addressId?: string
+    addressId?: string,
+    expectedUserId?: string
   ): Promise<CheckoutQuote> {
     const response = await api.post<{ success: true; data: RawCheckoutQuote }>(
       '/api/checkout/quote',
@@ -262,7 +269,8 @@ export const checkoutService = {
         ...(couponCode ? { coupon_code: couponCode } : {}),
         ...(addressId ? { address_id: addressId } : {}),
       },
-      true
+      true,
+      expectedUserId
     )
 
     return mapQuote(response.data)

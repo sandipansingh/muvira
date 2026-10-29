@@ -280,13 +280,13 @@ test('short collection links and compact account controls keep full touch target
     667
   ))
 
-test('drawer prices and search prompts stay readable', () =>
+test('checkout prices and search prompts stay readable', () =>
   pageFor('/', async (page) => {
-    await page.getByRole('button', { name: 'Shopping cart', exact: true }).click()
-    const cart = page.getByRole('dialog', { name: 'Shopping cart', exact: true })
+    await page.getByRole('link', { name: 'Shopping cart', exact: true }).click()
+    const cart = page.getByRole('region', { name: 'Order summary', exact: true })
     const price = cart.getByText('₹499', { exact: true }).first()
     assert.ok(await price.evaluate((el) => parseFloat(getComputedStyle(el).fontSize) >= 14))
-    await page.keyboard.press('Escape')
+    await page.goto(fixture.origin + '/')
     await page.getByRole('button', { name: 'Search products', exact: true }).click()
     const search = page.getByRole('dialog', { name: 'Find something meaningful' })
     assert.ok(

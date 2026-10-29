@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, Plus, Truck } from 'lucide-react'
+import { Plus, Truck } from 'lucide-react'
 import { INDIAN_STATES } from '../../lib/constants/states.constants'
 import { formatPrice } from '../../lib/utils/format'
 import { Input } from '../ui/Input'
@@ -28,6 +28,7 @@ export interface ShippingSectionProps {
   savedAddresses?: AddressData[]
   selectedAddressId?: string
   onSelectSavedAddress?: (id: string) => void
+  saving?: boolean
   errors?: Record<string, string>
 }
 
@@ -41,6 +42,7 @@ export function ShippingSection({
   selectedAddressId = '',
   onSelectSavedAddress,
   errors = {},
+  saving = false,
 }: ShippingSectionProps) {
   const [manual, setManual] = useState(!selectedAddressId)
   const onChange = useRef(onShippingDataChange)
@@ -108,16 +110,24 @@ export function ShippingSection({
       <section className="checkout-section" aria-labelledby="delivery-heading">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 id="delivery-heading" className="journey-section-title">
+            <h3 id="delivery-heading" className="journey-section-title">
               Delivery address
-            </h2>
+            </h3>
           </div>
           {savedAddresses.length > 0 && (
             <Button
               variant="ghost"
               onClick={() => {
                 setManual(!manual)
-                if (!manual) onSelectSavedAddress?.('')
+                if (!manual)
+                  onShippingDataChange({ ...shippingData, description: '', city: '', pincode: '' })
+                onSelectSavedAddress?.(
+                  manual
+                    ? savedAddresses.find((address) => address.isDefault)?.id ||
+                        savedAddresses[0]?.id ||
+                        ''
+                    : ''
+                )
               }}
               leftIcon={manual ? undefined : <Plus className="h-4 w-4" aria-hidden="true" />}
             >
@@ -126,40 +136,43 @@ export function ShippingSection({
           )}
         </div>
         {!manual && savedAddresses.length > 0 ? (
-          <fieldset className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <legend className="sr-only">Select a delivery address</legend>
-            {savedAddresses.map((address) => (
-              <label
-                key={address.id}
-                className={`checkout-address ${selectedAddressId === address.id ? 'checkout-address--selected' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name="delivery-address"
-                  className="sr-only"
-                  checked={selectedAddressId === address.id}
-                  onChange={() => onSelectSavedAddress?.(address.id)}
-                  aria-label={`${address.fullName}, ${address.streetAddress}`}
-                />
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <span className="text-xs uppercase tracking-wider text-muted">
-                    {address.label || 'Delivery address'}
-                  </span>
-                  {selectedAddressId === address.id && (
-                    <Check className="h-4 w-4 text-primary" aria-hidden="true" />
-                  )}
+          <div>
+            <label htmlFor="delivery-address" className="sr-only">
+              Select a delivery address
+            </label>
+            <Dropdown
+              id="delivery-address"
+              aria-label="Select a delivery address"
+              value={selectedAddressId}
+              onChange={(id) => onSelectSavedAddress?.(id)}
+              options={savedAddresses.map((address) => ({
+                value: address.id,
+                label: `${address.fullName} · ${address.city} ${address.pincode}${address.isDefault ? ' · Default' : ''}`,
+              }))}
+              className="w-full"
+              menuClassName="w-full"
+              triggerClassName="min-h-12 !text-base"
+            />
+            {savedAddresses
+              .filter((address) => address.id === selectedAddressId)
+              .map((address) => (
+                <div key={address.id} className="mt-3 text-sm leading-5 text-muted">
+                  <p className="font-semibold text-ink">{address.fullName}</p>
+                  <p>
+                    {[
+                      address.streetAddress,
+                      address.apartment,
+                      address.city,
+                      address.state,
+                      address.pincode,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </p>
+                  <p className="mt-1">{address.phone}</p>
                 </div>
-                <p className="text-sm font-semibold">{address.fullName}</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {address.streetAddress}
-                  {address.apartment && `, ${address.apartment}`}
-                  <br />
-                  {address.city}, {address.state} {address.pincode}
-                </p>
-                <p className="mt-3 text-sm">{address.phone}</p>
-              </label>
-            ))}
-          </fieldset>
+              ))}
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {(
@@ -212,10 +225,16 @@ export function ShippingSection({
                 id="shipping-state"
                 aria-label="State"
                 className="w-full"
+                menuClassName="w-full"
                 triggerClassName="min-h-12 !text-base"
               />
             </div>
           </div>
+        )}
+        {manual && (
+          <Button type="submit" variant="secondary" isLoading={saving} className="mt-4">
+            Save address
+          </Button>
         )}
         {!manual && (
           <p className="mt-5 border-t border-line pt-4 text-sm text-muted">
@@ -226,14 +245,15 @@ export function ShippingSection({
       <section className="checkout-section" aria-labelledby="shipping-heading">
         <div className="mb-4 flex items-center gap-3">
           <Truck className="h-5 w-5 text-muted" aria-hidden="true" />
-          <h2 id="shipping-heading" className="journey-section-title">
+          <h3 id="shipping-heading" className="journey-section-title">
             Delivery method
-          </h2>
+          </h3>
         </div>
         <fieldset className="grid gap-3 sm:grid-cols-2">
           <legend className="sr-only">Delivery method</legend>
           {(['standard', 'express'] as const).map((value) => {
             const option = shippingOptions?.[value]
+            if (option && !option.enabled) return null
             const unavailable = !option?.enabled || option.available === false
             return (
               <label

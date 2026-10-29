@@ -109,8 +109,8 @@ export const orderApiService = {
     }
   },
 
-  async cancelCheckout(orderId: string): Promise<void> {
-    await api.post('/api/checkout/cancel', { order_id: orderId }, true)
+  async cancelCheckout(orderId: string, expectedUserId?: string): Promise<void> {
+    await api.post('/api/checkout/cancel', { order_id: orderId }, true, expectedUserId)
   },
 
   /**

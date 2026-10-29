@@ -9,7 +9,7 @@ export const AuthGuard: React.FC<{ requireAdmin?: boolean }> = ({ requireAdmin =
   if (loading) return <main className="editorial-page" aria-busy="true" />
   if (!user) {
     const returnTo = `${location.pathname}${location.search}${location.hash}`
-    const background = location.pathname === '/checkout' ? '/cart' : '/'
+    const background = '/'
     return (
       <Navigate
         to={background}

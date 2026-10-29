@@ -1,162 +1,100 @@
-import { StoreImage } from '../common/StoreImage'
-import React from 'react'
-import { QuantityControl } from './QuantityControl'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { Trash2 } from 'lucide-react'
+import { StoreImage } from '../common/StoreImage'
+import { QuantityControl } from './QuantityControl'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
 
-interface CartItemRowProps {
+function ProductLink({
+  item,
+  className,
+  children,
+  image = false,
+}: {
   item: CartItem
-  variant?: 'compact' | 'full'
-}
-
-export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compact' }) => {
-  const { updateQuantity, removeFromCart, loading } = useCart()
-
-  if (variant === 'full') {
-    return (
-      <article className="group relative flex flex-col gap-4 rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-4 transition-all hover:shadow-none sm:flex-row sm:items-center sm:gap-5 sm:p-5">
-        <Link
-          to={`/product/${item.productSlug}`}
-          className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] sm:h-28 sm:w-28"
-          aria-label={`View ${item.productName}`}
-        >
-          {item.productImage ? (
-            <StoreImage
-              framing="square"
-              fallbackPresentation="icon"
-              src={item.productImage}
-              alt={item.productName}
-              width={112}
-              height={112}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-xs text-muted">
-              No image
-            </div>
-          )}
-        </Link>
-
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <Link
-                to={`/product/${item.productSlug}`}
-                className="line-clamp-2 font-product leading-[1.15] tracking-tight text-base font-semibold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
-              >
-                {item.productName}
-              </Link>
-              <div className="mt-1 flex flex-wrap gap-2 text-xs text-[var(--color-muted)]">
-                <span>{item.inStock ? `${item.availableStock} available` : 'Unavailable'}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => void removeFromCart(item.id).catch(() => undefined)}
-                disabled={loading}
-                className="inline-flex cursor-pointer items-center justify-center gap-1 rounded-lg p-2 text-[var(--color-muted)] transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
-                aria-label={`Remove ${item.productName} from cart`}
-                title="Remove item"
-              >
-                <Trash2 className="h-4 w-4 shrink-0" />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <div className="flex items-center gap-3">
-              <QuantityControl
-                quantity={item.quantity}
-                minimum={0}
-                maximum={item.availableStock}
-                busy={loading}
-                label={item.productName}
-                onChange={(delta) => void updateQuantity(item.id, delta).catch(() => undefined)}
-              />
-              <span className="font-product text-sm text-[var(--color-muted)]">
-                {formatPrice(item.unitPrice)} each
-              </span>
-            </div>
-
-            <div className="text-right">
-              <span className="block text-[11px] font-medium uppercase tracking-wider text-[var(--color-muted)]">
-                Total
-              </span>
-              <span className="font-product text-lg font-bold text-[var(--color-primary)]">
-                {formatPrice(item.lineTotal)}
-              </span>
-            </div>
-          </div>
-        </div>
-      </article>
-    )
-  }
-
-  return (
-    <article className="drawer-cart-item">
-      <Link
-        to={`/product/${item.productSlug}`}
-        className="drawer-cart-item__image overflow-hidden rounded-image bg-surface"
-        aria-label={`View ${item.productName}`}
-      >
-        {item.productImage ? (
-          <StoreImage
-            framing="square"
-            fallbackPresentation="icon"
-            src={item.productImage}
-            alt={item.productName}
-            width={192}
-            height={192}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-xs text-muted">No image</div>
-        )}
-      </Link>
-      <div className="drawer-cart-item__details min-w-0 space-y-3">
-        <div className="flex items-start justify-between gap-1.5">
-          <Link
-            to={`/product/${item.productSlug}`}
-            className="font-product leading-relaxed text-base font-semibold text-ink transition-colors hover:text-primary"
-          >
-            {item.productName}
-          </Link>
-          <button
-            type="button"
-            onClick={() => void removeFromCart(item.id).catch(() => undefined)}
-            disabled={loading}
-            className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded p-0.5 text-muted transition-colors hover:bg-danger-soft hover:text-danger disabled:opacity-50"
-            aria-label={`Remove ${item.productName}`}
-            title="Remove item"
-          >
-            <Trash2 className="h-3.5 w-3.5 shrink-0" />
-          </button>
-        </div>
-
-        {!item.inStock && <p className="text-sm text-danger">Unavailable</p>}
-        <div className="font-product text-base text-primary">
-          <p className="font-semibold">{formatPrice(item.lineTotal)}</p>
-          {item.quantity > 1 && (
-            <p className="text-sm text-ink-soft">{formatPrice(item.unitPrice)} each</p>
-          )}
-        </div>
-      </div>
-      <QuantityControl
-        className="drawer-cart-item__quantity"
-        quantity={item.quantity}
-        minimum={0}
-        maximum={item.availableStock}
-        busy={loading}
-        label={item.productName}
-        onChange={(delta) => void updateQuantity(item.id, delta).catch(() => undefined)}
-      />
-    </article>
+  className: string
+  children: ReactNode
+  image?: boolean
+}) {
+  return item.productSlug ? (
+    <Link
+      to={`/product/${item.productSlug}`}
+      className={className}
+      title={item.productName}
+      aria-label={image ? `View ${item.productName}` : undefined}
+    >
+      {children}
+    </Link>
+  ) : (
+    <div className={className} title={item.productName}>
+      {children}
+    </div>
   )
 }
 
+export function CartItemRow({
+  item,
+  disabled = false,
+  showPrice = true,
+  frozen = false,
+}: {
+  item: CartItem
+  disabled?: boolean
+  showPrice?: boolean
+  frozen?: boolean
+}) {
+  const { updateQuantity, removeFromCart, loading } = useCart()
+  return (
+    <article className="checkout-bag-item">
+      <ProductLink item={item} className="checkout-bag-item__image" image>
+        <StoreImage
+          framing="square"
+          fallbackPresentation="icon"
+          src={item.productImage || undefined}
+          alt=""
+          width={64}
+          height={64}
+          className="h-full w-full object-cover"
+        />
+      </ProductLink>
+      <div className="checkout-bag-item__details">
+        <ProductLink item={item} className="checkout-bag-item__title">
+          {item.productName}
+        </ProductLink>
+        <p className="mt-1 text-xs text-muted">
+          {frozen
+            ? `Quantity: ${item.quantity}`
+            : !item.inStock
+              ? 'Currently unavailable'
+              : showPrice
+                ? `${formatPrice(item.unitPrice)} each`
+                : 'Checking price…'}
+        </p>
+      </div>
+      <p className="checkout-bag-item__price">{showPrice ? formatPrice(item.lineTotal) : '—'}</p>
+      {!frozen && (
+        <div className="checkout-bag-item__controls">
+          <QuantityControl
+            quantity={item.quantity}
+            maximum={item.availableStock}
+            minimum={1}
+            busy={disabled || loading}
+            label={item.productName}
+            onChange={(delta) => void updateQuantity(item.id, delta).catch(() => undefined)}
+          />
+          <button
+            type="button"
+            className="min-h-11 px-2 text-xs text-muted hover:text-danger disabled:opacity-50"
+            disabled={disabled || loading}
+            aria-label={`Remove ${item.productName}`}
+            onClick={() => void removeFromCart(item.id).catch(() => undefined)}
+          >
+            Remove
+          </button>
+        </div>
+      )}
+    </article>
+  )
+}
 export default CartItemRow

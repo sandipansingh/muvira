@@ -103,7 +103,7 @@ try {
               result.findings = await page.evaluate(() => ({
                 bodyFontSize: getComputedStyle(document.body).fontSize,
                 overflow: document.documentElement.scrollWidth > innerWidth + 1,
-                headings: document.querySelectorAll('main h1').length,
+                headings: document.querySelectorAll('h1').length,
                 fields: [
                   ...document.querySelectorAll(
                     'main input:not([type=radio]):not([type=checkbox]),main textarea'

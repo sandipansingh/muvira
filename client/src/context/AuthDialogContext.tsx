@@ -2,7 +2,6 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { useLocation, useNavigate } from 'react-router-dom'
 import type { AuthDialogOptions } from '../lib/types/auth'
 import { safeReturnPath } from '../lib/authRedirect'
-import { useCart } from './CartContext'
 import { useAuth } from './AuthContext'
 import { AuthDialog } from '../components/auth/AuthDialog'
 import { useToast } from './ToastContext'
@@ -25,7 +24,6 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
   const handledLocations = useRef(new Set<string>())
   const lastLocation = useRef<string | null>(null)
   const { showToast } = useToast()
-  const { closeCartDrawer } = useCart()
   const { isAuthenticated, loading } = useAuth()
   const currentAuth = useRef({ isAuthenticated, loading })
   currentAuth.current = { isAuthenticated, loading }
@@ -42,7 +40,6 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
   const openAuth = useCallback(
     (options: AuthDialogOptions) => {
       const returnTo = options.returnTo ? safeReturnPath(options.returnTo, '/') : undefined
-      closeCartDrawer()
       if (returnTo && currentAuth.current.isAuthenticated && !currentAuth.current.loading) {
         closeAuth()
         navigate(returnTo)
@@ -63,7 +60,7 @@ export function AuthDialogProvider({ children }: { children: React.ReactNode }) 
       activeRequest.current = next
       setRequest(next)
     },
-    [closeCartDrawer, closeAuth, navigate]
+    [closeAuth, navigate]
   )
 
   // Each history entry may request authentication once; ordinary navigation dismisses it.

@@ -107,7 +107,11 @@ test('sign in failures remain recoverable and success stays on the shopping page
   }))
 test('profile loading gates checkout and profile failure supports retry', () =>
   visit('/checkout?step=shipping#address', async (page) => {
-    await expect(page).toHaveURL(fixture.origin + '/cart')
+    await expect(page).toHaveURL(fixture.origin + '/checkout?step=shipping#address')
+    await page
+      .locator('.checkout-account')
+      .getByRole('button', { name: 'Sign in', exact: true })
+      .click()
     await page.evaluate(() => {
       window.authFixture.delay.profile = true
     })
@@ -207,6 +211,10 @@ test('recovery errors retry inside the same popup with the entered email', () =>
 for (const phase of ['credentials', 'profile'])
   test(`dismissal during ${phase} ignores stale completion`, () =>
     visit('/checkout', async (page) => {
+      await page
+        .locator('.checkout-account')
+        .getByRole('button', { name: 'Sign in', exact: true })
+        .click()
       await page.evaluate((phase) => {
         window.authFixture.delay[phase] = true
       }, phase)
@@ -215,8 +223,8 @@ for (const phase of ['credentials', 'profile'])
       await page.keyboard.press('Escape')
       await page.evaluate((phase) => window.authFixture.release(phase), phase)
       await page.waitForFunction(() => window.authFixture.calls.profile)
-      await expect(page.locator('header').getByText('Account', { exact: true })).toBeVisible()
-      await expect(page).toHaveURL(fixture.origin + '/cart')
+      await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible()
+      await expect(page).toHaveURL(fixture.origin + '/checkout')
       await expect(dialog(page)).toHaveCount(0)
     }))
 for (const path of ['/signin', '/login', '/signup'])
@@ -282,30 +290,34 @@ test('mobile menu closes before authentication and restores the menu control on 
     },
     { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }
   ))
-test('drawer checkout preserves the page and restores the persistent bag control', () =>
+test('bag navigation opens public checkout and sign-in dismissal preserves the bag', () =>
   visit('/shop', async (page) => {
-    await page.getByRole('button', { name: 'Shopping cart', exact: true }).click()
-    await page
-      .getByRole('dialog', { name: 'Shopping cart' })
-      .getByRole('button', { name: 'Proceed to Checkout' })
-      .click()
-    await expect(page.getByRole('dialog', { name: 'Shopping cart' })).toHaveCount(0)
-    await expect(page).toHaveURL(fixture.origin + '/shop')
+    await page.getByRole('link', { name: 'Shopping cart', exact: true }).click()
+    await expect(page).toHaveURL(fixture.origin + '/checkout')
+    const signin = page
+      .locator('.checkout-account')
+      .getByRole('button', { name: 'Sign in', exact: true })
+    await signin.click()
+    await expect(dialog(page)).toBeVisible()
     await page.keyboard.press('Escape')
-    await expect(page.getByRole('button', { name: 'Shopping cart', exact: true })).toBeFocused()
+    await expect(signin).toBeFocused()
+    await expect(page.getByRole('heading', { name: 'Order summary' })).toBeVisible()
   }))
 
-test('Buy now confirms the selected quantity once before authenticating', () =>
+test('Buy now confirms the selected quantity once before checkout sign in', () =>
   visit('/product/fixture?slowAdd=1', async (page) => {
     await page.getByRole('button', { name: 'Increase quantity', exact: true }).click()
-    const buy = page.getByRole('button', { name: 'Buy Now', exact: true }).first()
-    await buy.click()
-    await expect(dialog(page)).toHaveCount(0)
-    await expect(dialog(page)).toBeVisible()
-    assert.deepEqual(await page.evaluate(() => window.fixture.cartAdds), [2])
-    await expect(page.locator('.header-cart-count')).toHaveText('3')
-    await credentials(page)
+    await page.getByRole('button', { name: 'Buy Now', exact: true }).first().click()
+    await expect(page).toHaveURL(fixture.origin + '/product/fixture?slowAdd=1')
     await expect(page).toHaveURL(fixture.origin + '/checkout')
+    assert.deepEqual(await page.evaluate(() => window.fixture.cartAdds), [2])
+    await expect(dialog(page)).toHaveCount(0)
+    await page
+      .locator('.checkout-account')
+      .getByRole('button', { name: 'Sign in', exact: true })
+      .click()
+    await credentials(page)
+    await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible()
     assert.deepEqual(await page.evaluate(() => window.fixture.cartAdds), [2])
   }))
 
@@ -316,40 +328,28 @@ test('failed Buy now addition keeps authentication closed', () =>
     await expect(page).toHaveURL(fixture.origin + '/product/fixture?addFailure=1')
   }))
 
-for (const delayedProfile of [false, true])
-  test(`Buy now continues with authentication completed during its pending addition (delayed profile: ${delayedProfile})`, () =>
-    visit('/product/fixture?gatedAdd=1', async (page) => {
-      await page.getByRole('button', { name: 'Buy Now', exact: true }).first().click()
-      await page.waitForFunction(() => window.fixture.resolveCartAdd)
-      await open(page)
-      if (delayedProfile)
-        await page.evaluate(() => {
-          window.authFixture.delay.profile = true
-        })
-      await credentials(page)
-      if (delayedProfile)
-        await expect(dialog(page).getByRole('status')).toContainText('Loading your account')
-      else
-        await expect(
-          page.locator('header').getByRole('link', { name: 'My account', exact: true })
-        ).toBeVisible()
-      await page.evaluate(() => window.fixture.resolveCartAdd())
-      await page.waitForFunction(() => window.fixture.cartAdds?.length === 1)
-      if (delayedProfile) {
-        await expect(dialog(page).getByRole('status')).toContainText('Loading your account')
-        await page.evaluate(() => window.authFixture.release('profile'))
-      }
-      await expect(page).toHaveURL(fixture.origin + '/checkout')
-      await expect(dialog(page)).toHaveCount(0)
-      assert.deepEqual(await page.evaluate(() => window.fixture.cartAdds), [1])
-    }))
-
-test('cart checkout opens over the cart and retains its shipping step', () =>
-  visit('/cart', async (page) => {
-    await page.getByRole('button', { name: 'Proceed to Checkout', exact: true }).click()
-    await expect(page).toHaveURL(fixture.origin + '/cart')
+test('an account change rejects a pending Buy now addition', () =>
+  visit('/product/fixture?gatedAdd=1', async (page) => {
+    await page.getByRole('button', { name: 'Buy Now', exact: true }).first().click()
+    await page.waitForFunction(() => window.fixture.resolveCartAdd)
+    await open(page)
     await credentials(page)
-    await expect(page).toHaveURL(fixture.origin + '/checkout?step=shipping')
+    await expect(dialog(page)).toHaveCount(0)
+    await page.evaluate(() => window.fixture.resolveCartAdd())
+    await expect(page).toHaveURL(fixture.origin + '/product/fixture?gatedAdd=1')
+    assert.deepEqual(await page.evaluate(() => window.fixture.cartAdds || []), [])
+  }))
+
+test('legacy cart sign-in completes on the unified page', () =>
+  visit('/cart', async (page) => {
+    await expect(page).toHaveURL(fixture.origin + '/checkout')
+    await page
+      .locator('.checkout-account')
+      .getByRole('button', { name: 'Sign in', exact: true })
+      .click()
+    await credentials(page)
+    await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible()
+    await expect(page).toHaveURL(fixture.origin + '/checkout')
   }))
 
 test('closing and reopening clears passwords and does not consume an earlier pending submission', () =>
@@ -363,7 +363,9 @@ test('closing and reopening clears passwords and does not consume an earlier pen
     await open(page)
     await expect(dialog(page).getByLabel('Password', { exact: true })).toHaveValue('')
     await page.evaluate(() => window.authFixture.release('credentials'))
-    await expect(page.locator('header').getByText('Account', { exact: true })).toBeVisible()
+    await expect(
+      page.locator('header').getByRole('link', { name: 'My account', exact: true })
+    ).toBeVisible()
     await expect(dialog(page)).toBeVisible()
   }))
 

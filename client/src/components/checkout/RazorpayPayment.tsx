@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LockKeyhole, ShieldCheck, QrCode, RefreshCw } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
@@ -24,6 +25,9 @@ import type {
 } from '../../types/razorpay'
 
 interface RazorpayPaymentProps {
+  accountId: string
+  actionOutlet: HTMLDivElement | null
+  isResuming?: boolean
   session: CheckoutPaymentSession | null
   onSession: (session: CheckoutPaymentSession) => void
   onPrepare: () => Promise<void>
@@ -43,6 +47,9 @@ const METHODS = {
 }
 
 export function RazorpayPayment({
+  accountId,
+  actionOutlet,
+  isResuming = false,
   session,
   onSession,
   onPrepare,
@@ -51,6 +58,7 @@ export function RazorpayPayment({
   onRestart,
   previewTotalPaisa,
 }: RazorpayPaymentProps) {
+  const paymentFormId = useId()
   const [method, setMethod] = useState<PaymentMethod>('upi')
   const [bank, setBank] = useState('')
   const [wallet, setWallet] = useState('')
@@ -100,7 +108,7 @@ export function RazorpayPayment({
     const generation = statusGeneration.current
     setPhase('checking')
     try {
-      const updated = await checkoutService.reconcile(current.orderId)
+      const updated = await checkoutService.reconcile(current.orderId, accountId)
       if (
         mounted.current &&
         currentSession.current?.orderId === updated.orderId &&
@@ -149,7 +157,7 @@ export function RazorpayPayment({
     clearCard()
     setPhase('checking')
     try {
-      await checkoutService.verify(response)
+      await checkoutService.verify(response, accountId)
     } catch {
       if (mounted.current)
         setError('Your payment is being confirmed. Please check its status before paying again.')
@@ -203,13 +211,16 @@ export function RazorpayPayment({
     setPhase('waiting')
   }
 
-  const sdk = useRazorpayMethods({
-    success: (response) => {
-      void onSuccess(response)
+  const sdk = useRazorpayMethods(
+    {
+      success: (response) => {
+        void onSuccess(response)
+      },
+      error: onError,
+      qr: onQr,
     },
-    error: onError,
-    qr: onQr,
-  })
+    accountId
+  )
   const available = sdk.methods ? availablePaymentMethods(sdk.methods) : []
   const methodsKey = available.join(',')
   useEffect(() => {
@@ -227,6 +238,31 @@ export function RazorpayPayment({
       clearCard()
     }
   }, [])
+
+  useEffect(() => {
+    if (session?.state !== 'released') return
+    awaitingSdk.current = false
+    clearCard()
+    setQr(null)
+    setPhase('idle')
+  }, [session?.state])
+
+  useEffect(() => {
+    if (isResuming) clearCard()
+    if (session) return
+    statusGeneration.current += 1
+    awaitingSdk.current = false
+    successSeen.current = false
+    verifiedIds.current.clear()
+    sdkError.current = null
+    checkAfter.current = 0
+    clearCard()
+    setQr(null)
+    setQrFallback(false)
+    setCardErrors({})
+    setError(null)
+    setPhase('idle')
+  }, [session?.orderId, isResuming]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const expiry = session?.expiresAt ? new Date(session.expiresAt).getTime() : 0
   const expired = !!session && expiry <= now + offsetRef.current
@@ -525,9 +561,127 @@ export function RazorpayPayment({
       </motion.div>
     </AnimatePresence>
   )
+  const actionFooter = (
+    <div className="checkout-payment-footer">
+      {(error || setupError) && (
+        <p role="alert" className="mb-4 rounded-control bg-danger-soft p-3 text-sm text-danger">
+          {error || setupError}
+        </p>
+      )}
+      {session && session.state !== 'released' && (
+        <div className="mb-4 flex items-start gap-2 text-xs leading-relaxed text-muted">
+          <ShieldCheck className="mt-0.5 h-4 w-4" aria-hidden="true" />
+          <span>
+            {session.canPay && !expired
+              ? 'Order reviewed. Your items and total are confirmed for this payment.'
+              : 'We’re confirming your payment status. Please check before making another payment.'}
+          </span>
+        </div>
+      )}
+      <div className="checkout-action-bar">
+        <span className="checkout-action-total">
+          <span className="block text-xs text-muted">Total</span>
+          <span className="font-semibold text-primary">
+            {session
+              ? amount
+              : previewTotalPaisa === undefined
+                ? '—'
+                : formatPrice(previewTotalPaisa)}
+          </span>
+        </span>
+        {session?.state === 'released' ? (
+          <Button
+            onClick={() => {
+              statusGeneration.current += 1
+              awaitingSdk.current = false
+              successSeen.current = false
+              verifiedIds.current.clear()
+              sdkError.current = null
+              checkAfter.current = 0
+              clearCard()
+              setQr(null)
+              setQrFallback(false)
+              setCardErrors({})
+              setError(null)
+              setPhase('idle')
+              onRestart()
+            }}
+            size="xl"
+            className="w-full"
+          >
+            Edit checkout
+          </Button>
+        ) : (
+          <Button
+            type="submit"
+            form={paymentFormId}
+            disabled={!canSubmit || (method === 'upi' && sdk.isMobile && !app)}
+            isLoading={phase === 'preparing' || phase === 'checking'}
+            size="xl"
+            className="w-full"
+            leftIcon={<LockKeyhole className="h-4 w-4" aria-hidden="true" />}
+          >
+            {session
+              ? method === 'upi' && !sdk.isMobile
+                ? `${qrFallback ? 'Open QR payment' : 'Show QR'} · ${amount}`
+                : `Pay ${amount}`
+              : 'Review payment'}
+          </Button>
+        )}
+      </div>
+      {phase === 'waiting' && !qrActive && (
+        <p className="mt-3 text-center text-sm text-muted" role="status">
+          Complete payment in the secure window or app. We’ll confirm it here.
+        </p>
+      )}
+      {session && session.state !== 'paid' && session.state !== 'released' && (
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+          <Button
+            variant="ghost"
+            onClick={() => {
+              void checkStatus()
+            }}
+            disabled={phase === 'checking'}
+            leftIcon={<RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />}
+          >
+            Check payment status
+          </Button>
+          <Link
+            to={`/orders/${encodeURIComponent(session.orderId)}`}
+            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
+          >
+            View order
+          </Link>
+        </div>
+      )}
+      {session && session.state !== 'paid' && session.state !== 'released' && (
+        <Button
+          variant="ghost"
+          className="mt-1 w-full text-muted"
+          onClick={() => {
+            void orderApiService
+              .cancelCheckout(session.orderId, accountId)
+              .then(() => {
+                if (mounted.current) return checkStatus()
+              })
+              .catch((reason: unknown) =>
+                setError(
+                  reason instanceof Error
+                    ? reason.message
+                    : 'Payment may still complete. Check its status before starting again.'
+                )
+              )
+          }}
+        >
+          Request cancellation
+        </Button>
+      )}
+    </div>
+  )
   return (
     <section className="checkout-payment" aria-labelledby="payment-heading">
       <form
+        id={paymentFormId}
         noValidate
         onSubmit={(event) => {
           event.preventDefault()
@@ -537,7 +691,7 @@ export function RazorpayPayment({
       >
         <div className="checkout-section-heading">
           <h2 id="payment-heading" className="journey-section-title">
-            Select a payment method
+            Payment method
           </h2>
           <p className="mt-2 text-sm text-muted">Your payment is processed securely by Razorpay.</p>
         </div>
@@ -599,101 +753,8 @@ export function RazorpayPayment({
             </fieldset>
           </>
         )}
-        <div className="checkout-payment-footer">
-          {(error || setupError) && (
-            <p role="alert" className="mb-4 rounded-control bg-danger-soft p-3 text-sm text-danger">
-              {error || setupError}
-            </p>
-          )}
-          {session && session.state !== 'released' && (
-            <div className="mb-4 flex items-start gap-2 text-xs leading-relaxed text-muted">
-              <ShieldCheck className="mt-0.5 h-4 w-4" aria-hidden="true" />
-              <span>
-                {session.canPay && !expired
-                  ? 'Order reviewed. Your items and total are confirmed for this payment.'
-                  : 'We’re confirming your payment status. Please check before making another payment.'}
-              </span>
-            </div>
-          )}
-          <div className="checkout-action-bar">
-            <span className="checkout-action-total">
-              <span className="block text-xs text-muted">Total</span>
-              <span className="font-semibold text-primary">
-                {session
-                  ? amount
-                  : previewTotalPaisa === undefined
-                    ? '—'
-                    : formatPrice(previewTotalPaisa)}
-              </span>
-            </span>
-            {session?.state === 'released' ? (
-              <Button onClick={onRestart} size="xl" className="w-full">
-                Return to delivery
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                disabled={!canSubmit || (method === 'upi' && sdk.isMobile && !app)}
-                isLoading={phase === 'preparing' || phase === 'checking'}
-                size="xl"
-                className="w-full"
-                leftIcon={<LockKeyhole className="h-4 w-4" aria-hidden="true" />}
-              >
-                {session
-                  ? method === 'upi' && !sdk.isMobile
-                    ? `${qrFallback ? 'Open QR payment' : 'Show QR'} · ${amount}`
-                    : `Pay ${amount}`
-                  : 'Review payment'}
-              </Button>
-            )}
-          </div>
-          {phase === 'waiting' && !qrActive && (
-            <p className="mt-3 text-center text-sm text-muted" role="status">
-              Complete payment in the secure window or app. We’ll confirm it here.
-            </p>
-          )}
-          {session && session.state !== 'paid' && session.state !== 'released' && (
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  void checkStatus()
-                }}
-                disabled={phase === 'checking'}
-                leftIcon={<RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />}
-              >
-                Check payment status
-              </Button>
-              <Link
-                to={`/orders/${encodeURIComponent(session.orderId)}`}
-                className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
-              >
-                View order
-              </Link>
-            </div>
-          )}
-          {session && session.state !== 'paid' && session.state !== 'released' && (
-            <Button
-              variant="ghost"
-              className="mt-1 w-full text-muted"
-              onClick={() => {
-                void orderApiService
-                  .cancelCheckout(session.orderId)
-                  .then(checkStatus)
-                  .catch((reason: unknown) =>
-                    setError(
-                      reason instanceof Error
-                        ? reason.message
-                        : 'Payment may still complete. Check its status before starting again.'
-                    )
-                  )
-              }}
-            >
-              Request cancellation
-            </Button>
-          )}
-        </div>
       </form>
+      {actionOutlet && createPortal(actionFooter, actionOutlet)}
     </section>
   )
 }

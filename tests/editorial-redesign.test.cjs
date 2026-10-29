@@ -80,7 +80,7 @@ test('quantity controls preserve pending focus, minimum one and stock limits', (
     }
     await expect(increase).toBeDisabled()
     await page.getByRole('button', { name: /^Remove / }).click()
-    await expect(page.getByRole('heading', { name: 'Your cart is empty' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Your bag is empty' })).toBeVisible()
   }))
 test('failed product photographs retain the image-unavailable state in the lightbox', () =>
   pageFor('/product/fixture?scenario=broken-images', async (page) => {

@@ -57,7 +57,7 @@ export const Footer: React.FC<{ className?: string }> = ({ className = '' }) => 
               <Link to="/orders" onClick={(event) => requestAccount(event, '/orders')}>
                 Orders & tracking
               </Link>
-              <Link to="/cart">Shopping bag</Link>
+              <Link to="/checkout">Shopping bag</Link>
               <Link
                 to={isAuthenticated ? '/profile' : '/signin'}
                 onClick={(event) => requestAccount(event, isAuthenticated ? '/profile' : undefined)}

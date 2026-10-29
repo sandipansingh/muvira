@@ -5,7 +5,7 @@ import { formatPrice } from '../../lib/utils/format'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 
-export function CouponInput() {
+export function CouponInput({ disabled = false }: { disabled?: boolean }) {
   const { coupon, applyCoupon, removeCoupon } = useCart()
   const id = useId()
   const [code, setCode] = useState('')
@@ -26,6 +26,7 @@ export function CouponInput() {
             variant="ghost"
             size="icon"
             onClick={removeCoupon}
+            disabled={disabled}
             aria-label="Remove coupon"
             className="ml-auto shrink-0"
           >
@@ -37,7 +38,7 @@ export function CouponInput() {
           noValidate
           onSubmit={(event) => {
             event.preventDefault()
-            if (!code.trim() || pending.current) return
+            if (disabled || !code.trim() || pending.current) return
             pending.current = true
             setBusy(true)
             setError(null)
@@ -55,11 +56,12 @@ export function CouponInput() {
               })
           }}
         >
-          <label htmlFor={id} className="mb-3 block text-sm font-semibold">
+          <label htmlFor={id} className="sr-only">
             Promo code
           </label>
           <div className="flex flex-wrap gap-2">
             <Input
+              disabled={disabled}
               id={id}
               name="coupon"
               placeholder="Enter promo code"
@@ -67,7 +69,12 @@ export function CouponInput() {
               onChange={(event) => setCode(event.target.value)}
               className="min-w-0 flex-[1_1_8rem] uppercase placeholder:normal-case"
             />
-            <Button type="submit" variant="secondary" disabled={!code.trim()} isLoading={busy}>
+            <Button
+              type="submit"
+              variant="secondary"
+              disabled={disabled || !code.trim()}
+              isLoading={busy}
+            >
               Apply
             </Button>
           </div>

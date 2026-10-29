@@ -13,7 +13,6 @@ import { AnnouncementBar } from './components/layout/AnnouncementBar'
 import { Header } from './components/layout/Header'
 import { Footer } from './components/layout/Footer'
 import { MobileMenu } from './components/layout/MobileMenu'
-import { CartDrawer } from './components/cart/CartDrawer'
 import { ToastContainer } from './components/common/Toast'
 import { ScrollToTop } from './components/common/ScrollToTop'
 import { RouteSeo } from './components/seo/RouteSeo'
@@ -30,7 +29,6 @@ const CategoriesPage = lazy(() => import('./pages/CategoriesPage'))
 const SearchPage = lazy(() => import('./pages/SearchPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'))
-const CartPage = lazy(() => import('./pages/CartPage'))
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'))
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'))
 const OrderFailurePage = lazy(() => import('./pages/OrderFailurePage'))
@@ -53,13 +51,15 @@ const CategoryRedirect: React.FC = () => {
   return <Navigate to={slug ? categoryDestination(slug, search) : '/shop'} replace />
 }
 
+const LegacyCartRedirect = () => {
+  const { search, hash } = useLocation()
+  return <Navigate to={`/checkout${search}${hash}`} replace />
+}
+
 const MainLayout: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { pathname } = useLocation()
-  const isFocused =
-    pathname === '/checkout' ||
-    pathname.startsWith('/orders/success') ||
-    pathname.startsWith('/orders/failure')
+  const isFocused = pathname.startsWith('/orders/success') || pathname.startsWith('/orders/failure')
 
   return (
     <div
@@ -71,13 +71,12 @@ const MainLayout: React.FC = () => {
       {!isFocused && <AnnouncementBar />}
       <Header focused={isFocused} onOpenMobileMenu={() => setIsMobileMenuOpen(true)} />
       <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
-      <CartDrawer />
 
       <div id="page-content" tabIndex={-1} className="flex-1">
         <Outlet />
       </div>
 
-      <Footer />
+      {pathname !== '/checkout' && <Footer />}
     </div>
   )
 }
@@ -125,9 +124,9 @@ export const AppContent: React.FC = () => {
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/product/:slug" element={<ProductDetailPage />} />
-            <Route path="/cart" element={<CartPage />} />
+            <Route path="/cart" element={<LegacyCartRedirect />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
             <Route element={<AuthGuard />}>
-              <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/orders" element={<OrdersHistoryPage />} />
               <Route path="/orders/success" element={<OrderSuccessPage />} />
               <Route path="/orders/failure" element={<OrderFailurePage />} />

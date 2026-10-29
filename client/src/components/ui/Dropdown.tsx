@@ -177,6 +177,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   const handleToggle = (event?: React.MouseEvent) => {
     if (disabled) return
+    if (event && !openOnHover) triggerRef.current?.focus()
     clearHoverClose()
     if (openOnHover && openedByHover.current && event && event.detail > 0) {
       openedByHover.current = false
