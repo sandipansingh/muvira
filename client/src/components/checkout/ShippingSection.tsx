@@ -249,7 +249,7 @@ export function ShippingSection({
             Delivery method
           </h3>
         </div>
-        <fieldset className="grid gap-3 sm:grid-cols-2">
+        <fieldset className="grid gap-2">
           <legend className="sr-only">Delivery method</legend>
           {(['standard', 'express'] as const).map((value) => {
             const option = shippingOptions?.[value]
@@ -268,7 +268,7 @@ export function ShippingSection({
                   onChange={() => onShippingMethodChange(value)}
                   className="h-4 w-4 accent-primary"
                 />
-                <span className="flex-1">
+                <span>
                   <span className="block text-sm font-semibold">
                     {option?.label ??
                       (value === 'standard' ? 'Standard shipping' : 'Express shipping')}

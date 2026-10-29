@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { Trash2 } from 'lucide-react'
 import { StoreImage } from '../common/StoreImage'
 import { QuantityControl } from './QuantityControl'
 import type { CartItem } from '../../lib/types/cart'
@@ -62,38 +63,51 @@ export function CartItemRow({
         <ProductLink item={item} className="checkout-bag-item__title">
           {item.productName}
         </ProductLink>
-        <p className="mt-1 text-xs text-muted">
-          {frozen
-            ? `Quantity: ${item.quantity}`
-            : !item.inStock
-              ? 'Currently unavailable'
-              : showPrice
-                ? `${formatPrice(item.unitPrice)} each`
+        {(frozen || !item.inStock || !showPrice) && (
+          <p className="mt-1 text-xs text-muted">
+            {frozen
+              ? `Quantity: ${item.quantity}`
+              : !item.inStock
+                ? 'Currently unavailable'
                 : 'Checking price…'}
-        </p>
+          </p>
+        )}
       </div>
-      <p className="checkout-bag-item__price">{showPrice ? formatPrice(item.lineTotal) : '—'}</p>
-      {!frozen && (
-        <div className="checkout-bag-item__controls">
-          <QuantityControl
-            quantity={item.quantity}
-            maximum={item.availableStock}
-            minimum={1}
-            busy={disabled || loading}
-            label={item.productName}
-            onChange={(delta) => void updateQuantity(item.id, delta).catch(() => undefined)}
-          />
-          <button
-            type="button"
-            className="min-h-11 px-2 text-xs text-muted hover:text-danger disabled:opacity-50"
-            disabled={disabled || loading}
-            aria-label={`Remove ${item.productName}`}
-            onClick={() => void removeFromCart(item.id).catch(() => undefined)}
-          >
-            Remove
-          </button>
+      <div className="checkout-bag-item__footer">
+        {!frozen && (
+          <div className="checkout-bag-item__controls">
+            <QuantityControl
+              quantity={item.quantity}
+              maximum={item.availableStock}
+              minimum={1}
+              busy={disabled || loading}
+              label={item.productName}
+              className="quantity-control--checkout"
+              onChange={(delta) => void updateQuantity(item.id, delta).catch(() => undefined)}
+            />
+            <button
+              type="button"
+              className="checkout-bag-item__remove"
+              disabled={disabled || loading}
+              aria-label={`Remove ${item.productName}`}
+              title="Remove item"
+              onClick={() => void removeFromCart(item.id).catch(() => undefined)}
+            >
+              <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          </div>
+        )}
+        <div className="checkout-bag-item__prices">
+          {showPrice && item.quantity > 1 && (
+            <p className="text-xs text-muted">
+              {formatPrice(item.unitPrice)} × {item.quantity}
+            </p>
+          )}
+          <p className="checkout-bag-item__price">
+            {showPrice ? formatPrice(item.lineTotal) : '—'}
+          </p>
         </div>
-      )}
+      </div>
     </article>
   )
 }

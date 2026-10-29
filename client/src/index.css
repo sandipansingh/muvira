@@ -4737,25 +4737,33 @@ body {
   background: var(--color-primary-soft);
 }
 .checkout-delivery {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
   min-width: 0;
-  align-items: center;
+  min-height: var(--tap-target);
+  align-items: start;
   gap: 12px;
-  padding: 16px;
+  padding: 12px;
   cursor: pointer;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-control);
 }
 .checkout-delivery > input {
-  flex-shrink: 0;
+  margin-top: 2px;
 }
 .checkout-delivery > span:first-of-type {
-  flex: 1 1 9rem;
   min-width: 0;
 }
 .checkout-delivery > span:last-child {
-  margin-left: auto;
+  text-align: right;
+  white-space: nowrap;
+}
+.checkout-delivery:hover:not(:has(input:disabled)) {
+  border-color: var(--color-primary);
+}
+.checkout-delivery:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 .checkout-delivery--selected {
   border-color: var(--color-primary);
@@ -5058,6 +5066,35 @@ textarea:focus {
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
+.quantity-control--checkout {
+  border: 0;
+  background: transparent;
+}
+.quantity-control--checkout button {
+  position: relative;
+  isolation: isolate;
+}
+.quantity-control--checkout button::before {
+  position: absolute;
+  z-index: -1;
+  inset: 8px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: var(--color-paper);
+  content: '';
+}
+.quantity-control--checkout button:hover:enabled {
+  background: transparent;
+}
+.quantity-control--checkout button:hover:enabled::before {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+.quantity-control--checkout output {
+  min-width: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
 .cart-product-row {
   display: grid;
   grid-template-columns: 80px minmax(0, 1fr) auto minmax(4.5rem, auto) 44px;
@@ -5266,9 +5303,9 @@ textarea:focus {
 }
 .checkout-bag-item {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr) auto;
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: 4px 12px;
-  padding: 16px 0;
+  padding: 12px 0;
 }
 .checkout-bag-item:first-child {
   padding-top: 0;
@@ -5295,7 +5332,7 @@ textarea:focus {
   -webkit-box-orient: vertical;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 600;
+  font-weight: 500;
   overflow-wrap: anywhere;
 }
 .checkout-bag-item__title:hover {
@@ -5307,13 +5344,50 @@ textarea:focus {
   font-weight: 600;
   text-align: right;
   color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
 }
-.checkout-bag-item__controls {
-  grid-column: 2 / -1;
+.checkout-bag-item__footer {
+  grid-column: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 4px 12px;
+  min-width: 0;
+}
+.checkout-bag-item__controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.checkout-bag-item__prices {
+  margin-left: auto;
+  text-align: right;
+}
+.checkout-bag-item__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  color: var(--color-muted);
+  border-radius: var(--radius-control);
+}
+.checkout-bag-item__remove:hover:enabled {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+.checkout-bag-item__remove:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.checkout-bag {
+  container-type: inline-size;
+}
+@container (max-width: 20rem) {
+  .checkout-bag-item__footer {
+    grid-column: 1 / -1;
+  }
 }
 @media (max-width: 1023px) {
   .unified-checkout .checkout-workspace {
@@ -5355,18 +5429,5 @@ textarea:focus {
   }
   .unified-checkout .checkout-methods {
     padding: 0 16px 16px;
-  }
-  .checkout-bag-item {
-    grid-template-columns: 64px minmax(0, 1fr);
-  }
-  .checkout-bag-item__image {
-    grid-row: span 3;
-  }
-  .checkout-bag-item__price {
-    grid-column: 2;
-    text-align: left;
-  }
-  .checkout-bag-item__controls {
-    grid-column: 2;
   }
 }
