@@ -1,5 +1,11 @@
 export type PaymentMethod = 'upi' | 'card' | 'netbanking' | 'wallet'
 
+export interface PaymentConfiguration {
+  keyId: string
+  mode: 'test' | 'live'
+  upi: { intent: boolean; qr: boolean; embedded_qr: boolean }
+}
+
 export interface RazorpaySuccessResponse {
   razorpay_order_id: string
   razorpay_payment_id: string

@@ -7,6 +7,7 @@ import type {
   RazorpayMethods,
   RazorpayQrResponse,
   RazorpaySuccessResponse,
+  PaymentConfiguration,
 } from '../../types/razorpay'
 
 export function useRazorpayMethods(
@@ -21,6 +22,7 @@ export function useRazorpayMethods(
   latest.current = handlers
   const instance = useRef<RazorpayInstance | null>(null)
   const [methods, setMethods] = useState<RazorpayMethods | null>(null)
+  const [config, setConfig] = useState<PaymentConfiguration | null>(null)
   const [apps, setApps] = useState<Array<{ code: string; name: string }>>([])
   const [error, setError] = useState<string | null>(null)
   const [attempt, setAttempt] = useState(0)
@@ -33,11 +35,13 @@ export function useRazorpayMethods(
     let timer: ReturnType<typeof setTimeout> | undefined
     instance.current = null
     setMethods(null)
+    setConfig(null)
     setError(null)
     setApps([])
     Promise.all([checkoutService.paymentConfig(expectedUserId), loadRazorpaySdk()])
       .then(([config, Razorpay]) => {
         if (!active) return
+        setConfig(config)
         const sdk = new Razorpay({ key: config.keyId })
         instance.current = sdk
         sdk.on('payment.success', (response) => {
@@ -61,10 +65,21 @@ export function useRazorpayMethods(
             setError('Payment methods could not be confirmed. Please retry.')
             return
           }
-          setMethods(enabled)
+          setMethods({
+            ...enabled,
+            upi:
+              enabled.upi === true &&
+              config.mode === 'live' &&
+              (isMobile ? config.upi?.intent === true : config.upi?.qr === true),
+          })
           setError(null)
         })
-        if (isMobile && sdk.getSupportedUpiIntentApps) {
+        if (
+          config.mode === 'live' &&
+          config.upi?.intent &&
+          isMobile &&
+          sdk.getSupportedUpiIntentApps
+        ) {
           void sdk
             .getSupportedUpiIntentApps()
             .then((response) => {
@@ -90,5 +105,13 @@ export function useRazorpayMethods(
     }
   }, [attempt, isMobile, expectedUserId])
 
-  return { instance, methods, apps, isMobile, error, retry: () => setAttempt((value) => value + 1) }
+  return {
+    instance,
+    methods,
+    config,
+    apps,
+    isMobile,
+    error,
+    retry: () => setAttempt((value) => value + 1),
+  }
 }

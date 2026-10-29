@@ -142,7 +142,12 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
         data = prepared && url.pathname.endsWith('/' + preparedRequestId) ? session() : null
       else if (url.pathname.endsWith('/attempts')) data = { attempt_id: body.checkout_request_id }
       else if (url.pathname.endsWith('/payment-config'))
-        data = { key_id: 'rzp_test_example', currency: 'INR' }
+        data = {
+          key_id: 'rzp_test_example',
+          currency: 'INR',
+          mode: behavior.paymentMode ?? 'live',
+          upi: { intent: true, qr: true, embedded_qr: behavior.embeddedQr ?? true },
+        }
       else if (url.pathname.endsWith('/quote')) {
         if (behavior.shippingOutage)
           return route.fulfill({
@@ -304,6 +309,32 @@ for (const engine of ['chromium', 'webkit']) {
     }
   })
 }
+
+test('Test Mode hides UPI and explains supported payment testing', async () => {
+  const { page } = await checkoutPage('chromium', {}, { paymentMode: 'test' })
+  try {
+    await expect(page.getByText('Test checkout:', { exact: false })).toBeVisible()
+    await expect(page.getByRole('radio', { name: 'UPI', exact: true })).toHaveCount(0)
+    await expect(page.getByLabel('Card number', { exact: true })).toBeVisible()
+    assert.equal(await page.evaluate(() => window.paymentFixture.calls.length), 0)
+  } finally {
+    await page.close()
+  }
+})
+
+test('eligible desktop checkout redirects to QR unless embedded QR is approved', async () => {
+  const { page } = await checkoutPage('chromium', {}, { embeddedQr: false })
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await page.getByRole('button', { name: /Show QR.*₹599/ }).click()
+    const calls = await page.evaluate(() => window.paymentFixture.calls)
+    assert.equal(calls.length, 1)
+    assert.equal(calls[0].qrFallback, true)
+    await expect(page.getByRole('img', { name: /Scan.*UPI/i })).toHaveCount(0)
+  } finally {
+    await page.close()
+  }
+})
 
 test('desktop UPI renders a live inline QR only after the final user action', async () => {
   const { page } = await checkoutPage('chromium')

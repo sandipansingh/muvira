@@ -11,7 +11,11 @@ import { Dropdown } from '../ui/Dropdown'
 import { checkoutService } from '../../lib/services/checkout.service'
 import { orderApiService } from '../../lib/services/order.service'
 import { useRazorpayMethods } from '../../lib/hooks/useRazorpayMethods'
-import { availablePaymentMethods, paymentErrorMetadata } from '../../lib/utils/razorpay'
+import {
+  availablePaymentMethods,
+  paymentErrorMetadata,
+  paymentErrorCopy,
+} from '../../lib/utils/razorpay'
 import { validateCardDetails, type CardDetails } from '../../lib/validators/payment.validator'
 import { formatPrice } from '../../lib/utils/format'
 import { ApiError } from '../../lib/api/client'
@@ -74,9 +78,13 @@ export function RazorpayPayment({
   const submitting = useRef(false)
   const verifiedIds = useRef(new Set<string>())
   const awaitingSdk = useRef(false)
+  const dispatchStarted = useRef(false)
+  const activeMethod = useRef(method)
+  activeMethod.current = method
   const successSeen = useRef(false)
   const statusGeneration = useRef(0)
   const currentSession = useRef(session)
+  const previousOrderId = useRef(session?.orderId ?? null)
   currentSession.current = session
   const pendingSince = useRef(Date.now())
   const checkAfter = useRef(0)
@@ -114,7 +122,14 @@ export function RazorpayPayment({
         currentSession.current?.orderId === updated.orderId &&
         generation === statusGeneration.current
       ) {
-        if (updated.state === 'paid' || updated.state === 'released') awaitingSdk.current = false
+        if (updated.state === 'paid' || updated.state === 'released') {
+          awaitingSdk.current = false
+          clearCard()
+        }
+        if (updated.canPay && !awaitingSdk.current && dispatchStarted.current) {
+          dispatchStarted.current = false
+          sdk.retry()
+        }
         onSession(
           updated.canPay && (awaitingSdk.current || successSeen.current)
             ? { ...updated, canPay: false, state: 'pending' }
@@ -166,6 +181,7 @@ export function RazorpayPayment({
   }
 
   const onError = (response: RazorpayFailureResponse) => {
+    if (!dispatchStarted.current) return
     const failure = response.error
     if (
       failure?.metadata?.order_id &&
@@ -184,15 +200,43 @@ export function RazorpayPayment({
     setQr(null)
     submitting.current = false
     setPhase('idle')
-    sdkError.current =
-      failure?.description ?? 'Payment was not completed. Check its status to try again safely.'
+    sdkError.current = paymentErrorCopy(failure)
     setError(sdkError.current)
-    console.warn('Razorpay payment attempt', paymentErrorMetadata(failure))
+    const current = currentSession.current
+    if (current)
+      void checkoutService
+        .reportPaymentError(
+          current.orderId,
+          {
+            ...paymentErrorMetadata(failure),
+            method: activeMethod.current,
+            flow:
+              activeMethod.current === 'upi'
+                ? sdk.isMobile
+                  ? 'intent'
+                  : sdk.config?.upi.embedded_qr && !qrFallback
+                    ? 'embedded_qr'
+                    : 'redirect_qr'
+                : activeMethod.current === 'card'
+                  ? 'card'
+                  : 'redirect',
+          },
+          accountId
+        )
+        .catch(() => undefined)
     void checkStatus()
   }
 
   const onQr = (response: RazorpayQrResponse) => {
-    if (successSeen.current) return
+    if (
+      successSeen.current ||
+      !awaitingSdk.current ||
+      !dispatchStarted.current ||
+      activeMethod.current !== 'upi' ||
+      sdk.isMobile ||
+      !sdk.config?.upi.embedded_qr
+    )
+      return
     if (!currentSession.current || response.status === 'expired') {
       awaitingSdk.current = false
       setQr(null)
@@ -249,8 +293,12 @@ export function RazorpayPayment({
 
   useEffect(() => {
     if (isResuming) clearCard()
-    if (session) return
+    const previous = previousOrderId.current
+    previousOrderId.current = session?.orderId ?? null
+    if (session && previous === null && !isResuming) return
+    sdk.retry()
     statusGeneration.current += 1
+    dispatchStarted.current = false
     awaitingSdk.current = false
     successSeen.current = false
     verifiedIds.current.clear()
@@ -308,6 +356,7 @@ export function RazorpayPayment({
   }, [qrActive]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const validateMethod = () => {
+    if (!available.includes(method)) return false
     if (method === 'card') {
       const errors = validateCardDetails(readCard())
       setCardErrors(errors)
@@ -376,12 +425,14 @@ export function RazorpayPayment({
       })
     } else if (method === 'netbanking') data.bank = bank
     else if (method === 'wallet') data.wallet = wallet
-    else if (qrFallback || (sdk.isMobile && !app)) data.upi = { qr: true, timeout: 10 }
+    else if (method === 'upi' && !sdk.isMobile && (!sdk.config?.upi.embedded_qr || qrFallback))
+      data.upi = { qr: true, timeout: 10 }
     submitting.current = true
     sdkError.current = null
     setError(null)
     setPhase('waiting')
     pendingSince.current = Date.now()
+    dispatchStarted.current = true
     awaitingSdk.current = true
     onSession({ ...current, canPay: false, state: 'pending' })
     try {
@@ -405,6 +456,7 @@ export function RazorpayPayment({
   }
 
   const changeMethod = (value: PaymentMethod) => {
+    setQr(null)
     sdkError.current = null
     clearCard()
     setCardErrors({})
@@ -695,6 +747,12 @@ export function RazorpayPayment({
           </h2>
           <p className="mt-2 text-sm text-muted">Your payment is processed securely by Razorpay.</p>
         </div>
+        {sdk.config?.mode === 'test' && (
+          <p className="mb-4 text-sm text-muted" role="status">
+            Test checkout: UPI app handoff and QR payments are unavailable. Choose an enabled card,
+            bank or wallet to test payment.
+          </p>
+        )}
         {sdk.error ? (
           <div className="checkout-notice" role="alert">
             <p>{sdk.error}</p>

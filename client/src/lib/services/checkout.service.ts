@@ -8,7 +8,7 @@ import type {
   CreateCheckoutOrderInput,
   CheckoutPaymentSession,
 } from '../../types/checkout'
-import type { RazorpaySuccessResponse } from '../../types/razorpay'
+import type { PaymentConfiguration, RazorpaySuccessResponse } from '../../types/razorpay'
 
 interface RawPaymentSession {
   checkout_request_id: string | null
@@ -187,6 +187,18 @@ function mapQuote(raw: RawCheckoutQuote): CheckoutQuote {
 }
 
 export const checkoutService = {
+  async reportPaymentError(
+    orderId: string,
+    metadata: Record<string, string>,
+    expectedUserId: string
+  ): Promise<void> {
+    await api.post(
+      `/api/checkout/${encodeURIComponent(orderId)}/payment-error`,
+      metadata,
+      true,
+      expectedUserId
+    )
+  },
   async initializeAttempt(requestId: string, expectedUserId: string): Promise<void> {
     await api.post(
       '/api/checkout/attempts',
@@ -203,13 +215,12 @@ export const checkoutService = {
     )
     return response.data ? mapPaymentSession(response.data) : null
   },
-  async paymentConfig(expectedUserId?: string): Promise<{ keyId: string }> {
-    const response = await api.get<{ success: true; data: { key_id: string } }>(
-      '/api/checkout/payment-config',
-      true,
-      expectedUserId
-    )
-    return { keyId: response.data.key_id }
+  async paymentConfig(expectedUserId?: string): Promise<PaymentConfiguration> {
+    const response = await api.get<{
+      success: true
+      data: { key_id: string } & Omit<PaymentConfiguration, 'keyId'>
+    }>('/api/checkout/payment-config', true, expectedUserId)
+    return { keyId: response.data.key_id, mode: response.data.mode, upi: response.data.upi }
   },
   async active(expectedUserId?: string): Promise<CheckoutPaymentSession | null> {
     const response = await api.get<{ success: true; data: RawPaymentSession | null }>(

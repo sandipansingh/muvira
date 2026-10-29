@@ -1,5 +1,18 @@
 import type { PaymentMethod, RazorpayMethods } from '../../types/razorpay'
 
+export function paymentErrorCopy(error: unknown): string {
+  const metadata = paymentErrorMetadata(error)
+  if (metadata.reason === 'intent_no_apps_error')
+    return 'The selected UPI app could not open. Check payment status, then choose another supported app or payment method.'
+  if (
+    ['payment_cancelled', 'payment_canceled', 'payment_cancelled_by_user'].includes(
+      metadata.reason ?? ''
+    )
+  )
+    return 'Payment was cancelled. Check its status before trying again.'
+  return 'Payment was not completed. Check its status before trying again safely.'
+}
+
 export function paymentErrorMetadata(error: unknown): Record<string, string> {
   if (!error || typeof error !== 'object') return {}
   const input = error as Record<string, unknown>
