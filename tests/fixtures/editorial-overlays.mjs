@@ -135,7 +135,12 @@ const cases = [
     button: 'Release inventory',
     dialog: 'Release retained checkout',
   },
-  { name: 'address-editor', path: '/profile', button: 'Add address', section: '#addresses form' },
+  {
+    name: 'address-editor',
+    path: '/profile#addresses',
+    button: 'Add address',
+    section: '#addresses form',
+  },
   { name: 'gallery-zoom', path: '/product/fixture', button: /^Enlarge image of /, dialog: true },
 ]
 async function prepareRefund(page) {

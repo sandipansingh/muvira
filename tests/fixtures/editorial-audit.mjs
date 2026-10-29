@@ -20,6 +20,8 @@ const routes = [
   ['signup', '/signup?fixtureRole=guest'],
   ['recovery', '/reset-password'],
   ['profile', '/profile'],
+  ['profile-personal', '/profile#personal-info'],
+  ['profile-addresses', '/profile#addresses'],
   ['orders', '/orders'],
   ['order-detail', '/orders/fixture-order'],
   ['order-invoice', '/orders/fixture-order?shipment=1'],

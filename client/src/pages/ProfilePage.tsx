@@ -1,8 +1,10 @@
 import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { AccountNavigation } from '../components/auth/AccountNavigation'
-import { AccountOptions } from '../components/auth/AccountOptions'
+import { AccountUtilities } from '../components/auth/AccountUtilities'
+import { AccountOverview } from '../components/auth/AccountOverview'
+import type { Profile } from '../lib/types/auth'
 import React, { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { Pencil, Trash2 } from 'lucide-react'
 import type { Address } from '../lib/types/cart'
 import { addressService } from '../lib/services/address.service'
@@ -49,10 +51,28 @@ function addressValues(address: Address): AddressFormValues {
 }
 
 export const ProfilePage: React.FC = () => {
-  const { user, loading: authLoading, updateProfile } = useAuth()
+  const { user, loading } = useAuth()
+  if (loading || !user) return <main className="editorial-page" />
+  return <AccountWorkspace key={user.id} user={user} />
+}
+
+function AccountWorkspace({ user }: { user: Profile }) {
+  const { updateProfile } = useAuth()
+  const { hash } = useLocation()
+  const view =
+    hash === '#addresses' ? 'addresses' : hash === '#personal-info' ? 'personal' : 'overview'
+  const mounted = useRef(true)
+  const profilePending = useRef(false)
+  const preferencePending = useRef(false)
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
   const { showToast } = useToast()
-  const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [fullName, setFullName] = useState(user.fullName)
+  const [phone, setPhone] = useState(user.phone)
   const [savingProfile, setSavingProfile] = useState(false)
   const [addresses, setAddresses] = useState<Address[]>([])
   const [addressForm, setAddressForm] = useState<AddressFormValues>(emptyAddress)
@@ -62,6 +82,8 @@ export const ProfilePage: React.FC = () => {
   const [pendingAddressId, setPendingAddressId] = useState<string | null>(null)
   const addressPending = useRef(false)
   const [loadingAddresses, setLoadingAddresses] = useState(true)
+  const [addressError, setAddressError] = useState<string | null>(null)
+  const [addressRetry, setAddressRetry] = useState(0)
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(true)
   const [loadingPreferences, setLoadingPreferences] = useState(true)
   const [savingPreferences, setSavingPreferences] = useState(false)
@@ -70,23 +92,17 @@ export const ProfilePage: React.FC = () => {
   const [preferencesRetry, setPreferencesRetry] = useState(0)
 
   useEffect(() => {
-    if (user) {
-      setFullName(user.fullName)
-      setPhone(user.phone)
-    }
-  }, [user])
-
-  useEffect(() => {
-    if (!user) return
     let active = true
     const loadAddresses = async () => {
       setLoadingAddresses(true)
+      setAddressError(null)
       try {
         const response = await addressService.getAddresses()
-        if (response.success && active) setAddresses(response.data)
+        if (!response.success) throw new Error(response.error.message)
+        if (active) setAddresses(response.data)
       } catch (reason) {
         if (active)
-          showToast(reason instanceof Error ? reason.message : 'Unable to load addresses.', 'error')
+          setAddressError(reason instanceof Error ? reason.message : 'Unable to load addresses.')
       } finally {
         if (active) setLoadingAddresses(false)
       }
@@ -95,10 +111,9 @@ export const ProfilePage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [showToast, user])
+  }, [addressRetry])
 
   useEffect(() => {
-    if (!user) return
     let active = true
     const loadPreferences = async () => {
       setLoadingPreferences(true)
@@ -124,15 +139,18 @@ export const ProfilePage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [user, preferencesRetry])
+  }, [preferencesRetry])
 
   const handleProfileUpdate = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (profilePending.current) return
+    profilePending.current = true
     setSavingProfile(true)
     try {
       await updateProfile(fullName, phone)
     } finally {
-      setSavingProfile(false)
+      profilePending.current = false
+      if (mounted.current) setSavingProfile(false)
     }
   }
 
@@ -165,22 +183,27 @@ export const ProfilePage: React.FC = () => {
         ? await addressService.updateAddress(editingAddressId, data)
         : await addressService.createAddress(data)
     } catch (reason) {
+      if (!mounted.current) return
       showToast(reason instanceof Error ? reason.message : 'Unable to save address.', 'error')
       return
     } finally {
       addressPending.current = false
-      setSavingAddress(false)
+      if (mounted.current) setSavingAddress(false)
     }
 
+    if (!mounted.current) return
     if (!response.success) {
       showToast(response.error.message, 'error')
       return
     }
-    setAddresses((previous) =>
-      editingAddressId
-        ? previous.map((address) => (address.id === response.data.id ? response.data : address))
-        : [...previous, response.data]
-    )
+    setAddresses((previous) => {
+      const reconciled = response.data.isDefault
+        ? previous.map((address) => ({ ...address, isDefault: false }))
+        : previous
+      return editingAddressId
+        ? reconciled.map((address) => (address.id === response.data.id ? response.data : address))
+        : [...reconciled, response.data]
+    })
     setAddressFormOpen(false)
     showToast(editingAddressId ? 'Address updated.' : 'Address saved.', 'success')
   }
@@ -193,12 +216,14 @@ export const ProfilePage: React.FC = () => {
     try {
       response = await addressService.deleteAddress(id)
     } catch (reason) {
+      if (!mounted.current) return
       showToast(reason instanceof Error ? reason.message : 'Unable to delete address.', 'error')
       return
     } finally {
       addressPending.current = false
-      setPendingAddressId(null)
+      if (mounted.current) setPendingAddressId(null)
     }
+    if (!mounted.current) return
     if (!response.success) {
       showToast(response.error.message, 'error')
       return
@@ -215,6 +240,7 @@ export const ProfilePage: React.FC = () => {
     try {
       response = await addressService.setDefaultAddress(id)
     } catch (reason) {
+      if (!mounted.current) return
       showToast(
         reason instanceof Error ? reason.message : 'Unable to update default address.',
         'error'
@@ -222,8 +248,9 @@ export const ProfilePage: React.FC = () => {
       return
     } finally {
       addressPending.current = false
-      setPendingAddressId(null)
+      if (mounted.current) setPendingAddressId(null)
     }
+    if (!mounted.current) return
     if (!response.success) {
       showToast(response.error.message, 'error')
       return
@@ -235,171 +262,211 @@ export const ProfilePage: React.FC = () => {
   }
 
   const updateEmailPreference = async (enabled: boolean) => {
+    if (preferencePending.current) return
+    preferencePending.current = true
     setSavingPreferences(true)
     setPreferencesError(null)
     try {
       const response = await notificationService.updatePreferences(enabled)
       if (!response.success) throw new Error(response.error.message)
+      if (!mounted.current) return
       setEmailNotificationsEnabled(response.data.emailEnabled)
       showToast('Email notification preference updated.', 'success')
     } catch (reason) {
+      if (!mounted.current) return
       const message =
         reason instanceof Error ? reason.message : 'Unable to update notification preference.'
       setPreferencesError(message)
       showToast(message, 'error')
     } finally {
-      setSavingPreferences(false)
+      preferencePending.current = false
+      if (mounted.current) setSavingPreferences(false)
     }
   }
-
-  if (authLoading || !user) return <main className="editorial-page" />
 
   return (
     <main className="account-page editorial-page py-10 sm:py-14">
       <div className="editorial-container max-w-6xl">
-        <CustomerPageHeading
-          title="Your account"
-          actions={
-            <>
-              <Link to="/shop" className="account-shopping-link">
-                Continue shopping
-              </Link>
-              <AccountOptions />
-            </>
-          }
-        />
-        <AccountNavigation addressCount={addresses.length} />
+        {view === 'overview' ? (
+          <>
+            <div className="account-welcome">
+              <span className="account-initials" aria-hidden="true">
+                {user.fullName
+                  .trim()
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((part) => part[0])
+                  .join('')
+                  .toLocaleUpperCase('en-IN') || user.email?.[0]?.toLocaleUpperCase('en-IN')}
+              </span>
+              <div className="min-w-0">
+                <CustomerPageHeading title="Your account" />
+                <p className="account-greeting">
+                  Welcome back
+                  {user.fullName.trim() ? `, ${user.fullName.trim().split(/\s+/)[0]}` : ''}.
+                </p>
+                <p className="account-email">{user.email}</p>
+              </div>
+            </div>
+            <AccountOverview
+              addresses={addresses}
+              loadingAddresses={loadingAddresses}
+              addressError={addressError}
+              retryAddresses={() => setAddressRetry((value) => value + 1)}
+            />
+          </>
+        ) : (
+          <>
+            <CustomerPageHeading title="Your account" />
+            <AccountNavigation
+              addressCount={loadingAddresses || addressError ? undefined : addresses.length}
+            />
+          </>
+        )}
 
-        <div className="account-workspace">
+        <div className="account-workspace" hidden={view === 'overview'}>
           <div>
-            <section className="account-section space-y-5" aria-labelledby="personal-details-title">
-              <h2 id="personal-details-title" className="font-sans text-lg font-semibold text-ink">
-                Personal details
-              </h2>
-              <form
-                onSubmit={handleProfileUpdate}
-                className="grid grid-cols-1 gap-5 sm:grid-cols-2"
+            <div hidden={view !== 'personal'} className="account-personal account-card">
+              <section
+                id="personal-info"
+                className="account-section space-y-5"
+                aria-labelledby="personal-details-title"
               >
-                <div className="sm:col-span-2">
-                  <label
-                    htmlFor="profile-email"
-                    className="mb-1.5 block text-xs font-normal text-ink"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="profile-email"
-                    name="email"
-                    type="email"
-                    disabled
-                    value={user.email}
-                    className="input cursor-not-allowed bg-surface text-muted"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="profile-full-name"
-                    className="mb-1.5 block text-xs font-normal text-ink"
-                  >
-                    Full name
-                  </label>
-                  <input
-                    id="profile-full-name"
-                    name="fullName"
-                    type="text"
-                    autoComplete="name"
-                    required
-                    value={fullName}
-                    onChange={(event) => setFullName(event.target.value)}
-                    className="input"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="profile-phone"
-                    className="mb-1.5 block text-xs font-normal text-ink"
-                  >
-                    Phone number
-                  </label>
-                  <input
-                    id="profile-phone"
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel-national"
-                    required
-                    value={phone}
-                    onChange={(event) => setPhone(event.target.value)}
-                    className="input"
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  isLoading={savingProfile}
-                  className="justify-self-start sm:col-span-2"
+                <h2
+                  id="personal-details-title"
+                  className="font-display text-2xl font-normal text-ink"
                 >
-                  Save changes
-                </Button>
-              </form>
-            </section>
-
-            <section
-              className="account-section space-y-4"
-              aria-labelledby="notification-preferences-title"
-            >
-              <h2
-                id="notification-preferences-title"
-                className="font-sans text-lg font-semibold text-ink"
-              >
-                Notification preferences
-              </h2>
-              {loadingPreferences ? (
-                <p role="status" className="py-4 text-sm text-muted">
-                  Loading notification preferences…
-                </p>
-              ) : (
-                <label className="flex min-h-[var(--tap-target)] items-center justify-between gap-4 py-2">
-                  <span>
-                    <span className="block text-sm font-bold text-ink">Order update emails</span>
-                    <span className="mt-1 block text-sm text-ink-soft">
-                      Receive payment and fulfillment updates by email.
-                    </span>
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={emailNotificationsEnabled}
-                    disabled={savingPreferences || !preferencesLoaded}
-                    aria-busy={savingPreferences}
-                    onChange={(event) => void updateEmailPreference(event.target.checked)}
-                    className="h-5 w-5 shrink-0 accent-primary"
-                    aria-label="Receive order update emails"
-                  />
-                </label>
-              )}
-              {preferencesError && (
-                <p role="alert" className="text-sm text-danger">
-                  {preferencesError}
-                  {!preferencesLoaded && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="ml-3"
-                      onClick={() => setPreferencesRetry((value) => value + 1)}
+                  Personal details
+                </h2>
+                <form
+                  onSubmit={handleProfileUpdate}
+                  className="grid grid-cols-1 gap-5 sm:grid-cols-2"
+                >
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="profile-email"
+                      className="mb-1.5 block text-xs font-normal text-ink"
                     >
-                      Try again
-                    </Button>
-                  )}
-                </p>
-              )}
-            </section>
+                      Email
+                    </label>
+                    <input
+                      id="profile-email"
+                      name="email"
+                      type="email"
+                      disabled
+                      value={user.email}
+                      className="input cursor-not-allowed bg-surface text-muted"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="profile-full-name"
+                      className="mb-1.5 block text-xs font-normal text-ink"
+                    >
+                      Full name
+                    </label>
+                    <input
+                      id="profile-full-name"
+                      name="fullName"
+                      type="text"
+                      autoComplete="name"
+                      required
+                      value={fullName}
+                      onChange={(event) => setFullName(event.target.value)}
+                      className="input"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="profile-phone"
+                      className="mb-1.5 block text-xs font-normal text-ink"
+                    >
+                      Phone number
+                    </label>
+                    <input
+                      id="profile-phone"
+                      name="phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      required
+                      value={phone}
+                      onChange={(event) => setPhone(event.target.value)}
+                      className="input"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    isLoading={savingProfile}
+                    className="justify-self-start sm:col-span-2"
+                  >
+                    Save changes
+                  </Button>
+                </form>
+              </section>
 
+              <section
+                className="account-section space-y-4"
+                aria-labelledby="notification-preferences-title"
+              >
+                <h2
+                  id="notification-preferences-title"
+                  className="font-display text-2xl font-normal text-ink"
+                >
+                  Notification preferences
+                </h2>
+                {loadingPreferences ? (
+                  <p role="status" className="py-4 text-sm text-muted">
+                    Loading notification preferences…
+                  </p>
+                ) : (
+                  <label className="flex min-h-[var(--tap-target)] items-center justify-between gap-4 py-2">
+                    <span>
+                      <span className="block text-sm font-bold text-ink">Order update emails</span>
+                      <span className="mt-1 block text-sm text-ink-soft">
+                        Receive payment and fulfillment updates by email.
+                      </span>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={emailNotificationsEnabled}
+                      disabled={savingPreferences || !preferencesLoaded}
+                      aria-busy={savingPreferences}
+                      onChange={(event) => void updateEmailPreference(event.target.checked)}
+                      className="h-5 w-5 shrink-0 accent-primary"
+                      aria-label="Receive order update emails"
+                    />
+                  </label>
+                )}
+                {preferencesError && (
+                  <p role="alert" className="text-sm text-danger">
+                    {preferencesError}
+                    {!preferencesLoaded && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="ml-3"
+                        onClick={() => setPreferencesRetry((value) => value + 1)}
+                      >
+                        Try again
+                      </Button>
+                    )}
+                  </p>
+                )}
+              </section>
+            </div>
             <section
+              hidden={view !== 'addresses'}
               id="addresses"
-              className="account-section space-y-4"
+              className="account-section account-card space-y-4"
               aria-labelledby="saved-addresses-title"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 id="saved-addresses-title" className="font-sans text-lg font-semibold text-ink">
+                <h2
+                  id="saved-addresses-title"
+                  className="font-display text-2xl font-normal text-ink"
+                >
                   Saved addresses
                 </h2>
                 <Button
@@ -521,14 +588,31 @@ export const ProfilePage: React.FC = () => {
               )}
 
               {loadingAddresses && (
-                <div className="h-24 animate-pulse rounded-[var(--radius-control)] bg-[var(--color-surface)]" />
+                <p role="status" className="py-6 text-sm text-ink-soft">
+                  Loading your addresses…
+                </p>
               )}
-              {!loadingAddresses && addresses.length === 0 && (
+              {!loadingAddresses && addressError && (
+                <div>
+                  <p role="alert" className="text-sm text-danger">
+                    {addressError}
+                  </p>
+                  <Button
+                    variant="secondary"
+                    className="mt-4"
+                    onClick={() => setAddressRetry((value) => value + 1)}
+                  >
+                    Try again
+                  </Button>
+                </div>
+              )}
+              {!loadingAddresses && !addressError && addresses.length === 0 && (
                 <p className="border-y border-line py-5 text-sm text-muted">
                   No saved addresses yet.
                 </p>
               )}
               {!loadingAddresses &&
+                !addressError &&
                 addresses.map((address) => (
                   <div
                     key={address.id}
@@ -586,6 +670,7 @@ export const ProfilePage: React.FC = () => {
             </section>
           </div>
         </div>
+        <AccountUtilities />
       </div>
     </main>
   )

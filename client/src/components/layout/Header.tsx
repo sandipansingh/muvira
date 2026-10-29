@@ -203,8 +203,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu, focused = fals
                     imageUrl: collectionImage(category.imageUrl).src,
                     description: collectionCaption(category),
                   })),
-                  { value: 'shop', label: 'Shop all products', href: '/shop' },
-                  { value: 'new', label: 'New arrivals', href: '/shop?sort=newest' },
                 ]}
               />
               <NavLink to="/shop" end className="header-link">

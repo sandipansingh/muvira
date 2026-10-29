@@ -39,7 +39,7 @@ test('header exposes search and all active collections while respecting merchant
     await page.getByRole('button', { name: 'Collections', exact: true }).click()
     const menu = page.getByRole('menu')
     await menu.waitFor()
-    assert.equal(await menu.getByRole('menuitem').count(), 12)
+    assert.equal(await menu.getByRole('menuitem').count(), 10)
     assert.equal(await menu.locator('img').count(), 9)
     const nav = page.getByRole('navigation', { name: 'Main navigation', exact: true })
     assert.equal(await nav.getByRole('link', { name: 'Vaastu', exact: true }).count(), 0)

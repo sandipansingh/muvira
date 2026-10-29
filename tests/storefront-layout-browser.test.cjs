@@ -43,7 +43,7 @@ async function visit(engine, path, run, options = {}) {
 async function assertIconGeometry(controls) {
   const failures = await controls.evaluateAll((elements) =>
     elements.flatMap((element) => {
-      if (!element.getClientRects().length) return []
+      if (!element.getClientRects().length || element.matches('.account-shortcut')) return []
       const icon = element.querySelector('svg')
       if (!icon) return []
       const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
@@ -538,6 +538,82 @@ for (const engine of ['chromium', 'webkit']) {
           await expect(
             page.locator('header').getByRole('button', { name: 'Sign in', exact: true })
           ).toBeFocused()
+        },
+        { viewport: { width, height: 950 } }
+      ))
+
+  for (const width of [1024, 1280, 1440])
+    test(`${engine} ${width}px: collection menu has three equal columns and retains standalone shop links`, () =>
+      visit(
+        engine,
+        '/',
+        async (page) => {
+          const trigger = page.getByRole('button', { name: 'Collections', exact: true })
+          await trigger.click()
+          const panel = page.locator('.collections-panel')
+          await expect(panel.getByRole('menuitem')).toHaveCount(10)
+          await expect(
+            panel.getByRole('menuitem', { name: /Shop all products|New arrivals/ })
+          ).toHaveCount(0)
+          const directory = panel.getByRole('menuitem').first()
+          await expect(directory).toHaveAttribute('href', '/categories')
+          const cards = panel
+            .locator('.collections-panel__link')
+            .filter({ has: page.locator('.collections-panel__image') })
+          const boxes = await Promise.all((await cards.all()).map((card) => card.boundingBox()))
+          assert.equal(boxes.length, 9)
+          const frame = await directory.boundingBox()
+          assert.ok(Math.abs(frame.width - (boxes[2].x + boxes[2].width - boxes[0].x)) < 2)
+          for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+              const box = boxes[row * 3 + col]
+              assert.ok(Math.abs(box.width - boxes[0].width) < 1)
+              assert.ok(Math.abs(box.y - boxes[row * 3].y) < 1)
+            }
+          }
+          await page.evaluate(() => {
+            document
+              .querySelectorAll('.collections-panel__link > span')
+              .forEach((el) => (el.style.fontSize = '28px'))
+            document
+              .querySelectorAll('.collections-panel__link small')
+              .forEach((el) => (el.style.fontSize = '24px'))
+            document.querySelector(
+              '.collections-panel__link:nth-child(2) > span'
+            ).firstChild.textContent += ' — Traditional handcrafted pieces for the home mandir'
+          })
+          assert.ok(await panel.evaluate((el) => el.scrollWidth <= el.clientWidth + 1))
+          for (const image of await panel.locator('.collections-panel__image').all()) {
+            const box = await image.boundingBox()
+            assert.equal(box.width, 80)
+            assert.equal(box.height, 80)
+          }
+          await page.route('**/unavailable-menu.png', (route) => route.abort())
+          await panel
+            .locator('img')
+            .first()
+            .evaluate((el) => (el.src = '/unavailable-menu.png'))
+          await expect(
+            panel.getByRole('img', { name: 'Image unavailable', exact: true })
+          ).toBeVisible()
+          await directory.focus()
+          await page.keyboard.press('Escape')
+          await expect(trigger).toBeFocused()
+          const nav = page.getByRole('navigation', { name: 'Main navigation', exact: true })
+          await expect(nav.getByRole('link', { name: 'Shop all', exact: true })).toHaveAttribute(
+            'href',
+            '/shop'
+          )
+          await expect(
+            nav.getByRole('link', { name: 'New arrivals', exact: true })
+          ).toHaveAttribute('href', '/shop?sort=newest')
+          const footer = page.getByRole('navigation', { name: 'Footer catalog', exact: true })
+          await expect(
+            footer.getByRole('link', { name: 'All products', exact: true })
+          ).toHaveAttribute('href', '/shop')
+          await expect(
+            footer.getByRole('link', { name: 'New arrivals', exact: true })
+          ).toHaveAttribute('href', '/shop?sort=newest')
         },
         { viewport: { width, height: 950 } }
       ))

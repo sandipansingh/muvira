@@ -7,6 +7,7 @@ const control = window.authFixture = {
   credentials: 'success', signup: 'confirmation', profile: 'success', recovery: 'success', signout: 'success', role: 'customer',
   delay: {}, pending: {}, calls: {},
   release(name) { this.delay[name] = false; (this.pending[name] || []).splice(0).forEach(done => done()); },
+  changeUser(user) { window.fixture.auth.user = user; signedIn(); },
 };
 export async function gate(name) {
   control.calls[name] = (control.calls[name] || 0) + 1;

@@ -13,6 +13,12 @@ async function accountGate(name, data) {
 const addresses = () => window.fixture.addresses ||= [window.fixture.address];
 `
 export const accountBrowserMocks = {
+  'order.service': `${helper}
+    export const orderApiService = {
+      getOrders: async (page=1,limit=20) => { const order={...window.fixture.order}; await accountGate('orderLoad',{page,limit}); return {...ok(control.ordersEmpty?[]:[order]),pagination:{page,limit,total:control.ordersEmpty?0:1,totalPages:1}}; },
+      getOrderById: async () => ok(window.fixture.order),
+      getOrderTracking: async () => ok({shipment_events:[]}),
+    };`,
   'auth.service': `import {gate} from './supabase'; ${helper}
     export const authApiService = {
       getProfile: async () => { await gate('profile'); return ok(window.fixture.auth.user); },
@@ -20,9 +26,9 @@ export const accountBrowserMocks = {
     };`,
   'address.service': `${helper}
     export const addressService = {
-      getAddresses: async () => { await accountGate('addressLoad'); return ok(addresses().map(address=>({...address}))); },
+      getAddresses: async () => { const result=addresses().map(address=>({...address})); await accountGate('addressLoad'); return ok(result); },
       createAddress: async data => { await accountGate('addressCreate', data); const address = {...data,id:'new-address'}; if(address.isDefault)addresses().forEach(item=>item.isDefault=false); addresses().push(address); return ok(address); },
-      updateAddress: async (id,data) => { await accountGate('addressEdit', data); const address={...data,id}; window.fixture.addresses=addresses().map(item=>item.id===id?address:item); return ok(address); },
+      updateAddress: async (id,data) => { await accountGate('addressEdit', data); const address={...data,id}; if(address.isDefault)addresses().forEach(item=>item.isDefault=false); window.fixture.addresses=addresses().map(item=>item.id===id?address:item); return ok(address); },
       deleteAddress: async id => { await accountGate('addressDelete', id); window.fixture.addresses=addresses().filter(item=>item.id!==id); return ok(null); },
       setDefaultAddress: async id => { await accountGate('addressDefault', id); addresses().forEach(item=>item.isDefault=item.id===id); return ok(addresses().find(item=>item.id===id)); },
     };`,

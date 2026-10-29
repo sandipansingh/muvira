@@ -124,8 +124,8 @@ test('authenticated customer and admin pages render across mobile, tablet, deskt
   const report = JSON.parse(
     await readFile('responsive-audit/redesign/authenticated-findings.json', 'utf8')
   )
-  expect(report.routes).toHaveLength(45)
-  expect(report.results).toHaveLength(225)
+  expect(report.routes).toHaveLength(47)
+  expect(report.results).toHaveLength(235)
   for (const result of report.results) {
     expect(result.error, `${result.name} ${result.viewport.label}`).toBeUndefined()
     expect(result.errors).toEqual([])

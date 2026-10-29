@@ -1,4 +1,4 @@
-import { MapPin, Package, User } from 'lucide-react'
+import { LayoutGrid, MapPin, Package, User } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 export function AccountNavigation({ addressCount }: { addressCount?: number }) {
@@ -7,9 +7,12 @@ export function AccountNavigation({ addressCount }: { addressCount?: number }) {
     ? 'orders'
     : hash === '#addresses'
       ? 'addresses'
-      : 'personal'
+      : hash === '#personal-info'
+        ? 'personal'
+        : 'overview'
   const destinations = [
-    { id: 'personal', href: '/profile', label: 'Personal info', icon: User },
+    { id: 'overview', href: '/profile', label: 'Overview', icon: LayoutGrid },
+    { id: 'personal', href: '/profile#personal-info', label: 'Personal info', icon: User },
     { id: 'orders', href: '/orders', label: 'My orders', icon: Package },
     {
       id: 'addresses',
