@@ -23,7 +23,7 @@ export function CustomerPageHeading({
         <div className="min-w-0">
           <h1 className="page-title">{title}</h1>
           {description && (
-            <p className="mt-3 max-w-2xl text-base leading-7 text-ink-soft">{description}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-5 text-muted">{description}</p>
           )}
         </div>
         {(actions || children) && (

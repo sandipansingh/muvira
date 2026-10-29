@@ -60,20 +60,27 @@ test('choosing a sort option returns keyboard focus to its trigger', () =>
     await page.waitForTimeout(250)
     await expect(trigger).toBeFocused()
   }))
-test('quantity selection restores focus after its pending update finishes', () =>
+test('quantity controls preserve pending focus, minimum one and stock limits', () =>
   pageFor('/cart?slowQuantity=1', async (page) => {
-    const trigger = page.getByRole('button', { name: /^Quantity for/ })
-    await trigger.focus()
-    await page.keyboard.press('ArrowDown')
-    await page.keyboard.press('ArrowDown')
+    const increase = page.getByRole('button', { name: 'Increase quantity', exact: true })
+    const decrease = page.getByRole('button', { name: 'Decrease quantity', exact: true })
+    await expect(decrease).toBeDisabled()
+    await increase.focus()
     await page.keyboard.press('Enter')
-    await page.waitForFunction(
-      () => document.querySelector('[aria-label^="Quantity for"]')?.disabled === true
-    )
-    await page.waitForFunction(
-      () => document.querySelector('[aria-label^="Quantity for"]')?.disabled === false
-    )
-    await expect(trigger).toBeFocused()
+    await expect(increase).toBeDisabled()
+    await expect(increase).toBeEnabled()
+    await expect(increase).toBeFocused()
+    await expect(page.locator('.quantity-control output')).toHaveText('2')
+    await decrease.click()
+    await expect(page.locator('.quantity-control output')).toHaveText('1')
+    await expect(decrease).toBeDisabled()
+    for (let count = 1; count < 10; count++) {
+      await increase.click()
+      await expect(page.locator('.quantity-control output')).toHaveText(String(count + 1))
+    }
+    await expect(increase).toBeDisabled()
+    await page.getByRole('button', { name: /^Remove / }).click()
+    await expect(page.getByRole('heading', { name: 'Your cart is empty' })).toBeVisible()
   }))
 test('failed product photographs retain the image-unavailable state in the lightbox', () =>
   pageFor('/product/fixture?scenario=broken-images', async (page) => {

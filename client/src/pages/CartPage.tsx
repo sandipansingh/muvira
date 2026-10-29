@@ -1,13 +1,12 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ShoppingBag, ArrowLeft } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 import { useAuthDialog } from '../context/AuthDialogContext'
 import { FlowHeader } from '../components/checkout/FlowHeader'
 import { FlowItemCard } from '../components/checkout/FlowItemCard'
 import { FlowCartSidebar } from '../components/checkout/FlowCartSidebar'
-import { RecommendedUpsell } from '../components/checkout/RecommendedUpsell'
 import { CollectionScene } from '../components/common/CollectionScene'
 
 export const CartPage: React.FC = () => {
@@ -73,10 +72,7 @@ export const CartPage: React.FC = () => {
   return (
     <main className="checkout-page cart-page bg-background pb-16">
       <div className="layout-container">
-        {/* Top Flow Header */}
         <FlowHeader currentStep="cart" onBack={() => navigate('/shop')} />
-
-        {/* Error notification if any */}
         {error && (
           <div className="mt-4 rounded-xl border border-warning/30 bg-warning-soft p-4 text-xs font-medium text-warning">
             {error}
@@ -86,14 +82,12 @@ export const CartPage: React.FC = () => {
           </div>
         )}
 
-        <div className="checkout-workspace mt-8">
-          {/* Main Left Column: Order Summary with Item Cards & Recommended Upsell */}
+        <div className="checkout-workspace mt-3">
           <div className="min-w-0 space-y-6">
-            <section className="rounded-card border border-[var(--color-line)] bg-[var(--color-paper)] p-[min(1.25rem,5vw)] sm:p-7 shadow-none space-y-6">
-              {/* Header with Clear Cart */}
+            <section className="cart-product-panel journey-card space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-line)] pb-4">
                 <div className="flex items-center gap-3">
-                  <h2 className="font-display text-xl sm:text-2xl text-ink">In your bag</h2>
+                  <h2 className="journey-section-title text-ink">In your bag</h2>
                   <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-xs font-semibold text-[var(--color-ink)]">
                     {itemCount} {itemCount === 1 ? 'item' : 'items'}
                   </span>
@@ -113,19 +107,7 @@ export const CartPage: React.FC = () => {
                   <FlowItemCard key={item.id} item={item} />
                 ))}
               </div>
-
-              {/* Continue Shopping Link */}
-              <div className="pt-2">
-                <Link
-                  to="/shop"
-                  className="icon-label inline-flex min-h-[var(--tap-target)] gap-2 text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-primary)] hover:underline"
-                >
-                  <ArrowLeft className="h-4 w-4 shrink-0" />
-                  <span>Continue Shopping</span>
-                </Link>
-              </div>
             </section>
-            <RecommendedUpsell />
           </div>
           <div className="commerce-summary-column min-w-0">
             <FlowCartSidebar

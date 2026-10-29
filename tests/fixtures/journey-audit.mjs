@@ -95,8 +95,13 @@ try {
                     .forEach((el) => (el.src = '/unavailable-journey.png'))
                 }
               }, scale)
+              if (scale === 2) {
+                await page.setViewportSize({ width, height: 951 })
+                await page.setViewportSize({ width, height: 950 })
+              }
               await page.waitForTimeout(100)
               result.findings = await page.evaluate(() => ({
+                bodyFontSize: getComputedStyle(document.body).fontSize,
                 overflow: document.documentElement.scrollWidth > innerWidth + 1,
                 headings: document.querySelectorAll('main h1').length,
                 fields: [

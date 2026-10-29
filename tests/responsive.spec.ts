@@ -178,6 +178,7 @@ test('account and purchase redesign reflows in Chromium and WebKit with long con
     ).toBeUndefined()
     expect(result.errors).toEqual([])
     expect(result.findings.overflow).toBe(false)
+    expect(result.findings.bodyFontSize).toBe(result.scale === 2 ? '28px' : '14px')
     expect(result.findings.headings).toBe(1)
     expect(result.findings.fields).toEqual([])
     expect(result.findings.outside).toEqual([])

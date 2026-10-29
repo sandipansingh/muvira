@@ -53,7 +53,7 @@ export function CheckoutSummary({
     >
       <section className="journey-card checkout-summary-order">
         <div className="checkout-summary-heading">
-          <h2 className="font-display text-2xl font-normal">Your order</h2>
+          <h2 className="journey-section-title">Your order</h2>
           {session && <p className="mt-2 text-xs text-muted">{session.orderNumber}</p>}
         </div>
         <details className="checkout-summary-details" open>
@@ -65,11 +65,12 @@ export function CheckoutSummary({
           </summary>
           <div className="checkout-summary-items">
             {lines.map((item) => (
-              <div key={item.id} className="flex items-center gap-4">
-                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-control bg-paper">
+              <div key={item.id} className="checkout-summary-item">
+                <div className="checkout-summary-item__image relative shrink-0 overflow-hidden rounded-control bg-paper">
                   {item.image ? (
                     <StoreImage
                       framing="square"
+                      fallbackPresentation="icon"
                       src={item.image}
                       alt={item.name}
                       width={160}
@@ -85,7 +86,7 @@ export function CheckoutSummary({
                     {item.quantity}
                   </span>
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="checkout-summary-item__copy">
                   <p className="text-sm font-semibold leading-relaxed">{item.name}</p>
                   <p className="mt-1 text-sm text-muted">{display(item.total)}</p>
                 </div>
@@ -132,7 +133,7 @@ export function CheckoutSummary({
         </dl>
         <div className="mt-5 flex items-baseline justify-between gap-3 border-t border-line pt-5">
           <span className="text-base font-semibold">Total</span>
-          <span className="font-product text-2xl font-semibold text-primary">{display(total)}</span>
+          <span className="font-product text-xl font-semibold text-primary">{display(total)}</span>
         </div>
         {loading && (
           <p className="mt-2 text-xs text-muted" role="status">

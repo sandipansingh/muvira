@@ -81,6 +81,7 @@ export function AccountOverview({
             <div className="account-recent-order">
               <StoreImage
                 framing="square"
+                fallbackPresentation="icon"
                 src={order.firstItemImage}
                 alt={order.firstItemName ?? 'Ordered product'}
                 width={128}

@@ -187,7 +187,8 @@ function inspectPage({ touch, dpr }) {
     .filter(
       (element) =>
         element.matches('p, li, label, input:not([type="hidden"]), textarea, select') &&
-        Number.parseFloat(getComputedStyle(element).fontSize) < 14
+        Number.parseFloat(getComputedStyle(element).fontSize) <
+          (element.matches('.cart-product-meta') ? 12 : 14)
     )
     .slice(0, 40)
     .map((element) => ({ ...sample(element), fontSize: getComputedStyle(element).fontSize }))

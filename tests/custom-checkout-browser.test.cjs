@@ -50,6 +50,7 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
           callback({
             methods: settings.methods || {
               card: true,
+              card_networks: { VISA: 1, MC: 1, AMEX: 0 },
               upi: true,
               netbanking: { HDFC: 'HDFC Bank' },
               wallet: { payzapp: true, disabled: false },
@@ -63,7 +64,7 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
         this.events[event] = callback
       }
       async getSupportedUpiIntentApps() {
-        return ['phonepe', 'gpay']
+        return settings.apps || ['phonepe', 'gpay']
       }
       createPayment(data, options) {
         window.paymentFixture.calls.push({
@@ -192,6 +193,22 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
       } else if (url.pathname.endsWith('/create-order')) {
         prepared = true
         data = session()
+      } else if (url.pathname.endsWith('/cancel')) {
+        if (behavior.cancelUncertain) {
+          state.status = 'pending'
+          return route.fulfill({
+            status: 503,
+            json: {
+              success: false,
+              error: {
+                code: 'CANCELLATION_UNCERTAIN',
+                message: 'Payment may still complete. Check its status before starting again.',
+              },
+            },
+          })
+        }
+        state.status = 'released'
+        data = null
       } else if (url.pathname.endsWith('/reconcile')) data = session()
       else if (url.pathname.endsWith('/verify')) {
         state.status = 'paid'
@@ -395,7 +412,7 @@ test('delivery and billing remain editable until Review payment, with accessible
       false
     )
     await page.getByRole('button', { name: 'Continue to payment', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Choose how you pay' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Select a payment method' })).toBeVisible()
     assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 0)
     await page.getByRole('button', { name: 'Review payment', exact: true }).click()
     const request = requests.find((r) => r.path.endsWith('/create-order'))
@@ -606,8 +623,38 @@ for (const engine of ['chromium', 'webkit']) {
             (scale) => (document.documentElement.style.fontSize = `${16 * scale}px`),
             scale
           )
+          await page.evaluate(
+            () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+          )
           if (scale === 2) {
+            await page.evaluate(() => document.fonts.ready)
             await page.getByLabel('Expiry', { exact: true }).fill('12/30')
+            await expect(page.locator('.checkout-summary-items p').first()).toHaveCSS(
+              'font-size',
+              '28px'
+            )
+            const readable = await page.evaluate(() => {
+              const selectors = [
+                '.checkout-summary-items > div > div:last-child',
+                '.checkout-delivery-recap > div',
+              ]
+              return selectors.map((selector) => {
+                const element = document.querySelector(selector)
+                const text = element.querySelector('p')
+                const style = getComputedStyle(text)
+                const context = document.createElement('canvas').getContext('2d')
+                context.font = [style.fontWeight, style.fontSize, style.fontFamily].join(' ')
+                const longestWord = Math.max(
+                  ...text.textContent.split(/\s+/).map((word) => context.measureText(word).width)
+                )
+                return { selector, width: element.clientWidth, longestWord }
+              })
+            })
+            for (const item of readable)
+              assert.ok(
+                item.width >= item.longestWord,
+                `${width}px enlarged ${JSON.stringify(item)}`
+              )
             assert.equal(
               await page.getByLabel('Expiry', { exact: true }).evaluate((input) => {
                 const style = getComputedStyle(input),
@@ -646,5 +693,82 @@ test('restored payment never presents a later bag coupon as part of its frozen o
     await expect(page.getByText('LATER-CODE applied', { exact: true })).toHaveCount(0)
   } finally {
     await page.close()
+  }
+})
+
+test('payment artwork only names provider-confirmed networks and apps, with natural card field order', async () => {
+  const { page } = await checkoutPage('chromium')
+  try {
+    await page.getByRole('radio', { name: /Credit or debit card/ }).check()
+    const card = page
+      .locator('.checkout-method-panel')
+      .filter({ has: page.getByRole('radio', { name: /Credit or debit card/ }) })
+    await expect(card.getByRole('img', { name: 'Visa', exact: true })).toBeVisible()
+    await expect(card.getByRole('img', { name: 'Mastercard', exact: true })).toBeVisible()
+    await expect(card.getByRole('img', { name: 'American Express', exact: true })).toHaveCount(0)
+    assert.deepEqual(
+      await page
+        .locator('.checkout-card-fields input')
+        .evaluateAll((fields) => fields.map((field) => field.name)),
+      ['number', 'expiry', 'securityCode', 'name']
+    )
+  } finally {
+    await page.close()
+  }
+  const unknown = await checkoutPage(
+    'chromium',
+    {},
+    { methods: { card: true, card_networks: { VISA: 0, MC: 0, UNKNOWN: 1 } } }
+  )
+  try {
+    await expect(unknown.page.locator('.payment-artwork img')).toHaveCount(0)
+    await expect(unknown.page.locator('.payment-artwork__generic')).toBeVisible()
+  } finally {
+    await unknown.page.close()
+  }
+  const mobile = await checkoutPage(
+    'webkit',
+    {
+      viewport: { width: 390, height: 844 },
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)',
+    },
+    { apps: ['phonepe'] }
+  )
+  try {
+    await expect(mobile.page.locator('.checkout-app img[alt=""]')).toHaveCount(1)
+    await expect(mobile.page.locator('img[src$="google-pay.svg"]')).toHaveCount(0)
+    await expect(mobile.page.getByRole('radio', { name: 'PhonePe', exact: true })).toBeVisible()
+  } finally {
+    await mobile.page.close()
+  }
+})
+
+test('cancellation only offers a fresh checkout after confirmed release; uncertain cancellation stays recoverable', async () => {
+  for (const uncertain of [false, true]) {
+    const { page, requests } = await checkoutPage(
+      'chromium',
+      {},
+      { restored: true, cancelUncertain: uncertain }
+    )
+    try {
+      await page.getByRole('button', { name: 'Request cancellation', exact: true }).click()
+      if (uncertain) {
+        await expect(page.getByRole('alert')).toContainText('Payment may still complete')
+        await expect(
+          page.getByRole('button', { name: 'Return to delivery', exact: true })
+        ).toHaveCount(0)
+        await page.getByRole('button', { name: 'Check payment status', exact: true }).click()
+        await expect(page.getByRole('button', { name: /Show QR/ })).toBeDisabled()
+      } else {
+        await expect(
+          page.getByRole('button', { name: 'Return to delivery', exact: true })
+        ).toBeEnabled()
+      }
+      assert.equal(requests.filter((request) => request.path.endsWith('/cancel')).length, 1)
+      assert.equal(requests.filter((request) => request.path.endsWith('/create-order')).length, 0)
+      assert.equal(await page.evaluate(() => window.paymentFixture.calls.length), 0)
+    } finally {
+      await page.close()
+    }
   }
 })

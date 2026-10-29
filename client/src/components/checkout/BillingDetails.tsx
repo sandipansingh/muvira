@@ -40,8 +40,7 @@ export function BillingDetails({
   return (
     <section className="checkout-section" aria-labelledby="billing-heading">
       <div className="mb-5">
-        <span className="checkout-eyebrow">For your records</span>
-        <h2 id="billing-heading" className="font-display text-2xl font-normal">
+        <h2 id="billing-heading" className="journey-section-title">
           Billing details
         </h2>
       </div>

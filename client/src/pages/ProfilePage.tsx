@@ -1,4 +1,3 @@
-import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { AccountShell } from '../components/auth/AccountShell'
 import { AccountOverview } from '../components/auth/AccountOverview'
 import type { Profile } from '../lib/types/auth'
@@ -285,14 +284,6 @@ function AccountWorkspace({ user }: { user: Profile }) {
 
   return (
     <AccountShell addressCount={loadingAddresses || addressError ? undefined : addresses.length}>
-      <CustomerPageHeading
-        title="Your account"
-        description={
-          view === 'overview'
-            ? `Welcome back${user.fullName.trim() ? `, ${user.fullName.trim().split(/\s+/)[0]}` : ''}.`
-            : undefined
-        }
-      />
       {view === 'overview' && (
         <AccountOverview
           addresses={addresses}

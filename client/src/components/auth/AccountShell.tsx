@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { AccountNavigation } from './AccountNavigation'
 import { AccountUtilities } from './AccountUtilities'
+import { useLocation } from 'react-router-dom'
+import { CustomerPageHeading } from '../common/CustomerPageHeading'
 
 export function AccountShell({
   children,
@@ -11,30 +13,26 @@ export function AccountShell({
   addressCount?: number
 }) {
   const { user } = useAuth()
-  const initials = (user?.fullName || user?.email || '')
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toLocaleUpperCase('en-IN')
+  const { pathname } = useLocation()
   return (
-    <main className="account-page editorial-page py-8 sm:py-12">
-      <div className="editorial-container account-shell">
-        <aside className="account-sidebar" aria-label="Account workspace">
-          <div className="account-identity">
-            <span className="account-initials" aria-hidden="true">
-              {initials}
-            </span>
-            <div className="min-w-0">
-              <p className="font-semibold text-ink">{user?.fullName || 'Your account'}</p>
-              <p className="account-email">{user?.email}</p>
-            </div>
-          </div>
-          <AccountNavigation addressCount={addressCount} />
-          <AccountUtilities />
-        </aside>
-        <div className="account-main">{children}</div>
+    <main className="account-page editorial-page py-6 sm:py-8">
+      <div className="editorial-container account-container">
+        <header className="account-identity">
+          {pathname === '/profile' ? (
+            <CustomerPageHeading title="Your account" />
+          ) : (
+            <p className="page-title mb-2">Your account</p>
+          )}
+          <p className="text-sm font-medium text-ink">{user?.fullName}</p>
+          <p className="account-email">{user?.email}</p>
+        </header>
+        <div className="account-shell">
+          <aside className="account-sidebar" aria-label="Account workspace">
+            <AccountNavigation addressCount={addressCount} />
+            <AccountUtilities />
+          </aside>
+          <div className="account-main">{children}</div>
+        </div>
       </div>
     </main>
   )

@@ -1,7 +1,8 @@
 import { StoreImage } from '../common/StoreImage'
 import React from 'react'
+import { QuantityControl } from './QuantityControl'
 import { Link } from 'react-router-dom'
-import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import type { CartItem } from '../../lib/types/cart'
 import { formatPrice } from '../../lib/utils/format'
 import { useCart } from '../../context/CartContext'
@@ -25,6 +26,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           {item.productImage ? (
             <StoreImage
               framing="square"
+              fallbackPresentation="icon"
               src={item.productImage}
               alt={item.productName}
               width={112}
@@ -68,29 +70,14 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
 
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <div className="flex items-center gap-3">
-              <div className="inline-flex items-center rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] p-1">
-                <button
-                  type="button"
-                  onClick={() => void updateQuantity(item.id, -1).catch(() => undefined)}
-                  disabled={loading}
-                  className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <span className="w-10 text-center text-sm font-semibold text-[var(--color-ink)]">
-                  {item.quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => void updateQuantity(item.id, 1).catch(() => undefined)}
-                  disabled={loading}
-                  className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-lg text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-              </div>
+              <QuantityControl
+                quantity={item.quantity}
+                minimum={0}
+                maximum={item.availableStock}
+                busy={loading}
+                label={item.productName}
+                onChange={(delta) => void updateQuantity(item.id, delta).catch(() => undefined)}
+              />
               <span className="font-product text-sm text-[var(--color-muted)]">
                 {formatPrice(item.unitPrice)} each
               </span>
@@ -120,6 +107,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         {item.productImage ? (
           <StoreImage
             framing="square"
+            fallbackPresentation="icon"
             src={item.productImage}
             alt={item.productName}
             width={192}
@@ -158,29 +146,15 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           )}
         </div>
       </div>
-      <div className="drawer-cart-item__quantity inline-flex w-fit items-center rounded-control border border-line bg-paper p-0.5">
-        <button
-          type="button"
-          onClick={() => void updateQuantity(item.id, -1).catch(() => undefined)}
-          disabled={loading}
-          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
-          aria-label="Decrease quantity"
-        >
-          <Minus className="h-2.5 w-2.5" />
-        </button>
-        <span className="min-w-7 px-1 text-center text-base font-semibold text-ink">
-          {item.quantity}
-        </span>
-        <button
-          type="button"
-          onClick={() => void updateQuantity(item.id, 1).catch(() => undefined)}
-          disabled={loading}
-          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
-          aria-label="Increase quantity"
-        >
-          <Plus className="h-2.5 w-2.5" />
-        </button>
-      </div>
+      <QuantityControl
+        className="drawer-cart-item__quantity"
+        quantity={item.quantity}
+        minimum={0}
+        maximum={item.availableStock}
+        busy={loading}
+        label={item.productName}
+        onChange={(delta) => void updateQuantity(item.id, delta).catch(() => undefined)}
+      />
     </article>
   )
 }

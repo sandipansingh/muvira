@@ -94,7 +94,7 @@ function ConfirmationWorkspace({ orderId }: { orderId: string | null }) {
   }
 
   return (
-    <main className="order-result order-result--success editorial-page py-10 sm:py-14">
+    <main className="order-result order-result--success editorial-page py-8 sm:py-10">
       <div className="editorial-container">
         <Breadcrumbs
           items={[
@@ -103,16 +103,18 @@ function ConfirmationWorkspace({ orderId }: { orderId: string | null }) {
             { label: 'Confirmation' },
           ]}
         />
-        <div className="confirmation-layout mt-8">
+        <div className="confirmation-layout mt-6">
           <div className="journey-stack">
             <header className="confirmation-welcome">
-              <CheckCircle2 className="h-10 w-10 text-accent" aria-hidden="true" />
-              <p className="mt-4 text-sm font-semibold text-ink">Payment verified</p>
-              <h1 className="page-title mt-3">Thank you for your order</h1>
-              <p className="mt-4 text-sm text-ink-soft">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+                <h1 className="page-title">Thank you for your order</h1>
+              </div>
+              <p className="mt-3 text-sm font-medium text-primary">Payment verified</p>
+              <p className="mt-2 text-sm text-ink-soft">
                 Order reference: <strong className="text-ink">#{order.orderNumber}</strong>
               </p>
-              <p className="mt-3 text-base leading-relaxed text-ink-soft">
+              <p className="mt-2 text-sm leading-5 text-ink-soft">
                 Your order is confirmed and ready for our fulfillment team.
               </p>
             </header>

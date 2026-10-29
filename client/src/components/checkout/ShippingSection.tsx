@@ -65,13 +65,50 @@ export function ShippingSection({
   }, [selectedAddressId, savedAddresses])
   const field = (name: keyof ShippingFormData, value: string) =>
     onShippingDataChange({ ...shippingData, [name]: value })
+  const renderField = (item: { key: keyof ShippingFormData; label: string; complete: string }) => (
+    <div key={item.key}>
+      <label htmlFor={`shipping-${item.key}`} className="mb-2 block text-sm font-semibold">
+        {item.label}
+      </label>
+      <Input
+        id={`shipping-${item.key}`}
+        value={shippingData[item.key]}
+        autoComplete={item.complete}
+        readOnly={item.key === 'email'}
+        inputMode={
+          item.key === 'phone' || item.key === 'pincode'
+            ? 'numeric'
+            : item.key === 'email'
+              ? 'email'
+              : 'text'
+        }
+        type={item.key === 'phone' ? 'tel' : item.key === 'email' ? 'email' : 'text'}
+        maxLength={item.key === 'phone' ? 10 : item.key === 'pincode' ? 6 : 200}
+        onChange={(event) =>
+          field(
+            item.key,
+            item.key === 'phone' || item.key === 'pincode'
+              ? event.target.value.replace(/\D/g, '')
+              : event.target.value
+          )
+        }
+        hasError={!!errors[item.key]}
+        aria-invalid={!!errors[item.key]}
+        aria-describedby={errors[item.key] ? `shipping-${item.key}-error` : undefined}
+      />
+      {errors[item.key] && (
+        <p id={`shipping-${item.key}-error`} className="mt-1 text-sm text-danger">
+          {errors[item.key]}
+        </p>
+      )}
+    </div>
+  )
   return (
     <div className="space-y-6">
       <section className="checkout-section" aria-labelledby="delivery-heading">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <span className="checkout-eyebrow">A place to call home</span>
-            <h2 id="delivery-heading" className="font-display text-2xl font-normal">
+            <h2 id="delivery-heading" className="journey-section-title">
               Delivery address
             </h2>
           </div>
@@ -131,68 +168,8 @@ export function ShippingSection({
                 { key: 'lastName', label: 'Last name (optional)', complete: 'family-name' },
                 { key: 'email', label: 'Contact email', complete: 'email' },
                 { key: 'phone', label: 'Phone number', complete: 'tel-national' },
-                { key: 'city', label: 'City', complete: 'address-level2' },
-                { key: 'pincode', label: 'PIN code', complete: 'postal-code' },
               ] as const
-            ).map((item) => (
-              <div key={item.key}>
-                <label
-                  htmlFor={`shipping-${item.key}`}
-                  className="mb-2 block text-sm font-semibold"
-                >
-                  {item.label}
-                </label>
-                <Input
-                  id={`shipping-${item.key}`}
-                  value={shippingData[item.key]}
-                  autoComplete={item.complete}
-                  readOnly={item.key === 'email'}
-                  inputMode={
-                    item.key === 'phone' || item.key === 'pincode'
-                      ? 'numeric'
-                      : item.key === 'email'
-                        ? 'email'
-                        : 'text'
-                  }
-                  type={item.key === 'phone' ? 'tel' : item.key === 'email' ? 'email' : 'text'}
-                  maxLength={item.key === 'phone' ? 10 : item.key === 'pincode' ? 6 : 200}
-                  onChange={(event) =>
-                    field(
-                      item.key,
-                      item.key === 'phone' || item.key === 'pincode'
-                        ? event.target.value.replace(/\D/g, '')
-                        : event.target.value
-                    )
-                  }
-                  hasError={!!errors[item.key]}
-                  aria-invalid={!!errors[item.key]}
-                  aria-describedby={errors[item.key] ? `shipping-${item.key}-error` : undefined}
-                />
-                {errors[item.key] && (
-                  <p id={`shipping-${item.key}-error`} className="mt-1 text-sm text-danger">
-                    {errors[item.key]}
-                  </p>
-                )}
-              </div>
-            ))}
-            <div>
-              <label
-                id="shipping-state-label"
-                htmlFor="shipping-state"
-                className="mb-2 block text-sm font-semibold"
-              >
-                State
-              </label>
-              <Dropdown
-                value={shippingData.state}
-                options={INDIAN_STATES}
-                onChange={(value) => field('state', value)}
-                id="shipping-state"
-                aria-label="State"
-                className="w-full"
-                triggerClassName="min-h-12 !text-base"
-              />
-            </div>
+            ).map(renderField)}
             <div className="sm:col-span-2">
               <label htmlFor="shipping-description" className="mb-2 block text-sm font-semibold">
                 Street address
@@ -214,6 +191,30 @@ export function ShippingSection({
                 </p>
               )}
             </div>
+            {(
+              [
+                { key: 'city', label: 'City', complete: 'address-level2' },
+                { key: 'pincode', label: 'PIN code', complete: 'postal-code' },
+              ] as const
+            ).map(renderField)}
+            <div>
+              <label
+                id="shipping-state-label"
+                htmlFor="shipping-state"
+                className="mb-2 block text-sm font-semibold"
+              >
+                State
+              </label>
+              <Dropdown
+                value={shippingData.state}
+                options={INDIAN_STATES}
+                onChange={(value) => field('state', value)}
+                id="shipping-state"
+                aria-label="State"
+                className="w-full"
+                triggerClassName="min-h-12 !text-base"
+              />
+            </div>
           </div>
         )}
         {!manual && (
@@ -223,9 +224,9 @@ export function ShippingSection({
         )}
       </section>
       <section className="checkout-section" aria-labelledby="shipping-heading">
-        <div className="mb-5 flex items-center gap-3">
+        <div className="mb-4 flex items-center gap-3">
           <Truck className="h-5 w-5 text-muted" aria-hidden="true" />
-          <h2 id="shipping-heading" className="font-display text-2xl font-normal">
+          <h2 id="shipping-heading" className="journey-section-title">
             Delivery method
           </h2>
         </div>

@@ -95,7 +95,7 @@ function OrdersWorkspace({ userId }: { userId: string }) {
                 <div className="order-history-heading">
                   <div>
                     <h2 className="font-sans text-base font-semibold">#{order.orderNumber}</h2>
-                    <p className="mt-2 text-sm text-ink-soft">
+                    <p className="mt-1 text-xs text-muted">
                       Placed on {formatDate(order.createdAt)}
                     </p>
                   </div>
@@ -104,6 +104,7 @@ function OrdersWorkspace({ userId }: { userId: string }) {
                 <div className="order-history-product">
                   <StoreImage
                     framing="square"
+                    fallbackPresentation="icon"
                     src={order.firstItemImage}
                     alt={order.firstItemName || 'Ordered product'}
                     width={192}
@@ -111,10 +112,10 @@ function OrdersWorkspace({ userId }: { userId: string }) {
                     className="order-item-image"
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="font-product text-base">
+                    <p className="font-product text-sm">
                       {order.firstItemName || 'Your ordered items'}
                     </p>
-                    <p className="mt-2 text-sm text-ink-soft">
+                    <p className="mt-1 text-xs text-muted">
                       {order.itemCount} {order.itemCount === 1 ? 'item' : 'items'} · Payment{' '}
                       {order.paymentStatus}
                     </p>

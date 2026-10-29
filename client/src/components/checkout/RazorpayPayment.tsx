@@ -1,20 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import {
-  CreditCard,
-  Smartphone,
-  Landmark,
-  Wallet,
-  LockKeyhole,
-  ShieldCheck,
-  QrCode,
-  RefreshCw,
-  Check,
-} from 'lucide-react'
+import { LockKeyhole, ShieldCheck, QrCode, RefreshCw } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { Link } from 'react-router-dom'
 import { Button } from '../ui/Button'
 import { CardPaymentFields } from './CardPaymentFields'
+import { PaymentArtwork, UpiAppArtwork } from './PaymentArtwork'
 import { Dropdown } from '../ui/Dropdown'
 import { checkoutService } from '../../lib/services/checkout.service'
 import { orderApiService } from '../../lib/services/order.service'
@@ -43,14 +34,12 @@ interface RazorpayPaymentProps {
 }
 
 const METHODS = {
-  upi: { title: 'UPI', description: 'Your favourite UPI app', icon: Smartphone },
+  upi: { title: 'UPI' },
   card: {
     title: 'Credit or debit card',
-    description: 'Enter your card details',
-    icon: CreditCard,
   },
-  netbanking: { title: 'Netbanking', description: 'Pay through your bank', icon: Landmark },
-  wallet: { title: 'Wallet', description: 'Choose an available wallet', icon: Wallet },
+  netbanking: { title: 'Netbanking' },
+  wallet: { title: 'Wallet' },
 }
 
 export function RazorpayPayment({
@@ -410,7 +399,7 @@ export function RazorpayPayment({
           (sdk.isMobile ? (
             <div>
               <h3 className="font-sans text-base font-semibold">Choose a UPI app</h3>
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="checkout-apps mt-3">
                 {sdk.apps.map((item) => (
                   <label
                     key={item.code}
@@ -423,6 +412,7 @@ export function RazorpayPayment({
                       onChange={() => setApp(item.code)}
                       disabled={isBusy}
                     />
+                    <UpiAppArtwork code={item.code} />
                     <span>{item.name}</span>
                   </label>
                 ))}
@@ -458,15 +448,8 @@ export function RazorpayPayment({
                 </>
               ) : (
                 <>
-                  <QrCode
-                    className="h-12 w-12 text-primary"
-                    strokeWidth={1.25}
-                    aria-hidden="true"
-                  />
-                  <h3 className="mt-4 font-display text-2xl font-normal">
-                    Scan. Pay. Make it yours.
-                  </h3>
-                  <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-muted">
+                  <QrCode className="h-6 w-6 text-primary" strokeWidth={1.25} aria-hidden="true" />
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-5 text-muted">
                     {session
                       ? 'Your QR code appears when you choose Show QR below.'
                       : 'Review your order, then generate a secure QR code to scan with any UPI app.'}
@@ -553,8 +536,8 @@ export function RazorpayPayment({
         }}
       >
         <div className="checkout-section-heading">
-          <h2 id="payment-heading" className="font-display text-2xl font-normal sm:text-3xl">
-            Choose how you pay
+          <h2 id="payment-heading" className="journey-section-title">
+            Select a payment method
           </h2>
           <p className="mt-2 text-sm text-muted">Your payment is processed securely by Razorpay.</p>
         </div>
@@ -581,7 +564,6 @@ export function RazorpayPayment({
             <fieldset className="checkout-methods" disabled={isBusy || qrActive}>
               <legend className="sr-only">Payment method</legend>
               {available.map((value) => {
-                const Icon = METHODS[value].icon
                 return (
                   <div
                     key={value}
@@ -597,16 +579,10 @@ export function RazorpayPayment({
                         checked={method === value}
                         onChange={() => changeMethod(value)}
                       />
-                      <Icon className="h-5 w-5" aria-hidden="true" />
                       <span>
                         <span className="block text-sm font-semibold">{METHODS[value].title}</span>
-                        <span className="mt-1 hidden text-xs text-muted sm:block">
-                          {value === 'card'
-                            ? 'Enter your card details'
-                            : METHODS[value].description}
-                        </span>
                       </span>
-                      {method === value && <Check className="ml-auto h-4 w-4" aria-hidden="true" />}
+                      <PaymentArtwork method={value} methods={sdk.methods} />
                     </label>
                     {method === value && (
                       <div

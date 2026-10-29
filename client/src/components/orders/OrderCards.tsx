@@ -22,6 +22,7 @@ export function OrderItems({ order }: { order: OrderDetail }) {
           <div key={item.id} className="order-item">
             <StoreImage
               framing="square"
+              fallbackPresentation="icon"
               src={item.productImage || undefined}
               alt={item.productName}
               width={192}
@@ -29,7 +30,7 @@ export function OrderItems({ order }: { order: OrderDetail }) {
               className="order-item-image"
             />
             <div className="order-item-copy">
-              <h3 className="font-product text-base font-semibold">{item.productName}</h3>
+              <h3 className="font-product text-sm font-semibold">{item.productName}</h3>
               <p className="mt-2 text-sm text-ink-soft">
                 Qty {item.quantity} · {formatPrice(item.unitPrice)} each
               </p>

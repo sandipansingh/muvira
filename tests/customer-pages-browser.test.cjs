@@ -242,7 +242,8 @@ for (const engine of ['chromium', 'webkit']) {
             email: 'meera@example.test',
           })
         })
-        await expect(page.getByText('Welcome back, Meera.', { exact: true })).toContainText('Meera')
+        await expect(page.locator('.account-identity')).toContainText('Meera Das')
+        await expect(page.locator('.account-email')).toHaveText('meera@example.test')
         await expect(
           page.getByRole('region', { name: 'Recent order', exact: true }).getByRole('status')
         ).toBeVisible()
@@ -424,7 +425,7 @@ for (const engine of ['chromium', 'webkit']) {
         await expect(page.locator('main .customer-heading .eyebrow')).toHaveCount(0)
         assert.equal(
           await page.locator('main h1').evaluate((el) => getComputedStyle(el).fontSize),
-          '40px'
+          '28px'
         )
         await expect(page.locator('.store-footer')).toBeVisible()
       }

@@ -1,66 +1,38 @@
 # Muvira design system
 
-Runtime CSS variables in `client/src/index.css` are the source of truth. `client/tailwind.config.js` adapts them for React components. [DESIGN.md](DESIGN.md) records the approved editorial direction; [UX-CONTRACT.md](UX-CONTRACT.md) records shared behavior.
+Runtime CSS variables in `client/src/index.css` own the white-and-blue storefront system. `client/tailwind.config.js` adapts semantic colours, fonts, radii and heading sizes. [DESIGN.md](DESIGN.md) records accepted values and references; [UX-CONTRACT.md](UX-CONTRACT.md) records behavior.
 
 ## Foundations
 
-- DM Serif Display (`font-display` / `font-serif`) is used at regular weight for editorial headings. No synthesized bold or italic.
-- Manrope (`font-sans` and `font-product`) is used for body, navigation, products, prices, fields and all admin interfaces. Full licensed fonts are self-hosted under `client/public/fonts/`.
-- Warm white canvas, white surfaces, stone borders, charcoal text, muted green-grey secondary copy, and deep green actions come from runtime tokens.
-- Muted brass `--color-brass` is reserved for restrained decorative rules; it never replaces semantic statuses.
-- Deep green is reserved for actions, selected controls, prices and hover states. Status colors retain semantic meaning.
-- Page width is 1320px including responsive gutters. Four-column grids collapse to three, two and one as space requires.
-- Controls use 8px radii; cards and imagery use 12px. Logo images are never framed.
+- Storefront headings, body, products and controls use local Inter. Page headings are 28px desktop/24px phone, sections 24px, panels 18px semibold, hero 40px/32px. Body/product copy is 14px/20px, metadata 12–13px, fields at least 16px and targets at least 44px.
+- White canvas/cards/header/footer, cool near-white checkout sections, charcoal text and light grey borders surround bright blue actions and pale-blue selected controls. Positive states use blue plus text/checks; warnings/errors retain distinct semantic colours.
+- Controls/images use 6px radii and cards 10px. Shadows are restrained. Logos remain unframed; the existing Muvira wordmark uses its independent brand font.
+- Browsing retains its 1320px maximum composition. Account uses 1200px with a 200px rail/24px gap. Checkout/cart use 1120px with 3:2 columns/24px gap. Phone gutters are 16px and columns stack below 1024px.
+- Admin retains Manrope, its complete scoped palette, 8px controls, 12px panels and existing geometry.
 
 ## Canonical owners
 
 | Capability | Owner |
 | --- | --- |
-| Actions and fields | `components/ui/Button`, `Input`, `Textarea`, `Select` |
-| Authored selections and navigation disclosure | `components/ui/Dropdown` (`navigation` renders real links) |
-| Store photography and failures | `components/common/StoreImage` |
-| Catalog reset and collection shortcuts | `components/catalog/CatalogSidebar`, `CollectionShortcuts` |
-| Product gallery and lightbox | `components/product/ImageGallery` |
-| Breadcrumbs and pagination | `components/common/Breadcrumbs`, `Pagination` |
-| Dialog and focus restoration | `components/common/Modal`, `lib/hooks/useDialogFocus` |
-| Toasts | `context/ToastContext`, `components/common/Toast` |
-| Product cards and quick view | `components/catalog/ProductCard`, `QuickViewModal` |
-| Checkout progress | `components/checkout/FlowHeader`, `CheckoutSteps` |
-| Admin navigation and layout | `components/admin/AdminShell` |
+| Actions and fields | `ui/Button`, `Input`, `Textarea`, `Select` |
+| Selectors and navigation disclosure | `ui/Dropdown` |
+| Quantity | `cart/QuantityControl`; minimum one on page, zero in drawer |
+| Payment artwork | `checkout/PaymentArtwork`; availability from existing Razorpay SDK |
+| Store images and failures | `common/StoreImage` |
+| Catalog reset / collection shortcuts | `catalog/CatalogSidebar`, `CollectionShortcuts` |
+| Product gallery and lightbox | `product/ImageGallery` |
+| Breadcrumbs / pagination | `common/Breadcrumbs`, `Pagination` |
+| Dialog and focus | `common/Modal`, `lib/hooks/useDialogFocus` |
+| Toasts | `context/ToastContext`, `common/Toast` |
+| Page introductions / account layout | `common/CustomerPageHeading`, `auth/AccountShell`, `AccountNavigation` |
+| Checkout progress / summary | `checkout/FlowHeader`, `CheckoutSteps`, `CheckoutSummary`, `FlowCartSidebar` |
+| Order cards / shipment | `orders/OrderCards`, `ShipmentProgress` |
 
-Form controls remain at least 16px with 44px targets. Motion uses framer-motion with `MotionConfig reducedMotion="user"`; CSS reduced-motion rules also disable decorative transitions. Hero navigation is manual. Errors remain distinct from empty content. Product specifications use only existing metadata and weight. No unsupported features or fabricated commercial content are introduced.
-
-## Immersive heritage composition
-
-The homepage uses a full-width continuous mandir scene, compact circular categories, filled 4:5 merchandise, asymmetric configured campaigns, new arrivals and configured story/support. Header categories appear through the shared navigation Dropdown, alongside the conditional God Idols link. On interior routes the same header remains in document flow.
-
-`--duration-image: 350ms` and `--scale-image-hover: 1.06` govern browsable photography. Fine pointers with no reduced-motion preference receive zoom; touch and reduced-motion users see still images and persistent actions. Product-detail main photographs fill a square frame with object-cover; full originals use object-contain in the lightbox. Balanced 1.1:1 gallery/purchase columns stack below desktop. The single gallery uses a bounded vertical rail of 64px thumbnails on desktop and a horizontally scrollable rail below the square on mobile/tablet. The rail follows selection without moving the page. Lightbox navigation, 1×/2×, reset and drag all have keyboard/button equivalents. Purchase actions precede supporting description and highlights, on a borderless surface using the existing canvas.
-
-Hero composites are matched only to exact configured source URLs. Unknown photographs render directly with contrast protection. Missing legacy category destinations resolve to `/shop` in presentation without changing stored settings. No commerce types, APIs, schema or payment behavior change.
-
-Lightbox icon actions keep 44px targets when text enlarges; the control groups stay within the dialog's content width. Gallery titles use Manrope, preserve the full accessible name, and clamp their visual height. Dropdown keyboard opening focuses only the committed popup; selection restores the trigger after pending work unless focus has moved elsewhere.
-
-## Rich shopping storefront
-
-The approved composition is maintained in `DESIGN.md`. Runtime colors, typography, geometry and responsive rules remain in `client/src/index.css`; Tailwind maps those tokens without duplicating their values. Customer selectors use `storefront-shell` or `auth-page`. The header, collection directory, photographic Dropdown variant, filled product-card frames, viewport-fit sticky panels and account/commerce surfaces share this system. Product lightboxes preserve complete photographs; quick view uses a square cover crop. The shared `brand-wordmark` class owns the single-line logo-label alignment and its font-relative optical adjustment. `collectionImage.ts` owns exact-source substitutions and `productPresentation.ts` owns conservative description facts.
-
-## Authentication popup
-
-Customer sign-in and signup use the shared compact AuthDialog over the current page. Modal's optional `headerBrand` slot groups the unframed logo and title in a centered header with balanced 44px side columns for the close control. Recovery and email-confirmation messages replace the form inside that dialog. Fields remain at least 16px and controls at least 44px. Passwords clear when switching or closing. Profile loading gates completion; profile errors provide retry and sign-out. Legacy auth routes are compatibility entries, and /reset-password remains the emailed recovery route. Shared Button labels retain their dimensions and accessible names under the centered busy indicator; leading icons occupy a separate, nonshrinking column.
-
-Header collection hover is an opt-in Dropdown behavior; all other selectors retain click/keyboard behavior. CollectionShortcuts owns the single scrolling row and reveals the active category using only horizontal container scrolling. CatalogSidebar owns Reset; result cards have no duplicate chips or clear-filter toolbar.
-
-## Customer navigation icons
-
-`CustomerPageHeading` owns generic customer introductions, optional breadcrumbs and actions. Titles use regular DM Serif Display at 40px desktop / 32px mobile; generic eyebrows and decorative rules are absent. Shop, Profile, Collections, Search and order history omit top-level breadcrumbs. Collection, product and individual order breadcrumbs retain their parent destinations and wrap complete labels. Specialised commerce/auth headings and the homepage hero keep their own hierarchy.
-
-`CollectionShortcuts` owns the 56px photographic rail, its only scrollbar-hiding exception, overflow-aware labelled controls, reduced-motion-aware scrolling and keyboard/active reveal. `AccountNavigation` owns wrapping route/hash links and a single accurate active state. Profile uses open divided sections and shared busy Buttons; `AccountOptions` extends the existing Dropdown for Sign out and the role-dependent Admin console link. The existing footer remains unchanged.
-
-Use text-only destination links and labeled actions across customer pages. Order cards include visible View order text. Retain arrows/chevrons for gallery and carousel controls, lightbox pan controls, pagination, breadcrumb separators, dropdowns/disclosures and dedicated back actions. Keep existing admin controls. Remove obsolete icon spacing/selectors while preserving link styling, visible hover/focus, mobile search labels and 44px targets.
+Preserve account drafts/reset/retry behavior, authoritative money, checkout restoration, frozen totals, transient credentials and reconciliation. Sticky panels use the viewport-fit hook. Native validation remains as documented in the interaction contract. Shared busy Buttons retain accessible names and geometry. Product photos keep cover framing and full originals in lightboxes. Existing hover/touch/keyboard collection navigation remains unchanged. Unsupported optional features and commercial fallbacks stay absent.
 
 ## Independent administration system
 
-The administration palette and geometry are documented in `DESIGN.md` and owned by the `.admin-theme` variables in `client/src/index.css`. `AppContent` scopes the theme above the shell, dialogs, dropdowns and toast container, removing it on customer routes. Existing semantic Tailwind utilities continue to consume runtime variables. No storefront token values change.
+The administration palette and geometry are documented in `DESIGN.md` and owned by the `.admin-theme` variables in `client/src/index.css`. `AppContent` scopes the theme above the shell, dialogs, dropdowns and toast container, removing it on customer routes. Existing semantic Tailwind utilities continue to consume runtime variables. Storefront replacement tokens do not change admin values.
 
 `AdminWorkspace` owns repeated page headings, filter search, result counts, semantic tables, loading/error/empty panels and textual status badges. `AdminShell` owns collapsible desktop navigation and the canonical mobile Modal. `AdminDialog` extends the shared Modal with explicit discard confirmation and busy dismissal protection. It keeps form DOM mounted while confirming a discard. Existing fields, native validation, dropdown, pagination, focus and toast primitives remain canonical.
 
@@ -70,5 +42,3 @@ The administration palette and geometry are documented in `DESIGN.md` and owned 
 `AdminRevenue` owns period controls, the four joined performance cells, SVG revenue rendering, pointer details, the accessible exact-value table, and the reporting-definition disclosure. The period is URL-owned; `useAdminResource` ignores stale completions, and previous-period values are never shown under a newly selected period. SVG colours consume admin tokens and negative data retains a zero baseline. Live order, inventory and recovery state remains independent of the selected reporting period.
 
 Sidebar navigation search clears immediately and restores input focus. Account logout uses the shared auth mutation with synchronous duplicate protection, a busy control, and inline failure feedback. No presence claim is displayed.
-
-The footer uses `--surface-alt` for its stone background, existing ink text tokens and primary hover treatments. Its original grouped layout is retained, account labels follow authentication state, and payment-provider branding is absent. The shopping bag uses `.cart-drawer-header`, `.cart-drawer-items` and `.cart-drawer-summary` for independent scroll ownership; its desktop width is 480px. Customer product photos use cover sizing, with `StoreImage` square focal points on square frames; only enlarged lightbox originals use contain. Quick-view actions reserve all label states in one grid cell to prevent movement while adding.

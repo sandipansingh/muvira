@@ -5,13 +5,6 @@ import { formatCardInput, type CardDetails } from '../../lib/validators/payment.
 
 const FIELDS = [
   {
-    name: 'name',
-    label: 'Name on card',
-    autoComplete: 'cc-name',
-    placeholder: 'As printed on your card',
-    maxLength: 100,
-  },
-  {
     name: 'number',
     label: 'Card number',
     autoComplete: 'cc-number',
@@ -25,6 +18,13 @@ const FIELDS = [
     autoComplete: 'cc-csc',
     placeholder: 'CVV',
     maxLength: 4,
+  },
+  {
+    name: 'name',
+    label: 'Name on card',
+    autoComplete: 'cc-name',
+    placeholder: 'As printed on your card',
+    maxLength: 100,
   },
 ] as const
 
