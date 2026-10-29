@@ -24,11 +24,12 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
         >
           {item.productImage ? (
             <StoreImage
+              framing="square"
               src={item.productImage}
               alt={item.productName}
               width={112}
               height={112}
-              className="h-full w-full object-contain"
+              className="h-full w-full object-cover"
             />
           ) : (
             <div className="flex h-full items-center justify-center text-xs text-muted">
@@ -110,29 +111,30 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
   }
 
   return (
-    <article className="drawer-cart-item flex gap-3 border-b border-[var(--color-line)] pb-3.5">
+    <article className="drawer-cart-item">
       <Link
         to={`/product/${item.productSlug}`}
-        className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]"
+        className="drawer-cart-item__image overflow-hidden rounded-image bg-surface"
         aria-label={`View ${item.productName}`}
       >
         {item.productImage ? (
           <StoreImage
+            framing="square"
             src={item.productImage}
             alt={item.productName}
             width={192}
             height={192}
-            className="h-full w-full object-contain"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-muted">No image</div>
         )}
       </Link>
-      <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
+      <div className="drawer-cart-item__details min-w-0 space-y-3">
         <div className="flex items-start justify-between gap-1.5">
           <Link
             to={`/product/${item.productSlug}`}
-            className="line-clamp-2 font-product leading-relaxed tracking-tight text-sm font-semibold text-[var(--color-ink)] transition-colors hover:text-[var(--color-primary)]"
+            className="font-product leading-relaxed text-base font-semibold text-ink transition-colors hover:text-primary"
           >
             {item.productName}
           </Link>
@@ -148,42 +150,36 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({ item, variant = 'compa
           </button>
         </div>
 
-        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2">
-          <div className="inline-flex items-center rounded-md border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5">
-            <button
-              type="button"
-              onClick={() => void updateQuantity(item.id, -1).catch(() => undefined)}
-              disabled={loading}
-              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
-              aria-label="Decrease quantity"
-            >
-              <Minus className="h-2.5 w-2.5" />
-            </button>
-            <span className="w-6 text-center text-xs font-semibold text-[var(--color-ink)]">
-              {item.quantity}
-            </span>
-            <button
-              type="button"
-              onClick={() => void updateQuantity(item.id, 1).catch(() => undefined)}
-              disabled={loading}
-              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
-              aria-label="Increase quantity"
-            >
-              <Plus className="h-2.5 w-2.5" />
-            </button>
-          </div>
-
-          <div className="text-right">
-            <p className="font-product text-sm font-bold text-[var(--color-primary)]">
-              {formatPrice(item.lineTotal)}
-            </p>
-            {item.quantity > 1 && (
-              <p className="font-product text-sm text-[var(--color-muted)]">
-                {formatPrice(item.unitPrice)} ea
-              </p>
-            )}
-          </div>
+        {!item.inStock && <p className="text-sm text-danger">Unavailable</p>}
+        <div className="font-product text-base text-primary">
+          <p className="font-semibold">{formatPrice(item.lineTotal)}</p>
+          {item.quantity > 1 && (
+            <p className="text-sm text-ink-soft">{formatPrice(item.unitPrice)} each</p>
+          )}
         </div>
+      </div>
+      <div className="drawer-cart-item__quantity inline-flex w-fit items-center rounded-control border border-line bg-paper p-0.5">
+        <button
+          type="button"
+          onClick={() => void updateQuantity(item.id, -1).catch(() => undefined)}
+          disabled={loading}
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
+          aria-label="Decrease quantity"
+        >
+          <Minus className="h-2.5 w-2.5" />
+        </button>
+        <span className="min-w-7 px-1 text-center text-base font-semibold text-ink">
+          {item.quantity}
+        </span>
+        <button
+          type="button"
+          onClick={() => void updateQuantity(item.id, 1).catch(() => undefined)}
+          disabled={loading}
+          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded text-[var(--color-ink)] transition-colors hover:bg-[var(--color-paper)] disabled:opacity-40"
+          aria-label="Increase quantity"
+        >
+          <Plus className="h-2.5 w-2.5" />
+        </button>
       </div>
     </article>
   )

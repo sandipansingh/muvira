@@ -119,11 +119,12 @@ export const OrdersHistoryPage: React.FC = () => {
                 <div className="flex min-w-0 flex-1 flex-wrap items-start gap-4">
                   {order.firstItemImage ? (
                     <StoreImage
+                      framing="square"
                       src={order.firstItemImage}
                       alt={order.firstItemName ?? 'Ordered product'}
                       width={256}
                       height={256}
-                      className="h-32 w-32 shrink-0 rounded-image object-contain"
+                      className="h-32 w-32 shrink-0 rounded-image object-cover"
                     />
                   ) : (
                     <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-lg bg-surface">

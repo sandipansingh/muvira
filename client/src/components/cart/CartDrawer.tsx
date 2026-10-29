@@ -30,7 +30,9 @@ export const CartDrawer: React.FC = () => {
   const { openAuth } = useAuthDialog()
   const navigate = useNavigate()
   const panelRef = useRef<HTMLElement>(null)
-  useDialogFocus(isDrawerOpen, closeCartDrawer, panelRef)
+  useDialogFocus(isDrawerOpen, closeCartDrawer, panelRef, () =>
+    document.querySelector<HTMLElement>('[data-auth-focus="bag"]')
+  )
   if (!isDrawerOpen) return null
 
   const openCheckout = () => {
@@ -50,29 +52,26 @@ export const CartDrawer: React.FC = () => {
         aria-label="Close cart drawer"
       />
       <motion.aside
-        initial={{ x: reducedMotion ? 0 : 40, opacity: 0 }}
+        initial={reducedMotion ? false : { x: 40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.2 }}
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         tabIndex={-1}
-        className="fixed inset-y-0 right-0 z-10 cart-drawer-panel flex h-dvh w-full max-w-lg flex-col border-l border-[var(--color-line)] bg-[var(--color-paper)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
+        className="fixed inset-y-0 right-0 z-10 cart-drawer-panel flex h-dvh w-full flex-col border-l border-line pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] shadow-overlay"
         aria-label="Shopping cart"
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between border-b border-[var(--color-line)] bg-[var(--color-paper)] px-5 py-4">
-          <div className="flex items-center gap-2.5">
-            <ShoppingBag className="h-4.5 w-4.5 text-[var(--color-ink)]" />
+        <div className="cart-drawer-header flex shrink-0 items-center justify-between gap-3 border-b border-line">
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
             <h2 className="font-display text-2xl text-ink">Your shopping bag</h2>
-            <span className="rounded-[var(--radius-control)] bg-[var(--color-surface)] px-2 py-0.5 text-[11px] font-normal text-[var(--color-muted)]">
-              {totalItemCount}
-            </span>
+            <span className="text-sm tabular-nums text-ink-soft">{totalItemCount}</span>
           </div>
           <button
             type="button"
             onClick={closeCartDrawer}
-            className="flex cursor-pointer items-center justify-center rounded-[var(--radius-control)] text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]"
+            className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-soft transition-colors hover:bg-surface hover:text-ink"
             aria-label="Close cart"
           >
             <X className="h-4 w-4" />
@@ -80,7 +79,7 @@ export const CartDrawer: React.FC = () => {
         </div>
 
         {/* Cart Items List */}
-        <div className="flex-1 space-y-3.5 overflow-y-auto px-5 py-4 dropdown-scrollbar">
+        <div className="cart-drawer-items min-h-0 flex-1 overflow-y-auto">
           {status !== 'ready' ? (
             <div role="status" className="py-10 text-center">
               <p>{status === 'error' ? error : 'Loading your cart…'}</p>
@@ -95,9 +94,7 @@ export const CartDrawer: React.FC = () => {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-surface)] text-muted">
                 <ShoppingBag className="h-6 w-6 stroke-[1.5]" />
               </div>
-              <h3 className="mt-4 font-display text-base font-semibold text-[var(--color-ink)]">
-                Your cart is empty
-              </h3>
+              <h3 className="mt-4 font-display text-xl text-ink">Your cart is empty</h3>
               <p className="mx-auto mt-1.5 max-w-xs text-base leading-relaxed text-[var(--color-muted)]">
                 Browse the current catalog to add products to your cart.
               </p>
@@ -119,7 +116,7 @@ export const CartDrawer: React.FC = () => {
 
         {/* Cart Summary & Footer Actions */}
         {status === 'ready' && items.length > 0 && (
-          <div className="space-y-3 border-t border-[var(--color-line)] bg-[var(--color-paper)] p-4 shadow-none">
+          <div className="cart-drawer-summary space-y-4 border-t border-line">
             <CouponInput />
             {error && (
               <p role="alert" className="text-sm text-danger">
@@ -127,7 +124,7 @@ export const CartDrawer: React.FC = () => {
               </p>
             )}
 
-            <div className="space-y-1 border-t border-[var(--color-line)] pt-2.5 text-sm font-normal text-[var(--color-muted)]">
+            <div className="space-y-2 border-t border-line pt-3 text-sm text-ink-soft">
               <div className="flex justify-between">
                 <span>Subtotal</span>
                 <span className="font-product font-normal text-[var(--color-ink)]">
@@ -135,7 +132,7 @@ export const CartDrawer: React.FC = () => {
                 </span>
               </div>
               {discountPaisa > 0 && (
-                <div className="flex justify-between font-normal text-emerald-700">
+                <div className="flex justify-between font-normal text-primary">
                   <span>Discount</span>
                   <span className="font-product">-{formatPrice(discountPaisa)}</span>
                 </div>
@@ -150,7 +147,7 @@ export const CartDrawer: React.FC = () => {
                       : formatPrice(shippingPaisa)}
                 </span>
               </div>
-              <div className="flex justify-between border-t border-[var(--color-line)] pt-2 text-xs font-normal text-[var(--color-ink)]">
+              <div className="cart-drawer-total flex flex-wrap items-baseline justify-between gap-x-4 border-t border-line pt-3 text-ink">
                 <span>Total</span>
                 <span className="font-product">
                   {error ? 'Unavailable' : formatPrice(totalPaisa)}
@@ -158,22 +155,23 @@ export const CartDrawer: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-2 pt-0.5 sm:grid-cols-3">
-              <Link
-                to="/cart"
-                onClick={closeCartDrawer}
-                className="button-secondary rounded-lg py-0 text-center text-sm justify-center"
-              >
-                View Cart
-              </Link>
+            <div className="grid gap-2">
               <button
                 type="button"
                 onClick={openCheckout}
                 disabled={loading || hasUnmergedItems || Boolean(error)}
-                className="button-primary h-10 rounded-lg py-0 text-sm shadow-none sm:col-span-2"
+                aria-busy={loading}
+                className="button-primary w-full py-3 text-base shadow-none"
               >
                 <span>{hasUnmergedItems ? 'Resolve saved items' : 'Proceed to Checkout'}</span>
               </button>
+              <Link
+                to="/cart"
+                onClick={closeCartDrawer}
+                className="cart-drawer-view flex min-h-[var(--tap-target)] items-center justify-center text-center text-sm underline underline-offset-4 hover:text-primary"
+              >
+                View shopping bag
+              </Link>
             </div>
           </div>
         )}

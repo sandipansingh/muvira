@@ -36,7 +36,7 @@ export const FlowItemCard: React.FC<FlowItemCardProps> = ({ item, showQuantityPi
             alt={item.productName}
             width={320}
             height={320}
-            className="h-full w-full object-contain"
+            className="h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-[var(--color-muted)]">

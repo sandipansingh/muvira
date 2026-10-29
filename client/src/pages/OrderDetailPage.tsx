@@ -220,11 +220,12 @@ export const OrderDetailPage: React.FC = () => {
                 <div className="flex min-w-0 items-center gap-4">
                   {item.productImage ? (
                     <StoreImage
+                      framing="square"
                       src={item.productImage}
                       alt={item.productName}
                       width={64}
                       height={64}
-                      className="h-32 w-32 rounded-image shrink-0 object-contain"
+                      className="h-32 w-32 rounded-image shrink-0 object-cover"
                     />
                   ) : (
                     <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-card bg-surface">

@@ -39,7 +39,7 @@ async function visit(engine, path, run, options = {}) {
   }
 }
 
-// Compare the first label line with the leading icon, including icons passed as Button children.
+// Action icons center against the complete label, including wrapped text.
 async function assertIconGeometry(controls) {
   const failures = await controls.evaluateAll((elements) =>
     elements.flatMap((element) => {
@@ -55,7 +55,13 @@ async function assertIconGeometry(controls) {
         return []
       const range = document.createRange()
       range.selectNodeContents(node)
-      const label = range.getClientRects()[0],
+      const centered = element.matches(
+        '.ui-button, .button-primary, .button-secondary, .account-navigation__link'
+      )
+      if (centered) {
+        range.setEndAfter(node.parentElement.lastChild)
+      }
+      const label = centered ? range.getBoundingClientRect() : range.getClientRects()[0],
         image = icon.getBoundingClientRect()
       if (!label || !image.width) return []
       const fits =
@@ -67,6 +73,335 @@ async function assertIconGeometry(controls) {
     })
   )
   assert.deepEqual(failures, [])
+}
+
+for (const engine of ['chromium', 'webkit']) {
+  test(`${engine}: modal Tab treats native price radios as one stop and skips negative tabindex`, () =>
+    visit(
+      engine,
+      '/shop',
+      async (page) => {
+        await page.getByRole('button', { name: 'Open filters', exact: true }).click()
+        const dialog = page.getByRole('dialog')
+        const checked = dialog.getByRole('radio').first()
+        await checked.focus()
+        await page.keyboard.press('Tab')
+        await expect(
+          dialog.getByRole('spinbutton', { name: 'Minimum price', exact: true })
+        ).toBeFocused()
+        await page.keyboard.press('Shift+Tab')
+        await expect(checked).toBeFocused()
+        await page.keyboard.press('ArrowDown')
+        await expect(dialog.getByRole('radio').nth(1)).toBeChecked()
+        await page.keyboard.press('Tab')
+        await expect(
+          dialog.getByRole('spinbutton', { name: 'Minimum price', exact: true })
+        ).toBeFocused()
+        await dialog
+          .getByRole('button', { name: 'Close modal', exact: true })
+          .evaluate((el) => (el.tabIndex = -1))
+        await dialog.getByRole('button', { name: 'Show Results', exact: true }).focus()
+        await page.keyboard.press('Tab')
+        await expect(dialog.locator('#mobile-catalog-sort')).toBeFocused()
+      },
+      { viewport: { width: 390, height: 950 } }
+    ))
+  for (const width of [320, 390, 768, 1280, 1440]) {
+    test(`${engine} ${width}px: 200% text and long names keep quick view and bag controls usable`, () =>
+      visit(
+        engine,
+        '/shop?scenario=long-name&gatedAdd=1',
+        async (page) => {
+          const height = width === 320 ? 568 : 950
+          await page.setViewportSize({ width, height })
+          await page.evaluate(() => (document.documentElement.style.fontSize = '32px'))
+          await page
+            .getByRole('button', { name: /Quick view/ })
+            .first()
+            .click()
+          let dialog = page.getByRole('dialog', { name: 'A closer look' })
+          assert.ok(
+            await dialog
+              .locator('.modal-body')
+              .evaluate((el) => el.scrollWidth <= el.clientWidth + 1)
+          )
+          const add = dialog.locator('.button-primary')
+          await add.scrollIntoViewIfNeeded()
+          const before = await add.boundingBox()
+          await add.click()
+          const busy = await add.boundingBox()
+          assert.ok(
+            Math.abs(before.height - busy.height) < 1 && Math.abs(before.width - busy.width) < 1
+          )
+          await expect(add).toHaveAttribute('aria-busy', 'true')
+          await page.keyboard.press('Escape')
+          await page.goto(fixture.origin + '/?scenario=long-name&bagCount=6')
+          await page.locator('h1').waitFor()
+          await page.evaluate(() => (document.documentElement.style.fontSize = '32px'))
+          await page
+            .locator('header')
+            .getByRole('button', { name: 'Shopping cart', exact: true })
+            .click()
+          dialog = page.getByRole('dialog', { name: 'Shopping cart' })
+          assert.ok(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth + 1))
+          const checkout = dialog.getByRole('button', { name: 'Proceed to Checkout' })
+          await checkout.scrollIntoViewIfNeeded()
+          const box = await checkout.boundingBox()
+          assert.ok(box.y >= 0 && box.y + box.height <= height)
+          assert.ok(
+            await dialog.locator('.cart-drawer-items').evaluate((el) => el.clientHeight >= 44)
+          )
+          const viewBag = dialog.getByRole('link', { name: 'View shopping bag' })
+          await viewBag.scrollIntoViewIfNeeded()
+          const viewBox = await viewBag.boundingBox()
+          assert.ok(viewBox.y + viewBox.height <= height)
+          const quantity = dialog.locator('.drawer-cart-item__quantity').first()
+          await quantity.scrollIntoViewIfNeeded()
+          assert.ok(await quantity.evaluate((el) => el.getBoundingClientRect().right <= innerWidth))
+          await page.keyboard.press('Escape')
+          await page.goto(fixture.origin + '/?hero=long')
+          await page.locator('h1').waitFor()
+          await page.evaluate(() => (document.documentElement.style.fontSize = '32px'))
+          assert.ok(
+            await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)
+          )
+        },
+        { viewport: { width, height: 950 } }
+      ))
+  }
+  test(`${engine}: bag preserves empty, loading, retry, unresolved, pending and mutation failures`, () =>
+    visit(engine, '/', async (page) => {
+      const open = async (query) => {
+        await page.goto(fixture.origin + '/?' + query)
+        await page.locator('h1').waitFor()
+        await page
+          .locator('header')
+          .getByRole('button', { name: 'Shopping cart', exact: true })
+          .click()
+        return page.getByRole('dialog', { name: 'Shopping cart' })
+      }
+      let dialog = await open('scenario=empty-cart')
+      await expect(dialog.getByText('Your cart is empty')).toBeVisible()
+      assert.equal(await dialog.locator('.cart-drawer-summary').count(), 0)
+      dialog = await open('bagState=loading')
+      await expect(dialog.getByText('Loading your cart…')).toBeVisible()
+      assert.equal(await dialog.getByText('Your cart is empty').count(), 0)
+      dialog = await open('bagState=error')
+      await expect(dialog.getByText('Bag temporarily unavailable')).toBeVisible()
+      await dialog.getByRole('button', { name: 'Retry loading cart' }).click()
+      await expect(dialog.getByRole('button', { name: 'Proceed to Checkout' })).toBeEnabled()
+      dialog = await open('bagState=unresolved')
+      await expect(dialog.getByRole('button', { name: 'Resolve saved items' })).toBeDisabled()
+      dialog = await open('bagState=pending')
+      await expect(dialog.getByRole('button', { name: 'Proceed to Checkout' })).toBeDisabled()
+      await expect(dialog.getByRole('button', { name: 'Increase quantity' })).toBeDisabled()
+      dialog = await open('quantityFailure=1')
+      await dialog.getByRole('button', { name: 'Increase quantity' }).click()
+      await expect(dialog.getByRole('alert')).toHaveText('Quantity update was not confirmed')
+      await expect(dialog.getByRole('button', { name: 'Proceed to Checkout' })).toBeDisabled()
+      dialog = await open('bagTotals=1')
+      await expect(dialog.getByText('-₹25', { exact: true })).toBeVisible()
+      await expect(dialog.getByText('₹15', { exact: true })).toBeVisible()
+      const expected = await page.evaluate(() =>
+        new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          maximumFractionDigits: 0,
+        }).format((window.fixture.cart[0].lineTotal - 2500 + 1500) / 100)
+      )
+      await expect(dialog.locator('.cart-drawer-total')).toContainText(expected)
+      dialog = await open('fixtureRole=guest')
+      await dialog.getByRole('button', { name: 'Proceed to Checkout' }).click()
+      await expect(page.getByRole('dialog', { name: 'Welcome back.' })).toBeVisible()
+      assert.equal(await page.locator('.cart-drawer-panel').count(), 0)
+      await page.keyboard.press('Escape')
+      await expect(
+        page.locator('header').getByRole('button', { name: 'Shopping cart', exact: true })
+      ).toBeFocused()
+    }))
+  test(`${engine}: customer photos fill their frames while broken and unavailable quick views stay truthful`, () =>
+    visit(engine, '/shop', async (page) => {
+      for (const path of [
+        '/shop',
+        '/cart',
+        '/checkout',
+        '/orders',
+        '/orders/fixture-order',
+        '/orders/success?orderId=fixture-order',
+      ]) {
+        await page.goto(fixture.origin + path)
+        await page.locator('main img').first().waitFor()
+        assert.deepEqual(
+          await page
+            .locator('main img')
+            .evaluateAll((images) =>
+              images
+                .filter((image) => getComputedStyle(image).objectFit !== 'cover')
+                .map((image) => image.alt)
+            ),
+          [],
+          path
+        )
+      }
+      await page.goto(fixture.origin + '/shop?scenario=broken-images')
+      await page
+        .getByRole('button', { name: /Quick view/ })
+        .first()
+        .click()
+      let dialog = page.getByRole('dialog', { name: 'A closer look' })
+      await expect(dialog.getByRole('img', { name: /image unavailable/ })).toBeVisible()
+      await page.keyboard.press('Escape')
+      await page.goto(fixture.origin + '/shop?stock=0')
+      await page
+        .getByRole('button', { name: /Quick view/ })
+        .first()
+        .click()
+      dialog = page.getByRole('dialog', { name: 'A closer look' })
+      await expect(dialog.getByRole('button', { name: 'Unavailable', exact: true })).toBeDisabled()
+    }))
+  for (const width of [320, 390, 768, 1280, 1440]) {
+    test(`${engine} ${width}px: ivory bag keeps the header and checkout reachable as items scroll`, () =>
+      visit(
+        engine,
+        '/?bagCount=8',
+        async (page) => {
+          const trigger = page
+            .locator('header')
+            .getByRole('button', { name: 'Shopping cart', exact: true })
+          await trigger.focus()
+          await trigger.click()
+          const dialog = page.getByRole('dialog', { name: 'Shopping cart' })
+          await expect(dialog).toHaveCSS('opacity', '1')
+          const panel = await dialog.boundingBox()
+          assert.equal(Math.round(panel.width), width < 768 ? width : 480)
+          const close = await dialog
+            .getByRole('button', { name: 'Close cart', exact: true })
+            .boundingBox()
+          assert.ok(close.width >= 44 && close.height >= 44)
+          const image = dialog.locator('.drawer-cart-item img').first()
+          assert.equal(await image.evaluate((el) => getComputedStyle(el).objectFit), 'cover')
+          const frame = await image.locator('..').boundingBox()
+          const photo = await image.boundingBox()
+          assert.ok(
+            Math.abs(frame.width - photo.width) < 1 && Math.abs(frame.height - photo.height) < 1
+          )
+          const checkout = dialog.getByRole('button', { name: 'Proceed to Checkout' })
+          const summary = await dialog.locator('.cart-drawer-summary').boundingBox()
+          const action = await checkout.boundingBox()
+          assert.ok(action.width >= summary.width - 65, 'Checkout spans the summary')
+          assert.ok(action.y >= 0 && action.y + action.height <= 950)
+          const scroller = dialog.locator('.cart-drawer-items')
+          assert.ok(await scroller.evaluate((el) => el.scrollHeight > el.clientHeight))
+          await scroller.evaluate((el) => (el.scrollTop = el.scrollHeight))
+          assert.deepEqual(await checkout.boundingBox(), action)
+          for (let index = 0; index < 16; index++) {
+            await page.keyboard.press('Tab')
+            assert.ok(await dialog.evaluate((el) => el.contains(document.activeElement)))
+          }
+          assert.equal(await page.evaluate(() => document.body.style.overflow), 'hidden')
+          await page.keyboard.press('Escape')
+          await expect(trigger).toBeFocused()
+          assert.notEqual(await page.evaluate(() => document.body.style.overflow), 'hidden')
+        },
+        { viewport: { width, height: 950 } }
+      ))
+    test(`${engine} ${width}px: hero copy stays centered independently of slide navigation`, () =>
+      visit(
+        engine,
+        '/',
+        async (page) => {
+          const hero = page.locator('.devotion-hero')
+          const copy = page.locator('.devotion-hero__copy')
+          const image = page.locator('.devotion-hero__image')
+          assert.equal(await copy.locator('.hero-navigation').count(), 0)
+          const slides = await page.evaluate(() => window.fixture.settings.heroSlides.length)
+          for (let index = 0; index < slides; index++) {
+            const heading = copy.locator('h1')
+            await expect(heading).toHaveText(
+              await page.evaluate((i) => window.fixture.settings.heroSlides[i].title, index)
+            )
+            const layout = await copy.evaluate((el) => {
+              const first = el.firstElementChild.getBoundingClientRect()
+              const last = el.querySelector('a').getBoundingClientRect()
+              return { top: first.top, bottom: last.bottom }
+            })
+            if (width >= 768) {
+              const frame = await hero.boundingBox()
+              assert.ok(
+                Math.abs((layout.top + layout.bottom) / 2 - (frame.y + frame.height / 2)) < 4
+              )
+            } else assert.ok((await copy.boundingBox()).y < (await image.boundingBox()).y)
+            assert.equal(
+              await copy.locator('.eyebrow').evaluate((el) => getComputedStyle(el).fontSize),
+              '12px'
+            )
+            await page.getByRole('button', { name: 'Next slide', exact: true }).click()
+          }
+          const footer = page.locator('.store-footer')
+          assert.ok(await footer.locator('.store-footer__brand').count())
+          assert.equal(await footer.getByText('Payments through Razorpay').count(), 0)
+          assert.equal(
+            await footer
+              .locator('.store-footer__navigation')
+              .evaluate((el) => getComputedStyle(el).backgroundColor),
+            await page
+              .locator('body')
+              .evaluate(() =>
+                getComputedStyle(document.documentElement).getPropertyValue('--color-ink').trim()
+              )
+              .then((value) =>
+                page.evaluate((value) => {
+                  const el = document.createElement('span')
+                  el.style.color = value
+                  document.body.append(el)
+                  const color = getComputedStyle(el).color
+                  el.remove()
+                  return color
+                }, value)
+              )
+          )
+        },
+        { viewport: { width, height: 950 } }
+      ))
+  }
+  for (const width of [320, 390, 768, 1280, 1440]) {
+    test(`${engine} ${width}px: compact quick view fills its square photograph and centers stable actions`, () =>
+      visit(
+        engine,
+        '/shop?gatedAdd=1',
+        async (page) => {
+          const trigger = page.getByRole('button', { name: /Quick view/ }).first()
+          await trigger.focus()
+          await trigger.click()
+          const dialog = page.getByRole('dialog', { name: 'A closer look' })
+          const image = dialog.locator('img').first()
+          const photo = await image.boundingBox()
+          assert.ok(Math.abs(photo.width - photo.height) < 1, 'Quick-view photograph is square')
+          assert.equal(await image.evaluate((el) => getComputedStyle(el).objectFit), 'cover')
+          const add = dialog.locator('.button-primary')
+          const details = dialog.getByRole('link', { name: 'View Full Details' })
+          const before = await add.boundingBox()
+          assert.equal(before.height, (await details.boundingBox()).height)
+          assert.equal(await add.evaluate((el) => getComputedStyle(el).alignItems), 'center')
+          const centered = await add.evaluate((el) => {
+            const icon = el.querySelector('svg').getBoundingClientRect()
+            const label = el.querySelector('span').getBoundingClientRect()
+            return Math.abs(icon.y + icon.height / 2 - label.y - label.height / 2) < 1
+          })
+          assert.ok(centered, 'Icon and label share a center line')
+          await add.click()
+          await expect(add).toHaveAttribute('aria-busy', 'true')
+          const busy = await add.boundingBox()
+          assert.ok(
+            Math.abs(before.width - busy.width) < 1 && Math.abs(before.height - busy.height) < 1
+          )
+          await page.keyboard.press('Escape')
+          await expect(dialog).toHaveCount(0)
+          await expect(page.getByRole('button', { name: /Quick view/ }).first()).toBeFocused()
+        },
+        { viewport: { width, height: 950 } }
+      ))
+  }
 }
 
 for (const engine of ['chromium', 'webkit']) {

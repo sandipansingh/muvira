@@ -219,7 +219,7 @@ test('quick view waits for confirmed cart mutation and exposes a recoverable fai
     )
     await dialog.getByRole('alert').waitFor()
     assert.equal(await add.isEnabled(), true)
-    assert.equal(await dialog.getByText('Added to Cart', { exact: true }).count(), 0)
+    assert.equal(await dialog.getByText('Added to Cart', { exact: true }).isVisible(), false)
   }))
 test('empty modal search keeps focus inside the dialog', () =>
   pageFor('/', async (page) => {

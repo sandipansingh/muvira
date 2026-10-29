@@ -73,11 +73,12 @@ export function CheckoutSummary({
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-control bg-paper">
                 {item.image ? (
                   <StoreImage
+                    framing="square"
                     src={item.image}
                     alt={item.name}
                     width={160}
                     height={160}
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-muted">

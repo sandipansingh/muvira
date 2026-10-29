@@ -129,11 +129,12 @@ export const OrderSuccessPage: React.FC = () => {
             {order.items.map((item) => (
               <div key={item.id} className="flex items-center gap-4 border-t border-line py-4">
                 <StoreImage
+                  framing="square"
                   src={item.productImage || undefined}
                   alt={item.productName}
                   width={256}
                   height={256}
-                  className="h-32 w-32 shrink-0 rounded-image object-contain"
+                  className="h-32 w-32 shrink-0 rounded-image object-cover"
                 />
                 <div className="min-w-0">
                   <p className="font-product text-sm font-semibold text-ink">{item.productName}</p>

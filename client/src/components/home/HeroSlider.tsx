@@ -92,31 +92,31 @@ export const HeroSlider: React.FC = () => {
               Loading store highlights…
             </p>
           )}
-          {slides.length > 1 && (
-            <div className="hero-navigation" aria-label="Collection slides">
-              <button
-                type="button"
-                onClick={() => move(-1)}
-                aria-label="Previous slide"
-                className="hero-navigation__button"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="text-sm tabular-nums" aria-live="polite">
-                {String(currentIndex + 1).padStart(2, '0')}{' '}
-                <span className="mx-2 text-muted">/</span> {String(slides.length).padStart(2, '0')}
-              </span>
-              <button
-                type="button"
-                onClick={() => move(1)}
-                aria-label="Next slide"
-                className="hero-navigation__button"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
         </div>
+        {slides.length > 1 && (
+          <div className="hero-navigation" aria-label="Collection slides">
+            <button
+              type="button"
+              onClick={() => move(-1)}
+              aria-label="Previous slide"
+              className="hero-navigation__button"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="text-sm tabular-nums" aria-live="polite">
+              {String(currentIndex + 1).padStart(2, '0')} <span className="mx-2 text-muted">/</span>{' '}
+              {String(slides.length).padStart(2, '0')}
+            </span>
+            <button
+              type="button"
+              onClick={() => move(1)}
+              aria-label="Next slide"
+              className="hero-navigation__button"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )

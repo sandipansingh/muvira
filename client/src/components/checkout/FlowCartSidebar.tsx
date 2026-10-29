@@ -96,11 +96,12 @@ export const FlowCartSidebar: React.FC<FlowCartSidebarProps> = ({
                 <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)]">
                   {item.productImage ? (
                     <StoreImage
+                      framing="square"
                       src={item.productImage}
                       alt={item.productName}
                       width={160}
                       height={160}
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-cover"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-[10px] text-[var(--color-muted)]">

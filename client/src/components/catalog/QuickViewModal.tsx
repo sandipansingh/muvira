@@ -78,17 +78,18 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="xl" title="A closer look">
-      <div className="grid gap-5 md:grid-cols-2 md:items-stretch">
+      <div className="quick-view grid items-start gap-5 md:grid-cols-2">
         {/* Left Column: Product Gallery & Badges */}
-        <div className="flex flex-col justify-between space-y-3 md:h-full">
-          <div className="relative aspect-[4/5] min-h-[280px] flex-1 overflow-hidden rounded-[var(--radius-card)] bg-[var(--color-surface)] sm:min-h-[340px] md:min-h-[400px]">
+        <div className="min-w-0 space-y-3">
+          <div className="relative aspect-square overflow-hidden rounded-card bg-surface">
             {selectedImage ? (
               <StoreImage
                 src={selectedImage}
                 alt={product.name}
                 width={800}
                 height={800}
-                className="absolute inset-0 h-full w-full object-contain"
+                framing="square"
+                className="absolute inset-0 h-full w-full object-cover"
               />
             ) : (
               <div className="flex h-full items-center justify-center text-xs font-normal text-muted">
@@ -106,7 +107,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
           </div>
 
           {images.length > 1 && (
-            <div className="no-scrollbar flex shrink-0 gap-2 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto">
               {images.map((image, index) => (
                 <button
                   key={`${image}-${index}`}
@@ -125,7 +126,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                     alt={`${product.name} view ${index + 1}`}
                     width={56}
                     height={56}
-                    className="h-full w-full object-contain"
+                    framing="square"
+                    className="h-full w-full object-cover"
                   />
                 </button>
               ))}
@@ -134,18 +136,16 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
         </div>
 
         {/* Right Column: Details, Highlights & Purchase Controls */}
-        <div className="flex flex-col justify-between space-y-3 md:h-full">
+        <div className="min-w-0 space-y-4">
           <div>
             {/* Category & Stock Status */}
-            <div className="flex items-center justify-between gap-4 pr-10">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="eyebrow">{categoryName}</span>
               <StockBadge quantity={product.stock} isAvailable={product.inStock} />
             </div>
 
             {/* Product Title */}
-            <h2 className="font-product text-product-title mt-2 pr-10 line-clamp-2 text-[var(--color-ink)]">
-              {product.name}
-            </h2>
+            <h2 className="quick-view__title mt-2 font-product text-ink">{product.name}</h2>
 
             {product.rating != null && (product.reviewCount ?? 0) > 0 && (
               <div className="mt-2.5 text-xs">
@@ -191,7 +191,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
 
           {/* Action Section */}
           <div className="space-y-3 border-t border-[var(--color-line)] pt-3">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span className="eyebrow">Quantity</span>
               <div className="flex items-center rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-surface)] p-0.5">
                 <button
@@ -225,7 +225,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 {addError}
               </p>
             )}
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="quick-view__actions grid auto-rows-fr gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
@@ -234,25 +234,37 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 className="button-primary min-h-[var(--tap-target)] gap-1.5 px-4 text-sm"
               >
                 {added ? (
-                  <>
-                    <Check className="h-4 w-4 shrink-0 text-emerald-400" />
-                    <span className="leading-none">Added to Cart</span>
-                  </>
+                  <Check className="h-4 w-4 shrink-0" />
                 ) : (
-                  <>
-                    <ShoppingBag className="h-4 w-4 shrink-0" />
-                    <span className="leading-none">
-                      {isAdding ? 'Adding…' : product.inStock ? 'Add to Cart' : 'Unavailable'}
-                    </span>
-                  </>
+                  <ShoppingBag className="h-4 w-4 shrink-0" />
                 )}
+                <span className="inline-grid">
+                  <span
+                    className={`col-start-1 row-start-1 ${isAdding || added ? 'invisible' : ''}`}
+                    aria-hidden={isAdding || added}
+                  >
+                    {product.inStock ? 'Add to Cart' : 'Unavailable'}
+                  </span>
+                  <span
+                    className={`col-start-1 row-start-1 ${isAdding ? '' : 'invisible'}`}
+                    aria-hidden={!isAdding}
+                  >
+                    Adding…
+                  </span>
+                  <span
+                    className={`col-start-1 row-start-1 ${added ? '' : 'invisible'}`}
+                    aria-hidden={!added}
+                  >
+                    Added to Cart
+                  </span>
+                </span>
               </button>
               <Link
                 to={`/product/${product.slug}`}
                 onClick={onClose}
                 className="button-secondary min-h-[var(--tap-target)] justify-center gap-1.5 px-4 text-center text-sm"
               >
-                <span className="leading-none">View Full Details</span>
+                <span>View Full Details</span>
               </Link>
             </div>
           </div>

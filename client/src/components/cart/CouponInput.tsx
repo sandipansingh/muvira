@@ -52,8 +52,8 @@ export const CouponInput: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex h-10 items-stretch gap-2">
-      <div className="relative flex-1">
+    <form noValidate onSubmit={handleSubmit} className="flex flex-wrap items-stretch gap-2">
+      <div className="relative min-w-0 flex-[1_1_9rem]">
         <label htmlFor="coupon-code" className="sr-only">
           Promo code
         </label>

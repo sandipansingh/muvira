@@ -25,12 +25,32 @@ export function useDialogFocus(
     }
     openDialogs.push(dialog)
 
-    const focusable = () =>
-      [
+    const focusable = () => {
+      const candidates = [
         ...dialog.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
         ),
-      ].filter((element) => element.getClientRects().length > 0)
+      ].filter(
+        (element) =>
+          element.getClientRects().length > 0 &&
+          element.tabIndex >= 0 &&
+          !element.matches(':disabled') &&
+          !element.closest('[inert]') &&
+          getComputedStyle(element).visibility !== 'hidden'
+      )
+      return candidates.filter((element) => {
+        if (!(element instanceof HTMLInputElement) || element.type !== 'radio' || !element.name)
+          return true
+        const group = candidates.filter(
+          (candidate): candidate is HTMLInputElement =>
+            candidate instanceof HTMLInputElement &&
+            candidate.type === 'radio' &&
+            candidate.name === element.name &&
+            candidate.form === element.form
+        )
+        return element === (group.find((radio) => radio.checked) ?? group[0])
+      })
+    }
 
     const focusFrame = requestAnimationFrame(() =>
       (
@@ -47,25 +67,21 @@ export function useDialogFocus(
       }
       if (event.key !== 'Tab') return
 
+      // Safari can skip links and buttons during native Tab traversal.
+      event.preventDefault()
       const elements = focusable()
       if (elements.length === 0) {
-        event.preventDefault()
         dialog.focus()
         return
       }
-      const first = elements[0]
-      const last = elements[elements.length - 1]
-      if (!dialog.contains(document.activeElement)) {
-        event.preventDefault()
-        const target = event.shiftKey ? last : first
-        target.focus()
-      } else if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
-      }
+      const current = elements.indexOf(document.activeElement as HTMLElement)
+      const next =
+        current < 0
+          ? event.shiftKey
+            ? elements.length - 1
+            : 0
+          : (current + (event.shiftKey ? -1 : 1) + elements.length) % elements.length
+      elements[next].focus()
     }
     document.addEventListener('keydown', handleKeyDown)
 

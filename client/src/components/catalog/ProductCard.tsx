@@ -69,6 +69,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     if (event) {
       event.preventDefault()
       event.stopPropagation()
+      if (event.currentTarget instanceof HTMLElement)
+        event.currentTarget.focus({ preventScroll: true })
     }
     setIsQuickViewOpen(true)
   }
@@ -88,9 +90,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             >
               {primaryImage ? (
                 <StoreImage
+                  framing="square"
                   src={primaryImage}
                   alt={product.name}
-                  className="h-full w-full object-contain browse-image"
+                  className="h-full w-full object-cover browse-image"
                   width={320}
                   height={320}
                   loading="lazy"
