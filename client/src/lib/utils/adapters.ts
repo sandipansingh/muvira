@@ -267,6 +267,8 @@ export function mapOrderDetail(raw: Record<string, unknown>): OrderDetail {
   return {
     id: raw['id'] as string,
     orderNumber: raw['order_number'] as string,
+    checkoutRequestId:
+      typeof raw['checkout_request_id'] === 'string' ? raw['checkout_request_id'] : null,
     status: raw['status'] as OrderDetail['status'],
     paymentStatus: raw['payment_status'] as OrderDetail['paymentStatus'],
     fulfillmentStatus: raw['fulfillment_status'] as OrderDetail['fulfillmentStatus'],

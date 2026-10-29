@@ -51,6 +51,16 @@ function OrderWorkspace({ id, userId }: { id: string; userId: string }) {
             <span className="neutral-badge">{order.status.replaceAll('_', ' ')}</span>
           </CustomerPageHeading>
           <div className="journey-stack">
+            {order.paymentStatus === 'pending' &&
+              order.status === 'pending' &&
+              order.checkoutRequestId && (
+                <Link
+                  to={`/checkout?attempt=${encodeURIComponent(order.checkoutRequestId)}`}
+                  className="button-primary"
+                >
+                  Continue payment
+                </Link>
+              )}
             <section className="journey-card order-shipment-recap" aria-label="Shipment tracking">
               <div>
                 <h2 className="journey-section-title">Shipment tracking</h2>

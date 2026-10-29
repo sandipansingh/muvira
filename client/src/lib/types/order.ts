@@ -102,6 +102,7 @@ export interface AdminNote {
 }
 
 export interface OrderDetail {
+  checkoutRequestId?: string | null
   id: string
   orderNumber: string
   status: OrderStatus

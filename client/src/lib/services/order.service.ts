@@ -16,9 +16,10 @@ export const orderApiService = {
    * Creates a checkout order with selected address and coupon code.
    */
   async createOrder(
-    input: CreateCheckoutOrderInput
+    input: CreateCheckoutOrderInput & { checkoutRequestId: string }
   ): Promise<ApiResponse<CreateCheckoutOrderResult>> {
     const body = {
+      checkout_request_id: input.checkoutRequestId,
       address_id: input.addressId,
       shipping_method: input.shippingMethod,
       billing_same_as_shipping: input.billingSameAsShipping,

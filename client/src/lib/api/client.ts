@@ -79,10 +79,12 @@ class ApiClient {
   ): Promise<T> {
     const authHeaders = await this.getAuthHeader(requireAuth, expectedUserId)
     let response: Response
+    const deadline = AbortSignal.timeout(30_000)
 
     try {
       response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...init,
+        signal: deadline,
         headers: {
           Accept: 'application/json',
           ...(init.body ? { 'Content-Type': 'application/json' } : {}),
@@ -94,8 +96,10 @@ class ApiClient {
       throw new ApiError(
         0,
         {
-          code: 'NETWORK_ERROR',
-          message: 'The service is unavailable. Please check your connection and try again.',
+          code: deadline.aborted ? 'REQUEST_TIMEOUT' : 'NETWORK_ERROR',
+          message: deadline.aborted
+            ? 'The request timed out. Check the status of this purchase before retrying.'
+            : 'The service is unavailable. Please check your connection and try again.',
         },
         { cause: error }
       )
