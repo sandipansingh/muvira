@@ -3,14 +3,6 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('/fonts/InterVariable.woff2') format('woff2');
-}
-
-@font-face {
   font-family: 'DM Serif Display';
   font-style: normal;
   font-weight: 400;
@@ -51,41 +43,41 @@ input[type='search']::-webkit-search-results-decoration {
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #111827;
+  --background: #faf8f4;
+  --foreground: #1f2521;
   --brand: var(--color-primary);
   --brand-hover: var(--color-primary-hover);
   --brand-light: var(--color-primary-soft);
   --brand-dark: var(--color-ink);
   --muted: var(--color-muted);
   --border-light: var(--color-line);
-  --surface-alt: #f7f8fc;
+  --surface-alt: #e9e3d9;
   --admin-bg: var(--background);
   --duration: 20s;
   --gap: 1.5rem;
 
   --color-paper: #ffffff;
-  --color-surface: #f7f8fc;
-  --color-ink: #111827;
-  --color-ink-soft: #4b5563;
-  --color-muted: #6b7280;
-  --color-line: #e5e7eb;
-  --color-field-border: #9ca3af;
+  --color-surface: #f3efe8;
+  --color-ink: #1f2521;
+  --color-ink-soft: #3d4740;
+  --color-muted: #657168;
+  --color-line: #e9e3d9;
+  --color-field-border: #9ba49d;
   --color-field-focus: color-mix(in srgb, var(--color-paper), var(--color-ink) 4%);
   --color-disabled: #aeb5c3;
-  --color-primary: #0070f3;
-  --color-primary-hover: #005bcc;
-  --color-primary-soft: #eaf3ff;
-  --color-accent: var(--color-primary);
-  --color-accent-soft: var(--color-primary-soft);
+  --color-primary: #334b42;
+  --color-primary-hover: color-mix(in srgb, var(--color-primary), black 18%);
+  --color-primary-soft: color-mix(in srgb, var(--color-primary), white 88%);
+  --color-accent: #326147;
+  --color-accent-soft: #e8f8f0;
   --color-danger: #b03b31;
   --color-danger-soft: #fdeeed;
   --color-warning: #8a5b1e;
   --color-warning-soft: #fef3c7;
-  --color-info: var(--color-primary-hover);
-  --color-info-soft: var(--color-primary-soft);
+  --color-info: #386278;
+  --color-info-soft: #edf4fe;
   --color-rating: #f5a623;
-  --color-brass: var(--color-line);
+  --color-brass: #98753a;
   --duration-image: 350ms;
   --scale-image-hover: 1.06;
   --store-header-height: 5rem;
@@ -135,8 +127,9 @@ input[type='search']::-webkit-search-results-decoration {
   --duration-hero: 300ms;
 
   --font-sans:
-    'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --font-display: var(--font-sans);
+    'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
+    sans-serif;
+  --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
   --font-product: var(--font-sans);
   --font-brand: 'DM Serif Display', Georgia, 'Times New Roman', serif;
   --type-page: 1.75rem;
@@ -282,10 +275,39 @@ h6,
 .font-display,
 .font-serif {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.3;
   font-synthesis: none;
+}
+
+/* DM Serif Display provides only a regular face. */
+:is(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-display,
+  .font-serif,
+  .text-h1,
+  .text-h2,
+  .text-h3,
+  .text-h4,
+  .page-title,
+  .heading
+):not(
+  .font-sans,
+  .font-product,
+  .text-product-title,
+  .product-detail-title,
+  .product-card__name,
+  .footer-heading,
+  .mosaic-tile h3,
+  .admin-theme *
+) {
+  font-weight: 400;
 }
 
 strong,
@@ -382,7 +404,7 @@ body {
 /* Standardized type scale */
 .text-h1 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: var(--type-page);
   line-height: 1.3;
   letter-spacing: -0.025em;
@@ -390,7 +412,7 @@ body {
 
 .text-h2 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: var(--type-section);
   line-height: 1.3;
   letter-spacing: -0.025em;
@@ -417,14 +439,14 @@ h1.product-detail-title {
   color: var(--color-ink);
   font-family: var(--font-display);
   font-size: var(--type-page);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 1.3;
 }
 
 .text-h3 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: var(--type-section);
   line-height: 1.2;
   letter-spacing: -0.025em;
@@ -432,7 +454,7 @@ h1.product-detail-title {
 
 .text-h4 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: var(--type-panel);
   line-height: 1.25;
   letter-spacing: -0.025em;
@@ -473,7 +495,7 @@ h1.product-detail-title {
 .heading {
   color: var(--color-ink);
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 1.15;
 }
@@ -1138,7 +1160,7 @@ button:disabled {
 }
 .store-footer {
   padding-block: 4.5rem 1.5rem;
-  background: var(--color-paper);
+  background: var(--surface-alt);
   border-top: 1px solid var(--color-line);
   color: var(--color-ink);
 }
@@ -2834,7 +2856,7 @@ body {
 .journey-card-heading h2,
 .journey-section-title {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 400;
   font-size: var(--type-panel);
   line-height: 1.4;
 }
@@ -3211,7 +3233,7 @@ body {
 }
 .account-page .panel > h2 {
   font-size: var(--type-panel);
-  font-weight: 600;
+  font-weight: 400;
 }
 .commerce-item {
   background: transparent;
@@ -3326,7 +3348,7 @@ body {
 
 /* Rich shopping compositions are scoped to the customer storefront. */
 .store-header {
-  background: var(--color-paper);
+  background: var(--background);
   container-type: inline-size;
 }
 .store-header__main {
@@ -3582,7 +3604,7 @@ body {
 .shopping-stage .devotion-hero__copy h1 {
   max-width: 10ch;
   font-size: var(--type-hero);
-  font-weight: 600;
+  font-weight: 400;
   text-wrap: balance;
 }
 .shopping-stage .devotion-hero__copy p {
@@ -3687,7 +3709,7 @@ body {
 .mosaic-tile:first-child h3 {
   font-family: var(--font-display);
   font-size: var(--type-section);
-  font-weight: 600;
+  font-weight: 400;
 }
 .collection-spotlight {
   display: grid;

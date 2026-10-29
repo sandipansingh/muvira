@@ -367,7 +367,7 @@ for (const engine of ['chromium', 'webkit']) {
             await page
               .locator('body')
               .evaluate(() =>
-                getComputedStyle(document.documentElement).getPropertyValue('--color-paper').trim()
+                getComputedStyle(document.documentElement).getPropertyValue('--surface-alt').trim()
               )
               .then((value) =>
                 page.evaluate((value) => {

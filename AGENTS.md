@@ -67,7 +67,7 @@ All money is integer paisa at API and database boundaries. UI conversion to rupe
 - Use `₹` and Indian localization for customer-visible currency.
 - Use existing CSS variables and Tailwind tokens; do not add raw colors to JSX or component CSS.
 - Reserve the primary brand color for interactive actions, selected controls, prices, and hover states.
-- Storefront headings, body, controls, products and prices use locally hosted Inter (`font-display`, `font-serif`, `font-sans`, `font-product`). Page titles are 28px desktop/24px phone, panel titles 18px semibold and body/product text 14px/20px. Admin retains Manrope within `.admin-theme`; the existing Muvira wordmark retains its independent brand font.
+- Storefront editorial, page and panel headings use locally hosted DM Serif Display at regular 400 (`font-display`, `font-serif`) without synthesized bold. Body, controls, products and prices use locally hosted Manrope (`font-sans`, `font-product`). Page titles are 28px desktop/24px phone, panel titles 18px and body/product text 14px/20px. Admin retains Manrope and its existing weights within `.admin-theme`; the Muvira wordmark retains its independent brand font.
 - Form controls must render at 16px or larger to avoid iOS focus zoom.
 - Use `Breadcrumbs`, `Dropdown`, and `Pagination` rather than hand-rolled equivalents. Paginated screens retain the existing scroll-to-results behavior.
 - Logo images must not be wrapped in decorative frames, borders, backgrounds, or shadows.

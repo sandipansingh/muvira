@@ -1,6 +1,6 @@
 # Muvira design identities
 
-Muvira is an English-language Indian storefront for god idols, puja products and home pieces. The approved white-and-blue design uses compact commerce and account workspaces alongside the existing photographic homepage, collection and product composition. Reference presentation backgrounds are not website surfaces. The admin workspace remains independent.
+Muvira is an English-language Indian storefront for god idols, puja products and home pieces. Cream, forest green and brass pair with Manrope and regular DM Serif Display. This identity surrounds the current compact commerce/account workspaces and photographic homepage, collection and product composition. Reference presentation backgrounds are not website surfaces. The admin workspace remains independent.
 
 Runtime CSS in `client/src/index.css` is authoritative (ownership model B). `client/tailwind.config.js` adapts those variables; shared components consume semantic classes. `DESIGN_SYSTEM.md` documents owners and `UX-CONTRACT.md` preserves behavior.
 
@@ -8,40 +8,43 @@ Runtime CSS in `client/src/index.css` is authoritative (ownership model B). `cli
 
 | Intent | Runtime owner | Accepted value | Consumers |
 | --- | --- | --- | --- |
-| White canvas and panels | `--background`, `--color-paper` | `#FFFFFF` | Storefront, header, footer, cards |
-| Cool near-white | `--color-surface`, `--surface-alt` | `#F7F8FC` | Checkout canvas, subtle surfaces |
-| Primary / hover / selected | `--color-primary`, `--color-primary-hover`, `--color-primary-soft` | `#0070F3`, `#005BCC`, `#EAF3FF` | Actions, selected controls, prices |
-| Main text | `--color-ink`, `--foreground` | `#111827` | Headings and body |
-| Secondary text | `--color-muted` | `#6B7280` | Metadata |
-| Supporting text | `--color-ink-soft` | `#4B5563` | Longer secondary copy |
-| Borders / field borders | `--color-line`, `--color-field-border` | `#E5E7EB`, `#9CA3AF` | Panels / identifiable inputs |
-| Positive states | `--color-accent`, `--color-accent-soft` | Primary / selected aliases | Explicit success text and checks |
+| Cream canvas / white panels | `--background`, `--color-paper` | `#FAF8F4`, `#FFFFFF` | Storefront/header, cards |
+| Subtle surfaces / stone footer | `--color-surface`, `--surface-alt` | `#F3EFE8`, `#E9E3D9` | Checkout canvas, subtle surfaces / footer |
+| Primary / hover / selected | `--color-primary`, `--color-primary-hover`, `--color-primary-soft` | `#334B42`; primary mixed with 18% black / 88% white | Actions, selected controls, prices |
+| Main text | `--color-ink`, `--foreground` | `#1F2521` | Headings and body |
+| Secondary text | `--color-muted` | `#657168` | Metadata |
+| Supporting text | `--color-ink-soft` | `#3D4740` | Longer secondary copy |
+| Borders / field borders | `--color-line`, `--color-field-border` | `#E9E3D9`, `#9BA49D` | Panels / identifiable inputs |
+| Positive states | `--color-accent`, `--color-accent-soft` | `#326147`, `#E8F8F0` | Explicit success text and checks |
+| Information states | `--color-info`, `--color-info-soft` | `#386278`, `#EDF4FE` | Informational feedback |
+| Brass decoration | `--color-brass` | `#98753A` | Decorative accents |
 | Warning / danger | `--color-warning`, `--color-danger` | `#8A5B1E`, `#B03B31` | Distinct exceptional states |
 | Text-entry focus | `--color-field-focus` | Paper mixed with 4% ink | Fields and search wrappers |
-| Storefront type | `--font-sans`, `--font-display`, `--font-product` | Locally hosted Inter, variable 100–900 | Headings, body, products, controls |
-| Brand artwork type | `--font-brand` | DM Serif Display, regular 400 | Existing Muvira wordmark only |
-| Page / section / panel / hero | `--type-page`, `--type-section`, `--type-panel`, `--type-hero` | 28 / 24 / 18 / 40px; phone page 24px and hero 32px | Shared headings, semibold |
+| Body / product type | `--font-sans`, `--font-product` | Locally hosted Manrope, variable 200–800 | Body, controls, products, prices |
+| Display type | `--font-display` | Locally hosted DM Serif Display, regular 400 | Editorial, page and panel headings |
+| Brand artwork type | `--font-brand` | DM Serif Display, regular 400 | Existing Muvira wordmark |
+| Page / section / panel / hero | `--type-page`, `--type-section`, `--type-panel`, `--type-hero` | 28 / 24 / 18 / 40px; phone page 24px and hero 32px | Shared headings, regular 400 |
 | Shape | `--radius-control`, `--radius-card`, `--radius-image` | 6 / 10 / 6px | Controls, panels and photos |
 | Elevation | `--shadow-card`, `--shadow-premium` | 0 1px 3px / 0 2px 8px, charcoal at 4% | Restrained surface separation |
 | Image hover | `--duration-image`, `--scale-image-hover` | 350ms, 1.06 | Fine pointers without reduced motion |
 
-Body and product text are 14px/20px; metadata is 12–13px. Inputs stay at least 16px and actions at least 44px. Text grows naturally. Inter replaces storefront serif rules; no synthesized serif weights remain. Manrope and its previous geometry/palette are explicitly scoped to administration. Genuine payment brands retain their own colours. Logo images remain unframed.
+Body and product text are 14px/20px; metadata is 12–13px. Inputs stay at least 16px and actions at least 44px. Text grows naturally. DM Serif Display has only a regular face: serif headings use weight 400 and disable synthesis. Product titles, controls and prices retain Manrope. Administration keeps its scoped Manrope heading weights, geometry and palette. Current line heights, spacing, radii and shadows remain intact. Genuine payment brands retain their own colours and QR backgrounds stay white. Logo images remain unframed.
 
 ## Composition
 
 **Retained browsing composition.** The homepage keeps its manual photographic carousel beside collection tiles, collection mosaic, configured campaigns, featured merchandise, discovery paths, new arrivals and store story. Its hero uses 40px desktop/32px phone headings and sections use 24px. Product cards retain 4:5 frames; catalog grids reflow from four to three, two and one column. The shared product gallery retains square main photography, 64px thumbnail rails and complete originals in the lightbox. Main purchase actions precede description/specifications. No commercial facts, fallback merchandise or unsupported features are introduced.
 
-The header and footer are white. Desktop header rows target minimum 72px and 44px, growing for text. Search, destinations and photographic collections-menu behavior remain intact. The footer retains brand, Explore, Your Muvira, configured contact and collection links; account labels follow authentication. Payment-provider branding is absent from the footer.
+The header is cream and the footer stone. Desktop header rows target minimum 72px and 44px, growing for text. Search, destinations and photographic collections-menu behavior remain intact. The footer retains brand, Explore, Your Muvira, configured contact and collection links; account labels follow authentication. Payment-provider branding is absent from the footer.
 
-**Account.** “E-commerce account page, Order list” guides a compact identity header above a 1200px maximum workspace: 200px desktop navigation, 24px gap, small blue icons and pale-blue selected links. There is no initials badge or duplicate welcome. Overview retains independently loaded recent order, confirmed default address and compact personal-info entry. Existing personal/address hashes preserve drafts and reset on identity changes. Utilities remain below navigation. Below 1024px navigation wraps above content. Bordered order cards use the actual first-item image, reference, date, status, count, total and separate View order/Track order actions without per-order reads.
+**Account.** “E-commerce account page, Order list” guides a compact identity header above a 1200px maximum workspace: 200px desktop navigation, 24px gap, small forest-green icons and pale-green selected links. There is no initials badge or duplicate welcome. Overview retains independently loaded recent order, confirmed default address and compact personal-info entry. Existing personal/address hashes preserve drafts and reset on identity changes. Utilities remain below navigation. Below 1024px navigation wraps above content. Bordered order cards use the actual first-item image, reference, date, status, count, total and separate View order/Track order actions without per-order reads.
 
-**Cart.** “eCommerce App Designs, Views 2_31M” guides compact progress and rows beside coupon/summary panels. The 1120px maximum container uses a 3:2 grid with 24px gap. Each row aligns an 80px image, wrapping product details, minus/value/plus, right-aligned total and removal. Content-width breakpoints rearrange controls before labels become squeezed. The page minimum is one; the shared drawer control retains decrement-to-remove. No featured upsell, duplicate Continue shopping link or forced empty space remains. One blue checkout action follows authoritative totals.
+**Cart.** “eCommerce App Designs, Views 2_31M” guides compact progress and rows beside coupon/summary panels. The 1120px maximum container uses a 3:2 grid with 24px gap. Each row aligns an 80px image, wrapping product details, minus/value/plus, right-aligned total and removal. Content-width breakpoints rearrange controls before labels become squeezed. The page minimum is one; the shared drawer control retains decrement-to-remove. No featured upsell, duplicate Continue shopping link or forced empty space remains. One forest-green checkout action follows authoritative totals.
 
-**Shipping and payment.** “Daily UI … Checkout Page” guides the cool near-white canvas, white 20px desktop/16px phone panels and the same 3:2 grid, stacked below 1024px. Saved address/form comes before delivery method and billing; street precedes city/PIN/state in keyboard order. Billing expands from Same as delivery address. Product previews, promo and totals occupy the right column. Shipping has one Continue to payment action.
+**Shipping and payment.** “Daily UI … Checkout Page” guides the warm subtle canvas, white 20px desktop/16px phone panels and the same 3:2 grid, stacked below 1024px. Saved address/form comes before delivery method and billing; street precedes city/PIN/state in keyboard order. Billing expands from Same as delivery address. Product previews, promo and totals occupy the right column. Shipping has one Continue to payment action.
 
 Payment is a stack of enabled methods in the existing order, each with a radio, full label and genuine supported artwork or generic coloured icon. Only the chosen method expands. `PaymentArtwork` gates card logos on confirmed network values and app logos on confirmed UPI codes; provenance lives in `client/public/images/payments/README.md`. Card fields follow number → expiry/CVV → cardholder name. UPI uses concise instructions, supported app tiles or the provider QR with its quiet zone and expiry state. Separate Review payment and Pay stages, frozen totals, recovery and transient SDK-only credentials remain intact.
 
-**Orders.** “Order Confirmation with order status” guides equal columns: confirmation/order facts/address left and purchased items/totals right, with compact actions below. Pending/failure surfaces share type and spacing while keeping distinct state and recovery. Details reuse item/address/payment/summary cards. “Order tracking page design of an e-commerce website” guides the compact order header, progress, real events, courier/AWB facts, products and address/payment recap. Completed stages are blue with checks/text; exceptions replace ordinary progress. Missing dates/events are never invented.
+**Orders.** “Order Confirmation with order status” guides equal columns: confirmation/order facts/address left and purchased items/totals right, with compact actions below. Pending/failure surfaces share type and spacing while keeping distinct state and recovery. Details reuse item/address/payment/summary cards. “Order tracking page design of an e-commerce website” guides the compact order header, progress, real events, courier/AWB facts, products and address/payment recap. Completed stages are forest green with checks/text; exceptions replace ordinary progress. Missing dates/events are never invented.
 
 ## Responsive and interaction rules
 
@@ -51,9 +54,9 @@ CustomerPageHeading owns page introductions and optional breadcrumbs/actions. To
 
 ## Evidence and imagery
 
-`client/public/fonts/README.md` records Inter and retained admin/brand fonts with licenses. Existing editorial/collection README files record original configured photographic sources, prompts and fidelity comparisons. Exact-source image substitutions, failure states and full-image lightboxes retain their existing behavior.
+`client/public/fonts/README.md` records Manrope and DM Serif Display with their licenses and local preloads. Existing editorial/collection README files record original configured photographic sources, prompts and fidelity comparisons. Exact-source image substitutions, failure states and full-image lightboxes retain their existing behavior.
 
-The browser design contract is `tests/white-blue-storefront.test.cjs`; payment branding/credential/expiry cases live in `tests/custom-checkout-browser.test.cjs`. The full responsive suite covers Chromium/WebKit and the 320/390/768/1280/1440px normal/enlarged-text journey matrix. Reference-comparison evidence is recorded in `docs/verification/white-blue-storefront.md`.
+The browser design contract is `tests/storefront-theme.test.cjs`; payment branding/credential/expiry cases live in `tests/custom-checkout-browser.test.cjs`. The full responsive suite covers Chromium/WebKit and the 320/390/768/1280/1440px normal/enlarged-text journey matrix. Reference-comparison evidence is recorded in `docs/verification/theme-restoration.md`; the previous compact-design evidence remains in `docs/verification/white-blue-storefront.md`.
 
 ## Admin workspace
 

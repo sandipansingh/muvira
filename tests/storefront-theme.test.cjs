@@ -1,8 +1,23 @@
 const assert = require('node:assert/strict')
+const { readFileSync, existsSync } = require('node:fs')
 const { before, after, test } = require('node:test')
 const { chromium, webkit, expect } = require('playwright/test')
 let fixture
 const browsers = {}
+test('entry document preloads the local theme fonts and retires Inter', () => {
+  const entry = readFileSync('client/index.html', 'utf8')
+  for (const font of ['Manrope-Variable.ttf', 'DMSerifDisplay-Regular.ttf'])
+    assert.match(
+      entry,
+      new RegExp(
+        `<link[^>]+rel="preload"[^>]+href="/fonts/${font}"[^>]+as="font"[^>]+type="font/ttf"[^>]+crossorigin`,
+        's'
+      )
+    )
+  assert.doesNotMatch(entry, /Inter/)
+  assert.equal(existsSync('client/public/fonts/InterVariable.woff2'), false)
+  assert.doesNotMatch(readFileSync('client/src/index.css', 'utf8'), /Inter/)
+})
 before(async () => {
   fixture = await (
     await import('./fixtures/editorial-server.mjs')
@@ -78,34 +93,52 @@ for (const engine of ['chromium', 'webkit']) {
         )
       })
   })
-  test(`${engine}: storefront uses the approved white and blue Inter system`, () =>
+  test(`${engine}: storefront uses the restored Muvira theme`, () =>
     visit(engine, '/profile', async (page) => {
       const design = await page.locator('.storefront-shell').evaluate((el) => {
         const style = getComputedStyle(el)
         return Object.fromEntries(
           [
             '--background',
+            '--color-paper',
             '--color-surface',
+            '--surface-alt',
             '--color-primary',
             '--color-primary-hover',
             '--color-primary-soft',
             '--color-ink',
+            '--color-ink-soft',
             '--color-muted',
             '--color-line',
+            '--color-field-border',
+            '--color-accent',
+            '--color-accent-soft',
+            '--color-info',
+            '--color-info-soft',
+            '--color-brass',
             '--radius-card',
             '--radius-control',
           ].map((name) => [name, style.getPropertyValue(name).trim()])
         )
       })
       assert.deepEqual(design, {
-        '--background': '#ffffff',
-        '--color-surface': '#f7f8fc',
-        '--color-primary': '#0070f3',
-        '--color-primary-hover': '#005bcc',
-        '--color-primary-soft': '#eaf3ff',
-        '--color-ink': '#111827',
-        '--color-muted': '#6b7280',
-        '--color-line': '#e5e7eb',
+        '--background': '#faf8f4',
+        '--color-paper': '#ffffff',
+        '--color-surface': '#f3efe8',
+        '--surface-alt': '#e9e3d9',
+        '--color-primary': '#334b42',
+        '--color-primary-hover': 'color-mix(in srgb, #334b42, black 18%)',
+        '--color-primary-soft': 'color-mix(in srgb, #334b42, white 88%)',
+        '--color-ink': '#1f2521',
+        '--color-ink-soft': '#3d4740',
+        '--color-muted': '#657168',
+        '--color-line': '#e9e3d9',
+        '--color-field-border': '#9ba49d',
+        '--color-accent': '#326147',
+        '--color-accent-soft': '#e8f8f0',
+        '--color-info': '#386278',
+        '--color-info-soft': '#edf4fe',
+        '--color-brass': '#98753a',
         '--radius-card': '0.625rem',
         '--radius-control': '0.375rem',
       })
@@ -116,19 +149,85 @@ for (const engine of ['chromium', 'webkit']) {
       )
       assert.match(
         await page.locator('main h1').evaluate((el) => getComputedStyle(el).fontFamily),
-        /^Inter/
+        /^"?DM Serif Display/
       )
       await expect(page.locator('.account-initials')).toHaveCount(0)
       const identity = await page.locator('.account-identity').boundingBox()
       const rail = await page.locator('.account-sidebar').boundingBox()
       assert.ok(identity.y < rail.y)
       assert.equal(Math.round(rail.width), 200)
-      for (const selector of ['.store-header', '.store-footer'])
+      for (const [selector, color] of [
+        ['.store-header', 'rgb(250, 248, 244)'],
+        ['.store-footer', 'rgb(233, 227, 217)'],
+      ])
         assert.equal(
           await page.locator(selector).evaluate((el) => getComputedStyle(el).backgroundColor),
-          'rgb(255, 255, 255)'
+          color
         )
     }))
+  test(`${engine}: storefront loads local fonts and keeps serif headings regular`, async () => {
+    for (const path of [
+      '/',
+      '/shop',
+      '/product/fixture',
+      '/profile',
+      '/cart',
+      '/checkout',
+      '/checkout?step=payment',
+      '/orders/success?orderId=fixture-order',
+      '/orders/fixture-order/tracking?shipment=1',
+      '/signin?fixtureRole=guest',
+    ])
+      await visit(engine, path, async (page) => {
+        const typography = await page.evaluate(() => {
+          const headings = [
+            ...document.querySelectorAll('h1,h2,h3,h4,h5,h6,.font-display,.font-serif'),
+          ].filter((el) => getComputedStyle(el).fontFamily.includes('DM Serif Display'))
+          return {
+            body: getComputedStyle(document.body).fontFamily,
+            loaded: [...document.fonts]
+              .filter((face) => face.status === 'loaded')
+              .map((face) => face.family.replaceAll('"', '')),
+            fonts: performance
+              .getEntriesByType('resource')
+              .filter((entry) => /\/fonts\//.test(entry.name))
+              .map((entry) => new URL(entry.name).pathname),
+            serifCount: headings.length,
+            incorrect: headings
+              .filter(
+                (el) =>
+                  getComputedStyle(el).fontWeight !== '400' ||
+                  getComputedStyle(el).fontSynthesis !== 'none'
+              )
+              .map((el) => ({
+                text: el.textContent.slice(0, 80),
+                weight: getComputedStyle(el).fontWeight,
+              })),
+          }
+        })
+        assert.match(typography.body, /^Manrope/, path)
+        assert.ok(typography.serifCount > 0, path)
+        assert.deepEqual(typography.incorrect, [], path)
+        for (const family of ['Manrope', 'DM Serif Display'])
+          assert.ok(typography.loaded.includes(family), `${path}: ${family} loaded`)
+        for (const file of ['/fonts/Manrope-Variable.ttf', '/fonts/DMSerifDisplay-Regular.ttf']) {
+          assert.ok(typography.fonts.includes(file), `${path}: ${file} requested locally`)
+        }
+        assert.ok(!typography.fonts.some((file) => file.includes('Inter')))
+        if (path === '/product/fixture')
+          await expect(page.locator('main h1')).toHaveCSS('font-family', /Manrope/)
+        if (path === '/') {
+          await expect(page.locator('.footer-heading').first()).toHaveCSS('font-weight', '700')
+          await page.setViewportSize({ width: 390, height: 950 })
+          const tiles = page.locator('.mosaic-tile h3')
+          assert.ok(await tiles.count())
+          for (const tile of await tiles.all()) {
+            await expect(tile).toHaveCSS('font-family', /Manrope/)
+            await expect(tile).toHaveCSS('font-weight', '600')
+          }
+        }
+      })
+  })
   test(`${engine}: compact cart aligns controls and keeps checkout visible in a desktop viewport`, () =>
     visit(engine, '/cart', async (page) => {
       const row = page.locator('.cart-product-row').first()

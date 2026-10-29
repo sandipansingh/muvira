@@ -65,7 +65,7 @@ test('admin theme includes overlays and toasts, collapses navigation and leaves 
     const store = await page
       .locator('.storefront-shell')
       .evaluate((el) => getComputedStyle(el).getPropertyValue('--color-primary').trim())
-    assert.equal(store.toLowerCase(), '#0070f3')
+    assert.equal(store.toLowerCase(), '#334b42')
   }))
 
 test('catalog is list-first with URL filters, dedicated tabs and discard-safe dialogs', () =>

@@ -1,11 +1,11 @@
 # Muvira design system
 
-Runtime CSS variables in `client/src/index.css` own the white-and-blue storefront system. `client/tailwind.config.js` adapts semantic colours, fonts, radii and heading sizes. [DESIGN.md](DESIGN.md) records accepted values and references; [UX-CONTRACT.md](UX-CONTRACT.md) records behavior.
+Runtime CSS variables in `client/src/index.css` own the cream, forest-green and brass storefront system. `client/tailwind.config.js` adapts semantic colours, fonts, radii and heading sizes. [DESIGN.md](DESIGN.md) records accepted values and references; [UX-CONTRACT.md](UX-CONTRACT.md) records behavior.
 
 ## Foundations
 
-- Storefront headings, body, products and controls use local Inter. Page headings are 28px desktop/24px phone, sections 24px, panels 18px semibold, hero 40px/32px. Body/product copy is 14px/20px, metadata 12–13px, fields at least 16px and targets at least 44px.
-- White canvas/cards/header/footer, cool near-white checkout sections, charcoal text and light grey borders surround bright blue actions and pale-blue selected controls. Positive states use blue plus text/checks; warnings/errors retain distinct semantic colours.
+- Editorial, page and panel headings use local DM Serif Display at regular 400 without synthesized bold. Body, controls, product titles and prices use local Manrope. Page headings are 28px desktop/24px phone, sections 24px, panels 18px, hero 40px/32px. Body/product copy is 14px/20px, metadata 12–13px, fields at least 16px and targets at least 44px.
+- Cream canvas/header, white panels, warm subtle surfaces and a stone footer surround forest-green actions and pale-green selected controls. Main text is charcoal, borders warm stone and decoration brass. Success, information, warning and error states retain distinct semantic colours plus text/icons. Genuine payment logos keep their colours; QR backgrounds remain white.
 - Controls/images use 6px radii and cards 10px. Shadows are restrained. Logos remain unframed; the existing Muvira wordmark uses its independent brand font.
 - Browsing retains its 1320px maximum composition. Account uses 1200px with a 200px rail/24px gap. Checkout/cart use 1120px with 3:2 columns/24px gap. Phone gutters are 16px and columns stack below 1024px.
 - Admin retains Manrope, its complete scoped palette, 8px controls, 12px panels and existing geometry.
