@@ -67,6 +67,60 @@ async function visit(engine, path, run, width = 1280, account = false) {
   }
 }
 for (const engine of ['chromium', 'webkit']) {
+  for (const width of [390, 1280]) {
+    for (const path of ['/profile', '/orders']) {
+      test(`${engine} ${width}px ${path}: account sidebar switches preserve the viewport`, () =>
+        visit(
+          engine,
+          path,
+          async (page) => {
+            await expect(page.locator('.order-history-card')).toHaveCount(1)
+            const nav = page.getByRole('navigation', { name: 'Your account', exact: true })
+            await page.evaluate(() => {
+              window.scrollTo({ top: 40, behavior: 'instant' })
+              window.accountScrollCalls = []
+              const scrollTo = window.scrollTo.bind(window)
+              window.scrollTo = (...args) => {
+                window.accountScrollCalls.push('top')
+                return scrollTo(...args)
+              }
+              const scrollIntoView = Element.prototype.scrollIntoView
+              Element.prototype.scrollIntoView = function (...args) {
+                window.accountScrollCalls.push('target')
+                return scrollIntoView.apply(this, args)
+              }
+            })
+            const top = await page.evaluate(() => scrollY)
+            for (const label of [/Saved addresses/, /^Personal info$/, /^My orders$/]) {
+              await nav.getByRole('link', { name: label }).click()
+              await expect(nav.locator('[aria-current="page"]')).toHaveText(label)
+              await page.evaluate(
+                () =>
+                  new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+              )
+              assert.deepEqual(await page.evaluate(() => window.accountScrollCalls), [])
+              assert.equal(await page.evaluate(() => scrollY), top, `${label}`)
+            }
+            await page.goBack()
+            await expect(nav.locator('[aria-current="page"]')).toHaveText('Personal info')
+            await page.evaluate(
+              () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+            )
+            assert.deepEqual(await page.evaluate(() => window.accountScrollCalls), [])
+            assert.equal(await page.evaluate(() => scrollY), top)
+            await page.goForward()
+            await expect(nav.locator('[aria-current="page"]')).toHaveText('My orders')
+            await page.evaluate(
+              () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+            )
+            assert.deepEqual(await page.evaluate(() => window.accountScrollCalls), [])
+            assert.equal(await page.evaluate(() => scrollY), top)
+          },
+          width
+        ))
+    }
+  }
+
   test(`${engine}: server-backed order filters paginate, restore history and ignore late responses`, () =>
     visit(
       engine,

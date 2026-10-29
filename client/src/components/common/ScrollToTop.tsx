@@ -1,10 +1,35 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
+
+const accountPaths = new Set(['/profile', '/orders'])
+const accountSections = new Set(['', '#addresses', '#personal-info'])
 
 export const ScrollToTop = () => {
   const { pathname, search, hash } = useLocation()
+  const previousLocation = useRef({ pathname, search, hash })
 
   useEffect(() => {
+    if (!accountPaths.has(pathname)) return
+    const previousRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+    return () => {
+      window.history.scrollRestoration = previousRestoration
+    }
+  }, [pathname])
+
+  useEffect(() => {
+    const previous = previousLocation.current
+    previousLocation.current = { pathname, search, hash }
+    if (
+      accountPaths.has(previous.pathname) &&
+      accountPaths.has(pathname) &&
+      accountSections.has(previous.hash) &&
+      accountSections.has(hash) &&
+      previous.search === search &&
+      (previous.pathname !== pathname || previous.hash !== hash)
+    )
+      return
+
     if (hash) {
       let targetId: string
       try {
