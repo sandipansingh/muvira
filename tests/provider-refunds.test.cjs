@@ -1,3 +1,8 @@
+const {
+  paymentEnvironment,
+  seedCheckoutPayment,
+  finalizeCheckoutFixture,
+} = require('./helpers/payment-environment.cjs')
 require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
@@ -42,7 +47,8 @@ test(
     const lease = await claimLease(client, 'provider_operation', operation.id)
     assert.ifError(
       (
-        await client.rpc('claim_provider_operation_dispatch', {
+        await client.rpc('claim_razorpay_refund_dispatch', {
+          ...paymentEnvironment(),
           ...lease,
           p_operation_id: operation.id,
         })

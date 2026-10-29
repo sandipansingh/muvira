@@ -47,6 +47,7 @@ test(
     const client = serviceClient(url, key)
     const users = []
     let productId
+    let createdCategoryId
     try {
       for (let i = 0; i < 2; i++) {
         const { data, error } = await client.auth.admin.createUser({
@@ -62,6 +63,16 @@ test(
         .select('id')
         .limit(1)
       assert.ifError(categoryError)
+      if (!categories.length) {
+        const category = await client
+          .from('categories')
+          .insert({ name: 'Cart transfer fixture', slug: `cart-${randomUUID()}` })
+          .select('id')
+          .single()
+        assert.ifError(category.error)
+        createdCategoryId = category.data.id
+        categories.push(category.data)
+      }
       const { data: product, error: productError } = await client
         .from('products')
         .insert({
@@ -128,6 +139,7 @@ test(
         await client.auth.admin.deleteUser(id)
       }
       if (productId) await client.from('products').delete().eq('id', productId)
+      if (createdCategoryId) await client.from('categories').delete().eq('id', createdCategoryId)
     }
   }
 )

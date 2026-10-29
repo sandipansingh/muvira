@@ -28,7 +28,7 @@ const BillingAddressSchema = z
   .strict()
 
 export const CreateCheckoutOrderSchema = CheckoutQuoteSchema.extend({
-  checkout_request_id: z.string().uuid().optional(),
+  checkout_request_id: z.string().uuid(),
   address_id: z.string().uuid(),
   billing_same_as_shipping: z.boolean().default(true),
   billing: BillingAddressSchema.optional(),
@@ -49,6 +49,26 @@ export const CancelCheckoutSchema = z.object({ order_id: z.string().uuid() }).st
 export const CheckoutSessionParamsSchema = z.object({ orderId: z.string().uuid() }).strict()
 export const CheckoutRequestParamsSchema = z.object({ requestId: z.string().uuid() }).strict()
 export const CheckoutAttemptSchema = z.object({ checkout_request_id: z.string().uuid() }).strict()
+
+const SafeProviderCode = z.string().regex(/^[A-Za-z][A-Za-z0-9_:-]{0,79}$/)
+export const PaymentDiagnosticSchema = z
+  .object({
+    method: z.enum(['upi', 'card', 'netbanking', 'wallet']),
+    flow: z.enum(['intent', 'redirect_qr', 'embedded_qr', 'redirect', 'card']),
+    code: SafeProviderCode.optional(),
+    source: SafeProviderCode.optional(),
+    step: SafeProviderCode.optional(),
+    reason: SafeProviderCode.optional(),
+    orderId: z
+      .string()
+      .regex(/^order_[A-Za-z0-9]{1,90}$/)
+      .optional(),
+    paymentId: z
+      .string()
+      .regex(/^pay_[A-Za-z0-9]{1,90}$/)
+      .optional(),
+  })
+  .strict()
 
 export type ShippingMethod = z.infer<typeof ShippingMethodSchema>
 export type CheckoutQuoteInput = z.infer<typeof CheckoutQuoteSchema>

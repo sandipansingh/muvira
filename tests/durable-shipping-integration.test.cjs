@@ -1,5 +1,11 @@
 require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 require('./helpers/test-env.cjs').configureTestEnvironment()
+const { env: simulatedConfiguration } = require('../server/dist/config/env.js')
+Object.assign(process.env, { RAZORPAY_MODE: 'live', RAZORPAY_KEY_ID: 'rzp_live_fixture' })
+Object.assign(simulatedConfiguration, {
+  RAZORPAY_MODE: 'live',
+  RAZORPAY_KEY_ID: 'rzp_live_fixture',
+})
 const test = require('node:test')
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')

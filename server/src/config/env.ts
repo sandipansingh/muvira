@@ -1,9 +1,18 @@
 import { z } from 'zod'
 import dotenv from 'dotenv'
+import { paymentConfigurationIssues } from './payment'
 
 const nodeEnv = process.env.NODE_ENV || 'development'
-dotenv.config({ path: `.env.${nodeEnv}` })
-dotenv.config({ path: '.env' })
+export const inheritedPaymentConfiguration = [
+  'RAZORPAY_MODE',
+  'RAZORPAY_KEY_ID',
+  'RAZORPAY_KEY_SECRET',
+  'RAZORPAY_WEBHOOK_SECRET',
+  'SUPABASE_URL',
+].filter((key) => process.env[key] !== undefined)
+// Inherited process configuration takes precedence over either dotenv file.
+dotenv.config({ path: `.env.${nodeEnv}`, override: false })
+dotenv.config({ path: '.env', override: false })
 
 const envSchema = z
   .object({
@@ -20,6 +29,10 @@ const envSchema = z
 
     // Razorpay - secrets must never be logged or returned in responses
     RAZORPAY_KEY_ID: z.string().min(5, 'RAZORPAY_KEY_ID is required'),
+    RAZORPAY_MODE: z.enum(['test', 'live']).default('test'),
+    RAZORPAY_UPI_INTENT_ENABLED: z.enum(['true', 'false']).default('false'),
+    RAZORPAY_UPI_QR_ENABLED: z.enum(['true', 'false']).default('false'),
+    RAZORPAY_UPI_EMBEDDED_QR_APPROVED: z.enum(['true', 'false']).default('false'),
     RAZORPAY_KEY_SECRET: z.string().min(5, 'RAZORPAY_KEY_SECRET is required'),
     RAZORPAY_WEBHOOK_SECRET: z.string().min(5, 'RAZORPAY_WEBHOOK_SECRET is required'),
 
@@ -48,6 +61,8 @@ const envSchema = z
     SHIPROCKET_WEBHOOK_SECRET: z.string().min(16).optional(),
   })
   .superRefine((value, context) => {
+    for (const message of paymentConfigurationIssues(value))
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['RAZORPAY_MODE'], message })
     if (value.SHIPROCKET_WEBHOOK_ENABLED === 'true' && !value.SHIPROCKET_WEBHOOK_SECRET) {
       context.addIssue({
         code: z.ZodIssueCode.custom,

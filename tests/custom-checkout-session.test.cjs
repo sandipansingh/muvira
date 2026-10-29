@@ -25,7 +25,15 @@ test('checkout configuration exposes only public payment configuration', async (
       throw error
     }
   )
-  assert.deepEqual(body, { success: true, data: { key_id: 'rzp_test_example', currency: 'INR' } })
+  assert.deepEqual(body, {
+    success: true,
+    data: {
+      key_id: 'rzp_test_example',
+      currency: 'INR',
+      mode: 'test',
+      upi: { intent: false, qr: false, embedded_qr: false },
+    },
+  })
 })
 
 test('preparation rejects a changed request before dispatching a provider order', async (t) => {

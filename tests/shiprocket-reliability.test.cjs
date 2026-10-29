@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict')
 const test = require('node:test')
 require('./helpers/test-env.cjs').configureTestEnvironment()
+require('../server/dist/config/env.js').env.RAZORPAY_MODE = 'live'
 const provider = require('../server/dist/services/shiprocket.js')
 
 test('Shiprocket refresh is single flight and ambiguous mutations are never replayed', async (t) => {

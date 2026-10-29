@@ -10,6 +10,8 @@ import { reconcileActionableProviderOperations } from './providerOperations'
 import { processLateCaptureWatches } from './retainedCheckout'
 import { synchronizeActiveShipments } from './shipmentSync'
 import { recoverShippingReceipts } from '../modules/shiprocket/service'
+import { env } from '../config/env'
+import { recoverRazorpayWebhookReceipts } from '../modules/payments/service'
 
 /**
  * Intelligent Polling Scheduler
@@ -48,13 +50,23 @@ export function startPollingScheduler(): void {
     })
     scheduledJobs.push(ofdPoll)
 
-    // Retry worker: process failed jobs — every 10 minutes
-    const retryWorker = cron.schedule('*/10 * * * *', async () => {
+    // Recover receipts before draining the durable queue each minute.
+    let retryRunning = false
+    const retryWorker = cron.schedule('* * * * *', async () => {
+      if (retryRunning) return
+      retryRunning = true
       try {
-        await recoverShippingReceipts(50)
-        await processRetryJobs(10)
+        await recoverRazorpayWebhookReceipts(50)
+        try {
+          await recoverShippingReceipts(50)
+        } catch (error) {
+          logger.error({ error }, 'Shipping receipt recovery failed')
+        }
+        await processRetryJobs(50)
       } catch (err) {
         logger.error({ err }, 'PollingScheduler: retryWorker failed')
+      } finally {
+        retryRunning = false
       }
     })
     scheduledJobs.push(retryWorker)
@@ -93,6 +105,7 @@ export function startPollingScheduler(): void {
     scheduledJobs.push(providerReconciliationWorker)
 
     const notificationWorker = cron.schedule('* * * * *', async () => {
+      if (env.RAZORPAY_MODE === 'test') return
       try {
         await processNotificationQueue(20)
       } catch (err) {
@@ -111,7 +124,7 @@ export function startPollingScheduler(): void {
     scheduledJobs.push(operationalAlertWorker)
 
     logger.info(
-      'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/10, expiry=*/1, provider=*/2, notifications=*/1, alerts=*/5)'
+      'PollingScheduler: cron jobs started (full=*/15, ofd=*/5, retry=*/1, expiry=*/1, provider=*/2, notifications=*/1, alerts=*/5)'
     )
   } catch (error) {
     stopPollingScheduler()

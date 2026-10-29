@@ -142,14 +142,11 @@ for (const session of [false, true]) {
       if (name === 'lookup_checkout_preparation') return { data: null, error: null }
       if (name === 'get_checkout_shipping_context')
         return { data: { context, fingerprint: 'a'.repeat(64) }, error: null }
-      assert.equal(
-        name,
-        session ? 'prepare_checkout_session_shipping' : 'initialize_checkout_shipping'
-      )
+      assert.equal(name, session ? 'prepare_checkout_payment' : 'initialize_checkout_shipping')
       assert.equal(args.p_shipping_verification.fingerprint, 'a'.repeat(64))
       assert.deepEqual(args.p_shipping_verification.context, context)
       assert.equal(args.p_shipping_verification.package.weight_grams, 400)
-      return { data: null, error: { code: '40001', message: 'Delivery details changed' } }
+      return { data: null, error: { code: 'P0409', message: 'Delivery details changed' } }
     })
     mockProviders(t, [
       {

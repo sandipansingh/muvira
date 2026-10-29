@@ -75,10 +75,26 @@ adminOrdersRouter.post(
   validate({ params: OrderIdParamsSchema, body: AssignAwbSchema }),
   controller.adminAssignAwb
 )
-adminOrdersRouter.post('/:id/schedule-pickup', controller.adminSchedulePickup)
-adminOrdersRouter.post('/:id/generate-label', controller.adminGenerateLabel)
-adminOrdersRouter.post('/:id/generate-manifest', controller.adminGenerateManifest)
-adminOrdersRouter.post('/:id/generate-invoice', controller.adminGenerateInvoice)
+adminOrdersRouter.post(
+  '/:id/schedule-pickup',
+  validate({ params: OrderIdParamsSchema }),
+  controller.adminSchedulePickup
+)
+adminOrdersRouter.post(
+  '/:id/generate-label',
+  validate({ params: OrderIdParamsSchema }),
+  controller.adminGenerateLabel
+)
+adminOrdersRouter.post(
+  '/:id/generate-manifest',
+  validate({ params: OrderIdParamsSchema }),
+  controller.adminGenerateManifest
+)
+adminOrdersRouter.post(
+  '/:id/generate-invoice',
+  validate({ params: OrderIdParamsSchema }),
+  controller.adminGenerateInvoice
+)
 adminOrdersRouter.post(
   '/:id/shiprocket-cancel',
   validate({ params: OrderIdParamsSchema, body: ProviderActionReasonSchema }),
@@ -94,7 +110,11 @@ adminOrdersRouter.post(
   validate({ params: OrderIdParamsSchema, body: RefundOrderSchema }),
   controller.adminRefundOrder
 )
-adminOrdersRouter.post('/:id/retry-shiprocket', controller.adminRetryShiprocket)
+adminOrdersRouter.post(
+  '/:id/retry-shiprocket',
+  validate({ params: OrderIdParamsSchema }),
+  controller.adminRetryShiprocket
+)
 adminOrdersRouter.post(
   '/:id/create-shipment',
   validate({ params: OrderIdParamsSchema, body: CreateShipmentSchema }),

@@ -46,6 +46,17 @@ async function createOrderFixture(client, input = {}) {
     awb_code: input.awbCode ?? null,
   })
   assert.ifError(orderError)
+  const schema = await client.rpc('get_runtime_schema_status')
+  if (schema.data?.contract_version >= 59 && input.providerMode !== null)
+    assert.ifError(
+      (
+        await client.from('razorpay_order_bindings').insert({
+          order_id: orderId,
+          mode: process.env.RAZORPAY_MODE || 'test',
+          key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_example',
+        })
+      ).error
+    )
   return { userId: identity.user.id, orderId, amountPaisa, email }
 }
 
@@ -108,7 +119,7 @@ async function cleanupOrderFixture(client, fixture) {
   await client.from('provider_operations').delete().eq('order_id', fixture.orderId)
   await client.from('payments').delete().eq('order_id', fixture.orderId)
   await client.from('orders').delete().eq('id', fixture.orderId)
-  await client.auth.admin.deleteUser(fixture.userId)
+  if (fixture.userId) await client.auth.admin.deleteUser(fixture.userId)
 }
 
 module.exports = {

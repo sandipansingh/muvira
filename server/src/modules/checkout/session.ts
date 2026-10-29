@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { adminSupabase } from '../../lib/supabase/admin'
-import { razorpay } from '../../lib/razorpay/client'
+import { razorpay, RazorpayRequestError } from '../../lib/razorpay/client'
+import { assertPaymentEnvironment, paymentEnvironmentArgs } from '../../services/paymentEnvironment'
 import { env } from '../../config/env'
 import { AppError } from '../../types'
 import { databaseError, isPostgrestNoRows } from '../../lib/databaseError'
@@ -10,7 +11,8 @@ import { inspectCheckoutProviderState } from './service'
 import { recordPaymentReconciliation } from '../payments/service'
 import { deleteCacheByPattern } from '../../config/cache'
 import { logger } from '../../lib/logger'
-import type { CreateCheckoutOrderInput } from './schema'
+import type { CreateCheckoutOrderInput, PaymentDiagnosticSchema } from './schema'
+import type { z } from 'zod'
 import { verifyCheckoutShipping } from './shipping'
 import type {
   CheckoutPaymentSession,
@@ -28,6 +30,28 @@ function stableValue(value: unknown): unknown {
         .map(([key, item]) => [key, stableValue(item)])
     )
   return value
+}
+
+export async function recordPaymentDiagnostic(
+  userId: string,
+  orderId: string,
+  input: z.infer<typeof PaymentDiagnosticSchema>,
+  requestId?: string
+): Promise<void> {
+  const order = await ownedOrder(userId, orderId)
+  if (input.orderId && input.orderId !== order.payments[0]?.razorpay_order_id)
+    throw new AppError(
+      400,
+      'PAYMENT_DIAGNOSTIC_MISMATCH',
+      'Payment reference does not match this purchase'
+    )
+  const { error } = await adminSupabase.from('payment_logs').insert({
+    order_id: orderId,
+    event_type: 'client_payment_error',
+    payload: { ...input, mode: env.RAZORPAY_MODE, requestId },
+  })
+  if (error)
+    throw databaseError('checkout.diagnostic', error, 'Payment diagnostic could not be recorded')
 }
 
 async function ownedOrder(userId: string, orderId: string): Promise<SessionOrder> {
@@ -212,16 +236,19 @@ export async function prepareCheckoutPayment(
   let data = existing.data
   if (!data) {
     const shippingVerification = await verifyCheckoutShipping(userId, checkout)
-    const prepared = await adminSupabase.rpc('prepare_checkout_session_shipping', {
+    const prepared = await adminSupabase.rpc('prepare_checkout_payment', {
       ...request,
       p_checkout: checkout,
       p_order_prefix: env.ORDER_PREFIX,
       p_shipping_verification: shippingVerification,
+      ...paymentEnvironmentArgs(),
     })
     if (prepared.error || !prepared.data)
       throw databaseError('checkout.prepare', prepared.error, 'Unable to prepare checkout', {
-        statusCode: prepared.error?.code === '40001' ? 409 : 400,
-        code: prepared.error?.code === '40001' ? 'SHIPPING_CONTEXT_CHANGED' : 'CHECKOUT_INVALID',
+        statusCode: ['40001', 'P0409'].includes(prepared.error?.code ?? '') ? 409 : 400,
+        code: ['40001', 'P0409'].includes(prepared.error?.code ?? '')
+          ? 'SHIPPING_CONTEXT_CHANGED'
+          : 'CHECKOUT_INVALID',
       })
     data = prepared.data
   }
@@ -245,6 +272,7 @@ async function dispatchPreparedOrder(
     return paymentSession(order, preparation)
   if (preparation?.dispatch_state !== 'initialized')
     return reconcileCheckoutPayment(userId, orderId)
+  await assertPaymentEnvironment(orderId)
   await withExecutionLease('checkout_payment', orderId, async ({ lease, assertOwned }) => {
     const { data: claimed, error: claimError } = await adminSupabase.rpc(
       'claim_checkout_dispatch',
@@ -277,15 +305,44 @@ async function dispatchPreparedOrder(
       )
         throw new Error('Provider order did not match checkout')
       await assertOwned()
-      const { error: attachError } = await adminSupabase.rpc('complete_checkout_preparation', {
+      const { error: attachError } = await adminSupabase.rpc('complete_checkout_payment', {
         p_user_id: userId,
         p_order_id: order.id,
         p_provider_order_id: provider.id,
         ...executionLeaseRpcArgs(lease),
+        ...paymentEnvironmentArgs(),
       })
       if (attachError) throw attachError
-    } catch {
-      await markInitializationReview(orderId, providerOrderId)
+    } catch (error) {
+      const definitive =
+        !providerOrderId && error instanceof RazorpayRequestError && error.definitive
+      const safeCode =
+        error instanceof RazorpayRequestError ? error.code : 'LOCAL_ATTACHMENT_FAILED'
+      const result = await adminSupabase.rpc('record_checkout_setup_failure', {
+        p_order_id: orderId,
+        p_definitive: definitive,
+        p_code: safeCode,
+        p_provider_order_id: providerOrderId ?? null,
+        ...executionLeaseRpcArgs(lease),
+      })
+      logger.warn(
+        {
+          orderId,
+          providerOrderId,
+          mode: env.RAZORPAY_MODE,
+          stage: providerOrderId ? 'attachment' : 'order_creation',
+          code: safeCode,
+          definitive,
+        },
+        'Payment setup failed'
+      )
+      if (!definitive || result.error) await markInitializationReview(orderId, providerOrderId)
+      if (definitive && !result.error)
+        throw new AppError(
+          502,
+          'CHECKOUT_SETUP_REJECTED',
+          'Payment setup was rejected. Retry this purchase after the payment configuration is corrected.'
+        )
     }
   })
   deleteCacheByPattern('GET:/api/products')
@@ -346,6 +403,11 @@ async function reconcileOwnedOrder(order: SessionOrder): Promise<CheckoutPayment
   let preparation = await preparationFor(order.id)
   if (order.payment_status !== 'pending' || order.status !== 'pending')
     return paymentSession(order, preparation)
+  try {
+    await assertPaymentEnvironment(order.id)
+  } catch {
+    return paymentSession(order, preparation, 'review')
+  }
   if (!order.payments.length) {
     if (preparation?.dispatch_state === 'initialized')
       return dispatchPreparedOrder(order.user_id, order.id)
@@ -361,11 +423,12 @@ async function reconcileOwnedOrder(order: SessionOrder): Promise<CheckoutPayment
             candidate.currency === 'INR'
         )
         if (matches.length !== 1 || found.items.length !== 1) return
-        const { error } = await adminSupabase.rpc('complete_checkout_preparation', {
+        const { error } = await adminSupabase.rpc('complete_checkout_payment', {
           p_user_id: order.user_id,
           p_order_id: order.id,
           p_provider_order_id: matches[0]!.id,
           ...executionLeaseRpcArgs(lease),
+          ...paymentEnvironmentArgs(),
         })
         if (error) await markInitializationReview(order.id, matches[0]!.id)
       })

@@ -12,6 +12,7 @@ import {
   type ExecutionLease,
 } from '../../services/executionLease'
 import { AppError } from '../../types'
+import { assertPaymentEnvironment, paymentEnvironmentArgs } from '../../services/paymentEnvironment'
 import type { Order } from '../../types'
 import { handleLateCapture } from '../../services/providerOperations'
 import {
@@ -203,18 +204,16 @@ async function finalizePayment(
   method: string,
   executionLease?: ExecutionLease
 ): Promise<FinalizeResult> {
-  const { data, error } = await adminSupabase.rpc(
-    executionLease ? 'finalize_captured_payment_fenced' : 'finalize_captured_payment',
-    {
-      ...(executionLease ? executionLeaseRpcArgs(executionLease) : {}),
-      p_razorpay_order_id: payment.razorpay_order_id,
-      p_razorpay_payment_id: providerPaymentId,
-      p_razorpay_signature: signature,
-      p_amount_paisa: amountPaisa,
-      p_currency: currency,
-      p_payment_method: method,
-    }
-  )
+  const { data, error } = await adminSupabase.rpc('finalize_checkout_payment', {
+    ...(executionLease ? executionLeaseRpcArgs(executionLease) : {}),
+    p_razorpay_order_id: payment.razorpay_order_id,
+    p_razorpay_payment_id: providerPaymentId,
+    p_razorpay_signature: signature,
+    p_amount_paisa: amountPaisa,
+    p_currency: currency,
+    p_payment_method: method,
+    ...paymentEnvironmentArgs(),
+  })
 
   if (error || !data) {
     logger.error({ error, orderId: payment.order_id }, 'Atomic payment finalization failed')
@@ -267,6 +266,7 @@ export async function verifyPayment(
   }
 
   try {
+    await assertPaymentEnvironment(payment.order_id)
     const [providerPayment, providerOrder] = await Promise.all([
       razorpay.payments.fetch(input.razorpay_payment_id),
       razorpay.orders.fetch(input.razorpay_order_id),
@@ -376,48 +376,27 @@ async function registerWebhook(
   providerEventId?: string
 ): Promise<RegisteredWebhook> {
   const payloadHash = crypto.createHash('sha256').update(rawBody).digest('hex')
-  const eventId = providerEventId?.trim() || payloadHash
-  const eventType = typeof payload['event'] === 'string' ? payload['event'] : null
-  const { data, error } = await adminSupabase
-    .from('webhook_events')
-    .insert({
-      source: 'razorpay',
-      event_id: eventId,
-      event_type: eventType,
-      payload_hash: payloadHash,
-      raw_payload: payload,
-      processing_status: 'verified',
-    })
-    .select('id')
-    .single()
-
-  if (error?.code === '23505') {
-    const { data: existing, error: existingError } = await adminSupabase
-      .from('webhook_events')
-      .select('id, processing_status')
-      .eq('source', 'razorpay')
-      .eq('event_id', eventId)
-      .maybeSingle()
-    if (existingError || !existing) {
-      throw databaseError(
-        'payments.load_duplicate_webhook',
-        existingError,
-        'Webhook could not be recovered',
-        { code: 'WEBHOOK_AUDIT_FAILED' }
-      )
-    }
-    if (existing.processing_status === 'processed' || existing.processing_status === 'duplicate') {
-      return { id: existing.id as string, duplicate: true }
-    }
-
-    return { id: existing.id as string, duplicate: false }
-  }
-  if (error)
-    throw databaseError('payments.register_webhook', error, 'Webhook could not be recorded', {
+  const { data, error } = await adminSupabase.rpc('ingest_razorpay_webhook', {
+    p_event_id: providerEventId?.trim() || payloadHash,
+    p_event_type: typeof payload['event'] === 'string' ? payload['event'] : null,
+    p_payload_hash: payloadHash,
+    p_payload: {
+      event: payload['event'],
+      payload: { payment: { entity: parseRazorpayWebhookPayment(payload) ?? {} } },
+    },
+  })
+  if (error || !data)
+    throw databaseError('payments.ingest_webhook', error, 'Webhook could not be durably queued', {
       code: 'WEBHOOK_AUDIT_FAILED',
+      statusCode: 503,
     })
-  if (!data) throw new AppError(500, 'WEBHOOK_AUDIT_FAILED', 'Webhook could not be recorded')
-  return { id: data.id as string, duplicate: false }
+  return data as RegisteredWebhook
+}
+
+export async function recoverRazorpayWebhookReceipts(limit = 50): Promise<void> {
+  const { error } = await adminSupabase.rpc('recover_razorpay_webhook_receipts', { p_limit: limit })
+  if (error)
+    throw databaseError('payments.recover_webhooks', error, 'Webhook recovery could not be queued')
 }
 
 async function claimRazorpayWebhook(webhookId: string): Promise<ClaimedWebhook | null> {
@@ -694,6 +673,7 @@ async function processVerifiedRazorpayWebhook(
         .single()
       if (error || !localPayment) throw new AppError(404, 'PAYMENT_NOT_FOUND', 'Payment not found')
 
+      await assertPaymentEnvironment(localPayment.order_id as string)
       await heartbeat.assertOwned()
       await withExecutionLease(
         'checkout_payment',
@@ -762,32 +742,11 @@ export async function processRazorpayWebhook(
   signature: string,
   payload: Record<string, unknown>,
   providerEventId?: string
-): Promise<{ status: 'processed' | 'duplicate' | 'ignored' }> {
+): Promise<{ status: 'queued' | 'duplicate' }> {
   if (!verifyWebhookSignature({ rawBody, signature })) {
     throw new AppError(400, 'WEBHOOK_SIGNATURE_INVALID', 'Invalid webhook signature')
   }
 
   const registered = await registerWebhook(rawBody, payload, providerEventId)
-  if (registered.duplicate) return { status: 'duplicate' }
-
-  const claimed = await claimRazorpayWebhook(registered.id)
-  if (!claimed) return { status: 'duplicate' }
-
-  try {
-    return await processVerifiedRazorpayWebhook(
-      registered.id,
-      claimed.processing_token,
-      claimed.raw_payload
-    )
-  } catch (error) {
-    const enqueued = await enqueueRazorpayWebhookRetry(registered.id)
-    if (!enqueued) {
-      throw new AppError(
-        503,
-        'WEBHOOK_RETRY_UNAVAILABLE',
-        'Webhook processing failed and automatic recovery could not be queued'
-      )
-    }
-    throw error
-  }
+  return { status: registered.duplicate ? 'duplicate' : 'queued' }
 }

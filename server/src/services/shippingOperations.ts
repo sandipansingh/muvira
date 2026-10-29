@@ -1,6 +1,7 @@
 import { adminSupabase } from '../lib/supabase/admin'
 import { AppError, type ProviderOperation } from '../types'
 import { databaseError } from '../lib/databaseError'
+import { assertPaymentEnvironment } from './paymentEnvironment'
 import { executionLeaseRpcArgs, withExecutionLease, type ExecutionLease } from './executionLease'
 import {
   createOrder,
@@ -235,6 +236,7 @@ export async function dispatchShippingOperation(
   fulfillmentLease?: ExecutionLease
 ): Promise<ProviderOperation> {
   const initial = await loadOperation(operationId)
+  await assertPaymentEnvironment(initial.order_id)
   if (!isShippingOperation(initial))
     throw new AppError(409, 'INVALID_SHIPPING_OPERATION', 'Unsupported shipping operation')
   if (!fulfillmentLease)
@@ -325,6 +327,7 @@ export async function runShippingOperation(
   cause: string,
   correctedAttempt?: string
 ): Promise<ProviderOperation> {
+  await assertPaymentEnvironment(orderId)
   const { data, error } = await adminSupabase.rpc('prepare_shipping_operation', {
     ...executionLeaseRpcArgs(fulfillmentLease),
     p_order_id: orderId,

@@ -1,5 +1,7 @@
 import { adminSupabase } from '../lib/supabase/admin'
 import { logger } from '../lib/logger'
+import { env } from '../config/env'
+import { assertPaymentEnvironment } from './paymentEnvironment'
 import { trackSingle, generateLabel } from './shiprocket'
 import { transitionOrderStatus } from '../modules/orders/service'
 import {
@@ -84,12 +86,14 @@ const handlers: Record<string, JobHandler> = {
   label_generate: async (payload, _referenceId, executionLease) => {
     const shipmentId = payload['shipmentId'] as number | undefined
     if (!shipmentId) throw new Error('Missing shipmentId in label_generate payload')
+    const orderId = payload['orderId'] as string | undefined
+    if (!orderId) throw new Error('Order identity is required before generating a shipping label')
+    await assertPaymentEnvironment(orderId)
 
     const result = await generateLabel(shipmentId)
     logger.info({ shipmentId, result }, 'retryWorker: label generated')
 
     // Update order if orderId is provided
-    const orderId = payload['orderId'] as string | undefined
     if (orderId) {
       const { data, error } = await adminSupabase.rpc('set_order_label_generated_fenced', {
         ...executionLeaseRpcArgs(executionLease),
@@ -228,7 +232,14 @@ export async function processRetryJobs(batchSize = 10): Promise<{
       continue
     }
 
-    const completed = await runClaimedRetryJob(job, handler)
+    const completed = await runClaimedRetryJob(job, async (...args) => {
+      if (
+        env.RAZORPAY_MODE === 'test' &&
+        !['razorpay_webhook', 'cancellation_refund'].includes(job.job_type)
+      )
+        throw new DeferredRetryError('External delivery is disabled for Test Mode')
+      await handler(...args)
+    })
     if (completed) {
       succeeded += 1
     } else {

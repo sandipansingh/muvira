@@ -9,7 +9,7 @@ const {
   cleanupOrderFixture,
 } = require('./helpers/provider-db-fixture.cjs')
 test(
-  'compatibility API continues inspecting watches before the scheduling migration',
+  'compatibility API preserves unbound legacy watches without using current credentials',
   { skip: process.env.RUN_LEGACY_WATCH_CHECK !== 'true' },
   async (t) => {
     const client = serviceClient(
@@ -49,6 +49,13 @@ test(
     }
     const { processLateCaptureWatches } = require('../server/dist/services/providerOperations.js')
     await processLateCaptureWatches()
-    assert.equal(inspected, 1)
+    assert.equal(inspected, 0)
+    const retained = await client
+      .from('late_capture_watches')
+      .select('razorpay_order_id')
+      .eq('order_id', fixture.orderId)
+      .single()
+    assert.ifError(retained.error)
+    assert.equal(retained.data.razorpay_order_id, payment.razorpayOrderId)
   }
 )

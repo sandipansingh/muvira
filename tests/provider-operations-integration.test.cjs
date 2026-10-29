@@ -1,3 +1,8 @@
+const {
+  paymentEnvironment,
+  seedCheckoutPayment,
+  finalizeCheckoutFixture,
+} = require('./helpers/payment-environment.cjs')
 require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
@@ -10,10 +15,10 @@ const shouldRun = Boolean(apiUrl && serviceRoleKey)
 
 Object.assign(process.env, {
   NODE_ENV: 'test',
-  SUPABASE_URL: apiUrl ?? 'https://example.supabase.co',
+  SUPABASE_URL: apiUrl ?? 'http://127.0.0.1:1',
   SUPABASE_ANON_KEY: process.env.SUPABASE_TEST_ANON_KEY ?? 'test-anon-key-value',
   SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey ?? 'test-service-role-key-value',
-  RAZORPAY_KEY_ID: 'rzp_test_provider_operations',
+  RAZORPAY_KEY_ID: 'rzp_test_provideroperations',
   RAZORPAY_KEY_SECRET: 'provider-operations-secret',
   RAZORPAY_WEBHOOK_SECRET: 'provider-operations-webhook-secret',
   ALLOWED_ORIGINS: 'http://localhost:5173',
@@ -64,6 +69,13 @@ async function createFixture(client, suffix, amountPaisa = 10_000) {
     billing_country: 'India',
   })
   assert.ifError(orderError)
+  assert.ifError(
+    (
+      await client
+        .from('razorpay_order_bindings')
+        .insert({ order_id: orderId, mode: 'test', key_id: paymentEnvironment().p_provider_key_id })
+    ).error
+  )
   const { error: paymentError } = await client.from('payments').insert({
     id: paymentId,
     order_id: orderId,
@@ -184,7 +196,8 @@ test(
 
     const operation = left.data
     const staleLease = await claimLease(first, operation.id)
-    const claimed = await first.rpc('claim_provider_operation_dispatch', {
+    const claimed = await first.rpc('claim_razorpay_refund_dispatch', {
+      ...paymentEnvironment(),
       ...staleLease,
       p_operation_id: operation.id,
     })
@@ -217,18 +230,21 @@ test(
       p_currency: operation.currency,
       p_request_hash: operation.request_hash,
     }
-    const staleFinalize = await first.rpc('finalize_provider_operation', {
+    const staleFinalize = await first.rpc('finalize_razorpay_refund', {
+      ...paymentEnvironment(),
       ...staleLease,
       ...finalizerArgs,
     })
     assert.equal(staleFinalize.error?.code, '55P03')
-    const finalized = await second.rpc('finalize_provider_operation', {
+    const finalized = await second.rpc('finalize_razorpay_refund', {
+      ...paymentEnvironment(),
       ...currentLease,
       ...finalizerArgs,
     })
     assert.ifError(finalized.error)
     assert.ok(finalized.data.local_applied_at)
-    const repeated = await second.rpc('finalize_provider_operation', {
+    const repeated = await second.rpc('finalize_razorpay_refund', {
+      ...paymentEnvironment(),
       ...currentLease,
       ...finalizerArgs,
     })

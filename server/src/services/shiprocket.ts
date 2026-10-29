@@ -208,6 +208,13 @@ async function apiFetch<T>(
     expectedStatus?: number
   } = {}
 ): Promise<T> {
+  if (
+    env.RAZORPAY_MODE === 'test' &&
+    options.method &&
+    options.method !== 'GET' &&
+    options.policy !== 'retry_safe_read'
+  )
+    throw new Error('Shipment mutations are disabled for Test Mode')
   const safeRead =
     options.policy === 'retry_safe_read' ||
     (!options.policy && (!options.method || options.method === 'GET'))

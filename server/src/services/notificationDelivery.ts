@@ -2,6 +2,7 @@ import { Resend } from 'resend'
 import { env } from '../config/env'
 import { logger } from '../lib/logger'
 import { adminSupabase } from '../lib/supabase/admin'
+import { assertPaymentEnvironment } from './paymentEnvironment'
 import { getUserPrefs } from '../modules/notifications/service'
 import type {
   NotificationDelivery,
@@ -205,6 +206,8 @@ async function markDeliveryFailed(deliveryId: string, reason: unknown): Promise<
 }
 
 async function sendDelivery(delivery: NotificationDelivery): Promise<boolean> {
+  if (env.RAZORPAY_MODE === 'test') throw new Error('Email delivery is disabled for Test Mode')
+  await assertPaymentEnvironment(delivery.order_id)
   const order = await loadOrder(delivery.order_id)
   if (order.user_id !== delivery.user_id) throw new Error('Notification delivery owner mismatch')
 

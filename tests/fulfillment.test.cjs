@@ -122,6 +122,12 @@ test('provider document success requires a business success indicator and HTTPS 
 })
 
 test('Shiprocket wire contracts use postcode/kg, accept confirmed pickup objects and reject business failures', async (t) => {
+  const configuration = require('../server/dist/config/env.js').env
+  const previousMode = configuration.RAZORPAY_MODE
+  configuration.RAZORPAY_MODE = 'live'
+  t.after(() => {
+    configuration.RAZORPAY_MODE = previousMode
+  })
   const originalFetch = global.fetch
   t.after(() => {
     global.fetch = originalFetch

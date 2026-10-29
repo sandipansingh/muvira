@@ -63,7 +63,7 @@ test('structured logging redacts the SEO credential', () => {
     process.execPath,
     [
       '-e',
-      `require('./tests/helpers/test-env.cjs').configureTestEnvironment();process.env.NODE_ENV='production';process.env.RESEND_API_KEY='fixture-resend-key';process.env.SHIPROCKET_WEBHOOK_ENABLED='true';process.env.SHIPROCKET_WEBHOOK_SECRET='fixture-secret-long-enough';const{logger}=require('./server/dist/lib/logger.js');logger.fatal({req:{headers:{'x-muvira-seo-token':'do-not-expose-this-token'}}},'fixture')`,
+      `require('./tests/helpers/test-env.cjs').configureTestEnvironment();process.env.NODE_ENV='production';process.env.SUPABASE_URL='http://127.0.0.1:54321';process.env.RAZORPAY_KEY_ID='rzp_test_fixture123';process.env.RESEND_API_KEY='fixture-resend-key';process.env.SHIPROCKET_WEBHOOK_ENABLED='true';process.env.SHIPROCKET_WEBHOOK_SECRET='fixture-secret-long-enough';const{logger}=require('./server/dist/lib/logger.js');logger.fatal({req:{headers:{'x-muvira-seo-token':'do-not-expose-this-token'}}},'fixture')`,
     ],
     { encoding: 'utf8' }
   )

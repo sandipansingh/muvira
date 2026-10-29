@@ -431,6 +431,7 @@ export interface ProviderOperation {
   error_classification: string | null
   manual_review_reason: string | null
   dispatch_attempts: number
+  refund_idempotency_protected: boolean
   reconciliation_attempts: number
   dispatch_started_at: string | null
   last_reconciled_at: string | null

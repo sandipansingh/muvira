@@ -23,6 +23,7 @@ import {
   type ExecutionLeaseGuard,
 } from './executionLease'
 import { hasSchemaCapability, getRuntimeSchemaStatus } from './runtimeSchema'
+import { assertPaymentEnvironment, paymentEnvironmentArgs } from './paymentEnvironment'
 
 export interface RefundRecord {
   id: string
@@ -118,10 +119,17 @@ async function claimDispatch(
   operationId: string,
   lease: ExecutionLease
 ): Promise<ProviderOperation> {
-  const { data, error } = await adminSupabase.rpc('claim_provider_operation_dispatch', {
-    ...executionLeaseRpcArgs(lease),
-    p_operation_id: operationId,
-  })
+  const operation = await loadOperation(operationId)
+  const { data, error } = await adminSupabase.rpc(
+    operation.provider === 'razorpay'
+      ? 'claim_razorpay_refund_dispatch'
+      : 'claim_provider_operation_dispatch',
+    {
+      ...executionLeaseRpcArgs(lease),
+      p_operation_id: operationId,
+      ...(operation.provider === 'razorpay' ? paymentEnvironmentArgs() : {}),
+    }
+  )
   if (error || !data) {
     throw databaseError(
       'provider_operations.claim_dispatch',
@@ -170,16 +178,20 @@ async function finalizeOperation(
   operation: ProviderOperation,
   lease: ExecutionLease
 ): Promise<ProviderOperation> {
-  const { data, error } = await adminSupabase.rpc('finalize_provider_operation', {
-    ...executionLeaseRpcArgs(lease),
-    p_operation_id: operation.id,
-    p_provider_target_type: operation.provider_target_type,
-    p_provider_target_id: operation.provider_target_id,
-    p_payment_id: operation.payment_id,
-    p_amount_paisa: operation.amount_paisa,
-    p_currency: operation.currency,
-    p_request_hash: operation.request_hash,
-  })
+  const { data, error } = await adminSupabase.rpc(
+    operation.provider === 'razorpay' ? 'finalize_razorpay_refund' : 'finalize_provider_operation',
+    {
+      ...(operation.provider === 'razorpay' ? paymentEnvironmentArgs() : {}),
+      ...executionLeaseRpcArgs(lease),
+      p_operation_id: operation.id,
+      p_provider_target_type: operation.provider_target_type,
+      p_provider_target_id: operation.provider_target_id,
+      p_payment_id: operation.payment_id,
+      p_amount_paisa: operation.amount_paisa,
+      p_currency: operation.currency,
+      p_request_hash: operation.request_hash,
+    }
+  )
   if (error || !data) {
     await persistOperationAlert(
       operation,
@@ -219,10 +231,13 @@ export async function prepareRefund(
     .maybeSingle()
   if (error)
     throw databaseError('provider_operations.load_refund_payment', error, 'Payment unavailable')
-  if (!payment || (payment.status === 'refunded' && input.amountPaisa === undefined)) return null
+  if (!payment)
+    throw new AppError(409, 'PAYMENT_NOT_REFUNDABLE', 'The order has no captured payment to refund')
+  if (payment.status === 'refunded' && input.amountPaisa === undefined) return null
   if (!['captured', 'refunded'].includes(payment.status) || !payment.razorpay_payment_id) {
     throw new AppError(409, 'PAYMENT_NOT_REFUNDABLE', 'The order has no captured payment to refund')
   }
+  await assertPaymentEnvironment(orderId)
 
   const isPartial = input.amountPaisa !== undefined
   if (isPartial && !input.refundIntentId) {
@@ -286,6 +301,7 @@ export async function prepareRemainingRefund(
   cancellationOperationId?: string,
   executionLease?: ExecutionLease
 ): Promise<{ status: 'prepared' | 'waiting' | 'complete'; operation: ProviderOperation | null }> {
+  await assertPaymentEnvironment(orderId)
   const { data, error } = await adminSupabase.rpc(
     executionLease ? 'prepare_cancellation_refund_fenced' : 'prepare_remaining_refund',
     {
@@ -301,6 +317,29 @@ export async function prepareRemainingRefund(
       error,
       'Remaining refund could not be prepared'
     )
+  if (data.status === 'complete' && !data.operation) {
+    const payment = await adminSupabase
+      .from('payments')
+      .select('status,amount_paisa,refunded_amount_paisa')
+      .eq('order_id', orderId)
+      .maybeSingle()
+    if (payment.error)
+      throw databaseError(
+        'provider_operations.check_completed_refund',
+        payment.error,
+        'Refund status unavailable'
+      )
+    if (
+      !payment.data ||
+      payment.data.refunded_amount_paisa !== payment.data.amount_paisa ||
+      payment.data.status !== 'refunded'
+    )
+      throw new AppError(
+        409,
+        'PAYMENT_NOT_REFUNDABLE',
+        'The order has no captured payment to refund'
+      )
+  }
   return data as {
     status: 'prepared' | 'waiting' | 'complete'
     operation: ProviderOperation | null
@@ -425,12 +464,16 @@ async function lookupRefund(operation: ProviderOperation): Promise<RefundRecord 
 export const razorpayRefundAdapter: ProviderMutationAdapter<RefundRecord> = {
   async mutate(operation) {
     return withProviderTimeout(
-      razorpay.payments.refund(operation.provider_target_id, {
-        amount: operation.amount_paisa ?? undefined,
-        speed: 'normal',
-        receipt: operation.idempotency_key,
-        notes: { provider_operation_id: operation.id },
-      }) as Promise<RefundRecord>
+      razorpay.payments.refund(
+        operation.provider_target_id,
+        {
+          amount: operation.amount_paisa ?? undefined,
+          speed: 'normal',
+          receipt: operation.idempotency_key,
+          notes: { provider_operation_id: operation.id },
+        },
+        operation.idempotency_key
+      ) as Promise<RefundRecord>
     )
   },
   reconcile: lookupRefund,
@@ -565,7 +608,11 @@ async function reconcileRefund(
     }
   }
   if (refund) return adoptRefund(operation, refund, lease)
-  if (!allowIdenticalRetry || operation.dispatch_attempts >= 2) {
+  if (
+    !allowIdenticalRetry ||
+    operation.dispatch_attempts >= 2 ||
+    !operation.refund_idempotency_protected
+  ) {
     const reviewed = await recordOutcome(operation.id, 'manual_review', lease, {
       errorClassification: 'REFUND_NOT_FOUND',
       manualReviewReason: 'Razorpay refund was not found after the one authorized replay',
@@ -604,6 +651,7 @@ export async function dispatchRazorpayRefund(
     operationId,
     async ({ lease }) => {
       let operation = await loadOperation(operationId)
+      await assertPaymentEnvironment(operation.order_id)
       if (operation.local_applied_at) return operation
       if (operation.state === 'prepared') {
         operation = await dispatchRefundOnce(operation, lease, adapter)
@@ -944,6 +992,7 @@ export async function processLateCaptureWatches(limit = 20): Promise<number> {
   for (const watch of data ?? []) {
     if (!scheduled) legacyWatchCursor = watch.order_id as string
     try {
+      await assertPaymentEnvironment(watch.order_id as string)
       await withExecutionLease('checkout_payment', watch.order_id as string, async ({ lease }) => {
         const args = { ...executionLeaseRpcArgs(lease), p_order_id: watch.order_id }
         if (scheduled) {
@@ -1032,6 +1081,7 @@ export async function assertFulfillmentMutationAllowed(
   orderId: string,
   lease: ExecutionLease
 ): Promise<void> {
+  await assertPaymentEnvironment(orderId)
   const { error } = await adminSupabase.rpc('assert_fulfillment_mutation_allowed', {
     ...executionLeaseRpcArgs(lease),
     p_order_id: orderId,

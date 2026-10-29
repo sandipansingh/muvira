@@ -7,7 +7,7 @@ Object.assign(process.env, {
   NODE_ENV: 'test',
   PORT: '4000',
   LOG_LEVEL: 'fatal',
-  SUPABASE_URL: 'https://example.supabase.co',
+  SUPABASE_URL: 'http://127.0.0.1:1',
   SUPABASE_ANON_KEY: 'test-anon-key-value',
   SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key-value',
   RAZORPAY_KEY_ID: 'rzp_test_example',
@@ -80,6 +80,7 @@ function missingLateCaptureQuery() {
 
 let executionLeaseSequence = 0
 function executionLeaseRpc(name, args = {}) {
+  if (name === 'assert_razorpay_order_environment') return { data: null, error: null }
   if (name === 'claim_operation_lease') {
     executionLeaseSequence += 1
     return {
@@ -201,7 +202,7 @@ test('a failed attempt racing a capture never releases reservations', async () =
       if (owned) event.status = 'failed'
       return { data: owned, error: null }
     }
-    if (name === 'finalize_captured_payment_fenced') {
+    if (name === 'finalize_checkout_payment') {
       localPayment.status = 'captured'
       reservationStatus = 'committed'
       orderPaymentStatus = 'paid'
@@ -307,7 +308,7 @@ test('concurrent processors cannot execute the same stored webhook twice', async
     if (name === 'renew_razorpay_webhook_lease') {
       return { data: status === 'processing' && args.p_processing_token === token, error: null }
     }
-    if (name === 'finalize_captured_payment_fenced') {
+    if (name === 'finalize_checkout_payment') {
       finalizationCalls += 1
       finalizationStarted.resolve()
       await releaseFinalization.promise
@@ -490,7 +491,7 @@ test('captured finalization cannot report normal reconciliation when case persis
   adminSupabase.rpc = async (name) => {
     const leaseResult = executionLeaseRpc(name)
     if (leaseResult) return leaseResult
-    if (name === 'finalize_captured_payment_fenced') {
+    if (name === 'finalize_checkout_payment') {
       return { data: null, error: { message: 'injected local persistence failure' } }
     }
     if (name === 'record_payment_reconciliation') {
@@ -761,7 +762,7 @@ test('expired payable checkout retains reservations and a later capture commits 
         error: null,
       }
     }
-    if (name === 'finalize_captured_payment_fenced') {
+    if (name === 'finalize_checkout_payment') {
       assert.equal(reservationStatus, 'reserved')
       reservationStatus = 'committed'
       orderPaymentStatus = 'paid'
@@ -896,56 +897,14 @@ test('retry effect write is rejected when its parent job lease is lost mid-handl
   }
 })
 
-test('webhook enqueue exhaustion returns 503 and remains visible to admin diagnostics', async () => {
-  const originalRpc = adminSupabase.rpc
-  const originalFrom = adminSupabase.from
-  const eventId = '55555555-5555-4555-8555-555555555555'
-  const providerEventId = 'evt_enqueue_exhaustion'
-  let storedEvent = null
-  let enqueueAttempts = 0
-  let persistedAlert = null
-
-  adminSupabase.from = (relation) => {
-    assert.equal(relation, 'webhook_events')
-    return {
-      insert: (values) => {
-        storedEvent = {
-          id: eventId,
-          ...values,
-          retry_count: 0,
-          error_message: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-        return {
-          select: () => ({ single: async () => ({ data: { id: eventId }, error: null }) }),
-        }
-      },
-      select: () => {
-        const builder = {
-          order: () => builder,
-          eq: () => builder,
-          range: () => builder,
-          then: (resolve) =>
-            resolve({
-              data: storedEvent ? [storedEvent] : [],
-              error: null,
-              count: storedEvent ? 1 : 0,
-            }),
-        }
-        return builder
-      },
-    }
-  }
-
-  adminSupabase.rpc = async (name, args) => {
-    if (name === 'get_runtime_schema_status') {
+test('atomic webhook ingestion failure returns 503 without acknowledging partial work', async (t) => {
+  let ingestionCalls = 0
+  t.mock.method(adminSupabase, 'rpc', async (name) => {
+    if (name === 'get_runtime_schema_status')
       return {
         data: {
-          contract_version: require('./helpers/schema-version.cjs').latestSchemaVersion,
-          migration_version: String(
-            require('./helpers/schema-version.cjs').latestSchemaVersion
-          ).padStart(3, '0'),
+          contract_version: 60,
+          migration_version: '060',
           ready: true,
           missing_relations: [],
           missing_columns: [],
@@ -959,39 +918,13 @@ test('webhook enqueue exhaustion returns 503 and remains visible to admin diagno
         },
         error: null,
       }
-    }
-    if (name === 'claim_razorpay_webhook') {
-      storedEvent.processing_status = 'processing'
-      return {
-        data: [
-          {
-            id: eventId,
-            raw_payload: storedEvent.raw_payload,
-            processing_token: 'enqueue-exhaustion-token',
-          },
-        ],
-        error: null,
-      }
-    }
-    if (name === 'renew_razorpay_webhook_lease') return { data: true, error: null }
-    if (name === 'fail_razorpay_webhook') {
-      storedEvent.processing_status = 'failed'
-      storedEvent.retry_count += 1
-      storedEvent.error_message = args.p_error
-      storedEvent.updated_at = new Date().toISOString()
-      return { data: true, error: null }
-    }
-    if (name === 'enqueue_retry_job') {
-      enqueueAttempts += 1
-      return { data: null, error: { message: 'injected queue outage' } }
-    }
-    if (name === 'persist_operational_alert') {
-      persistedAlert = args
-      return { data: { id: 'alert-enqueue-exhaustion' }, error: null }
-    }
-    throw new Error(`Unexpected RPC: ${name}`)
-  }
-
+    assert.equal(name, 'ingest_razorpay_webhook')
+    ingestionCalls++
+    return { data: null, error: { code: '08006', message: 'injected queue transaction outage' } }
+  })
+  t.mock.method(adminSupabase, 'from', () =>
+    assert.fail('Receipt and queue must be persisted in one RPC')
+  )
   const rawBody = Buffer.from(JSON.stringify({ event: 'payment.captured', payload: {} }))
   const signature = crypto
     .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET)
@@ -999,39 +932,13 @@ test('webhook enqueue exhaustion returns 503 and remains visible to admin diagno
     .digest('hex')
   const server = createApp().listen(0)
   await once(server, 'listening')
-  const address = server.address()
-  const baseUrl = `http://127.0.0.1:${address.port}`
-
-  try {
-    const response = await fetch(`${baseUrl}/api/webhooks/razorpay`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-razorpay-signature': signature,
-        'x-razorpay-event-id': providerEventId,
-      },
-      body: rawBody,
-    })
-    assert.equal(response.status, 503)
-    const body = await response.json()
-    assert.equal(body.error.code, 'WEBHOOK_RETRY_UNAVAILABLE')
-    assert.equal(enqueueAttempts, 3)
-    assert.equal(storedEvent.processing_status, 'failed')
-    assert.equal(persistedAlert.p_webhook_event_id, eventId)
-
-    const visible = await diagnosticsService.getWebhookLogs({
-      page: 1,
-      limit: 20,
-      source: 'razorpay',
-      status: 'failed',
-    })
-    assert.equal(visible.total, 1)
-    assert.equal(visible.logs[0].id, eventId)
-    assert.equal(visible.logs[0].processing_status, 'failed')
-  } finally {
-    server.close()
-    await once(server, 'close')
-    adminSupabase.rpc = originalRpc
-    adminSupabase.from = originalFrom
-  }
+  t.after(() => new Promise((resolve) => server.close(resolve)))
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/api/webhooks/razorpay`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-razorpay-signature': signature },
+    body: rawBody,
+  })
+  assert.equal(response.status, 503)
+  assert.equal((await response.json()).error.code, 'WEBHOOK_AUDIT_FAILED')
+  assert.equal(ingestionCalls, 1)
 })

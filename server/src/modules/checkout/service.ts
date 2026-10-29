@@ -16,6 +16,7 @@ import { executionLeaseRpcArgs, withExecutionLease } from '../../services/execut
 import { ShippingMethodsSchema } from '../settings/schema'
 import { verifyCheckoutShipping } from './shipping'
 import { rankServiceableCouriers } from '../../services/shippingServiceability'
+import { assertPaymentEnvironment, paymentEnvironmentArgs } from '../../services/paymentEnvironment'
 
 interface CartProduct {
   id: string
@@ -204,8 +205,10 @@ export async function createCheckoutOrder(userId: string, input: CreateCheckoutO
   if (initializeError || !initializedData) {
     const message = initializeError?.message ?? 'Unable to initialize checkout'
     throw new AppError(
-      initializeError?.code === '40001' ? 409 : 400,
-      initializeError?.code === '40001' ? 'SHIPPING_CONTEXT_CHANGED' : 'CHECKOUT_INVALID',
+      ['40001', 'P0409'].includes(initializeError?.code ?? '') ? 409 : 400,
+      ['40001', 'P0409'].includes(initializeError?.code ?? '')
+        ? 'SHIPPING_CONTEXT_CHANGED'
+        : 'CHECKOUT_INVALID',
       message
     )
   }
@@ -430,6 +433,7 @@ export async function inspectCheckoutProviderState(
 ): Promise<'retained' | 'released' | 'captured'> {
   const payment = firstPayment(checkout.payments)
   if (!payment?.razorpay_order_id) return 'retained'
+  await assertPaymentEnvironment(checkout.id)
 
   const inspection =
     options.inspection ??
@@ -462,7 +466,8 @@ export async function inspectCheckoutProviderState(
 
   if (inspection.classification === 'captured' && inspection.capturedPayment) {
     const captured = inspection.capturedPayment
-    const { data, error } = await adminSupabase.rpc('finalize_captured_payment_fenced', {
+    const { data, error } = await adminSupabase.rpc('finalize_checkout_payment', {
+      ...paymentEnvironmentArgs(),
       ...executionLeaseRpcArgs(lease),
       p_razorpay_order_id: payment.razorpay_order_id,
       p_razorpay_payment_id: captured.id,
@@ -722,6 +727,7 @@ export async function cancelCheckout(userId: string, orderId: string): Promise<v
     throw new AppError(409, 'PAYMENT_ALREADY_CAPTURED', 'A paid checkout cannot be cancelled')
   }
 
+  await assertPaymentEnvironment(orderId)
   await withExecutionLease('checkout_payment', orderId, async ({ lease }) => {
     const checkout = { id: orderId, payments: relatedPayments ?? null }
     let providerOrder
@@ -769,35 +775,21 @@ export async function cancelCheckout(userId: string, orderId: string): Promise<v
         'Payment state requires review. Your reservation remains held.'
       )
     }
-    const terminalUnpaid =
-      amountPaid === 0 && ['cancelled', 'closed', 'expired', 'failed'].includes(providerStatus)
-    if (!terminalUnpaid) {
-      const result = await retainOrReleaseCheckout(
-        checkout,
-        providerStatus,
-        Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
-        'Customer cancellation retained because the Razorpay order remains payable or paid',
-        lease
-      )
-      if (result === 'released') {
-        deleteCacheByPattern('GET:/api/products')
-        return
-      }
-      throw new AppError(
-        409,
-        'PAYMENT_IN_PROGRESS',
-        'Payment may still complete. Your reservation remains held while status is confirmed.'
-      )
+    const result = await retainOrReleaseCheckout(
+      checkout,
+      providerStatus,
+      Number.isSafeInteger(amountPaid) && amountPaid >= 0 ? amountPaid : 0,
+      'Customer cancellation requires retained checkout reconciliation',
+      lease
+    )
+    if (result === 'released') {
+      deleteCacheByPattern('GET:/api/products')
+      return
     }
-
-    const { data: released, error } = await adminSupabase.rpc('fail_checkout_fenced', {
-      ...executionLeaseRpcArgs(lease),
-      p_order_id: orderId,
-      p_reason: 'Customer dismissed Razorpay Checkout after provider closure',
-    })
-    if (error || released !== true) {
-      throw new AppError(409, 'CHECKOUT_NOT_CANCELLED', 'Checkout could not be cancelled')
-    }
-    deleteCacheByPattern('GET:/api/products')
+    throw new AppError(
+      409,
+      'PAYMENT_IN_PROGRESS',
+      'Payment may still complete. Your reservation remains held while status is confirmed.'
+    )
   })
 }

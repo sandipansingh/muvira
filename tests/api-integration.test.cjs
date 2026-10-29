@@ -14,7 +14,7 @@ Object.assign(process.env, {
   NODE_ENV: 'test',
   PORT: '4000',
   LOG_LEVEL: 'fatal',
-  SUPABASE_URL: supabaseUrl ?? 'https://example.supabase.co',
+  SUPABASE_URL: supabaseUrl ?? 'http://127.0.0.1:1',
   SUPABASE_ANON_KEY: anonKey ?? 'test-anon-key-value',
   SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey ?? 'test-service-role-key-value',
   RAZORPAY_KEY_ID: 'rzp_test_integration',
@@ -331,6 +331,7 @@ test(
           method: 'POST',
           accessToken: customer.accessToken,
           body: {
+            checkout_request_id: crypto.randomUUID(),
             address_id: shippingAddress.id,
             shipping_method: 'standard',
             billing_same_as_shipping: true,
@@ -345,6 +346,7 @@ test(
           method: 'POST',
           accessToken: customer.accessToken,
           body: {
+            checkout_request_id: crypto.randomUUID(),
             address_id: shippingAddress.id,
             shipping_method: 'standard',
             billing_same_as_shipping: true,
@@ -474,9 +476,19 @@ test(
           body: firstRawBody,
         })
         assert.equal(firstWebhook.status, 200)
-        assert.equal(firstWebhook.body.data.status, 'processed')
+        assert.equal(firstWebhook.body.data.status, 'queued')
+        const receipt = await service
+          .from('webhook_events')
+          .select('id')
+          .eq('source', 'razorpay')
+          .eq('event_id', webhookEventId)
+          .single()
+        assert.ifError(receipt.error)
+        await require('../server/dist/modules/payments/service.js').processStoredRazorpayWebhook(
+          receipt.data.id
+        )
 
-        const repeatedRawBody = JSON.stringify({ ...webhookPayload, replay: true })
+        const repeatedRawBody = firstRawBody
         const repeatedSignature = crypto
           .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET)
           .update(repeatedRawBody)

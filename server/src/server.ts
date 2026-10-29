@@ -1,7 +1,8 @@
 import './config/env' // runs Zod validation; exits if invalid
 import { createApp } from './app'
 import { logger } from './lib/logger'
-import { env } from './config/env'
+import { env, inheritedPaymentConfiguration } from './config/env'
+import { paymentConfigurationIdentity } from './config/payment'
 import { stopPollingScheduler } from './services/pollingScheduler'
 import { startWorkersWhenSchemaReady, stopWorkerStartup } from './services/workerStartup'
 
@@ -16,6 +17,9 @@ void (async () => {
         port: PORT,
         env: env.NODE_ENV,
         store: env.STORE_NAME,
+        paymentMode: env.RAZORPAY_MODE,
+        paymentConfiguration: paymentConfigurationIdentity(env.RAZORPAY_KEY_ID),
+        inheritedPaymentFields: inheritedPaymentConfiguration,
       },
       `🚀 ${env.STORE_NAME} API server running on port ${PORT}`
     )

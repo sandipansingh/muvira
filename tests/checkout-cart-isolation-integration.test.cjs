@@ -1,3 +1,8 @@
+const {
+  paymentEnvironment,
+  seedCheckoutPayment,
+  finalizeCheckoutFixture,
+} = require('./helpers/payment-environment.cjs')
 require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const test = require('node:test')
@@ -81,7 +86,8 @@ test(
         shipping_method: 'standard',
         billing_same_as_shipping: true,
       }
-      const r = await client.rpc('prepare_checkout_session_shipping', {
+      const r = await client.rpc('prepare_checkout_payment', {
+        ...paymentEnvironment(),
         p_user_id: fixture.userId,
         p_request_id: id,
         p_request_fingerprint: 'a'.repeat(64),
@@ -99,7 +105,7 @@ test(
       const providerId = `order_${randomUUID().replaceAll('-', '')}`
       assert.ifError(
         (
-          await client.rpc('attach_razorpay_order', {
+          await seedCheckoutPayment(client, {
             p_user_id: fixture.userId,
             p_order_id: r.data.order_id,
             p_razorpay_order_id: providerId,
@@ -109,9 +115,9 @@ test(
       return { id: r.data.order_id, providerId }
     }
     const capture = async (order) => {
-      const r = await client.rpc('finalize_captured_payment', {
+      const r = await finalizeCheckoutFixture(client, {
         p_razorpay_order_id: order.providerId,
-        p_razorpay_payment_id: `pay_${randomUUID().replaceAll('-', '')}`,
+        p_razorpay_payment_id: (order.paymentId ??= `pay_${randomUUID().replaceAll('-', '')}`),
         p_razorpay_signature: null,
         p_amount_paisa: order.amount || 10000,
         p_currency: 'INR',
@@ -190,7 +196,7 @@ test(
     orderIds.push(legacyOrder.id)
     assert.ifError(
       (
-        await client.rpc('attach_razorpay_order', {
+        await seedCheckoutPayment(client, {
           p_user_id: fixture.userId,
           p_order_id: legacyOrder.id,
           p_razorpay_order_id: legacyOrder.providerId,
@@ -248,13 +254,14 @@ test(
     for (let i = 0; i < 40; i++) {
       sleeping =
         sql(
-          "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE wait_event='PgSleep' AND query LIKE '%finalize_captured_payment%');"
+          "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE wait_event='PgSleep' AND query LIKE '%finalize_checkout_payment%');"
         ) === 't'
       if (sleeping) break
       await new Promise((resolve) => setTimeout(resolve, 25))
     }
     assert.equal(sleeping, true, 'capture reached the coupon update barrier')
-    const reviewing = client.rpc('prepare_checkout_session_shipping', {
+    const reviewing = client.rpc('prepare_checkout_payment', {
+      ...paymentEnvironment(),
       p_user_id: fixture.userId,
       p_request_id: concurrentAttempt,
       p_request_fingerprint: 'a'.repeat(64),
@@ -269,7 +276,7 @@ test(
       'capture and Review must use a consistent lock order'
     )
     if (reviewed.data?.order_id) orderIds.push(reviewed.data.order_id)
-    else assert.equal(reviewed.error?.code, '40001', 'changed coupon usage requires revalidation')
+    else assert.equal(reviewed.error?.code, 'P0409', 'changed coupon usage requires revalidation')
     sql(`DROP TRIGGER ${pauseName} ON public.coupons; DROP FUNCTION public.${pauseName}();`)
     assert.equal((await bag())[0].checkout_attempt_id, concurrentAttempt)
     const beforeMigration = await prepare(concurrentAttempt)

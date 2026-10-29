@@ -6,6 +6,17 @@ import { env } from '../config/env'
 const FIFTEEN_MINUTES = 15 * 60 * 1000
 const ONE_MINUTE = 60 * 1000
 
+export const razorpayWebhookLimiter = rateLimit({
+  windowMs: ONE_MINUTE,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: { code: 'RATE_LIMITED', message: 'Webhook delivery budget exceeded.' },
+  },
+})
+
 export const checkoutQuoteLimiter = rateLimit({
   windowMs: ONE_MINUTE,
   max: 120,
@@ -85,6 +96,7 @@ const seoCatalogLimiter = rateLimit({
 })
 
 export const catalogApiLimiter: RequestHandler = (req, res, next) => {
+  if (/^\/webhooks\/razorpay\/?$/.test(req.path)) return next()
   // Quotes use their own authenticated budget so refreshes cannot exhaust payment access.
   if (req.method === 'POST' && /^\/checkout\/quote\/?$/.test(req.path)) return next()
   const supplied = req.get('X-Muvira-SEO-Token')

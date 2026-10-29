@@ -18,7 +18,7 @@ ORDER BY relation.relname;
 SELECT ok(
   has_table_privilege('service_role', relation.oid, 'SELECT')
     AND has_table_privilege('service_role', relation.oid, 'INSERT')
-    AND has_table_privilege('service_role', relation.oid, 'UPDATE')
+    AND has_table_privilege('service_role', relation.oid, 'UPDATE') = (relation.relname <> 'razorpay_order_bindings')
     AND has_table_privilege('service_role', relation.oid, 'DELETE'),
   FORMAT('service_role has runtime access to %I', relation.relname)
 )
@@ -73,7 +73,8 @@ SELECT ok(
       = (procedure.proname = 'is_admin')
     )
     AND has_function_privilege('service_role', procedure.oid, 'EXECUTE') =
-      (procedure.proname NOT IN ('apply_shiprocket_persistence_fenced_v53','claim_provider_operation_dispatch_v53','finalize_provider_operation_v53','initialize_checkout_v53')),
+      (procedure.proname NOT IN ('apply_shiprocket_persistence_fenced_v53','claim_provider_operation_dispatch_v53','finalize_provider_operation_v53','initialize_checkout_v53',
+      'attach_razorpay_order','complete_checkout_preparation','finalize_captured_payment','finalize_captured_payment_fenced','prepare_checkout_session_shipping')),
   FORMAT('%I exposes only its intended execution roles', procedure.proname)
 )
 FROM pg_proc AS procedure

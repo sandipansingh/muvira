@@ -39,6 +39,7 @@ const applicationRelations = [
   'payments',
   'provider_operation_audit_log',
   'provider_operations',
+  'razorpay_order_bindings',
   'product_images',
   'product_reviews',
   'products',
@@ -55,6 +56,15 @@ const applicationRelations = [
 ]
 
 const privilegedRpcNames = [
+  'prepare_checkout_payment',
+  'complete_checkout_payment',
+  'finalize_checkout_payment',
+  'assert_razorpay_order_environment',
+  'record_checkout_setup_failure',
+  'ingest_razorpay_webhook',
+  'recover_razorpay_webhook_receipts',
+  'claim_razorpay_refund_dispatch',
+  'finalize_razorpay_refund',
   'prepare_shipping_operation',
   'claim_shipping_operation',
   'finalize_shipping_operation',
@@ -245,7 +255,14 @@ test(
         for (const rpcName of privilegedRpcNames) {
           assert.equal(anonymousPaths.has(`/rpc/${rpcName}`), false)
           assert.equal(customerPaths.has(`/rpc/${rpcName}`), false)
-          assert.equal(servicePaths.has(`/rpc/${rpcName}`), true)
+          const retired = [
+            'prepare_checkout_session_shipping',
+            'complete_checkout_preparation',
+            'attach_razorpay_order',
+            'finalize_captured_payment',
+            'finalize_captured_payment_fenced',
+          ]
+          assert.equal(servicePaths.has(`/rpc/${rpcName}`), !retired.includes(rpcName), rpcName)
         }
 
         assert.equal(anonymousPaths.has('/rpc/is_admin'), false)

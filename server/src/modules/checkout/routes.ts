@@ -13,6 +13,7 @@ import {
   CheckoutSessionParamsSchema,
   CheckoutAttemptSchema,
   CheckoutRequestParamsSchema,
+  PaymentDiagnosticSchema,
 } from './schema'
 import * as controller from './controller'
 
@@ -33,6 +34,12 @@ checkoutRouter.get(
 )
 checkoutRouter.get('/payment-config', checkoutStatusLimiter, controller.paymentConfig)
 checkoutRouter.get('/active', checkoutStatusLimiter, controller.active)
+checkoutRouter.post(
+  '/:orderId/payment-error',
+  checkoutStatusLimiter,
+  validate({ params: CheckoutSessionParamsSchema, body: PaymentDiagnosticSchema }),
+  controller.paymentDiagnostic
+)
 checkoutRouter.post(
   '/:orderId/reconcile',
   checkoutStatusLimiter,

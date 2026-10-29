@@ -1,5 +1,13 @@
 const assert = require('node:assert/strict')
 const test = require('node:test')
+test.beforeEach((t) => {
+  require('./helpers/test-env.cjs').configureTestEnvironment()
+  t.mock.method(
+    require('../server/dist/services/paymentEnvironment.js'),
+    'assertPaymentEnvironment',
+    async () => {}
+  )
+})
 
 require('./helpers/test-env.cjs').configureTestEnvironment()
 process.env.CACHE_ENABLED = 'true'

@@ -8,7 +8,7 @@ Object.assign(process.env, {
   NODE_ENV: 'test',
   PORT: '4000',
   LOG_LEVEL: 'fatal',
-  SUPABASE_URL: 'https://example.supabase.co',
+  SUPABASE_URL: 'http://127.0.0.1:1',
   SUPABASE_ANON_KEY: 'test-anon-key-value',
   SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key-value',
   RAZORPAY_KEY_ID: 'rzp_test_example',

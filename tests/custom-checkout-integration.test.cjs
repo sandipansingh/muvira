@@ -1,3 +1,8 @@
+const {
+  paymentEnvironment,
+  seedCheckoutPayment,
+  finalizeCheckoutFixture,
+} = require('./helpers/payment-environment.cjs')
 require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const { randomUUID } = require('node:crypto')
@@ -123,8 +128,16 @@ test(
           ['products', product.id, { price_paisa: 59900 }, { price_paisa: product.price_paisa }],
         ]) {
           assert.ifError((await client.from(table).update(change).eq('id', identifier)).error)
-          const stale = await client.rpc('prepare_checkout_session_shipping', args)
-          assert.equal(stale.error?.code, '40001', `${table} change must invalidate delivery check`)
+          const stale = await client.rpc('prepare_checkout_payment', {
+            ...paymentEnvironment(),
+            ...args,
+            ...paymentEnvironment(),
+          })
+          assert.equal(
+            stale.error?.code,
+            'P0409',
+            `${table} change must invalidate delivery check: ${JSON.stringify(stale.error)}`
+          )
           assert.ifError((await client.from(table).update(restore).eq('id', identifier)).error)
         }
         assert.ifError(
@@ -132,8 +145,14 @@ test(
             .error
         )
         assert.equal(
-          (await client.rpc('prepare_checkout_session_shipping', args)).error?.code,
-          '40001'
+          (
+            await client.rpc('prepare_checkout_payment', {
+              ...paymentEnvironment(),
+              ...args,
+              ...paymentEnvironment(),
+            })
+          ).error?.code,
+          'P0409'
         )
         assert.ifError(
           (await client.from('cart_items').update({ quantity: 1 }).eq('user_id', fixture.userId))
@@ -153,8 +172,14 @@ test(
           ).error
         )
         assert.equal(
-          (await client.rpc('prepare_checkout_session_shipping', args)).error?.code,
-          '40001'
+          (
+            await client.rpc('prepare_checkout_payment', {
+              ...paymentEnvironment(),
+              ...args,
+              ...paymentEnvironment(),
+            })
+          ).error?.code,
+          'P0409'
         )
         assert.ifError(
           (
@@ -170,7 +195,8 @@ test(
           .eq('request_id', args.p_request_id)
         assert.ifError(error)
         assert.equal(count, 0)
-        const unavailable = await client.rpc('prepare_checkout_session_shipping', {
+        const unavailable = await client.rpc('prepare_checkout_payment', {
+          ...paymentEnvironment(),
           ...args,
           p_shipping_verification: {
             ...args.p_shipping_verification,
@@ -186,8 +212,16 @@ test(
       args.p_checkout
     )
     const [first, second] = await Promise.all([
-      client.rpc('prepare_checkout_session_shipping', args),
-      client.rpc('prepare_checkout_session_shipping', args),
+      client.rpc('prepare_checkout_payment', {
+        ...paymentEnvironment(),
+        ...args,
+        ...paymentEnvironment(),
+      }),
+      client.rpc('prepare_checkout_payment', {
+        ...paymentEnvironment(),
+        ...args,
+        ...paymentEnvironment(),
+      }),
     ])
     assert.ifError(first.error)
     assert.ifError(second.error)
@@ -201,12 +235,14 @@ test(
       .eq('order_id', orderId)
     assert.equal(reservations.length, 1)
     assert.equal(reservations[0].quantity, 1)
-    const changed = await client.rpc('prepare_checkout_session_shipping', {
+    const changed = await client.rpc('prepare_checkout_payment', {
+      ...paymentEnvironment(),
       ...args,
       p_request_fingerprint: 'b'.repeat(64),
     })
     assert.equal(changed.data.conflict, 'CHECKOUT_REQUEST_CONFLICT')
-    const replacement = await client.rpc('prepare_checkout_session_shipping', {
+    const replacement = await client.rpc('prepare_checkout_payment', {
+      ...paymentEnvironment(),
       ...args,
       p_request_id: randomUUID(),
     })
@@ -252,7 +288,13 @@ test(
       'cancelled'
     )
     assert.equal(
-      (await client.rpc('prepare_checkout_session_shipping', args)).data.order_id,
+      (
+        await client.rpc('prepare_checkout_payment', {
+          ...paymentEnvironment(),
+          ...args,
+          ...paymentEnvironment(),
+        })
+      ).data.order_id,
       orderId
     )
 
@@ -400,7 +442,7 @@ test(
     })
     checkoutOrderId = prepared.order_id
     assert.equal(prepared.amount_paisa, 40000)
-    const captured = await client.rpc('finalize_captured_payment', {
+    const captured = await finalizeCheckoutFixture(client, {
       p_razorpay_order_id: prepared.razorpay_order_id,
       p_razorpay_payment_id: `pay_${suffix.replaceAll('-', '')}`,
       p_razorpay_signature: null,

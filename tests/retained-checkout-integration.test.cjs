@@ -1,3 +1,8 @@
+const {
+  paymentEnvironment,
+  seedCheckoutPayment,
+  finalizeCheckoutFixture,
+} = require('./helpers/payment-environment.cjs')
 require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const crypto = require('node:crypto')
@@ -174,13 +179,16 @@ test(
     const captureArgs = {
       ...lease,
       p_razorpay_order_id: payment.razorpayOrderId,
-      p_razorpay_payment_id: `pay_${crypto.randomUUID()}`,
+      p_razorpay_payment_id: `pay_${crypto.randomUUID().replaceAll('-', '')}`,
       p_razorpay_signature: '',
       p_amount_paisa: order.amountPaisa,
       p_currency: 'INR',
       p_payment_method: 'upi',
     }
-    const capture = await client.rpc('finalize_captured_payment_fenced', captureArgs)
+    const capture = await client.rpc('finalize_checkout_payment', {
+      ...captureArgs,
+      ...paymentEnvironment(),
+    })
     assert.ifError(capture.error)
     assert.equal(capture.data.already_captured, false)
     const committed = await checkoutSnapshot(client, order)
@@ -199,7 +207,10 @@ test(
     const expiry = await client.rpc('fail_checkout_fenced', { ...lease, ...failArgs })
     assert.ifError(expiry.error)
     assert.equal(expiry.data, false)
-    const replay = await client.rpc('finalize_captured_payment_fenced', captureArgs)
+    const replay = await client.rpc('finalize_checkout_payment', {
+      ...captureArgs,
+      ...paymentEnvironment(),
+    })
     assert.ifError(replay.error)
     assert.equal(replay.data.already_captured, true)
     assert.deepEqual(await checkoutSnapshot(client, order), committed)

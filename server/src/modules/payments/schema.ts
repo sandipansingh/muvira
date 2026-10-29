@@ -25,7 +25,7 @@ export const RazorpayWebhookPaymentSchema = z
     method: z.string().min(1),
     error_description: z.string().nullable().optional(),
   })
-  .passthrough()
+  .strip()
 
 export type VerifyPaymentInput = z.infer<typeof VerifyPaymentSchema>
 export type RazorpayWebhookPayment = z.infer<typeof RazorpayWebhookPaymentSchema>

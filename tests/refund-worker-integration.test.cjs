@@ -1,3 +1,4 @@
+const { paymentEnvironment } = require('./helpers/payment-environment.cjs')
 require('./helpers/assert-local-test-db.cjs').assertLocalTestDb()
 const assert = require('node:assert/strict')
 const test = require('node:test')
@@ -99,7 +100,8 @@ test(
     const lease = await claimLease(client, 'provider_operation', partial.id)
     assert.ifError(
       (
-        await client.rpc('claim_provider_operation_dispatch', {
+        await client.rpc('claim_razorpay_refund_dispatch', {
+          ...paymentEnvironment(),
           ...lease,
           p_operation_id: partial.id,
         })
@@ -121,7 +123,8 @@ test(
     )
     assert.ifError(
       (
-        await client.rpc('finalize_provider_operation', {
+        await client.rpc('finalize_razorpay_refund', {
+          ...paymentEnvironment(),
           ...lease,
           p_operation_id: partial.id,
           p_provider_target_type: 'payment',
@@ -504,7 +507,8 @@ test(
     const partialLease = await claimLease(client, 'provider_operation', partial.data.id)
     assert.ifError(
       (
-        await client.rpc('claim_provider_operation_dispatch', {
+        await client.rpc('claim_razorpay_refund_dispatch', {
+          ...paymentEnvironment(),
           ...partialLease,
           p_operation_id: partial.data.id,
         })
@@ -526,7 +530,8 @@ test(
     )
     assert.ifError(
       (
-        await client.rpc('finalize_provider_operation', {
+        await client.rpc('finalize_razorpay_refund', {
+          ...paymentEnvironment(),
           ...partialLease,
           p_operation_id: partial.data.id,
           p_provider_target_type: 'payment',

@@ -49,9 +49,7 @@ export async function requestSession(
 
 export async function createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const result = req.body.checkout_request_id
-      ? await sessions.prepareCheckoutPayment(req.user!.id, req.body)
-      : await service.createCheckoutOrder(req.user!.id, req.body)
+    const result = await sessions.prepareCheckoutPayment(req.user!.id, req.body)
     res.status(201).json({ success: true, data: result })
   } catch (error) {
     next(error)
@@ -60,7 +58,22 @@ export async function createOrder(req: Request, res: Response, next: NextFunctio
 
 export function paymentConfig(_req: Request, res: Response): void {
   res.setHeader('Cache-Control', 'no-store')
-  res.json({ success: true, data: { key_id: env.RAZORPAY_KEY_ID, currency: 'INR' } })
+  res.json({
+    success: true,
+    data: {
+      key_id: env.RAZORPAY_KEY_ID,
+      currency: 'INR',
+      mode: env.RAZORPAY_MODE,
+      upi: {
+        intent: env.RAZORPAY_MODE === 'live' && env.RAZORPAY_UPI_INTENT_ENABLED === 'true',
+        qr: env.RAZORPAY_MODE === 'live' && env.RAZORPAY_UPI_QR_ENABLED === 'true',
+        embedded_qr:
+          env.RAZORPAY_MODE === 'live' &&
+          env.RAZORPAY_UPI_QR_ENABLED === 'true' &&
+          env.RAZORPAY_UPI_EMBEDDED_QR_APPROVED === 'true',
+      },
+    },
+  })
 }
 
 export async function active(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -87,6 +100,24 @@ export async function reconcile(req: Request, res: Response, next: NextFunction)
 export async function cancel(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     await service.cancelCheckout(req.user!.id, req.body.order_id as string)
+    res.json({ success: true, data: null })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function paymentDiagnostic(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    await sessions.recordPaymentDiagnostic(
+      req.user!.id,
+      req.params.orderId as string,
+      req.body,
+      req.requestId
+    )
     res.json({ success: true, data: null })
   } catch (error) {
     next(error)

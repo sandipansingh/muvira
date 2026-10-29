@@ -4,9 +4,9 @@ import { sanitizePostgrestError } from '../lib/databaseError'
 import type { SanitizedPostgrestError } from '../types'
 import { env } from '../config/env'
 
-export const RUNTIME_SCHEMA_CONTRACT_VERSION = env.SCHEMA_RELEASE_MODE === 'compatibility' ? 48 : 58
+export const RUNTIME_SCHEMA_CONTRACT_VERSION = env.SCHEMA_RELEASE_MODE === 'compatibility' ? 48 : 60
 export const SUPPORTED_RUNTIME_SCHEMA_VERSIONS = [
-  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
 ] as const
 const CACHE_TTL_MS = 15_000
 

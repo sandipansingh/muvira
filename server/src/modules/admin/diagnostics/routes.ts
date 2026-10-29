@@ -8,6 +8,7 @@ import {
   RetryQueueQuerySchema,
   WebhookLogsQuerySchema,
   CommerceFailuresQuerySchema,
+  DiagnosticOrderParamsSchema,
 } from './schema'
 
 export const adminDiagnosticsRouter = Router()
@@ -25,7 +26,11 @@ adminDiagnosticsRouter.get(
   validate({ query: RetryQueueQuerySchema }),
   controller.getRetryQueue
 )
-adminDiagnosticsRouter.post('/retry-queue/:id/retry', controller.retryJob)
+adminDiagnosticsRouter.post(
+  '/retry-queue/:id/retry',
+  validate({ params: DiagnosticIdParamsSchema }),
+  controller.retryJob
+)
 adminDiagnosticsRouter.get(
   '/shiprocket-errors',
   validate({ query: DiagnosticPageSchema }),
@@ -56,6 +61,10 @@ adminDiagnosticsRouter.post(
 
 // Emergency-only: refresh a single shipment from Shiprocket
 // This calls Shiprocket API directly — use sparingly, audit-logged
-adminDiagnosticsRouter.post('/shipments/:orderId/refresh', controller.refreshShipment)
+adminDiagnosticsRouter.post(
+  '/shipments/:orderId/refresh',
+  validate({ params: DiagnosticOrderParamsSchema }),
+  controller.refreshShipment
+)
 adminDiagnosticsRouter.get('/circuit-breaker', controller.getCircuitBreaker)
 adminDiagnosticsRouter.post('/circuit-breaker/reset', controller.resetCircuitBreaker)

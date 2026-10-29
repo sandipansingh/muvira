@@ -49,6 +49,8 @@ export async function handleWebhook(
     let payload: Record<string, unknown>
     try {
       payload = JSON.parse(req.rawBody.toString('utf8')) as Record<string, unknown>
+      if (!payload || typeof payload !== 'object' || Array.isArray(payload))
+        throw new Error('Invalid webhook object')
     } catch {
       throw new AppError(400, 'WEBHOOK_MALFORMED', 'Webhook body is not valid JSON')
     }

@@ -112,7 +112,21 @@ export async function getUserOrder(userId: string, orderId: string): Promise<Ord
   if (!data) throw new AppError(404, 'ORDER_NOT_FOUND', 'Order not found')
 
   // Return from DB only — tracking is synced by webhooks + cron polling
-  return data as Order
+  const { data: preparation, error: preparationError } = await adminSupabase
+    .from('checkout_preparations')
+    .select('request_id')
+    .eq('order_id', orderId)
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (preparationError)
+    throw databaseError('orders.resume', preparationError, 'Failed to load payment recovery')
+  return {
+    ...data,
+    checkout_request_id:
+      data.status === 'pending' && data.payment_status === 'pending'
+        ? (preparation?.request_id ?? null)
+        : null,
+  } as Order
 }
 
 //

@@ -63,12 +63,8 @@ export async function inspectRetainedCheckoutProvider(input: {
   if (amountPaidPaisa > 0 && amountPaidPaisa < input.amountPaisa) {
     return { classification: 'partial', providerStatus, amountPaidPaisa, currency }
   }
-  if (
-    amountPaidPaisa === 0 &&
-    ['cancelled', 'closed', 'expired', 'failed'].includes(providerStatus)
-  ) {
-    return { classification: 'terminal_unpaid', providerStatus, amountPaidPaisa, currency }
-  }
+  if (!['created', 'attempted', 'paid'].includes(providerStatus))
+    return { classification: 'unavailable', providerStatus, amountPaidPaisa, currency }
   if (input.inspectPaymentAttempts && providerStatus !== 'paid') {
     try {
       const attempts = await razorpay.orders.fetchPayments(input.razorpayOrderId)

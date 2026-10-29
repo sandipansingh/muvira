@@ -31,6 +31,7 @@ export const CommerceFailuresQuerySchema = DiagnosticPageSchema.extend({
 export const DiagnosticIdParamsSchema = z.object({
   id: z.string().uuid(),
 })
+export const DiagnosticOrderParamsSchema = z.object({ orderId: z.string().uuid() }).strict()
 
 export const DiagnosticActionSchema = z
   .object({

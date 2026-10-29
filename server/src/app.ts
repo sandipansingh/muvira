@@ -6,7 +6,7 @@ import { env } from './config/env'
 import { logger } from './lib/logger'
 import { requestIdMiddleware } from './middleware/requestId'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler'
-import { catalogApiLimiter } from './middleware/rateLimit'
+import { catalogApiLimiter, razorpayWebhookLimiter } from './middleware/rateLimit'
 import { requireAuth } from './middleware/requireAuth'
 import { requireAdmin } from './middleware/requireAdmin'
 import { requireRuntimeSchema } from './middleware/requireRuntimeSchema'
@@ -94,7 +94,8 @@ export function createApp() {
   // Preserve raw request bytes so webhook handlers can verify HMAC signatures
   app.use(
     '/api/webhooks/razorpay',
-    express.raw({ type: 'application/json' }),
+    razorpayWebhookLimiter,
+    express.raw({ type: 'application/json', limit: '256kb' }),
     (req: Request, _res: Response, next: NextFunction) => {
       req.rawBody = req.body as Buffer
       next()

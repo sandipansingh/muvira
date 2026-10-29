@@ -74,6 +74,17 @@ export async function checkOperationalAlerts(): Promise<Record<string, number>> 
       .from('late_capture_watches')
       .select('id', { count: 'exact', head: true })
       .neq('status', 'refunded'),
+    adminSupabase
+      .from('webhook_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('source', 'razorpay')
+      .in('processing_status', ['verified', 'processing', 'failed'])
+      .lt('created_at', staleThreshold),
+    adminSupabase
+      .from('checkout_preparations')
+      .select('order_id', { count: 'exact', head: true })
+      .in('dispatch_state', ['dispatched', 'review'])
+      .lt('updated_at', staleThreshold),
   ])
 
   const failedProbe = results.find((result) => result.error)
@@ -96,6 +107,8 @@ export async function checkOperationalAlerts(): Promise<Record<string, number>> 
     actionable_provider_operations: results[11].count ?? 0,
     critical_retained_checkouts: results[12].count ?? 0,
     late_capture_watches: results[13].count ?? 0,
+    aged_razorpay_webhooks: results[14].count ?? 0,
+    aged_checkout_preparations: results[15].count ?? 0,
   }
 
   if (Object.values(counts).some((count) => count > 0)) {
