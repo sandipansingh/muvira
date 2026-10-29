@@ -12,6 +12,41 @@ export async function quote(req: Request, res: Response, next: NextFunction): Pr
   }
 }
 
+export async function initializeAttempt(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    res.setHeader('Cache-Control', 'no-store')
+    res.json({
+      success: true,
+      data: await sessions.initializeCheckoutAttempt(req.user!.id, req.body.checkout_request_id),
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function requestSession(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    res.setHeader('Cache-Control', 'no-store')
+    res.json({
+      success: true,
+      data: await sessions.getCheckoutPaymentByRequest(
+        req.user!.id,
+        req.params.requestId as string
+      ),
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 export async function createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const result = req.body.checkout_request_id

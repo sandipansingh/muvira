@@ -170,6 +170,29 @@ async function markInitializationReview(orderId: string, providerOrderId?: strin
     })
 }
 
+export async function initializeCheckoutAttempt(userId: string, requestId: string) {
+  const { data, error } = await adminSupabase.rpc('begin_checkout_attempt', {
+    p_user_id: userId,
+    p_request_id: requestId,
+  })
+  if (error) throw databaseError('checkout.begin_attempt', error, 'Unable to start this purchase')
+  return data
+}
+
+export async function getCheckoutPaymentByRequest(
+  userId: string,
+  requestId: string
+): Promise<CheckoutPaymentSession | null> {
+  const { data, error } = await adminSupabase
+    .from('checkout_preparations')
+    .select('order_id')
+    .eq('user_id', userId)
+    .eq('request_id', requestId)
+    .maybeSingle()
+  if (error) throw databaseError('checkout.request', error, 'Unable to recover this purchase')
+  return data ? reconcileCheckoutPayment(userId, data.order_id) : null
+}
+
 export async function prepareCheckoutPayment(
   userId: string,
   input: CreateCheckoutOrderInput
@@ -206,7 +229,7 @@ export async function prepareCheckoutPayment(
     throw new AppError(
       409,
       String(data.conflict),
-      'An existing checkout needs your attention. Check its status before starting another payment.'
+      'This purchase needs your attention. Retry its recovery or explicitly start a new order.'
     )
   const orderId = String(data.order_id)
   return dispatchPreparedOrder(userId, orderId)

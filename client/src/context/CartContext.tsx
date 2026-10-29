@@ -11,8 +11,10 @@ import type { ProductDetail, ProductListItem } from '../lib/types/product'
 import type { CartItem } from '../lib/types/cart'
 import type { CouponPreview } from '../lib/types/coupon'
 import { cartApiService } from '../lib/services/cart.service'
-import { checkoutService } from '../lib/services/checkout.service'
-import type { CheckoutQuote } from '../types/checkout'
+import { useLocation } from 'react-router-dom'
+import { checkoutQuotes } from '../lib/services/checkoutQuote.service'
+import { useCheckoutQuote } from '../lib/hooks/useCheckoutQuote'
+import type { CheckoutQuote, ShippingMethod } from '../types/checkout'
 import { MAX_CART_ITEM_QTY } from '../lib/constants/cart.constants'
 import { guestCartStore } from '../lib/services/guestCart.store'
 import { addGuestCartItem } from '../lib/utils/cartState'
@@ -26,7 +28,12 @@ interface CartContextType {
   removeFromCart: (itemId: string) => Promise<void>
   updateQuantity: (itemId: string, delta: number) => Promise<void>
   clearCart: () => Promise<void>
-  resetAfterOrder: () => void
+  resetAfterOrder: () => Promise<void>
+  setCheckoutDelivery: (context: {
+    shippingMethod: ShippingMethod
+    addressId?: string
+    addressKey?: string
+  }) => void
   coupon: CouponPreview | null
   applyCoupon: (code: string) => Promise<boolean>
   removeCoupon: () => void
@@ -51,6 +58,16 @@ function isGuestItem(item: CartItem): boolean {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading: authLoading } = useAuth()
+  const { pathname } = useLocation()
+  const checkoutOwnsQuotes = ['/checkout', '/cart'].includes(pathname)
+  const delivery = useRef<{
+    shippingMethod: ShippingMethod
+    addressId?: string
+    addressKey?: string
+  }>({ shippingMethod: 'standard' })
+  const setCheckoutDelivery = useCallback((context: typeof delivery.current) => {
+    delivery.current = context
+  }, [])
   const { settings, error: settingsError } = useSiteSettings()
   const { showToast } = useToast()
   const [items, setItems] = useState<CartItem[]>([])
@@ -371,11 +388,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  const resetAfterOrder = () => {
-    setItems([])
+  const resetAfterOrder = useCallback(async () => {
+    const mutationEpoch = epochRef.current
     setCoupon(null)
     setCheckoutQuote(null)
-  }
+    if (!userId) return
+    try {
+      await refreshServerCart(userId)
+    } catch (reason) {
+      if (mutationEpoch !== epochRef.current) return
+      setError(
+        reason instanceof Error ? reason.message : 'Unable to refresh your bag. Please retry.'
+      )
+      setStatus('error')
+    }
+  }, [userId, refreshServerCart])
 
   const applyCoupon = async (code: string): Promise<boolean> => {
     if (!user) {
@@ -386,7 +413,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const mutationEpoch = epochRef.current
     setLoading(true)
     try {
-      const quote = await checkoutService.quote('standard', code, undefined, user.id)
+      const quote = await checkoutQuotes.request({
+        accountId: user.id,
+        items,
+        couponCode: code,
+        ...(checkoutOwnsQuotes ? delivery.current : { shippingMethod: 'standard' as const }),
+      })
       if (mutationEpoch !== epochRef.current) return false
       if (!quote.coupon) throw new Error('Coupon could not be applied.')
       setCheckoutQuote(quote)
@@ -417,33 +449,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   useEffect(() => {
-    if (
-      !sessionReady ||
-      status !== 'ready' ||
-      !userId ||
-      items.length === 0 ||
-      items.some(isGuestItem)
-    ) {
-      setCheckoutQuote(null)
-      return
-    }
-
-    let active = true
-    checkoutService
-      .quote('standard', coupon?.code, undefined, userId)
-      .then((quote) => {
-        if (active) setCheckoutQuote(quote)
-      })
-      .catch((reason: unknown) => {
-        if (!active) return
-        setCheckoutQuote(null)
-        setError(reason instanceof Error ? reason.message : 'Unable to calculate cart totals.')
-      })
-
-    return () => {
-      active = false
-    }
-  }, [coupon?.code, items, userId, sessionReady, status])
+    checkoutQuotes.setAccount(userId)
+  }, [userId])
+  const preview = useCheckoutQuote(
+    { accountId: userId || '', items, couponCode: coupon?.code, shippingMethod: 'standard' },
+    !checkoutOwnsQuotes &&
+      sessionReady &&
+      status === 'ready' &&
+      !loading &&
+      !!userId &&
+      !!items.length &&
+      !items.some(isGuestItem)
+  )
+  useEffect(() => {
+    if (!checkoutOwnsQuotes) setCheckoutQuote(preview.quote)
+    if (preview.error) setError(preview.error)
+  }, [checkoutOwnsQuotes, preview.quote, preview.error])
 
   const itemCount = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items])
   const localSubtotalPaisa = useMemo(
@@ -478,6 +499,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateQuantity,
         clearCart,
         resetAfterOrder,
+        setCheckoutDelivery,
         coupon,
         applyCoupon,
         removeCoupon,

@@ -340,3 +340,49 @@ test('collection photographs substitute only the exact reviewed source', async (
     srcSet: undefined,
   })
 })
+
+test('quote coordinator deduplicates semantic keys, expires success and fences account changes', async () => {
+  const { createQuoteCoordinator, checkoutQuoteKey } = await loadClientModule(
+    'lib/utils/quoteCoordinator.ts'
+  )
+  let now = 0,
+    calls = 0,
+    resolveOld
+  const coordinator = createQuoteCoordinator(
+    async (input) => {
+      calls++
+      if (input.addressId === 'delayed')
+        return new Promise((resolve) => {
+          resolveOld = resolve
+        })
+      return { total: calls }
+    },
+    () => now
+  )
+  const item = { productId: 'p', quantity: 1, unitPrice: 100, availableStock: 4, inStock: true }
+  const input = { accountId: 'a', items: [item], shippingMethod: 'standard', couponCode: ' hello ' }
+  assert.equal(
+    checkoutQuoteKey(input),
+    checkoutQuoteKey({
+      ...input,
+      couponCode: 'HELLO',
+      items: [{ ...item, productName: 'Unrelated title' }],
+    })
+  )
+  const [a, b] = await Promise.all([coordinator.request(input), coordinator.request(input)])
+  assert.deepEqual(a, b)
+  assert.equal(calls, 1)
+  await coordinator.request(input)
+  assert.equal(calls, 1)
+  now = 30001
+  await coordinator.request(input)
+  assert.equal(calls, 2)
+  await coordinator.request(input, true)
+  assert.equal(calls, 3)
+  const delayed = coordinator.request({ ...input, addressId: 'delayed' })
+  coordinator.setAccount('b')
+  resolveOld({ total: 99 })
+  await delayed
+  await coordinator.request(input)
+  assert.equal(calls, 5, 'account change invalidates earlier success')
+})

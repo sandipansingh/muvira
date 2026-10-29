@@ -1,18 +1,36 @@
 import { Router } from 'express'
 import { validate } from '../../middleware/validate'
 import { requireAuth } from '../../middleware/requireAuth'
-import { checkoutLimiter, checkoutStatusLimiter } from '../../middleware/rateLimit'
+import {
+  checkoutLimiter,
+  checkoutQuoteLimiter,
+  checkoutStatusLimiter,
+} from '../../middleware/rateLimit'
 import {
   CancelCheckoutSchema,
   CheckoutQuoteSchema,
   CreateCheckoutOrderSchema,
   CheckoutSessionParamsSchema,
+  CheckoutAttemptSchema,
+  CheckoutRequestParamsSchema,
 } from './schema'
 import * as controller from './controller'
 
 export const checkoutRouter = Router()
 
 checkoutRouter.use(requireAuth)
+checkoutRouter.post(
+  '/attempts',
+  checkoutStatusLimiter,
+  validate({ body: CheckoutAttemptSchema }),
+  controller.initializeAttempt
+)
+checkoutRouter.get(
+  '/requests/:requestId',
+  checkoutStatusLimiter,
+  validate({ params: CheckoutRequestParamsSchema }),
+  controller.requestSession
+)
 checkoutRouter.get('/payment-config', checkoutStatusLimiter, controller.paymentConfig)
 checkoutRouter.get('/active', checkoutStatusLimiter, controller.active)
 checkoutRouter.post(
@@ -24,7 +42,7 @@ checkoutRouter.post(
 
 checkoutRouter.post(
   '/quote',
-  checkoutLimiter,
+  checkoutQuoteLimiter,
   validate({ body: CheckoutQuoteSchema }),
   controller.quote
 )

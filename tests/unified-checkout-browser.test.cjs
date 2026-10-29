@@ -181,3 +181,26 @@ test('address loading retries and the first saved address becomes default', () =
     )
     assert.equal(await page.evaluate(() => window.fixture.addressCalls[0].value.isDefault), true)
   }))
+
+test('checkout quotes once after initialization and only after meaningful changes', () =>
+  visit('/checkout', async (page) => {
+    await expect(page.locator('.checkout-bag-item__price')).toHaveText('₹499')
+    const count = () => page.evaluate(() => window.fixture.quoteCalls.length)
+    assert.equal(await count(), 1)
+    await page.getByRole('button', { name: 'Add new address', exact: true }).click()
+    await page.getByLabel('Street address', { exact: true }).fill('Unsaved street')
+    await page.getByLabel('City', { exact: true }).fill('Unsaved city')
+    await page.getByLabel('PIN code', { exact: true }).fill('700039')
+    await page.evaluate(() => (window.fixture.saveAddressFailure = true))
+    await page.getByRole('button', { name: 'Save address', exact: true }).click()
+    await expect(
+      page.getByRole('alert').filter({ hasText: 'Address could not be saved' })
+    ).toBeVisible()
+    await page.waitForTimeout(400)
+    assert.equal(await count(), 1, 'typing and failed save must not refresh quotes')
+    await page
+      .getByRole('button', { name: 'Increase quantity', exact: true })
+      .click({ clickCount: 3 })
+    await expect(page.locator('.checkout-bag-item__price')).toHaveText('₹1,996')
+    assert.equal(await count(), 2, 'a rapid quantity burst creates one quote')
+  }))

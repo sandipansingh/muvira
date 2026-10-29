@@ -53,13 +53,13 @@ before(async () => {
     ToastContext: 'const showToast=()=>{};export const useToast=()=>({showToast})',
     'cart.service':
       'export const cartApiService=new Proxy({}, {get:(_,key)=>(...args)=>window.api[key](...args)})',
-    'checkout.service': `export const checkoutService={paymentConfig:async()=>({keyId:'fixture-key'}),active:async()=>null,quote:async()=>({subtotalPaisa:100,discountAmountPaisa:0,shippingAmountPaisa:0,totalAmountPaisa:100,items:[]})}`,
+    'checkout.service': `export const checkoutService={paymentConfig:async()=>({keyId:'fixture-key'}),initializeAttempt:async()=>{},request:async()=>null,active:async()=>null,quote:async(...args)=>window.quote?window.quote(...args):({subtotalPaisa:100,discountAmountPaisa:0,shippingAmountPaisa:0,totalAmountPaisa:100,items:[]})}`,
     'product.service':
       'export const productService=new Proxy({}, {get:(_,key)=>(...args)=>window.products[key](...args)})',
     'review.service':
       'export const reviewService={getProductReviews:(...args)=>window.reviews(...args)}',
     'address.service':
-      'export const addressService={getAddresses:async()=>({success:true,data:[]})}',
+      'export const addressService={getAddresses:async()=>({success:true,data:window.addresses||[]})}',
   }
   vite = await createServer({
     root: join(__dirname, '../client'),
@@ -691,6 +691,121 @@ test('an authenticated addition rejects when the account changes before confirma
     await page.evaluate(() => window.resolveAddition({ success: true, data: {} }))
     await page.waitForFunction(() => !!window.addResult)
     assert.match(await page.evaluate(() => window.addResult), /account changed/i)
+  } finally {
+    await context.close()
+  }
+})
+
+test('checkout owns quoting and coupon application shares its current delivery quote', async () => {
+  const { context, page } = await setup()
+  try {
+    await page.evaluate((item) => {
+      window.quoteCalls = []
+      window.serverBag = [{ ...item, id: 'server-line' }]
+      window.addresses = [
+        {
+          id: 'saved-address',
+          fullName: 'Test Customer',
+          phone: '9876543210',
+          line1: 'Saved lane',
+          line2: null,
+          city: 'Kolkata',
+          state: 'West Bengal',
+          pincode: '700039',
+          country: 'India',
+          isDefault: true,
+        },
+      ]
+      window.quote = async (shippingMethod, couponCode, addressId, accountId) => {
+        window.quoteCalls.push({ shippingMethod, couponCode, addressId, accountId })
+        const option = {
+          enabled: true,
+          available: true,
+          label: 'Standard',
+          description: 'Delivery',
+          amountPaisa: 0,
+          estimatedDeliveryDays: 5,
+        }
+        return {
+          items: [],
+          subtotalPaisa: 100,
+          discountAmountPaisa: couponCode ? 10 : 0,
+          shippingAmountPaisa: 0,
+          taxAmountPaisa: 0,
+          totalAmountPaisa: couponCode ? 90 : 100,
+          coupon: couponCode
+            ? {
+                code: couponCode,
+                discountType: 'fixed',
+                discountValue: 10,
+                discountAmountPaisa: 10,
+              }
+            : null,
+          shippingMethod,
+          shippingLabel: 'Standard',
+          shippingDescription: 'Delivery',
+          deliveryAvailable: true,
+          estimatedDeliveryDays: 5,
+          isPreview: !addressId,
+          shippingMethods: { standard: option, express: option },
+        }
+      }
+      window.api.getCart = async () => ({ success: true, data: { items: window.serverBag } })
+      window.auth = {
+        user: { id: 'quote-account', email: 'test@example.test', fullName: 'Test Customer' },
+        loading: false,
+      }
+      window.render()
+    }, item)
+    await page.waitForFunction(() => window.quoteCalls?.length === 1)
+    await page.waitForTimeout(400)
+    assert.equal(await page.evaluate(() => window.quoteCalls.length), 1)
+    assert.equal(await page.evaluate(() => window.cart.applyCoupon('SAVE')), true)
+    await page.waitForTimeout(450)
+    const calls = await page.evaluate(() => window.quoteCalls)
+    assert.equal(calls.length, 2)
+    assert.equal(calls[1].addressId, 'saved-address')
+    assert.equal(calls[1].shippingMethod, 'standard')
+    assert.equal(calls[1].couponCode, 'SAVE')
+    await page.evaluate(async () => {
+      window.serverBag = [{ ...window.serverBag[0], id: 'newer-bag', quantity: 2, lineTotal: 200 }]
+      await window.cart.resetAfterOrder()
+    })
+    assert.equal(await page.evaluate(() => window.cart.items[0].id), 'newer-bag')
+  } finally {
+    await context.close()
+  }
+})
+
+test('an older paid-order bag refresh failure cannot disable a different account', async () => {
+  const { context, page } = await setup()
+  try {
+    await page.evaluate((item) => {
+      window.api.getCart = async (id) => ({ success: true, data: { items: [{ ...item, id }] } })
+      window.auth = { user: { id: 'paid-account', email: 'paid@example.test' }, loading: false }
+      window.render()
+    }, item)
+    await page.waitForFunction(() => window.cart.items[0]?.id === 'paid-account')
+    await page.evaluate((item) => {
+      window.api.getCart = (id) =>
+        id === 'paid-account'
+          ? new Promise((_resolve, reject) => {
+              window.rejectOldRefresh = reject
+            })
+          : Promise.resolve({ success: true, data: { items: [{ ...item, id }] } })
+      window.oldReset = window.cart.resetAfterOrder()
+      window.auth = { user: { id: 'new-account', email: 'new@example.test' }, loading: false }
+      window.render()
+    }, item)
+    await page.waitForFunction(
+      () => window.cart.items[0]?.id === 'new-account' && window.cart.status === 'ready'
+    )
+    await page.evaluate(async () => {
+      window.rejectOldRefresh(new Error('Old refresh failed'))
+      await window.oldReset
+    })
+    assert.equal(await page.evaluate(() => window.cart.status), 'ready')
+    assert.equal(await page.evaluate(() => window.cart.error), null)
   } finally {
     await context.close()
   }

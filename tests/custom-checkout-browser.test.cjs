@@ -87,10 +87,11 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
       }
     }
   }, behavior)
-  let prepared = !!behavior.restored
+  let prepared = !!behavior.restored || !!behavior.oldPurchase
+  let preparedRequestId = prepared ? '11111111-1111-4111-8111-111111111111' : null
   const state = { status: behavior.status || 'payable' }
   const session = () => ({
-    checkout_request_id: 'test-request',
+    checkout_request_id: preparedRequestId,
     order_id: 'fixture-order',
     order_number: 'MUV-1042',
     razorpay_order_id: 'order_custom',
@@ -137,8 +138,9 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
       const body = route.request().postDataJSON()
       requests.push({ path: url.pathname, body })
       let data
-      if (url.pathname.endsWith('/active'))
-        data = prepared ? { ...session(), state: 'pending', can_pay: false } : null
+      if (url.pathname.includes('/requests/'))
+        data = prepared && url.pathname.endsWith('/' + preparedRequestId) ? session() : null
+      else if (url.pathname.endsWith('/attempts')) data = { attempt_id: body.checkout_request_id }
       else if (url.pathname.endsWith('/payment-config'))
         data = { key_id: 'rzp_test_example', currency: 'INR' }
       else if (url.pathname.endsWith('/quote')) {
@@ -191,8 +193,26 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
           },
         }
       } else if (url.pathname.endsWith('/create-order')) {
+        if (behavior.prepareFailure && !state.failedPrepare) {
+          state.failedPrepare = true
+          return route.fulfill({
+            status: 503,
+            json: {
+              success: false,
+              error: {
+                code: 'SETUP_UNAVAILABLE',
+                message: 'Payment preparation could not be confirmed.',
+              },
+            },
+          })
+        }
         if (behavior.gatedPrepare) await new Promise((resolve) => (state.releasePrepare = resolve))
         prepared = true
+        preparedRequestId = body.checkout_request_id
+        if (behavior.loseResponse && !state.lostResponse) {
+          state.lostResponse = true
+          return route.abort()
+        }
         data = session()
       } else if (url.pathname.endsWith('/cancel')) {
         if (behavior.cancelUncertain) {
@@ -232,12 +252,11 @@ async function checkoutPage(engine, options = {}, behavior = {}) {
   await page.goto(
     fixture.origin +
       '/checkout?step=payment' +
+      (behavior.restored ? '&attempt=11111111-1111-4111-8111-111111111111' : '') +
       (behavior.cartCoupon ? '&cartCoupon=1' : '') +
       (behavior.emptyBag ? '&scenario=empty-cart' : '')
   )
   await page.getByRole('heading', { level: 1 }).waitFor()
-  if (behavior.restored)
-    await page.getByRole('button', { name: 'Resume earlier payment', exact: true }).click()
   return { page, requests, state, rawSession: session }
 }
 
@@ -819,5 +838,65 @@ test('confirmed cancellation clears a live QR and immediately permits a new revi
     await expect.poll(() => requests.filter((r) => r.path.endsWith('/create-order')).length).toBe(2)
   } finally {
     await page.close()
+  }
+})
+
+for (const status of ['payable', 'pending', 'review', 'preparing']) {
+  test(`an older ${status} purchase cannot interrupt a fresh checkout`, async () => {
+    const { page, requests } = await checkoutPage('chromium', {}, { oldPurchase: true, status })
+    try {
+      await expect(page.getByRole('button', { name: 'Review payment', exact: true })).toBeEnabled()
+      await expect(
+        page.getByRole('button', { name: 'Increase quantity', exact: true })
+      ).toBeEnabled()
+      assert.equal(requests.filter((r) => r.path.endsWith('/active')).length, 0)
+      assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 0)
+    } finally {
+      await page.close()
+    }
+  })
+}
+
+test('a lost preparation response recovers the same attempt and reload never prepares another order', async () => {
+  const { page, requests } = await checkoutPage('chromium', {}, { loseResponse: true })
+  try {
+    await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+    await expect(page.getByRole('button', { name: /Show QR.*₹599/ })).toBeEnabled()
+    const id = new URL(page.url()).searchParams.get('attempt')
+    assert.ok(id)
+    assert.equal(
+      requests.find((r) => r.path.endsWith('/create-order')).body.checkout_request_id,
+      id
+    )
+    await page.reload()
+    await expect(page.getByRole('button', { name: /Show QR.*₹599/ })).toBeEnabled()
+    assert.equal(requests.filter((r) => r.path.endsWith('/create-order')).length, 1)
+  } finally {
+    await page.close()
+  }
+})
+
+test('preparation retry keeps its original UUID and only Start new order replaces it', async () => {
+  for (const startNew of [false, true]) {
+    const { page, requests } = await checkoutPage('chromium', {}, { prepareFailure: true })
+    try {
+      await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+      await expect(page.getByRole('button', { name: 'Retry', exact: true })).toBeVisible()
+      const original = requests.find((r) => r.path.endsWith('/create-order')).body
+        .checkout_request_id
+      if (startNew) {
+        await page.getByRole('button', { name: 'Start new order', exact: true }).click()
+        await expect(
+          page.getByRole('button', { name: 'Review payment', exact: true })
+        ).toBeEnabled()
+        await page.getByRole('button', { name: 'Review payment', exact: true }).click()
+      } else await page.getByRole('button', { name: 'Retry', exact: true }).click()
+      await expect(page.getByRole('button', { name: /Show QR.*₹599/ })).toBeEnabled()
+      const submissions = requests.filter((r) => r.path.endsWith('/create-order'))
+      assert.equal(submissions.length, 2)
+      assert.equal(submissions[1].body.checkout_request_id === original, !startNew)
+    } finally {
+      await page.close()
+    }
   }
 })

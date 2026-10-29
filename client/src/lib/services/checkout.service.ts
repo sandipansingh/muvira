@@ -187,6 +187,22 @@ function mapQuote(raw: RawCheckoutQuote): CheckoutQuote {
 }
 
 export const checkoutService = {
+  async initializeAttempt(requestId: string, expectedUserId: string): Promise<void> {
+    await api.post(
+      '/api/checkout/attempts',
+      { checkout_request_id: requestId },
+      true,
+      expectedUserId
+    )
+  },
+  async request(requestId: string, expectedUserId: string): Promise<CheckoutPaymentSession | null> {
+    const response = await api.get<{ success: true; data: RawPaymentSession | null }>(
+      `/api/checkout/requests/${encodeURIComponent(requestId)}`,
+      true,
+      expectedUserId
+    )
+    return response.data ? mapPaymentSession(response.data) : null
+  },
   async paymentConfig(expectedUserId?: string): Promise<{ keyId: string }> {
     const response = await api.get<{ success: true; data: { key_id: string } }>(
       '/api/checkout/payment-config',

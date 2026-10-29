@@ -28,6 +28,7 @@ export interface ShippingSectionProps {
   savedAddresses?: AddressData[]
   selectedAddressId?: string
   onSelectSavedAddress?: (id: string) => void
+  onEditingChange?: (editing: boolean) => void
   saving?: boolean
   errors?: Record<string, string>
 }
@@ -41,6 +42,7 @@ export function ShippingSection({
   savedAddresses = [],
   selectedAddressId = '',
   onSelectSavedAddress,
+  onEditingChange,
   errors = {},
   saving = false,
 }: ShippingSectionProps) {
@@ -65,6 +67,9 @@ export function ShippingSection({
       description: [address.streetAddress, address.apartment].filter(Boolean).join(', '),
     })
   }, [selectedAddressId, savedAddresses])
+  useEffect(() => {
+    onEditingChange?.(manual)
+  }, [manual, onEditingChange])
   const field = (name: keyof ShippingFormData, value: string) =>
     onShippingDataChange({ ...shippingData, [name]: value })
   const renderField = (item: { key: keyof ShippingFormData; label: string; complete: string }) => (
@@ -121,13 +126,12 @@ export function ShippingSection({
                 setManual(!manual)
                 if (!manual)
                   onShippingDataChange({ ...shippingData, description: '', city: '', pincode: '' })
-                onSelectSavedAddress?.(
-                  manual
-                    ? savedAddresses.find((address) => address.isDefault)?.id ||
-                        savedAddresses[0]?.id ||
-                        ''
-                    : ''
-                )
+                if (manual && !selectedAddressId)
+                  onSelectSavedAddress?.(
+                    savedAddresses.find((address) => address.isDefault)?.id ||
+                      savedAddresses[0]?.id ||
+                      ''
+                  )
               }}
               leftIcon={manual ? undefined : <Plus className="h-4 w-4" aria-hidden="true" />}
             >

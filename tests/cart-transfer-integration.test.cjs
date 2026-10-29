@@ -26,7 +26,7 @@ test(
         [
           'exec',
           '-i',
-          'supabase_db_muvira',
+          process.env.SUPABASE_TEST_DB_CONTAINER || 'supabase_db_muvira',
           'psql',
           '-U',
           'postgres',

@@ -210,7 +210,10 @@ test(
       ...args,
       p_request_id: randomUUID(),
     })
-    assert.equal(replacement.data.conflict, 'CHECKOUT_ALREADY_ACTIVE')
+    assert.ifError(replacement.error)
+    assert.ok(replacement.data.order_id)
+    assert.notEqual(replacement.data.order_id, orderId)
+    createdOrders.add(replacement.data.order_id)
     const lease = await claimLease(client, 'checkout_payment', orderId)
     const dispatchArgs = { p_order_id: orderId, ...lease }
     assert.equal((await client.rpc('claim_checkout_dispatch', dispatchArgs)).data, true)

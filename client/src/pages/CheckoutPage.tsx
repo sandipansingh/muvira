@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAuthDialog } from '../context/AuthDialogContext'
 import { useCart } from '../context/CartContext'
 import { addressService } from '../lib/services/address.service'
-import { checkoutService } from '../lib/services/checkout.service'
+import { useCheckoutQuote } from '../lib/hooks/useCheckoutQuote'
 import { useCheckoutSession } from '../lib/hooks/useCheckoutSession'
 import { validateCheckoutAddress } from '../lib/validators/checkout.validator'
 import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
@@ -20,7 +20,7 @@ import { RazorpayPayment } from '../components/checkout/RazorpayPayment'
 import { Button } from '../components/ui/Button'
 import type { AddressData } from '../components/checkout/AddressSelector'
 import type { Address } from '../lib/types/cart'
-import type { BillingAddressInput, CheckoutQuote, ShippingMethod } from '../types/checkout'
+import type { BillingAddressInput, ShippingMethod } from '../types/checkout'
 
 function toAddressData(address: Address): AddressData {
   return {
@@ -126,8 +126,8 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
     loading: cartBusy,
     resetAfterOrder,
   } = cart
-  const payment = useCheckoutSession(accountId)
-  const { session, previousSession } = payment
+  const payment = useCheckoutSession(accountId, cartStatus === 'ready')
+  const { session } = payment
   const navigate = useNavigate()
   const mounted = useRef(true)
   const completed = useRef<string | null>(null)
@@ -136,6 +136,7 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
   const [footerOutlet, setFooterOutlet] = useState<HTMLDivElement | null>(null)
   const [addresses, setAddresses] = useState<AddressData[]>([])
   const [addressId, setAddressId] = useState('')
+  const [addressEditing, setAddressEditing] = useState(false)
   const [addressLoading, setAddressLoading] = useState(true)
   const [addressError, setAddressError] = useState<string | null>(null)
   const [addressAttempt, setAddressAttempt] = useState(0)
@@ -157,18 +158,37 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
   const [billing, setBilling] = useState<BillingAddressInput>(EMPTY_BILLING_ADDRESS)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [billingFieldErrors, setBillingFieldErrors] = useState<Record<string, string>>({})
-  const [quoteResult, setQuoteResult] = useState<{ key: string; value: CheckoutQuote } | null>(null)
-  const [quotePending, setQuotePending] = useState(true)
-  const [quoteError, setQuoteError] = useState<string | null>(null)
-  const [quoteAttempt, setQuoteAttempt] = useState(0)
   const [saving, setSaving] = useState(false)
   const savingRef = useRef(false)
   const [deliveryError, setDeliveryError] = useState<string | null>(null)
-  const quoteKey = JSON.stringify([items, coupon?.code, shippingMethod, addressId, quoteAttempt])
-  const quote = quoteResult?.key === quoteKey && !cartBusy ? quoteResult.value : null
-  const quoteLoading = !session && (quotePending || (!!items.length && !quote && !quoteError))
-  const locked =
-    !!session || preparingPayment || (!!payment.error && !previousSession) || payment.loading
+  const selectedAddress = addresses.find((address) => address.id === addressId)
+  const addressKey = selectedAddress ? JSON.stringify(selectedAddress) : ''
+  const quoteContext = {
+    accountId,
+    items,
+    couponCode: coupon?.code,
+    shippingMethod,
+    addressId: addressId || undefined,
+    addressKey,
+  }
+  const quoteState = useCheckoutQuote(
+    quoteContext,
+    !payment.loading &&
+      !payment.error &&
+      !session &&
+      !cartBusy &&
+      cartStatus === 'ready' &&
+      !hasUnmergedItems &&
+      !addressLoading &&
+      !addressError &&
+      !!items.length
+  )
+  const { quote, loading: quoteLoading, error: quoteError } = quoteState
+  const locked = !!session || preparingPayment || !!payment.error || payment.loading
+  const { setCheckoutDelivery } = cart
+  useEffect(() => {
+    setCheckoutDelivery({ shippingMethod, addressId: addressId || undefined, addressKey })
+  }, [setCheckoutDelivery, shippingMethod, addressId, addressKey])
   const editsDisabled = locked || cartBusy || cartStatus !== 'ready' || saving
 
   useEffect(() => {
@@ -208,58 +228,9 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
     }
   }, [accountId, addressAttempt])
   useEffect(() => {
-    setQuoteError(null)
-    if (
-      !items.length ||
-      hasUnmergedItems ||
-      session ||
-      cartBusy ||
-      cartStatus !== 'ready' ||
-      addressLoading ||
-      saving
-    ) {
-      setQuotePending(false)
-      return
-    }
-    let active = true
-    setQuotePending(true)
-    checkoutService
-      .quote(shippingMethod, coupon?.code, addressId || undefined, accountId)
-      .then((result) => {
-        if (active) setQuoteResult({ key: quoteKey, value: result })
-      })
-      .catch((reason: unknown) => {
-        if (active) {
-          setQuoteResult(null)
-          setQuoteError(
-            reason instanceof Error ? reason.message : 'Unable to calculate your total.'
-          )
-        }
-      })
-      .finally(() => {
-        if (active) setQuotePending(false)
-      })
-    return () => {
-      active = false
-    }
-  }, [
-    accountId,
-    quoteKey,
-    items.length,
-    hasUnmergedItems,
-    session,
-    cartBusy,
-    cartStatus,
-    addressLoading,
-    saving,
-    shippingMethod,
-    coupon?.code,
-    addressId,
-  ])
-  useEffect(() => {
     if (session?.state === 'paid' && completed.current !== session.orderId) {
       completed.current = session.orderId
-      resetAfterOrder()
+      void resetAfterOrder()
       navigate(`/orders/success?orderId=${encodeURIComponent(session.orderId)}`, { replace: true })
     }
   }, [session, resetAfterOrder, navigate])
@@ -277,6 +248,7 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
     cartStatus === 'ready' &&
     !addressLoading &&
     !addressError &&
+    !addressEditing &&
     !!addressId &&
     !saving &&
     items.length > 0 &&
@@ -329,7 +301,6 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
         toAddressData(created.data),
       ])
       setAddressId(created.data.id)
-      setQuoteAttempt((value) => value + 1)
     } catch (reason) {
       if (mounted.current)
         setDeliveryError(
@@ -369,8 +340,7 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
   }
   const restart = () => {
     if (session?.state !== 'released') return
-    payment.clearReleased()
-    setQuoteAttempt((value) => value + 1)
+    payment.startNew()
   }
   return (
     <CheckoutLayout
@@ -440,6 +410,7 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
                     savedAddresses={addresses}
                     selectedAddressId={addressId}
                     onSelectSavedAddress={setAddressId}
+                    onEditingChange={setAddressEditing}
                     errors={fieldErrors}
                     saving={saving}
                   />
@@ -486,7 +457,7 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
             session={session}
             loading={quoteLoading}
             error={session ? null : quoteError}
-            onRetry={() => setQuoteAttempt((value) => value + 1)}
+            onRetry={quoteState.retry}
           >
             <section className="checkout-section checkout-promo" aria-labelledby="promo-heading">
               <h2 id="promo-heading" className="journey-section-title mb-4">
@@ -515,7 +486,12 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
             )}
             {payment.error && (
               <Button variant="secondary" onClick={() => void payment.refresh()}>
-                Check current payment
+                Retry
+              </Button>
+            )}
+            {(payment.error || session?.state === 'review' || session?.state === 'pending') && (
+              <Button variant="secondary" onClick={payment.startNew}>
+                Start new order
               </Button>
             )}
             <div ref={setFooterOutlet} className="checkout-payment-outlet" />

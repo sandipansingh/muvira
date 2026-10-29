@@ -18,6 +18,7 @@ const suites = [
   'provider-cancellations',
   'retained-checkout-integration',
   'custom-checkout-integration',
+  'checkout-cart-isolation-integration',
   'shipping-integration',
   'durable-shipping-integration',
   'cart-transfer-integration',

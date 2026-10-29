@@ -1,107 +1,107 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { checkoutService } from '../services/checkout.service'
 import type { CheckoutPaymentSession, CreateCheckoutOrderInput } from '../../types/checkout'
 
-export function useCheckoutSession(userId?: string) {
+export function useCheckoutSession(userId: string, ready = true) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const routeAttempt = new URLSearchParams(location.search).get('attempt')
+  const lastRouteAttempt = useRef(routeAttempt)
+  const recoverRequest = useRef(!!routeAttempt)
+  const [requestId, setRequestId] = useState(() => routeAttempt || crypto.randomUUID())
   const [session, setSession] = useState<CheckoutPaymentSession | null>(null)
-  const [previousSession, setPreviousSession] = useState<CheckoutPaymentSession | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const requestId = useRef<string | null>(null)
+  const latest = useRef(session)
+  latest.current = session
+  const input = useRef<CreateCheckoutOrderInput | null>(null)
   const generation = useRef(0)
-  const refreshingGeneration = useRef<number | null>(null)
+  const invalidate = useCallback(() => {
+    generation.current++
+  }, [])
   const preparing = useRef(false)
-  const hasLoaded = useRef(false)
-  const latestSession = useRef(session)
-  latestSession.current = session
-
-  const refresh = useCallback(async () => {
-    if (!userId) return
-    const version = generation.current
-    if (refreshingGeneration.current === version || preparing.current) return
-    refreshingGeneration.current = version
-    const current = latestSession.current
-    if (!hasLoaded.current) setLoading(true)
+  const currentRequest = useRef(requestId)
+  currentRequest.current = requestId
+  useEffect(() => {
+    if (lastRouteAttempt.current === routeAttempt) return
+    lastRouteAttempt.current = routeAttempt
+    if (routeAttempt === requestId) return
+    generation.current++
+    input.current = null
+    latest.current = null
+    recoverRequest.current = !!routeAttempt
+    setSession(null)
     setError(null)
-    try {
-      let active = current
-        ? await checkoutService.reconcile(current.orderId, userId)
-        : await checkoutService.active(userId)
-      if (active && ['pending', 'preparing'].includes(active.state))
-        active = await checkoutService.reconcile(active.orderId, userId)
-      if (version !== generation.current) return
-      if (current && latestSession.current?.orderId === current.orderId) {
-        setSession(active)
-      } else if (!latestSession.current) {
-        setPreviousSession(active && !['paid', 'released'].includes(active.state) ? active : null)
-      }
-    } catch (reason) {
-      if (version === generation.current)
-        setError(
-          reason instanceof Error
-            ? reason.message
-            : 'Unable to check your current payment. Retry before continuing.'
-        )
-    } finally {
-      if (refreshingGeneration.current === version) refreshingGeneration.current = null
-      if (version === generation.current) {
-        hasLoaded.current = true
-        setLoading(false)
-      }
-    }
-  }, [userId])
+    setLoading(true)
+    const next = routeAttempt || crypto.randomUUID()
+    currentRequest.current = next
+    setRequestId(next)
+  }, [routeAttempt, requestId])
+  const lookup = useCallback(async () => {
+    const recovered =
+      recoverRequest.current || input.current
+        ? await checkoutService.request(requestId, userId)
+        : null
+    if (!recovered) await checkoutService.initializeAttempt(requestId, userId)
+    return recovered
+  }, [requestId, userId])
 
   useEffect(() => {
-    generation.current += 1
-    requestId.current = null
-    hasLoaded.current = false
-    setSession(null)
-    setPreviousSession(null)
-    if (userId) void refresh()
-    else setLoading(false)
-    const onFocus = () => {
-      if (document.visibilityState === 'visible' && !preparing.current) void refresh()
-    }
-    window.addEventListener('focus', onFocus)
-    return () => {
-      generation.current += 1
-      window.removeEventListener('focus', onFocus)
-    }
-  }, [userId, refresh])
+    if (!ready) return
+    const version = ++generation.current
+    setLoading(true)
+    setError(null)
+    lookup()
+      .then((recovered) => {
+        if (version === generation.current) setSession(recovered)
+      })
+      .catch((reason: unknown) => {
+        if (version === generation.current)
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : 'Unable to recover this purchase. Retry or start a new order.'
+          )
+      })
+      .finally(() => {
+        if (version === generation.current) setLoading(false)
+      })
+    return invalidate
+  }, [lookup, ready, invalidate])
 
-  const prepare = async (input: CreateCheckoutOrderInput) => {
+  const prepare = async (details: CreateCheckoutOrderInput) => {
     if (preparing.current) return
     preparing.current = true
-    setError(null)
     const version = generation.current
-    requestId.current ??= crypto.randomUUID()
+    const id = requestId
+    input.current ??= details
+    recoverRequest.current = true
+    const search = new URLSearchParams(location.search)
+    search.set('attempt', id)
+    navigate(`${location.pathname}?${search}`, { replace: true })
+    setError(null)
     try {
-      const prepared = await checkoutService.prepare(
-        { ...input, checkoutRequestId: requestId.current },
+      const recovered = await checkoutService.prepare(
+        { ...input.current, checkoutRequestId: id },
         userId
       )
-      if (version === generation.current) {
-        latestSession.current = prepared
-        setSession(prepared)
-        setPreviousSession(null)
-      }
+      if (version === generation.current && currentRequest.current === id) setSession(recovered)
     } catch (reason) {
       if (version === generation.current) {
         setError(
           reason instanceof Error
             ? reason.message
-            : 'Payment setup could not be confirmed. Check its status before retrying.'
+            : 'Payment setup could not be confirmed. Retry or start a new order.'
         )
         try {
-          const active = await checkoutService.active(userId)
-          if (version === generation.current && active) {
-            if (active.checkoutRequestId === requestId.current) {
-              latestSession.current = active
-              setSession(active)
-            } else setPreviousSession(active)
+          const recovered = await checkoutService.request(id, userId)
+          if (version === generation.current && recovered) {
+            setSession(recovered)
+            setError(null)
           }
         } catch {
-          /* The visible setup error remains until an explicit recovery succeeds. */
+          /* Keep the visible recovery error until an explicit retry succeeds. */
         }
       }
       throw reason
@@ -109,43 +109,56 @@ export function useCheckoutSession(userId?: string) {
       preparing.current = false
     }
   }
-
-  const clearReleased = () => {
-    generation.current += 1
-    latestSession.current = null
-    requestId.current = null
+  const refreshing = useRef(false)
+  const refresh = async () => {
+    if (refreshing.current || preparing.current) return
+    refreshing.current = true
+    const version = generation.current
+    setLoading(true)
+    try {
+      const recovered = latest.current
+        ? await checkoutService.reconcile(latest.current.orderId, userId)
+        : await lookup()
+      if (version !== generation.current) return
+      if (recovered) setSession(recovered)
+      else if (input.current) await prepare(input.current)
+      setError(null)
+    } catch (reason) {
+      if (version === generation.current)
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : 'Unable to recover this purchase. Please retry.'
+        )
+    } finally {
+      refreshing.current = false
+      if (version === generation.current) setLoading(false)
+    }
+  }
+  const refreshRef = useRef(refresh)
+  refreshRef.current = refresh
+  useEffect(() => {
+    const onFocus = () => {
+      if (document.visibilityState === 'visible' && latest.current) void refreshRef.current()
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [])
+  const startNew = () => {
+    generation.current++
+    input.current = null
+    recoverRequest.current = false
+    latest.current = null
     setSession(null)
-    setPreviousSession(null)
     setError(null)
+    setLoading(true)
+    const id = crypto.randomUUID()
+    currentRequest.current = id
+    setRequestId(id)
+    lastRouteAttempt.current = null
+    const search = new URLSearchParams(location.search)
+    search.delete('attempt')
+    navigate(location.pathname + (search.size ? `?${search}` : ''), { replace: true })
   }
-  const resumePrevious = () => {
-    if (!previousSession) return
-    generation.current += 1
-    requestId.current = previousSession.checkoutRequestId
-    latestSession.current = previousSession
-    setSession(previousSession)
-    setPreviousSession(null)
-    setError(null)
-  }
-  const returnToBag = () => {
-    if (!session) return
-    generation.current += 1
-    latestSession.current = null
-    requestId.current = null
-    setPreviousSession(session)
-    setSession(null)
-    setError(null)
-  }
-  return {
-    session,
-    previousSession,
-    setSession,
-    loading,
-    error,
-    refresh,
-    prepare,
-    clearReleased,
-    resumePrevious,
-    returnToBag,
-  }
+  return { session, setSession, loading, error, refresh, prepare, startNew }
 }

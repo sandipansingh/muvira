@@ -28,9 +28,9 @@ function contract(version, ready) {
 }
 
 for (const [version, databaseReady, expectedReady] of [
-  [56, true, true],
-  [57, true, true],
-  [58, true, false],
+  [56, true, false],
+  [57, true, false],
+  [58, true, true],
   [55, true, false],
   [57, false, false],
 ]) {
@@ -53,8 +53,8 @@ for (const [version, databaseReady, expectedReady] of [
       assert.equal(body.success, expectedReady)
       assert.deepEqual(body.data.database_contract, {
         status: expectedReady ? 'compatible' : 'incompatible',
-        expected_version: 56,
-        supported_versions: [48, 49, 50, 51, 52, 53, 54, 55, 56, 57],
+        expected_version: 58,
+        supported_versions: [48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58],
         reported_version: version,
       })
     }
