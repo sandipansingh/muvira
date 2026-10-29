@@ -305,6 +305,7 @@ h6,
   .product-card__name,
   .footer-heading,
   .mosaic-tile h3,
+  .unified-checkout *,
   .admin-theme *
 ) {
   font-weight: 400;
@@ -5221,7 +5222,7 @@ textarea:focus {
   font-family: var(--font-sans);
   font-size: 1.5rem;
   line-height: 1.4;
-  font-weight: 600;
+  font-weight: 700;
 }
 .unified-checkout {
   min-height: calc(100dvh - 72px);
@@ -5247,7 +5248,7 @@ textarea:focus {
 .unified-checkout .journey-section-title {
   font-family: var(--font-sans);
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.625rem;
   letter-spacing: normal;
 }
@@ -5260,8 +5261,23 @@ textarea:focus {
   border-radius: 0;
 }
 .unified-checkout h3.journey-section-title {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5rem;
+}
+.unified-checkout .checkout-total-breakdown dd {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.unified-checkout .checkout-total-final {
+  align-items: baseline;
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.75rem;
+}
+.unified-checkout .checkout-total-final dd {
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 .unified-checkout .checkout-shipping .checkout-section + .checkout-section {
   border-top: 1px solid var(--color-line);
@@ -5294,12 +5310,13 @@ textarea:focus {
 .unified-checkout .checkout-action-total {
   display: none;
 }
-.unified-checkout .checkout-action-bar > button {
+.unified-checkout .checkout-action-bar > button,
+.unified-checkout .checkout-review-button {
   width: 100%;
   height: auto;
   min-height: 48px;
   padding: 12px 16px;
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 .checkout-bag-item {
   display: grid;
@@ -5332,7 +5349,7 @@ textarea:focus {
   -webkit-box-orient: vertical;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 .checkout-bag-item__title:hover {
@@ -5341,7 +5358,7 @@ textarea:focus {
 .checkout-bag-item__price {
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   text-align: right;
   color: var(--color-primary);
   font-variant-numeric: tabular-nums;

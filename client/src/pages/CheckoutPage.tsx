@@ -105,7 +105,7 @@ function SignedOutCheckout() {
               <h2 className="journey-section-title">Promo code</h2>
               <p className="mt-3 text-sm text-muted">Sign in to apply a promo code.</p>
             </section>
-            <Button disabled className="w-full">
+            <Button disabled className="checkout-review-button w-full">
               Review payment
             </Button>
           </CheckoutTotals>

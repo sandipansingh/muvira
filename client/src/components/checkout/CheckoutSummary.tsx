@@ -133,9 +133,9 @@ export function CheckoutTotals({
         <h2 id="total-heading" className="journey-section-title">
           Order total
         </h2>
-        <dl className="mt-5 space-y-3 text-sm">
+        <dl className="checkout-total-breakdown mt-5 space-y-3 text-sm">
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Subtotal</dt>
+            <dt className="text-ink-soft">Subtotal</dt>
             <dd>{display(snapshot?.subtotalPaisa ?? quote?.subtotalPaisa)}</dd>
           </div>
           {!!discount && (
@@ -145,16 +145,16 @@ export function CheckoutTotals({
             </div>
           )}
           <div className="flex justify-between gap-3">
-            <dt className="text-muted">Delivery</dt>
+            <dt className="text-ink-soft">Delivery</dt>
             <dd>{shipping === 0 ? 'Free' : display(shipping)}</dd>
           </div>
           {!!tax && (
             <div className="flex justify-between gap-3">
-              <dt className="text-muted">Tax</dt>
+              <dt className="text-ink-soft">Tax</dt>
               <dd>{display(tax)}</dd>
             </div>
           )}
-          <div className="flex justify-between gap-3 border-t border-line pt-4 font-semibold">
+          <div className="checkout-total-final flex justify-between gap-3 border-t border-line pt-4">
             <dt>Total</dt>
             <dd className="text-primary">
               {display(session?.amountPaisa ?? quote?.totalAmountPaisa)}
