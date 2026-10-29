@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Check, MapPin } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useAuthDialog } from '../context/AuthDialogContext'
 import { useCart } from '../context/CartContext'
 import { addressService } from '../lib/services/address.service'
 import { checkoutService } from '../lib/services/checkout.service'
-import { orderApiService } from '../lib/services/order.service'
 import { useCheckoutSession } from '../lib/hooks/useCheckoutSession'
 import { validateCheckoutAddress } from '../lib/validators/checkout.validator'
 import { ShippingSection, type ShippingFormData } from '../components/checkout/ShippingSection'
@@ -38,7 +37,7 @@ function toAddressData(address: Address): AddressData {
   }
 }
 
-function AccountCard({ children }: { children?: ReactNode }) {
+function AccountCard() {
   const { user } = useAuth()
   const { openAuth } = useAuthDialog()
   return (
@@ -64,7 +63,6 @@ function AccountCard({ children }: { children?: ReactNode }) {
           ? user.email
           : 'View and edit your bag here. Sign in to arrange delivery and payment.'}
       </p>
-      {children}
     </section>
   )
 }
@@ -97,16 +95,16 @@ function SignedOutCheckout() {
               Secure payment options are available after sign in.
             </p>
           </section>
-          <section className="checkout-section checkout-promo">
-            <h2 className="journey-section-title">Promo code</h2>
-            <p className="mt-3 text-sm text-muted">Sign in to apply a promo code.</p>
-          </section>
         </>
       }
       right={
         <>
           <CheckoutBag quote={null} session={null} disabled={false} authenticated={false} />
           <CheckoutTotals quote={null} session={null} loading={false}>
+            <section className="checkout-section checkout-promo">
+              <h2 className="journey-section-title">Promo code</h2>
+              <p className="mt-3 text-sm text-muted">Sign in to apply a promo code.</p>
+            </section>
             <Button disabled className="w-full">
               Review payment
             </Button>
@@ -130,10 +128,6 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
   } = cart
   const payment = useCheckoutSession(accountId)
   const { session, previousSession } = payment
-  const [viewingPrevious, setViewingPrevious] = useState(false)
-  const [cancellingPrevious, setCancellingPrevious] = useState(false)
-  const cancellingPreviousRef = useRef(false)
-  const [previousError, setPreviousError] = useState<string | null>(null)
   const navigate = useNavigate()
   const mounted = useRef(true)
   const completed = useRef<string | null>(null)
@@ -265,14 +259,12 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
   useEffect(() => {
     if (session?.state === 'paid' && completed.current !== session.orderId) {
       completed.current = session.orderId
-      if (viewingPrevious) cart.retry()
-      else resetAfterOrder()
+      resetAfterOrder()
       navigate(`/orders/success?orderId=${encodeURIComponent(session.orderId)}`, { replace: true })
     }
-  }, [session, resetAfterOrder, navigate, viewingPrevious, cart])
+  }, [session, resetAfterOrder, navigate])
 
   const canReview =
-    !previousSession &&
     !payment.error &&
     !!quote &&
     quote.deliveryAvailable === true &&
@@ -375,97 +367,16 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
       if (mounted.current) setPreparingPayment(false)
     }
   }
-  const cancelPrevious = async () => {
-    if (!previousSession || cancellingPreviousRef.current) return
-    cancellingPreviousRef.current = true
-    setCancellingPrevious(true)
-    setPreviousError(null)
-    try {
-      await orderApiService.cancelCheckout(previousSession.orderId, accountId)
-      const confirmed = await checkoutService.reconcile(previousSession.orderId, accountId)
-      if (!mounted.current) return
-      if (!['released', 'paid'].includes(confirmed.state))
-        throw new Error(
-          'The earlier payment is still being confirmed. Check its status before starting a new payment.'
-        )
-      payment.clearReleased()
-      cart.retry()
-      setQuoteAttempt((value) => value + 1)
-    } catch (reason) {
-      if (mounted.current)
-        setPreviousError(
-          reason instanceof Error
-            ? reason.message
-            : 'Unable to cancel the earlier payment. Please retry.'
-        )
-    } finally {
-      cancellingPreviousRef.current = false
-      if (mounted.current) setCancellingPrevious(false)
-    }
-  }
-
   const restart = () => {
     if (session?.state !== 'released') return
     payment.clearReleased()
-    setViewingPrevious(false)
     setQuoteAttempt((value) => value + 1)
   }
   return (
     <CheckoutLayout
       left={
         <>
-          <AccountCard>
-            {previousSession && (
-              <div className="mt-4 border-t border-line pt-4 text-sm">
-                <p className="text-muted">
-                  An earlier payment is unfinished. This page shows your current bag. Cancel that
-                  payment before paying for this bag, or choose to resume it.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    variant="secondary"
-                    disabled={cancellingPrevious}
-                    onClick={() => {
-                      setViewingPrevious(true)
-                      payment.resumePrevious()
-                    }}
-                  >
-                    Resume earlier payment
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    isLoading={cancellingPrevious}
-                    onClick={() => void cancelPrevious()}
-                  >
-                    Cancel earlier payment
-                  </Button>
-                  <Link
-                    to={`/orders/${encodeURIComponent(previousSession.orderId)}`}
-                    className="inline-flex min-h-11 items-center px-2 text-primary"
-                  >
-                    View earlier order
-                  </Link>
-                </div>
-                {previousError && (
-                  <p className="mt-3 text-danger" role="alert">
-                    {previousError}
-                  </p>
-                )}
-              </div>
-            )}
-            {viewingPrevious && session && (
-              <Button
-                variant="secondary"
-                className="mt-3"
-                onClick={() => {
-                  payment.returnToBag()
-                  setViewingPrevious(false)
-                }}
-              >
-                Back to current bag
-              </Button>
-            )}
-          </AccountCard>
+          <AccountCard />
           <section
             className="checkout-section checkout-shipping"
             aria-labelledby="shipping-info-heading"
@@ -556,7 +467,6 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
           </section>
           <RazorpayPayment
             accountId={accountId}
-            isResuming={viewingPrevious}
             session={session}
             onSession={payment.setSession}
             onPrepare={prepare}
@@ -566,26 +476,6 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
             previewTotalPaisa={quote?.totalAmountPaisa}
             actionOutlet={footerOutlet}
           />
-          <section className="checkout-section checkout-promo" aria-labelledby="promo-heading">
-            <h2 id="promo-heading" className="journey-section-title mb-4">
-              Promo code
-            </h2>
-            {session ? (
-              <p className="text-sm text-muted">
-                {session.snapshot.couponCode
-                  ? `${session.snapshot.couponCode} applied`
-                  : 'No promo code on this order.'}
-              </p>
-            ) : (
-              <fieldset
-                className="min-w-0"
-                disabled={editsDisabled || hasUnmergedItems || !items.length}
-              >
-                <legend className="sr-only">Apply a promo code</legend>
-                <CouponInput disabled={editsDisabled || hasUnmergedItems || !items.length} />
-              </fieldset>
-            )}
-          </section>
         </>
       }
       right={
@@ -598,6 +488,26 @@ function AuthenticatedCheckout({ accountId }: { accountId: string }) {
             error={session ? null : quoteError}
             onRetry={() => setQuoteAttempt((value) => value + 1)}
           >
+            <section className="checkout-section checkout-promo" aria-labelledby="promo-heading">
+              <h2 id="promo-heading" className="journey-section-title mb-4">
+                Promo code
+              </h2>
+              {session ? (
+                <p className="text-sm text-muted">
+                  {session.snapshot.couponCode
+                    ? `${session.snapshot.couponCode} applied`
+                    : 'No promo code on this order.'}
+                </p>
+              ) : (
+                <fieldset
+                  className="min-w-0"
+                  disabled={editsDisabled || hasUnmergedItems || !items.length}
+                >
+                  <legend className="sr-only">Apply a promo code</legend>
+                  <CouponInput disabled={editsDisabled || hasUnmergedItems || !items.length} />
+                </fieldset>
+              )}
+            </section>
             {payment.loading && (
               <p role="status" className="text-sm text-muted">
                 Checking your current payment…

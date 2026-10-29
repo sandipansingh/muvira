@@ -5341,11 +5341,8 @@ textarea:focus {
   .unified-checkout .checkout-payment {
     order: 4;
   }
-  .unified-checkout .checkout-promo {
-    order: 5;
-  }
   .unified-checkout .checkout-totals {
-    order: 6;
+    order: 5;
   }
 }
 @media (max-width: 639px) {

@@ -60,8 +60,9 @@ test('checkout stacks account, bag and forms with scrolling actions on narrow sh
           '.checkout-bag',
           '.checkout-shipping',
           '.checkout-payment',
+          '.checkout-totals > section:first-child',
           '.checkout-promo',
-          '.checkout-totals',
+          '.checkout-payment-outlet',
         ].map(top)
       )
       assert.deepEqual(
