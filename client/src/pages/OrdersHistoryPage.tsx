@@ -8,7 +8,6 @@ import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderListItem } from '../lib/types/order'
 import { formatDate, formatPrice } from '../lib/utils/format'
-import { Breadcrumbs } from '../components/common/Breadcrumbs'
 import { Pagination } from '../components/common/Pagination'
 
 export const OrdersHistoryPage: React.FC = () => {
@@ -64,18 +63,7 @@ export const OrdersHistoryPage: React.FC = () => {
   return (
     <main className="account-page editorial-page py-10 sm:py-14">
       <div className="editorial-container max-w-6xl" ref={resultsContainerRef}>
-        <Breadcrumbs
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Account', href: '/profile' },
-            { label: 'Order History' },
-          ]}
-        />
-        <CustomerPageHeading
-          eyebrow="Your Muvira / Purchases"
-          title="Order History"
-          description="Follow each piece from your shopping bag to your door."
-        />
+        <CustomerPageHeading title="My orders" />
         <AccountNavigation />
         {loading && (
           <div className="space-y-4">

@@ -169,11 +169,6 @@ export const ShopPage: React.FC = () => {
   }
 
   const selectedCategoryObj = categories.find((c) => c.slug === categoryParam)
-  const currentTitle = searchQuery
-    ? `Results for “${searchQuery}”`
-    : categoryParam && categoryParam !== 'all'
-      ? selectedCategoryObj?.name || 'Category'
-      : 'All Products'
 
   const activeFiltersCount =
     (searchQuery ? 1 : 0) +
@@ -183,14 +178,9 @@ export const ShopPage: React.FC = () => {
 
   return (
     <main className="catalog-page min-h-screen pb-16 bg-background">
-      {/* Top Rounded Hero Banner */}
       <ShopHero
-        title={selectedCategoryObj?.name || 'The collection'}
-        subtitle={
-          selectedCategoryObj?.description ||
-          'God idols, puja essentials and meaningful pieces for your space.'
-        }
-        imageUrl={selectedCategoryObj?.imageUrl || undefined}
+        title={selectedCategoryObj?.name || 'Shop the collection'}
+        subtitle={selectedCategoryObj?.description || undefined}
         breadcrumbs={
           selectedCategoryObj
             ? [
@@ -198,7 +188,7 @@ export const ShopPage: React.FC = () => {
                 { label: 'Shop', href: '/shop' },
                 { label: selectedCategoryObj.name },
               ]
-            : [{ label: 'Home', href: '/' }, { label: 'Shop' }]
+            : undefined
         }
       />
 
@@ -231,8 +221,8 @@ export const ShopPage: React.FC = () => {
 
           {/* Right Content Area */}
           <div className="w-full min-w-0">
+            <h2 className="sr-only">Products</h2>
             <CatalogTopBar
-              title={currentTitle}
               totalCount={totalCount}
               sortBy={sortBy}
               onSortChange={(sort) => updateParams({ sort, page: undefined })}

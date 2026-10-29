@@ -1,48 +1,36 @@
-import { CollectionScene } from '../common/CollectionScene'
 import { MapPin, Package, User } from 'lucide-react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
-export function AccountNavigation({
-  addressCount,
-  sidebar = false,
-}: {
-  addressCount?: number
-  sidebar?: boolean
-}) {
+export function AccountNavigation({ addressCount }: { addressCount?: number }) {
+  const { pathname, hash } = useLocation()
+  const active = pathname.startsWith('/orders')
+    ? 'orders'
+    : hash === '#addresses'
+      ? 'addresses'
+      : 'personal'
+  const destinations = [
+    { id: 'personal', href: '/profile', label: 'Personal info', icon: User },
+    { id: 'orders', href: '/orders', label: 'My orders', icon: Package },
+    {
+      id: 'addresses',
+      href: '/profile#addresses',
+      label: `Saved addresses${addressCount !== undefined ? ` (${addressCount})` : ''}`,
+      icon: MapPin,
+    },
+  ]
   return (
-    <nav
-      className={`account-navigation ${sidebar ? 'account-navigation--sidebar' : ''}`}
-      aria-label="Your account"
-    >
-      <NavLink
-        to="/profile"
-        end
-        className={({ isActive }) =>
-          isActive ? 'account-navigation__link is-active' : 'account-navigation__link'
-        }
-      >
-        <User className="h-4 w-4 shrink-0" />
-        <span>Personal info</span>
-      </NavLink>
-      <NavLink
-        to="/orders"
-        className={({ isActive }) =>
-          isActive ? 'account-navigation__link is-active' : 'account-navigation__link'
-        }
-      >
-        <Package className="h-4 w-4 shrink-0" />
-        <span>My orders</span>
-      </NavLink>
-      <Link to="/profile#addresses" className="account-navigation__link">
-        <MapPin className="h-4 w-4 shrink-0" />
-        <span>Saved addresses{addressCount !== undefined ? ` (${addressCount})` : ''}</span>
-      </Link>
-      {sidebar && (
-        <Link to="/shop" className="account-browse">
-          <CollectionScene />
-          <span>Back to the collection</span>
+    <nav className="account-navigation" aria-label="Your account">
+      {destinations.map(({ id, href, label, icon: Icon }) => (
+        <Link
+          key={id}
+          to={href}
+          aria-current={active === id ? 'page' : undefined}
+          className={`account-navigation__link${active === id ? ' is-active' : ''}`}
+        >
+          <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span>{label}</span>
         </Link>
-      )}
+      ))}
     </nav>
   )
 }

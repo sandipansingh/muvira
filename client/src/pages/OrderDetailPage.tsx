@@ -8,7 +8,6 @@ import { useAuth } from '../context/AuthContext'
 import { orderApiService } from '../lib/services/order.service'
 import type { OrderDetail, OrderTrackingData } from '../lib/types/order'
 import { formatDate, formatPrice } from '../lib/utils/format'
-import { Breadcrumbs } from '../components/common/Breadcrumbs'
 import { Button } from '../components/ui/Button'
 
 export const OrderDetailPage: React.FC = () => {
@@ -71,7 +70,7 @@ export const OrderDetailPage: React.FC = () => {
     return (
       <main className="editorial-page px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-xl rounded-card border border-line bg-surface p-6 text-center shadow-premium">
-          <h1 className="heading page-title">Order unavailable</h1>
+          <CustomerPageHeading title="Order unavailable" />
           <p className="mt-2 text-sm text-muted">{error ?? 'We could not find this order.'}</p>
           <Link to="/orders" className="button-primary mt-6">
             Back to Orders
@@ -105,16 +104,13 @@ export const OrderDetailPage: React.FC = () => {
   return (
     <main className="account-page editorial-page py-10 sm:py-14">
       <div className="editorial-container max-w-6xl space-y-8">
-        <Breadcrumbs
-          items={[
+        <CustomerPageHeading
+          breadcrumbs={[
             { label: 'Home', href: '/' },
             { label: 'Account', href: '/profile' },
             { label: 'Orders', href: '/orders' },
             { label: `#${order.orderNumber}` },
           ]}
-        />
-        <CustomerPageHeading
-          eyebrow="Your Muvira / Order details"
           title={`#${order.orderNumber}`}
           description={`Placed on ${formatDate(order.createdAt)}`}
         >

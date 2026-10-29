@@ -5,7 +5,7 @@ import { Dropdown, type DropdownOption } from '../ui/Dropdown'
 export type GridViewMode = 'grid-4' | 'grid-3' | 'grid-2' | 'list'
 
 interface CatalogTopBarProps {
-  title: string
+  title?: string
   totalCount: number
   sortBy: string
   onSortChange: (sort: string) => void
@@ -42,12 +42,14 @@ export const CatalogTopBar: React.FC<CatalogTopBarProps> = ({
     >
       {/* Title & Count */}
       <div className="flex min-w-0 flex-1 items-baseline gap-3">
-        <h2
-          className="catalog-topbar__title min-w-0 font-display text-xl sm:text-2xl text-ink"
-          title={title}
-        >
-          {title}
-        </h2>
+        {title && (
+          <h2
+            className="catalog-topbar__title min-w-0 font-display text-xl sm:text-2xl text-ink"
+            title={title}
+          >
+            {title}
+          </h2>
+        )}
         {showCount && (
           <span className="shrink-0 text-sm text-muted font-normal">
             <strong className="text-ink">{totalCount}</strong> pieces

@@ -289,7 +289,7 @@ test('protected pages render for authenticated fixtures and redirect guest acces
   pageFor('/admin?fixtureRole=admin', async (page) => {
     await page.getByRole('heading', { level: 1, name: 'Hello, Aarohi!' }).waitFor()
     await page.goto(fixture.origin + '/profile')
-    await page.getByRole('heading', { level: 1, name: 'My Profile' }).waitFor()
+    await page.getByRole('heading', { level: 1, name: 'Your account' }).waitFor()
     await page.goto(fixture.origin + '/admin?fixtureRole=guest')
     await page.getByRole('dialog', { name: 'Welcome back.' }).waitFor()
     assert.equal(new URL(page.url()).pathname, '/')

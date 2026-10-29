@@ -1,8 +1,9 @@
 import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { AccountNavigation } from '../components/auth/AccountNavigation'
-import React, { useEffect, useState } from 'react'
+import { AccountOptions } from '../components/auth/AccountOptions'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Bell, LogOut, Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import type { Address } from '../lib/types/cart'
 import { addressService } from '../lib/services/address.service'
 import { notificationService } from '../lib/services/notification.service'
@@ -10,7 +11,7 @@ import { INDIAN_STATES } from '../lib/constants/states.constants'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { Select } from '../components/ui/Select'
-import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { Button } from '../components/ui/Button'
 
 interface AddressFormValues {
   fullName: string
@@ -48,7 +49,7 @@ function addressValues(address: Address): AddressFormValues {
 }
 
 export const ProfilePage: React.FC = () => {
-  const { user, loading: authLoading, isAdmin, logout, updateProfile } = useAuth()
+  const { user, loading: authLoading, updateProfile } = useAuth()
   const { showToast } = useToast()
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
@@ -57,11 +58,16 @@ export const ProfilePage: React.FC = () => {
   const [addressForm, setAddressForm] = useState<AddressFormValues>(emptyAddress)
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null)
   const [addressFormOpen, setAddressFormOpen] = useState(false)
+  const [savingAddress, setSavingAddress] = useState(false)
+  const [pendingAddressId, setPendingAddressId] = useState<string | null>(null)
+  const addressPending = useRef(false)
   const [loadingAddresses, setLoadingAddresses] = useState(true)
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(true)
   const [loadingPreferences, setLoadingPreferences] = useState(true)
   const [savingPreferences, setSavingPreferences] = useState(false)
   const [preferencesError, setPreferencesError] = useState<string | null>(null)
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false)
+  const [preferencesRetry, setPreferencesRetry] = useState(0)
 
   useEffect(() => {
     if (user) {
@@ -100,7 +106,10 @@ export const ProfilePage: React.FC = () => {
       try {
         const response = await notificationService.getPreferences()
         if (!response.success) throw new Error(response.error.message)
-        if (active) setEmailNotificationsEnabled(response.data.emailEnabled)
+        if (active) {
+          setEmailNotificationsEnabled(response.data.emailEnabled)
+          setPreferencesLoaded(true)
+        }
       } catch (reason) {
         if (active) {
           setPreferencesError(
@@ -115,13 +124,16 @@ export const ProfilePage: React.FC = () => {
     return () => {
       active = false
     }
-  }, [user])
+  }, [user, preferencesRetry])
 
   const handleProfileUpdate = async (event: React.FormEvent) => {
     event.preventDefault()
     setSavingProfile(true)
-    await updateProfile(fullName, phone)
-    setSavingProfile(false)
+    try {
+      await updateProfile(fullName, phone)
+    } finally {
+      setSavingProfile(false)
+    }
   }
 
   const openNewAddressForm = () => {
@@ -138,6 +150,9 @@ export const ProfilePage: React.FC = () => {
 
   const handleAddressSave = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (addressPending.current) return
+    addressPending.current = true
+    setSavingAddress(true)
     const data = {
       ...addressForm,
       line2: addressForm.line2 || null,
@@ -152,6 +167,9 @@ export const ProfilePage: React.FC = () => {
     } catch (reason) {
       showToast(reason instanceof Error ? reason.message : 'Unable to save address.', 'error')
       return
+    } finally {
+      addressPending.current = false
+      setSavingAddress(false)
     }
 
     if (!response.success) {
@@ -168,12 +186,18 @@ export const ProfilePage: React.FC = () => {
   }
 
   const deleteAddress = async (id: string) => {
+    if (addressPending.current) return
+    addressPending.current = true
+    setPendingAddressId(id)
     let response
     try {
       response = await addressService.deleteAddress(id)
     } catch (reason) {
       showToast(reason instanceof Error ? reason.message : 'Unable to delete address.', 'error')
       return
+    } finally {
+      addressPending.current = false
+      setPendingAddressId(null)
     }
     if (!response.success) {
       showToast(response.error.message, 'error')
@@ -184,6 +208,9 @@ export const ProfilePage: React.FC = () => {
   }
 
   const setDefaultAddress = async (id: string) => {
+    if (addressPending.current) return
+    addressPending.current = true
+    setPendingAddressId(id)
     let response
     try {
       response = await addressService.setDefaultAddress(id)
@@ -193,6 +220,9 @@ export const ProfilePage: React.FC = () => {
         'error'
       )
       return
+    } finally {
+      addressPending.current = false
+      setPendingAddressId(null)
     }
     if (!response.success) {
       showToast(response.error.message, 'error')
@@ -226,36 +256,31 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <main className="account-page editorial-page py-10 sm:py-14">
-      <div className="editorial-container max-w-6xl space-y-8">
-        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Profile' }]} />
+      <div className="editorial-container max-w-6xl">
         <CustomerPageHeading
-          eyebrow="Your Muvira"
-          title="My Profile"
-          description="Your details, addresses and preferences, together."
-        >
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {isAdmin && (
-              <Link to="/admin" className="button-primary px-4 py-2 text-xs">
-                Admin console
+          title="Your account"
+          actions={
+            <>
+              <Link to="/shop" className="account-shopping-link">
+                Continue shopping
               </Link>
-            )}
-            <button type="button" onClick={logout} className="button-secondary px-4 py-2 text-xs">
-              <LogOut className="h-4 w-4 shrink-0" />
-              <span className="leading-none">Sign out</span>
-            </button>
-          </div>
-        </CustomerPageHeading>
+              <AccountOptions />
+            </>
+          }
+        />
+        <AccountNavigation addressCount={addresses.length} />
 
-        <div className="account-workspace grid grid-cols-1 gap-6 md:grid-cols-3">
-          <AccountNavigation addressCount={addresses.length} sidebar />
-
-          <div className="space-y-6 md:col-span-2">
-            <div className="panel space-y-5 p-5 sm:p-6">
-              <h2 className="font-display text-lg font-bold text-[var(--color-ink)]">
-                Personal Details
+        <div className="account-workspace">
+          <div>
+            <section className="account-section space-y-5" aria-labelledby="personal-details-title">
+              <h2 id="personal-details-title" className="font-sans text-lg font-semibold text-ink">
+                Personal details
               </h2>
-              <form onSubmit={handleProfileUpdate} className="space-y-4">
-                <div>
+              <form
+                onSubmit={handleProfileUpdate}
+                className="grid grid-cols-1 gap-5 sm:grid-cols-2"
+              >
+                <div className="sm:col-span-2">
                   <label
                     htmlFor="profile-email"
                     className="mb-1.5 block text-xs font-normal text-ink"
@@ -276,7 +301,7 @@ export const ProfilePage: React.FC = () => {
                     htmlFor="profile-full-name"
                     className="mb-1.5 block text-xs font-normal text-ink"
                   >
-                    Full Name
+                    Full name
                   </label>
                   <input
                     id="profile-full-name"
@@ -294,7 +319,7 @@ export const ProfilePage: React.FC = () => {
                     htmlFor="profile-phone"
                     className="mb-1.5 block text-xs font-normal text-ink"
                   >
-                    Phone Number
+                    Phone number
                   </label>
                   <input
                     id="profile-phone"
@@ -308,27 +333,32 @@ export const ProfilePage: React.FC = () => {
                     className="input"
                   />
                 </div>
-                <button
+                <Button
                   type="submit"
-                  disabled={savingProfile}
-                  className="button-primary text-xs py-2.5 disabled:opacity-50"
+                  isLoading={savingProfile}
+                  className="justify-self-start sm:col-span-2"
                 >
-                  {savingProfile ? 'Saving...' : 'Save Changes'}
-                </button>
+                  Save changes
+                </Button>
               </form>
-            </div>
+            </section>
 
-            <section className="panel space-y-4 p-5 sm:p-6">
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-muted" />
-                <h2 className="font-display text-lg font-bold text-ink">
-                  Notification preferences
-                </h2>
-              </div>
+            <section
+              className="account-section space-y-4"
+              aria-labelledby="notification-preferences-title"
+            >
+              <h2
+                id="notification-preferences-title"
+                className="font-sans text-lg font-semibold text-ink"
+              >
+                Notification preferences
+              </h2>
               {loadingPreferences ? (
-                <div className="h-16 animate-pulse rounded-xl bg-surface" aria-busy="true" />
+                <p role="status" className="py-4 text-sm text-muted">
+                  Loading notification preferences…
+                </p>
               ) : (
-                <label className="flex items-center justify-between gap-4 rounded-xl border border-line p-4">
+                <label className="flex min-h-[var(--tap-target)] items-center justify-between gap-4 py-2">
                   <span>
                     <span className="block text-sm font-bold text-ink">Order update emails</span>
                     <span className="mt-1 block text-sm text-ink-soft">
@@ -338,7 +368,8 @@ export const ProfilePage: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={emailNotificationsEnabled}
-                    disabled={savingPreferences || Boolean(preferencesError)}
+                    disabled={savingPreferences || !preferencesLoaded}
+                    aria-busy={savingPreferences}
                     onChange={(event) => void updateEmailPreference(event.target.checked)}
                     className="h-5 w-5 shrink-0 accent-primary"
                     aria-label="Receive order update emails"
@@ -346,122 +377,146 @@ export const ProfilePage: React.FC = () => {
                 </label>
               )}
               {preferencesError && (
-                <p className="rounded-lg border border-danger/30 bg-danger-soft p-3 text-sm text-danger">
+                <p role="alert" className="text-sm text-danger">
                   {preferencesError}
+                  {!preferencesLoaded && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="ml-3"
+                      onClick={() => setPreferencesRetry((value) => value + 1)}
+                    >
+                      Try again
+                    </Button>
+                  )}
                 </p>
               )}
             </section>
 
-            <section id="addresses" className="panel space-y-4 p-5 sm:p-6">
+            <section
+              id="addresses"
+              className="account-section space-y-4"
+              aria-labelledby="saved-addresses-title"
+            >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="font-display text-xl font-bold text-[var(--color-ink)]">
-                  Saved Addresses
+                <h2 id="saved-addresses-title" className="font-sans text-lg font-semibold text-ink">
+                  Saved addresses
                 </h2>
-                <button
+                <Button
                   type="button"
                   onClick={openNewAddressForm}
-                  className="button-primary text-xs py-2 px-4"
+                  variant="secondary"
+                  disabled={savingAddress || Boolean(pendingAddressId)}
                 >
-                  Add Address
-                </button>
+                  Add address
+                </Button>
               </div>
 
               {addressFormOpen && (
-                <form onSubmit={handleAddressSave} className="soft-panel mt-4 space-y-3 p-5">
-                  <h3 className="font-sans text-xs font-bold uppercase tracking-wider text-ink">
-                    {editingAddressId ? 'Edit Address' : 'Add Address'}
+                <form onSubmit={handleAddressSave} className="border-y border-line py-6 space-y-4">
+                  <h3 className="font-sans text-base font-semibold text-ink">
+                    {editingAddressId ? 'Edit address' : 'Add address'}
                   </h3>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {(
-                      [
-                        ['fullName', 'Full name'],
-                        ['phone', 'Phone number'],
-                        ['line1', 'Address line 1'],
-                        ['line2', 'Address line 2 (optional)'],
-                        ['city', 'City'],
-                        ['pincode', 'Pincode'],
-                      ] as const
-                    ).map(([field, label]) => (
-                      <label
-                        key={field}
-                        htmlFor={`address-${field}`}
-                        className="flex flex-col gap-1 text-sm text-ink"
-                      >
-                        <span>{label}</span>
-                        <input
-                          id={`address-${field}`}
-                          name={field}
-                          type={field === 'phone' ? 'tel' : 'text'}
-                          inputMode={
-                            field === 'pincode' ? 'numeric' : field === 'phone' ? 'tel' : undefined
-                          }
-                          autoComplete={
-                            field === 'fullName'
-                              ? 'name'
-                              : field === 'phone'
-                                ? 'tel-national'
-                                : field === 'line1'
-                                  ? 'address-line1'
-                                  : field === 'line2'
-                                    ? 'address-line2'
-                                    : field === 'city'
-                                      ? 'address-level2'
-                                      : 'postal-code'
-                          }
-                          required={!['line2'].includes(field)}
-                          placeholder={label}
-                          value={addressForm[field]}
+                  <fieldset disabled={savingAddress} className="space-y-4">
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                      {(
+                        [
+                          ['fullName', 'Full name'],
+                          ['phone', 'Phone number'],
+                          ['line1', 'Address line 1'],
+                          ['line2', 'Address line 2 (optional)'],
+                          ['city', 'City'],
+                          ['pincode', 'Pincode'],
+                        ] as const
+                      ).map(([field, label]) => (
+                        <label
+                          key={field}
+                          htmlFor={`address-${field}`}
+                          className="flex flex-col gap-1 text-sm text-ink"
+                        >
+                          <span>{label}</span>
+                          <input
+                            id={`address-${field}`}
+                            name={field}
+                            type={field === 'phone' ? 'tel' : 'text'}
+                            inputMode={
+                              field === 'pincode'
+                                ? 'numeric'
+                                : field === 'phone'
+                                  ? 'tel'
+                                  : undefined
+                            }
+                            autoComplete={
+                              field === 'fullName'
+                                ? 'name'
+                                : field === 'phone'
+                                  ? 'tel-national'
+                                  : field === 'line1'
+                                    ? 'address-line1'
+                                    : field === 'line2'
+                                      ? 'address-line2'
+                                      : field === 'city'
+                                        ? 'address-level2'
+                                        : 'postal-code'
+                            }
+                            required={!['line2'].includes(field)}
+                            placeholder={label}
+                            value={addressForm[field]}
+                            onChange={(event) =>
+                              setAddressForm((previous) => ({
+                                ...previous,
+                                [field]: event.target.value,
+                              }))
+                            }
+                            className="input"
+                          />
+                        </label>
+                      ))}
+                      <div className="flex flex-col gap-1">
+                        <label htmlFor="address-state" className="text-sm text-ink">
+                          State
+                        </label>
+                        <Select
+                          id="address-state"
+                          name="state"
+                          value={addressForm.state}
                           onChange={(event) =>
                             setAddressForm((previous) => ({
                               ...previous,
-                              [field]: event.target.value,
+                              state: event.target.value,
                             }))
                           }
-                          className="input"
+                          options={INDIAN_STATES}
                         />
-                      </label>
-                    ))}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="address-state" className="text-sm text-ink">
-                        State
-                      </label>
-                      <Select
-                        id="address-state"
-                        name="state"
-                        value={addressForm.state}
-                        onChange={(event) =>
-                          setAddressForm((previous) => ({ ...previous, state: event.target.value }))
-                        }
-                        options={INDIAN_STATES}
-                      />
+                      </div>
                     </div>
-                  </div>
-                  <label className="flex min-h-[var(--tap-target)] items-center gap-2 text-base font-normal text-ink-soft">
-                    <input
-                      type="checkbox"
-                      checked={addressForm.isDefault}
-                      onChange={(event) =>
-                        setAddressForm((previous) => ({
-                          ...previous,
-                          isDefault: event.target.checked,
-                        }))
-                      }
-                      className="rounded accent-ink"
-                    />
-                    Use as default address
-                  </label>
-                  <div className="flex gap-2 pt-2">
-                    <button type="submit" className="button-primary text-xs py-2.5">
-                      Save address
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAddressFormOpen(false)}
-                      className="button-secondary text-xs py-2.5"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+                    <label className="flex min-h-[var(--tap-target)] items-center gap-2 text-base font-normal text-ink-soft">
+                      <input
+                        type="checkbox"
+                        checked={addressForm.isDefault}
+                        onChange={(event) =>
+                          setAddressForm((previous) => ({
+                            ...previous,
+                            isDefault: event.target.checked,
+                          }))
+                        }
+                        className="rounded accent-ink"
+                      />
+                      Use as default address
+                    </label>
+                    <div className="flex gap-2 pt-2">
+                      <Button type="submit" isLoading={savingAddress}>
+                        Save address
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => setAddressFormOpen(false)}
+                        variant="secondary"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </fieldset>
                 </form>
               )}
 
@@ -477,7 +532,7 @@ export const ProfilePage: React.FC = () => {
                 addresses.map((address) => (
                   <div
                     key={address.id}
-                    className="flex flex-col gap-4 rounded-[var(--radius-control)] border border-[var(--color-line)] bg-[var(--color-paper)] p-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"
+                    className="account-address flex flex-col gap-4 border-t border-line py-5 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between"
                   >
                     <div className="min-w-0 space-y-1 text-base text-muted">
                       <div className="flex flex-wrap items-center gap-2">
@@ -495,27 +550,36 @@ export const ProfilePage: React.FC = () => {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       {!address.isDefault && (
-                        <button
+                        <Button
                           onClick={() => setDefaultAddress(address.id)}
-                          className="text-xs font-normal text-muted hover:text-primary hover:underline transition-colors cursor-pointer"
+                          variant="ghost"
+                          size="sm"
+                          disabled={savingAddress || Boolean(pendingAddressId)}
+                          isLoading={pendingAddressId === address.id}
                         >
                           Set default
-                        </button>
+                        </Button>
                       )}
-                      <button
+                      <Button
+                        variant="secondary"
+                        size="icon"
                         onClick={() => openEditAddressForm(address)}
                         aria-label="Edit address"
-                        className="rounded-[var(--radius-control)] border border-line p-2 text-muted hover:bg-surface hover:text-ink cursor-pointer transition-colors"
+                        disabled={savingAddress || Boolean(pendingAddressId)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
                         onClick={() => deleteAddress(address.id)}
                         aria-label="Delete address"
-                        className="rounded-[var(--radius-control)] border border-line p-2 text-muted hover:bg-danger-soft hover:text-danger cursor-pointer transition-colors"
+                        disabled={savingAddress || Boolean(pendingAddressId)}
+                        isLoading={pendingAddressId === address.id}
+                        className="hover:bg-danger-soft hover:text-danger"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}

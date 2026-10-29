@@ -52,6 +52,10 @@ Header collection hover is an opt-in Dropdown behavior; all other selectors reta
 
 ## Customer navigation icons
 
+`CustomerPageHeading` owns generic customer introductions, optional breadcrumbs and actions. Titles use regular DM Serif Display at 40px desktop / 32px mobile; generic eyebrows and decorative rules are absent. Shop, Profile, Collections, Search and order history omit top-level breadcrumbs. Collection, product and individual order breadcrumbs retain their parent destinations and wrap complete labels. Specialised commerce/auth headings and the homepage hero keep their own hierarchy.
+
+`CollectionShortcuts` owns the 56px photographic rail, its only scrollbar-hiding exception, overflow-aware labelled controls, reduced-motion-aware scrolling and keyboard/active reveal. `AccountNavigation` owns wrapping route/hash links and a single accurate active state. Profile uses open divided sections and shared busy Buttons; `AccountOptions` extends the existing Dropdown for Sign out and the role-dependent Admin console link. The existing footer remains unchanged.
+
 Use text-only destination links and labeled actions across customer pages. Order cards include visible View order text. Retain arrows/chevrons for gallery and carousel controls, lightbox pan controls, pagination, breadcrumb separators, dropdowns/disclosures and dedicated back actions. Keep existing admin controls. Remove obsolete icon spacing/selectors while preserving link styling, visible hover/focus, mobile search labels and 44px targets.
 
 ## Independent administration system

@@ -2,6 +2,7 @@ import { createRequire } from 'node:module'
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL, fileURLToPath } from 'node:url'
+import { accountBrowserMocks } from './account-browser-mocks.mjs'
 
 const root = fileURLToPath(new URL('../../', import.meta.url))
 const snapshot = JSON.parse(
@@ -60,6 +61,7 @@ export async function startEditorialServer({
   publicCatalog = false,
   realAuth = false,
   customCheckout = false,
+  accountActions = false,
 } = {}) {
   const fixtureEntry = entry.replace(
     "query.get('fixtureRole')||'customer'",
@@ -103,12 +105,14 @@ export async function startEditorialServer({
           if (source === 'react-dom/client') return
           if (source === '/editorial-fixture.js') return '\0editorial-fixture'
           const key = source.replace(/.*\//, '').replace(/\.(tsx?|jsx?)$/, '')
+          if (accountActions && accountBrowserMocks[key]) return '\0account-browser-mock:' + key
           if (customCheckout && ['checkout.service', 'client'].includes(key)) return
           if (realAuth && key === 'AuthContext') return
           if (realAuth && authBrowserMocks[key]) return '\0auth-browser-mock:' + key
           if (mocks[key]) return '\0editorial-mock:' + key
         },
         load(id) {
+          if (id.startsWith('\0account-browser-mock:')) return accountBrowserMocks[id.slice(22)]
           if (id.startsWith('\0auth-browser-mock:')) return authBrowserMocks[id.slice(19)]
           if (id === '\0editorial-fixture')
             return realAuth

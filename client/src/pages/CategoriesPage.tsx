@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { useStoreCollections } from '../context/StoreCollectionsContext'
 import { collectionCaption, collectionHref } from '../lib/utils/collectionPresentation'
 import { CollectionImage } from '../components/catalog/CollectionImage'
-import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 
 export const CategoriesPage: React.FC = () => {
   const { categories, loading, error } = useStoreCollections()
@@ -13,24 +13,7 @@ export const CategoriesPage: React.FC = () => {
   return (
     <main className="collection-directory editorial-page pb-16">
       <div className="layout-container">
-        <Breadcrumbs
-          items={[{ label: 'Home', href: '/' }, { label: 'Collections' }]}
-          className="py-6"
-        />
-        <div className="directory-intro">
-          <div>
-            <span className="eyebrow">The Muvira collection directory</span>
-            <h1>
-              Something meaningful.
-              <br />
-              Somewhere to begin.
-            </h1>
-          </div>
-          <p>
-            From your daily ritual to a thoughtful gift, explore the details that make a space feel
-            like yours.
-          </p>
-        </div>
+        <CustomerPageHeading title="Collections" />
         {loading && (
           <p role="status" className="py-16">
             Loading collections…

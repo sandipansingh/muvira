@@ -14,6 +14,7 @@ import { ProductAccordion } from '../components/product/ProductAccordion'
 import { ProductCard } from '../components/catalog/ProductCard'
 import { SectionHeader } from '../components/common/SectionHeader'
 import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { mergeReviewPage } from '../lib/utils/reviewState'
 import { useStickyPanel } from '../lib/hooks/useStickyPanel'
 
@@ -152,7 +153,7 @@ export const ProductDetailPage: React.FC = () => {
     return (
       <main className="editorial-page py-12 sm:py-16">
         <div className="editorial-container max-w-xl text-center">
-          <h1 className="heading page-title">Product not found</h1>
+          <CustomerPageHeading title="Product not found" />
           <p className="body-copy mt-2 text-sm">
             {error ?? 'This product is no longer available.'}
           </p>

@@ -5,7 +5,7 @@ import { categoryService } from '../lib/services/category.service'
 import { productService } from '../lib/services/product.service'
 import type { Category } from '../lib/types/category'
 import type { ProductListItem } from '../lib/types/product'
-import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { CatalogSidebar } from '../components/catalog/CatalogSidebar'
 import { CatalogTopBar, type GridViewMode } from '../components/catalog/CatalogTopBar'
 import { ProductGrid } from '../components/catalog/ProductGrid'
@@ -202,9 +202,7 @@ export const SearchPage: React.FC = () => {
   return (
     <main className="catalog-page min-h-screen pb-16 bg-background">
       <div className="layout-container search-heading">
-        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Search' }]} className="mb-6" />
-        <span className="eyebrow mb-3 block">The Muvira collection</span>
-        <h1 className="page-title mb-5">Find your piece</h1>
+        <CustomerPageHeading title="Find your piece" />
         <label htmlFor="catalog-query" className="text-sm text-ink-soft">
           Search the collection
         </label>

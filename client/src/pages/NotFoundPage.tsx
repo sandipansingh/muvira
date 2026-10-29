@@ -1,21 +1,18 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Compass, Home, ShoppingBag } from 'lucide-react'
-import { Breadcrumbs } from '../components/common/Breadcrumbs'
+import { CustomerPageHeading } from '../components/common/CustomerPageHeading'
 import { CollectionScene } from '../components/common/CollectionScene'
 
 export const NotFoundPage: React.FC = () => {
   return (
     <main className="empty-journey layout-container py-12 sm:py-16">
       <div className="empty-journey__copy flex flex-col items-start">
-        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: '404 Not Found' }]} />
-
         <div className="h-16 w-16 rounded-full bg-surface border border-line flex items-center justify-center text-muted mb-6 shadow-none">
           <Compass className="h-8 w-8 text-muted stroke-[1.5]" />
         </div>
 
-        <span className="text-xs font-bold uppercase tracking-widest text-muted">Error 404</span>
-        <h1 className="mt-2 font-display text-4xl sm:text-5xl text-ink">A little off the path.</h1>
+        <CustomerPageHeading title="A little off the path." />
         <p className="mt-3 text-base text-muted font-normal leading-relaxed">
           The page you are looking for might have been moved, removed, or is temporarily
           unavailable.

@@ -26,7 +26,7 @@ Components rendered from a collection should be declared at module scope and key
 
 ## Shared interaction patterns
 
-- Use `Breadcrumbs` on multi-level storefront, customer-account, and admin pages.
+- Use `Breadcrumbs` on collection, product, individual order and multi-level admin pages. Top-level customer pages omit redundant breadcrumbs; generic introductions use `CustomerPageHeading`.
 - Use the animated `Dropdown` for sort, filter, and category selectors.
 - Use the pill-style `Pagination` for paginated listings and preserve its scroll-to-results workaround.
 - Use the shared modal, button, input, textarea, badge, and rating components before creating a new primitive.

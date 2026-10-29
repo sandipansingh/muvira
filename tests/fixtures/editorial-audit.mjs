@@ -114,6 +114,7 @@ try {
             new Promise((done) => setTimeout(done, 3000)),
           ])
         })
+        await page.locator('h1').first().waitFor({ timeout: 15000 })
         const findings = await page.evaluate(() => {
           const visible = (el) => {
             const r = el.getBoundingClientRect(),
