@@ -67,61 +67,228 @@ async function visit(engine, path, run, width = 1280, account = false) {
   }
 }
 for (const engine of ['chromium', 'webkit']) {
-  test(`${engine}: overview previews load independently, retry failures and show genuine data`, () =>
+  test(`${engine}: server-backed order filters paginate, restore history and ignore late responses`, () =>
     visit(
       engine,
-      '/profile?holdAddresses',
+      '/profile?source=account',
       async (page) => {
-        const order = page.getByRole('region', { name: 'Recent order', exact: true })
-        const address = page.getByRole('region', { name: 'Default address', exact: true })
-        await expect(order.getByText('#MUV-2026-1042', { exact: true })).toBeVisible()
-        await expect(order.getByText('1 item', { exact: true })).toBeVisible()
-        await expect(order.getByText('confirmed', { exact: true })).toBeVisible()
-        await expect(order.getByText('₹499', { exact: true })).toBeVisible()
-        await expect(order.getByText(/Placed on 26 Oct 2026/)).toBeVisible()
-        await expect(order.locator('img')).toBeVisible()
-        await page.route('**/unavailable-order.png', (route) => route.abort())
-        await order.locator('img').evaluate((el) => (el.src = '/unavailable-order.png'))
-        await expect(order.getByRole('img', { name: /image unavailable/ })).toBeVisible()
-        await expect(order.getByRole('link', { name: 'View order', exact: true })).toHaveAttribute(
-          'href',
-          '/orders/fixture-order'
+        const orders = page.getByRole('region', { name: 'My orders', exact: true })
+        await expect(orders.locator('article')).toHaveCount(1)
+        await page.evaluate(() => {
+          const order = window.fixture.order
+          window.accountFixture.orders = [
+            ...Array.from({ length: 23 }, (_, i) => ({
+              ...order,
+              id: `order-${i}`,
+              orderNumber: `CURRENT-${i}`,
+              paymentStatus: i < 2 ? 'failed' : 'paid',
+            })),
+            { ...order, id: 'delivered', orderNumber: 'DELIVERED', status: 'delivered' },
+            {
+              ...order,
+              id: 'cancelled',
+              orderNumber: 'CANCELLED',
+              status: 'cancelled',
+              paymentStatus: 'failed',
+            },
+          ]
+        })
+        await orders.getByRole('button', { name: 'All orders', exact: true }).click()
+        await expect(orders.locator('article')).toHaveCount(20)
+        await expect(orders.getByRole('status')).toHaveText('25 orders')
+        await orders.getByRole('link', { name: 'Go to page 2', exact: true }).click()
+        await expect(page).toHaveURL(/source=account&view=all&page=2/)
+        await expect(orders.locator('article')).toHaveCount(5)
+        await expect(
+          orders.getByRole('article', { name: 'Order DELIVERED', exact: true })
+        ).toBeVisible()
+        const top = await orders.boundingBox()
+        assert.ok(top.y >= 0 && top.y < 250, 'Pagination scrolls to order results')
+        await orders.getByRole('button', { name: 'Unpaid', exact: true }).click()
+        await expect(page).toHaveURL(/view=unpaid&page=1/)
+        await expect(orders.locator('article')).toHaveCount(2)
+        await expect(orders.getByRole('navigation', { name: 'Pagination Navigation' })).toHaveCount(
+          0
         )
-        await expect(address.getByRole('status')).toContainText('Loading')
-        await page.evaluate(() => {
-          window.accountFixture.failure.addressLoad = 'Addresses unavailable'
-          window.accountFixture.release('addressLoad')
-        })
-        await expect(address.getByRole('alert')).toHaveText('Addresses unavailable')
-        await expect(address.getByText('No default address yet.', { exact: true })).toHaveCount(0)
-        await page.evaluate(() => (window.accountFixture.failure.addressLoad = null))
-        await address.getByRole('button', { name: 'Try again', exact: true }).click()
-        await expect(address.getByText('24 Sample Lane', { exact: true })).toBeVisible()
-        await page.evaluate(() => (window.accountFixture.delay.orderLoad = true))
-        await page.getByRole('link', { name: 'Personal info', exact: true }).click()
-        await page
-          .getByRole('navigation', { name: 'Your account', exact: true })
-          .getByRole('link', { name: 'Overview', exact: true })
-          .click()
-        await expect(order.getByRole('status')).toContainText('Loading')
-        await expect(address.getByText('24 Sample Lane', { exact: true })).toBeVisible()
-        await page.evaluate(() => {
-          window.accountFixture.failure.orderLoad = 'Orders unavailable'
-          window.accountFixture.release('orderLoad')
-        })
-        await expect(order.getByRole('alert')).toHaveText('Orders unavailable')
-        await page.evaluate(() => {
-          window.accountFixture.failure.orderLoad = null
-          window.accountFixture.ordersEmpty = true
-        })
-        await order.getByRole('button', { name: 'Try again', exact: true }).click()
-        await expect(order.getByText('No orders yet.', { exact: true })).toBeVisible()
+        await page.goBack()
+        await expect(page).toHaveURL(/view=all&page=2/)
+        await expect(orders.locator('article')).toHaveCount(5)
+        await page.goForward()
+        await expect(orders.locator('article')).toHaveCount(2)
+        await page.evaluate(() => (window.accountFixture.delay['orderLoad:all'] = true))
+        await orders.getByRole('button', { name: 'All orders', exact: true }).click()
+        await expect(orders.getByText('Loading your orders…', { exact: true })).toBeVisible()
+        await orders.getByRole('button', { name: 'Unpaid', exact: true }).click()
+        await expect(orders.locator('article')).toHaveCount(2)
+        await page.evaluate(() => window.accountFixture.release('orderLoad:all'))
+        await expect(orders.locator('article')).toHaveCount(2)
+        await expect(orders.getByRole('status')).toHaveText('2 orders')
+        assert.equal(
+          await page.evaluate(
+            () => window.accountFixture.calls.filter((c) => c.name === 'orderDetail').length
+          ),
+          0
+        )
+        await page.goto(accountServer.origin + '/orders?view=current&page=999')
+        await expect(page).toHaveURL(/view=current&page=1/)
+        await expect(orders.locator('article')).toHaveCount(1)
       },
       1280,
       true
     ))
 
-  test(`${engine}: hash history keeps drafts and confirmed default saves update the overview`, () =>
+  test(`${engine}: complete product cards reuse guarded invoice download and recovery`, () =>
+    visit(
+      engine,
+      '/profile',
+      async (page) => {
+        const orders = page.getByRole('region', { name: 'My orders', exact: true })
+        await expect(orders.locator('article')).toHaveCount(1)
+        await page.evaluate(() => {
+          const order = window.fixture.order
+          const item = order.items[0]
+          const items = Array.from({ length: 4 }, (_, i) => ({
+            ...item,
+            id: `item-${i}`,
+            productName: `Purchased product ${i + 1}`,
+            quantity: i + 1,
+          }))
+          window.accountFixture.orders = [
+            {
+              ...order,
+              id: 'invoice',
+              orderNumber: 'INVOICE',
+              shiprocketOrderId: '123',
+              items,
+              itemCount: 10,
+            },
+            { ...order, id: 'awaiting', orderNumber: 'AWAITING' },
+            {
+              ...order,
+              id: 'unpaid',
+              orderNumber: 'UNPAID',
+              paymentStatus: 'pending',
+              shiprocketOrderId: '456',
+            },
+          ]
+        })
+        await orders.getByRole('button', { name: 'All orders', exact: true }).click()
+        const card = orders.getByRole('article', { name: 'Order INVOICE', exact: true })
+        await expect(card.locator('.order-history-products > li')).toHaveCount(4)
+        await expect(card.getByText('Qty 4 · ₹499 each', { exact: true })).toBeVisible()
+        await expect(
+          card.getByRole('img', { name: 'Purchased product 4', exact: true })
+        ).toBeVisible()
+        await expect(
+          orders.getByRole('button', { name: 'Download invoice', exact: true })
+        ).toHaveCount(1)
+        await expect(
+          orders.getByText('Invoice available after fulfillment begins.', { exact: true })
+        ).toHaveCount(1)
+        await page.evaluate(() => {
+          window.accountFixture.delay.invoice = true
+          window.accountFixture.failure.invoice = 'Invoice temporarily unavailable'
+        })
+        const invoice = card.getByRole('button', { name: 'Download invoice', exact: true })
+        await invoice.evaluate((el) => {
+          el.click()
+          el.click()
+        })
+        await expect(invoice).toBeDisabled()
+        await expect(invoice).toHaveAttribute('aria-busy', 'true')
+        assert.equal(
+          await page.evaluate(
+            () => window.accountFixture.calls.filter((c) => c.name === 'invoice').length
+          ),
+          1
+        )
+        await page.evaluate(() => window.accountFixture.release('invoice'))
+        await expect(card.getByRole('alert')).toHaveText('Invoice temporarily unavailable')
+        await expect(invoice).toBeEnabled()
+        await page.evaluate(() => (window.accountFixture.failure.invoice = null))
+        const downloaded = page.waitForEvent('download')
+        await invoice.click()
+        assert.equal((await downloaded).suggestedFilename(), 'invoice-INVOICE.pdf')
+        await expect(card.getByRole('alert')).toHaveCount(0)
+      },
+      1280,
+      true
+    ))
+
+  test(`${engine}: orders are the account default with all purchased items and URL filters`, () =>
+    visit(engine, '/profile', async (page) => {
+      const orders = page.getByRole('region', { name: 'My orders', exact: true })
+      await expect(orders).toBeVisible()
+      await expect(
+        page
+          .getByRole('navigation', { name: 'Your account', exact: true })
+          .locator('[aria-current="page"]')
+      ).toHaveText('My orders')
+      await expect(orders.getByRole('button', { name: 'Current', exact: true })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      )
+      await expect(orders.locator('.order-history-products > li')).toHaveCount(1)
+      await expect(orders.getByText('Qty 1 · ₹499 each', { exact: true })).toBeVisible()
+      await expect(orders.getByText(/24 Sample Lane/)).toBeVisible()
+      await orders.getByRole('button', { name: 'All orders', exact: true }).click()
+      await expect(page).toHaveURL(/view=all/)
+      await page.goBack()
+      await expect(orders.getByRole('button', { name: 'Current', exact: true })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      )
+    }))
+
+  test(`${engine}: order loading, images, empty and retry states remain distinct`, () =>
+    visit(
+      engine,
+      '/profile',
+      async (page) => {
+        const orders = page.getByRole('region', { name: 'My orders', exact: true })
+        await expect(orders.getByText('Order #MUV-2026-1042', { exact: true })).toBeVisible()
+        await expect(orders.locator('img')).toBeVisible()
+        await page.route('**/unavailable-order.png', (route) => route.abort())
+        await orders.locator('img').evaluate((el) => (el.src = '/unavailable-order.png'))
+        await expect(orders.getByRole('img', { name: /image unavailable/ })).toBeVisible()
+        await expect(orders.getByRole('link', { name: 'View order', exact: true })).toHaveAttribute(
+          'href',
+          '/orders/fixture-order'
+        )
+        await expect(
+          orders.getByRole('link', { name: 'Track order', exact: true })
+        ).toHaveAttribute('href', '/orders/fixture-order/tracking')
+        await page.evaluate(() => (window.accountFixture.delay.orderLoad = true))
+        await orders.getByRole('button', { name: 'All orders', exact: true }).click()
+        await expect(orders.getByText('Loading your orders…', { exact: true })).toBeVisible()
+        await expect(orders.locator('article')).toHaveCount(0)
+        await page.evaluate(() => {
+          window.accountFixture.failure.orderLoad = 'Orders unavailable'
+          window.accountFixture.release('orderLoad')
+        })
+        await expect(orders.getByRole('alert')).toHaveText('Orders unavailable')
+        await page.evaluate(() => {
+          window.accountFixture.failure.orderLoad = null
+          window.accountFixture.ordersEmpty = true
+        })
+        await orders.getByRole('button', { name: 'Try again', exact: true }).click()
+        await expect(
+          orders.getByText('You have not placed any orders yet.', { exact: true })
+        ).toBeVisible()
+        await orders.getByRole('button', { name: 'Unpaid', exact: true }).click()
+        await expect(orders.getByText('You have no unpaid orders.', { exact: true })).toBeVisible()
+        await orders.getByRole('button', { name: 'Current', exact: true }).click()
+        await expect(orders.getByText('You have no current orders.', { exact: true })).toBeVisible()
+        await orders.getByRole('button', { name: 'View all orders', exact: true }).click()
+        await expect(
+          orders.getByRole('button', { name: 'All orders', exact: true })
+        ).toHaveAttribute('aria-pressed', 'true')
+      },
+      1280,
+      true
+    ))
+
+  test(`${engine}: hash history keeps profile and address drafts and confirms default saves`, () =>
     visit(
       engine,
       '/profile#personal-info',
@@ -147,7 +314,7 @@ for (const engine of ['chromium', 'webkit']) {
         ])
           await page.getByRole('textbox', { name, exact: true }).fill(value)
         await page.getByRole('checkbox', { name: 'Use as default address', exact: true }).check()
-        await nav.getByRole('link', { name: 'Overview', exact: true }).click()
+        await nav.getByRole('link', { name: 'My orders', exact: true }).click()
         await page.goBack()
         await expect(
           page.getByRole('textbox', { name: 'Address line 1', exact: true })
@@ -156,11 +323,14 @@ for (const engine of ['chromium', 'webkit']) {
         await expect(page.locator('#addresses').getByText('Default', { exact: true })).toHaveCount(
           1
         )
-        await nav.getByRole('link', { name: 'Overview', exact: true }).click()
+        await nav.getByRole('link', { name: 'My orders', exact: true }).click()
+        await expect(page.getByRole('region', { name: 'My orders', exact: true })).toBeVisible()
+        await nav.getByRole('link', { name: /Saved addresses/ }).click()
         await expect(
           page
-            .getByRole('region', { name: 'Default address', exact: true })
-            .getByText('18 New Lane', { exact: true })
+            .locator('.account-address')
+            .filter({ hasText: '18 New Lane' })
+            .getByText('Default', { exact: true })
         ).toBeVisible()
         await page.goBack()
         await nav.getByRole('link', { name: 'Personal info', exact: true }).click()
@@ -173,44 +343,49 @@ for (const engine of ['chromium', 'webkit']) {
         await expect(page.locator('#addresses').getByText('Default', { exact: true })).toHaveCount(
           1
         )
-        await nav.getByRole('link', { name: 'Overview', exact: true }).click()
+        await nav.getByRole('link', { name: 'My orders', exact: true }).click()
+        await expect(page.getByRole('region', { name: 'My orders', exact: true })).toBeVisible()
+        await nav.getByRole('link', { name: /Saved addresses/ }).click()
         await expect(
           page
-            .getByRole('region', { name: 'Default address', exact: true })
-            .getByText('24 Sample Lane', { exact: true })
+            .locator('.account-address')
+            .filter({ hasText: '24 Sample Lane' })
+            .getByText('Default', { exact: true })
         ).toBeVisible()
       },
       390,
       true
     ))
 
-  test(`${engine}: an old order read cannot replace the current preview after hash navigation`, () =>
+  test(`${engine}: an old order read cannot replace the current list after hash navigation`, () =>
     visit(
       engine,
       '/profile#personal-info',
       async (page) => {
         const nav = page.getByRole('navigation', { name: 'Your account', exact: true })
         await page.evaluate(() => (window.accountFixture.delay.orderLoad = true))
-        await nav.getByRole('link', { name: 'Overview', exact: true }).click()
+        await nav.getByRole('link', { name: 'My orders', exact: true }).click()
         await expect(
-          page.getByRole('region', { name: 'Recent order', exact: true }).getByRole('status')
+          page
+            .getByRole('region', { name: 'My orders', exact: true })
+            .getByText('Loading your orders…', { exact: true })
         ).toBeVisible()
         await page.getByRole('link', { name: 'Personal info', exact: true }).click()
         await page.evaluate(() => {
           window.fixture.order = { ...window.fixture.order, orderNumber: 'MUV-LATEST' }
           window.accountFixture.delay.orderLoad = false
         })
-        await nav.getByRole('link', { name: 'Overview', exact: true }).click()
-        await expect(page.getByText('#MUV-LATEST', { exact: true })).toBeVisible()
+        await nav.getByRole('link', { name: 'My orders', exact: true }).click()
+        await expect(page.getByText('Order #MUV-LATEST', { exact: true })).toBeVisible()
         await page.evaluate(() => window.accountFixture.release('orderLoad'))
-        await expect(page.getByText('#MUV-LATEST', { exact: true })).toBeVisible()
-        await expect(page.getByText('#MUV-2026-1042', { exact: true })).toHaveCount(0)
+        await expect(page.getByText('Order #MUV-LATEST', { exact: true })).toBeVisible()
+        await expect(page.getByText('Order #MUV-2026-1042', { exact: true })).toHaveCount(0)
       },
       390,
       true
     ))
 
-  test(`${engine}: changing accounts clears drafts, previews and preferences and ignores old reads`, () =>
+  test(`${engine}: changing accounts clears drafts, orders and preferences and ignores old reads`, () =>
     visit(
       engine,
       '/profile#personal-info',
@@ -219,7 +394,7 @@ for (const engine of ['chromium', 'webkit']) {
         await page.getByRole('checkbox', { name: 'Receive order update emails' }).uncheck()
         await page
           .getByRole('navigation', { name: 'Your account', exact: true })
-          .getByRole('link', { name: 'Overview', exact: true })
+          .getByRole('link', { name: 'My orders', exact: true })
           .click()
         await page.evaluate(() => {
           window.accountFixture.delay.orderLoad = true
@@ -245,7 +420,9 @@ for (const engine of ['chromium', 'webkit']) {
         await expect(page.locator('.account-identity')).toContainText('Meera Das')
         await expect(page.locator('.account-email')).toHaveText('meera@example.test')
         await expect(
-          page.getByRole('region', { name: 'Recent order', exact: true }).getByRole('status')
+          page
+            .getByRole('region', { name: 'My orders', exact: true })
+            .getByText('Loading your orders…', { exact: true })
         ).toBeVisible()
         await expect(page.getByText('24 Sample Lane', { exact: true })).toHaveCount(0)
         await page.getByRole('link', { name: 'Personal info', exact: true }).click()
@@ -263,16 +440,17 @@ for (const engine of ['chromium', 'webkit']) {
         ).toBeChecked()
         await page
           .getByRole('navigation', { name: 'Your account', exact: true })
-          .getByRole('link', { name: 'Overview', exact: true })
+          .getByRole('link', { name: 'My orders', exact: true })
           .click()
-        await expect(page.getByText('#MUV-NEW-ACCOUNT', { exact: true })).toBeVisible()
-        await expect(page.getByText('#MUV-2026-1042', { exact: true })).toHaveCount(0)
-        await expect(page.getByText('No default address yet.', { exact: true })).toBeVisible()
+        await expect(page.getByText('Order #MUV-NEW-ACCOUNT', { exact: true })).toBeVisible()
+        await expect(page.getByText('Order #MUV-2026-1042', { exact: true })).toHaveCount(0)
+        await page.getByRole('link', { name: /Saved addresses/ }).click()
+        await expect(page.locator('#addresses').getByText('Default', { exact: true })).toHaveCount(
+          0
+        )
         await expect(
-          page
-            .getByRole('region', { name: 'Default address', exact: true })
-            .getByText('8 New Account Street', { exact: true })
-        ).toHaveCount(0)
+          page.locator('#addresses').getByText('8 New Account Street', { exact: true })
+        ).toBeVisible()
       },
       390,
       true
@@ -329,14 +507,12 @@ for (const engine of ['chromium', 'webkit']) {
           await expect(row.getByRole('link').nth(1)).toBeFocused()
           await page.goto(fixture.origin + '/profile')
           const accountNav = page.getByRole('navigation', { name: 'Your account', exact: true })
-          await expect(accountNav.getByRole('link')).toHaveCount(4)
+          await expect(accountNav.getByRole('link')).toHaveCount(3)
           const sidebar = await page.locator('.account-sidebar').boundingBox()
           const content = await page.locator('.account-main').boundingBox()
           if (width >= 1024) assert.ok(sidebar.x + sidebar.width < content.x)
           else assert.ok(sidebar.y + sidebar.height <= content.y)
-          await expect(
-            page.getByRole('region', { name: 'Recent order', exact: true })
-          ).toBeVisible()
+          await expect(page.getByRole('region', { name: 'My orders', exact: true })).toBeVisible()
           await page.evaluate(() => {
             document.documentElement.style.fontSize = '32px'
             document.querySelector('.account-email').textContent =
@@ -416,7 +592,7 @@ for (const engine of ['chromium', 'webkit']) {
         ['/profile', 'Your account'],
         ['/categories', 'Collections'],
         ['/search', 'Find your piece'],
-        ['/orders', 'My orders'],
+        ['/orders', 'Your account'],
       ]) {
         await page.goto(fixture.origin + path)
         await expect(page.locator('main h1')).toHaveText(title)
@@ -450,7 +626,7 @@ for (const engine of ['chromium', 'webkit']) {
   test(`${engine}: account navigation selects the route or address hash exactly once`, () =>
     visit(engine, '/profile', async (page) => {
       const nav = page.getByRole('navigation', { name: 'Your account', exact: true })
-      await expect(page.getByRole('heading', { name: 'Recent order', exact: true })).toBeVisible()
+      await expect(page.getByRole('region', { name: 'My orders', exact: true })).toBeVisible()
       await page
         .getByRole('link', { name: /Saved addresses/ })
         .first()
@@ -462,12 +638,12 @@ for (const engine of ['chromium', 'webkit']) {
       await expect(current).toHaveCount(1)
       await expect(current).toContainText('Saved addresses')
       await nav.getByRole('link', { name: 'My orders', exact: true }).click()
-      await expect(page).toHaveURL(/\/orders$/)
+      await expect(page).toHaveURL(/\/profile$/)
       await expect(current).toHaveText('My orders')
       await nav.getByRole('link', { name: 'Personal info', exact: true }).click()
       await expect(current).toHaveText('Personal info')
-      await nav.getByRole('link', { name: 'Overview', exact: true }).click()
-      await expect(page.getByRole('heading', { name: 'Recent order', exact: true })).toBeVisible()
+      await nav.getByRole('link', { name: 'My orders', exact: true }).click()
+      await expect(page.getByRole('region', { name: 'My orders', exact: true })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible()
       await expect(page.getByRole('link', { name: 'Admin console', exact: true })).toHaveCount(0)
       await page.goto(fixture.origin + '/profile?fixtureRole=admin')

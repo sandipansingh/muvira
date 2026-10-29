@@ -1,6 +1,6 @@
 import { api } from '../api/client'
 import { mapOrderListItem, mapOrderDetail } from '../utils/adapters'
-import type { OrderListItem, OrderDetail, OrderTrackingData } from '../types/order'
+import type { OrderListItem, OrderListView, OrderDetail, OrderTrackingData } from '../types/order'
 import type { ApiPaginatedResponse, ApiResponse } from '../types/common'
 import type {
   CreateCheckoutOrderInput,
@@ -116,13 +116,17 @@ export const orderApiService = {
   /**
    * Fetches paginated order history for the authenticated user.
    */
-  async getOrders(page = 1, limit = 20): Promise<ApiPaginatedResponse<OrderListItem>> {
+  async getOrders(
+    page = 1,
+    limit = 20,
+    view?: OrderListView
+  ): Promise<ApiPaginatedResponse<OrderListItem>> {
     const res = await api.get<{
       success: boolean
       data?: Record<string, unknown>[]
       meta?: { page: number; limit: number; total: number; totalPages: number }
       error?: { code: string; message: string }
-    }>(`/api/orders?page=${page}&limit=${limit}`, true)
+    }>(`/api/orders?page=${page}&limit=${limit}${view ? `&view=${view}` : ''}`, true)
 
     if (!res.success || !res.data) {
       return {

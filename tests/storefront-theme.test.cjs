@@ -50,7 +50,7 @@ for (const engine of ['chromium', 'webkit']) {
   test(`${engine}: enlarged commerce rows retain whole words and compact image failures`, async () => {
     for (const [path, selector] of [
       ['/cart', '.cart-product-details a'],
-      ['/orders', '.order-history-product > div > p:first-child'],
+      ['/orders', '.order-history-product h3'],
       ['/orders/fixture-order', '.order-item-copy h3'],
       ['/orders/fixture-order/tracking?shipment=1', '.order-item-copy h3'],
       ['/checkout', '.checkout-delivery > span:first-of-type > span:first-child'],

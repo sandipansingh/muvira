@@ -37,6 +37,8 @@ export interface FulfillOrderInput {
   corrected_attempt_id?: string
 }
 
+export type OrderListView = 'current' | 'unpaid' | 'all'
+
 export interface OrderListItem {
   id: string
   orderNumber: string
@@ -46,6 +48,9 @@ export interface OrderListItem {
   fulfillmentStep: FulfillmentStep | null
   totalAmount: number
   itemCount: number
+  items: OrderItem[]
+  shippingAddress: OrderAddress
+  shiprocketOrderId: string | null
   firstItemName?: string
   firstItemImage?: string
   createdAt: string

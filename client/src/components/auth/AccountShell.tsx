@@ -18,13 +18,15 @@ export function AccountShell({
     <main className="account-page editorial-page py-6 sm:py-8">
       <div className="editorial-container account-container">
         <header className="account-identity">
-          {pathname === '/profile' ? (
+          {pathname === '/profile' || pathname === '/orders' ? (
             <CustomerPageHeading title="Your account" />
           ) : (
             <p className="page-title mb-2">Your account</p>
           )}
-          <p className="text-sm font-medium text-ink">{user?.fullName}</p>
-          <p className="account-email">{user?.email}</p>
+          <div className="account-identity-line">
+            <p className="text-sm font-medium text-ink">{user?.fullName}</p>
+            <p className="account-email">{user?.email}</p>
+          </div>
         </header>
         <div className="account-shell">
           <aside className="account-sidebar" aria-label="Account workspace">

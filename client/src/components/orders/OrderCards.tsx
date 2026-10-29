@@ -121,7 +121,11 @@ export function OrderPaymentCard({ order }: { order: OrderDetail }) {
   )
 }
 
-export function InvoiceButton({ order }: { order: OrderDetail }) {
+export function InvoiceButton({
+  order,
+}: {
+  order: Pick<OrderDetail, 'id' | 'orderNumber' | 'paymentStatus' | 'shiprocketOrderId'>
+}) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const pending = useRef(false)

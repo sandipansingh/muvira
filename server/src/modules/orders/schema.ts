@@ -5,6 +5,7 @@ export const OrderIdParamsSchema = z.object({
 })
 
 export const ListOrdersQuerySchema = z.object({
+  view: z.enum(['current', 'unpaid', 'all']).optional(),
   page: z.string().regex(/^\d+$/).transform(Number).default('1'),
   limit: z.string().regex(/^\d+$/).transform(Number).default('20'),
   status: z

@@ -1,5 +1,5 @@
 import { AccountShell } from '../components/auth/AccountShell'
-import { AccountOverview } from '../components/auth/AccountOverview'
+import { OrderListPanel } from '../components/orders/OrderListPanel'
 import type { Profile } from '../lib/types/auth'
 import React, { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -58,7 +58,7 @@ function AccountWorkspace({ user }: { user: Profile }) {
   const { updateProfile } = useAuth()
   const { hash } = useLocation()
   const view =
-    hash === '#addresses' ? 'addresses' : hash === '#personal-info' ? 'personal' : 'overview'
+    hash === '#addresses' ? 'addresses' : hash === '#personal-info' ? 'personal' : 'orders'
   const mounted = useRef(true)
   const profilePending = useRef(false)
   const preferencePending = useRef(false)
@@ -284,15 +284,8 @@ function AccountWorkspace({ user }: { user: Profile }) {
 
   return (
     <AccountShell addressCount={loadingAddresses || addressError ? undefined : addresses.length}>
-      {view === 'overview' && (
-        <AccountOverview
-          addresses={addresses}
-          loadingAddresses={loadingAddresses}
-          addressError={addressError}
-          retryAddresses={() => setAddressRetry((value) => value + 1)}
-        />
-      )}
-      <div className="account-workspace" hidden={view === 'overview'}>
+      {view === 'orders' && <OrderListPanel userId={user.id} />}
+      <div className="account-workspace" hidden={view === 'orders'}>
         <div>
           <div hidden={view !== 'personal'} className="account-personal account-card">
             <section

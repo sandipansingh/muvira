@@ -15,10 +15,16 @@ const addresses = () => window.fixture.addresses ||= [window.fixture.address];
 export const accountBrowserMocks = {
   'order.service': `${helper}
     export const orderApiService = {
-      getOrders: async (page=1,limit=20) => { const order={...window.fixture.order}; await accountGate('orderLoad',{page,limit}); return {...ok(control.ordersEmpty?[]:[order]),pagination:{page,limit,total:control.ordersEmpty?0:1,totalPages:1}}; },
+      getOrders: async (page=1,limit=20,view) => {
+        const open=['pending','confirmed','processing','shipped','out_for_delivery','delivery_failed'];
+        const orders=structuredClone(control.ordersEmpty?[]:(control.orders||[window.fixture.order])).filter(order=>!view||view==='all'||(open.includes(order.status)&&(view!=='unpaid'||['pending','failed'].includes(order.paymentStatus))));
+        await accountGate('orderLoad',{page,limit,view});
+        await accountGate('orderLoad:'+view,{page,limit,view});
+        return {...ok(orders.slice((page-1)*limit,page*limit)),pagination:{page,limit,total:orders.length,totalPages:Math.ceil(orders.length/limit)}};
+      },
       getOrderById: async id => { const order={...window.fixture.order,id}; await accountGate('orderDetail',{id}); return ok(order); },
       getOrderTracking: async id => { const tracking={...(window.fixture.tracking||{}),shipment_events:[...(window.fixture.tracking?.shipment_events||[])]}; await accountGate('trackingLoad',{id}); return ok(tracking); },
-      downloadInvoice: async () => new Blob(['invoice'],{type:'application/pdf'}),
+      downloadInvoice: async id => { await accountGate('invoice',{id}); return new Blob(['invoice'],{type:'application/pdf'}); },
     };`,
   'auth.service': `import {gate} from './supabase'; ${helper}
     export const authApiService = {

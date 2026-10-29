@@ -43,6 +43,15 @@ import type { NdrActionInput } from './schema'
 // User-facing: only see own orders
 //
 
+const OPEN_ORDER_STATUSES = [
+  'pending',
+  'confirmed',
+  'processing',
+  'shipped',
+  'out_for_delivery',
+  'delivery_failed',
+]
+
 export async function listUserOrders(
   userId: string,
   query: ListOrdersQuery
@@ -53,7 +62,7 @@ export async function listUserOrders(
   limit: number
   totalPages: number
 }> {
-  const { page, limit, status, payment_status } = query
+  const { page, limit, status, payment_status, view } = query
   const offset = (page - 1) * limit
 
   let dbQuery = adminSupabase
@@ -63,6 +72,10 @@ export async function listUserOrders(
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
+  if (view === 'current' || view === 'unpaid') {
+    dbQuery = dbQuery.in('status', OPEN_ORDER_STATUSES)
+  }
+  if (view === 'unpaid') dbQuery = dbQuery.in('payment_status', ['pending', 'failed'])
   if (status) dbQuery = dbQuery.eq('status', status)
   if (payment_status) dbQuery = dbQuery.eq('payment_status', payment_status)
 

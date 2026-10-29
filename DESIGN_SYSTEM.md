@@ -25,6 +25,7 @@ Runtime CSS variables in `client/src/index.css` own the cream, forest-green and 
 | Dialog and focus | `common/Modal`, `lib/hooks/useDialogFocus` |
 | Toasts | `context/ToastContext`, `common/Toast` |
 | Page introductions / account layout | `common/CustomerPageHeading`, `auth/AccountShell`, `AccountNavigation` |
+| Order history / invoice | `orders/OrderListPanel`, `orders/OrderCards.InvoiceButton`; list payload, URL view/page |
 | Checkout progress / summary | `checkout/FlowHeader`, `CheckoutSteps`, `CheckoutSummary`, `FlowCartSidebar` |
 | Order cards / shipment | `orders/OrderCards`, `ShipmentProgress` |
 

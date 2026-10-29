@@ -61,8 +61,8 @@ try {
               if (name === 'tracking') await page.getByText('Picked up', { exact: true }).waitFor()
               if (name === 'profile')
                 await page
-                  .getByRole('region', { name: 'Recent order', exact: true })
-                  .getByText('#MUV-2026-1042', { exact: true })
+                  .getByRole('region', { name: 'My orders', exact: true })
+                  .getByText('Order #MUV-2026-1042', { exact: true })
                   .waitFor()
               if (
                 ['cart', 'shipping', 'payment', 'orders', 'detail', 'confirmation'].includes(name)

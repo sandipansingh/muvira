@@ -1,25 +1,25 @@
-import { LayoutGrid, MapPin, Package, User } from 'lucide-react'
+import { MapPin, Package, User } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 export function AccountNavigation({ addressCount }: { addressCount?: number }) {
-  const { pathname, hash } = useLocation()
+  const { pathname, hash, search } = useLocation()
   const active = pathname.startsWith('/orders')
     ? 'orders'
     : hash === '#addresses'
       ? 'addresses'
       : hash === '#personal-info'
         ? 'personal'
-        : 'overview'
+        : 'orders'
+  const profileHref = `/profile${search}`
   const destinations = [
-    { id: 'overview', href: '/profile', label: 'Overview', icon: LayoutGrid },
-    { id: 'personal', href: '/profile#personal-info', label: 'Personal info', icon: User },
-    { id: 'orders', href: '/orders', label: 'My orders', icon: Package },
+    { id: 'orders', href: profileHref, label: 'My orders', icon: Package },
     {
       id: 'addresses',
-      href: '/profile#addresses',
+      href: `${profileHref}#addresses`,
       label: `Saved addresses${addressCount !== undefined ? ` (${addressCount})` : ''}`,
       icon: MapPin,
     },
+    { id: 'personal', href: `${profileHref}#personal-info`, label: 'Personal info', icon: User },
   ]
   return (
     <nav className="account-navigation" aria-label="Your account">

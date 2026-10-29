@@ -104,6 +104,7 @@ for (const engine of ['chromium', 'webkit']) {
       async (page) => {
         await page.getByRole('button', { name: 'Open filters', exact: true }).click()
         const dialog = page.getByRole('dialog')
+        await expect(dialog.getByRole('button', { name: 'Close modal', exact: true })).toBeFocused()
         const checked = dialog.getByRole('radio').first()
         await checked.focus()
         await page.keyboard.press('Tab')

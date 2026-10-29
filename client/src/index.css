@@ -2768,8 +2768,13 @@ body {
 .account-identity .customer-heading {
   margin-bottom: 0.5rem;
 }
+.account-identity-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+}
 .account-email {
-  margin-top: 0.375rem;
   font-size: 0.75rem;
   color: var(--color-ink-soft);
   overflow-wrap: anywhere;
@@ -2832,17 +2837,6 @@ body {
   background: var(--color-paper);
   overflow-wrap: anywhere;
 }
-.account-previews {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-.account-preview {
-  flex: 1 1 16rem;
-}
-.account-preview:first-child {
-  flex: 1.5 1 24rem;
-}
 .account-card__heading,
 .journey-card-heading {
   display: flex;
@@ -2871,53 +2865,6 @@ body {
 }
 .account-text-link:hover {
   color: var(--color-primary);
-}
-.account-preview__message {
-  min-height: 6rem;
-  color: var(--color-ink);
-  overflow-wrap: anywhere;
-}
-.account-recent-order {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 1rem;
-}
-.account-recent-order__image {
-  flex-shrink: 0;
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: var(--radius-image);
-}
-.account-recent-order__details {
-  display: grid;
-  flex: 1 1 12rem;
-  min-width: 0;
-  gap: 0.5rem;
-  overflow-wrap: anywhere;
-}
-.account-default-address {
-  color: var(--color-ink-soft);
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-.account-default-address strong {
-  display: block;
-  color: var(--color-ink);
-  margin-bottom: 0.5rem;
-}
-.account-personal-preview {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-.account-personal-preview > div {
-  min-width: 0;
-  flex: 1 1 16rem;
 }
 .account-personal {
   max-width: 48rem;
@@ -2977,24 +2924,122 @@ body {
 .order-history-heading {
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--color-line);
+  align-items: start;
+}
+.order-history-heading > div {
+  min-width: 0;
+}
+.order-history-invoice {
+  max-width: 100%;
+  margin-left: auto;
+}
+.order-history-facts {
+  display: grid;
+  gap: 0.5rem;
+  padding-block: 1rem;
+  font-size: 0.875rem;
+}
+.order-history-facts > div {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 0.75rem;
+}
+.order-history-facts dt {
+  color: var(--color-muted);
+}
+.order-history-products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--color-line);
 }
 .order-history-product {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-  padding-block: 1rem;
+  align-items: start;
+  gap: 0.75rem;
 }
 .order-history-product > div {
+  min-width: 0;
   flex: 1 1 10rem;
 }
-.order-history-product > p {
-  margin-left: auto;
+.order-history-image {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--radius-image);
 }
 .order-history-actions {
   justify-content: flex-start;
   padding-top: 1rem;
   border-top: 1px solid var(--color-line);
+}
+.order-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.order-list-views {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+.order-list-views button {
+  flex: 1 1 auto;
+  min-height: var(--tap-target);
+  padding: 0.5rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: 0.875rem;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.order-list-views button:hover {
+  color: var(--color-primary);
+  background: var(--color-paper);
+}
+.order-list-views button[aria-pressed='true'] {
+  background: var(--color-paper);
+  color: var(--color-primary);
+  border-color: var(--color-line);
+  font-weight: 600;
+}
+.order-list-count {
+  min-height: 1.25rem;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+.order-list-message {
+  min-height: 12rem;
+}
+@container (max-width: 40rem) {
+  .order-history-products {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@container (max-width: 24rem) {
+  .order-history-invoice {
+    margin-left: 0;
+  }
+  .order-history-facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.125rem;
+  }
+  .order-list-views {
+    width: 100%;
+  }
+  .order-list-views button {
+    padding-inline: 0.75rem;
+  }
 }
 .order-item {
   display: flex;
