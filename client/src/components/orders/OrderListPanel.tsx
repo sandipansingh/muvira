@@ -128,7 +128,7 @@ export function OrderListPanel({ userId }: { userId: string }) {
   }
 
   useEffect(() => {
-    if (previousPage.current.page !== page || previousPage.current.view !== view) {
+    if (previousPage.current.page !== page && previousPage.current.view === view) {
       resultsRef.current?.scrollIntoView({
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'instant'

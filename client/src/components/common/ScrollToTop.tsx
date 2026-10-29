@@ -25,8 +25,7 @@ export const ScrollToTop = () => {
       accountPaths.has(pathname) &&
       accountSections.has(previous.hash) &&
       accountSections.has(hash) &&
-      previous.search === search &&
-      (previous.pathname !== pathname || previous.hash !== hash)
+      (previous.pathname !== pathname || previous.search !== search || previous.hash !== hash)
     )
       return
 

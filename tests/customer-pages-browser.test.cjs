@@ -68,6 +68,59 @@ async function visit(engine, path, run, width = 1280, account = false) {
 }
 for (const engine of ['chromium', 'webkit']) {
   for (const width of [390, 1280]) {
+    test(`${engine} ${width}px: changing order views keeps the viewport steady`, () =>
+      visit(
+        engine,
+        '/profile?view=all&page=1',
+        async (page) => {
+          const orders = page.getByRole('region', { name: 'My orders', exact: true })
+          await expect(orders.locator('article')).toHaveCount(1)
+          await page.evaluate(() => {
+            window.scrollTo({ top: 40, behavior: 'instant' })
+            window.orderViewScrollCalls = []
+            const scrollTo = window.scrollTo.bind(window)
+            window.scrollTo = (...args) => {
+              window.orderViewScrollCalls.push('top')
+              return scrollTo(...args)
+            }
+            const scrollIntoView = Element.prototype.scrollIntoView
+            Element.prototype.scrollIntoView = function (...args) {
+              window.orderViewScrollCalls.push('target')
+              return scrollIntoView.apply(this, args)
+            }
+          })
+          for (const name of ['Current', 'Unpaid', 'All orders']) {
+            const button = orders.getByRole('button', { name, exact: true })
+            await button.click()
+            await expect(button).toHaveAttribute('aria-pressed', 'true')
+            await expect(orders.getByText('Loading your orders…', { exact: true })).toHaveCount(0)
+            await page.evaluate(
+              () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+            )
+            assert.deepEqual(await page.evaluate(() => window.orderViewScrollCalls), [])
+            assert.equal(await page.evaluate(() => scrollY), 40)
+          }
+          await page.goBack()
+          await expect(orders.getByRole('button', { name: 'Unpaid', exact: true })).toHaveAttribute(
+            'aria-pressed',
+            'true'
+          )
+          await page.goForward()
+          await expect(
+            orders.getByRole('button', { name: 'All orders', exact: true })
+          ).toHaveAttribute('aria-pressed', 'true')
+          await page.evaluate(
+            () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+          )
+          assert.deepEqual(await page.evaluate(() => window.orderViewScrollCalls), [])
+          assert.equal(await page.evaluate(() => scrollY), 40)
+        },
+        width,
+        true
+      ))
+  }
+
+  for (const width of [390, 1280]) {
     for (const path of ['/profile', '/orders']) {
       test(`${engine} ${width}px ${path}: account sidebar switches preserve the viewport`, () =>
         visit(
