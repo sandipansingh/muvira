@@ -59,11 +59,8 @@ export function runtimeConfig(environment = process.env) {
     throw new Error('SEO_API_URL must be an API origin')
   if (!environment.SEO_INTERNAL_TOKEN || environment.SEO_INTERNAL_TOKEN.length < 32)
     throw new Error('SEO_INTERNAL_TOKEN must contain at least 32 characters')
-  if (
-    environment.SEO_INDEXING_ENABLED &&
-    !['true', 'false'].includes(environment.SEO_INDEXING_ENABLED)
-  )
-    throw new Error('SEO_INDEXING_ENABLED must be true or false')
+  if (!['true', 'false'].includes(environment.SEO_INDEXING_ENABLED))
+    throw new Error('SEO_INDEXING_ENABLED is required and must be true or false')
   return {
     siteUrl: site.origin,
     apiUrl: upstream.origin,

@@ -117,7 +117,7 @@ For deployments without Compose, deploy two services from the same revision:
 
 Keep the repository root as the build context for both services so `pnpm-workspace.yaml` and `pnpm-lock.yaml` are available. Point the client service at `client/nixpacks.toml` when using Nixpacks.
 
-The frontend now runs a Node host that supplies route-specific SEO heads, robots and sitemap responses. Configure `SITE_URL`, `SEO_API_URL`, `SEO_INDEXING_ENABLED` and the server-only `SEO_INTERNAL_TOKEN` at runtime; use the same token on the API. Indexing defaults to disabled. Follow the [SEO deployment guide](docs/seo/deployment-guide.md) for the API-first rollout, staging, Cloudflare checks, sitemap submission and rollback.
+The frontend now runs a Node host that supplies route-specific SEO heads, robots and sitemap responses. Configure `SITE_URL`, `SEO_API_URL`, `SEO_INDEXING_ENABLED` and the server-only `SEO_INTERNAL_TOKEN` at runtime; use the same token on the API. Set `SEO_INDEXING_ENABLED=true` for production and `false` for staging; missing, empty or invalid settings prevent startup. Follow the [SEO deployment guide](docs/seo/deployment-guide.md) for the API-first rollout, staging, Cloudflare checks, the production SEO smoke check, sitemap submission and rollback.
 
 Run `pnpm run db:migrate` before promoting the API. Do not run migrations from an application startup command.
 

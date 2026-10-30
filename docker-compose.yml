@@ -64,7 +64,7 @@ services:
       PORT: '80'
       SITE_URL: ${SITE_URL:-https://muvira.in}
       SEO_API_URL: ${SEO_API_URL:-http://muvira-catalog-api:4000}
-      SEO_INDEXING_ENABLED: ${SEO_INDEXING_ENABLED:-false}
+      SEO_INDEXING_ENABLED: ${SEO_INDEXING_ENABLED:?Set SEO_INDEXING_ENABLED to true (production) or false (staging)}
       SEO_INTERNAL_TOKEN: ${SEO_INTERNAL_TOKEN:?Set SEO_INTERNAL_TOKEN}
     depends_on:
       server:

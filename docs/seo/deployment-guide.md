@@ -14,11 +14,11 @@ The frontend Node host inserts route-specific metadata into Vite HTML before Jav
    | --- | --- | --- |
    | `SITE_URL` | `https://muvira.in` | Dedicated HTTPS staging origin |
    | `SEO_API_URL` | API origin, for example `https://api.muvira.in` | Staging API origin |
-   | `SEO_INDEXING_ENABLED` | `true` after validation | `false` |
+   | `SEO_INDEXING_ENABLED` | `true` (required) | `false` (required) |
    | `SEO_INTERNAL_TOKEN` | Shared secret from step 1 | Separate staging secret |
    | `PORT` | `80` in Docker; platform-assigned in Nixpacks | Platform-assigned |
 
-   Origins must not contain paths, query strings, user information or trailing API prefixes. `SEO_API_URL` is required (the existing `VITE_API_URL` environment value is accepted as a fallback). Indexing defaults to **disabled**. The host refuses to start without a sufficiently long token. An internal HTTP API origin is supported for private service networking; public traffic should use HTTPS.
+   Origins must not contain paths, query strings, user information or trailing API prefixes. `SEO_API_URL` is required (the existing `VITE_API_URL` environment value is accepted as a fallback). `SEO_INDEXING_ENABLED` must be the exact string `true` or `false`: the host rejects missing, empty and invalid values instead of silently disabling indexing. The host also refuses to start without a sufficiently long token. An internal HTTP API origin is supported for private service networking; public traffic should use HTTPS.
 4. Deploy the frontend image/service and validate the checklist below. Only `siteUrl` and `indexingEnabled` are injected as public runtime configuration. Development can use `VITE_SITE_URL` and `VITE_SEO_INDEXING_ENABLED`; these are build-time public values and never carry credentials.
 
 For a token rotation, coordinate both services during a low-traffic window. A mismatch falls back to the ordinary API quota and can cause upstream rate limits, which the frontend returns as 503. Rolling back the API alone before the frontend also removes the increased catalog quota.
@@ -27,7 +27,9 @@ For a token rotation, coordinate both services during a low-traffic window. A mi
 
 Build the frontend from the repository root with `client/Dockerfile`, using the existing public Vite build arguments (`VITE_API_URL`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_AUTH_REDIRECT_URL`, and optional store name). Inject the four SEO variables at **container runtime**. The final image uses Node 20 and listens on port 80. `/healthz` returns `ok`; it is a liveness probe and does not assert API availability.
 
-The root `docker-compose.yml` passes the shared token to both services and the public indexing/site settings to the frontend at runtime. Its API origin defaults to the private `http://muvira-catalog-api:4000` network alias. Set the deployed `SEO_API_URL` override to this same origin and ensure both services share the network carrying that alias. Do not use the generic `server` hostname on shared deployment networks: another Compose application can register it too. Verify DNS against the Muvira API container address and repeat catalog requests from the client container after release. Compose indexing defaults to disabled; preserve the existing production indexing setting during routing fixes.
+The root `docker-compose.yml` passes the shared token to both services and the public indexing/site settings to the frontend at runtime. Its API origin defaults to the private `http://muvira-catalog-api:4000` network alias. Set the deployed `SEO_API_URL` override to this same origin and ensure both services share the network carrying that alias. Do not use the generic `server` hostname on shared deployment networks: another Compose application can register it too. Verify DNS against the Muvira API container address and repeat catalog requests from the client container after release. Compose requires a nonempty `SEO_INDEXING_ENABLED`; the host then validates its value. Keep production explicitly `true` during redeploys and routing fixes. Staging must explicitly use `false`.
+
+For the existing Dokploy production application, edit the existing environment in place: set `SEO_INDEXING_ENABLED=true` and retain `SITE_URL=https://muvira.in`. Preserve every other value. Never replace the environment with redacted connector output. Redeploy without resetting volumes, clear any cached HTML/robots/sitemap responses, and verify the public domain before making other changes.
 
 For Nixpacks, select `client/nixpacks.toml` from the repository root and supply the same runtime values plus existing Vite build values. Start command: `node client/scripts/serve-static.mjs`. The root `nixpacks.toml` remains the API configuration. The Node host handles www-to-apex 308 redirects, gzip, MIME types, immutable hashed assets, and missing-asset 404s. The retained nginx config is a legacy static-host reference and cannot supply dynamic metadata.
 
@@ -39,7 +41,7 @@ For Nixpacks, select `client/nixpacks.toml` from the repository root and supply 
 - Check that WAF/bot settings permit legitimate crawlers to request public product pages and the sitemap. Avoid a Cloudflare-managed robots policy overriding the origin response. Test the public edge response, not only the origin.
 - Confirm the API edge also honors product `no-store`. Never cache product price/stock HTML at the edge. Catalog failure is 503, not an empty 200 or a permanent 404.
 
-## Acceptance checks before enabling indexing
+## Acceptance checks after deployment
 
 Use a JavaScript-disabled browser or `curl -i` against the actual domain:
 
@@ -54,6 +56,16 @@ Use a JavaScript-disabled browser or `curl -i` against the actual domain:
 - Validate initial HTML and product markup using [Google Rich Results Test](https://search.google.com/test/rich-results), then check a live product using Search Console URL Inspection. Breadcrumb schema matches the displayed Home → Shop → collection → product hierarchy. Google may choose its own search-result title/description; these fields do not guarantee ranking or rich-result eligibility.
 
 Submit `https://muvira.in/sitemap.xml` in the verified Google Search Console property after acceptance. Inspect the sitemap fetch and a few product/collection URLs after rollout, then monitor indexing, crawl errors, 5xx and API rate limits. Search-result changes take recrawling; do not repeatedly change metadata based on the first result.
+
+Run the production smoke check after every production rollout:
+
+```sh
+SEO_PRODUCTION_SMOKE=true node --test --test-name-pattern='production SEO smoke' tests/seo.test.cjs
+```
+
+This opt-in check contacts `https://muvira.in` and requires HTTP 200, indexable HTTP and HTML robots directives, `indexingEnabled: true` in public runtime configuration, and apex canonicals for the homepage, shop and an active product and collection discovered from the sitemap. It also validates sitemap XML, Google crawling permission, private/search/filter exclusions and www redirects with paths and queries. A healthy `/healthz` does not make this check pass when pages serve `noindex`. It requires the project's Playwright Chromium installation. In the normal test suite, the local Compose configuration regression runs when the Docker Compose CLI is available. The normal test suite does not contact production unless `SEO_PRODUCTION_SMOKE=true` is set.
+
+After this passes, the Search Console property owner should submit `https://muvira.in/sitemap.xml` and request indexing for the homepage and representative product and collection URLs using URL Inspection. Removing technical blockers does not guarantee when Google will recrawl or restore search results.
 
 ## Copy and merchant editing
 

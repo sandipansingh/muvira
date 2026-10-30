@@ -32,6 +32,7 @@ test('static server resolves dist from script and returns asset 404s', async () 
       ...process.env,
       PORT: '0',
       SEO_API_URL: 'http://127.0.0.1:1',
+      SEO_INDEXING_ENABLED: 'false',
       SEO_INTERNAL_TOKEN: 'fixture-token-that-is-at-least-32-characters',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
