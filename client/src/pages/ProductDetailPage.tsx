@@ -230,7 +230,12 @@ export const ProductDetailPage: React.FC = () => {
               title="You May Also Like"
               subtitle={`More products from ${product.category.name}`}
             />
-            <div className="mt-6 product-collection">
+            <div
+              className="mt-6 product-collection mobile-product-shelf"
+              role="region"
+              aria-label="Related products"
+              tabIndex={0}
+            >
               {relatedProducts.slice(0, 4).map((related) => (
                 <ProductCard key={related.id} product={related} />
               ))}

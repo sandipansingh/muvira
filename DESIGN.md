@@ -27,6 +27,7 @@ Runtime CSS in `client/src/index.css` is authoritative (ownership model B). `cli
 | Shape | `--radius-control`, `--radius-card`, `--radius-image` | 6 / 10 / 6px | Controls, panels and photos |
 | Elevation | `--shadow-card`, `--shadow-premium` | 0 1px 3px / 0 2px 8px, charcoal at 4% | Restrained surface separation |
 | Image hover | `--duration-image`, `--scale-image-hover` | 350ms, 1.06 | Fine pointers without reduced motion |
+| Browsing width / gutters | `--browse-max-width`, `--page-gutter` | 1760px maximum; 32px desktop, 24px tablet (768–1023px), 16px phone | `layout-container`, `editorial-container`, shared header and footer |
 
 Body and product text are 14px/20px; metadata is 12–13px. Inputs stay at least 16px and actions at least 44px. Text grows naturally. DM Serif Display has only a regular face: serif headings use weight 400 and disable synthesis. Product titles, controls and prices retain Manrope. Administration keeps its scoped Manrope heading weights, geometry and palette. Current line heights, spacing, radii and shadows remain intact. Genuine payment brands retain their own colours and QR backgrounds stay white. Logo images remain unframed.
 
@@ -51,7 +52,11 @@ Payment panels retain genuine provider-confirmed artwork, transient SDK-only car
 
 ## Responsive and interaction rules
 
-Use 16px phone gutters. Columns stack below 1024px; fields and rows also respond to available content width and enlarged text. Labels remain complete. Sticky summaries/purchase panels activate only when the shared viewport-fit hook permits; mobile product purchase actions include safe-area spacing and yield to text entry/footer; checkout actions remain in document flow. Loading buttons retain geometry and labels. All stateful motion uses framer-motion and respects reduced motion.
+Shared browsing containers cap at 1760px including gutters: 32px from 1024px, 24px at 768–1023px and 16px below 768px. Header rows, page sections and footer consume the same runtime width/gutter tokens. Account, checkout and form width caps remain narrower.
+
+Below 768px, featured products, new arrivals and related products opt into `mobile-product-shelf`: one native horizontal scroll row, 78vw cards capped at 288px, a next-card preview, start snapping and visible scrollbars. The scroll region is named and keyboard focusable; padding preserves child focus outlines. New arrivals reset desktop card spans, horizontal composition and separators within this shelf. Loading featured cards use the same shelf geometry. Shop/Search results retain their vertical grids. Icons stay aligned beside complete labels and never shrink; groups wrap whole controls before squeezing short labels.
+
+Columns stack below 1024px; fields and rows also respond to available content width and enlarged text. Labels remain complete. Sticky summaries/purchase panels activate only when the shared viewport-fit hook permits; mobile product purchase actions include safe-area spacing and yield to text entry/footer; checkout actions remain in document flow. Loading buttons retain geometry and labels. All stateful motion uses framer-motion and respects reduced motion.
 
 CustomerPageHeading owns page introductions and optional breadcrumbs/actions. Top-level Shop, Collections, Search, Profile and orders omit breadcrumbs. Deeper collection/product/order views keep wrapping parent links. Labeled destinations omit decorative arrows; functional back, gallery, pagination, breadcrumb and disclosure controls retain their navigation icons.
 

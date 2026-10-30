@@ -57,8 +57,13 @@ export const NewArrivals: React.FC = () => {
       {!loading && !error && products.length === 0 && (
         <p className="py-12 text-muted">New arrivals will appear here as the collection grows.</p>
       )}
-      {!loading && !error && (
-        <div className="new-arrivals-collection">
+      {!loading && !error && products.length > 0 && (
+        <div
+          className="new-arrivals-collection mobile-product-shelf"
+          role="region"
+          aria-labelledby="new-arrivals-title"
+          tabIndex={0}
+        >
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

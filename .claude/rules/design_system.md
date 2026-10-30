@@ -26,6 +26,8 @@ The canonical visual tokens live in `client/src/index.css` and `client/tailwind.
 - Nested radii should not exceed their parent radius.
 - Use subtle `xs`, `sm`, `card`, `premium`, or `overlay` shadows; avoid heavy elevation and decorative borders.
 - Use `layout-container` or `editorial-container` for page width and responsive gutters.
+- Shared browsing width is 1760px including 32px desktop, 24px tablet and 16px phone gutters; retain narrower account, checkout and form caps.
+- Below 768px, only featured products, new arrivals and related products opt into `mobile-product-shelf` (78vw cards, 288px cap, native snapping and keyboard access). Shop/Search results keep vertical grids.
 - Prefer established gap/spacing utilities over arbitrary one-off values.
 - Logo assets never receive a surrounding frame, background, border, or shadow.
 

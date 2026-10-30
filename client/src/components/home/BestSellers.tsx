@@ -52,10 +52,12 @@ export const FeaturedProducts: React.FC = () => {
       <div className="mb-5 flex flex-col justify-between gap-4 sm:mb-6 lg:flex-row lg:flex-wrap lg:items-end">
         <div>
           <span className="eyebrow mb-1.5 block">Explore</span>
-          <h2 className="text-h2 text-ink">Pieces to make your own</h2>
+          <h2 id="featured-products-title" className="text-h2 text-ink">
+            Pieces to make your own
+          </h2>
         </div>
 
-        <div className="flex w-full min-w-0 items-center gap-1.5 lg:w-auto">
+        <div className="flex w-full min-w-0 flex-wrap items-center gap-1.5 lg:w-auto">
           {filterOptions.length > 1 && (
             <SegmentedControl
               options={filterOptions}
@@ -64,7 +66,7 @@ export const FeaturedProducts: React.FC = () => {
               layoutId="muvira-featured-filter"
               variant="pill"
               size="sm"
-              className="min-w-0 flex-1 lg:flex-none"
+              className="min-w-0 basis-full flex-wrap lg:basis-auto lg:flex-none"
             />
           )}
           <Link
@@ -77,10 +79,10 @@ export const FeaturedProducts: React.FC = () => {
       </div>
 
       {loading && (
-        <div className="product-collection" aria-busy="true">
+        <div className="product-collection mobile-product-shelf" aria-busy="true">
           {[1, 2, 3, 4, 5].map((item) => (
             <div key={item} className="flex min-w-0 animate-pulse flex-col gap-2">
-              <div className="aspect-square rounded-[var(--radius-card)] bg-[var(--color-surface)]" />
+              <div className="aspect-[4/5] rounded-[var(--radius-card)] bg-[var(--color-surface)]" />
               <div className="h-3 w-16 rounded bg-[var(--color-line)]" />
               <div className="h-4 w-3/4 rounded bg-[var(--color-line)]" />
               <div className="h-4 w-1/3 rounded bg-[var(--color-line)]" />
@@ -103,7 +105,10 @@ export const FeaturedProducts: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="product-collection"
+          className="product-collection mobile-product-shelf"
+          role="region"
+          aria-labelledby="featured-products-title"
+          tabIndex={0}
         >
           {filteredProducts.map((product) => (
             <div key={product.id} className="min-w-0">
